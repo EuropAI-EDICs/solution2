@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldttoolbox.example/poc-bp2op/schemas/doel-regel.schema.json",
+  "title": "DoelRegel",
+  "description": "One artikel-level rule of the doelregeling (the municipal rule library the bron regels are matched against — MC-1), split from the archived CVDR consolidation with anchor deep link (MC-7).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "cvdr", "locator", "tekst", "url", "lidaantal", "extractedBy", "extractedAt"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^DR-\\d{3}$" },
+    "cvdr": { "type": "string", "pattern": "^CVDR\\d{6}/\\d+$" },
+    "locator": { "type": "object", "additionalProperties": false, "required": ["artikel", "titel", "pad"],
+      "properties": {
+        "hoofdstukNr": { "type": "integer", "minimum": 1 },
+        "hoofdstukTitel": { "type": "string" },
+        "afdeling": { "type": ["string", "null"] },
+        "paragraaf": { "type": ["string", "null"] },
+        "artikel": { "type": "string", "pattern": "^\\d+\\.\\d+[a-z]?$" },
+        "titel": { "type": "string", "minLength": 2 },
+        "pad": { "type": "string", "minLength": 5, "description": "human-readable chapter path" }
+      }
+    },
+    "tekst": { "type": "string", "minLength": 6, "description": "concatenated artikel text, verbatim Dutch" },
+    "tekstLanguage": { "const": "nl" },
+    "url": { "type": "string", "pattern": "^https?://\\S+$", "description": "CVDR permalink with #anchor" },
+    "lidaantal": { "type": "integer", "minimum": 0 },
+    "gebruiksdoel": { "type": ["string", "null"], "description": "set for hoofdstuk-3 gebruiksdoel paragrafen (the activity taxonomy replacing bestemmingen, MC-5 seed)" },
+    "extractedBy": { "type": "string", "pattern": "^[a-z0-9-]+#[A-Za-z0-9._-]+$" },
+    "extractedAt": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
+  }
+}

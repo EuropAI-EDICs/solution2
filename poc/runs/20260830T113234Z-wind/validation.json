@@ -1,0 +1,412 @@
+[
+ {
+  "id": "VR-20260830T113234Z-wind-request",
+  "artifactId": "0d9f61aa-4b8e-4f2f-9f6a-6f21cb53d001",
+  "artifactType": "opportunity-map-request",
+  "levels": {
+   "V0": {
+    "status": "pass",
+    "checks": [
+     {
+      "id": "v0-schema-opportunity-map-request",
+      "status": "pass",
+      "detail": "1/1 artifact(s) valid against opportunity-map-request.schema.json"
+     }
+    ]
+   },
+   "V1": {
+    "status": "not_applicable",
+    "checks": [],
+    "notes": "V1 not evaluated for this artifact"
+   },
+   "V2": {
+    "status": "not_applicable",
+    "checks": [],
+    "notes": "V2 not evaluated for this artifact"
+   },
+   "V3": {
+    "status": "not_applicable",
+    "checks": [],
+    "notes": "V3 not evaluated for this artifact"
+   },
+   "V4": {
+    "status": "pending",
+    "checks": [],
+    "notes": "V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it."
+   }
+  },
+  "verdict": "pass",
+  "evaluatorRun": "critic-validator#deterministic-v0-v3-poc1",
+  "evaluatedAt": "2026-08-30T11:33:10Z"
+ },
+ {
+  "id": "VR-20260830T113234Z-wind-normcards",
+  "artifactId": "normcards-wind",
+  "artifactType": "norm-card-set",
+  "levels": {
+   "V0": {
+    "status": "pass",
+    "checks": [
+     {
+      "id": "v0-schema-norm-card",
+      "status": "pass",
+      "detail": "24/24 artifact(s) valid against norm-card.schema.json"
+     }
+    ]
+   },
+   "V2": {
+    "status": "pass",
+    "checks": [
+     {
+      "id": "v2-card-citations",
+      "status": "pass",
+      "detail": "all 24 NormCard(s) carry docId+article+version+verbatim quote+uri"
+     }
+    ]
+   },
+   "V1": {
+    "status": "not_applicable",
+    "checks": [],
+    "notes": "V1 not evaluated for this artifact"
+   },
+   "V3": {
+    "status": "not_applicable",
+    "checks": [],
+    "notes": "V3 not evaluated for this artifact"
+   },
+   "V4": {
+    "status": "pending",
+    "checks": [],
+    "notes": "V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it."
+   }
+  },
+  "verdict": "pass",
+  "evaluatorRun": "critic-validator#deterministic-v0-v3-poc1",
+  "evaluatedAt": "2026-08-30T11:33:10Z"
+ },
+ {
+  "id": "VR-20260830T113234Z-wind-formalrules",
+  "artifactId": "formalrules-wind",
+  "artifactType": "formal-rule-set",
+  "levels": {
+   "V0": {
+    "status": "pass",
+    "checks": [
+     {
+      "id": "v0-schema-formal-rule",
+      "status": "pass",
+      "detail": "24/24 artifact(s) valid against formal-rule.schema.json"
+     }
+    ]
+   },
+   "V2": {
+    "status": "pass",
+    "checks": [
+     {
+      "id": "v2-rule-card-linkage",
+      "status": "pass",
+      "detail": "all 24 FormalRule(s) link an existing NormCard (cite-or-abstain chain intact)"
+     },
+     {
+      "id": "v2-executable-refs-registered",
+      "status": "pass",
+      "detail": "all executableRefs are registered deterministic engine operations (6 registered)"
+     }
+    ]
+   },
+   "V1": {
+    "status": "not_applicable",
+    "checks": [],
+    "notes": "V1 not evaluated for this artifact"
+   },
+   "V3": {
+    "status": "not_applicable",
+    "checks": [],
+    "notes": "V3 not evaluated for this artifact"
+   },
+   "V4": {
+    "status": "pending",
+    "checks": [],
+    "notes": "V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it."
+   }
+  },
+  "verdict": "pass",
+  "evaluatorRun": "critic-validator#deterministic-v0-v3-poc1",
+  "evaluatedAt": "2026-08-30T11:33:10Z"
+ },
+ {
+  "id": "VR-20260830T113234Z-wind-zones",
+  "artifactId": "zones",
+  "artifactType": "zone-result-set",
+  "levels": {
+   "V0": {
+    "status": "pass",
+    "checks": [
+     {
+      "id": "v0-schema-zone-result",
+      "status": "pass",
+      "detail": "9/9 artifact(s) valid against zone-result.schema.json"
+     }
+    ]
+   },
+   "V1": {
+    "status": "pass",
+    "checks": [
+     {
+      "id": "v1-output-geometry-valid",
+      "status": "pass",
+      "detail": "all 9 zone geometries valid (shapely is_valid)"
+     },
+     {
+      "id": "v1-output-crs-and-bounds",
+      "status": "pass",
+      "detail": "all payloads EPSG:4326 with coordinates inside NL bounds lon(3.0, 7.5)/lat(50.5, 54.0)"
+     },
+     {
+      "id": "v1-input-layers-crs",
+      "status": "pass",
+      "detail": "9 input layer(s) declare a recognised CRS member (EPSG:28992 computation CRS)"
+     },
+     {
+      "id": "v1-input-invalid-census",
+      "status": "pass",
+      "detail": "natura_2000: 9/14 invalid as served (repaired+recorded by engine)",
+      "evidenceRefs": [
+       "gebied_kleine_windturbine",
+       "gebied_windenergie",
+       "natura_2000",
+       "ganzenrustgebied",
+       "aandachtsgebied_stiltegebied",
+       "stiltegebied",
+       "natuurnetwerk_nederland",
+       "groene_contour",
+       "landelijk_gebied"
+      ]
+     },
+     {
+      "id": "v1-final-zone-sanity",
+      "status": "pass",
+      "detail": "final zone non-empty, valid, 859.463 km2 <= AOI 1560.054 km2 and <= inclusion union 1259.841 km2",
+      "evidenceRefs": [
+       "ZR-final-fd30ebdb34"
+      ]
+     }
+    ]
+   },
+   "V2": {
+    "status": "not_applicable",
+    "checks": [],
+    "notes": "V2 not evaluated for this artifact"
+   },
+   "V3": {
+    "status": "not_applicable",
+    "checks": [],
+    "notes": "V3 not evaluated for this artifact"
+   },
+   "V4": {
+    "status": "pending",
+    "checks": [],
+    "notes": "V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it."
+   }
+  },
+  "verdict": "pass",
+  "evaluatorRun": "critic-validator#deterministic-v0-v3-poc1",
+  "evaluatedAt": "2026-08-30T11:33:10Z"
+ },
+ {
+  "id": "VR-20260830T113234Z-wind-decisiontable",
+  "artifactId": "DT-wind-utrecht-poc1",
+  "artifactType": "decision-table",
+  "levels": {
+   "V0": {
+    "status": "pass",
+    "checks": [
+     {
+      "id": "v0-schema-decision-table",
+      "status": "pass",
+      "detail": "1/1 artifact(s) valid against decision-table.schema.json"
+     }
+    ]
+   },
+   "V2": {
+    "status": "pass",
+    "checks": [
+     {
+      "id": "v2-decision-table-linkage",
+      "status": "pass",
+      "detail": "all 24 decision-table row(s) link an existing NormCard"
+     }
+    ]
+   },
+   "V1": {
+    "status": "not_applicable",
+    "checks": [],
+    "notes": "V1 not evaluated for this artifact"
+   },
+   "V3": {
+    "status": "not_applicable",
+    "checks": [],
+    "notes": "V3 not evaluated for this artifact"
+   },
+   "V4": {
+    "status": "pending",
+    "checks": [],
+    "notes": "V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it."
+   }
+  },
+  "verdict": "pass",
+  "evaluatorRun": "critic-validator#deterministic-v0-v3-poc1",
+  "evaluatedAt": "2026-08-30T11:33:10Z"
+ },
+ {
+  "id": "VR-20260830T113234Z-wind-pipeline",
+  "artifactId": "20260830T113234Z-wind",
+  "artifactType": "pipeline-run",
+  "levels": {
+   "V0": {
+    "status": "pass",
+    "checks": [
+     {
+      "id": "v0-schema-opportunity-map-request",
+      "status": "pass",
+      "detail": "1/1 artifact(s) valid against opportunity-map-request.schema.json"
+     },
+     {
+      "id": "v0-schema-norm-card",
+      "status": "pass",
+      "detail": "24/24 artifact(s) valid against norm-card.schema.json"
+     },
+     {
+      "id": "v0-schema-formal-rule",
+      "status": "pass",
+      "detail": "24/24 artifact(s) valid against formal-rule.schema.json"
+     },
+     {
+      "id": "v0-schema-zone-result",
+      "status": "pass",
+      "detail": "9/9 artifact(s) valid against zone-result.schema.json"
+     },
+     {
+      "id": "v0-schema-decision-table",
+      "status": "pass",
+      "detail": "1/1 artifact(s) valid against decision-table.schema.json"
+     }
+    ]
+   },
+   "V1": {
+    "status": "pass",
+    "checks": [
+     {
+      "id": "v1-output-geometry-valid",
+      "status": "pass",
+      "detail": "all 9 zone geometries valid (shapely is_valid)"
+     },
+     {
+      "id": "v1-output-crs-and-bounds",
+      "status": "pass",
+      "detail": "all payloads EPSG:4326 with coordinates inside NL bounds lon(3.0, 7.5)/lat(50.5, 54.0)"
+     },
+     {
+      "id": "v1-input-layers-crs",
+      "status": "pass",
+      "detail": "9 input layer(s) declare a recognised CRS member (EPSG:28992 computation CRS)"
+     },
+     {
+      "id": "v1-input-invalid-census",
+      "status": "pass",
+      "detail": "natura_2000: 9/14 invalid as served (repaired+recorded by engine)",
+      "evidenceRefs": [
+       "gebied_kleine_windturbine",
+       "gebied_windenergie",
+       "natura_2000",
+       "ganzenrustgebied",
+       "aandachtsgebied_stiltegebied",
+       "stiltegebied",
+       "natuurnetwerk_nederland",
+       "groene_contour",
+       "landelijk_gebied"
+      ]
+     },
+     {
+      "id": "v1-final-zone-sanity",
+      "status": "pass",
+      "detail": "final zone non-empty, valid, 859.463 km2 <= AOI 1560.054 km2 and <= inclusion union 1259.841 km2",
+      "evidenceRefs": [
+       "ZR-final-fd30ebdb34"
+      ]
+     }
+    ]
+   },
+   "V2": {
+    "status": "pass",
+    "checks": [
+     {
+      "id": "v2-rule-card-linkage",
+      "status": "pass",
+      "detail": "all 24 FormalRule(s) link an existing NormCard (cite-or-abstain chain intact)"
+     },
+     {
+      "id": "v2-card-citations",
+      "status": "pass",
+      "detail": "all 24 NormCard(s) carry docId+article+version+verbatim quote+uri"
+     },
+     {
+      "id": "v2-zone-rule-traceability",
+      "status": "pass",
+      "detail": "every zone ruleId traces to a formalized rule (9 available)"
+     },
+     {
+      "id": "v2-decision-table-linkage",
+      "status": "pass",
+      "detail": "all 24 decision-table row(s) link an existing NormCard"
+     },
+     {
+      "id": "v2-executable-refs-registered",
+      "status": "pass",
+      "detail": "all executableRefs are registered deterministic engine operations (6 registered)"
+     }
+    ]
+   },
+   "V3": {
+    "status": "pass",
+    "checks": [
+     {
+      "id": "v3-reexecution-agreement",
+      "status": "pass",
+      "detail": "independent geopandas re-execution of 9 rule(s): pipeline 859.463 km2 vs independent 859.463 km2; relative area delta 2.219e-15 (threshold 0.01); IoU 0.999940 (threshold 0.98)"
+     }
+    ]
+   },
+   "V4": {
+    "status": "pending",
+    "checks": [],
+    "notes": "V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it."
+   }
+  },
+  "verdict": "pass",
+  "evaluatorRun": "critic-validator#deterministic-v0-v3-poc1",
+  "evaluatedAt": "2026-08-30T11:33:10Z",
+  "evidence": [
+   {
+    "ref": "0d9f61aa-4b8e-4f2f-9f6a-6f21cb53d001",
+    "note": "OpportunityMapRequest"
+   },
+   {
+    "ref": "normcards-wind",
+    "note": "24 NormCards"
+   },
+   {
+    "ref": "formalrules-wind",
+    "note": "24 FormalRules"
+   },
+   {
+    "ref": "zones",
+    "note": "9 ZoneResults"
+   },
+   {
+    "ref": "DT-wind-utrecht-poc1",
+    "note": "DecisionTable"
+   }
+  ]
+ }
+]

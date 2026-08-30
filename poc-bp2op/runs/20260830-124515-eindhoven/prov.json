@@ -1,0 +1,208 @@
+{
+ "agents": [
+  {
+   "id": "orchestrator",
+   "name": "run.py orchestrator",
+   "version": "poc-bp2op-run/1.0",
+   "role": "intake -> dispatch -> verify -> synthesize (MC-3 omzettabel assembly)"
+  },
+  {
+   "id": "regel-parser",
+   "name": "regel-parser#poc-bp2op.1.0"
+  },
+  {
+   "id": "matcher",
+   "name": "matcher#poc-bp2op.1.0"
+  },
+  {
+   "id": "analyser",
+   "name": "analyser#poc-bp2op.1.0"
+  },
+  {
+   "id": "critic",
+   "name": "critic#poc-bp2op.1.0"
+  },
+  {
+   "id": "explainer",
+   "name": "explainer#poc-bp2op.1.0"
+  }
+ ],
+ "entities": {
+  "omzettabel": {
+   "sha256": "5636a824f9c4f6525dd00b7d2a03cde6d3cf611ffb4602c371f3fe064db2d95d",
+   "bytes": 660890
+  },
+  "bronregels": {
+   "sha256": "7019828d234a7e28180f8a55cde089ba3f7a8add15a2998eff4714cf72bb6987",
+   "bytes": 412076
+  },
+  "doelregels": {
+   "sha256": "22a0f32e2ad19682c04f769a4a433b14a2bba05cfdf66bb663565514ea5c4cc8",
+   "bytes": 1026665
+  },
+  "kennisbank": {
+   "sha256": "a1c01c78b0bac6a9737b6640baa347b25e888a3267d655626117840efbc743fa",
+   "bytes": 171518
+  },
+  "doelregeling-bronbestand": {
+   "sha256": "d7825cb0ee9d12cfd9855a48e11b922e66495408e501a35154f43778d70df906",
+   "bytes": 7508473
+  },
+  "bronpublicatie-B01": {
+   "sha256": "d7825cb0ee9d12cfd9855a48e11b922e66495408e501a35154f43778d70df906",
+   "bytes": 7508473
+  },
+  "bronpublicatie-B02": {
+   "sha256": "b93f773c741509132529909275b5beafbf1b1d2c290258714ecda12bf4aa8a56",
+   "bytes": 4220856
+  },
+  "bronpublicatie-B03": {
+   "sha256": "7b1c6477cfe9fce173607fa84199c9292fef28df8692e04093cf0a3ec6ec3365",
+   "bytes": 1223009
+  },
+  "bronpublicatie-B04": {
+   "sha256": "3dab9aacad01493da7179577ebcda1bdcd2ab8e449d160ef6fd849e5ceef45fb",
+   "bytes": 2417002
+  }
+ },
+ "activities": [
+  {
+   "naam": "intake",
+   "agent": "orchestrator",
+   "methodTrace": [
+    "MC-1",
+    "MC-2",
+    "MC-9"
+   ],
+   "ts": "2026-08-30T12:45:15Z"
+  },
+  {
+   "naam": "opknippen",
+   "agent": "regel-parser#poc-bp2op.1.0",
+   "methodTrace": [
+    "MC-4"
+   ],
+   "ts": "2026-08-30T12:45:15Z"
+  },
+  {
+   "naam": "kennisbank-seed",
+   "agent": "regel-parser#poc-bp2op.1.0",
+   "methodTrace": [
+    "MC-5"
+   ],
+   "ts": "2026-08-30T12:45:15Z"
+  },
+  {
+   "naam": "matchen",
+   "agent": "matcher#poc-bp2op.1.0",
+   "methodTrace": [
+    "MC-5",
+    "MC-6"
+   ],
+   "ts": "2026-08-30T12:45:15Z"
+  },
+  {
+   "naam": "bulk-analyse",
+   "agent": "analyser#poc-bp2op.1.0",
+   "methodTrace": [
+    "MC-8"
+   ],
+   "ts": "2026-08-30T12:45:15Z"
+  },
+  {
+   "naam": "kritiek",
+   "agent": "critic#poc-bp2op.1.0",
+   "methodTrace": [
+    "MC-6"
+   ],
+   "ts": "2026-08-30T12:45:15Z"
+  },
+  {
+   "naam": "verantwoording",
+   "agent": "explainer#poc-bp2op.1.0",
+   "methodTrace": [
+    "MC-3",
+    "MC-7"
+   ],
+   "ts": "2026-08-30T12:45:15Z"
+  }
+ ],
+ "wasDerivedFrom": [
+  {
+   "generated": "omzettabel.json",
+   "derivedFrom": [
+    "bronregels.json",
+    "doelregels.json",
+    "kennisbank.json"
+   ]
+  },
+  {
+   "generated": "coverage.json",
+   "derivedFrom": [
+    "omzettabel.json",
+    "plan-inventory.json"
+   ]
+  },
+  {
+   "generated": "report.html",
+   "derivedFrom": [
+    "omzettabel.json",
+    "coverage.json",
+    "validation.json"
+   ]
+  }
+ ],
+ "methodTrace": {
+  "cards": [
+   {
+    "id": "MC-1",
+    "titel": "Transitiestrategie met doelregeling"
+   },
+   {
+    "id": "MC-2",
+    "titel": "Beleidsneutraal omzetten"
+   },
+   {
+    "id": "MC-3",
+    "titel": "De omzettabel als kernartefact"
+   },
+   {
+    "id": "MC-4",
+    "titel": "Automatisch inlezen en opknippen"
+   },
+   {
+    "id": "MC-5",
+    "titel": "Kennisbank met hergebruik en match-scores"
+   },
+   {
+    "id": "MC-6",
+    "titel": "Mens blijft op de knoppen"
+   },
+   {
+    "id": "MC-7",
+    "titel": "Controleerbaarheid: context, toelichting, geschiedenis"
+   },
+   {
+    "id": "MC-8",
+    "titel": "Bulk-analyse voor planning"
+   },
+   {
+    "id": "MC-9",
+    "titel": "Procesontwerp rondom de tool"
+   },
+   {
+    "id": "MC-10",
+    "titel": "Input-kwaliteit en stapeling"
+   },
+   {
+    "id": "MC-11",
+    "titel": "Werkingsgebieden zijn (nog) geen AI"
+   },
+   {
+    "id": "MC-12",
+    "titel": "Kwaliteitsborging van de tool zelf"
+   }
+  ],
+  "bron": "corpus/METHOD-CARDS.md (VNG netwerksessie 19-06-2026, transcript met tijdstempels)"
+ }
+}

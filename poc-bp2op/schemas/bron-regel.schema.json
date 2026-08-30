@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldttoolbox.example/poc-bp2op/schemas/bron-regel.schema.json",
+  "title": "BronRegel",
+  "description": "One regulation rule on the source side of the omzettabel, split automatically from an official publication with its verbatim text and deep link (MC-3, MC-4, MC-7, MC-10).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "docId", "instrument", "locator", "tekst", "url", "statusInBron", "thema", "extractedBy", "extractedAt"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^BR-\\d{3}$" },
+    "docId": { "type": "string", "pattern": "^B\\d{2}$" },
+    "instrument": { "type": "string", "minLength": 8 },
+    "locator": { "type": "object", "additionalProperties": false, "required": ["artikel", "label"],
+      "properties": {
+        "hoofdstuk": { "type": ["string", "null"] },
+        "artikel": { "type": "string", "minLength": 2, "description": "e.g. '22.29'" },
+        "label": { "type": "string", "minLength": 3, "description": "artikel + titel as printed" }
+      }
+    },
+    "tekst": { "type": "string", "minLength": 6, "description": "verbatim rule text in Dutch" },
+    "tekstLanguage": { "const": "nl" },
+    "url": { "type": "string", "pattern": "^https?://\\S+$" },
+    "statusInBron": { "enum": ["geldend", "vervallen_in_bron", "onbekend"] },
+    "thema": { "type": "string", "pattern": "^[a-z_]+:[a-z0-9_]+$" },
+    "stackingRef": { "type": ["string", "null"], "description": "MC-10: reference to the overlay decision that (partly) set this rule aside, when published evidence exists" },
+    "extractedBy": { "type": "string", "pattern": "^[a-z0-9-]+#[A-Za-z0-9._-]+$" },
+    "extractedAt": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
+  }
+}

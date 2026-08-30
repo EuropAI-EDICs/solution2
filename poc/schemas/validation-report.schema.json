@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldttoolbox.example/poc/schemas/validation-report.schema.json",
+  "title": "ValidationReport",
+  "description": "Critic/Validator verdict over one artifact tree, per validation level V0 (syntactic), V1 (geometric), V2 (legal grounding), V3 (semantic re-execution), V4 (human expert) — MULTI_AGENT_PLAN.md section 4. Hard gate: no artifact leaves the system without a report.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "artifactId", "artifactType", "levels", "verdict", "evaluatorRun", "evaluatedAt"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^VR-[A-Za-z0-9][A-Za-z0-9._-]*$" },
+    "artifactId": { "type": "string", "minLength": 3, "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+    "artifactType": { "enum": ["opportunity-map-request", "norm-card", "norm-card-set", "formal-rule", "formal-rule-set", "zone-result", "zone-result-set", "decision-table", "pipeline-run"] },
+    "levels": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["V0", "V1", "V2", "V3", "V4"],
+      "properties": {
+        "V0": { "$ref": "#/$defs/levelResult" },
+        "V1": { "$ref": "#/$defs/levelResult" },
+        "V2": { "$ref": "#/$defs/levelResult" },
+        "V3": { "$ref": "#/$defs/levelResult" },
+        "V4": { "$ref": "#/$defs/levelResult" }
+      }
+    },
+    "verdict": { "enum": ["pass", "fail", "needs_human"] },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ref"],
+        "properties": {
+          "ref": { "type": "string", "minLength": 3 },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "evaluatorRun": { "$ref": "#/$defs/agentRun" },
+    "evaluatedAt": { "$ref": "#/$defs/dateTime" }
+  },
+  "$defs": {
+    "levelResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "enum": ["pass", "fail", "pending", "not_applicable"] },
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "status"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+              "status": { "enum": ["pass", "fail", "skipped"] },
+              "detail": { "type": "string" },
+              "evidenceRefs": { "type": "array", "items": { "type": "string", "minLength": 3 } }
+            }
+          }
+        },
+        "notes": { "type": "string" }
+      }
+    },
+    "agentRun": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*#[A-Za-z0-9][A-Za-z0-9._-]*$" },
+    "dateTime": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$" }
+  }
+}

@@ -1,0 +1,959 @@
+#!/usr/bin/env python3
+"""CLI orchestrator for the wind-turbine opportunity-map PoC (plan section 3.2, agent #1).
+
+Wires the planning plane end-to-end:
+
+    Intake (use-case request) -> NormAnalyst -> NormFormalizer -> Geo Analyst
+    (geodata fetch of every zone referenced by a formalized rule) -> zone
+    engine -> Cartographer -> Critic (V0-V3 + V4 pending) -> Explainer
+    (decision table + PROV) -> single-file HTML report -> run summary.
+
+Every agent boundary emits JSON validated against poc/schemas/*.schema.json
+(the V0 gate); every legal claim stays chained to its NormCard citation
+(cite-or-abstain); every artifact lands in the run directory with PROV.
+
+Usage (no install, from the workspace root):
+
+    python3 poc/run.py                     # wind use case, cache-first
+    python3 poc/run.py --refresh           # re-download live layers
+    python3 poc/run.py --bbox 130000,440000,160000,470000   # EPSG:28992 clip
+    python3 poc/run.py --out poc/runs/demo
+
+Exit code 0 only when the Critic's pipeline-run verdict is ``pass``.
+"""
+
+from __future__ import annotations
+
+import argparse
+import datetime as _dt
+import hashlib
+import json
+import re
+import sys
+import time
+import traceback
+from pathlib import Path
+from typing import Any, Dict, List, Mapping, Optional, Sequence
+
+POC_ROOT = Path(__file__).resolve().parent
+WORKSPACE = POC_ROOT.parent
+if str(POC_ROOT) not in sys.path:
+    sys.path.insert(0, str(POC_ROOT))
+
+from shapely.geometry import box, shape  # noqa: E402
+from shapely.ops import unary_union  # noqa: E402
+
+from pipeline import agents, cartographer, contracts, critic, engine, explainer, geodata, report  # noqa: E402
+from pipeline.contracts import OpportunityMapRequest  # noqa: E402
+
+RUN_VERSION = "poc-run/1.0"
+ORCHESTRATOR_AGENT = {"id": "orchestrator", "name": "run.py orchestrator", "version": RUN_VERSION,
+                      "role": "plan -> dispatch -> verify -> synthesize (plan section 3.2 agent #1)"}
+
+# --------------------------------------------------------------------------- #
+# zone -> open-data alias registry (provenance aliases for the Bijlage-II GIO
+# join-ids whose DSO download API is key-gated, HTTP 401 verified)
+# --------------------------------------------------------------------------- #
+
+ZONE_SOURCES: Dict[str, Dict[str, Any]] = {
+    "gebied_windenergie": {
+        "sourceId": "agrest-ov-gebied-windenergie",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied windenergie'",
+    },
+    "gebied_kleine_windturbine": {
+        "sourceId": "agrest-ov-gebied-kleine-windturbine",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied kleine windturbine'",
+    },
+    "natura_2000": {
+        "sourceId": "arcgis-natura2000",
+        "note": "national Natura 2000 designation layer on the province hub (no provincial GIO exists)",
+    },
+    "ganzenrustgebied": {
+        "sourceId": "agrest-ov-ganzenrustgebied",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Ganzenrustgebied'",
+    },
+    "stiltegebied": {
+        "sourceId": "agrest-ov-stiltegebied",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Stiltegebied' (stille kern + bufferzone, art. 9.25 lid 1)",
+    },
+    "aandachtsgebied_stiltegebied": {
+        "sourceId": "agrest-ov-stiltegebied",
+        "note": "derived: the zone engine buffers Stiltegebied by 1500 m per art. 9.25 lid 2 (FR-W-10 bufferDistanceM)",
+    },
+    "natuurnetwerk_nederland": {
+        "sourceId": "agrest-ov-natuurnetwerk",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Natuurnetwerk Nederland'",
+    },
+    "groene_contour": {
+        "sourceId": "agrest-ov-groene-contour",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Groene contour'",
+    },
+    "landelijk_gebied": {
+        "sourceId": "agrest-ov-landelijk-gebied",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Landelijk gebied'",
+    },
+}
+
+INSTRUMENT = "Omgevingsverordening provincie Utrecht, CVDR704250 geldend 13-10-2025 t/m heden"
+
+_LIMITATIONS = [
+    "GIO geometry via the DSO Omgevingsdocumenten Downloaden API is key-gated (HTTP 401, verified); "
+    "provincial zones are therefore served by the province's own vigerende-verordening open data "
+    "(agrest Omgevingsverordening FeatureServer, IMOW ids + AKN DOCUMENT_URL) as provenance aliases of "
+    "the Bijlage-II join-ids cited on each NormCard.",
+    "The province-scale 'Gebied windenergie' polygon (1166.5 km\u00b2) is a designation envelope, not a "
+    "'suitable everywhere' area: clustering, removal duty, beeldkwaliteit and municipal omgevingsplan "
+    "rules still apply per location.",
+    "13 of 24 rules are intentionally 'ambiguous' (open norms such as 'onevenredig aantasten', deviation "
+    "paths, noise ambitions): they carry no executable predicate (cite-or-abstain) and are routed to the "
+    "V4 human-expert checkpoint; the deterministic map consumed only the 9 formalized rules.",
+    "Abstained topics (no verified provincial citation): stikstof deposition, national wind-turbine noise "
+    "limits (Wgh/Bal), tip height/setback distances, Natura 2000 GIO absence, ET_wind tracking-layer "
+    "misrepresentation risk, the pending 1-1-2027 amendment.",
+    "Natura 2000 geometry is the 2021 national designation layer (14 features, province hub copy), not a "
+    "provincial instrument; ganzenrustgebieden come from the verordening's own designation set.",
+    "A major verordening/visie amendment is in progress (PS decision expected 18-11-2026, in werking "
+    "01-01-2027): re-run the legal recon and this pipeline before using results after that date.",
+    "Map geometry in this report is display-simplified; authoritative full-resolution geometry is "
+    "zones.geojson / zones.gml in the run directory.",
+    "Zone algebra inputs are Douglas-Peucker simplified (tolerance recorded per run in run_summary.json "
+    "tunings and per layer in the engine provenance) so province-scale GEOS overlays stay tractable; at "
+    "the recorded 2 m tolerance the final area shifts by ~0.002% versus full resolution.",
+]
+
+# engine operation -> zone-result contract operation
+_OP_MAP = {
+    "intersection": "intersection",
+    "inclusion_union": "union",
+    "union": "union",
+    "difference": "difference",
+    "final": "difference",
+    "attention_mark": "buffer",
+    "conditional_mark": "union",
+    "compensation_mark": "union",
+}
+
+
+def utcnow() -> str:
+    return _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def dump_json(path: Path, obj: Any, indent: int = 1) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(obj, ensure_ascii=False, indent=indent) + "\n", encoding="utf-8")
+    return path
+
+
+def sha256_of(path: Path) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+class RunLog:
+    """Collects PROV activities (stages) with wall-clock timestamps."""
+
+    def __init__(self) -> None:
+        self.activities: List[Dict[str, Any]] = []
+
+    def stage(self, name: str, label: str, agent: str, used: Sequence[str] = (), generated: Sequence[str] = ()):
+        log = self
+
+        class _Ctx:
+            def __enter__(self2):
+                self2.started = time.time()
+                self2.started_iso = utcnow()
+                return self2
+
+            def __exit__(self2, *exc):
+                log.activities.append(
+                    {
+                        "id": name,
+                        "label": label,
+                        "type": name,
+                        "agent": agent,
+                        "startedAt": self2.started_iso,
+                        "endedAt": utcnow(),
+                        "durationS": round(time.time() - self2.started, 3),
+                        "used": list(used),
+                        "generated": list(generated),
+                    }
+                )
+                return False
+
+        return _Ctx()
+
+
+# --------------------------------------------------------------------------- #
+# stage implementations
+# --------------------------------------------------------------------------- #
+
+def load_request(use_case: str, bbox=None) -> Dict[str, Any]:
+    path = POC_ROOT / "use-cases" / f"{use_case}.json"
+    if not path.is_file():
+        raise SystemExit(f"unknown use case {use_case!r}: {path} not found")
+    request = json.loads(path.read_text(encoding="utf-8"))
+    contracts.validate(request, "opportunity-map-request")
+    OpportunityMapRequest.from_dict(request)  # round-trip check
+    if bbox is not None:
+        aoi = shape(request["areaOfInterest"]["geometry"])
+        clipped = aoi.intersection(box(*bbox))
+        # __geo_interface__ yields tuples; the JSON Schema requires arrays
+        clipped_geojson = json.loads(json.dumps(clipped.__geo_interface__))
+        request = dict(request)
+        request["areaOfInterest"] = {
+            "geometry": clipped_geojson,
+            "crs": request["areaOfInterest"].get("crs", "EPSG:28992"),
+        }
+        request.setdefault("parameters", {})
+        request["parameters"]["bboxClip"] = list(bbox)
+        contracts.validate(request, "opportunity-map-request")
+    return request
+
+
+def fetch_layers(
+    zone_ids: Sequence[str],
+    *,
+    refresh: bool,
+    bbox=None,
+    timeout: float = 120.0,
+    geo_bindings: Optional[Mapping[str, Mapping[str, Any]]] = None,
+) -> Tuple[Dict[str, Dict[str, Any]], Dict[str, Dict[str, Any]], List[Dict[str, Any]], Dict[str, str]]:
+    """Fetch every zone layer; returns (layers, manifest, degradations, source_of_zone)."""
+    sources_registry = geodata.load_sources()
+    by_source: Dict[str, Dict[str, Any]] = {}
+    layers: Dict[str, Dict[str, Any]] = {}
+    manifest: Dict[str, Dict[str, Any]] = {}
+    degradations: List[Dict[str, Any]] = []
+    source_of_zone: Dict[str, str] = {}
+
+    for zone in zone_ids:
+        spec = ZONE_SOURCES.get(zone)
+        if spec is None:
+            degradations.append(
+                {"kind": "zone-alias", "zone": zone,
+                 "error": f"no open-data alias registered for zone {zone!r}"}
+            )
+            continue
+        sid = spec["sourceId"]
+        source_of_zone[zone] = sid
+        if sid in by_source:
+            layers[zone] = by_source[sid]
+        else:
+            try:
+                fc = geodata.fetch_layer(sid, bbox=bbox, refresh=refresh, sources=sources_registry, timeout=timeout)
+            except geodata.GeoDataError as exc:
+                by_source[sid] = None  # remember failure
+                degradations.append({"kind": "layer-fetch", "zone": zone, "sourceId": sid, "error": str(exc)})
+                continue
+            except Exception as exc:  # unexpected transport failure -> degrade, never crash
+                by_source[sid] = None
+                degradations.append({"kind": "layer-fetch", "zone": zone, "sourceId": sid,
+                                     "error": f"{type(exc).__name__}: {exc}"})
+                continue
+            by_source[sid] = fc
+            layers[zone] = fc
+        fc = layers[zone]
+        props = fc.get("properties") or {}
+        reg = sources_registry.get(sid, {})
+        binding = (geo_bindings or {}).get(zone) or {}
+        manifest[zone] = {
+            "zoneId": zone,
+            "aliasSourceId": sid,
+            "serviceUrl": props.get("serviceUrl"),
+            "layerId": props.get("layerId"),
+            "title": props.get("title") or reg.get("title"),
+            "role": props.get("role") or reg.get("role"),
+            "authoritative": props.get("authoritative", reg.get("authoritative")),
+            "licenseNote": props.get("licenseNote") or reg.get("licenseNote"),
+            "where": props.get("where"),
+            "featureCount": props.get("featureCount"),
+            "pages": props.get("pages"),
+            "fetchedAt": props.get("fetchedAt"),
+            "lastChecked": props.get("lastChecked") or reg.get("lastChecked"),
+            "cachePath": str(geodata.DEFAULT_CACHE_DIR / f"{sid}.28992.geojson"),
+            "aliasNote": spec["note"],
+            "geoBinding": {
+                "geometrySource": binding.get("geometrySource"),
+                "gioJoinId": binding.get("gioJoinId"),
+                "caveat": binding.get("caveat"),
+            },
+        }
+    return layers, manifest, degradations, source_of_zone
+
+
+def rule_zones(rule: Mapping[str, Any]) -> List[str]:
+    zs = rule.get("zoneSelector") or {}
+    zones = list(zs.get("zoneIds") or [])
+    if zs.get("derivedFrom"):
+        zones.append(zs["derivedFrom"])
+    seen: set = set()
+    out = []
+    for z in zones:
+        if z not in seen:
+            seen.add(z)
+            out.append(z)
+    return out
+
+
+def wrap_contract_zones(rich_zones: Sequence[Mapping[str, Any]], request_id: str) -> List[Dict[str, Any]]:
+    now = utcnow()
+    out = []
+    for z in rich_zones:
+        op = str(z.get("operation", "none"))
+        mapped = _OP_MAP.get(op, "none")
+        if op == "final":
+            mapped = "difference" if any(z2.get("operation") == "difference" for z2 in rich_zones) else "union"
+        rid = str(z.get("id", "zr-?"))
+        if rid.startswith("zr-"):
+            rid = "ZR-" + rid[3:]
+        payload = (z.get("geometry") or {}).get("payload")
+        out.append(
+            {
+                "id": rid,
+                "requestId": request_id,
+                "ruleIds": list(z.get("ruleIds") or []),
+                "operation": mapped,
+                "geometry": {
+                    "format": "GeoJSON",
+                    "payload": payload,
+                    "crs": "EPSG:4326",
+                },
+                "geometryValid": bool(z.get("geometryValid")),
+                "areaKm2": z.get("areaKm2"),
+                "operands": [str(o) for o in (z.get("layers") or z.get("operands") or [])],
+                "provenance": str(z.get("prov") or z.get("provenance") or ""),
+                "computedBy": "geo-analyst#poc-zone-engine-0.1",
+                "computedAt": now,
+            }
+        )
+    for zone in out:
+        contracts.validate(zone, "zone-result")
+    return out
+
+
+def per_rule_stats(rules: Sequence[Mapping[str, Any]], layers: Mapping[str, Any], aoi) -> List[Dict[str, Any]]:
+    """Informational per-rule footprint (zone union, buffered, intersected with AOI)."""
+    stats = []
+    for r in rules:
+        zs = r.get("zoneSelector") or {}
+        lids = [z for z in (zs.get("zoneIds") or []) if z in layers]
+        if zs.get("derivedFrom") and zs["derivedFrom"] in layers:
+            lids.append(zs["derivedFrom"])
+        if not lids:
+            continue
+        geoms = []
+        for lid in lids:
+            for f in layers[lid].get("features", []):
+                g = f.get("geometry")
+                if g is not None:
+                    geoms.append(shape(g))
+        if not geoms:
+            continue
+        u = unary_union(geoms)
+        dist = float(zs.get("bufferDistanceM") or 0)
+        if dist > 0:
+            u = u.buffer(dist, quad_segs=engine.BUFFER_RESOLUTION)
+        clipped = u.intersection(aoi) if aoi is not None else u
+        stats.append(
+            {
+                "ruleId": r["id"],
+                "zoneSemantics": r.get("zoneSemantics"),
+                "zones": lids,
+                "bufferM": dist or None,
+                "features": len(geoms),
+                "zoneAreaKm2": round(u.area / 1e6, 3),
+                "zoneIntersectAoiKm2": round(clipped.area / 1e6, 3),
+            }
+        )
+    return stats
+
+
+def count_repairs(steps: Sequence[str]) -> int:
+    total = 0
+    for step in steps or []:
+        for m in re.finditer(r"make_valid_repairs=(\d+)", str(step)):
+            total += int(m.group(1))
+    return total
+
+
+# --------------------------------------------------------------------------- #
+# main
+# --------------------------------------------------------------------------- #
+
+def build_parser() -> argparse.ArgumentParser:
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--use-case", default="wind", help="use case id (default: wind)")
+    ap.add_argument("--refresh", action="store_true", help="ignore the layer cache and re-download live layers")
+    ap.add_argument("--bbox", default=None,
+                    help="optional clip xmin,ymin,xmax,ymax in EPSG:28992 applied to the AOI")
+    ap.add_argument("--out", default=None, help="output directory (default: poc/runs/<timestamp>-<usecase>)")
+    ap.add_argument("--display-tolerance-m", type=float, default=report.DEFAULT_DISPLAY_TOLERANCE_M,
+                    help="Douglas-Peucker tolerance (m) for report display geometry (default 25)")
+    ap.add_argument("--input-simplify-m", type=float, default=2.0,
+                    help="Douglas-Peucker tolerance (m, EPSG:28992) applied to fetched layer geometries "
+                         "before the zone algebra so province-scale overlays stay tractable; recorded "
+                         "per layer in the engine provenance and in the run summary (0 = full resolution)")
+    ap.add_argument("--timeout", type=float, default=120.0, help="per-page HTTP timeout for layer fetches")
+    return ap
+
+
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    args = build_parser().parse_args(argv)
+    started = time.time()
+    run_ts = _dt.datetime.now(_dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    run_id = f"{run_ts}-{args.use_case}"
+    run_dir = Path(args.out) if args.out else POC_ROOT / "runs" / run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+    log = RunLog()
+    tunings: List[Dict[str, Any]] = [
+        {"k": "display_tolerance_m", "v": args.display_tolerance_m},
+        {"k": "input_simplify_m", "v": args.input_simplify_m},
+        {"k": "payload_coord_decimals", "v": 6},
+        {"k": "buffer_resolution_quad_segs", "v": engine.BUFFER_RESOLUTION},
+    ]
+    degradations: List[Dict[str, Any]] = []
+
+    print(f"[run] {run_id} -> {run_dir}")
+
+    # ---------------- 1. intake ------------------------------------------- #
+    with log.stage("intake", "Intake: load + validate OpportunityMapRequest", "run.py-orchestrator",
+                  used=[f"use-cases/{args.use_case}.json"], generated=["request.json"]):
+        bbox = None
+        if args.bbox:
+            parts = [float(p) for p in args.bbox.split(",")]
+            if len(parts) != 4:
+                raise SystemExit("--bbox must be xmin,ymin,xmax,ymax")
+            bbox = parts
+        request = load_request(args.use_case, bbox=bbox)
+        dump_json(run_dir / "request.json", request)
+        aoi = shape(request["areaOfInterest"]["geometry"])
+        print(f"[intake] request {request['id']} objectType={request['objectType']} "
+              f"stage={request['policyStage']} AOI={aoi.area/1e6:.3f} km2")
+
+    # ---------------- 2. Norm Analyst ------------------------------------- #
+    with log.stage("norm-analyst", "Norm Analyst: harvest NormCards (deterministic replay)",
+                   agents.NormAnalyst.agent_name, used=["corpus/evidence-wind.json", "corpus/sources.json"],
+                   generated=["normcards.json", "normcards-rejected.json"]):
+        analyst = agents.NormAnalyst()
+        cards_obj = analyst.read(agents.CORPUS_DIR / "evidence-wind.json")
+        cards = [c.to_dict() for c in cards_obj]
+        for c in cards:
+            contracts.validate(c, "norm-card")
+        rejected_ledger = json.loads((agents.CORPUS_DIR / "normcards-rejected.json").read_text(encoding="utf-8"))
+        rejected_ledger["analystRejectedThisRun"] = analyst.rejected
+        dump_json(run_dir / "normcards.json", cards, indent=1)
+        dump_json(run_dir / "normcards-rejected.json", rejected_ledger, indent=1)
+        print(f"[norm-analyst] {len(cards)} verified NormCards, "
+              f"{len(rejected_ledger.get('abstentions', []))} abstentions, "
+              f"{len(analyst.rejected)} rejected evidence items")
+
+    # ---------------- 3. Norm Formalizer ---------------------------------- #
+    with log.stage("norm-formalizer", "Norm Formalizer: NormCards -> FormalRules (deterministic templates)",
+                   agents.NormFormalizer.agent_name, used=["normcards.json"], generated=["formalrules.json"]):
+        formalizer = agents.NormFormalizer()
+        rules_obj = formalizer.formalize(cards_obj)
+        rules = [r.to_dict() for r in rules_obj]
+        for r in rules:
+            contracts.validate(r, "formal-rule")
+        dump_json(run_dir / "formalrules.json", rules, indent=1)
+        cov = formalizer.last_coverage
+        print(f"[norm-formalizer] {cov['output_rules']} rules: {cov['formalized']} formalized, "
+              f"{cov['ambiguous']} ambiguous, {cov['rejected']} rejected")
+
+    # geo bindings per zone (provenance aliases for the GIO join-ids)
+    geo_bindings: Dict[str, Dict[str, Any]] = {}
+    for c in cards:
+        gb = c.get("geoBinding") or {}
+        for z in gb.get("zoneIds", []):
+            geo_bindings.setdefault(
+                z,
+                {
+                    "geometrySource": gb.get("geometrySource"),
+                    "gioJoinId": gb.get("gioJoinId"),
+                    "caveat": gb.get("caveat"),
+                },
+            )
+
+    # ---------------- 4. Geo Analyst: fetch layers ------------------------ #
+    formalized = [r for r in rules if r.get("status") == "formalized"]
+    needed_zones: List[str] = []
+    for r in formalized:
+        for z in rule_zones(r):
+            if z not in needed_zones:
+                needed_zones.append(z)
+    with log.stage("geo-analyst-fetch", "Geo Analyst: fetch zone layers (cache-first ArcGIS REST)",
+                   geodata.USER_AGENT.split(" ")[0], used=["data/sources.json"],
+                   generated=["layers.json"]):
+        layers, manifest, fetch_degrades, source_of_zone = fetch_layers(
+            needed_zones, refresh=args.refresh, bbox=bbox, timeout=args.timeout, geo_bindings=geo_bindings
+        )
+        degradations.extend(fetch_degrades)
+        dump_json(run_dir / "layers.json", manifest, indent=1)
+        total_feats = sum((fc.get("properties") or {}).get("featureCount", 0) for fc in layers.values())
+        print(f"[geo] {len(layers)}/{len(needed_zones)} zone layers resolved "
+              f"({total_feats} features); {len(fetch_degrades)} degradation(s)")
+
+    # ---------------- 5. zone engine --------------------------------------- #
+    # Recorded tuning: province-scale multipolygons (NNN 390 polygons against a
+    # ~1300 km2 inclusion union) make GEOS overlays intractable at full source
+    # resolution; simplify inputs deterministically (recorded per layer in the
+    # engine provenance via properties.simplifiedM) before the zone algebra.
+    if args.input_simplify_m and args.input_simplify_m > 0:
+        layers, simplify_notes = engine.simplify_layers(layers, args.input_simplify_m)
+        aoi = aoi.simplify(args.input_simplify_m, preserve_topology=True)
+        for zone in manifest:
+            manifest[zone]["inputSimplifyM"] = args.input_simplify_m
+        dump_json(run_dir / "layers.json", manifest, indent=1)
+
+    engine_rules = []
+    for r in formalized:
+        missing = [z for z in rule_zones(r) if z not in layers]
+        if missing:
+            degradations.append(
+                {"kind": "rule-dropped", "rule": r["id"], "zones": missing,
+                 "error": "zone layer unavailable this run; rule excluded from deterministic execution "
+                          "and flagged for human review"}
+            )
+        else:
+            engine_rules.append(r)
+    sources_prov = {
+        zone: {
+            "serviceUrl": (fc.get("properties") or {}).get("serviceUrl"),
+            "layerId": (fc.get("properties") or {}).get("layerId"),
+            "lastChecked": (fc.get("properties") or {}).get("lastChecked"),
+        }
+        for zone, fc in layers.items()
+    }
+    with log.stage("zone-engine", "Geo Analyst: deterministic FormalRule execution (shapely path)",
+                   "zone-engine", used=["formalrules.json", "layers.json"], generated=["zones.json"]):
+        attempts = 0
+        while True:
+            try:
+                rich_zones = engine.execute_rules(engine_rules, layers, aoi=aoi, sources=sources_prov,
+                                                  payload_round_dp=6)
+                break
+            except engine.RuleError as exc:
+                attempts += 1
+                if attempts > 6:
+                    raise
+                msg = str(exc)
+                dropped = None
+                for r in engine_rules:
+                    if r["id"] in msg:
+                        dropped = r
+                        break
+                if dropped is None:
+                    raise
+                degradations.append({"kind": "rule-dropped", "rule": dropped["id"], "error": msg})
+                engine_rules.remove(dropped)
+                print(f"[engine] dropped rule {dropped['id']} after RuleError: {msg[:140]}")
+        final_rich = next(z for z in rich_zones if z.get("operation") == "final")
+        inclusion_zone = next(
+            (z for z in rich_zones if z.get("operation") == "intersection"),
+            next((z for z in rich_zones if z.get("operation") == "inclusion_union"), None),
+        )
+        contract_zones = wrap_contract_zones(rich_zones, request["id"])
+        dump_json(run_dir / "zones.json", contract_zones, indent=1)
+        rule_stats = per_rule_stats(engine_rules, layers, aoi)
+        dump_json(run_dir / "rule-stats.json", rule_stats, indent=1)
+        print(f"[engine] {len(rich_zones)} zones; inclusion\u2229AOI="
+              f"{(inclusion_zone['areaKm2'] if inclusion_zone else float('nan')):.3f} km2; "
+              f"final={final_rich['areaKm2']:.3f} km2")
+
+    # ---------------- 6. Cartographer --------------------------------------- #
+    with log.stage("cartographer", "Cartographer: zones.geojson + GML + report input",
+                   cartographer.CARTOGRAPHER_VERSION, used=["zones.json"],
+                   generated=["zones.geojson", "zones.gml"]):
+        gj = cartographer.write_geojson(rich_zones, run_dir / "zones.geojson")
+        gml = cartographer.write_gml(gj)
+        if not gml["ok"]:
+            print(f"[cartographer] GML export degraded: {gml['error']}")
+        report_input = cartographer.build_report_input(
+            rich_zones, sources=sources_prov,
+            outputs={"geojson": str(gj), "gml": gml["path"] if gml["ok"] else None, "gmlStatus": gml},
+        )
+        dump_json(run_dir / "report_input.json", report_input, indent=1)
+
+    # ---------------- 7. Critic ---------------------------------------------- #
+    with log.stage("critic", "Critic/Validator: V0-V3 deterministic + V4 pending",
+                   critic.Critic.agent_name,
+                   used=["request.json", "normcards.json", "formalrules.json", "zones.json", "decision-table.json"],
+                   generated=["validation.json"]):
+        critic_obj = critic.Critic()
+        reports_l = critic_obj.evaluate_run(
+            request=request,
+            normcards=cards,
+            formalrules=rules,
+            zones=contract_zones,
+            decision_table=None,  # replaced below after the explainer runs
+            layers=layers,
+            aoi=aoi,
+            engine_rules=engine_rules,
+            final_zone=final_rich,
+            inclusion_area_m2=inclusion_zone["areaM2"] if inclusion_zone else None,
+            degradations=degradations,
+            run_id=run_id,
+        )
+        verdict0 = reports_l[-1]["verdict"]
+        print(f"[critic] pre-explainer pipeline verdict: {verdict0}")
+
+    # ---------------- 8. Explainer ------------------------------------------- #
+    with log.stage("explainer", "Explainer: decision table + PROV bundle",
+                   explainer.Explainer.agent_name,
+                   used=["normcards.json", "formalrules.json", "zones.json"],
+                   generated=["decision-table.json", "decision-table.md", "prov.json"]):
+        expl = explainer.Explainer()
+        prov_narrative = (
+            f"run {run_id} of {RUN_VERSION}; norm corpus poc/corpus/evidence-wind.json replayed by "
+            f"{agents.ANALYST_RUN}; rules by {agents.FORMALIZER_RUN}; instrument {INSTRUMENT}; "
+            f"zone geometry from provincial open data (agrest Omgevingsverordening FeatureServer + "
+            f"province ArcGIS hub), lastChecked stamps in layers.json; full PROV in prov.json"
+        )
+        dt = expl.build_decision_table(
+            request=request, normcards=cards, formalrules=rules,
+            generated_at=utcnow(), prov_narrative=prov_narrative,
+        )
+        dump_json(run_dir / "decision-table.json", dt, indent=1)
+        (run_dir / "decision-table.md").write_text(expl.decision_table_markdown(dt), encoding="utf-8")
+
+        # re-run the critic with the decision table included (V0+V2 over it)
+        reports_l = critic_obj.evaluate_run(
+            request=request,
+            normcards=cards,
+            formalrules=rules,
+            zones=contract_zones,
+            decision_table=dt,
+            layers=layers,
+            aoi=aoi,
+            engine_rules=engine_rules,
+            final_zone=final_rich,
+            inclusion_area_m2=inclusion_zone["areaM2"] if inclusion_zone else None,
+            degradations=degradations,
+            run_id=run_id,
+        )
+        vdir = run_dir / "validation"
+        for vr in reports_l:
+            dump_json(vdir / f"{vr['artifactType']}.json", vr, indent=1)
+        dump_json(run_dir / "validation.json", reports_l, indent=1)
+        verdict = reports_l[-1]["verdict"]
+        print(f"[critic] pipeline verdict: {verdict}")
+
+        # PROV bundle (hashes over what is already on disk)
+        ent = [
+            explainer.entity_for(run_dir / "request.json", "OpportunityMapRequest"),
+            explainer.entity_for(POC_ROOT / "corpus" / "evidence-wind.json", "evidence shard"),
+            explainer.entity_for(POC_ROOT / "corpus" / "sources.json", "document source registry"),
+            explainer.entity_for(POC_ROOT / "data" / "sources.json", "geo source registry"),
+            explainer.entity_for(run_dir / "normcards.json", "NormCard[]"),
+            explainer.entity_for(run_dir / "normcards-rejected.json", "cite-or-abstain ledger"),
+            explainer.entity_for(run_dir / "formalrules.json", "FormalRule[]"),
+            explainer.entity_for(run_dir / "layers.json", "layer manifest"),
+            explainer.entity_for(run_dir / "zones.json", "ZoneResult[]"),
+            explainer.entity_for(run_dir / "rule-stats.json", "per-rule footprint stats"),
+            explainer.entity_for(gj, "zones GeoJSON (RFC 7946)"),
+            explainer.entity_for(run_dir / "report_input.json", "cartographer report input"),
+            explainer.entity_for(run_dir / "decision-table.json", "DecisionTable"),
+            explainer.entity_for(run_dir / "decision-table.md", "DecisionTable (markdown)"),
+            explainer.entity_for(run_dir / "validation.json", "ValidationReport[]"),
+        ]
+        if gml["ok"]:
+            ent.append(explainer.entity_for(Path(gml["path"]), "zones GML 3.2"))
+        for zone, sid in sorted(source_of_zone.items()):
+            cache = geodata.DEFAULT_CACHE_DIR / f"{sid}.28992.geojson"
+            if cache.exists():
+                ent.append(explainer.entity_for(cache, "layer cache (EPSG:28992)",
+                                                {"zone": zone, "sourceId": sid}))
+        prov = expl.build_prov(
+            run_id=run_id,
+            generated_at=utcnow(),
+            request_id=str(request["id"]),
+            agents=[
+                ORCHESTRATOR_AGENT,
+                {"id": "legal-recon-agent", "name": "NormAnalyst", "version": agents.ANALYST_RUN,
+                 "role": "deterministic replay of the verified legal recon (agent #3)"},
+                {"id": "norm-formalizer", "name": "NormFormalizer", "version": agents.FORMALIZER_RUN,
+                 "role": "deterministic templates (agent #4)"},
+                {"id": "geo-connector", "name": "GeoData connector", "version": geodata.USER_AGENT.split(" ")[0],
+                 "role": "ArcGIS REST fetch, cache-first (agent #5 tool)"},
+                {"id": "zone-engine", "name": "FormalRule zone engine", "version": engine.ENGINE_VERSION,
+                 "role": "deterministic execution + validation repair provenance (agent #5)"},
+                {"id": "cartographer", "name": "Cartographer", "version": cartographer.CARTOGRAPHER_VERSION,
+                 "role": "GeoJSON/GML serialization (agent #6)"},
+                {"id": "critic-validator", "name": "Critic/Validator", "version": critic.CRITIC_VERSION,
+                 "role": "V0-V3 deterministic checks, V4 pending (agent #7)"},
+                {"id": "explainer", "name": "Explainer", "version": explainer.EXPLAINER_VERSION,
+                 "role": "decision table + PROV (agent #8)"},
+                {"id": "report", "name": "HTML report renderer", "version": report.REPORT_VERSION,
+                 "role": "single-file report (agent #6 view tier)"},
+            ],
+            activities=log.activities,
+            entities=ent,
+            derivations=[
+                {"generatedEntity": "formalrules.json", "usedEntity": "normcards.json",
+                 "note": "NormFormalizer deterministic templates"},
+                {"generatedEntity": "normcards.json", "usedEntity": "evidence-wind.json",
+                 "note": "NormAnalyst replay (cite-or-abstain)"},
+                {"generatedEntity": "zones.json", "usedEntity": "formalrules.json",
+                 "note": "engine executed FormalRules over fetched layers"},
+                {"generatedEntity": "decision-table.json", "usedEntity": "normcards.json",
+                 "note": "every row links a normCardId"},
+                {"generatedEntity": "validation.json", "usedEntity": "zones.json",
+                 "note": "V0-V3 over the artifact tree"},
+            ],
+            sources=[
+                {
+                    "zone": zone,
+                    "sourceId": sid,
+                    "service": f"{(manifest[zone] or {}).get('serviceUrl')}/{(manifest[zone] or {}).get('layerId')}",
+                    "lastChecked": (manifest[zone] or {}).get("lastChecked"),
+                    "fetchedAt": (manifest[zone] or {}).get("fetchedAt"),
+                    "features": (manifest[zone] or {}).get("featureCount"),
+                    "aliasFor": (manifest[zone] or {}).get("geoBinding", {}).get("gioJoinId")
+                    or (manifest[zone] or {}).get("geoBinding", {}).get("geometrySource"),
+                    "authoritative": (manifest[zone] or {}).get("authoritative"),
+                }
+                for zone, sid in sorted(source_of_zone.items())
+            ],
+        )
+        dump_json(run_dir / "prov.json", prov, indent=1)
+
+    # ---------------- 9. HTML report ----------------------------------------- #
+    with log.stage("report", "Report: single-file HTML with Leaflet map + tables",
+                   report.REPORT_VERSION,
+                   used=["zones.geojson", "decision-table.json", "validation.json", "normcards.json", "prov.json"],
+                   generated=["report.html"]):
+        total_repairs = count_repairs(final_rich.get("provSteps"))
+        verdicts = {vr["artifactType"]: vr["verdict"] for vr in reports_l}
+        badges = [{"label": f"verdict: {verdict}", "cls": verdict},
+                  {"label": "V4 human: pending", "cls": "pending"},
+                  {"label": f"cite-or-abstain: {len(cards)} cards / {len(rejected_ledger.get('abstentions', []))} abstentions", "cls": ""}]
+        headline = [
+            {"k": "AOI (province)", "v": f"{aoi.area/1e6:,.1f} km\u00b2", "s": "Provinciegrens Utrecht (EPSG:28992)"},
+            {"k": "Inclusion \u2229 AOI", "v": f"{inclusion_zone['areaKm2']:,.1f} km\u00b2" if inclusion_zone else "\u2014",
+             "s": "union of the formalized inclusion zones"},
+            {"k": "Final opportunity zone", "v": f"{final_rich['areaKm2']:,.1f} km\u00b2",
+             "s": "after Natura 2000 / ganzenrust / NNN exclusions"},
+            {"k": "Rules executed", "v": f"{len(engine_rules)} of {len(rules)}",
+             "s": f"{cov['formalized']} formalized; {cov['ambiguous']} ambiguous \u2192 V4; {cov['rejected']} rejected"},
+            {"k": "Zones emitted", "v": str(len(rich_zones)), "s": "incl. markers (attention/conditional/compensation)"},
+            {"k": "Geometry repairs", "v": str(total_repairs), "s": "invalid-as-served features, recorded in prov"},
+        ]
+        headline_note = (
+            "Semantics: the final zone is the union of the formalized inclusion zones (Gebied windenergie \u22653 MW "
+            "path, Gebied kleine windturbine \u226420 m path, Landelijk gebied scope) clipped to the province "
+            "boundary, minus Natura 2000 areas, ganzenrustgebieden and the Natuurnetwerk Nederland (default "
+            "exclusion; art. 6.3 lid 2 exceptions are discretionary). Stiltegebied / Groene contour overlays are "
+            "markers (attention / compensation), not eliminations. This is a programming-stage screening artifact; "
+            "per-location permission assessment remains required."
+        )
+        zones_table = [
+            {
+                "id": z.get("id"),
+                "operation": z.get("operation"),
+                "ruleIds": z.get("ruleIds", []),
+                "areaKm2": f"{z.get('areaKm2', 0):,.3f}",
+                "layers": z.get("layers", []),
+                "provSteps": len(z.get("provSteps") or []),
+                "repairs": count_repairs(z.get("provSteps")),
+            }
+            for z in rich_zones
+        ]
+        validation_view = [
+            {
+                "id": vr["id"],
+                "artifactType": vr["artifactType"],
+                "verdict": vr["verdict"],
+                "levels": [
+                    {"name": name, "status": lvl["status"], "checks": lvl.get("checks") or [],
+                     "notes": lvl.get("notes")}
+                    for name, lvl in vr["levels"].items()
+                ],
+            }
+            for vr in reports_l
+        ]
+        normcards_view = [
+            {
+                "id": c["id"], "article": c["source"]["article"], "instrument": c["instrument"],
+                "legalForce": c["legalForce"], "confidence": c["confidence"], "claim": c["claim"],
+                "quote": c["source"]["quote"], "uri": c["source"]["uri"], "docId": c["source"]["docId"],
+                "version": c["source"]["version"], "theme": c["theme"],
+                "zoneIds": (c.get("geoBinding") or {}).get("zoneIds"),
+                "gioJoinId": (c.get("geoBinding") or {}).get("gioJoinId"),
+                "caveat": (c.get("geoBinding") or {}).get("caveat"),
+            }
+            for c in cards
+        ]
+        map_data = report.build_map_data(rich_zones, request["areaOfInterest"]["geometry"],
+                                         tolerance_m=args.display_tolerance_m)
+        prov_view = {
+            "activities": [
+                {"label": a["label"], "agent": a["agent"], "startedAt": a["startedAt"],
+                 "endedAt": a["endedAt"], "used": a["used"], "generated": a["generated"]}
+                for a in log.activities
+            ],
+            "agents": [a for a in prov["agent"]],
+            "sources": [
+                {
+                    "zone": s["zone"], "sourceId": s["sourceId"], "service": s["service"],
+                    "features": s["features"], "lastChecked": s["lastChecked"],
+                    "aliasFor": s["aliasFor"] or "(national source)",
+                }
+                for s in prov["hadPrimarySource"]
+            ],
+        }
+        limitations = list(_LIMITATIONS)
+        for d in degradations:
+            limitations.append(f"Degradation this run: {json.dumps(d, ensure_ascii=False)}")
+        report_data = {
+            "run": {
+                "title": "Where can wind turbines be sited in province Utrecht?",
+                "run_id": run_id,
+                "use_case": args.use_case,
+                "generated_at": utcnow(),
+                "policy_stage": request["policyStage"],
+                "instrument": INSTRUMENT,
+                "badges": badges,
+            },
+            "headline": headline,
+            "headline_note": headline_note,
+            "map": map_data,
+            "zones_table": zones_table,
+            "decision": {"columns": dt["columns"], "rows": dt["rows"]},
+            "validation": validation_view,
+            "normcards": normcards_view,
+            "abstentions": rejected_ledger.get("abstentions", []),
+            "prov": prov_view,
+            "limitations": limitations,
+            "tunings": tunings,
+            "paths": {"listing": " / ".join(sorted(p.name for p in run_dir.iterdir() if p.is_file()))},
+        }
+        report.write_report(run_dir / "report.html", report_data)
+
+    # ---------------- 9b. PROV completion for late artifacts ------------------ #
+    # The PROV bundle (stage 8) hashes only what is on disk when it is built;
+    # report.html, the per-artifact validation reports and zones.xsd are
+    # written after it, and the explainer/report activities complete only when
+    # their stage blocks exit. Complete the bundle here — before
+    # run_summary.json hashes prov.json — so every artifact file in the run
+    # directory is a PROV entity. prov.json and run_summary.json are recorded
+    # without sha256 (a file cannot contain its own hash); their integrity is
+    # carried by run_summary.json's artifact list and the bundle's own entity
+    # hashes of every other file.
+    prov["activity"] = list(log.activities)
+    activity_ids = {a.get("id") for a in prov["activity"]}
+    existing_ids = {e["id"] for e in prov["entity"]}
+
+    def _late_entity(rel: str, etype: str, *, with_sha: bool = True,
+                     note: str = "") -> Dict[str, Any]:
+        p = run_dir / rel
+        ent_late: Dict[str, Any] = {"id": rel, "type": etype, "path": str(p)}
+        if with_sha and p.exists():
+            ent_late["sha256"] = sha256_of(p)
+        if note:
+            ent_late["note"] = note
+        return ent_late
+
+    late_entities = [_late_entity(f"validation/{vr['artifactType']}.json", "ValidationReport")
+                     for vr in reports_l]
+    if (run_dir / "zones.xsd").exists() and "zones.xsd" not in existing_ids:
+        late_entities.append(explainer.entity_for(run_dir / "zones.xsd",
+                                                  "zones GML 3.2 XML schema"))
+    late_entities.extend([
+        _late_entity("report.html", "single-file HTML report"),
+        _late_entity("prov.json", "PROV bundle (this file)", with_sha=False,
+                     note="self-referential; integrity via run_summary.json artifact hashes"),
+        _late_entity("run_summary.json",
+                     "run summary (headline, tunings, artifact hashes)", with_sha=False,
+                     note="written after prov.json; its sha256 lives in its own artifacts list"),
+    ])
+    prov["entity"].extend(e for e in late_entities if e["id"] not in existing_ids)
+    ent_ids = {e["id"] for e in prov["entity"]}
+    late_links = [(f"validation/{vr['artifactType']}.json", "critic") for vr in reports_l] + [
+        ("zones.xsd", "cartographer"), ("report.html", "report"), ("prov.json", "explainer"),
+    ]
+    for rel, act in late_links:
+        if rel in ent_ids and act in activity_ids and not any(
+                w.get("entity") == rel for w in prov["wasGeneratedBy"]):
+            prov["wasGeneratedBy"].append({"entity": rel, "activity": act,
+                                           "time": utcnow()})
+    dump_json(run_dir / "prov.json", prov, indent=1)
+
+    # ---------------- 10. run summary ---------------------------------------- #
+    artifacts = sorted(p for p in run_dir.iterdir() if p.is_file())
+    summary = {
+        "runId": run_id,
+        "useCase": args.use_case,
+        "generatedAt": utcnow(),
+        "durationS": round(time.time() - started, 1),
+        "orchestrator": RUN_VERSION,
+        "instrument": INSTRUMENT,
+        "verdict": verdict,
+        "verdicts": verdicts,
+        "headline": {
+            "aoiKm2": round(aoi.area / 1e6, 3),
+            "inclusionIntersectAoiKm2": inclusion_zone["areaKm2"] if inclusion_zone else None,
+            "finalOpportunityKm2": final_rich["areaKm2"],
+            "rulesTotal": len(rules),
+            "rulesExecuted": len(engine_rules),
+            "zones": len(rich_zones),
+            "geometryRepairs": total_repairs,
+            "normCards": len(cards),
+            "abstentions": len(rejected_ledger.get("abstentions", [])),
+        },
+        "perRule": rule_stats,
+        "degradations": degradations,
+        "tunings": tunings,
+        "v3": next(
+            (c["detail"] for vr in reports_l for lvl in vr["levels"].values()
+             for c in lvl.get("checks", []) if c["id"] == "v3-reexecution-agreement"),
+            None,
+        ),
+        "artifacts": [{"name": p.name, "path": str(p), "sha256": sha256_of(p),
+                       "bytes": p.stat().st_size} for p in artifacts],
+        "agents": prov["agent"],
+    }
+    dump_json(run_dir / "run_summary.json", summary, indent=1)
+
+    # ---------------- console summary ---------------------------------------- #
+    print()
+    print("=" * 78)
+    print(f"RUN {run_id} — verdict: {verdict.upper()}")
+    print("=" * 78)
+    rows = [
+        ("AOI (province)", f"{aoi.area/1e6:,.3f} km2"),
+        ("Inclusion ∩ AOI", f"{inclusion_zone['areaKm2']:,.3f} km2" if inclusion_zone else "—"),
+        ("Final opportunity zone", f"{final_rich['areaKm2']:,.3f} km2"),
+        ("Rules executed / total", f"{len(engine_rules)} / {len(rules)} "
+         f"({cov['formalized']} formalized, {cov['ambiguous']} ambiguous→V4, {cov['rejected']} rejected)"),
+        ("Zones emitted", str(len(rich_zones))),
+        ("Geometry repairs (recorded)", str(total_repairs)),
+        ("Verdicts", ", ".join(f"{k}={v}" for k, v in verdicts.items())),
+    ]
+    for k, v in rows:
+        print(f"  {k:<28} {v}")
+    if summary["v3"]:
+        print(f"  {'V3 re-execution':<28} {summary['v3']}")
+    if degradations:
+        print(f"  DEGRADATIONS ({len(degradations)}):")
+        for d in degradations:
+            print(f"    - {json.dumps(d, ensure_ascii=False)[:160]}")
+    print(f"  Duration {summary['durationS']}s; artifacts:")
+    for p in artifacts:
+        print(f"    {run_dir / p.name}")
+    print("=" * 78)
+    print(f"[report] open {run_dir / 'report.html'} (works from file://)")
+    return 0 if verdict == "pass" else 1
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except SystemExit:
+        raise
+    except Exception as exc:  # pragma: no cover
+        traceback.print_exc()
+        print(f"[run] FAILED: {type(exc).__name__}: {exc}", file=sys.stderr)
+        sys.exit(2)

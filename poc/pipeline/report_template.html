@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ run.title }}</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+  :root { --ink:#1a2233; --mut:#5b6472; --line:#dde3ec; --bg:#f6f8fb; --card:#ffffff;
+          --ok:#1a7f4b; --bad:#b3261e; --warn:#9a6700; --pend:#6b55b5; }
+  * { box-sizing: border-box; }
+  body { font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+         color: var(--ink); background: var(--bg); margin: 0; padding: 0 0 60px; }
+  main { max-width: 1180px; margin: 0 auto; padding: 0 22px; }
+  header { background: #10233f; color: #fff; padding: 26px 0 20px; }
+  header h1 { font-size: 24px; margin: 0 0 6px; font-weight: 650; }
+  header .sub { color: #b9c6da; font-size: 13.5px; }
+  header .badges { margin-top: 10px; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12.5px;
+           font-weight: 600; margin-right: 6px; background: #24405f; color: #d7e3f4; }
+  .badge.pass { background: #123f2a; color: #8fe3b4; }
+  .badge.fail { background: #4a1512; color: #ffb3ad; }
+  .badge.needs_human { background: #4d3a07; color: #ffdf9e; }
+  .badge.pending { background: #33276b; color: #cabdf5; }
+  h2 { font-size: 19px; margin: 38px 0 12px; font-weight: 650; }
+  h3 { font-size: 15.5px; margin: 22px 0 8px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .stat .k { color: var(--mut); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  .stat .v { font-size: 21px; font-weight: 680; margin-top: 2px; }
+  .stat .s { color: var(--mut); font-size: 12px; margin-top: 2px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  #map { height: 560px; border-radius: 8px; border: 1px solid var(--line); }
+  .map-note { color: var(--mut); font-size: 12.5px; margin-top: 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; background: var(--card); }
+  th, td { border: 1px solid var(--line); padding: 6px 9px; text-align: left; vertical-align: top; }
+  th { background: #eef2f8; font-weight: 640; position: sticky; top: 0; }
+  .tablewrap { overflow-x: auto; max-height: 480px; overflow-y: auto; border: 1px solid var(--line);
+               border-radius: 8px; }
+  .scrollx { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .fx { font-size: 11.5px; font-weight: 700; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+  .fx.included, .fx.pass { color: var(--ok); background: #e2f3e9; }
+  .fx.excluded, .fx.fail { color: var(--bad); background: #fbe6e4; }
+  .fx.conditional, .fx.attention { color: var(--warn); background: #fdf3d7; }
+  .fx.compensation { color: #6b3fa0; background: #efe6fa; }
+  .fx.ambiguous, .fx.needs_human { color: #7a5b00; background: #fff1c9; }
+  .fx.not_applicable, .fx.pending, .fx.skipped { color: var(--mut); background: #edf0f4; }
+  blockquote { margin: 6px 0; padding: 8px 12px; border-left: 3px solid #b9c6da; background: #f2f5f9;
+               font-style: italic; font-size: 13px; }
+  details { border: 1px solid var(--line); border-radius: 8px; background: var(--card);
+            margin: 8px 0; padding: 0; }
+  details summary { cursor: pointer; padding: 9px 13px; font-weight: 600; font-size: 13.5px; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  details .body { padding: 10px 14px; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+  a { color: #0b5cad; }
+  .checks li { margin: 3px 0; font-size: 12.8px; }
+  .lvl { display: inline-block; min-width: 30px; font-weight: 700; }
+  .lvl-V0,.lvl-V1,.lvl-V2,.lvl-V3 { color: #33415c; }
+  .lvl-V4 { color: var(--pend); }
+  footer { margin-top: 44px; color: var(--mut); font-size: 12.5px; border-top: 1px solid var(--line);
+           padding-top: 14px; }
+  .legend-dot { display:inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px;
+                vertical-align: middle; }
+</style>
+</head>
+<body>
+<header>
+  <main>
+    <h1>{{ run.title }}</h1>
+    <div class="sub">
+      Run <span class="mono">{{ run.run_id }}</span> &middot; use case <span class="mono">{{ run.use_case }}</span>
+      &middot; generated {{ run.generated_at }} &middot; policy stage <b>{{ run.policy_stage }}</b>
+      &middot; instrument pinned: {{ run.instrument }}
+    </div>
+    <div class="badges">
+      {% for b in run.badges %}
+      <span class="badge {{ b.cls }}">{{ b.label }}</span>
+      {% endfor %}
+    </div>
+  </main>
+</header>
+<main>
+
+<section id="headline">
+  <h2>Headline</h2>
+  <div class="cards">
+    {% for s in headline %}
+    <div class="stat"><div class="k">{{ s.k }}</div><div class="v">{{ s.v }}</div><div class="s">{{ s.s }}</div></div>
+    {% endfor %}
+  </div>
+  <p class="map-note" style="margin-top:12px">{{ headline_note }}</p>
+</section>
+
+<section id="map-section">
+  <h2>Opportunity map</h2>
+  <div class="panel">
+    <div id="map"></div>
+    <p class="map-note">
+      Layers: <span class="legend-dot" style="background:#2e7d32"></span>final opportunity zone &middot;
+      <span class="legend-dot" style="background:#1565c0"></span>inclusion (designated wind zones &cap; AOI) &middot;
+      <span class="legend-dot" style="background:#ef6c00"></span>after each exclusion &middot;
+      <span class="legend-dot" style="background:#6a1b9a"></span>attention / conditional / compensation markers &middot;
+      <span class="legend-dot" style="background:#000"></span>AOI (province boundary).
+      Use the layer switcher (top right) to toggle. Basemap tiles and the Leaflet library load from a CDN;
+      when opened offline the map degrades to the tables below. Full-resolution geometry:
+      <span class="mono">zones.geojson</span> / <span class="mono">zones.gml</span>.
+      Display geometry simplified to {{ map.tolerance_m }} m (recorded in the run summary).
+    </p>
+  </div>
+</section>
+
+<section id="zones">
+  <h2>Zones &amp; statistics <span class="sub">(fallback table &mdash; always available)</span></h2>
+  <div class="tablewrap">
+    <table>
+      <thead><tr>
+        <th>zone id</th><th>operation</th><th>rules</th><th class="num">area km&sup2;</th>
+        <th>layers</th><th class="num">prov steps</th><th class="num">repairs</th>
+      </tr></thead>
+      <tbody>
+      {% for z in zones_table %}
+      <tr>
+        <td class="mono">{{ z.id }}</td>
+        <td>{{ z.operation }}</td>
+        <td class="mono">{{ z.ruleIds | join(", ") }}</td>
+        <td class="num">{{ z.areaKm2 }}</td>
+        <td class="mono">{{ z.layers | join(", ") }}</td>
+        <td class="num">{{ z.provSteps }}</td>
+        <td class="num">{{ z.repairs }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="decision">
+  <h2>Decision table</h2>
+  <p class="map-note">Every row links its NormCard (instrument + article + version + verbatim quote + URL in
+     <span class="mono">normcards.json</span>). Machine-readable copy: <span class="mono">decision-table.json</span>,
+     Markdown copy: <span class="mono">decision-table.md</span>.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr>
+        {% for c in decision.columns %}<th>{{ c }}</th>{% endfor %}
+      </tr></thead>
+      <tbody>
+      {% for row in decision.rows %}
+      <tr>
+        {% for c in decision.columns %}
+        <td>
+          {% if c == 'zone effect' %}<span class="fx {{ row[c] }}">{{ row[c] }}</span>
+          {% elif c == 'source' %}{% set parts = row[c].split(': ', 1) %}<span class="mono">{{ parts[0] }}</span> <a href="{{ parts[1] if parts | length > 1 else '#' }}" target="_blank" rel="noopener">{{ parts[1] if parts | length > 1 else row[c] }}</a>
+          {% else %}{{ row[c] }}{% endif %}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="validation">
+  <h2>Validation report (V0&ndash;V4)</h2>
+  {% for vr in validation %}
+  <details {% if loop.first %}open{% endif %}>
+    <summary>{{ vr.artifactType }} &mdash; <span class="fx {{ vr.verdict }}">{{ vr.verdict }}</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">{{ vr.id }}</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        {% for lvl in vr.levels %}
+        <tr>
+          <td><span class="lvl lvl-{{ lvl.name }}">{{ lvl.name }}</span></td>
+          <td><span class="fx {{ lvl.status }}">{{ lvl.status }}</span>{% if lvl.notes %}<div class="map-note">{{ lvl.notes }}</div>{% endif %}</td>
+          <td>
+            {% if lvl.checks %}
+            <ul class="checks" style="margin:0;padding-left:18px">
+              {% for c in lvl.checks %}
+              <li><span class="mono">[{{ c.status }}]</span> <span class="mono">{{ c.id }}</span>
+                {% if c.detail %}&mdash; {{ c.detail }}{% endif %}</li>
+              {% endfor %}
+            </ul>
+            {% else %}&mdash;{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </details>
+  {% endfor %}
+</section>
+
+<section id="normcards">
+  <h2>Norm cards (cite-or-abstain)</h2>
+  <p class="map-note">{{ normcards | length }} verified cards; each carries the verbatim Dutch quote, the article,
+     the consolidated instrument version and the URL. {{ abstentions | length }} abstentions are listed below.</p>
+  {% for nc in normcards %}
+  <details>
+    <summary><span class="mono">{{ nc.id }}</span> &middot; {{ nc.article }}
+      <span class="fx {{ 'pass' if nc.legalForce == 'binding' else 'ambiguous' }}">{{ nc.legalForce }}</span>
+      <span class="fx pending">conf {{ nc.confidence }}</span></summary>
+    <div class="body">
+      <p style="margin:4px 0">{{ nc.claim }}</p>
+      <blockquote lang="nl">&ldquo;{{ nc.quote }}&rdquo;</blockquote>
+      <p class="map-note" style="margin:4px 0">
+        <b>{{ nc.instrument }}</b> &middot; version: {{ nc.version }} &middot;
+        doc <span class="mono">{{ nc.docId }}</span> &middot;
+        <a href="{{ nc.uri }}" target="_blank" rel="noopener">{{ nc.uri }}</a><br>
+        theme <span class="mono">{{ nc.theme }}</span>
+        {% if nc.zoneIds %}&middot; zones <span class="mono">{{ nc.zoneIds | join(", ") }}</span>{% endif %}
+        {% if nc.gioJoinId %}<br>GIO <span class="mono">{{ nc.gioJoinId }}</span>{% endif %}
+        {% if nc.caveat %}<br>caveat: {{ nc.caveat }}{% endif %}
+      </p>
+    </div>
+  </details>
+  {% endfor %}
+  {% if abstentions %}
+  <h3>Abstentions (no verified citation &rarr; no rule)</h3>
+  <div class="scrollx">
+  <table>
+    <thead><tr><th>id</th><th>topic</th><th>reason</th></tr></thead>
+    <tbody>
+    {% for a in abstentions %}
+    <tr><td class="mono">{{ a.id }}</td><td>{{ a.topic }}</td><td>{{ a.reason }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% endif %}
+</section>
+
+<section id="prov">
+  <h2>Provenance</h2>
+  <div class="panel">
+    <h3 style="margin-top:4px">Pipeline stages</h3>
+    <div class="scrollx">
+    <table>
+      <thead><tr><th>stage</th><th>agent</th><th>started</th><th>ended</th><th>used</th><th>generated</th></tr></thead>
+      <tbody>
+      {% for a in prov.activities %}
+      <tr>
+        <td>{{ a.label }}</td>
+        <td class="mono">{{ a.agent }}</td>
+        <td class="mono">{{ a.startedAt }}</td>
+        <td class="mono">{{ a.endedAt }}</td>
+        <td class="mono">{{ a.used | join(", ") }}</td>
+        <td class="mono">{{ a.generated | join(", ") }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    <h3>Agents</h3>
+    <p class="map-note">{% for a in prov.agents %}<span class="mono">{{ a.name }} ({{ a.version }})</span> &middot; {% endfor %}</p>
+    <h3>Geo sources (open-data aliases, with lastChecked)</h3>
+    <div class="scrollx">
+    <table>
+      <thead><tr><th>zone</th><th>source id</th><th>service / layer</th><th>features</th><th>lastChecked</th><th>alias for (GIO)</th></tr></thead>
+      <tbody>
+      {% for s in prov.sources %}
+      <tr>
+        <td class="mono">{{ s.zone }}</td>
+        <td class="mono">{{ s.sourceId }}</td>
+        <td class="mono">{{ s.service }}</td>
+        <td class="num">{{ s.features }}</td>
+        <td class="mono">{{ s.lastChecked }}</td>
+        <td class="mono">{{ s.aliasFor }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    <p class="map-note">Full bundle: <span class="mono">prov.json</span> (PROV-O-flavoured: agents, entities with
+       sha256, activities with timestamps, wasGeneratedBy / wasDerivedFrom).</p>
+  </div>
+</section>
+
+<section id="limits">
+  <h2>Limitations &amp; tuning</h2>
+  <div class="panel">
+    <ul style="margin:6px 0;padding-left:20px">
+      {% for l in limitations %}<li>{{ l }}</li>{% endfor %}
+    </ul>
+    {% if tunings %}
+    <p class="map-note"><b>Tuned parameters (recorded):</b>
+      {% for t in tunings %}<span class="mono">{{ t.k }}={{ t.v }}</span> &middot; {% endfor %}</p>
+    {% endif %}
+  </div>
+</section>
+
+<footer>
+  Artifacts in the run directory: <span class="mono">{{ paths.listing }}</span><br>
+  This report is a programming-stage decision-support artifact, not a permit decision. Every legal claim
+  traces to a cited instrument version; ambiguous norms are routed to the V4 human-expert checkpoint.
+</footer>
+</main>
+
+<script type="application/json" id="zones-data">{{ map.geojson | safe }}</script>
+<script type="application/json" id="aoi-data">{{ map.aoi | safe }}</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+(function () {
+  var mapEl = document.getElementById('map');
+  if (typeof L === 'undefined') {
+    mapEl.innerHTML = '<div style="padding:24px;color:#5b6472;font-size:14px">' +
+      'Leaflet could not be loaded (CDN unreachable). The zone tables below carry the same information; ' +
+      'open this file with internet access to render the interactive map.</div>';
+    mapEl.style.height = 'auto';
+    return;
+  }
+  var zones = JSON.parse(document.getElementById('zones-data').textContent);
+  var aoi = JSON.parse(document.getElementById('aoi-data').textContent);
+
+  var bounds = L.latLngBounds({{ map.bounds }});
+  var map = L.map('map').fitBounds(bounds.pad(0.06));
+
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  var base = { 'OSM (CDN)': L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {maxZoom:18}) };
+
+  function cat(f) { return f.properties.__cat; }
+  var styles = {
+    final:       {color: '#2e7d32', weight: 2.2, fillColor: '#66bb6a', fillOpacity: 0.30},
+    inclusion:   {color: '#1565c0', weight: 2.0, fillColor: '#64b5f6', fillOpacity: 0.22},
+    exclusion:   {color: '#ef6c00', weight: 1.6, fillColor: '#ffb74d', fillOpacity: 0.14, dashArray: '6 4'},
+    marker:      {color: '#6a1b9a', weight: 1.6, fillColor: '#ce93d8', fillOpacity: 0.14, dashArray: '3 5'}
+  };
+  var labels = {
+    final: 'Final opportunity zone', inclusion: 'Inclusion (designated zones \u2229 AOI)',
+    exclusion: 'After exclusion step (cumulative)', marker: 'Attention / conditional / compensation markers'
+  };
+  var overlays = {};
+  ['final', 'inclusion', 'exclusion', 'marker'].forEach(function (c) {
+    var feats = zones.features.filter(function (f) { return cat(f) === c; });
+    if (!feats.length) return;
+    var g = L.geoJSON({type: 'FeatureCollection', features: feats}, {
+      style: function () { return styles[c]; },
+      onEachFeature: function (f, layer) {
+        var p = f.properties;
+        layer.bindPopup('<b>' + p.id + '</b><br>op: ' + p.operation +
+          '<br>area: ' + p.areaKm2 + ' km\u00b2<br>rules: ' + (p.ruleIds || []).join(', ') +
+          '<br>layers: ' + (p.layers || []).join(', '));
+      }
+    });
+    if (c === 'final' || c === 'inclusion') g.addTo(map);
+    overlays[labels[c]] = g;
+  });
+  if (aoi) {
+    overlays['AOI (province boundary)'] = L.geoJSON(aoi, {
+      style: {color: '#000', weight: 2.4, fill: false, dashArray: '9 6'}
+    }).addTo(map);
+  }
+  L.control.layers(base, overlays, {collapsed: false}).addTo(map);
+})();
+</script>
+</body>
+</html>

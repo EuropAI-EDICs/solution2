@@ -1,0 +1,65 @@
+{
+  "description": "Cite-or-abstain ledger for the wind NormCard corpus. Evidence items that failed the verification gate are listed under rejectedEvidence (none in the wind shard: all 24 records were verified against the consolidated CVDR704250 text). Topics for which NO provincial norm could be cited are recorded under abstentions — these must never appear as NormCards or FormalRules until a verified citation exists.",
+  "generatedBy": "legal-recon-agent#cvdr704250-geldend-2025-10-13",
+  "generatedAt": "2026-08-30",
+  "policy": "cite-or-abstain: a legal claim becomes a NormCard only with instrument + article + version/date + verbatim quote + URL, all verified. Everything else is recorded here with a reason.",
+  "rejectedEvidence": [],
+  "abstentions": [
+    {
+      "id": "A-01",
+      "topic": "stikstof (nitrogen deposition) norms for wind turbines",
+      "reason": "The Omgevingsverordening provincie Utrecht contains no provincial nitrogen articles; nitrogen rules are national law. National instruments were not fetched in this recon run, so no citation exists — abstained.",
+      "wouldHaveBeen": "exclusion/assessment rule for nitrogen deposition near Natura 2000",
+      "checkedAt": "2026-08-30"
+    },
+    {
+      "id": "A-02",
+      "topic": "general wind-turbine noise limits (dB) outside stiltegebieden",
+      "reason": "Wind-turbine noise limits outside the stiltegebied doelstellingen (art. 9.26) are set by national law (Wet geluidhinder / Besluit activiteiten leefomgeving); the verordening contains none. No provincial citation possible — abstained.",
+      "wouldHaveBeen": "noise contour rule around noise-sensitive buildings",
+      "checkedAt": "2026-08-30"
+    },
+    {
+      "id": "A-03",
+      "topic": "tip height (tiphoogte) limits",
+      "reason": "The verordening regulates hub height (ashoogte) in art. 5.3 only; no provincial tip-height norm exists — abstained rather than derived.",
+      "wouldHaveBeen": "parameter_threshold rule on tip height",
+      "checkedAt": "2026-08-30"
+    },
+    {
+      "id": "A-04",
+      "topic": "setback distances from residential buildings",
+      "reason": "No provincial setback (afstand) norm for wind turbines exists in the verordening; inventing one would violate cite-or-abstain.",
+      "wouldHaveBeen": "buffer/exclusion rule around dwellings",
+      "checkedAt": "2026-08-30"
+    },
+    {
+      "id": "A-05",
+      "topic": "Natura 2000 / ganzenrustgebied provincial geometry (GIO)",
+      "reason": "The Natura 2000 and ganzenrustgebied exclusion (toelichting art. 5.4 + Omgevingsvisie) has NO provincial GIO in Bijlage II; geometry must come from national datasets via the geo analyst, with provenance caveats on the resulting ZoneResult.",
+      "wouldHaveBeen": "provincial_gio zoneSelector for FR-W-08",
+      "checkedAt": "2026-08-30"
+    },
+    {
+      "id": "A-06",
+      "topic": "machine-readable GIO geometry download",
+      "reason": "The DSO Omgevingsdocumenten Downloaden API (service.omgevingswet.overheid.nl/publiek/omgevingsdocumenten/api/downloaden/v1) returned HTTP 401 'Inloggegevens ontbreken' — an API key is mandatory and none is available. GIO join-ids are therefore cited from the consolidated CVDR text (Bijlage II) only; geometry retrieval needs the key or open fallbacks with provenance caveats.",
+      "wouldHaveBeen": "authoritative geometry for every provincial_gio zoneSelector",
+      "checkedAt": "2026-08-30"
+    },
+    {
+      "id": "A-07",
+      "topic": "province ArcGIS layer ET_wind_gebieden_windenergie as legal geometry",
+      "reason": "The ArcGIS layer ET_wind_gebieden_windenergie/13 is an energy-transition tracking layer ('meest kansrijke gebieden'), NOT the juridische GIO 'gebied windenergie' from Bijlage II. It must not be presented as the legal werkingsgebied; using it requires an explicit provenance-alias caveat.",
+      "wouldHaveBeen": "open-data fallback geometry for FR-W-05",
+      "checkedAt": "2026-08-30"
+    },
+    {
+      "id": "A-08",
+      "topic": "pending amendment (ontwerp prb-2026-12)",
+      "reason": "A major amendment is expected: PS vaststelling 18-11-2026, inwerkingtreding 01-01-2027. Its rules are NOT current law; the corpus must re-run the legal recon before that date. Current CVDR snapshot is frozen for V3 reproducibility.",
+      "wouldHaveBeen": "future-version norm cards (trend watching only)",
+      "checkedAt": "2026-08-30"
+    }
+  ]
+}

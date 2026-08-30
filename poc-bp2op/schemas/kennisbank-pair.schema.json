@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldttoolbox.example/poc-bp2op/schemas/kennisbank-pair.schema.json",
+  "title": "KennisbankPair",
+  "description": "One stored earlier conversion decision: this bron-rule concept is replaced by that doelregeling rule (MC-5). Seeded exclusively from official published replacement relations ('komt in de plaats van') or the doelregeling's own taxonomy; never inferred by the matcher.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "bronLabel", "doelLocator", "relatie", "quote", "bronDocId", "url", "origin", "extractedBy", "extractedAt"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^KB-\\d{3}$" },
+    "bronLabel": { "type": "string", "minLength": 6, "description": "the old-rule label as published, e.g. 'artikel 22.46 van de Bruidsschat'" },
+    "doelLocator": { "type": "string", "minLength": 4, "description": "the new-rule locator, e.g. 'artikel 1.5'" },
+    "doelRegelId": { "type": ["string", "null"], "pattern": "^DR-\\d{3}$", "description": "resolved against the doelregeling index when the locator parses" },
+    "relatie": { "enum": ["vervangt", "voortzetting", "vertaalt_begrip"] },
+    "quote": { "type": "string", "minLength": 20, "description": "verbatim sentence establishing the relation" },
+    "bronDocId": { "type": "string", "pattern": "^B\\d{2}$" },
+    "url": { "type": "string", "pattern": "^https?://\\S+$" },
+    "origin": { "enum": ["officiele_publicatie", "doelregeling_taxonomie"] },
+    "methodTrace": { "type": "array", "items": { "type": "string", "pattern": "^MC-\\d{1,2}$" }, "uniqueItems": true },
+    "extractedBy": { "type": "string", "pattern": "^[a-z0-9-]+#[A-Za-z0-9._-]+$" },
+    "extractedAt": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
+  }
+}

@@ -1,0 +1,535 @@
+{
+ "flavour": "W3C PROV-O terms (agent/entity/activity/wasGeneratedBy/wasDerivedFrom) serialised as plain JSON",
+ "namespace": "ldttoolbox:poc:wind:",
+ "runId": "20260830T111940Z-wind",
+ "requestId": "0d9f61aa-4b8e-4f2f-9f6a-6f21cb53d001",
+ "generatedAt": "2026-08-30T11:20:27Z",
+ "generatedBy": "explainer#deterministic-poc1",
+ "agent": [
+  {
+   "id": "orchestrator",
+   "name": "run.py orchestrator",
+   "version": "poc-run/1.0",
+   "role": "plan -> dispatch -> verify -> synthesize (plan section 3.2 agent #1)"
+  },
+  {
+   "id": "legal-recon-agent",
+   "name": "NormAnalyst",
+   "version": "legal-recon-agent#cvdr704250-geldend-2025-10-13",
+   "role": "deterministic replay of the verified legal recon (agent #3)"
+  },
+  {
+   "id": "norm-formalizer",
+   "name": "NormFormalizer",
+   "version": "norm-formalizer#deterministic-templates-v1",
+   "role": "deterministic templates (agent #4)"
+  },
+  {
+   "id": "geo-connector",
+   "name": "GeoData connector",
+   "version": "ldttoolbox-geoconnector/0.1",
+   "role": "ArcGIS REST fetch, cache-first (agent #5 tool)"
+  },
+  {
+   "id": "zone-engine",
+   "name": "FormalRule zone engine",
+   "version": "poc-zone-engine/0.1",
+   "role": "deterministic execution + validation repair provenance (agent #5)"
+  },
+  {
+   "id": "cartographer",
+   "name": "Cartographer",
+   "version": "poc-cartographer/0.1",
+   "role": "GeoJSON/GML serialization (agent #6)"
+  },
+  {
+   "id": "critic-validator",
+   "name": "Critic/Validator",
+   "version": "critic-validator#deterministic-v0-v3-poc1",
+   "role": "V0-V3 deterministic checks, V4 pending (agent #7)"
+  },
+  {
+   "id": "explainer",
+   "name": "Explainer",
+   "version": "explainer#deterministic-poc1",
+   "role": "decision table + PROV (agent #8)"
+  },
+  {
+   "id": "report",
+   "name": "HTML report renderer",
+   "version": "poc-report/1.0",
+   "role": "single-file report (agent #6 view tier)"
+  }
+ ],
+ "entity": [
+  {
+   "id": "request.json",
+   "type": "OpportunityMapRequest",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T111940Z-wind/request.json",
+   "sha256": "7f835aef6bb375883e00050f1feeb1175164667b7118a066906bb5fb22ec13a0"
+  },
+  {
+   "id": "evidence-wind.json",
+   "type": "evidence shard",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/corpus/evidence-wind.json",
+   "sha256": "4f0c457b8c7ecb84949e9afac224265f9bea340e3b53aa1813be2cd19f9e7dfc"
+  },
+  {
+   "id": "sources.json",
+   "type": "document source registry",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/corpus/sources.json",
+   "sha256": "ad8e3e722fcec62ee0dc624dc927c83c90df8f3e890472bad9d797103dc645af"
+  },
+  {
+   "id": "sources.json",
+   "type": "geo source registry",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/data/sources.json",
+   "sha256": "70b5a9293fe6c958054d8c3a887f7649f5170722469e196be4dc718f16c333dc"
+  },
+  {
+   "id": "normcards.json",
+   "type": "NormCard[]",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T111940Z-wind/normcards.json",
+   "sha256": "df2735d525d533ca5142bb085bf105bba888d8719c17a1d18c250761cf1007c7"
+  },
+  {
+   "id": "normcards-rejected.json",
+   "type": "cite-or-abstain ledger",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T111940Z-wind/normcards-rejected.json",
+   "sha256": "2becbd1d523e4115006acdddd9e821fee2c7beff92657e66ac1ba6b9132e2f2f"
+  },
+  {
+   "id": "formalrules.json",
+   "type": "FormalRule[]",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T111940Z-wind/formalrules.json",
+   "sha256": "ca05df23692f77844c1f028673fa2616ec28fda22b86a6cdc181d56091a19396"
+  },
+  {
+   "id": "layers.json",
+   "type": "layer manifest",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T111940Z-wind/layers.json",
+   "sha256": "61b5a3706bec2889af630dac32aa879c30b394934a749a033a933aecbf54f510"
+  },
+  {
+   "id": "zones.json",
+   "type": "ZoneResult[]",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T111940Z-wind/zones.json",
+   "sha256": "cfd56e05e4a3a948a7909a7d6ab6ff9beae42531ddd17366e957bf095c6ec589"
+  },
+  {
+   "id": "rule-stats.json",
+   "type": "per-rule footprint stats",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T111940Z-wind/rule-stats.json",
+   "sha256": "6ca37cfbf142d0c4597bae5cc3902ac3139df5c5d6163455c2209c0901c05dcb"
+  },
+  {
+   "id": "zones.geojson",
+   "type": "zones GeoJSON (RFC 7946)",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T111940Z-wind/zones.geojson",
+   "sha256": "368a14bcd499095e73f12d2a4506acdc79aae67816a20f2e483e928771edf5a8"
+  },
+  {
+   "id": "report_input.json",
+   "type": "cartographer report input",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T111940Z-wind/report_input.json",
+   "sha256": "2760dcf3721ccb7f1512628e641f241fe6ccd55fedf34ac00f01b06ea63a8907"
+  },
+  {
+   "id": "decision-table.json",
+   "type": "DecisionTable",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T111940Z-wind/decision-table.json",
+   "sha256": "91f21c52002dcb37dedaa4a7ed03d0ffc3172396acd9373d8361225e0feaee50"
+  },
+  {
+   "id": "decision-table.md",
+   "type": "DecisionTable (markdown)",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T111940Z-wind/decision-table.md",
+   "sha256": "72da311254a219d20953f02e0065175881a4cd4d681ab4f5cd273f6fc2aabcc2"
+  },
+  {
+   "id": "validation.json",
+   "type": "ValidationReport[]",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T111940Z-wind/validation.json",
+   "sha256": "a34e2ded54c961b463ce65eae568884c53cbe3ae94f046df59e4629119b66347"
+  },
+  {
+   "id": "zones.gml",
+   "type": "zones GML 3.2",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T111940Z-wind/zones.gml",
+   "sha256": "5fd3c2935f3189827a07c29d9810948d0d443337c798b66aaf4ebf38db8d4664"
+  },
+  {
+   "id": "agrest-ov-stiltegebied.28992.geojson",
+   "type": "layer cache (EPSG:28992)",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/data/cache/agrest-ov-stiltegebied.28992.geojson",
+   "sha256": "2800dc15cd975b0096a86465dde497ebb597b42d8cdaedb9bb13d6fae3b8aa52",
+   "zone": "aandachtsgebied_stiltegebied",
+   "sourceId": "agrest-ov-stiltegebied"
+  },
+  {
+   "id": "agrest-ov-ganzenrustgebied.28992.geojson",
+   "type": "layer cache (EPSG:28992)",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/data/cache/agrest-ov-ganzenrustgebied.28992.geojson",
+   "sha256": "800ffa2ced9a9658362180330d07dd83026af64b6b1b834be23e6cd33a6a6395",
+   "zone": "ganzenrustgebied",
+   "sourceId": "agrest-ov-ganzenrustgebied"
+  },
+  {
+   "id": "agrest-ov-gebied-kleine-windturbine.28992.geojson",
+   "type": "layer cache (EPSG:28992)",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/data/cache/agrest-ov-gebied-kleine-windturbine.28992.geojson",
+   "sha256": "05cb2c0bdcb8c7179541ab59cec1ff9b8d4c1824048291a65c372d4752e121c8",
+   "zone": "gebied_kleine_windturbine",
+   "sourceId": "agrest-ov-gebied-kleine-windturbine"
+  },
+  {
+   "id": "agrest-ov-gebied-windenergie.28992.geojson",
+   "type": "layer cache (EPSG:28992)",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/data/cache/agrest-ov-gebied-windenergie.28992.geojson",
+   "sha256": "0c2b644eb0b02ef41333b5967dfd5e3e1ebc6de261cf44f1170cd8a4e9bd9e1d",
+   "zone": "gebied_windenergie",
+   "sourceId": "agrest-ov-gebied-windenergie"
+  },
+  {
+   "id": "agrest-ov-groene-contour.28992.geojson",
+   "type": "layer cache (EPSG:28992)",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/data/cache/agrest-ov-groene-contour.28992.geojson",
+   "sha256": "167ebc15d72ec9167c0a014e42687981bd820dae452dbcd0ade883750abdd21b",
+   "zone": "groene_contour",
+   "sourceId": "agrest-ov-groene-contour"
+  },
+  {
+   "id": "agrest-ov-landelijk-gebied.28992.geojson",
+   "type": "layer cache (EPSG:28992)",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/data/cache/agrest-ov-landelijk-gebied.28992.geojson",
+   "sha256": "e979bbca8a30ebf9bb290d315d3caa9c61fa4f15b19abc758c8d9e137a73ba86",
+   "zone": "landelijk_gebied",
+   "sourceId": "agrest-ov-landelijk-gebied"
+  },
+  {
+   "id": "arcgis-natura2000.28992.geojson",
+   "type": "layer cache (EPSG:28992)",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/data/cache/arcgis-natura2000.28992.geojson",
+   "sha256": "f3e10e14353a12e7aaa34388c45a391ec6bbfb9a853121d7a92e6ab7eb8ebffd",
+   "zone": "natura_2000",
+   "sourceId": "arcgis-natura2000"
+  },
+  {
+   "id": "agrest-ov-natuurnetwerk.28992.geojson",
+   "type": "layer cache (EPSG:28992)",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/data/cache/agrest-ov-natuurnetwerk.28992.geojson",
+   "sha256": "aa232da9d6d2eb0317a2e47c924871f2b720b75679c119b0d9bf6f8e98df0a02",
+   "zone": "natuurnetwerk_nederland",
+   "sourceId": "agrest-ov-natuurnetwerk"
+  },
+  {
+   "id": "agrest-ov-stiltegebied.28992.geojson",
+   "type": "layer cache (EPSG:28992)",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/data/cache/agrest-ov-stiltegebied.28992.geojson",
+   "sha256": "2800dc15cd975b0096a86465dde497ebb597b42d8cdaedb9bb13d6fae3b8aa52",
+   "zone": "stiltegebied",
+   "sourceId": "agrest-ov-stiltegebied"
+  },
+  {
+   "id": "use-cases/wind.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "corpus/evidence-wind.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "corpus/sources.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "data/sources.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  }
+ ],
+ "activity": [
+  {
+   "id": "intake",
+   "label": "Intake: load + validate OpportunityMapRequest",
+   "type": "intake",
+   "agent": "run.py-orchestrator",
+   "startedAt": "2026-08-30T11:19:40Z",
+   "endedAt": "2026-08-30T11:19:40Z",
+   "durationS": 0.054,
+   "used": [
+    "use-cases/wind.json"
+   ],
+   "generated": [
+    "request.json"
+   ]
+  },
+  {
+   "id": "norm-analyst",
+   "label": "Norm Analyst: harvest NormCards (deterministic replay)",
+   "type": "norm-analyst",
+   "agent": "legal-recon-agent",
+   "startedAt": "2026-08-30T11:19:40Z",
+   "endedAt": "2026-08-30T11:19:40Z",
+   "durationS": 0.011,
+   "used": [
+    "corpus/evidence-wind.json",
+    "corpus/sources.json"
+   ],
+   "generated": [
+    "normcards.json",
+    "normcards-rejected.json"
+   ]
+  },
+  {
+   "id": "norm-formalizer",
+   "label": "Norm Formalizer: NormCards -> FormalRules (deterministic templates)",
+   "type": "norm-formalizer",
+   "agent": "norm-formalizer",
+   "startedAt": "2026-08-30T11:19:40Z",
+   "endedAt": "2026-08-30T11:19:40Z",
+   "durationS": 0.012,
+   "used": [
+    "normcards.json"
+   ],
+   "generated": [
+    "formalrules.json"
+   ]
+  },
+  {
+   "id": "geo-analyst-fetch",
+   "label": "Geo Analyst: fetch zone layers (cache-first ArcGIS REST)",
+   "type": "geo-analyst-fetch",
+   "agent": "ldttoolbox-geoconnector/0.1",
+   "startedAt": "2026-08-30T11:19:40Z",
+   "endedAt": "2026-08-30T11:19:51Z",
+   "durationS": 10.603,
+   "used": [
+    "data/sources.json"
+   ],
+   "generated": [
+    "layers.json"
+   ]
+  },
+  {
+   "id": "zone-engine",
+   "label": "Geo Analyst: deterministic FormalRule execution (shapely path)",
+   "type": "zone-engine",
+   "agent": "zone-engine",
+   "startedAt": "2026-08-30T11:19:51Z",
+   "endedAt": "2026-08-30T11:19:58Z",
+   "durationS": 7.105,
+   "used": [
+    "formalrules.json",
+    "layers.json"
+   ],
+   "generated": [
+    "zones.json"
+   ]
+  },
+  {
+   "id": "cartographer",
+   "label": "Cartographer: zones.geojson + GML + report input",
+   "type": "cartographer",
+   "agent": "poc-cartographer/0.1",
+   "startedAt": "2026-08-30T11:19:58Z",
+   "endedAt": "2026-08-30T11:19:59Z",
+   "durationS": 0.731,
+   "used": [
+    "zones.json"
+   ],
+   "generated": [
+    "zones.geojson",
+    "zones.gml"
+   ]
+  },
+  {
+   "id": "critic",
+   "label": "Critic/Validator: V0-V3 deterministic + V4 pending",
+   "type": "critic",
+   "agent": "critic-validator",
+   "startedAt": "2026-08-30T11:19:59Z",
+   "endedAt": "2026-08-30T11:20:13Z",
+   "durationS": 13.988,
+   "used": [
+    "request.json",
+    "normcards.json",
+    "formalrules.json",
+    "zones.json",
+    "decision-table.json"
+   ],
+   "generated": [
+    "validation.json"
+   ]
+  }
+ ],
+ "wasGeneratedBy": [
+  {
+   "entity": "request.json",
+   "activity": "intake",
+   "time": "2026-08-30T11:19:40Z"
+  },
+  {
+   "entity": "normcards.json",
+   "activity": "norm-analyst",
+   "time": "2026-08-30T11:19:40Z"
+  },
+  {
+   "entity": "normcards-rejected.json",
+   "activity": "norm-analyst",
+   "time": "2026-08-30T11:19:40Z"
+  },
+  {
+   "entity": "formalrules.json",
+   "activity": "norm-formalizer",
+   "time": "2026-08-30T11:19:40Z"
+  },
+  {
+   "entity": "layers.json",
+   "activity": "geo-analyst-fetch",
+   "time": "2026-08-30T11:19:51Z"
+  },
+  {
+   "entity": "zones.json",
+   "activity": "zone-engine",
+   "time": "2026-08-30T11:19:58Z"
+  },
+  {
+   "entity": "zones.geojson",
+   "activity": "cartographer",
+   "time": "2026-08-30T11:19:59Z"
+  },
+  {
+   "entity": "zones.gml",
+   "activity": "cartographer",
+   "time": "2026-08-30T11:19:59Z"
+  },
+  {
+   "entity": "validation.json",
+   "activity": "critic",
+   "time": "2026-08-30T11:20:13Z"
+  }
+ ],
+ "wasDerivedFrom": [
+  {
+   "generatedEntity": "formalrules.json",
+   "usedEntity": "normcards.json",
+   "note": "NormFormalizer deterministic templates"
+  },
+  {
+   "generatedEntity": "normcards.json",
+   "usedEntity": "evidence-wind.json",
+   "note": "NormAnalyst replay (cite-or-abstain)"
+  },
+  {
+   "generatedEntity": "zones.json",
+   "usedEntity": "formalrules.json",
+   "note": "engine executed FormalRules over fetched layers"
+  },
+  {
+   "generatedEntity": "decision-table.json",
+   "usedEntity": "normcards.json",
+   "note": "every row links a normCardId"
+  },
+  {
+   "generatedEntity": "validation.json",
+   "usedEntity": "zones.json",
+   "note": "V0-V3 over the artifact tree"
+  }
+ ],
+ "hadPrimarySource": [
+  {
+   "zone": "aandachtsgebied_stiltegebied",
+   "sourceId": "agrest-ov-stiltegebied",
+   "service": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0",
+   "lastChecked": "2026-08-30T08:30:00Z",
+   "fetchedAt": "2026-08-30T11:19:44Z",
+   "features": 27,
+   "aliasFor": "provincial_gio_unverified",
+   "authoritative": true
+  },
+  {
+   "zone": "ganzenrustgebied",
+   "sourceId": "agrest-ov-ganzenrustgebied",
+   "service": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0",
+   "lastChecked": "2026-08-30T08:30:00Z",
+   "fetchedAt": "2026-08-30T11:19:44Z",
+   "features": 3,
+   "aliasFor": "national_source",
+   "authoritative": true
+  },
+  {
+   "zone": "gebied_kleine_windturbine",
+   "sourceId": "agrest-ov-gebied-kleine-windturbine",
+   "service": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0",
+   "lastChecked": "2026-08-30T07:45:26Z",
+   "fetchedAt": "2026-08-30T11:19:41Z",
+   "features": 44,
+   "aliasFor": "/join/id/regdata/pv26/2025/gio73f71441-6b83-4be5-9fef-293714578255/nld@2025-10-10;822",
+   "authoritative": true
+  },
+  {
+   "zone": "gebied_windenergie",
+   "sourceId": "agrest-ov-gebied-windenergie",
+   "service": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0",
+   "lastChecked": "2026-08-30T07:45:26Z",
+   "fetchedAt": "2026-08-30T11:19:42Z",
+   "features": 44,
+   "aliasFor": "/join/id/regdata/pv26/2025/giocc2ef601-3b25-4428-8808-e77ae1e47b4d/nld@2025-10-10;846",
+   "authoritative": true
+  },
+  {
+   "zone": "groene_contour",
+   "sourceId": "agrest-ov-groene-contour",
+   "service": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0",
+   "lastChecked": "2026-08-30T08:30:00Z",
+   "fetchedAt": "2026-08-30T11:19:49Z",
+   "features": 257,
+   "aliasFor": "/join/id/regdata/pv26/2025/gioee37db62-22b1-4334-bf89-7ddf4e5812c6/nld@2025-08-18;798",
+   "authoritative": true
+  },
+  {
+   "zone": "landelijk_gebied",
+   "sourceId": "agrest-ov-landelijk-gebied",
+   "service": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0",
+   "lastChecked": "2026-08-30T08:30:00Z",
+   "fetchedAt": "2026-08-30T11:19:50Z",
+   "features": 4,
+   "aliasFor": "/join/id/regdata/pv26/2025/gio17d47ef4-f140-45b7-8809-c5068d74698f/nld@2025-10-10;843",
+   "authoritative": true
+  },
+  {
+   "zone": "natura_2000",
+   "sourceId": "arcgis-natura2000",
+   "service": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Natura2000_gebieden/FeatureServer/0",
+   "lastChecked": "2026-08-30T07:42:33Z",
+   "fetchedAt": "2026-08-30T11:19:43Z",
+   "features": 14,
+   "aliasFor": "national_source",
+   "authoritative": false
+  },
+  {
+   "zone": "natuurnetwerk_nederland",
+   "sourceId": "agrest-ov-natuurnetwerk",
+   "service": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0",
+   "lastChecked": "2026-08-30T08:30:00Z",
+   "fetchedAt": "2026-08-30T11:19:46Z",
+   "features": 390,
+   "aliasFor": "/join/id/regdata/pv26/2025/gio3111b509-00cb-46c0-9967-b8102f81c85f/nld@2025-08-18;803",
+   "authoritative": true
+  },
+  {
+   "zone": "stiltegebied",
+   "sourceId": "agrest-ov-stiltegebied",
+   "service": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0",
+   "lastChecked": "2026-08-30T08:30:00Z",
+   "fetchedAt": "2026-08-30T11:19:44Z",
+   "features": 27,
+   "aliasFor": "provincial_gio_unverified",
+   "authoritative": true
+  }
+ ]
+}

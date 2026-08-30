@@ -1,0 +1,79 @@
+{
+ "id": "VR-20260830T113234Z-wind-zones",
+ "artifactId": "zones",
+ "artifactType": "zone-result-set",
+ "levels": {
+  "V0": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v0-schema-zone-result",
+     "status": "pass",
+     "detail": "9/9 artifact(s) valid against zone-result.schema.json"
+    }
+   ]
+  },
+  "V1": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v1-output-geometry-valid",
+     "status": "pass",
+     "detail": "all 9 zone geometries valid (shapely is_valid)"
+    },
+    {
+     "id": "v1-output-crs-and-bounds",
+     "status": "pass",
+     "detail": "all payloads EPSG:4326 with coordinates inside NL bounds lon(3.0, 7.5)/lat(50.5, 54.0)"
+    },
+    {
+     "id": "v1-input-layers-crs",
+     "status": "pass",
+     "detail": "9 input layer(s) declare a recognised CRS member (EPSG:28992 computation CRS)"
+    },
+    {
+     "id": "v1-input-invalid-census",
+     "status": "pass",
+     "detail": "natura_2000: 9/14 invalid as served (repaired+recorded by engine)",
+     "evidenceRefs": [
+      "gebied_kleine_windturbine",
+      "gebied_windenergie",
+      "natura_2000",
+      "ganzenrustgebied",
+      "aandachtsgebied_stiltegebied",
+      "stiltegebied",
+      "natuurnetwerk_nederland",
+      "groene_contour",
+      "landelijk_gebied"
+     ]
+    },
+    {
+     "id": "v1-final-zone-sanity",
+     "status": "pass",
+     "detail": "final zone non-empty, valid, 859.463 km2 <= AOI 1560.054 km2 and <= inclusion union 1259.841 km2",
+     "evidenceRefs": [
+      "ZR-final-fd30ebdb34"
+     ]
+    }
+   ]
+  },
+  "V2": {
+   "status": "not_applicable",
+   "checks": [],
+   "notes": "V2 not evaluated for this artifact"
+  },
+  "V3": {
+   "status": "not_applicable",
+   "checks": [],
+   "notes": "V3 not evaluated for this artifact"
+  },
+  "V4": {
+   "status": "pending",
+   "checks": [],
+   "notes": "V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it."
+  }
+ },
+ "verdict": "pass",
+ "evaluatorRun": "critic-validator#deterministic-v0-v3-poc1",
+ "evaluatedAt": "2026-08-30T11:33:10Z"
+}

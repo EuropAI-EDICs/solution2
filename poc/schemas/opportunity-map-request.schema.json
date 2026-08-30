@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldttoolbox.example/poc/schemas/opportunity-map-request.schema.json",
+  "title": "OpportunityMapRequest",
+  "description": "Planning-plane entry contract (MULTI_AGENT_PLAN.md section 5): a normalized 'where can I do what?' request as emitted by the Intake agent and consumed by the Orchestrator.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "objectType", "areaOfInterest", "policyStage", "effortBudget", "requestedAt"],
+  "properties": {
+    "id": { "$ref": "#/$defs/uuid" },
+    "objectType": { "$ref": "#/$defs/objectType" },
+    "ambitions": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "enum": ["energy", "nature", "climate_adaptation", "landscape", "heritage", "water_safety", "housing"] }
+    },
+    "areaOfInterest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["geometry", "crs"],
+      "properties": {
+        "geometry": {
+          "oneOf": [
+            { "$ref": "#/$defs/geojsonGeometry" },
+            { "type": "string", "minLength": 40, "description": "GML 3.2 geometry document (string payload)" }
+          ]
+        },
+        "crs": { "type": "string", "pattern": "^EPSG:\\d{4,5}$", "default": "EPSG:28992" }
+      }
+    },
+    "policyStage": { "enum": ["design", "programming", "permission", "monitoring"] },
+    "effortBudget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxSubagents"],
+      "properties": {
+        "maxSubagents": { "type": "integer", "minimum": 1, "maximum": 64 },
+        "maxCostEur": { "type": "number", "minimum": 0 },
+        "maxLatencyS": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "requestedAt": { "$ref": "#/$defs/dateTime" },
+    "requestedBy": { "type": "string", "minLength": 2 },
+    "parameters": {
+      "type": "object",
+      "description": "objectType-specific free parameters, e.g. {\"minCapacityMw\": 3} for wind turbines"
+    }
+  },
+  "$defs": {
+    "uuid": { "type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" },
+    "objectType": { "enum": ["wind_turbine", "solar_field", "forest_planting", "biomass_installation", "energy_storage"] },
+    "dateTime": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$" },
+    "geojsonGeometry": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "coordinates"],
+          "properties": {
+            "type": { "enum": ["Point", "MultiPoint", "LineString", "MultiLineString", "Polygon", "MultiPolygon"] },
+            "coordinates": { "type": "array" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "geometries"],
+          "properties": {
+            "type": { "const": "GeometryCollection" },
+            "geometries": { "type": "array", "minItems": 1 }
+          }
+        }
+      ]
+    }
+  }
+}

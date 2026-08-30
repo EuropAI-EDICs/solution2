@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>3D BAG viewer — real Dutch 3D buildings (LoD2.2)</title>
+<style>
+  html, body, #cesiumContainer { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; }
+  #hud {
+    position: absolute; top: 10px; left: 10px; z-index: 1;
+    font: 13px/1.5 -apple-system, sans-serif; color: #fff;
+    background: rgba(20, 24, 34, .82); padding: 10px 14px; border-radius: 8px;
+  }
+  #hud a { color: #7fd0ff; }
+  select { font: inherit; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/cesium@1.127/Build/Cesium/Cesium.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/cesium@1.127/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+</head>
+<body>
+<div id="cesiumContainer"></div>
+<div id="hud">
+  <b>3D BAG</b> — TU Delft, CC-BY-4.0 ·
+  detail:
+  <select id="lod">
+    <option value="lod22" selected>LoD2.2 (roofs)</option>
+    <option value="lod13">LoD1.3</option>
+    <option value="lod12">LoD1.2 (blocks)</option>
+  </select>
+</div>
+<script>
+const BASE = 'https://data.3dbag.nl/v20250903/cesium3dtiles/';
+
+const viewer = new Cesium.Viewer('cesiumContainer', {
+  baseLayer: new Cesium.ImageryLayer(
+    new Cesium.OpenStreetMapImageryProvider({ url: 'https://tile.openstreetmap.org/' })),
+  terrain: undefined,
+  animation: false, timeline: false, baseLayerPicker: false,
+  geocoder: false, homeButton: false, sceneModePicker: false,
+  navigationHelpButton: false, fullscreenButton: false,
+  infoBox: false, selectionIndicator: false,
+});
+
+let tileset;
+async function loadLod(lod) {
+  if (tileset) { viewer.scene.primitives.remove(tileset); tileset = undefined; }
+  tileset = await Cesium.Cesium3DTileset.fromUrl(BASE + lod + '/tileset.json', {
+    maximumScreenSpaceError: lod === 'lod22' ? 24 : 16,
+  });
+  viewer.scene.primitives.add(tileset);
+}
+
+// Utrecht city centre (Dom Tower area)
+viewer.camera.setView({
+  destination: Cesium.Cartesian3.fromDegrees(5.1100, 52.0780, 900),
+  orientation: { heading: Cesium.Math.toRadians(20), pitch: Cesium.Math.toRadians(-35), roll: 0 },
+});
+
+document.getElementById('lod').addEventListener('change', e => loadLod(e.target.value));
+loadLod('lod22');
+</script>
+</body>
+</html>
