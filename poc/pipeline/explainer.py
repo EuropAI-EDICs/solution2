@@ -78,6 +78,9 @@ class Explainer:
         formalrules: Sequence[Mapping[str, Any]],
         generated_at: str,
         prov_narrative: str,
+        table_id: str = "DT-wind-utrecht-poc1",
+        title: str = "Where can wind turbines be sited in province Utrecht? "
+                     "Decision table (programming stage)",
     ) -> Dict[str, Any]:
         cards_by_id = {c["id"]: c for c in normcards}
         rows: List[Dict[str, Any]] = []
@@ -116,9 +119,9 @@ class Explainer:
             rows.append(row)
 
         dt = {
-            "id": "DT-wind-utrecht-poc1",
+            "id": table_id,
             "requestId": str(request.get("id", "request")),
-            "title": "Where can wind turbines be sited in province Utrecht? Decision table (programming stage)",
+            "title": title,
             "columns": [
                 "criterion", "norm", "source", "zone effect",
                 "ruleId", "normCardId", "condition", "note",
@@ -174,6 +177,7 @@ class Explainer:
         entities: Sequence[Mapping[str, Any]],
         derivations: Sequence[Mapping[str, Any]] = (),
         sources: Sequence[Mapping[str, Any]] = (),
+        namespace: str = "ldttoolbox:poc:wind:",
     ) -> Dict[str, Any]:
         """Assemble the PROV bundle. ``activities`` carry used/generated ids.
 
@@ -195,7 +199,7 @@ class Explainer:
                 generated.append({"entity": out, "activity": act["id"], "time": act.get("endedAt")})
         prov = {
             "flavour": "W3C PROV-O terms (agent/entity/activity/wasGeneratedBy/wasDerivedFrom) serialised as plain JSON",
-            "namespace": "ldttoolbox:poc:wind:",
+            "namespace": namespace,
             "runId": run_id,
             "requestId": request_id,
             "generatedAt": generated_at,

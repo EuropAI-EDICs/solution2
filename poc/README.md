@@ -1,16 +1,23 @@
-# LDT Toolbox PoC — "Where can I do what?" for wind turbines in province Utrecht
+# LDT Toolbox PoC — "Where can I do what?" in province Utrecht (wind · zon · bos)
 
 This is the working proof-of-concept of the multi-agent architecture specified in
 [`MULTI_AGENT_PLAN.md`](../MULTI_AGENT_PLAN.md) and elaborated in
 [`docs/SOLUTIONS_ARCHITECTURE.md`](../docs/SOLUTIONS_ARCHITECTURE.md) (read that
 document first: module boundaries, contract catalogue, validation levels,
 technology and roadmap). It answers, for the province of Utrecht (NL) at the
-**programming** policy stage:
+**programming** policy stage, the same traceable question for **three object
+types** (tracks), all on the same instrument and pipeline:
 
-> Within which zone of the province could an omgevingsplan allow **wind
-> turbines**, and which legal norms exclude, condition or compensate there —
-> with every legal claim cited (instrument + article + version + verbatim quote
-> + URL) and every artifact schema-validated and provenance-traced?
+> Within which zone of the province could an omgevingsplan allow **X**, and
+> which legal norms exclude, condition or compensate there — with every legal
+> claim cited (instrument + article + version + verbatim quote + URL) and every
+> artifact schema-validated and provenance-traced?
+
+| track | use case | core question | canonical run |
+|---|---|---|---|
+| `wind` | wind turbines | where can turbines ≥3 MW / ≤20 m hub stand? | `runs/20260830T113234Z-wind` — 859.463 km² |
+| `zon` | solar fields (zonnevelden) | where can ground/water-mounted solar fields stand? | `runs/20260830T142439Z-zon` — 1167.936 km² |
+| `bos` | new nature / forest planting | where is the zoekgebied for new nature? | `runs/20260830T142446Z-bos` — 23.924 km² |
 
 Grounding: the **Omgevingsverordening provincie Utrecht** (CVDR704250, geldend
 13-10-2025) and the **Omgevingsvisie 2021**, plus the province's open geo data
@@ -25,10 +32,12 @@ Requirements already on this machine: `python3` (3.13) with `shapely`,
 `/opt/homebrew/bin` (optional — GML export degrades gracefully without it).
 
 ```bash
-python3 poc/run.py                    # wind use case; cache-first layer fetch
-python3 poc/run.py --refresh          # force live re-download of every layer
+python3 poc/run.py                     # wind use case, cache-first
+python3 poc/run.py --use-case zon      # solar fields (zonnevelden, art. 5.5)
+python3 poc/run.py --use-case bos      # new nature / forest planting (art. 6.4)
+python3 poc/run.py --refresh           # force live re-download of every layer
 python3 poc/run.py --bbox 130000,440000,160000,470000   # optional EPSG:28992 clip
-python3 -m unittest discover -s poc/tests               # offline test suite
+python3 -m unittest discover -s poc/tests               # offline test suite (100 tests)
 ```
 
 No API keys are used anywhere (the DSO GIO download API is key-gated and was
@@ -89,23 +98,40 @@ gate, enforced again independently by the Critic.
 - `layers.json`, `normcards*.json`, `formalrules.json`, `request.json`,
   `report_input.json` — the intermediate boundaries, each schema-valid.
 
-## Zone semantics of the map (what the numbers mean)
+## Zone semantics per track (what the numbers mean)
 
-The final zone is the union of the **formalized inclusion zones** —
-`Gebied windenergie` (≥3 MW path, art. 5.4), `Gebied kleine windturbine`
-(≤20 m path, art. 5.3) and the `Landelijk gebied` scope (arts. 9.2/9.3) —
-clipped to the province boundary, minus the **hard exclusions**
-(Natura 2000 + ganzenrustgebieden per the art.-5.4 toelichting;
-Natuurnetwerk Nederland default exclusion per art. 6.3 with discretionary lid-2
-exceptions). `Stiltegebied` (art. 9.28) and the NNN (art. 6.2) are **conditional**
-overlays, the 1500 m `Aandachtsgebied stiltegebied` (art. 9.25 lid 2) is an
-**attention** buffer and the `Groene contour` (art. 6.5) a **compensation**
-obligation — markers that never eliminate area. 13 further rules are
-intentionally *ambiguous* (open norms) and are routed to V4 human review.
+- **wind** — the final zone is the union of the **formalized inclusion zones**
+  (`Gebied windenergie` ≥3 MW path, art. 5.4; `Gebied kleine windturbine`
+  ≤20 m path, art. 5.3; `Landelijk gebied` scope, arts. 9.2/9.3), clipped to
+  the province boundary, minus the **hard exclusions** (Natura 2000 +
+  ganzenrustgebieden per the art.-5.4 toelichting; Natuurnetwerk Nederland
+  default exclusion per art. 6.3 with discretionary lid-2 exceptions).
+  `Stiltegebied` (art. 9.28) and the NNN (art. 6.2) are **conditional**
+  overlays, the 1500 m `Aandachtsgebied stiltegebied` (art. 9.25 lid 2) an
+  **attention** buffer and the `Groene contour` (art. 6.5) a **compensation**
+  obligation — markers that never eliminate area. 13 further rules are
+  intentionally *ambiguous* (open norms) and are routed to V4 human review.
+- **zon** — the opportunity zone is the `Gebied zonneveld` designation
+  (art. 5.5 lid 1), clipped to the province, minus Natura 2000 and
+  ganzenrustgebieden (toelichting art. 5.5 — same geographic reading as wind;
+  the designation already avoids most of those areas, so the carve is small).
+  The `Groene contour` carries the art.-6.5a lid 3 **compensation** marker:
+  new compensating nature realised within 25 years of panel placement —
+  zonnevelden in the contour are implicitly temporary. The three proviso's of
+  lid 1 (landscape integration, soil/water quality, opruimplicht) are
+  procedural, never executed. Rooftop solar is outside the object definition.
+- **bos** — the opportunity zone is the `Groene contour` itself: the
+  provincial **zoekgebied nieuwe natuur** (art. 6.4 lid 1, voluntary
+  conversion, NNN addition after realisation). The ≥1:1 compensation ratio
+  (art. 6.5 lid 2 onder d) is a marker on the contour, and the `Waardevolle
+  Houtopstanden - oude bosgroeiplaatsen` (art. 6.13) a **conditional** overlay;
+  the deterministic art.-6.15 velling-exemption thresholds govern forest
+  management, not siting, and stay routed to V4.
 
-Reference numbers (live run of 2026-08-30): AOI 1560.054 km² → inclusion ∩ AOI
-1259.841 km² → final opportunity zone 859.463 km²; V3 re-execution agreement
-IoU 0.99994 / area delta 2.2e-15.
+Reference numbers (canonical runs of 2026-08-30): wind AOI 1560.054 km² →
+inclusion ∩ AOI 1259.841 km² → final 859.463 km² (V3 IoU 0.99994); zon →
+Gebied zonneveld ∩ AOI 1167.948 km² → final 1167.936 km² (IoU 0.99998);
+bos → Groene contour ∩ AOI 23.924 km² = final (no exclusions; IoU 0.9997).
 
 ## Limitations (short list — full list in every report)
 
@@ -133,8 +159,15 @@ IoU 0.99994 / area delta 2.2e-15.
 
 ## Adding use cases
 
-`--use-case X` loads `poc/use-cases/X.json` (an `OpportunityMapRequest`
-instance; `wind.json` embeds the province boundary as AOI with its source
-recorded in `parameters`). Other object types (solar, forest) need their
-evidence shard + formalizer templates (tracks A/B corpora exist for zon/bos)
-plus zone aliases in `run.py::ZONE_SOURCES`.
+A track is the combination of (a) an `OpportunityMapRequest` instance in
+`poc/use-cases/<track>.json` (the province boundary as AOI with its source
+recorded in `parameters`), (b) a verified evidence shard
+`poc/corpus/evidence-<track>.json`, (c) curated enrichment + formalizer
+templates in `pipeline/agents.py` (`EVIDENCE_ENRICHMENT` / `TEMPLATE_SPECS`,
+keyed by evidence id — cards without a template are flagged ambiguous, never
+guessed), (d) a cite-or-abstain ledger `poc/corpus/normcards-rejected-<track>.json`,
+and (e) zone aliases in `run.py::ZONE_SOURCES` for any new zone layer plus a
+registry entry in `poc/data/sources.json`. The `objectType` enum in
+`schemas/opportunity-map-request.schema.json` already covers solar fields and
+forest planting. `python3 -m pipeline.agents` regenerates the deterministic
+per-track corpora (`normcards-<track>.json` / `formalrules-<track>.json`).

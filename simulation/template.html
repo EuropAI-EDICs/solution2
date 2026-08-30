@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LDT Toolbox — pipeline simulation (PoC-1 · PoC-2)</title>
+<style>
+  :root{
+    --bg:#0b1220; --bg2:#0f172a; --panel:#111c30; --panel2:#0d1626;
+    --line:#1e293b; --line2:#273549; --ink:#e2e8f0; --dim:#94a3b8; --faint:#64748b;
+    --green:#22c55e; --green2:#10b981; --red:#ef4444; --amber:#f59e0b; --blue:#3b82f6;
+    --lime:#84cc16; --purple:#a855f7; --cyan:#22d3ee;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--sans);}
+  a{color:var(--cyan);text-decoration:none} a:hover{text-decoration:underline}
+  header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,#0b1220f2,#0b1220e8);
+    border-bottom:1px solid var(--line);backdrop-filter:blur(6px);padding:10px 18px;
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  header h1{font-size:15px;margin:0;font-weight:650;letter-spacing:.2px}
+  header h1 small{color:var(--dim);font-weight:400;margin-left:8px}
+  .tabs{display:flex;gap:6px;margin-left:8px}
+  .tab{padding:7px 14px;border:1px solid var(--line2);border-radius:9px;background:var(--panel2);
+    color:var(--dim);cursor:pointer;font-size:13px;user-select:none;transition:all .15s}
+  .tab:hover{color:var(--ink)}
+  .tab.active{background:#13233d;border-color:#3b82f6aa;color:var(--ink);box-shadow:0 0 0 1px #3b82f655 inset}
+  .controls{display:flex;gap:6px;margin-left:auto;align-items:center;flex-wrap:wrap}
+  button.ctl{padding:7px 13px;border-radius:9px;border:1px solid var(--line2);background:var(--panel);
+    color:var(--ink);cursor:pointer;font-size:13px;transition:all .15s}
+  button.ctl:hover{border-color:#3b82f6aa;background:#13233d}
+  button.ctl.primary{background:#16a34a;border-color:#16a34a;color:#fff;font-weight:600}
+  button.ctl.primary:hover{background:#15803d}
+  select.ctl{padding:7px 8px;border-radius:9px;border:1px solid var(--line2);background:var(--panel);color:var(--ink);font-size:13px}
+  .progress-wrap{font-size:12px;color:var(--dim);min-width:210px}
+  .progress-wrap b{color:var(--ink);font-family:var(--mono);font-size:12px}
+  .progress{height:4px;background:var(--line);border-radius:3px;margin-top:5px;overflow:hidden}
+  .progress > div{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .3s}
+
+  .notebar{padding:7px 18px;font-size:12px;color:var(--dim);background:#0d1626;border-bottom:1px solid var(--line)}
+  .notebar code{font-family:var(--mono);color:var(--cyan);font-size:11px}
+
+  main{padding:16px 18px 40px}
+  .view{display:none;grid-template-columns:250px minmax(0,1fr) 330px;gap:14px}
+  .view.active{display:grid}
+  @media(max-width:1150px){.view.active{grid-template-columns:220px minmax(0,1fr)}.telemetry{grid-column:1/-1}}
+  @media(max-width:820px){.view.active{grid-template-columns:1fr}.rail{order:2}.telemetry{order:3}}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:13px;overflow:hidden}
+  .card h3{margin:0;padding:10px 14px;font-size:12px;letter-spacing:.6px;text-transform:uppercase;
+    color:var(--dim);border-bottom:1px solid var(--line);font-weight:650}
+  .cardbody{padding:12px 14px}
+
+  /* stage rail */
+  .rail{display:flex;flex-direction:column;gap:0}
+  .stage{display:flex;gap:10px;padding:9px 12px;border-left:3px solid transparent;cursor:pointer;
+    transition:background .15s,border-color .15s;align-items:flex-start}
+  .stage:hover{background:#0f1a2e}
+  .stage .num{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line2);flex:none;
+    display:flex;align-items:center;justify-content:center;font-size:11px;font-family:var(--mono);
+    color:var(--faint);margin-top:1px;transition:all .2s}
+  .stage .sname{font-size:13px;font-weight:600;color:var(--dim);transition:color .2s}
+  .stage .sartifact{font-size:11px;color:var(--faint);font-family:var(--mono)}
+  .stage .mc{display:inline-block;font-size:9.5px;font-family:var(--mono);background:#1e3a5f;color:#7dd3fc;
+    border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:1px}
+  .stage.active{background:#13233d;border-left-color:var(--blue)}
+  .stage.active .num{border-color:var(--blue);color:var(--blue);box-shadow:0 0 8px #3b82f666}
+  .stage.active .sname{color:var(--ink)}
+  .stage.done .num{border-color:var(--green);color:var(--green)}
+  .stage.done .sname{color:var(--dim)}
+
+  /* stage pane */
+  .stagepane{display:flex;flex-direction:column;gap:14px;min-width:0}
+
+  /* telemetry */
+  .telemetry{display:flex;flex-direction:column;gap:14px;min-width:0}
+  .counters{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .counter{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;opacity:.35;transition:opacity .4s}
+  .counter.on{opacity:1}
+  .counter .cv{font-family:var(--mono);font-size:20px;font-weight:650;color:var(--ink)}
+  .counter .cl{font-size:10.5px;color:var(--dim);margin-top:2px}
+  .counter.hit .cv{color:var(--green)}
+
+  .ledger{max-height:170px;overflow:auto;display:none}
+  .ledger.on{display:block}
+  .ledger .item{font-size:11.5px;padding:5px 0;border-bottom:1px dashed var(--line);color:var(--dim)}
+  .ledger .item b{color:var(--amber);font-weight:600}
+  .ledger .item .rsn{display:block;color:var(--faint);font-size:10.5px}
+
+  .dist{display:none;flex-direction:column;gap:6px}
+  .dist.on{display:flex}
+  .dist .bar{display:grid;grid-template-columns:88px 1fr 26px;gap:8px;align-items:center;font-size:11px;color:var(--dim)}
+  .dist .bar .track{height:9px;background:var(--line);border-radius:5px;overflow:hidden}
+  .dist .bar .fill{height:100%;width:0;transition:width .8s cubic-bezier(.2,.8,.2,1)}
+  .dist .bar .n{font-family:var(--mono);color:var(--ink);text-align:right}
+
+  .quote{display:none;font-size:11.5px;color:var(--dim);border-left:3px solid var(--green);
+    padding:6px 10px;background:#0d1a1f;border-radius:0 8px 8px 0}
+  .quote.on{display:block}
+  .quote i{color:var(--faint);font-style:normal;display:block;margin-top:5px;font-size:10.5px}
+
+  .levels{display:flex;gap:6px;flex-wrap:wrap}
+  .lvl{flex:1;min-width:52px;text-align:center;padding:8px 4px;border-radius:9px;border:1px solid var(--line2);
+    background:var(--panel2);color:var(--faint);font-size:10px;transition:all .3s}
+  .lvl b{display:block;font-family:var(--mono);font-size:13px;margin-bottom:2px;color:inherit}
+  .lvl.pass{border-color:#14532d;background:#0d2016;color:var(--green)}
+  .lvl.pending{border-color:#78350f;background:#241703;color:var(--amber)}
+  .lvl small{display:block;font-size:8.5px;color:var(--faint);margin-top:2px;line-height:1.25}
+
+  .artifacts{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font-family:var(--mono);font-size:10.5px;padding:4px 9px;border-radius:7px;border:1px dashed var(--line2);
+    color:var(--faint);opacity:.25;transition:all .35s;background:var(--panel2)}
+  .chip.on{opacity:1;color:var(--cyan);border-style:solid;border-color:#155e75;background:#082f36}
+
+  .log{height:210px;overflow:auto;font-family:var(--mono);font-size:11px;line-height:1.55;padding:10px 12px;background:#0a0f1c}
+  .log .ln{opacity:0;transform:translateX(-6px);transition:all .25s;color:var(--dim)}
+  .log .ln.in{opacity:1;transform:none}
+  .log .ln .t{color:var(--faint)}
+  .log .ln.ok .m::before{content:"✔ ";color:var(--green)}
+  .log .ln.warn .m::before{content:"△ ";color:var(--amber)}
+  .log .ln.data .m::before{content:"→ ";color:var(--blue)}
+
+  /* map */
+  .mapwrap{position:relative}
+  #map1{width:100%;display:block;background:radial-gradient(1200px 500px at 30% -10%,#12203a,#0b1220)}
+  .oplabel{position:absolute;top:10px;left:12px;font-family:var(--mono);font-size:12.5px;color:var(--ink);
+    background:#0b1220cc;border:1px solid var(--line2);border-radius:8px;padding:6px 10px;pointer-events:none;max-width:75%}
+  .oplabel b{color:var(--cyan)}
+  .areabadge{position:absolute;top:10px;right:12px;font-family:var(--mono);text-align:right;pointer-events:none}
+  .areabadge .a{font-size:21px;font-weight:700;color:var(--green);text-shadow:0 0 14px #22c55e55}
+  .areabadge .u{font-size:10.5px;color:var(--dim)}
+  .ttab{padding:4px 10px;border-radius:7px;border:1px solid var(--line2);background:var(--panel2);
+    color:var(--dim);cursor:pointer;font-size:11.5px;font-family:var(--mono);transition:all .15s}
+  .ttab:hover{color:var(--ink)}
+  .ttab.active{background:#13233d;border-color:#3b82f6aa;color:var(--ink)}
+
+  .legend{position:absolute;bottom:10px;left:12px;display:flex;flex-direction:column;gap:4px;pointer-events:none}
+  .legend .li{display:flex;align-items:center;gap:7px;font-size:10.5px;color:var(--dim);opacity:.3;transition:opacity .4s}
+  .legend .li.on{opacity:1}
+  .legend .sw{width:15px;height:11px;border-radius:3px;flex:none}
+
+  .waterfall{display:flex;gap:10px;align-items:flex-end;height:130px;padding:8px 14px 14px}
+  .wbar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:5px;height:100%}
+  .wbar .col{width:70%;max-width:74px;background:linear-gradient(180deg,var(--green2),#166534);border-radius:6px 6px 2px 2px;
+    height:0;transition:height 1s cubic-bezier(.2,.8,.2,1);position:relative}
+  .wbar.excl .col{background:linear-gradient(180deg,#f87171,#991b1b)}
+  .wbar .v{font-family:var(--mono);font-size:12px;color:var(--ink)}
+  .wbar .l{font-size:10px;color:var(--faint);text-align:center;line-height:1.3}
+
+  /* poc2 panels */
+  .panels{display:flex;flex-direction:column;gap:14px}
+  .panel{opacity:.22;transform:translateY(4px);transition:all .5s}
+  .panel.on{opacity:1;transform:none}
+  .funnel{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:6px 2px}
+  .fbox{border:1px solid var(--line2);background:var(--panel2);border-radius:11px;padding:10px 16px;text-align:center;min-width:150px}
+  .fbox .n{font-family:var(--mono);font-size:26px;font-weight:700}
+  .fbox .t{font-size:10.5px;color:var(--dim);margin-top:2px;line-height:1.35}
+  .fbox.src .n{color:var(--cyan)} .fbox.doel .n{color:var(--green)} .fbox.bron .n{color:var(--amber)}
+  .farrow{color:var(--faint);font-size:20px}
+  .kbchips{display:flex;flex-direction:column;gap:8px}
+  .kbrow{display:grid;grid-template-columns:44px 1fr minmax(90px,220px) 46px 86px;gap:10px;align-items:center;font-size:12px}
+  .kbrow .track{height:14px;background:var(--line);border-radius:7px;overflow:hidden}
+  .kbrow .fill{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width 1s}
+  .kbrow.dropped .fill{background:linear-gradient(90deg,#7f1d1d,var(--red))}
+  .kbrow .kb-n{font-family:var(--mono);color:var(--ink);text-align:right}
+  .kbrow .kb-tag{font-family:var(--mono);font-size:10px;color:var(--faint)}
+  .kbrow.dropped .kb-tag{color:var(--red)}
+
+  .gridwrap{display:grid;grid-template-columns:1fr 260px;gap:14px}
+  @media(max-width:1150px){.gridwrap{grid-template-columns:1fr}}
+  #rgrid{display:grid;grid-template-columns:repeat(16,1fr);gap:3px}
+  .cell{aspect-ratio:1;border-radius:2.5px;background:#1a2740;transition:background .3s,transform .3s;position:relative}
+  .cell.hit{transform:scale(1.25)}
+  .glegend{display:flex;flex-direction:column;gap:7px;font-size:11.5px;color:var(--dim)}
+  .glegend .li{display:flex;gap:8px;align-items:center}
+  .glegend .sw{width:13px;height:13px;border-radius:3.5px;flex:none}
+  .glegend .li b{font-family:var(--mono);color:var(--ink);margin-left:auto}
+  .sweepcount{font-family:var(--mono);font-size:12px;color:var(--cyan);margin-bottom:9px}
+
+  .samples{display:flex;flex-direction:column;gap:10px}
+  .sample{display:none;border:1px solid var(--line2);border-radius:11px;overflow:hidden}
+  .sample.on{display:block;animation:fadein .4s}
+  @keyframes fadein{from{opacity:0;transform:translateY(5px)}to{opacity:1}}
+  .sample .hd{display:flex;gap:8px;align-items:center;padding:7px 11px;background:#0d1626;font-family:var(--mono);font-size:11px}
+  .sample .bd{display:grid;grid-template-columns:1fr 26px 1fr;gap:8px;padding:9px 11px;font-size:11px;color:var(--dim);align-items:center}
+  .sample .bd .arr{color:var(--faint);font-size:15px;text-align:center}
+  .sample .side b{display:block;font-family:var(--mono);color:var(--ink);font-size:10.5px;margin-bottom:3px}
+  .sample .side.br b{color:var(--amber)} .sample .side.dr b{color:var(--green)}
+  .sample .ft{padding:6px 11px;border-top:1px dashed var(--line);font-size:10.5px;color:var(--faint);font-family:var(--mono)}
+
+  .covwrap{display:grid;grid-template-columns:170px 1fr;gap:16px;align-items:center}
+  @media(max-width:900px){.covwrap{grid-template-columns:1fr}}
+  .dial{position:relative;width:150px;height:150px;margin:0 auto}
+  .dial svg{transform:rotate(-90deg)}
+  .dial .val{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .dial .val b{font-family:var(--mono);font-size:26px;color:var(--green)}
+  .dial .val span{font-size:10px;color:var(--faint)}
+  .covfacts{display:flex;flex-direction:column;gap:7px;font-size:12px;color:var(--dim)}
+  .covfacts .row{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding-bottom:5px}
+  .covfacts .row b{font-family:var(--mono);color:var(--ink)}
+  .bandtag{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:6px;display:inline-block}
+  .bandtag.deels{background:#241703;color:var(--amber);border:1px solid #78350f}
+
+  /* knowledge-graph panels (PoC-1 rule graph · PoC-2 kennisbank graph) */
+  .kgwrap{position:relative}
+  #kg1svg{width:100%;display:block;background:radial-gradient(900px 380px at 15% -5%,#12203a,#0b1220)}
+  #kgsvg{width:100%;display:block;background:radial-gradient(900px 420px at 18% -5%,#12203a,#0b1220)}
+  #kg1svg .kge1{fill:none;stroke-width:1;transition:stroke-opacity .5s}
+  #kg1svg .kge-art{stroke:#22d3ee} #kg1svg .kge-rule{stroke:#3b82f6}
+  #kg1svg .kge-layer{stroke:#a855f7} #kg1svg .kge-zone{stroke:#22c55e}
+  #kg1svg .kgn{cursor:pointer;transition:opacity .5s}
+  #kg1svg .kgn circle{stroke:#0b1220;stroke-width:.8}
+  #kg1svg .kgn text{font-size:8.5px;fill:#94a3b8}
+  #kg1svg .kgn:hover text{fill:#e2e8f0}
+  .kgn-art circle{fill:#22d3ee} .kgn-card circle{fill:#3b82f6}
+  .kgn-abs circle{fill:#0b1220;stroke:#f59e0b;stroke-dasharray:2 2}
+  .kgn-rule-fo circle{fill:#22c55e} .kgn-rule-am circle{fill:#f59e0b} .kgn-rule-re circle{fill:#475569}
+  .kgn-layer circle{fill:#a855f7}
+  .kgn-zone-union circle{fill:#34d399} .kgn-zone-intersection circle{fill:#22d3ee}
+  .kgn-zone-difference circle{fill:#f87171} .kgn-zone-final circle{fill:#10b981}
+  .kgn-zone-attention circle{fill:#f59e0b} .kgn-zone-conditional circle{fill:#eab308}
+  .kgn-zone-compensation circle{fill:#4ade80}
+  .kghd{fill:#94a3b8;font-size:8.5px} .kghd2{fill:#64748b;font-size:8px}
+  .kgcap{fill:#cbd5e1;font-size:9.5px;letter-spacing:.4px}
+  #kgsvg .kge{fill:none;stroke-width:1;transition:stroke-opacity .5s;cursor:pointer}
+  #kgsvg .kge.v{stroke:#3b82f6} #kgsvg .kge.f{stroke:#a855f7}
+  #kgsvg .kge.dim{stroke-opacity:.05 !important}
+  #kgsvg .kghit{fill:none;stroke:transparent;stroke-width:6;pointer-events:stroke;cursor:pointer}
+  #kgsvg .kgtick{stroke:#3b4a63;stroke-width:1;fill:none}
+  .kgstats{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--dim);margin-bottom:10px}
+  .kgstats b{font-family:var(--mono);color:var(--ink);font-size:13px}
+  .kgstats .uv b{color:#60a5fa} .kgstats .pf b{color:#c084fc}
+  .kgnote{font-size:11px;color:var(--faint);margin-top:9px;line-height:1.65}
+  .kgnote .sw{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin:0 4px 2px 1px}
+  .kgnote .dot{display:inline-block;width:8px;height:8px;border-radius:50%;vertical-align:middle;margin:0 4px 0 1px}
+  .kgnote code{font-family:var(--mono);color:var(--cyan);font-size:10.5px}
+  .kgtip{position:fixed;display:none;z-index:60;max-width:440px;background:#0b1220f7;border:1px solid var(--line2);
+    border-radius:10px;padding:10px 12px;font-size:11.5px;color:var(--dim);pointer-events:none;
+    box-shadow:0 10px 34px #000a;line-height:1.5}
+  .kgtip b{color:var(--ink)} .kgtip .rv{color:#60a5fa} .kgtip .rf{color:#c084fc}
+
+  footer{padding:18px;color:var(--faint);font-size:11.5px;border-top:1px solid var(--line);margin-top:10px;line-height:1.7}
+  .done{display:none;margin-top:4px;padding:14px;border-radius:12px;border:1px solid #14532d;background:linear-gradient(135deg,#0d2016,#0a1512);
+    font-size:13px;color:var(--dim)}
+  .done.on{display:block;animation:fadein .5s}
+  .done b{color:var(--green)}
+  kbd{font-family:var(--mono);font-size:10.5px;background:var(--panel2);border:1px solid var(--line2);border-radius:5px;padding:1px 6px;color:var(--dim)}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>LDT Toolbox — pipeline simulation <small>both PoCs, replayed from their real run artifacts</small></h1>
+  <div class="tabs">
+    <div class="tab active" id="tab1" onclick="switchTab(1)">PoC-1 · wind, Utrecht</div>
+    <div class="tab" id="tab2" onclick="switchTab(2)">PoC-2 · BP→OP, Eindhoven</div>
+  </div>
+  <div class="controls">
+    <button class="ctl primary" id="btnPlay" onclick="ctrl('play')">▶ play</button>
+    <button class="ctl" onclick="ctrl('step')">⏭ step</button>
+    <button class="ctl" onclick="ctrl('reset')">↺ reset</button>
+    <select class="ctl" id="speed" onchange="sim().setSpeed(this.value)">
+      <option value="0.5">0.5×</option>
+      <option value="1" selected>1×</option>
+      <option value="2">2×</option>
+      <option value="4">4×</option>
+    </select>
+    <div class="progress-wrap"><b id="stepLabel">—</b><div class="progress"><div id="stepBar"></div></div></div>
+  </div>
+</header>
+
+<div class="notebar">Every number, verdict and polygon below is read from the canonical run artifacts —
+PoC-1 in three tracks: wind <code>poc/runs/20260830T113234Z-wind</code>, zon <code>poc/runs/20260830T142439Z-zon</code>,
+bos <code>poc/runs/20260830T142446Z-bos</code>; PoC-2 <code>poc-bp2op/runs/20260830-124515-eindhoven</code>.
+Click any pipeline stage to jump there; <kbd>space</kbd> = play/pause, <kbd>→</kbd> = step.</div>
+
+<main>
+
+<!-- ================================================================ PoC-1 -->
+<section class="view active" id="view1">
+  <aside class="rail card" id="rail1"></aside>
+
+  <div class="stagepane">
+    <div class="card mapwrap">
+      <h3 style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span id="maptitle1">zone engine — where can an omgevingsplan allow wind turbines?</span>
+        <span class="tracktabs" style="margin-left:auto;display:flex;gap:5px">
+          <button class="ttab active" data-t="wind" onclick="switchTrack('wind')">wind</button>
+          <button class="ttab" data-t="zon" onclick="switchTrack('zon')">zon</button>
+          <button class="ttab" data-t="bos" onclick="switchTrack('bos')">bos</button>
+        </span>
+      </h3>
+      <svg id="map1" viewBox="0 0 980 620" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="oplabel" id="oplabel">intake…</div>
+      <div class="areabadge"><div class="a" id="areaBig">0</div><div class="u" id="areaUnit">km² opportunity zone</div></div>
+      <div class="legend" id="legend1"></div>
+    </div>
+    <div class="card" id="p-graph1">
+      <h3 style="display:flex;gap:10px;flex-wrap:wrap;align-items:baseline">rule graph — artikel → NormCard → FormalRule → geo layer → zone
+        <span id="kg1cap" style="text-transform:none;color:var(--faint);font-family:var(--mono);font-size:10.5px"></span></h3>
+      <div class="cardbody">
+        <div class="kgwrap"><svg id="kg1svg" viewBox="0 0 980 590" preserveAspectRatio="xMidYMid meet"></svg></div>
+        <div class="kgnote">
+          <span class="dot" style="background:#22d3ee"></span>instrument-artikel (verbatim quote) →
+          <span class="dot" style="background:#3b82f6"></span>NormCard →
+          <span class="dot" style="background:#22c55e"></span>FormalRule (green formalized · amber ambiguous→V4 · grey rejected) →
+          <span class="dot" style="background:#a855f7"></span>geo layer (registry alias) →
+          <span class="dot" style="background:#10b981"></span>ZoneResult (km²). Dashed amber = abstained:
+          no verified citation, so no rule (cite-or-abstain). Nodes light up in step with the pipeline stages
+          (Norm Analyst → Formalizer → Geo Analyst → Zone Engine); hover any node for its claim, quote,
+          abstention reason or layer service. This is the V2 traceability chain the architecture requires:
+          every zone traces back to an instrument article.
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>area waterfall (km², engine's own numbers)</h3>
+      <div class="waterfall" id="waterfall"></div>
+    </div>
+    <div class="card">
+      <h3>decision table — every row links a NormCard (24 rules)</h3>
+      <div class="cardbody" style="max-height:230px;overflow:auto;padding:4px 8px">
+        <table id="dtable" style="width:100%;border-collapse:collapse;font-size:11px"></table>
+      </div>
+    </div>
+    <div class="done" id="done1"></div>
+  </div>
+
+  <aside class="telemetry">
+    <div class="card"><h3>counters</h3><div class="cardbody">
+      <div class="counters">
+        <div class="counter" id="c-aoi"><div class="cv">1560.1</div><div class="cl">AOI km² (provinciegrens)</div></div>
+        <div class="counter" id="c-cards"><div class="cv">0</div><div class="cl">norm cards (cited)</div></div>
+        <div class="counter" id="c-abst"><div class="cv">0</div><div class="cl">abstentions (no citation)</div></div>
+        <div class="counter" id="c-fr"><div class="cv">0</div><div class="cl">formal rules</div></div>
+        <div class="counter" id="c-lay"><div class="cv">0</div><div class="cl">zone layers fetched</div></div>
+        <div class="counter" id="c-zr"><div class="cv">0</div><div class="cl">zone results</div></div>
+      </div>
+    </div></div>
+
+    <div class="card"><h3>Norm Analyst — cite or abstain</h3><div class="cardbody">
+      <div class="quote" id="quote1"></div>
+      <div class="ledger" id="ledger1"></div>
+    </div></div>
+
+    <div class="card"><h3>Norm Formalizer — 24 cards → rules</h3><div class="cardbody">
+      <div class="dist" id="dist1"></div>
+    </div></div>
+
+    <div class="card"><h3>Critic / Validator (V0–V4)</h3><div class="cardbody">
+      <div class="levels" id="levels1"></div>
+      <div style="font-size:10.5px;color:var(--faint);margin-top:9px;font-family:var(--mono)" id="v3note"></div>
+    </div></div>
+
+    <div class="card"><h3>artifacts</h3><div class="cardbody">
+      <div class="artifacts" id="arts1"></div>
+    </div></div>
+
+    <div class="card"><h3>run log</h3><div class="log" id="log1"></div></div>
+  </aside>
+</section>
+
+<!-- ================================================================ PoC-2 -->
+<section class="view" id="view2">
+  <aside class="rail card" id="rail2"></aside>
+
+  <div class="stagepane panels">
+
+    <div class="card panel" id="p-parse">
+      <h3>MC-4 · automatically read & split the consolidated regulation</h3>
+      <div class="cardbody">
+        <div class="funnel">
+          <div class="fbox src"><div class="n" id="f-art" data-count="1074">0</div><div class="t">artikelen in CVDR696400/4 consolidation (hfd 1–23)</div></div>
+          <div class="farrow">→</div>
+          <div class="fbox doel"><div class="n" id="f-doel" data-count="762">0</div><div class="t">doelregels<br>hoofdstuk 1–21 (nieuwe doelregeling)</div></div>
+          <div class="farrow">+</div>
+          <div class="fbox bron"><div class="n" id="f-bron" data-count="311">0</div><div class="t">bronregels<br>hoofdstuk 22/23 (bruidschat + overgangsrecht)</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--faint);margin-top:8px">deterministic HTML-tokenizer · verbatim tekst + dieptelinks · niets verzonnen · LLM-hook uit</div>
+      </div>
+    </div>
+
+    <div class="card panel" id="p-kb">
+      <h3>MC-5 · kennisbank — earlier conversions, reused</h3>
+      <div class="cardbody">
+        <div class="kbchips" id="kbrows"></div>
+        <div style="display:flex;gap:14px;margin-top:11px;font-size:12px;color:var(--dim)">
+          <span>relations kept: <b id="kb-total" style="font-family:var(--mono);color:var(--cyan)">0</b></span>
+          <span>'vervangt': <b id="kb-verv" style="font-family:var(--mono)">0</b></span>
+          <span>'voortzetting': <b id="kb-voort" style="font-family:var(--mono)">0</b></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card panel" id="p-graph">
+      <h3>MC-5 · kennisbank graph — bronartikel ➜ doelartikel (hover any relation · click opens the source)</h3>
+      <div class="cardbody">
+        <div class="kgstats">
+          <span>relations <b id="kg-n">0</b></span>
+          <span class="uv">vervangt <b id="kg-v">0</b></span>
+          <span class="pf">voortzetting <b id="kg-f">0</b></span>
+          <span>bron-artikelen <b id="kg-b">0</b></span>
+          <span>doel-artikelen <b id="kg-d">0</b></span>
+          <span class="uv">hergebruikt door matcher <b id="kg-u">0</b></span>
+        </div>
+        <div class="kgwrap"><svg id="kgsvg" viewBox="0 0 980 1043" preserveAspectRatio="xMidYMid meet"></svg></div>
+        <div class="kgnote">
+          Elke lijn is één officiële relatie uit <code>kennisbank.json</code>: bronartikel (links, uit de
+          wijzigingsbesluiten B02/B03) → doelartikel (rechts, het nieuwe omgevingsplan, gegroepeerd per hoofdstuk).
+          <span class="sw" style="background:#3b82f6"></span>'vervangt' (komt in de plaats van) ·
+          <span class="sw" style="background:#a855f7"></span>'voortzetting van' · helder = door de matcher hergebruikt
+          als score-1.0 relatie (220) · gedimd = niet hergebruikt (54). Hover een relatie voor het letterlijke citaat
+          en de link naar de officiële publicatie. De 9 duplicaten uit B04 zijn afgevallen en staan er dus terecht
+          niet tussen; de 21 relaties onderaan rechts wijzen naar hoofdstuk 22 zelf — oude rijkswet die als
+          bronregel voortleeft (geen doelregel, vandaar geen DR-id).
+        </div>
+      </div>
+    </div>
+
+    <div class="card panel" id="p-match">
+      <h3>MC-5/MC-6 · matching — TF-IDF-cosinus + kennisbank-boost (suggests only)</h3>
+      <div class="cardbody">
+        <div class="gridwrap">
+          <div>
+            <div class="sweepcount" id="sweepcount">0 / 311 bronregels matched</div>
+            <div id="rgrid"></div>
+          </div>
+          <div class="glegend" id="glegend"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card panel" id="p-samples">
+      <h3>MC-3/MC-7 · omzettabel rows — both sides visible, verbatim</h3>
+      <div class="cardbody samples" id="samples"></div>
+    </div>
+
+    <div class="card panel" id="p-cov">
+      <h3>MC-8 · bulk coverage — planning the portfolio</h3>
+      <div class="cardbody">
+        <div class="covwrap">
+          <div class="dial">
+            <svg width="150" height="150"><circle cx="75" cy="75" r="62" fill="none" stroke="#1e293b" stroke-width="13"/>
+              <circle id="dialArc" cx="75" cy="75" r="62" fill="none" stroke="#22c55e" stroke-width="13"
+                stroke-linecap="round" stroke-dasharray="0 999" style="transition:stroke-dasharray 1.2s cubic-bezier(.2,.8,.2,1)"/></svg>
+            <div class="val"><b id="dialVal">0%</b><span>match-ratio<br>best portfolio doc</span></div>
+          </div>
+          <div class="covfacts" id="covfacts"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card panel" id="p-critic2">
+      <h3>MC-6 · critic — the human stays on the buttons</h3>
+      <div class="cardbody">
+        <div class="levels" id="levels2"></div>
+        <div style="font-size:11px;color:var(--faint);margin-top:9px;font-family:var(--mono)" id="v3note2"></div>
+      </div>
+    </div>
+
+    <div class="done" id="done2"></div>
+  </div>
+
+  <aside class="telemetry">
+    <div class="card"><h3>counters</h3><div class="cardbody">
+      <div class="counters">
+        <div class="counter" id="c2-art"><div class="cv">0</div><div class="cl">artikelen parsed</div></div>
+        <div class="counter" id="c2-doel"><div class="cv">0</div><div class="cl">doelregels (hfd 1–21)</div></div>
+        <div class="counter" id="c2-bron"><div class="cv">0</div><div class="cl">bronregels (hfd 22/23)</div></div>
+        <div class="counter" id="c2-kb"><div class="cv">0</div><div class="cl">kennisbank relations</div></div>
+        <div class="counter" id="c2-rows"><div class="cv">0</div><div class="cl">omzettabel rows</div></div>
+        <div class="counter" id="c2-human"><div class="cv">0</div><div class="cl">rows for the jurist (V4)</div></div>
+      </div>
+    </div></div>
+
+    <div class="card"><h3>artifacts</h3><div class="cardbody">
+      <div class="artifacts" id="arts2"></div>
+    </div></div>
+
+    <div class="card"><h3>run log</h3><div class="log" id="log2"></div></div>
+  </aside>
+</section>
+
+</main>
+
+<div class="kgtip" id="kgtip"></div>
+
+<footer>
+  Simulation built by <code>simulation/build_simulation.py</code> from the canonical runs of
+  <a href="../poc/README.md">PoC-1</a> (waar kan wat — three tracks on the Omgevingsverordening provincie
+  Utrecht CVDR704250: <b>wind</b> turbines, <b>zon</b>/zonnevelden, <b>bos</b>/nieuwe natuur) and
+  <a href="../poc-bp2op/README.md">PoC-2</a> (van bestemmingsplan naar omgevingsplan met AI, gemeente Eindhoven,
+  Amsterdams aanpak as MC-1…12). Zone geometry is display-simplified (~300 m) purely for page weight;
+  every area shown is the zone engine's own output. No network, no LLM at runtime — same contract as the PoCs.
+</footer>
+
+<script>
+"use strict";
+const DATA = /*__DATA__*/;
+
+/* ---------------------------------------------------------------- helpers */
+const $ = (id) => document.getElementById(id);
+const svgNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent){ const e=document.createElementNS(svgNS,tag);
+  for(const k in attrs) e.setAttribute(k,attrs[k]); if(parent) parent.appendChild(e); return e; }
+function animNum(elm, to, dur, fmt){ const from = parseFloat(elm.dataset.v||"0")||0;
+  elm.dataset.v = to; const t0 = performance.now();
+  function fr(t){ const p = Math.min(1,(t-t0)/dur), e = 1-Math.pow(1-p,3);
+    elm.textContent = fmt(from+(to-from)*e); if(p<1) requestAnimationFrame(fr); }
+  requestAnimationFrame(fr); }
+const km = (v)=> v>=100 ? v.toFixed(0) : v.toFixed(1);
+const esc = (s)=> String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+function tipShow(html,ev){ const t=$("kgtip"); t.innerHTML=html; t.style.display="block"; tipMove(ev); }
+function tipMove(ev){ const t=$("kgtip"); const vw=(typeof innerWidth!=="undefined")?innerWidth:1200;
+  t.style.left=Math.min(ev.clientX+16,vw-455)+"px"; t.style.top=Math.max(8,ev.clientY-14)+"px"; }
+function tipHide(){ $("kgtip").style.display="none"; }
+function kgtxt(svg,x,y,cls,s,anchor){ const t=el("text",{x,y,class:cls},svg);
+  if(anchor) t.setAttribute("text-anchor",anchor); t.textContent=s; return t; }
+
+/* ---------------------------------------------------------------- timeline core */
+class Sim {
+  constructor(steps, hooks){ this.steps=steps; this.hooks=hooks||{}; this.i=-1; this.speed=1; this.timer=null; }
+  setSpeed(s){ this.speed=parseFloat(s); if(this.timer){ this.pause(); this.play(); } }
+  reset(){ this.pause(); this.i=-1; this.hooks.reset(); this.prog(); }
+  play(){ if(this.timer) return; if(this.i>=this.steps.length-1) this.reset();
+    const tick=()=>{ if(this.i>=this.steps.length-1){ this.pause(); return; }
+      this.next(); this.timer=setTimeout(tick, (this.steps[this.i].dur||900)/this.speed); };
+    this.timer=setTimeout(tick, 250/this.speed); this.hooks.playing&&this.hooks.playing(true); }
+  pause(){ if(this.timer){clearTimeout(this.timer); this.timer=null;} this.hooks.playing&&this.hooks.playing(false); }
+  step(){ if(this.i>=this.steps.length-1) return; this.pause(); this.next(); }
+  next(){ this.i++; this.applyCurrent(true); this.prog(); }
+  jumpToStage(st){ this.pause(); const idx=this.steps.findIndex(s=>s.stage===st);
+    if(idx<0) return; this.hooks.reset(); for(let k=0;k<=idx;k++){ this.i=k; this.applyCurrent(false); } this.prog(); }
+  applyCurrent(anim){ const s=this.steps[this.i]; this.hooks.stage(s.stage, this.i); s.run(anim); }
+  prog(){ const n=this.steps.length, i=this.i+1;
+    const s=this.steps[Math.max(0,this.i)];
+    $("stepLabel").textContent = (this.i<0?"ready":"step "+i+"/"+n+" · "+ (s.t||""));
+    $("stepBar").style.width = (100*i/n)+"%"; }
+}
+
+let sim1, sim2, active=1;
+const sim = ()=> active===1?sim1:sim2;
+function ctrl(a){ const s=sim(); if(a==="play"){ s.timer? s.pause() : s.play(); } else if(a==="step") s.step(); else s.reset(); }
+function switchTab(n){ if(n===active) return; sim().pause(); active=n;
+  $("tab1").classList.toggle("active",n===1); $("tab2").classList.toggle("active",n===2);
+  $("view1").classList.toggle("active",n===1); $("view2").classList.toggle("active",n===2);
+  sim().prog(); }
+document.addEventListener("keydown",(e)=>{ if(e.target.tagName==="SELECT"||e.target.tagName==="INPUT") return;
+  if(e.code==="Space"){ e.preventDefault(); ctrl("play"); } if(e.code==="ArrowRight"){ e.preventDefault(); ctrl("step"); } });
+
+/* ================================================================ PoC-1 view */
+const P1 = DATA.poc1;                 // {aoi:{areaKm2,geo}, tracks:{wind,zon,bos}}
+let curTrack = "wind";
+const T1 = () => P1.tracks[curTrack];
+const STAGES1 = [
+  ["Intake","request.json"],
+  ["Norm Analyst","normcards.json"],
+  ["Norm Formalizer","formalrules.json"],
+  ["Geo Analyst","layers.json"],
+  ["Zone Engine","zones.json"],
+  ["Cartographer","zones.geojson/.gml"],
+  ["Critic / Validator","validation.json"],
+  ["Explainer","decision-table.json"],
+  ["Report","report.html"],
+];
+const setLbl = (html) => { $("oplabel").innerHTML = html; };
+
+/* --- projection + svg map (AOI shared by all three tracks) --- */
+const bbox = (()=>{ let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  for(const ring of P1.aoi.geo) for(const [x,y] of ring){ x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y);} 
+  return {x0,y0,x1,y1}; })();
+const W=980,H=620,PAD=34;
+const MID = (bbox.y0+bbox.y1)/2, KX = Math.cos(MID*Math.PI/180);
+const SC = Math.min((W-2*PAD)/((bbox.x1-bbox.x0)*KX), (H-2*PAD)/(bbox.y1-bbox.y0));
+const px = (lon)=> (lon-bbox.x0)*KX*SC + (W-((bbox.x1-bbox.x0)*KX*SC))/2;
+const py = (lat)=> H-((lat-bbox.y0)*SC + (H-((bbox.y1-bbox.y0)*SC))/2);
+function ringPath(ring){ let d="";
+  for(let i=0;i<ring.length;i++){ const x=px(ring[i][0]).toFixed(1), y=py(ring[i][1]).toFixed(1);
+    d += (i? "L":"M")+x+" "+y+" "; } return d+"Z"; }
+function ringsPath(rings){ return rings.map(ringPath).join(" "); }
+
+function buildMap(){
+  const svg=$("map1"); svg.innerHTML="";
+  const T=T1();
+  const defs=el("defs",{},svg);
+  const mk=(id,color)=>{ const p=el("pattern",{id,width:9,height:9,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"},defs);
+    el("rect",{width:9,height:9,fill:"none"},p); el("line",{x1:0,y1:0,x2:0,y2:9,stroke:color,"stroke-width":2.4,opacity:.85},p); };
+  mk("h-attention","#f59e0b"); mk("h-cond","#eab308"); mk("h-comp","#22c55e");
+  el("path",{d:ringsPath(P1.aoi.geo),fill:"#0e2038",stroke:"#93c5fd","stroke-width":1.4,"stroke-dasharray":"7 5",opacity:.9},svg);
+  el("path",{id:"ghost",d:ringsPath(T.engine[0].geo),fill:"none",stroke:"#22d3ee","stroke-width":1,
+    "stroke-dasharray":"5 5",opacity:0,style:"transition:opacity .8s"},svg);
+  el("path",{id:"zonefill",d:"",fill:"#22c55e",opacity:0,style:"transition:opacity .8s"},svg);
+  el("path",{id:"zonestroke",d:"",fill:"none",stroke:"#4ade80","stroke-width":1.6,opacity:0,style:"transition:opacity .8s"},svg);
+  T.markers.forEach((m,i)=>{ el("path",{id:"mk"+i,d:ringsPath(m.geo),fill:"url(#h-"+({attention:"attention",conditional:"cond",compensation:"comp"}[m.kind])+")",
+    stroke:{attention:"#f59e0b",conditional:"#eab308",compensation:"#22c55e"}[m.kind],"stroke-width":.8,"stroke-dasharray":"3 3",opacity:0,style:"transition:opacity .9s"},svg); });
+  el("path",{id:"flash",d:"",fill:"#ef4444",opacity:0,style:"transition:opacity .25s"},svg);
+  el("path",{id:"aoi2",d:ringsPath(P1.aoi.geo),fill:"none",stroke:"#93c5fd","stroke-width":1.4,
+    "stroke-dasharray":"1600","stroke-dashoffset":"1600",style:"transition:stroke-dashoffset 2.2s ease"},svg);
+}
+function setZone(geo, color){ $("zonefill").setAttribute("d", ringsPath(geo));
+  $("zonestroke").setAttribute("d", ringsPath(geo));
+  if(color){ $("zonefill").setAttribute("fill",color); $("zonestroke").setAttribute("stroke",color); }
+  $("zonefill").style.opacity=.34; $("zonestroke").style.opacity=1; }
+function flashPrev(prevGeo){ if(!prevGeo) return; $("flash").setAttribute("d", ringsPath(prevGeo));
+  $("flash").style.opacity=.4; setTimeout(()=>$("flash").style.opacity=0, 520); }
+
+/* --- rail, legend, waterfall, dtable, telemetry (per track) --- */
+function buildRail1(){
+  $("rail1").innerHTML = STAGES1.map((s,i)=>
+    `<div class="stage" id="st1-${i}" onclick="sim1.jumpToStage(${i})">
+       <div class="num">${i+1}</div><div><div class="sname">${s[0]}</div><div class="sartifact">${s[1]}</div></div>
+     </div>`).join("");
+}
+function buildLegend1(){
+  const T=T1();
+  const kinds=new Set(T.markers.map(m=>m.kind));
+  const items=[["aoib","AOI — provinciegrens","#93c5fd"],["incl",T.inclLabel,"#22c55e"]];
+  if(T.engine.some(s=>s.kind==="exclusion")) items.push(["excl","hard exclusion (carves area)","#ef4444"]);
+  const KN={attention:["m1","attention marker (no carve)","#f59e0b"],
+            conditional:["m2","conditional marker (no carve)","#eab308"],
+            compensation:["m3","compensation marker (no carve)","#22c55e"]};
+  for(const k of ["attention","conditional","compensation"]) if(kinds.has(k)) items.push(KN[k]);
+  $("legend1").innerHTML = items.map(i=>`<div class="li" id="lg-${i[0]}"><div class="sw" style="background:${i[2]}"></div>${esc(i[1])}</div>`).join("");
+}
+let WFBARS=[];
+function buildWaterfall(){
+  const T=T1(); WFBARS=[{k:"aoi",l:"AOI provinciegrens",v:P1.aoi.areaKm2,excl:false,step:-1}];
+  let last=P1.aoi.areaKm2;
+  T.engine.forEach((s,i)=>{
+    if(s.op==="union") return;
+    if(Math.abs(s.areaKm2-last)<0.05){ last=s.areaKm2; return; }
+    WFBARS.push({k:"b"+i, l:s.label, v:s.areaKm2, excl:s.kind!=="final", step:i});
+    last=s.areaKm2;
+  });
+  $("waterfall").innerHTML = WFBARS.map(b=>`<div class="wbar ${b.excl?"excl":""}" id="wf-${b.k}">
+    <div class="v" style="opacity:0">0</div><div class="col" style="min-height:4px"></div><div class="l">${esc(b.l)}</div></div>`).join("");
+}
+function wf(key, val){ const bar=$("wf-"+key); if(!bar) return;
+  bar.querySelector(".col").style.height=(100*val/P1.aoi.areaKm2)+"%";
+  const v=bar.querySelector(".v"); v.style.opacity=1; animNum(v, val, 900, km); }
+function buildDTable(){
+  const T=T1();
+  const eff={included:"var(--green)",excluded:"var(--red)",attention:"#f59e0b",conditional:"#eab308",
+    compensation:"#22c55e",ambiguous:"var(--faint)",not_applicable:"var(--faint)"};
+  $("dtable").innerHTML = `<tr style="color:var(--faint);text-align:left"><th style="padding:4px 8px">rule</th>
+    <th style="padding:4px 8px">criterion (NormCard claim)</th><th style="padding:4px 8px">zone effect</th></tr>`+
+    T.decision.map((r,i)=>`<tr id="dtr-${i}" style="opacity:0;transition:opacity .3s">
+      <td style="padding:4px 8px;font-family:var(--mono);color:var(--cyan);white-space:nowrap">${r.ruleId}</td>
+      <td style="padding:4px 8px;color:var(--dim)">${esc(r.criterion)}</td>
+      <td style="padding:4px 8px;color:${eff[r.effect]||"var(--dim)"};white-space:nowrap">${r.effect}</td></tr>`).join("");
+}
+function buildTelemetry1(){
+  const T=T1();
+  $("ledger1").innerHTML = T.abstentions.map(a=>`<div class="item"><b>abstained:</b> ${esc(a.topic)}
+     <span class="rsn">${esc(a.reason)}</span></div>`).join("");
+  $("quote1").innerHTML = `“${esc(T.quote.quote)}”<i>${esc(T.quote.article)} — Omgevingsverordening provincie Utrecht, CVDR704250 ·
+     <a href="${esc(T.quote.url)}" target="_blank">lokaleregelgeving.overheid.nl</a></i>`;
+  const dist=[["formalized",T.cards.formalized,"var(--green)"],["ambiguous → V4 human",T.cards.ambiguous,"var(--amber)"],
+    ["rejected",T.cards.rejectedRules,"var(--red)"]];
+  $("dist1").innerHTML = dist.map(d=>`<div class="bar"><span>${d[0]}</span>
+    <div class="track"><div class="fill" id="df-${d[1]}" style="background:${d[2]}"></div></div><span class="n" id="dn-${d[1]}">0</span></div>`).join("");
+  const LV=[["V0","syntactic"],["V1","geometric"],["V2","legal grounding"],["V3","semantic"],["V4","human"]];
+  $("levels1").innerHTML = LV.map(l=>`<div class="lvl" id="lv1-${l[0]}"><b>${l[0]}</b>${l[1]}<small id="lvd-${l[0]}"></small></div>`).join("");
+  const arts=["request.json","normcards.json","normcards-rejected.json","formalrules.json","layers.json","zones.json",
+    "rule-stats.json","zones.geojson","zones.gml","zones.xsd","validation.json","decision-table.md","prov.json","report.html"];
+  $("arts1").innerHTML = arts.map(a=>`<div class="chip" id="a1-${a.replace(/[.\-]/g,"_")}">${a}</div>`).join("");
+}
+function log1(msg, cls){ const d=document.createElement("div"); d.className="ln "+(cls||"");
+  d.innerHTML=`<span class="t">[${String(sim1&&sim1.i>=0?sim1.i:0).padStart(2,"0")}]</span> <span class="m">${msg}</span>`;
+  $("log1").appendChild(d); requestAnimationFrame(()=>d.classList.add("in")); $("log1").scrollTop=1e9; }
+function on(cls){ const e=$(cls); if(e) e.classList.add("on"); }
+function chip1(id){ const e=$("a1-"+id.replace(/[.\-]/g,"_")); if(e) e.classList.add("on"); }
+function stageCls(i){ for(let k=0;k<STAGES1.length;k++){ const s=$("st1-"+k); if(!s) continue;
+  s.classList.toggle("active",k===i); s.classList.toggle("done",k<i); } }
+
+function switchTrack(t){
+  if(t===curTrack || !P1.tracks[t]) return;
+  if(sim1) sim1.pause();
+  curTrack=t;
+  document.querySelectorAll(".ttab").forEach(b=>b.classList.toggle("active",b.dataset.t===t));
+  buildStatic1(); sim1=makeSim1(); sim1.prog();
+}
+function buildStatic1(){
+  const T=T1();
+  buildMap(); buildLegend1(); buildWaterfall(); buildDTable(); buildTelemetry1(); buildKG1();
+  tipHide();
+  ["quote1","ledger1","dist1"].forEach(id=>$(id).classList.remove("on"));
+  document.querySelectorAll("#levels1 .lvl").forEach(l=>l.classList.remove("pass","pending"));
+  document.querySelectorAll("#arts1 .chip").forEach(c=>c.classList.remove("on"));
+  ["c-aoi","c-cards","c-abst","c-fr","c-lay","c-zr"].forEach(id=>$(id).classList.remove("on","hit"));
+  [["c-aoi",km(P1.aoi.areaKm2)],["c-cards","0"],["c-abst","0"],["c-fr","0"],["c-lay","0"],["c-zr","0"]].forEach(([id,v])=>{
+    const e=$(id).querySelector(".cv"); e.textContent=v; e.dataset.v=v; });
+  $("log1").innerHTML=""; $("oplabel").textContent="intake…";
+  $("areaBig").textContent="0"; $("areaBig").dataset.v="0";
+  $("v3note").textContent=""; $("done1").classList.remove("on"); $("done1").innerHTML="";
+  $("maptitle1").textContent=`zone engine — where can an omgevingsplan allow ${T.objectLabel}?`;
+  document.querySelectorAll("#rail1 .stage").forEach(s=>s.classList.remove("active","done"));
+}
+
+/* --- PoC-1 rule graph (artikel -> NormCard -> FormalRule -> layer -> zone) --- */
+let KG1N=[], KG1E=[], curKg1=-1;
+function buildKG1(){
+  const G=T1().kg; const svg=$("kg1svg"); svg.innerHTML="";
+  svg.setAttribute("viewBox","0 0 980 "+G.h);
+  $("kg1cap").textContent=G.cap;
+  G.cols.forEach(c=>kgtxt(svg,c.x,16,"kgcap",c.cap));
+  G.groups.forEach(g=>kgtxt(svg,g.x,g.y+10,"kghd",g.l1));
+  KG1E=G.e.map(e=>el("path",{d:e.d,class:"kge1 "+e.cls,"stroke-opacity":0},svg));
+  KG1N=G.n.map((n,i)=>{
+    const g=el("g",{class:"kgn "+n.cls,opacity:0,style:"transition:opacity .5s"},svg);
+    el("circle",{cx:n.x,cy:n.y,r:3.2},g);
+    const t=el("text",{x:n.tx,y:n.y+2.5},g);
+    if(n.anchor) t.setAttribute("text-anchor",n.anchor);
+    t.textContent=n.label;
+    g.addEventListener("mouseenter",(ev)=>kg1Hover(i,ev));
+    g.addEventListener("mousemove",tipMove);
+    g.addEventListener("mouseleave",kg1Out);
+    return g; });
+  curKg1=-1;
+}
+function kg1Apply(){ const G=T1().kg;
+  G.n.forEach((n,i)=>{ KG1N[i].style.opacity = n.st<=curKg1 ? 1 : 0; });
+  G.e.forEach((e,i)=>{ KG1E[i].style.strokeOpacity = e.st<=curKg1 ? 0.55 : 0; }); }
+function kg1Set(st){ if(st===curKg1) return; curKg1=st; kg1Apply(); }
+function kg1Hover(i,ev){ const G=T1().kg; const adj=new Set([i]);
+  G.e.forEach((e,j)=>{ const on=e.s===i||e.t===i;
+    if(on){ adj.add(e.s); adj.add(e.t); }
+    KG1E[j].style.strokeOpacity = on ? 0.95 : (e.st<=curKg1 ? 0.06 : 0); });
+  G.n.forEach((n,j)=>{ KG1N[j].style.opacity = adj.has(j) ? 1 : (n.st<=curKg1 ? 0.16 : 0); });
+  tipShow(G.n[i].tip,ev); }
+function kg1Out(){ tipHide(); kg1Apply(); }
+
+/* --- the PoC-1 timeline (generic over the current track) --- */
+function makeSim1(){
+  const T=T1(), Z=T.engine, zonesTotal=T.engine.length+T.markers.length;
+  const final=Z[Z.length-1];
+  const pct=(v)=>(100*v/P1.aoi.areaKm2).toFixed(1);
+  const steps=[];
+  const S=(stage,t,dur,run)=>steps.push({stage,t,dur,run});
+
+  S(0,"intake",1500,(a)=>{ $("aoi2").style.strokeDashoffset=0; on("lg-aoib");
+    $("c-aoi").classList.add("on","hit"); wf("aoi",P1.aoi.areaKm2);
+    setLbl(`intake — <b>OpportunityMapRequest</b> validated (schema V0)<br>objectType ${esc(T.objectType)} · stage programming · AOI embedded EPSG:28992`);
+    log1(`request schema-valid — run ${esc(T.runId)} · ${esc(T.objectLabel)} · AOI = provinciegrens Utrecht open data`,"ok");
+    log1(`AOI ${km(P1.aoi.areaKm2)} km² · ${esc(T.inclLabel)}`,"data"); });
+
+  S(1,"norm analyst",2100,(a)=>{ const c=$("c-cards"), ab=$("c-abst");
+    c.classList.add("on","hit"); ab.classList.add("on");
+    animNum(c.querySelector(".cv"),T.cards.normCards,1400,x=>Math.round(x));
+    setTimeout(()=>animNum(ab.querySelector(".cv"),T.cards.abstentions,700,x=>Math.round(x)),900);
+    setTimeout(()=>{on("quote1"); on("ledger1");},1000);
+    log1(`Norm Analyst: ${T.cards.normCards} claims — each with instrument + article + version + verbatim quote + URL`,"ok");
+    log1(`cite-or-abstain: ${T.cards.abstentions} topics abstained — no verified citation, no rule`,"warn"); });
+
+  S(2,"norm formalizer",1900,(a)=>{ $("c-fr").classList.add("on","hit");
+    animNum($("c-fr").querySelector(".cv"),T.cards.normCards,900,x=>Math.round(x));
+    on("dist1"); const rows=[T.cards.formalized,T.cards.ambiguous,T.cards.rejectedRules];
+    document.querySelectorAll("#dist1 .fill").forEach((f,i)=>f.style.width=(100*rows[i]/T.cards.normCards)+"%");
+    document.querySelectorAll("#dist1 .n").forEach((n,i)=>animNum(n,rows[i],800,x=>Math.round(x)));
+    log1(`formalizer: ${T.cards.formalized} rules with zone predicates · ${T.cards.ambiguous} ambiguous (open norms) routed to V4 · ${T.cards.rejectedRules} rejected (non-binding)`,"data"); });
+
+  S(3,"geo analyst",2000,(a)=>{ $("c-lay").classList.add("on","hit");
+    animNum($("c-lay").querySelector(".cv"),T.layers.length,1100,x=>Math.round(x));
+    $("ghost").style.opacity=.5; on("lg-incl");
+    log1(`geo analyst: ${T.layers.length} zone layers resolved — agrest IMOW + ArcGIS Hub, cache-first (no live fetch needed)`,"ok");
+    log1("GIO join-ids aliased to provincial vigerende-verordening layers (DSO download API is key-gated, 401 verified)","warn"); });
+
+  Z.forEach((s,i)=>{
+    S(4, "engine "+s.label.replace(/^[^A-Za-z]+ /,"").slice(0,22), s.kind==="exclusion"?2000:(s.kind==="final"?1700:1600), (a)=>{
+      if(s.kind==="exclusion") flashPrev(Z[i-1].geo);
+      setZone(s.geo, s.kind==="final"?"#10b981":"#22c55e");
+      if(s.kind==="exclusion") on("lg-excl");
+      const bar=WFBARS.find(b=>b.step===i); if(bar) wf(bar.k, s.areaKm2);
+      animNum($("areaBig"), s.areaKm2, 900, km);
+      animNum($("c-zr").querySelector(".cv"), i+1, 500, x=>Math.round(x));
+      setLbl(esc(s.label)+(s.zones&&s.zones.length?` — <b>${esc(s.zones.join(", "))}</b>`:"")+(s.ruleIds.length?` (${s.ruleIds.join(" · ")})`:""));
+      if(s.note) log1(`${esc(s.label)} → ${km(s.areaKm2)} km² — ${esc(s.note)}`, s.kind==="exclusion"?"warn":"data");
+      else log1(`${esc(s.label)} → ${km(s.areaKm2)} km²`,"data");
+      if(s.kind==="final") log1(`final zone = ${pct(s.areaKm2)}% of the province`,"ok"); });
+  });
+
+  if(T.markers.length){
+    S(4,"engine markers",T.markers.length>2?2500:1900,(a)=>{
+      T.markers.forEach((m,i)=>setTimeout(()=>{ $("mk"+i).style.opacity=.55;
+        on("lg-"+({attention:"m1",conditional:"m2",compensation:"m3"}[m.kind])); },i*420));
+      animNum($("areaBig"), final.areaKm2, 400, km);
+      animNum($("c-zr").querySelector(".cv"), zonesTotal, 600, x=>Math.round(x));
+      setLbl("markers annotate but <b>never eliminate area</b>: "+T.markers.map(m=>esc(m.kind)).join(" · "));
+      T.markers.forEach(m=>log1(`${esc(m.kind)} mark ${km(m.areaKm2)} km² — ${esc(m.note)}`,"warn"));
+      log1("final zone unchanged: markers are obligations, not exclusions","ok"); });
+  }
+
+  S(5,"cartographer",1700,(a)=>{ ["zones.json","zones.geojson","zones.gml","zones.xsd","rule-stats.json"].forEach((f,i)=>setTimeout(()=>chip1(f),i*180));
+    log1("cartographer: RFC-7946 GeoJSON + GML 3.2 via ogr2ogr (+ zones.xsd) — QGIS/Tygron interop","ok"); });
+
+  S(6,"critic V0–V4",2600,(a)=>{ const L=T.validationLevels;
+    ["V0","V1","V2","V3","V4"].forEach((k,i)=>setTimeout(()=>{ const st=L[k].status;
+      $("lv1-"+k).classList.add(st==="pass"?"pass":"pending");
+      $("lvd-"+k).textContent = (k==="V3"&&T.iou)?("IoU "+T.iou):(k==="V4"?"pending (HITL)":"");
+      log1(`critic ${k}: ${st} — ${esc(L[k].detail)}`, st==="pass"?"ok":"warn"); },i*380));
+    log1(esc(T.v3),"ok"); $("v3note").textContent="V3: "+T.v3; });
+
+  S(7,"explainer",T.decision.length>10?2100:1700,(a)=>{
+    for(let i=0;i<T.decision.length;i++) setTimeout(()=>{const r=$("dtr-"+i); if(r){r.style.opacity=1;} },i*70);
+    ["decision-table.md","prov.json"].forEach(chip1);
+    log1(`explainer: ${T.decision.length}-row decision table (every row links its NormCard) + PROV bundle`,"ok"); });
+
+  S(8,"report",2200,(a)=>{ chip1("report.html"); chip1("normcards.json"); chip1("normcards-rejected.json"); chip1("formalrules.json"); chip1("layers.json"); chip1("validation.json");
+    $("done1").classList.add("on");
+    $("done1").innerHTML = `<b>run ${esc(T.runId)} — verdict ${esc(T.verdict).toUpperCase()} (exit code 0).</b> AOI ${km(P1.aoi.areaKm2)} km² → ${esc(T.inclLabel)} → final opportunity zone <b>${km(final.areaKm2)} km²</b> (${pct(final.areaKm2)}% of the province) · ${T.cards.normCards} norm cards · ${T.cards.abstentions} abstentions · V3 independent re-execution IoU ${T.iou||"—"} · V4 human review pending by design. Duration ${T.durationS}s, one process, no LLM.`;
+    log1("report.html written — single file, Leaflet map + fallback tables, works from file://","ok"); });
+
+  const reset1=()=>{ buildStatic1(); };
+  return new Sim(steps, { reset: reset1,
+    stage:(st, idx)=>{ stageCls(idx); kg1Set(st); },
+    playing:(p)=>{ $("btnPlay").textContent = p?"⏸ pause":"▶ play"; $("btnPlay").classList.toggle("primary",!p); } });
+}
+
+/* ================================================================ PoC-2 view */
+const P2 = DATA.poc2;
+const STAGES2 = [
+  ["Intake","request · pilotcriteria","MC-1 MC-2 MC-9"],
+  ["Parse doelregeling","doelregels.json","MC-4"],
+  ["Parse bronregels","bronregels.json","MC-4"],
+  ["Kennisbank","kennisbank.json","MC-5"],
+  ["Matcher","omzettabel.json","MC-5 MC-6"],
+  ["Coverage","coverage.json","MC-8"],
+  ["Critic","validation.json","MC-6"],
+  ["Omzettabel & rapport","omzettabel.md · report.html","MC-3 MC-7"],
+];
+function buildRail2(){
+  $("rail2").innerHTML = STAGES2.map((s,i)=>
+    `<div class="stage" id="st2-${i}" onclick="sim2.jumpToStage(${i})">
+       <div class="num">${i+1}</div><div><div class="sname">${s[0]}<span class="mc">${s[2]}</span></div>
+       <div class="sartifact">${s[1]}</div></div></div>`).join("");
+}
+function cellColor(g){ if(g.status==="needs_human") return "#ef4444";
+  if(g.status==="nieuwe_regel_voorgesteld"||g.band==="geen") return "#a855f7";
+  if(g.kb) return "#3b82f6";
+  return g.band==="sterk"?"#10b981":(g.band==="mogelijk"?"#84cc16":"#f59e0b"); }
+function buildGrid(){
+  $("rgrid").innerHTML = P2.grid.map((g,i)=>`<div class="cell" id="cell-${i}" title="${g.id} · ${g.status} · ${g.band}${g.score?" "+g.score:""}"></div>`).join("");
+  const LG=[["#3b82f6","kennisbank-driven (score 1.0)",P2.kbDriven],
+    ["#10b981","TF-IDF 'sterk' (≥0.90)",228-P2.kbDriven],
+    ["#84cc16","'mogelijk' (0.70–0.90)",4],
+    ["#ef4444","needs_human ('zwak' <0.70)",70],
+    ["#a855f7","geen match → nieuwe regel",9]];
+  $("glegend").innerHTML = LG.map(l=>`<div class="li"><div class="sw" style="background:${l[0]}"></div>${l[1]}<b>${l[2]}</b></div>`).join("");
+}
+function buildKB(){
+  $("kbrows").innerHTML = P2.kb.sources.map((s)=>`<div class="kbrow ${s.kept?"":"dropped"}" id="kb-${s.id}">
+    <span style="font-family:var(--mono);color:var(--cyan)">${s.id}</span><span style="color:var(--dim)">${esc(s.label)}</span>
+    <div class="track"><div class="fill" data-w="${100*s.n/262}"></div></div>
+    <span class="kb-n">${s.n}</span><span class="kb-tag">${s.kept? "kept":"deduped → 0"}</span></div>`).join("");
+}
+
+/* --- PoC-2 kennisbank graph (bron-artikel -> doel-artikel, all 274 relations) --- */
+const KG = P2.kg;
+let KG2V=[], KG2H=[], kgTimer=null;
+function buildKG(){
+  const svg=$("kgsvg"); svg.innerHTML="";
+  svg.setAttribute("viewBox","0 0 980 "+KG.h);
+  kgtxt(svg,0,16,"kgcap",KG.capL); kgtxt(svg,980,16,"kgcap",KG.capR,"end");
+  KG.lg.forEach(g=>{ kgtxt(svg,0,g.y+10,"kghd",g.l1); kgtxt(svg,0,g.y+19,"kghd2",g.l2); });
+  KG.rg.forEach(g=>{ kgtxt(svg,806,g.y+10,"kghd",g.l1); kgtxt(svg,806,g.y+19,"kghd2",g.l2); });
+  el("path",{d:KG.lt,class:"kgtick",opacity:.9},svg);
+  el("path",{d:KG.rt,class:"kgtick",opacity:.9},svg);
+  KG2V=KG.e.map(e=>el("path",{d:e.d,class:"kge "+(e.rel==="v"?"v":"f"),"stroke-opacity":0},svg));
+  KG2H=KG.e.map((e,i)=>{
+    const h=el("path",{d:e.d,class:"kghit"},svg);
+    h.addEventListener("mouseenter",(ev)=>kg2Hover(i,ev));
+    h.addEventListener("mousemove",tipMove);
+    h.addEventListener("mouseleave",kg2Out);
+    h.addEventListener("click",()=>{ if(typeof window!=="undefined" && e.url) window.open(e.url,"_blank"); });
+    return h; });
+}
+function kg2Hover(i,ev){ const e=KG.e[i];
+  KG2V.forEach((p,j)=>p.classList.toggle("dim", j!==i && KG.e[j].a!==e.a && KG.e[j].b!==e.b));
+  tipShow(`<b>${esc(e.id)}</b> · <span class="${e.rel==="v"?"rv":"rf"}">${e.rel==="v"?"vervangt":"voortzetting"}</span><br>`+
+    `${esc(e.bron)}<br>➜ ${esc(e.dl)}${e.dr?` <span style="color:var(--faint)">(${esc(e.dr)})</span>`:" — geen doelregel-object (hfd 22)"}<br>`+
+    `“${esc(e.q)}”<br><span style="color:var(--faint)">besluit ${esc(e.doc)} · officiële publicatie`+
+    `${e.u?" · hergebruikt door de matcher (score 1.0)":" · niet hergebruikt door de matcher"} · klik opent de bron</span>`,ev); }
+function kg2Out(){ KG2V.forEach(p=>p.classList.remove("dim")); tipHide(); }
+function kgReveal(){
+  if(kgTimer){clearInterval(kgTimer);kgTimer=null;}
+  KG2V.forEach(p=>p.setAttribute("stroke-opacity","0"));
+  let i=0,v=0,f=0; const batch=9;
+  kgTimer=setInterval(()=>{
+    for(let k=0;k<batch&&i<KG.e.length;k++,i++){
+      KG2V[i].setAttribute("stroke-opacity", KG.e[i].u?"0.55":"0.15");
+      if(KG.e[i].rel==="v")v++;else f++; }
+    $("kg-n").textContent=i; $("kg-v").textContent=v; $("kg-f").textContent=f;
+    if(i>=KG.e.length){ clearInterval(kgTimer); kgTimer=null;
+      $("kg-b").textContent=KG.c.bron; $("kg-d").textContent=KG.c.doel; $("kg-u").textContent=KG.c.used;
+      log2("kennisbank-graaf: "+KG.c.bron+" bron-artikelen → "+KG.c.doel+" doel-artikelen — hover een relatie voor citaat + bronlink","data"); }
+  },34);
+}
+function buildSamples(){
+  $("samples").innerHTML = P2.samples.map((s,i)=>`<div class="sample" id="smp-${i}">
+    <div class="hd"><span style="color:var(--cyan)">${s.ot}</span>
+      <span class="bandtag" style="background:#1e3a5f;color:#7dd3fc">${s.why}</span>
+      <span style="margin-left:auto;color:${cellColor({status:s.status,band:s.band,kb:s.kb})}">${s.status}</span></div>
+    <div class="bd">
+      <div class="side br"><b>bron · art. ${esc(s.bronArt)}</b>${esc(s.bronTekst)}</div>
+      <div class="arr">➜</div>
+      <div class="side dr"><b>${s.doelArt?("doel · art. "+esc(s.doelArt)):"— geen doelregel —"}</b>${esc(s.doelTekst||"voorstel: nieuwe regel in de doelregeling opnemen")}</div>
+    </div>
+    <div class="ft">score ${s.score==null?"—":s.score} · band '${s.band}'${s.kb?" · kennisbank-boost (officiële relatie)":" · TF-IDF-cosinus"} · status blijft 'voorgesteld' — de jurist beslist (MC-6)</div>
+  </div>`).join("");
+}
+function buildCov(){
+  const c=P2.coverage.perBronDocument[0];
+  $("covfacts").innerHTML = `
+    <div class="row"><span>beste brondocument — bronregels</span><b>${c.nRegels}</b></div>
+    <div class="row"><span>sterk / mogelijk / zwak / geen</span><b>${c.sterk} / ${c.mogelijk} / ${c.zwak} / ${c.geenMatch}</b></div>
+    <div class="row"><span>gereedheid</span><span class="bandtag deels">${c.gereedheid}</span></div>
+    <div class="row"><span>'doelregeling eerst uitbreiden'-cluster</span><b>${P2.coverage.needsNewRules[0].thema} (${P2.coverage.needsNewRules[0].nRegels} regels)</b></div>
+    <div class="row"><span>portefeuille Eindhoven (Planviewer)</span><b>${P2.portfolio.plannenTotaal} plannen · ${P2.portfolio.vastgesteld} vastgesteld · ${P2.portfolio.tamOmgevingsplannen} TAM</b></div>
+    <div class="row"><span>business case (Amsterdam, MC-9)</span><b>&gt;1000 u/plan → ≈450 FTE · ≈20× sneller</b></div>`;
+}
+function buildLevels2(){
+  const LV=[["V0","syntactic","1660 artifacts schema-valid"],["V1","completeness","311/311 rijen · refs resolven"],
+    ["V2","grounding","alle teksten verbatim in bron"],["V3","semantic","onafh. Jaccard re-executie"],["V4","jurist","altijd pending"]];
+  $("levels2").innerHTML = LV.map(l=>`<div class="lvl" id="lv2-${l[0]}"><b>${l[0]}</b>${l[1]}<small>${l[2]}</small></div>`).join("");
+  $("arts2").innerHTML = ["request.json","bronregels.json","doelregels.json","kennisbank.json","omzettabel.json",
+    "omzettabel.md","plan-inventory.json","coverage.json","validation.json","prov.json","report.html","run_summary.json"]
+    .map(a=>`<div class="chip" id="a2-${a.replace(/[.\-]/g,"_")}">${a}</div>`).join("");
+}
+function log2(msg,cls){ const d=document.createElement("div"); d.className="ln "+(cls||"");
+  d.innerHTML=`<span class="t">[${String(sim2&&sim2.i>=0?sim2.i:0).padStart(2,"0")}]</span> <span class="m">${msg}</span>`;
+  $("log2").appendChild(d); requestAnimationFrame(()=>d.classList.add("in")); $("log2").scrollTop=1e9; }
+function chip2(id){ const e=$("a2-"+id.replace(/[.\-]/g,"_")); if(e) e.classList.add("on"); }
+function panel(id,onv){ $(id).classList.toggle("on",onv); }
+function stageCls2(v,i){ for(let k=0;k<STAGES2.length;k++){ const s=$("st2-"+k); if(!s)continue;
+  s.classList.toggle("active",k===i); s.classList.toggle("done",k<i); } }
+function cnt2(id,v,hit){ const c=$(id); c.classList.add("on"); if(hit)c.classList.add("hit");
+  animNum(c.querySelector(".cv"),v,900,x=>Math.round(x)); }
+
+let sweepTimer=null, sampleTimer=null;
+function buildSim2(){
+  buildRail2(); buildGrid(); buildKB(); buildKG(); buildSamples(); buildCov(); buildLevels2();
+  const steps=[]; const S=(stage,t,dur,run)=>steps.push({stage,t,dur,run});
+
+  S(0,"intake",1800,(a)=>{ panel("p-parse",true);
+    log2("intake: use-case eindhoven · <b>beleid: neutraal</b> gepind (geen rij verzint beleid)","ok");
+    log2("pilotcriteria actief · deadline 2032-01-01 · portefeuille 370 plannen","data");
+    log2("geen LLM, geen netwerk — deterministisch, corpus-first (MC-12)","ok"); });
+
+  S(1,"parse doelregeling",2200,(a)=>{ panel("p-parse",true);
+    animNum($("f-art"),1074,1100,x=>Math.round(x));
+    setTimeout(()=>animNum($("f-doel"),762,900,x=>Math.round(x)),700);
+    cnt2("c2-art",1074,true); setTimeout(()=>cnt2("c2-doel",762,true),750); chip2("doelregels.json");
+    log2("MC-4: CVDR696400/4 consolidatie automatisch ingelezen en opgeknipt","ok");
+    log2("1074 artikelen → 762 doelregels (hfd 1–21) met verbatim tekst + dieptelinks","data"); });
+
+  S(2,"parse bronregels",1900,(a)=>{ panel("p-parse",true);
+    setTimeout(()=>animNum($("f-bron"),311,800,x=>Math.round(x)),200);
+    setTimeout(()=>cnt2("c2-bron",311,true),250); setTimeout(()=>chip2("bronregels.json"),300);
+    log2("311 bronregels uit hoofdstuk 22 (bruidschat Rijk) + 23 (overgangsrecht) — de oude-wet regels die nog leven","data");
+    log2("document-lineage + stackingRef per bronregel vastgelegd (MC-10)","ok"); });
+
+  S(3,"kennisbank",3600,(a)=>{ panel("p-kb",true); panel("p-graph",true);
+    document.querySelectorAll("#kbrows .fill").forEach((f,i)=>setTimeout(()=>f.style.width=f.dataset.w+"%",i*420));
+    setTimeout(()=>animNum($("kb-total"),274,700,x=>Math.round(x)),600);
+    setTimeout(()=>animNum($("kb-verv"),240,500,x=>Math.round(x)),900);
+    setTimeout(()=>animNum($("kb-voort"),34,500,x=>Math.round(x)),1100);
+    setTimeout(()=>cnt2("c2-kb",274,true),650); setTimeout(()=>chip2("kennisbank.json"),700);
+    kgReveal();
+    log2("MC-5: 'komt in de plaats van' / 'voortzetting van' relaties uit 3 wijzigingsbesluiten","ok");
+    log2("B02: 262 relaties · B03: 12 · B04: 9 duplicaten → afgevallen (vroegste publicatie wint)","warn");
+    log2("274 kennisbank-relaties (240 vervangt · 34 voortzetting) — hergebruik van eerder werk","data"); });
+
+  S(4,"matcher sweep",5200,(a)=>{ panel("p-match",true); panel("p-samples",true);
+    const cells=P2.grid; let idx=0; const batch=7;
+    const stat={voorgesteld:0,needs_human:0,nieuw:0,kb:0};
+    if(sweepTimer) clearInterval(sweepTimer);
+    sweepTimer=setInterval(()=>{ for(let k=0;k<batch&&idx<cells.length;k++,idx++){
+        const c=$("cell-"+idx); c.style.background=cellColor(cells[idx]); c.classList.add("hit");
+        setTimeout(()=>c.classList.remove("hit"),300);
+        if(cells[idx].kb) stat.kb++;
+        if(cells[idx].status==="needs_human") stat.needs_human++;
+        else if(cells[idx].status==="nieuwe_regel_voorgesteld") stat.nieuw++;
+        else stat.voorgesteld++; }
+      $("sweepcount").textContent = idx+" / 311 bronregels matched";
+      cnt2("c2-rows",idx,false); $("c2-rows").classList.remove("hit");
+      if(idx>=cells.length){ clearInterval(sweepTimer); sweepTimer=null;
+        $("sweepcount").textContent="311 / 311 — klaar"; }
+    },110);
+    let si=0; const showS=()=>{ document.querySelectorAll(".sample").forEach(s=>s.classList.remove("on"));
+      const s=$("smp-"+(si%4)); if(s){s.classList.add("on");} si++; };
+    showS(); if(sampleTimer) clearInterval(sampleTimer); sampleTimer=setInterval(showS,1600);
+    log2("MC-5: TF-IDF-cosinus (uni+bigram, Dutch-aware) + kennisbank-boost — SUGGEERT enkel","ok");
+    log2("banden ≥0.90 sterk · 0.70–0.90 mogelijk · <0.70 zwak — kennisbankrelatie = score 1.0","data"); });
+
+  S(5,"coverage",2300,(a)=>{ if(sampleTimer){clearInterval(sampleTimer); sampleTimer=null;}
+    panel("p-cov",true);
+    const c=P2.coverage.perBronDocument[0];
+    $("dialArc").style.strokeDasharray = (2*Math.PI*62*c.matchRatio)+" 999";
+    animNum($("dialVal"),100*c.matchRatio,1100,x=>x.toFixed(1)+"%");
+    setTimeout(()=>cnt2("c2-human",70,true),700); chip2("coverage.json"); chip2("plan-inventory.json");
+    log2(`MC-8: match-ratio ${(100*c.matchRatio).toFixed(1)}% → gereedheid '${c.gereedheid}'`,"data");
+    log2("cluster 'gebruik:overig' (9 regels) vraagt eerst uitbreiding van de doelregeling (MC-1)","warn");
+    log2("portefeuille: 370 plannen · 338 vastgesteld · 18 TAM-omgevingsplannen","data"); });
+
+  S(6,"critic",2600,(a)=>{ panel("p-critic2",true);
+    const seq=["V0","V1","V2","V3","V4"];
+    seq.forEach((k,i)=>setTimeout(()=>{ $("lv2-"+k).classList.add(k==="V4"?"pending":"pass");
+      const ev=P2.validation.checks.find(c=>c.level===k);
+      const msg = k==="V4" ? "altijd pending — 70 rijen aangewezen voor de jurist (MC-6)"
+                           : (ev ? ev.evidence : "pass");
+      log2(`critic ${k}: ${esc(msg)}`, k==="V4"?"warn":"ok"); },i*380));
+    $("v3note2").textContent = "V3: onafhankelijke Jaccard-matcher — top-1 overeenkomst "+(100*P2.validation.v3Detail.v3Agreement).toFixed(1)+"% over "+P2.validation.v3Detail.v3Compared+" TF-IDF-rijen (220 kennisbank-rijen buiten vergelijking)";
+    log2("V3: onafhankelijke re-executie met Jaccard i.p.v. TF-IDF — meetbaar, geen black box","ok"); });
+
+  S(7,"omzettabel & rapport",2400,(a)=>{ ["omzettabel.json","omzettabel.md","validation.json","prov.json","report.html","run_summary.json","request.json"].forEach((f,i)=>setTimeout(()=>chip2(f),i*150));
+    $("done2").classList.add("on");
+    const C=P2.counts;
+    $("done2").innerHTML=`<b>run ${esc(P2.runId)} — verdict PASS (V4 pending by design).</b> ${C.bronRegels} bronregels · ${C.doelRegels} doelregels ·
+      ${C.kennisbank} kennisbank-relaties → ${C.omzettabelRijen} omzettabel-rijen: ${C.voorgesteld} voorgesteld
+      (${P2.kbDriven} kennisbank-gedreven), ${C.nieuweRegel} nieuwe-regel-voorstellen, <b>${C.needsHuman} wachten op de jurist</b>.
+      Geen enkele rij is ooit 'gekoppeld' zonder mens — dat status-bestand is bewust uit het schema gehouden (MC-6).`;
+    log2("MC-3/MC-7: omzettabel.json/.md + PROV + single-file report — elke rij: permalink + letterlijk citaat aan beide kanten","ok"); });
+
+  const reset2=()=>{ if(sweepTimer){clearInterval(sweepTimer); sweepTimer=null;} if(sampleTimer){clearInterval(sampleTimer); sampleTimer=null;}
+    if(kgTimer){clearInterval(kgTimer); kgTimer=null;}
+    buildGrid(); buildKB(); buildKG(); buildSamples(); tipHide();
+    document.querySelectorAll("#kbrows .fill").forEach(f=>f.style.width=0);
+    ["kb-total","kb-verv","kb-voort"].forEach(id=>{$(id).textContent="0"; $(id).removeAttribute("data-v");});
+    ["kg-n","kg-v","kg-f","kg-b","kg-d","kg-u"].forEach(id=>{$(id).textContent="0";});
+    $("sweepcount").textContent="0 / 311 bronregels matched";
+    ["p-parse","p-kb","p-graph","p-match","p-samples","p-cov","p-critic2"].forEach(id=>panel(id,false));
+    ["f-art","f-doel","f-bron"].forEach(id=>{ $(id).textContent="0"; $(id).removeAttribute("data-v"); });
+    document.querySelectorAll("#levels2 .lvl").forEach(l=>l.classList.remove("pass","pending"));
+    document.querySelectorAll("#arts2 .chip").forEach(c=>c.classList.remove("on"));
+    ["c2-art","c2-doel","c2-bron","c2-kb","c2-rows","c2-human"].forEach(id=>{$(id).classList.remove("on","hit");
+      $(id).querySelector(".cv").textContent="0"; $(id).querySelector(".cv").dataset.v="0";});
+    $("dialArc").style.strokeDasharray="0 999"; $("dialVal").textContent="0%"; $("dialVal").removeAttribute("data-v");
+    $("v3note2").textContent=""; $("log2").innerHTML=""; $("done2").classList.remove("on");
+    document.querySelectorAll("#rail2 .stage").forEach(s=>s.classList.remove("active","done")); };
+  sim2 = new Sim(steps, { reset: reset2, stage:(i)=>stageCls2(false,i),
+    playing:(p)=>{ $("btnPlay").textContent = p?"⏸ pause":"▶ play"; $("btnPlay").classList.toggle("primary",!p); } });
+}
+
+buildRail1(); buildStatic1(); sim1=makeSim1(); buildSim2(); sim1.prog();
+
+globalThis.__ds={ get sims(){return [sim1,sim2];}, switchTrack };
+</script>
+</body>
+</html>

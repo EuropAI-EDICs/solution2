@@ -1,0 +1,138 @@
+[
+ {
+  "id": "FR-B-01",
+  "normCardId": "NC-B-01",
+  "status": "formalized",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "appliesTo": {
+   "objectType": "forest_planting",
+   "contextTags": [
+    "zoekgebied_nieuwe_natuur",
+    "inclusion_zone_groene_contour",
+    "vrijwillige_omvorming",
+    "nnn_addition_after_realisation"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "groene_contour"
+   ],
+   "geometrySource": "provincial_gio",
+   "selection": "within",
+   "gioJoinId": "/join/id/regdata/pv26/2025/gioee37db62-22b1-4334-bf89-7ddf4e5812c6/nld@2025-08-18;798",
+   "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+  },
+  "conditions": [],
+  "rationale": "CORE BOS RULE. Art. 6.4 lid 1 directs omgevingsplannen within the Groene contour to protect and create the possibilities to realise new nature; the contour is thereby the provincial search area (zoekgebied) for new nature — including forest planting via voluntary conversion, added to the NNN after realisation. Formalized as the opportunity inclusion for the forest_planting object type; the voluntary character (no obligation on individual landowners) is carried as a context tag, not a predicate."
+ },
+ {
+  "id": "FR-B-02",
+  "normCardId": "NC-B-02",
+  "status": "formalized",
+  "ruleType": "compensation_requirement",
+  "zoneSemantics": "compensation",
+  "appliesTo": {
+   "objectType": "forest_planting",
+   "contextTags": [
+    "compensation_min_1_to_1_within_contour",
+    "deviation_only_great_public_interest",
+    "compensation_within_groene_contour"
+   ]
+  },
+  "executableRef": "engine.compensation.ratio@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "groene_contour"
+   ],
+   "geometrySource": "provincial_gio",
+   "selection": "within",
+   "gioJoinId": "/join/id/regdata/pv26/2025/gioee37db62-22b1-4334-bf89-7ddf4e5812c6/nld@2025-08-18;798",
+   "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+  },
+  "conditions": [
+   {
+    "parameter": "compensation_ratio_new_nature",
+    "operator": ">=",
+    "value": 1,
+    "unit": "ratio"
+   }
+  ],
+  "rationale": "Art. 6.5 lid 2 under d requires >= 1:1 compensation with new nature within the contour for the remaining loss of new-nature possibilities. For the BOS track this is the contour's protection regime attached as an obligation (marker), mirroring FR-W-15 for wind; it never eliminates the zoekgebied itself."
+ },
+ {
+  "id": "FR-B-03",
+  "normCardId": "NC-B-03",
+  "status": "formalized",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "appliesTo": {
+   "objectType": "forest_planting",
+   "contextTags": [
+    "oude_bosgroeiplaatsen_protection_instruction",
+    "existing_values_protection",
+    "conditional_within_oude_bosgroeiplaatsen"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "oude_bosgroeiplaatsen"
+   ],
+   "geometrySource": "provincial_gio",
+   "selection": "within",
+   "gioJoinId": "/join/id/regdata/pv26/2025/gio3940cf76-bee0-4a1a-8d51-aa0d49be7153/nld@2025-10-10;842",
+   "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+  },
+  "conditions": [],
+  "rationale": "Art. 6.13 lid 1 is an instructieregel directing omgevingsplannen within the 'Waardevolle Houtopstanden - oude bosgroeiplaatsen' to protect and conserve the old-forest values present at those locations. The zone overlay is deterministic; whether a specific planting spares the values is a case-specific assessment marked for human review (V4), not guessed."
+ },
+ {
+  "id": "FR-B-04",
+  "normCardId": "NC-B-04",
+  "status": "ambiguous",
+  "ruleType": "procedural_condition",
+  "zoneSemantics": "none",
+  "appliesTo": {
+   "objectType": "forest_planting",
+   "contextTags": [
+    "vellingsmelding_exemption",
+    "verjongingsgaten_max_10_are",
+    "max_10pct_of_parcel",
+    "max_once_per_4_years",
+    "duurzaam_bosbeheer"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "reason": "Art. 6.15 under a exempts small rejuvenation gaps (<= 10 are, jointly <= 10% of the parcel, <= 1x per 4 years, sustainable forest management) from the national velling-reporting duty within the Gebied houtopstand: a forest-management reporting exemption, not an opportunity-siting predicate for new nature/forest.",
+  "rationale": "The thresholds are quoted verbatim and fully deterministic, but they govern reporting duties on felling — a different activity than realising new forest/nature. Converting them into a siting zone would change their legal meaning; the rule is routed to human review with its thresholds recorded in the context tags."
+ },
+ {
+  "id": "FR-B-05",
+  "normCardId": "NC-B-05",
+  "status": "rejected",
+  "ruleType": "unsupported_claim",
+  "zoneSemantics": "none",
+  "appliesTo": {
+   "objectType": "forest_planting",
+   "contextTags": [
+    "ambition_3000ha_new_nature_by_2040",
+    "woodstand_expansion_for_co2"
+   ]
+  },
+  "executableRef": "engine.scope.none@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "reason": "Non-binding visie ambition (3,000 ha new nature by 2040 within the Groene contour; woodstand expansion for CO2); it quantifies the opgave but adds no rule — the binding zoekgebied is already formalized from NC-B-01.",
+  "rationale": "The visie gives the business case behind art. 6.4, not an independent executable norm; re-issuing it as a rule would duplicate FR-B-01 with weaker legal force."
+ }
+]

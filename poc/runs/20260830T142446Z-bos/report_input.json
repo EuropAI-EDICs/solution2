@@ -1,0 +1,147 @@
+{
+ "title": "Where can new nature / forest planting be realised in province Utrecht?",
+ "generatedAt": "2026-08-30T14:24:48Z",
+ "generatedBy": "poc-cartographer/0.1",
+ "crs": "EPSG:4326 (computation in EPSG:28992, areas in km²)",
+ "stats": {
+  "zoneCount": 5,
+  "finalAreaKm2": 23.924474703,
+  "finalRuleIds": [
+   "FR-B-01"
+  ],
+  "geometryRepairsRecorded": 0
+ },
+ "layers": [
+  {
+   "id": "groene_contour",
+   "title": "groene_contour",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-08-30T08:30:00Z"
+  },
+  {
+   "id": "oude_bosgroeiplaatsen",
+   "title": "oude_bosgroeiplaatsen",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-08-30T14:05:30Z"
+  },
+  {
+   "id": "provincial_gio",
+   "title": "provincial_gio"
+  }
+ ],
+ "zones": [
+  {
+   "id": "zr-inclusion_union-6713f22c55",
+   "operation": "inclusion_union",
+   "ruleIds": [
+    "FR-B-01"
+   ],
+   "areaKm2": 23.924897151,
+   "layers": [
+    "groene_contour"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=validity_check; ctx=union layer=groene_contour; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=groene_contour(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-08-30T08:30:00Z; simplifiedM=2.0); features=257; make_valid_repairs=0; area_m2=23924897.150862; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=inclusion_union; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=inclusion_union; rules=FR-B-01; layers=groene_contour; area_m2=23924897.150862; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=3; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-intersection-0d60e11637",
+   "operation": "intersection",
+   "ruleIds": [
+    "FR-B-01"
+   ],
+   "areaKm2": 23.924474703,
+   "layers": [
+    "groene_contour"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=clip_aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=intersection; rules=FR-B-01; target=AOI; area_m2=23924474.702685; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=3; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-compensation_mark-a4d01e99ba",
+   "operation": "compensation_mark",
+   "ruleIds": [
+    "FR-B-02"
+   ],
+   "areaKm2": 23.924897151,
+   "layers": [
+    "groene_contour",
+    "provincial_gio"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-B-02; semantics=compensation; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=groene_contour; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=groene_contour(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-08-30T08:30:00Z; simplifiedM=2.0); features=257; make_valid_repairs=0; area_m2=23924897.150862; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=3; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-3290ed5a32",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-B-03"
+   ],
+   "areaKm2": 58.2061819,
+   "layers": [
+    "oude_bosgroeiplaatsen",
+    "provincial_gio"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-B-03; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=oude_bosgroeiplaatsen; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=oude_bosgroeiplaatsen(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-08-30T14:05:30Z; simplifiedM=2.0); features=700; make_valid_repairs=0; area_m2=58206181.900409; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-final-91da522ddd",
+   "operation": "final",
+   "ruleIds": [
+    "FR-B-01"
+   ],
+   "areaKm2": 23.924474703,
+   "layers": [
+    "groene_contour"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=validity_check; ctx=union layer=groene_contour; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=groene_contour(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-08-30T08:30:00Z; simplifiedM=2.0); features=257; make_valid_repairs=0; area_m2=23924897.150862; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=inclusion_union; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=inclusion_union; rules=FR-B-01; layers=groene_contour; area_m2=23924897.150862; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=clip_aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=intersection; rules=FR-B-01; target=AOI; area_m2=23924474.702685; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-B-02; semantics=compensation; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=groene_contour; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=groene_contour(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-08-30T08:30:00Z; simplifiedM=2.0); features=257; make_valid_repairs=0; area_m2=23924897.150862; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-B-03; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=oude_bosgroeiplaatsen; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=oude_bosgroeiplaatsen(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-08-30T14:05:30Z; simplifiedM=2.0); features=700; make_valid_repairs=0; area_m2=58206181.900409; engine=poc-zone-engine/0.1"
+   ]
+  }
+ ],
+ "outputs": {
+  "geojson": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/zones.geojson",
+  "gml": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/zones.gml",
+  "gmlStatus": {
+   "ok": true,
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/zones.gml",
+   "tool": "/opt/homebrew/bin/ogr2ogr",
+   "error": null,
+   "command": "/opt/homebrew/bin/ogr2ogr -f GML /Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/zones.gml /Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/zones.geojson"
+  }
+ },
+ "notes": [
+  "cite-or-abstain: every exclusion/inclusion references a registry layer with lastChecked provenance; see per-zone provSteps.",
+  "Areas computed in EPSG:28992 (RD New, metre); geometries validity-checked with make_valid repairs recorded in provenance."
+ ]
+}

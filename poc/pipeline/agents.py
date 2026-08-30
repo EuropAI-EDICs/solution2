@@ -18,8 +18,8 @@ There is NO callable LLM at PoC runtime: every step is a deterministic
 implementation behind the agent interface, and every agent boundary emits
 JSON validated against poc/schemas/*.schema.json (V0 gate).
 
-Run ``python3 -m pipeline.agents`` (from poc/) to (re)generate
-poc/corpus/normcards-wind.json and poc/corpus/formalrules-wind.json.
+Run ``python3 -m pipeline.agents`` (from poc/) to (re)generate the per-track
+corpora poc/corpus/normcards-{wind,zon,bos}.json and formalrules-{wind,zon,bos}.json.
 """
 
 from __future__ import annotations
@@ -285,6 +285,102 @@ EVIDENCE_ENRICHMENT: Dict[str, Dict[str, Any]] = {
         "confidence": 0.7,
         "contextTags": ["no_facilitation_ge_20m_lt_3mw", "placement_map_2019"],
     },
+    # -- ZON track (solar fields; shard evidence-zon.json) --------------------
+    "Z-01": {
+        "objectType": "solar_field",
+        "claim": "A 'zonneveld' (Bijlage I) is any grouping of solar panels placed on or above the ground or on the water surface, but not on roofs of buildings: the object definition that scopes the ZON use case to ground- and water-mounted solar fields and excludes rooftop installations.",
+        "contextTags": ["definition_zonneveld", "ground_or_water_mounted", "rooftop_out_of_scope"],
+    },
+    "Z-02": {
+        "objectType": "solar_field",
+        "claim": "Within the 'Gebied zonneveld' an omgevingsplan may contain rules allowing the realisation of solar-energy generation by means of zonnevelden, provided (a) the structures in the landscape remain recognisable and good landscape integration is provided, (b) the panels are arranged so as to allow soil and water quality fitting the area, and (c) a removal duty after termination of the activity is provided.",
+        "confidence": 0.95,
+        "contextTags": ["inclusion_zone_gebied_zonneveld", "landscape_integration_required", "soil_water_quality_fitting_area", "removal_duty_after_termination"],
+        "geoBinding": {
+            "zoneIds": ["gebied_zonneveld"],
+            "geometrySource": "provincial_gio",
+            "gioJoinId": "/join/id/regdata/pv26/2025/gioa748cb8c-4f7f-4bbb-83d4-54becd3e0d1d/nld@2025-10-10;849",
+            "caveat": CAVEAT_GIO_ACCESS,
+        },
+    },
+    "Z-03": {
+        "objectType": "solar_field",
+        "claim": "The explanatory notes (toelichting) to art. 5.5 state that the verordening contains no provisions for solar energy in the stedelijk gebied and that the article concerns the landelijk gebied excluding the Natura 2000 areas and the ganzenrustgebieden: the geographic reading that grounds zone elimination for zonnevelden in those areas.",
+        "confidence": 0.8,
+        "contextTags": ["scope_landelijk_gebied", "no_zon_provisions_for_stedelijk_gebied", "exclusion_natura_2000", "exclusion_ganzenrustgebied"],
+        "geoBinding": {
+            "zoneIds": ["natura_2000", "ganzenrustgebied"],
+            "geometrySource": "national_source",
+            "caveat": "geen provinciale GIO in Bijlage II; geometrie moet uit nationale bronnen komen (geo-analyst, met provenance)",
+        },
+    },
+    "Z-04": {
+        "objectType": "solar_field",
+        "claim": "Art. 6.5a third paragraph deviates from its second paragraph for the realisation of new nature as compensation for the placement of a zonneveld: the management measures must be executed at the latest 25 years after placement of the solar panels — zonnevelden inside the Groene contour are thereby implicitly temporary (deviating from the 3-year term of the second paragraph).",
+        "confidence": 0.95,
+        "contextTags": ["compensation_within_groene_contour", "zonneveld_implicitly_temporary", "compensation_deadline_25_years"],
+        "geoBinding": {
+            "zoneIds": ["groene_contour"],
+            "geometrySource": "provincial_gio",
+            "gioJoinId": "/join/id/regdata/pv26/2025/gioee37db62-22b1-4334-bf89-7ddf4e5812c6/nld@2025-08-18;798",
+            "caveat": CAVEAT_GIO_ACCESS,
+        },
+    },
+    "Z-05": {
+        "objectType": "solar_field",
+        "claim": "The (non-binding) Omgevingsvisie 2021 finds wind turbines and zonnevelden in the stedelijk gebied admissible and formulates no further rules for them, with a preference for placing solar panels on roofs and for siting zonnevelden and turbines on or near industrial estates.",
+        "confidence": 0.7,
+        "contextTags": ["stedelijk_gebied_toelaatbaar_visie", "preference_roofs_facades_infrastructure", "preference_industrial_estates"],
+    },
+    # -- BOS track (new nature / forest planting; shard evidence-bos.json) ----
+    "B-01": {
+        "objectType": "forest_planting",
+        "claim": "An omgevingsplan for locations within the Groene contour must contain rules that protect and create the possibilities to realise new nature on the grounds within the Groene contour (art. 6.4): the contour is the provincial search area for new nature, including forest planting through voluntary conversion, with realised nature added to the Natuurnetwerk Nederland.",
+        "confidence": 0.9,
+        "contextTags": ["zoekgebied_nieuwe_natuur", "inclusion_zone_groene_contour", "vrijwillige_omvorming", "nnn_addition_after_realisation"],
+        "geoBinding": {
+            "zoneIds": ["groene_contour"],
+            "geometrySource": "provincial_gio",
+            "gioJoinId": "/join/id/regdata/pv26/2025/gioee37db62-22b1-4334-bf89-7ddf4e5812c6/nld@2025-08-18;798",
+            "caveat": CAVEAT_GIO_ACCESS,
+        },
+    },
+    "B-02": {
+        "objectType": "forest_planting",
+        "claim": "The remaining loss of possibilities to realise new nature must be compensated by realising new nature within the Groene contour with an area of at least the area of the loss (art. 6.5 second paragraph, under d): a deterministic minimum 1:1 compensation ratio inside the contour; deviation from the protective first paragraph is only possible for great public interest without real alternatives.",
+        "confidence": 0.95,
+        "contextTags": ["compensation_min_1_to_1_within_contour", "deviation_only_great_public_interest"],
+        "geoBinding": {
+            "zoneIds": ["groene_contour"],
+            "geometrySource": "provincial_gio",
+            "gioJoinId": "/join/id/regdata/pv26/2025/gioee37db62-22b1-4334-bf89-7ddf4e5812c6/nld@2025-08-18;798",
+            "caveat": CAVEAT_GIO_ACCESS,
+        },
+    },
+    "B-03": {
+        "objectType": "forest_planting",
+        "claim": "An omgevingsplan for locations within the 'Waardevolle Houtopstanden - oude bosgroeiplaatsen' must contain rules for the protection and conservation of the values present at the location of those old forest growth sites (art. 6.13): new forest/nature development inside these zones is conditional on protecting the existing old-forest values.",
+        "confidence": 0.95,
+        "contextTags": ["oude_bosgroeiplaatsen_protection_instruction", "existing_values_protection"],
+        "geoBinding": {
+            "zoneIds": ["oude_bosgroeiplaatsen"],
+            "geometrySource": "provincial_gio",
+            "gioJoinId": "/join/id/regdata/pv26/2025/gio3940cf76-bee0-4a1a-8d51-aa0d49be7153/nld@2025-10-10;842",
+            "caveat": CAVEAT_GIO_ACCESS,
+        },
+    },
+    "B-04": {
+        "objectType": "forest_planting",
+        "claim": "Within the Gebied houtopstand, making rejuvenation gaps is exempt from the national velling-reporting duty provided the gaps are not larger than 10 are, jointly cover at most 10% of the forest parcel, occur at most once per 4 years at the same location, and serve sustainable forest management (art. 6.15, under a).",
+        "confidence": 0.95,
+        "contextTags": ["vellingsmelding_exemption", "verjongingsgaten_max_10_are", "max_10pct_of_parcel", "max_once_per_4_years", "duurzaam_bosbeheer"],
+    },
+    "B-05": {
+        "objectType": "forest_planting",
+        "claim": "The (non-binding) Omgevingsvisie 2021 aims to realise 3,000 hectares of new nature within the Groene contour by 2040, ecologically connecting large nature units, and explicitly investigates opportunities for expanding woodstands that contribute to CO2 reduction: it quantifies the bos/nature task but adds no siting rule.",
+        "confidence": 0.7,
+        "contextTags": ["ambition_3000ha_new_nature_by_2040", "woodstand_expansion_for_co2"],
+    },
 }
 
 
@@ -502,6 +598,8 @@ _GROENE_CONTOUR_GIO = "/join/id/regdata/pv26/2025/gioee37db62-22b1-4334-bf89-7dd
 _GEBIED_WINDENERGIE_GIO = "/join/id/regdata/pv26/2025/giocc2ef601-3b25-4428-8808-e77ae1e47b4d/nld@2025-10-10;846"
 _GEBIED_KLEINE_WIND_GIO = "/join/id/regdata/pv26/2025/gio73f71441-6b83-4be5-9fef-293714578255/nld@2025-10-10;822"
 _LANDELIJK_GEBIED_GIO = "/join/id/regdata/pv26/2025/gio17d47ef4-f140-45b7-8809-c5068d74698f/nld@2025-10-10;843"
+_GEBIED_ZONNEVELD_GIO = "/join/id/regdata/pv26/2025/gioa748cb8c-4f7f-4bbb-83d4-54becd3e0d1d/nld@2025-10-10;849"
+_OUDE_BOSGROEIPLAATSEN_GIO = "/join/id/regdata/pv26/2025/gio3940cf76-bee0-4a1a-8d51-aa0d49be7153/nld@2025-10-10;842"
 
 #: deterministic templates, keyed by evidence id. kind:
 #: inclusion | exclusion | attention | conditional | compensation | ambiguous | reject
@@ -700,6 +798,88 @@ TEMPLATE_SPECS: Dict[str, Dict[str, Any]] = {
         "rationale": "The visie text explains the design of arts. 5.3/5.4; re-issuing it as a rule would duplicate existing formalizations with weaker legal force.",
         "executable_ref": _REVIEW_REF,
     },
+    # -- ZON track --------------------------------------------------------------
+    "Z-01": {
+        "kind": "reject",
+        "rule_type": "scope_declaration",
+        "reason": "Definitional scope of the object type 'zonneveld' (Bijlage I): ground/water-mounted panel groupings, roofs excluded. Carries no zone or threshold semantics to execute.",
+        "rationale": "The definition scopes the ZON use case; the operative siting norm is art. 5.5 (FR-Z-02), so this card yields no independent rule.",
+        "executable_ref": _NOOP_REF,
+    },
+    "Z-02": {
+        "kind": "inclusion",
+        "zone": {"zoneIds": ["gebied_zonneveld"], "selection": "within", "geometrySource": "provincial_gio", "gioJoinId": _GEBIED_ZONNEVELD_GIO, "caveat": CAVEAT_GIO_ACCESS},
+        "conditions": [],
+        "extra_tags": ["inclusion_zone_gebied_zonneveld"],
+        "rationale": "CORE ZON RULE. Art. 5.5 lid 1 permits, within the 'Gebied zonneveld' (GIO Bijlage II), rules allowing zonnevelden; the zone is quoted verbatim in NC-Z-02. The three proviso's (recognisable structures/landscape integration, soil-water-quality-fitting arrangement, removal duty) are qualitative duties carried as procedural context tags, never guessed as geometry.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "Z-03": {
+        "kind": "exclusion",
+        "zone": {"zoneIds": ["natura_2000", "ganzenrustgebied"], "selection": "within", "geometrySource": "national_source", "caveat": "exclusion grounded in the toelichting on art. 5.5 (interpretive) + Omgevingsvisie 2021 (non-binding); no provincial GIO exists — geo analyst must attach national geometry with provenance"},
+        "conditions": [],
+        "extra_tags": ["exclusion_natura_2000", "exclusion_ganzenrustgebied", "no_zon_provisions_for_stedelijk_gebied"],
+        "rationale": "The toelichting to art. 5.5 restricts the article to the landelijk gebied 'met uitzondering van de natura 2000-gebieden en de ganzenrustgebieden' — the same geographic reading as wind FR-W-08. Geometry must come from national sources because no provincial GIO covers these areas. The stedelijk gebied needs no separate exclusion: the Gebied zonneveld designation itself does not extend there.",
+        "executable_ref": "engine.zone.exclude_within@poc-v1",
+    },
+    "Z-04": {
+        "kind": "compensation",
+        "zone": {"zoneIds": ["groene_contour"], "selection": "within", "geometrySource": "provincial_gio", "gioJoinId": _GROENE_CONTOUR_GIO, "caveat": CAVEAT_GIO_ACCESS},
+        "conditions": [
+            {"parameter": "compensation_realisation_deadline_years", "operator": "<=", "value": 25, "unit": "jaar"},
+        ],
+        "extra_tags": ["compensation_within_groene_contour", "zonneveld_implicitly_temporary"],
+        "rationale": "Art. 6.5a lid 3 sets a fully deterministic compensation regime for zonnevelden inside the Groene contour: the compensation new nature (with its management measures) must be realised at the latest 25 years after placement of the panels. Not an elimination: a temporally bounded obligation attached to affected parcels.",
+        "executable_ref": "engine.compensation.ratio@poc-v1",
+    },
+    "Z-05": {
+        "kind": "reject",
+        "rule_type": "unsupported_claim",
+        "reason": "Non-binding visie statement of admissibility and preference (roofs/facades/infrastructure first, then industrial estates); the visie formulates no further rules, and the toelichting to art. 5.5 (NC-Z-03) confirms the verordening contains no provisions for solar energy in the stedelijk gebied.",
+        "rationale": "Visie-admissibility of zonnevelden in the stedelijk gebied is policy, not a verordeningsrule; issuing an executable inclusion from it alone would break the binding/interpretive grounding chain (V2). Note the contrast with wind, where the toelichting itself excludes the stedelijk gebied.",
+        "executable_ref": _NOOP_REF,
+    },
+    # -- BOS track --------------------------------------------------------------
+    "B-01": {
+        "kind": "inclusion",
+        "zone": {"zoneIds": ["groene_contour"], "selection": "within", "geometrySource": "provincial_gio", "gioJoinId": _GROENE_CONTOUR_GIO, "caveat": CAVEAT_GIO_ACCESS},
+        "conditions": [],
+        "extra_tags": ["zoekgebied_nieuwe_natuur", "vrijwillige_omvorming"],
+        "rationale": "CORE BOS RULE. Art. 6.4 lid 1 directs omgevingsplannen within the Groene contour to protect and create the possibilities to realise new nature; the contour is thereby the provincial search area (zoekgebied) for new nature — including forest planting via voluntary conversion, added to the NNN after realisation. Formalized as the opportunity inclusion for the forest_planting object type; the voluntary character (no obligation on individual landowners) is carried as a context tag, not a predicate.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "B-02": {
+        "kind": "compensation",
+        "zone": {"zoneIds": ["groene_contour"], "selection": "within", "geometrySource": "provincial_gio", "gioJoinId": _GROENE_CONTOUR_GIO, "caveat": CAVEAT_GIO_ACCESS},
+        "conditions": [
+            {"parameter": "compensation_ratio_new_nature", "operator": ">=", "value": 1, "unit": "ratio"},
+        ],
+        "extra_tags": ["compensation_within_groene_contour"],
+        "rationale": "Art. 6.5 lid 2 under d requires >= 1:1 compensation with new nature within the contour for the remaining loss of new-nature possibilities. For the BOS track this is the contour's protection regime attached as an obligation (marker), mirroring FR-W-15 for wind; it never eliminates the zoekgebied itself.",
+        "executable_ref": "engine.compensation.ratio@poc-v1",
+    },
+    "B-03": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["oude_bosgroeiplaatsen"], "selection": "within", "geometrySource": "provincial_gio", "gioJoinId": _OUDE_BOSGROEIPLAATSEN_GIO, "caveat": CAVEAT_GIO_ACCESS},
+        "conditions": [],
+        "extra_tags": ["conditional_within_oude_bosgroeiplaatsen", "existing_values_protection"],
+        "rationale": "Art. 6.13 lid 1 is an instructieregel directing omgevingsplannen within the 'Waardevolle Houtopstanden - oude bosgroeiplaatsen' to protect and conserve the old-forest values present at those locations. The zone overlay is deterministic; whether a specific planting spares the values is a case-specific assessment marked for human review (V4), not guessed.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "B-04": {
+        "kind": "ambiguous",
+        "rule_type": "procedural_condition",
+        "reason": "Art. 6.15 under a exempts small rejuvenation gaps (<= 10 are, jointly <= 10% of the parcel, <= 1x per 4 years, sustainable forest management) from the national velling-reporting duty within the Gebied houtopstand: a forest-management reporting exemption, not an opportunity-siting predicate for new nature/forest.",
+        "rationale": "The thresholds are quoted verbatim and fully deterministic, but they govern reporting duties on felling — a different activity than realising new forest/nature. Converting them into a siting zone would change their legal meaning; the rule is routed to human review with its thresholds recorded in the context tags.",
+        "executable_ref": _REVIEW_REF,
+    },
+    "B-05": {
+        "kind": "reject",
+        "rule_type": "unsupported_claim",
+        "reason": "Non-binding visie ambition (3,000 ha new nature by 2040 within the Groene contour; woodstand expansion for CO2); it quantifies the opgave but adds no rule — the binding zoekgebied is already formalized from NC-B-01.",
+        "rationale": "The visie gives the business case behind art. 6.4, not an independent executable norm; re-issuing it as a rule would duplicate FR-B-01 with weaker legal force.",
+        "executable_ref": _NOOP_REF,
+    },
 }
 
 
@@ -879,37 +1059,44 @@ class NormFormalizer:
 # ---------------------------------------------------------------------------
 
 def generate_corpus() -> Dict[str, Path]:
-    """Deterministically (re)generate normcards-wind.json and formalrules-wind.json."""
-    analyst = NormAnalyst()
-    cards = analyst.read(CORPUS_DIR / "evidence-wind.json")
-    if analyst.rejected:
-        raise RuntimeError(
-            f"verified-only invariant broken by: {[r['evidenceId'] for r in analyst.rejected]}"
-        )
-    cards_path = CORPUS_DIR / "normcards-wind.json"
-    cards_path.write_text(
-        json.dumps([card.to_dict() for card in cards], ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
+    """Deterministically (re)generate the per-track normcard/formalrule corpora.
 
+    Tracks: wind (evidence-wind.json), zon (evidence-zon.json, solar fields)
+    and bos (evidence-bos.json, new nature / forest planting)."""
+    out: Dict[str, Path] = {}
+    analyst = NormAnalyst()
     formalizer = NormFormalizer()
-    rules = formalizer.formalize(cards)
-    rules_path = CORPUS_DIR / "formalrules-wind.json"
-    rules_path.write_text(
-        json.dumps([rule.to_dict() for rule in rules], ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
-    return {"normcards": cards_path, "formalrules": rules_path}
+    for track in ("wind", "zon", "bos"):
+        shard = CORPUS_DIR / f"evidence-{track}.json"
+        cards = analyst.read(shard)
+        if analyst.rejected:
+            raise RuntimeError(
+                f"verified-only invariant broken by: {[r['evidenceId'] for r in analyst.rejected]}"
+            )
+        cards_path = CORPUS_DIR / f"normcards-{track}.json"
+        cards_path.write_text(
+            json.dumps([card.to_dict() for card in cards], ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        rules = formalizer.formalize(cards)
+        rules_path = CORPUS_DIR / f"formalrules-{track}.json"
+        rules_path.write_text(
+            json.dumps([rule.to_dict() for rule in rules], ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        out[track] = rules_path
+    return out
 
 
 def main() -> None:
-    paths = generate_corpus()
+    generate_corpus()
     analyst = NormAnalyst()
-    cards = analyst.read(CORPUS_DIR / "evidence-wind.json")
     formalizer = NormFormalizer()
-    formalizer.formalize(cards)
-    print(f"wrote {paths['normcards']} ({len(cards)} cards)")
-    print(f"wrote {paths['formalrules']} ({formalizer.last_coverage})")
+    for track in ("wind", "zon", "bos"):
+        cards = analyst.read(CORPUS_DIR / f"evidence-{track}.json")
+        formalizer.formalize(cards)
+        print(f"wrote corpus/normcards-{track}.json ({len(cards)} cards) and "
+              f"corpus/formalrules-{track}.json {formalizer.last_coverage}")
 
 
 if __name__ == "__main__":  # pragma: no cover

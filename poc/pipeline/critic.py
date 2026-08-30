@@ -476,6 +476,7 @@ class Critic:
         degradations: Sequence[Mapping[str, Any]] = (),
         run_id: str = "run",
         evaluated_at: Optional[str] = None,
+        track: str = "wind",
     ) -> List[Dict[str, Any]]:
         """Evaluate the full artifact set; returns schema-valid ValidationReports.
 
@@ -506,7 +507,7 @@ class Critic:
                 evaluated_at=evaluated_at,
             ),
             self.build_report(
-                artifact_id="normcards-wind",
+                artifact_id=f"normcards-{track}",
                 artifact_type="norm-card-set",
                 levels={"V0": _level(_rollup_level([v0[1]]), [v0[1]]), "V2": _level(_rollup_level(v2[1:2]), v2[1:2])},
                 degradations=degradations,
@@ -514,7 +515,7 @@ class Critic:
                 evaluated_at=evaluated_at,
             ),
             self.build_report(
-                artifact_id="formalrules-wind",
+                artifact_id=f"formalrules-{track}",
                 artifact_type="formal-rule-set",
                 levels={
                     "V0": _level(_rollup_level([v0[2]]), [v0[2]]),
@@ -557,8 +558,8 @@ class Critic:
                 degradations=degradations,
                 evidence=[
                     {"ref": str(request.get("id", "request")), "note": "OpportunityMapRequest"},
-                    {"ref": "normcards-wind", "note": f"{len(normcards)} NormCards"},
-                    {"ref": "formalrules-wind", "note": f"{len(formalrules)} FormalRules"},
+                    {"ref": f"normcards-{track}", "note": f"{len(normcards)} NormCards"},
+                    {"ref": f"formalrules-{track}", "note": f"{len(formalrules)} FormalRules"},
                     {"ref": "zones", "note": f"{len(zones)} ZoneResults"},
                 ]
                 + ([{"ref": str(decision_table.get("id")), "note": "DecisionTable"}] if decision_table else []),

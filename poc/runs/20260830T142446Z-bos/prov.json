@@ -1,0 +1,552 @@
+{
+ "flavour": "W3C PROV-O terms (agent/entity/activity/wasGeneratedBy/wasDerivedFrom) serialised as plain JSON",
+ "namespace": "ldttoolbox:poc:bos:",
+ "runId": "20260830T142446Z-bos",
+ "requestId": "9d4b7e22-1a3c-4f5b-8e90-2a6c0f4d1b57",
+ "generatedAt": "2026-08-30T14:24:49Z",
+ "generatedBy": "explainer#deterministic-poc1",
+ "agent": [
+  {
+   "id": "orchestrator",
+   "name": "run.py orchestrator",
+   "version": "poc-run/1.0",
+   "role": "plan -> dispatch -> verify -> synthesize (plan section 3.2 agent #1)"
+  },
+  {
+   "id": "legal-recon-agent",
+   "name": "NormAnalyst",
+   "version": "legal-recon-agent#cvdr704250-geldend-2025-10-13",
+   "role": "deterministic replay of the verified legal recon (agent #3)"
+  },
+  {
+   "id": "norm-formalizer",
+   "name": "NormFormalizer",
+   "version": "norm-formalizer#deterministic-templates-v1",
+   "role": "deterministic templates (agent #4)"
+  },
+  {
+   "id": "geo-connector",
+   "name": "GeoData connector",
+   "version": "ldttoolbox-geoconnector/0.1",
+   "role": "ArcGIS REST fetch, cache-first (agent #5 tool)"
+  },
+  {
+   "id": "zone-engine",
+   "name": "FormalRule zone engine",
+   "version": "poc-zone-engine/0.1",
+   "role": "deterministic execution + validation repair provenance (agent #5)"
+  },
+  {
+   "id": "cartographer",
+   "name": "Cartographer",
+   "version": "poc-cartographer/0.1",
+   "role": "GeoJSON/GML serialization (agent #6)"
+  },
+  {
+   "id": "critic-validator",
+   "name": "Critic/Validator",
+   "version": "critic-validator#deterministic-v0-v3-poc1",
+   "role": "V0-V3 deterministic checks, V4 pending (agent #7)"
+  },
+  {
+   "id": "explainer",
+   "name": "Explainer",
+   "version": "explainer#deterministic-poc1",
+   "role": "decision table + PROV (agent #8)"
+  },
+  {
+   "id": "report",
+   "name": "HTML report renderer",
+   "version": "poc-report/1.0",
+   "role": "single-file report (agent #6 view tier)"
+  }
+ ],
+ "entity": [
+  {
+   "id": "request.json",
+   "type": "OpportunityMapRequest",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/request.json",
+   "sha256": "98ec26f9981add5b04f9414faf1840e68a346da8542c60afa06446c7b4f739b5"
+  },
+  {
+   "id": "evidence-bos.json",
+   "type": "evidence shard",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/corpus/evidence-bos.json",
+   "sha256": "7af5930eee6abba9de900b60a82098e0d76a657d5b794563f0e0e2f2c3395b97"
+  },
+  {
+   "id": "sources.json",
+   "type": "document source registry",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/corpus/sources.json",
+   "sha256": "ad8e3e722fcec62ee0dc624dc927c83c90df8f3e890472bad9d797103dc645af"
+  },
+  {
+   "id": "sources.json",
+   "type": "geo source registry",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/data/sources.json",
+   "sha256": "993cc04d6eaf91418c9d9b8ec2d438b62f80092980a5522c6eb4d4cd83cb0541"
+  },
+  {
+   "id": "normcards.json",
+   "type": "NormCard[]",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/normcards.json",
+   "sha256": "9f277017df713c5cb9a80d1121df41d275759e8da3898f572c993ed3be4fcf85"
+  },
+  {
+   "id": "normcards-rejected.json",
+   "type": "cite-or-abstain ledger",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/normcards-rejected.json",
+   "sha256": "c792c39adf7c972133c8b7411bf1d0f8fe723242560d1106389273310d6003fe"
+  },
+  {
+   "id": "formalrules.json",
+   "type": "FormalRule[]",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/formalrules.json",
+   "sha256": "6985bfaa308f4ea3dddd057a5ab4433b6da6bdb9d271049b8c2b86cdc0e8c6e4"
+  },
+  {
+   "id": "layers.json",
+   "type": "layer manifest",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/layers.json",
+   "sha256": "277f544cf876a8a2bab8029181f973bf791452c6fc41601b8af146f1208600bf"
+  },
+  {
+   "id": "zones.json",
+   "type": "ZoneResult[]",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/zones.json",
+   "sha256": "5804ac19abddede6cd4cdc2315350a03bed64668500fba4b4d2e95a60e6f57ea"
+  },
+  {
+   "id": "rule-stats.json",
+   "type": "per-rule footprint stats",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/rule-stats.json",
+   "sha256": "a86c3547f6a1142b11babc310123d4c12cd8cb51274cb54c9455e5fd8a4c8970"
+  },
+  {
+   "id": "zones.geojson",
+   "type": "zones GeoJSON (RFC 7946)",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/zones.geojson",
+   "sha256": "987053dffdcf5463c2f73d4d9d4b38a010795d8f501a5ad50e573f01045a1a65"
+  },
+  {
+   "id": "report_input.json",
+   "type": "cartographer report input",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/report_input.json",
+   "sha256": "252265839cd88c8e4c2513456da7c5ce720467110e94684a4fc92f8e0479d80b"
+  },
+  {
+   "id": "decision-table.json",
+   "type": "DecisionTable",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/decision-table.json",
+   "sha256": "c5c1ae392fec7a1e446bca82a18cdc64c2ca112edb0676aaca65f95a17f3662a"
+  },
+  {
+   "id": "decision-table.md",
+   "type": "DecisionTable (markdown)",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/decision-table.md",
+   "sha256": "c7c72e048ce0c8b7335eaa8ce6a0830af449b2e7a3a223689beb5110db229d9c"
+  },
+  {
+   "id": "validation.json",
+   "type": "ValidationReport[]",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/validation.json",
+   "sha256": "10d19ec1e7e71b0c22ad8cf45526423979ac39e734ed87b09d61b847f253774c"
+  },
+  {
+   "id": "zones.gml",
+   "type": "zones GML 3.2",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/zones.gml",
+   "sha256": "c506637e00a5ba6ac2c3c4ca80a3819b75c5ac65c4f5485223570a67f310bd64"
+  },
+  {
+   "id": "agrest-ov-groene-contour.28992.geojson",
+   "type": "layer cache (EPSG:28992)",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/data/cache/agrest-ov-groene-contour.28992.geojson",
+   "sha256": "167ebc15d72ec9167c0a014e42687981bd820dae452dbcd0ade883750abdd21b",
+   "zone": "groene_contour",
+   "sourceId": "agrest-ov-groene-contour"
+  },
+  {
+   "id": "agrest-ov-oude-bosgroeiplaatsen.28992.geojson",
+   "type": "layer cache (EPSG:28992)",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/data/cache/agrest-ov-oude-bosgroeiplaatsen.28992.geojson",
+   "sha256": "8ed7ed0a5e65713485c21d164e452def0a8c00d90c245f01d7d00721e765b9e2",
+   "zone": "oude_bosgroeiplaatsen",
+   "sourceId": "agrest-ov-oude-bosgroeiplaatsen"
+  },
+  {
+   "id": "use-cases/bos.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "corpus/evidence-bos.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "corpus/sources.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "data/sources.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "validation/opportunity-map-request.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/validation/opportunity-map-request.json",
+   "sha256": "c499e31bb5d17de59bbb6e62e9ca42d0b9e38065e323a9625908230a1ff58ccc"
+  },
+  {
+   "id": "validation/norm-card-set.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/validation/norm-card-set.json",
+   "sha256": "ac2376bf98fb942f0e74662e2bb280780579799b0a2486a8a8d4a07af93f6e8a"
+  },
+  {
+   "id": "validation/formal-rule-set.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/validation/formal-rule-set.json",
+   "sha256": "ceb88226a501f34c04a062e19a1c681ab41cc6cb1ecff8cf41fc1428a07fe535"
+  },
+  {
+   "id": "validation/zone-result-set.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/validation/zone-result-set.json",
+   "sha256": "dc90f9381362b653310b728205b3f40ff38b458d760a6de2220fded47c3ff7c3"
+  },
+  {
+   "id": "validation/decision-table.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/validation/decision-table.json",
+   "sha256": "0d52c03a90663f5f83a7db65f4614d54c901874ec56022d7fc7ca80e38079157"
+  },
+  {
+   "id": "validation/pipeline-run.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/validation/pipeline-run.json",
+   "sha256": "f25a56b048bb7d5042cf0eaeb8800235e8501e297b6a06a008efce8bc79c7288"
+  },
+  {
+   "id": "zones.xsd",
+   "type": "zones GML 3.2 XML schema",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/zones.xsd",
+   "sha256": "b31ca8de4993f93d92c04a525ece3cf1ae57b053151c741e4082c59fd0921f51"
+  },
+  {
+   "id": "report.html",
+   "type": "single-file HTML report",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/report.html",
+   "sha256": "b7c46850c13e9de47981006c07a1f1ad38907b17b4a123d0252c8d6cc71e1870"
+  },
+  {
+   "id": "prov.json",
+   "type": "PROV bundle (this file)",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/prov.json",
+   "note": "self-referential; integrity via run_summary.json artifact hashes"
+  },
+  {
+   "id": "run_summary.json",
+   "type": "run summary (headline, tunings, artifact hashes)",
+   "path": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142446Z-bos/run_summary.json",
+   "note": "written after prov.json; its sha256 lives in its own artifacts list"
+  }
+ ],
+ "activity": [
+  {
+   "id": "intake",
+   "label": "Intake: load + validate OpportunityMapRequest",
+   "type": "intake",
+   "agent": "run.py-orchestrator",
+   "startedAt": "2026-08-30T14:24:46Z",
+   "endedAt": "2026-08-30T14:24:46Z",
+   "durationS": 0.056,
+   "used": [
+    "use-cases/bos.json"
+   ],
+   "generated": [
+    "request.json"
+   ]
+  },
+  {
+   "id": "norm-analyst",
+   "label": "Norm Analyst: harvest NormCards (deterministic replay)",
+   "type": "norm-analyst",
+   "agent": "legal-recon-agent",
+   "startedAt": "2026-08-30T14:24:46Z",
+   "endedAt": "2026-08-30T14:24:46Z",
+   "durationS": 0.007,
+   "used": [
+    "corpus/evidence-bos.json",
+    "corpus/sources.json"
+   ],
+   "generated": [
+    "normcards.json",
+    "normcards-rejected.json"
+   ]
+  },
+  {
+   "id": "norm-formalizer",
+   "label": "Norm Formalizer: NormCards -> FormalRules (deterministic templates)",
+   "type": "norm-formalizer",
+   "agent": "norm-formalizer",
+   "startedAt": "2026-08-30T14:24:46Z",
+   "endedAt": "2026-08-30T14:24:46Z",
+   "durationS": 0.008,
+   "used": [
+    "normcards.json"
+   ],
+   "generated": [
+    "formalrules.json"
+   ]
+  },
+  {
+   "id": "geo-analyst-fetch",
+   "label": "Geo Analyst: fetch zone layers (cache-first ArcGIS REST)",
+   "type": "geo-analyst-fetch",
+   "agent": "ldttoolbox-geoconnector/0.1",
+   "startedAt": "2026-08-30T14:24:46Z",
+   "endedAt": "2026-08-30T14:24:46Z",
+   "durationS": 0.215,
+   "used": [
+    "data/sources.json"
+   ],
+   "generated": [
+    "layers.json"
+   ]
+  },
+  {
+   "id": "zone-engine",
+   "label": "Geo Analyst: deterministic FormalRule execution (shapely path)",
+   "type": "zone-engine",
+   "agent": "zone-engine",
+   "startedAt": "2026-08-30T14:24:46Z",
+   "endedAt": "2026-08-30T14:24:48Z",
+   "durationS": 1.386,
+   "used": [
+    "formalrules.json",
+    "layers.json"
+   ],
+   "generated": [
+    "zones.json"
+   ]
+  },
+  {
+   "id": "cartographer",
+   "label": "Cartographer: zones.geojson + GML + report input",
+   "type": "cartographer",
+   "agent": "poc-cartographer/0.1",
+   "startedAt": "2026-08-30T14:24:48Z",
+   "endedAt": "2026-08-30T14:24:48Z",
+   "durationS": 0.244,
+   "used": [
+    "zones.json"
+   ],
+   "generated": [
+    "zones.geojson",
+    "zones.gml"
+   ]
+  },
+  {
+   "id": "critic",
+   "label": "Critic/Validator: V0-V3 deterministic + V4 pending",
+   "type": "critic",
+   "agent": "critic-validator",
+   "startedAt": "2026-08-30T14:24:48Z",
+   "endedAt": "2026-08-30T14:24:49Z",
+   "durationS": 0.415,
+   "used": [
+    "request.json",
+    "normcards.json",
+    "formalrules.json",
+    "zones.json",
+    "decision-table.json"
+   ],
+   "generated": [
+    "validation.json"
+   ]
+  },
+  {
+   "id": "explainer",
+   "label": "Explainer: decision table + PROV bundle",
+   "type": "explainer",
+   "agent": "explainer",
+   "startedAt": "2026-08-30T14:24:49Z",
+   "endedAt": "2026-08-30T14:24:49Z",
+   "durationS": 0.216,
+   "used": [
+    "normcards.json",
+    "formalrules.json",
+    "zones.json"
+   ],
+   "generated": [
+    "decision-table.json",
+    "decision-table.md",
+    "prov.json"
+   ]
+  },
+  {
+   "id": "report",
+   "label": "Report: single-file HTML with Leaflet map + tables",
+   "type": "report",
+   "agent": "poc-report/1.0",
+   "startedAt": "2026-08-30T14:24:49Z",
+   "endedAt": "2026-08-30T14:24:49Z",
+   "durationS": 0.464,
+   "used": [
+    "zones.geojson",
+    "decision-table.json",
+    "validation.json",
+    "normcards.json",
+    "prov.json"
+   ],
+   "generated": [
+    "report.html"
+   ]
+  }
+ ],
+ "wasGeneratedBy": [
+  {
+   "entity": "request.json",
+   "activity": "intake",
+   "time": "2026-08-30T14:24:46Z"
+  },
+  {
+   "entity": "normcards.json",
+   "activity": "norm-analyst",
+   "time": "2026-08-30T14:24:46Z"
+  },
+  {
+   "entity": "normcards-rejected.json",
+   "activity": "norm-analyst",
+   "time": "2026-08-30T14:24:46Z"
+  },
+  {
+   "entity": "formalrules.json",
+   "activity": "norm-formalizer",
+   "time": "2026-08-30T14:24:46Z"
+  },
+  {
+   "entity": "layers.json",
+   "activity": "geo-analyst-fetch",
+   "time": "2026-08-30T14:24:46Z"
+  },
+  {
+   "entity": "zones.json",
+   "activity": "zone-engine",
+   "time": "2026-08-30T14:24:48Z"
+  },
+  {
+   "entity": "zones.geojson",
+   "activity": "cartographer",
+   "time": "2026-08-30T14:24:48Z"
+  },
+  {
+   "entity": "zones.gml",
+   "activity": "cartographer",
+   "time": "2026-08-30T14:24:48Z"
+  },
+  {
+   "entity": "validation.json",
+   "activity": "critic",
+   "time": "2026-08-30T14:24:49Z"
+  },
+  {
+   "entity": "validation/opportunity-map-request.json",
+   "activity": "critic",
+   "time": "2026-08-30T14:24:49Z"
+  },
+  {
+   "entity": "validation/norm-card-set.json",
+   "activity": "critic",
+   "time": "2026-08-30T14:24:49Z"
+  },
+  {
+   "entity": "validation/formal-rule-set.json",
+   "activity": "critic",
+   "time": "2026-08-30T14:24:49Z"
+  },
+  {
+   "entity": "validation/zone-result-set.json",
+   "activity": "critic",
+   "time": "2026-08-30T14:24:49Z"
+  },
+  {
+   "entity": "validation/decision-table.json",
+   "activity": "critic",
+   "time": "2026-08-30T14:24:49Z"
+  },
+  {
+   "entity": "validation/pipeline-run.json",
+   "activity": "critic",
+   "time": "2026-08-30T14:24:49Z"
+  },
+  {
+   "entity": "zones.xsd",
+   "activity": "cartographer",
+   "time": "2026-08-30T14:24:49Z"
+  },
+  {
+   "entity": "report.html",
+   "activity": "report",
+   "time": "2026-08-30T14:24:49Z"
+  },
+  {
+   "entity": "prov.json",
+   "activity": "explainer",
+   "time": "2026-08-30T14:24:49Z"
+  }
+ ],
+ "wasDerivedFrom": [
+  {
+   "generatedEntity": "formalrules.json",
+   "usedEntity": "normcards.json",
+   "note": "NormFormalizer deterministic templates"
+  },
+  {
+   "generatedEntity": "normcards.json",
+   "usedEntity": "evidence-bos.json",
+   "note": "NormAnalyst replay (cite-or-abstain)"
+  },
+  {
+   "generatedEntity": "zones.json",
+   "usedEntity": "formalrules.json",
+   "note": "engine executed FormalRules over fetched layers"
+  },
+  {
+   "generatedEntity": "decision-table.json",
+   "usedEntity": "normcards.json",
+   "note": "every row links a normCardId"
+  },
+  {
+   "generatedEntity": "validation.json",
+   "usedEntity": "zones.json",
+   "note": "V0-V3 over the artifact tree"
+  }
+ ],
+ "hadPrimarySource": [
+  {
+   "zone": "groene_contour",
+   "sourceId": "agrest-ov-groene-contour",
+   "service": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0",
+   "lastChecked": "2026-08-30T08:30:00Z",
+   "fetchedAt": "2026-08-30T11:19:49Z",
+   "features": 257,
+   "aliasFor": "/join/id/regdata/pv26/2025/gioee37db62-22b1-4334-bf89-7ddf4e5812c6/nld@2025-08-18;798",
+   "authoritative": true
+  },
+  {
+   "zone": "oude_bosgroeiplaatsen",
+   "sourceId": "agrest-ov-oude-bosgroeiplaatsen",
+   "service": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0",
+   "lastChecked": "2026-08-30T14:05:30Z",
+   "fetchedAt": "2026-08-30T14:14:41Z",
+   "features": 700,
+   "aliasFor": "/join/id/regdata/pv26/2025/gio3940cf76-bee0-4a1a-8d51-aa0d49be7153/nld@2025-10-10;842",
+   "authoritative": true
+  }
+ ]
+}

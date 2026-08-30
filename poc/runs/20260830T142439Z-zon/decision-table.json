@@ -1,0 +1,66 @@
+{
+ "id": "DT-zon-utrecht-poc1",
+ "requestId": "3f2a9c11-6b4d-4e8a-9f21-0c8d5a7b2e40",
+ "title": "Where can zonnevelden (solar fields) be sited in province Utrecht? Decision table (programming stage)",
+ "columns": [
+  "criterion",
+  "norm",
+  "source",
+  "zone effect",
+  "ruleId",
+  "normCardId",
+  "condition",
+  "note"
+ ],
+ "rows": [
+  {
+   "criterion": "A 'zonneveld' (Bijlage I) is any grouping of solar panels placed on or above the ground or on the water surface, but not on roofs of buildings: the object definition tha…",
+   "norm": "Bijlage I, begrip 'zonneveld' — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - begripsbepaling (Bijlage I) [binding]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "not_applicable",
+   "normCardId": "NC-Z-01",
+   "ruleId": "FR-Z-01",
+   "note": "Definitional scope of the object type 'zonneveld' (Bijlage I): ground/water-mounted panel groupings, roofs excluded. Carries no zone or threshold semantics to execute."
+  },
+  {
+   "criterion": "Within the 'Gebied zonneveld' an omgevingsplan may contain rules allowing the realisation of solar-energy generation by means of zonnevelden, provided (a) the structures…",
+   "norm": "art. 5.5, eerste lid — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "included",
+   "normCardId": "NC-Z-02",
+   "ruleId": "FR-Z-02",
+   "note": "CORE ZON RULE. Art. 5.5 lid 1 permits, within the 'Gebied zonneveld' (GIO Bijlage II), rules allowing zonnevelden; the zone is quoted verbatim in NC-Z-02. The three proviso's (recognisable structures/landscape integration, soil-water-quality-fitting arrangement, removal duty) are qualitative duties carried as procedural context tags, never guessed as geometry. | zones: gebied_zonneveld | GIO: /jo…"
+  },
+  {
+   "criterion": "The explanatory notes (toelichting) to art.",
+   "norm": "toelichting op art. 5.5 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - toelichting [interpretive]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "excluded",
+   "normCardId": "NC-Z-03",
+   "ruleId": "FR-Z-03",
+   "note": "The toelichting to art. 5.5 restricts the article to the landelijk gebied 'met uitzondering van de natura 2000-gebieden en de ganzenrustgebieden' — the same geographic reading as wind FR-W-08. Geometry must come from national sources because no provincial GIO covers these areas. The stedelijk gebied needs no separate exclusion: the Gebied zonneveld designation itself does not extend there. | zone…"
+  },
+  {
+   "criterion": "Art. 6.5a third paragraph deviates from its second paragraph for the realisation of new nature as compensation for the placement of a zonneveld: the management measures…",
+   "norm": "art. 6.5a, derde lid — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "compensation",
+   "normCardId": "NC-Z-04",
+   "ruleId": "FR-Z-04",
+   "condition": "compensation_realisation_deadline_years <= 25 jaar",
+   "note": "Art. 6.5a lid 3 sets a fully deterministic compensation regime for zonnevelden inside the Groene contour: the compensation new nature (with its management measures) must be realised at the latest 25 years after placement of the panels. Not an elimination: a temporally bounded obligation attached to affected parcels. | zones: groene_contour | GIO: /join/id/regdata/pv26/2025/gioee37db62-22b1-4334-b…"
+  },
+  {
+   "criterion": "The (non-binding) Omgevingsvisie 2021 finds wind turbines and zonnevelden in the stedelijk gebied admissible and formulates no further rules for them, with a preference…",
+   "norm": "par. Duurzame energie (Zonnevelden / Windturbines en zonnevelden in het stedelijk gebied) — Omgevingsvisie provincie Utrecht (PS 10-03-2021, in werking 01-04-2021) - NIET-BINDENDE ambitie [non_binding]",
+   "source": "S14: https://www.provincie-utrecht.nl/media/8648",
+   "zone effect": "not_applicable",
+   "normCardId": "NC-Z-05",
+   "ruleId": "FR-Z-05",
+   "note": "Non-binding visie statement of admissibility and preference (roofs/facades/infrastructure first, then industrial estates); the visie formulates no further rules, and the toelichting to art. 5.5 (NC-Z-03) confirms the verordening contains no provisions for solar energy in the stedelijk gebied."
+  }
+ ],
+ "generatedBy": "explainer#deterministic-poc1",
+ "generatedAt": "2026-08-30T14:24:43Z",
+ "provenance": "run 20260830T142439Z-zon of poc-run/1.0; norm corpus poc/corpus/evidence-zon.json replayed by legal-recon-agent#cvdr704250-geldend-2025-10-13; rules by norm-formalizer#deterministic-templates-v1; instrument Omgevingsverordening provincie Utrecht, CVDR704250 geldend 13-10-2025 t/m heden; zone geometry from provincial open data (agrest Omgevingsverordening FeatureServer + province ArcGIS hub), lastChecked stamps in layers.json; full PROV in prov.json"
+}

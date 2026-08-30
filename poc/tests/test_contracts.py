@@ -252,14 +252,119 @@ class FormalizerTests(unittest.TestCase):
         self.assertIn("NC-W-22", exclusion.relatedNormCardIds or [])
 
     def test_untemplated_cards_are_flagged_ambiguous(self):
-        # the bos shard has no registered templates: every card must be flagged,
-        # never guessed (deterministic cite-or-abstain at the formalizer boundary)
-        bos_cards = NormAnalyst().read(CORPUS_DIR_ABS / "evidence-bos.json")
-        rules = NormFormalizer().formalize(bos_cards)
-        self.assertEqual(len(rules), len(bos_cards))
-        for rule in rules:
-            self.assertEqual(rule.status, "ambiguous", rule.id)
-            self.assertIn("no deterministic template registered", rule.reason)
+        # a card without a registered template must be flagged ambiguous, never
+        # guessed (deterministic cite-or-abstain at the formalizer boundary).
+        # The bos shard used to serve as the untemplated fixture, but is a
+        # first-class track now — so an explicit synthetic card is used.
+        cards = NormAnalyst().read([
+            {
+                "id": "X-99",
+                "sourceId": "S07",
+                "instrument": "Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst",
+                "article": "art. 99.9 (synthetic, untemplated)",
+                "quote_nl": "Synthetisch citaat van voldoende lengte voor de cite-or-abstain gate van het norm-card contract.",
+                "theme": "spatial:untemplated",
+                "url": "https://lokaleregelgeving.overheid.nl/cvdr704250",
+                "verified": True,
+                "notes": "synthetic test fixture",
+            }
+        ])
+        rules = NormFormalizer().formalize(cards)
+        self.assertEqual(len(rules), 1)
+        self.assertEqual(rules[0].status, "ambiguous", rules[0].id)
+        self.assertIn("no deterministic template registered", rules[0].reason)
+
+
+class ZonTrackTests(unittest.TestCase):
+    """The ZON (solar field) track: shard replay + formalizer templates."""
+
+    @classmethod
+    def setUpClass(cls):
+        analyst = NormAnalyst()
+        cls.cards = analyst.read(CORPUS_DIR_ABS / "evidence-zon.json")
+        cls.cards_dicts = [c.to_dict() for c in cls.cards]
+        cls.rules = NormFormalizer().formalize(cls.cards)
+        cls.rule_dicts = [r.to_dict() for r in cls.rules]
+
+    def test_shipped_corpus_is_deterministic_replay(self):
+        self.assertEqual(self.cards_dicts, load_json("normcards-zon.json"))
+        self.assertEqual(self.rule_dicts, load_json("formalrules-zon.json"))
+
+    def test_object_type_and_counts(self):
+        for card in self.cards:
+            self.assertEqual(card.appliesTo.objectType, "solar_field", card.id)
+        statuses = [rule.status for rule in self.rules]
+        self.assertEqual(statuses.count("formalized"), 3)
+        self.assertEqual(statuses.count("ambiguous"), 0)
+        self.assertEqual(statuses.count("rejected"), 2)
+
+    def test_core_inclusion_is_gebied_zonneveld(self):
+        rule = {r.id: r for r in self.rules}["FR-Z-02"]
+        self.assertEqual(rule.zoneSemantics, "inclusion")
+        self.assertEqual(rule.zoneSelector.zoneIds, ["gebied_zonneveld"])
+        self.assertIn("gioa748cb8c-4f7f-4bbb-83d4-54becd3e0d1d", rule.zoneSelector.gioJoinId)
+        self.assertEqual(rule.executableRef, "engine.zone.within@poc-v1")
+
+    def test_exclusion_uses_national_source_like_wind(self):
+        rule = {r.id: r for r in self.rules}["FR-Z-03"]
+        self.assertEqual(rule.zoneSemantics, "exclusion")
+        self.assertEqual(rule.zoneSelector.zoneIds, ["natura_2000", "ganzenrustgebied"])
+        self.assertEqual(rule.zoneSelector.geometrySource, "national_source")
+
+    def test_groene_contour_compensation_carries_25_year_deadline(self):
+        rule = {r.id: r for r in self.rules}["FR-Z-04"]
+        self.assertEqual(rule.zoneSemantics, "compensation")
+        cond = rule.conditions[0]
+        self.assertEqual((cond.parameter, cond.operator, cond.value, cond.unit),
+                         ("compensation_realisation_deadline_years", "<=", 25, "jaar"))
+
+
+class BosTrackTests(unittest.TestCase):
+    """The BOS (new nature / forest planting) track: shard replay + templates."""
+
+    @classmethod
+    def setUpClass(cls):
+        analyst = NormAnalyst()
+        cls.cards = analyst.read(CORPUS_DIR_ABS / "evidence-bos.json")
+        cls.cards_dicts = [c.to_dict() for c in cls.cards]
+        cls.rules = NormFormalizer().formalize(cls.cards)
+        cls.rule_dicts = [r.to_dict() for r in cls.rules]
+
+    def test_shipped_corpus_is_deterministic_replay(self):
+        self.assertEqual(self.cards_dicts, load_json("normcards-bos.json"))
+        self.assertEqual(self.rule_dicts, load_json("formalrules-bos.json"))
+
+    def test_object_type_and_counts(self):
+        for card in self.cards:
+            self.assertEqual(card.appliesTo.objectType, "forest_planting", card.id)
+        statuses = [rule.status for rule in self.rules]
+        self.assertEqual(statuses.count("formalized"), 3)
+        self.assertEqual(statuses.count("ambiguous"), 1)
+        self.assertEqual(statuses.count("rejected"), 1)
+
+    def test_core_inclusion_is_groene_contour_zoekgebied(self):
+        rule = {r.id: r for r in self.rules}["FR-B-01"]
+        self.assertEqual(rule.zoneSemantics, "inclusion")
+        self.assertEqual(rule.zoneSelector.zoneIds, ["groene_contour"])
+        self.assertIn("gioee37db62", rule.zoneSelector.gioJoinId)
+
+    def test_compensation_ratio_is_one_to_one(self):
+        rule = {r.id: r for r in self.rules}["FR-B-02"]
+        self.assertEqual(rule.zoneSemantics, "compensation")
+        cond = rule.conditions[0]
+        self.assertEqual((cond.parameter, cond.operator, cond.value, cond.unit),
+                         ("compensation_ratio_new_nature", ">=", 1, "ratio"))
+
+    def test_oude_bosgroeiplaatsen_is_conditional(self):
+        rule = {r.id: r for r in self.rules}["FR-B-03"]
+        self.assertEqual(rule.zoneSemantics, "conditional")
+        self.assertEqual(rule.zoneSelector.zoneIds, ["oude_bosgroeiplaatsen"])
+
+    def test_velling_exemption_stays_procedural(self):
+        rule = {r.id: r for r in self.rules}["FR-B-04"]
+        self.assertEqual(rule.status, "ambiguous")
+        self.assertIsNone(rule.zoneSelector)
+        self.assertEqual(rule.executableRef, "engine.procedural.human_review@poc-v1")
 
 
 class NegativeValidationTests(unittest.TestCase):

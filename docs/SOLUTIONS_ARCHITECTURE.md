@@ -2,17 +2,17 @@
 
 | | |
 |---|---|
-| Document | `docs/SOLUTIONS_ARCHITECTURE.md` · v1.0 · **2026-08-30** |
+| Document | `docs/SOLUTIONS_ARCHITECTURE.md` · v1.1 · **2026-08-30** |
 | Specializes | `MULTI_AGENT_PLAN.md` v1.2 (§3–§8). That plan is the general spec; this document specializes it for the Utrecht pilot **and fixes the concrete module/data/contract layout** any such pilot follows. It does not repeat the plan — section numbers below link back to it. |
-| Pilot instance | Wind turbines (`objectType: windmill ≥3 MW` and `kleine windturbine ≤20/30 m`), province Utrecht (NL) |
-| Grounding inputs | Legal recon: `docs/research/legal-facts.md` + `poc/corpus/*.json` (23 sources, 34 cite-verified evidence records) · Geo recon: `docs/research/geo-catalog.md` + `poc/data/sources.json` (71 schema-validated service entries) |
+| Pilot instance | Three tracks on one instrument (Omgevingsverordening provincie Utrecht, CVDR704250): **wind** (turbines ≥3 MW and ≤20 m hub paths), **zon** (zonnevelden / solar fields), **bos** (nieuwe natuur / forest planting), province Utrecht (NL) |
+| Grounding inputs | Legal recon: `docs/research/legal-facts.md` + `poc/corpus/*.json` (23 sources, 34 cite-verified evidence records: wind 24 · zon 5 · bos 5) · Geo recon: `docs/research/geo-catalog.md` + `poc/data/sources.json` (78 schema-validated service entries) |
 | Papers served | A = `extracted/geoai_cop.md` (emergency-management COP) · B = `extracted/udt_genai.md` (GenAI opportunity finding in UDTs; its future-work section explicitly requests this Utrecht pilot) |
 
 ---
 
 ## 1. Purpose & scope
 
-**Purpose.** Deliver a general, reproducible solutions architecture that answers *"where can I do what?"* (paper B, research question B1) for spatial activities regulated by an Omgevingsverordening, with every legal claim machine-verifiable, traceable and contestable (paper A, challenge A4). The Utrecht wind-turbine PoC is the **first instantiation**; bos (forest planting) and zon (solar fields) reuse the same pipeline over different evidence corpora and rule sets, and other provinces reuse it by re-pointing the corpus and geo registries at their own instruments and services.
+**Purpose.** Deliver a general, reproducible solutions architecture that answers *"where can I do what?"* (paper B, research question B1) for spatial activities regulated by an Omgevingsverordening, with every legal claim machine-verifiable, traceable and contestable (paper A, challenge A4). Three tracks are instantiated end-to-end on the same pipeline — **wind** (the first instantiation), **zon** (solar fields) and **bos** (new nature / forest planting) — differing only in evidence shard, formalizer templates, abstention ledger, zone aliases and use-case file (the *track model*, §3.3); other provinces reuse the whole architecture by re-pointing the corpus and geo registries at their own instruments and services.
 
 **Scope of this document.** Architecture only: views, module boundaries, data plane, contracts, validation, technology, roadmap, risks, traceability. Implementation detail lives in the PoC code under `poc/`; the norm content lives in `docs/research/legal-facts.md`; the service inventory lives in `docs/research/geo-catalog.md`.
 
@@ -26,18 +26,24 @@
 
 ## 2. Stakeholders and use cases
 
-**Primary question (planning plane).** *"Where in province Utrecht can wind turbines be sited, under which provincial rules, and why?"* — answered as a deterministic, fully-cited zone computation, not a generative guess.
+**Primary question (planning plane).** *"Where in province Utrecht can activity X be realised, under which provincial rules, and why?"* — answered per track as a deterministic, fully-cited zone computation, not a generative guess.
+
+| Track | objectType | Core zone semantics (canonical run, 2026-08-30) |
+|---|---|---|
+| wind | `wind_turbine` | union of the three formalized inclusion zones ∩ AOI 1259.8 km², minus Natura 2000 + ganzenrust (toelichting art. 5.4) and Natuurnetwerk Nederland (art. 6.3) → **859.5 km²**; stiltegebied/NNN conditional, 1500 m attention, Groene contour compensation markers |
+| zon | `solar_field` | `Gebied zonneveld` (art. 5.5) ∩ AOI 1167.9 km², minus Natura 2000 + ganzenrust (toelichting art. 5.5) → **1167.9 km²**; Groene contour compensation marker with the ≤25-jaar deadline of art. 6.5a lid 3 |
+| bos | `forest_planting` | the Groene contour **zoekgebied nieuwe natuur** (art. 6.4) ∩ AOI = **23.9 km²**, no exclusions (a search area); ≥1:1 compensation ratio (art. 6.5 lid 2 onder d) and oude bosgroeiplaatsen (art. 6.13) as marker/conditional overlays |
 
 | Stakeholder | What they get | Stage |
 |---|---|---|
-| Provincial policy officer (omgevingsbeleid) | Opportunity map + decision table for `Gebied windenergie` vs. constraint zones; monitoring drift alerts on re-publication | design → monitoring |
+| Provincial policy officer (omgevingsbeleid) | Opportunity map + decision table per track (wind constraints vs. zonneveld designation vs. nature zoekgebied); monitoring drift alerts on re-publication | design → monitoring |
 | Municipal planner (omgevingsplan) | Which instructieregels (art. 5.3/5.4, 6.x, 7.x, 9.x) bind a location; what an omgevingsplan must motivate | programming → permission |
 | RES / regional energy coordinator | Provincial-scale siting envelope minus hard/complex constraints | design |
 | Developer / energy cooperative | Screening map + the exact article quotes behind every excluded area | permission |
 | GIS analyst | Schema-validated GeoJSON/GML + reproducible cache | all |
 | Citizen (future, V4/Participate) | Contestable, traceable justification per zone | design (Phase 5) |
 
-**Use cases.** Wind (this PoC); bos — `Zoekgebied_nieuw_bos_AGO` + Groene contour rules (art. 6.4/6.5, evidence `poc/corpus/evidence-bos.json`); zon — `Gebied zonneveld` (art. 5.5, `evidence-zon.json`); power-net congestion — art. 5.10/5.11 energietoets + grid data (future, plan §3.4 EnergyCast role). The operational plane (paper A's VA, plan §3.1 right column) is **future scope** (Phase 3).
+**Use cases.** Wind, zon and bos — all three implemented end-to-end (canonical runs `poc/runs/20260830T113234Z-wind`, `…T142439Z-zon`, `…T142446Z-bos`, all verdict **pass** with V3 IoU ≥ 0.9997); power-net congestion — art. 5.10/5.11 energietoets + grid data — is the next track candidate (plan §3.4 EnergyCast role). The operational plane (paper A's VA, plan §3.1 right column) is **future scope** (Phase 3).
 
 **Policy-cycle stages (plan §4).** Design: ambition/scenario maps (visie-level, non-binding — flagged as such). Programming: opportunity maps from the verordening (this PoC). Permission: per-location rule dossier + V4 signature (Phase 5). Monitoring: re-run V1/V3 on instrument or service refresh — critical because a major verordening amendment is pending (PS 18-11-2026, in werking 01-01-2027, https://zoek.officielebekendmakingen.nl/prb-2026-12.html).
 
@@ -89,23 +95,28 @@ Legal sources are consumed **read-only and version-pinned** (snapshot under `doc
 
 The PoC deliberately collapses the target's MCP servers into in-process modules with the **same boundaries**: `pipeline/geodata.py` speaks only to `poc/data/sources.json` + cache exactly as a future `ogc-mcp` would. Migration = moving the module behind an MCP server; agent code and contracts do not change.
 
-### 3.3 Component view — PoC pipeline
+### 3.3 Component view — PoC pipeline (track-generic)
 
 ```
  OpportunityMapRequest (poc/schemas/opportunity-map-request.schema.json)
         │
         ▼
- [Intake] normalize: objectType∈{windmill,kleine_windturbine}, AoI, policyStage
-        │  NormCard[] (poc/corpus/evidence-*.json, cite-verified recon output)
+ [Intake] normalize: objectType∈{wind_turbine, solar_field, forest_planting, …},
+        │  AoI, policyStage — per-track use case in poc/use-cases/<track>.json
+        │  NormCard[] (poc/corpus/evidence-<track>.json, cite-verified recon output)
         ▼
- [Norm Analyst] fan-out over corpus shards (wind|bos|zon); no-citation → dropped
+ [Norm Analyst] fan-out over corpus shards (wind|zon|bos); no-citation → dropped
         │  NormCard[] (norm-card.schema.json)
         ▼
- [Norm Formalizer] NormCards → FormalRule[] (parameter/operator/value/unit/
-        │  zoneSemantics; JOIN-id zone keys; ambiguous → flagged)
+ [Norm Formalizer] NormCards → FormalRule[] (per-track template table in
+        │  agents.py: parameter/operator/value/unit/zoneSemantics; JOIN-id zone
+        │  keys; untemplated → ambiguous, never guessed)
         ▼                         FormalRule[] (formal-rule.schema.json)
- [Geo Analyst] fetch layers (registry+cache) → make_valid → zone algebra:
-        │  inclusion(Gebied windenergie) − harde − complexe belemmeringen …
+ [Geo Analyst] fetch layers (registry+cache) → make_valid → zone algebra,
+        │  per track:  wind: ∪(windenergie ∪ kleine-windturbine ∪ landelijk)
+        │                 ∩ AOI − natura2000+ganzenrust − NNN
+        │              zon:  ∪(zonneveld) ∩ AOI − natura2000+ganzenrust
+        │              bos:  ∪(groene contour) ∩ AOI   (zoekgebied, no exclusions)
         ▼                         ZoneResult[] (zone-result.schema.json)
  [Cartographer] style + serialize GeoJSON (EPSG:28992+4326) / GML3.2 / HTML index
         │
@@ -117,6 +128,17 @@ The PoC deliberately collapses the target's MCP servers into in-process modules 
                                 DecisionTable (decision-table.schema.json) → poc/runs/<id>/
 ```
 
+**Track model.** A track is pure configuration over a fixed spine — no pipeline
+code branches on the track beyond a registry lookup. `run.py::TRACKS` binds, per
+track: the evidence shard, the cite-or-abstain ledger, report title /
+decision-table id / PROV namespace, the headline semantics note and
+track-specific limitations; `agents.py` carries the per-card enrichment and
+formalizer templates (keyed by evidence id; cards without a template are flagged
+ambiguous, never guessed); `run.py::ZONE_SOURCES` maps zone keys to registry
+aliases. Adding a track = new use-case file + evidence shard + templates +
+ledger + zone aliases (recipe in `poc/README.md`); agent roster, contracts,
+validation levels and artifacts are unchanged.
+
 ---
 
 ## 4. Agent roster → PoC modules (plan §3.2 → files)
@@ -126,14 +148,14 @@ Actual layout of the implemented PoC (paths below exist under `poc/`); the schem
 | # | Agent (plan §3.2) | PoC module | Deterministic implementation now | LLM hook later |
 |---|---|---|---|---|
 | 1 | Orchestrator | `poc/run.py` | CLI graph runner: fixed node order, run-id, effort manifest, refuses to emit artifacts without a ValidationReport | plan decomposition |
-| 2 | Intake | `poc/run.py` (`load_request`) | request loading + schema validation (objectType map, AoI = province boundary embedded in `poc/use-cases/wind.json` from `Provinciegrens_Utrecht/FeatureServer/0`) | clarifying dialogue |
-| 3 | Norm Analyst ×N | `poc/pipeline/agents.py` (`NormAnalyst`) | reads `poc/corpus/evidence-{wind,bos,zon}.json`; every card resolves `sourceId` → `poc/corpus/sources.json`; emits NormCards; optional `llm_hook` callable parameter | per-document norm harvesting |
-| 4 | Norm Formalizer | `poc/pipeline/agents.py` (`NormFormalizer`) | curated NormCard→FormalRule mapping (art. 5.4→inclusion `Gebied windenergie`; 9.25 lid 2→1500 m buffer; Harde/Complexe layer buffers as planMER-derived parameters) | propose rules, temp 0 |
+| 2 | Intake | `poc/run.py` (`load_request`) | request loading + schema validation (objectType map, AoI = province boundary embedded in `poc/use-cases/{wind,zon,bos}.json` from `Provinciegrens_Utrecht/FeatureServer/0`) | clarifying dialogue |
+| 3 | Norm Analyst ×N | `poc/pipeline/agents.py` (`NormAnalyst`) | reads `poc/corpus/evidence-{wind,zon,bos}.json`; every card resolves `sourceId` → `poc/corpus/sources.json`; emits NormCards with per-track `objectType`; optional `llm_hook` callable parameter | per-document norm harvesting |
+| 4 | Norm Formalizer | `poc/pipeline/agents.py` (`NormFormalizer`) | curated per-track NormCard→FormalRule template table (wind 9 formalized/13 ambiguous/2 rejected; zon 3/0/2 — e.g. art. 5.5→inclusion `Gebied zonneveld`, art. 6.5a lid 3→≤25-jaar compensation; bos 3/1/1 — e.g. art. 6.4→inclusion `Groene contour`, art. 6.15 velling thresholds deliberately procedural→V4) | propose rules, temp 0 |
 | 5 | Geo Analyst | `poc/pipeline/geodata.py` + `poc/pipeline/engine.py` | ArcGIS REST fetcher (registry-driven, cache-first), shapely zone engine, make_valid, PROV per op | query planning |
 | 6 | Cartographer | `poc/pipeline/cartographer.py` | GeoJSON/GML writer (ogr2ogr), QGIS-loadable outputs | cartographic design |
 | 7 | Critic/Validator | `poc/pipeline/critic.py` | V0–V3 checks of §7 below; evaluator–optimizer loop ≤2 | quote-entailment judge |
 | 8 | Explainer | `poc/pipeline/explainer.py` | decision table, PROV-O-flavoured JSON bundle, entity hashing | NL justification |
-| — | (view tier) | `poc/pipeline/report.py` + `pipeline/report_template.html` | single-file HTML report (Leaflet map + fallback tables) embedded in the run dir | — |
+| — | (view tier) | `poc/pipeline/report.py` + `pipeline/report_template.html`; `simulation/` (workspace level) | single-file HTML report per run (Leaflet map + fallback tables) embedded in the run dir; the simulation replays all three canonical tracks + PoC-2 step-by-step for communication/teaching | — |
 | — | (contracts) | `poc/pipeline/contracts.py` + `poc/schemas/*.schema.json` | the six agent-boundary schemas of §6, validated at every hop | — |
 
 The `llm_hook` of plan §3.2 is implemented as an optional callable parameter (`NormAnalyst(llm_hook=...)` in `poc/pipeline/agents.py`), **no-op default** (no callable LLM at PoC runtime — environment constraint); every agent records whether a hook answered.
@@ -146,11 +168,11 @@ Operational-plane agents 9–12 (Picture Compiler … VA Critic) are **not imple
 
 ### 5.1 Verified geo sources (the `ogc` data source)
 
-Machine registry: `poc/data/sources.json` (71 entries, roles `inclusion|exclusion|context|aoi`). Key services (all verified live 2026-08-30, details in `docs/research/geo-catalog.md`):
+Machine registry: `poc/data/sources.json` (78 entries, roles `inclusion|exclusion|conditional|context|aoi`). Key services (all verified live 2026-08-30, details in `docs/research/geo-catalog.md`):
 
 | Role | Source | URL |
 |---|---|---|
-| **Legal inclusion (authoritative)** | Vigerende Omgevingsverordening as IMOW polygons; `WHERE NAAM='Gebied windenergie'` → 44 feats with `LOCATIE_ID` (`nl.imow-pv26.gebied.*`) + AKN `DOCUMENT_URL` | https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0 |
+| **Legal inclusion (authoritative)** | Vigerende Omgevingsverordening as IMOW polygons; `WHERE NAAM='Gebied windenergie'` → 44 feats with `LOCATIE_ID` (`nl.imow-pv26.gebied.*`) + AKN `DOCUMENT_URL`; same service: `NAAM='Gebied zonneveld'` → 44 feats (art. 5.5, zon inclusion); `NAAM='Waardevolle Houtopstanden - oude bosgroeiplaatsen'` → 700 feats (art. 6.13, bos conditional; note: the service's `returnCountOnly` ignores `where` — counts are derived by paging) | https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0 |
 | Legal inclusion (visie, non-binding) | Omgevingsvisie designation "Ruimte voor windenergie…" (1481.45 km²) | https://agrest.geodata-utrecht.nl/rest/services/Omgevingsvisie/FeatureServer/0 |
 | Hard exclusions (planMER, pre-baked buffers 81/92/241/300/400 m) | Natura 2000+81 m (L32), geluidsgevoelige objecten +300/400 m (L23/25), hoogspanningsnet +241 m (L28), ganzenrustgebieden (L16/17), bebouwde kom (L11), bestaande turbines (L13) | https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Harde_belemmeringen/FeatureServer |
 | Complex exclusions | NNN+81 m (L39), weidevogelkerngebied+81 m (L57), stiltegebied (L51), NHW-zonering (L35/36) | https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Complexe_belemmeringen/FeatureServer |
@@ -163,11 +185,11 @@ Machine registry: `poc/data/sources.json` (71 entries, roles `inclusion|exclusio
 
 (AGOL base = `https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/`, org "utrecht".)
 
-**Authority rules.** The agrest Omgevingsverordening FeatureServer is the only wind-inclusion layer with legal grounding (IMOW ids + AKN document expression `nld@1089`); `ET_wind_gebieden_windenergie/13` is an energy-transition **tracking** layer ("meest kansrijke gebieden"), never presented as the juridische werkingsgebied. The 1166.5 km² province-scale polygon in the OV set is a **designation envelope**, not plantable area — zone algebra must intersect it with `Landelijk gebied` and subtract constraints (Norm Analyst reading of art. 5.4 + toelichting, per legal-facts §5.3). planMER buffer layers carry **policy-derived distances**, not verordening norms — FormalRules that use them are labelled `derivation: planMER`, distinct from `derivation: legal-text` (e.g. the 1500 m Aandachtsgebied from art. 9.25 lid 2, which is legal-text-derived and deterministic).
+**Authority rules.** The agrest Omgevingsverordening FeatureServer is the only zone source with legal grounding for the track inclusion/overlay zones (IMOW ids + AKN document expression `nld@1089`: Gebied windenergie, Gebied zonneveld, Groene contour, Waardevolle Houtopstanden - oude bosgroeiplaatsen, …); `ET_wind_gebieden_windenergie/13` is an energy-transition **tracking** layer ("meest kansrijke gebieden"), never presented as the juridische werkingsgebied. The 1166.5 km² province-scale polygon in the OV set is a **designation envelope**, not plantable area — zone algebra must intersect it with `Landelijk gebied` and subtract constraints (Norm Analyst reading of art. 5.4 + toelichting, per legal-facts §5.3; the same envelope logic applies to the Gebied zonneveld designation). planMER buffer layers carry **policy-derived distances**, not verordening norms — FormalRules that use them are labelled `derivation: planMER`, distinct from `derivation: legal-text` (e.g. the 1500 m Aandachtsgebied from art. 9.25 lid 2, which is legal-text-derived and deterministic).
 
 ### 5.2 Corpus store (legal)
 
-`poc/corpus/sources.json` (23 pinned sources with retrieval dates) + `evidence-wind.json` (24), `evidence-bos.json` (5), `evidence-zon.json` (5) — each record with `sourceId`, `instrument` (artikeltekst vs toelichting vs visie kept distinct), verbatim `quote_nl`, `url`. Snapshots under `docs/research/sources/` make V2/V3 reproducible after the instrument changes. Pinned instruments: **Omgevingsverordening provincie Utrecht, CVDR704250 geldend 13-10-2025** (https://lokaleregelgeving.overheid.nl/cvdr704250) and **Omgevingsvisie PS 10-03-2021** (https://www.provincie-utrecht.nl/media/8648). The DSO Omgevingsdocumenten Downloaden API — the only official machine channel for GIO geometry — is key-gated (401 verified; register at https://developer.omgevingswet.overheid.nl/api-register/api/omgevingsdocument-downloaden/); until a key exists the agrest IMOW mirror is the GIO proxy with a provenance caveat recorded in every affected ZoneResult.
+`poc/corpus/sources.json` (23 pinned sources with retrieval dates) + per-track evidence shards `evidence-wind.json` (24), `evidence-zon.json` (5), `evidence-bos.json` (5) — each record with `sourceId`, `instrument` (artikeltekst vs toelichting vs visie kept distinct), verbatim `quote_nl`, `url` — and their deterministic replay outputs `normcards-<track>.json` / `formalrules-<track>.json` (regenerated by `python3 -m pipeline.agents`, unit-tested for replay determinism). Cite-or-abstain ledgers per track: `normcards-rejected.json` (wind, 8 abstentions), `normcards-rejected-zon.json` / `normcards-rejected-bos.json` (6 each — e.g. zon abstains on rooftop solar as outside the object definition; bos on stikstof and Natuurbeheerplan-type selection). Snapshots under `docs/research/sources/` make V2/V3 reproducible after the instrument changes. Pinned instruments: **Omgevingsverordening provincie Utrecht, CVDR704250 geldend 13-10-2025** (https://lokaleregelgeving.overheid.nl/cvdr704250) and **Omgevingsvisie PS 10-03-2021** (https://www.provincie-utrecht.nl/media/8648). The DSO Omgevingsdocumenten Downloaden API — the only official machine channel for GIO geometry — is key-gated (401 verified; register at https://developer.omgevingswet.overheid.nl/api-register/api/omgevingsdocument-downloaden/); until a key exists the agrest IMOW mirror is the GIO proxy with a provenance caveat recorded in every affected ZoneResult.
 
 ### 5.3 Cache layout and future stores
 
@@ -186,7 +208,7 @@ All agent boundaries emit JSON validated against JSON Schema (jsonschema 4.25.1)
 
 | Contract | Schema file | Summary (full spec: plan §5) | Utrecht specifics |
 |---|---|---|---|
-| OpportunityMapRequest | `opportunity-map-request.schema.json` | id, objectType, ambitions, areaOfInterest (GeoJSON+crs), policyStage, effortBudget | `objectType` enum extended with `kleine_windturbine`; default AoI = provinciegrens |
+| OpportunityMapRequest | `opportunity-map-request.schema.json` | id, objectType, ambitions, areaOfInterest (GeoJSON+crs), policyStage, effortBudget | `objectType` enum: `wind_turbine`, `solar_field`, `forest_planting`, `biomass_installation`, `energy_storage`; default AoI = provinciegrens; per-track instances `poc/use-cases/{wind,zon,bos}.json` |
 | NormCard | `norm-card.schema.json` | claim, source{docId,article,version,quote,uri}, theme, confidence, extractedBy | `article` format `"art. 5.4 lid 1"`; `version` = "CVDR704250 geldend 13-10-2025"; evidence class field (artikeltekst/toelichting/visie) |
 | FormalRule | `formal-rule.schema.json` | normCardId, parameter, operator, value, unit, zoneSemantics, appliesTo, executableRef | zone key = Bijlage-II JOIN-id (e.g. `gebied windenergie` → `/join/id/regdata/pv26/2025/giocc2ef601-3b25-4428-8808-e77ae1e47b4d/nld@2025-10-10;846`) with ArcGIS source id as provenance alias; `derivation: legal-text|planMER|assumption` |
 | ZoneResult | `zone-result.schema.json` | ruleIds, geometry{format,payload,crs}, operation, prov | CRS EPSG:28992 canonical; every op logs shapely call + inputs' sha256 |
@@ -205,7 +227,7 @@ Validation is a graph-node class: the Orchestrator refuses any run whose final a
 |---|---|---|
 | **V0 syntactic** | jsonschema validation of every artifact crossing an agent boundary; GeoJSON structure + CRS member check | auto-repair ≤2, then reject |
 | **V1 geometric** | shapely `is_valid` on all inputs and outputs (`make_valid` mandatory — 8/44 ET and 1/44 OV features invalid as served); pyproj CRS equality (28992); area sanity vs. extent; IoU checks between designation pyramid levels (visie ⊃ OV ⊇ ET, geo-catalog §2.1 numbers as fixtures) | reject to Geo Analyst |
-| **V2 legal grounding** | cite-or-abstain, implemented at runtime as: every NormCard resolves to `sources.json` and carries docId+article+version+verbatim `quote_nl`+uri (completeness gate); every FormalRule references ≥1 existing NormCard; abstention register (stikstof, general noise dB, tip height, setbacks — national-law domains, no provincial NormCards issued). Verbatim containment of each `quote_nl` against the snapshot texts (`docs/research/sources/cvdr704250-tekst-extract.txt`, `visie.txt`) was performed at recon time (`docs/research/legal-facts.md` method section) and re-verified against the live sources; runtime re-containment is a Phase-2 hardening item | reject card/rule; log abstention |
+| **V2 legal grounding** | cite-or-abstain, implemented at runtime as: every NormCard resolves to `sources.json` and carries docId+article+version+verbatim `quote_nl`+uri (completeness gate); every FormalRule references ≥1 existing NormCard; per-track abstention ledgers (wind: stikstof, general noise dB, tip height, setbacks — national-law domains; zon: national solar-field rules, rooftop solar outside the Bijlage-I object definition, energy test; bos: stikstof, NNN-addition procedure, Natuurbeheerplan type selection — no provincial NormCards issued). Verbatim containment of each `quote_nl` against the snapshot texts (`docs/research/sources/cvdr704250-tekst-extract.txt`, `visie.txt`) was performed at recon time (`docs/research/legal-facts.md` method section) and re-verified against the live sources; runtime re-containment is a Phase-2 hardening item | reject card/rule; log abstention |
 | **V3 semantic re-execution** | independent second pass re-computes the zone algebra with a separate implementation (`engine.reexecute_independent`: geopandas `GeoSeries`/`overlay` primitives instead of raw shapely, same FormalRule partition semantics); agreement thresholds IoU ≥ 0.98 and relative area delta ≤ 1%; divergence fails the run (unit-tested with an injected divergent zone) | reject; escalate to human if disagreement persists |
 | **V4 human expert** | **pending HITL**: Explainer emits a review bundle (decision table + PROV + map) with `V4: "pending"`; the sign-off queue is the artifact, not a UI yet | annotate → gold-set candidate |
 
@@ -225,14 +247,14 @@ The pluggable judge: the `llm_hook` callable (optional parameter, no-op default 
 
 | Plan phase | Status in this pilot |
 |---|---|
-| **Phase 0** foundations | Largely done: legal corpus pinned + snapshotted (23 sources, 34 evidence records); geo services catalogued + schema-validated registry (71); golden-set material identified (planMER resterende ruimte, province focus-group analog); missing: tri-modal bindings, OTel wiring, GS-1 formal freeze |
-| **Phase 1** single-agent baseline + V0–V3 harness | **This PoC**: full deterministic pipeline (Intake→Explainer) with V0–V3 checks and independent re-execution; planMER `Resterende ruimte` identified as benchmark material but not yet wired in |
+| **Phase 0** foundations | Largely done: legal corpus pinned + snapshotted (23 sources, 34 evidence records across three tracks); geo services catalogued + schema-validated registry (78); golden-set material identified (planMER resterende ruimte, province focus-group analog); missing: tri-modal bindings, OTel wiring, GS-1 formal freeze |
+| **Phase 1** single-agent baseline + V0–V3 harness | **This PoC, ×3 tracks**: full deterministic pipeline (Intake→Explainer) with V0–V3 checks and independent re-execution for wind, zon and bos (all verdict pass; 100 offline unit tests incl. per-track replay determinism); planMER `Resterende ruimte` identified as benchmark material but not yet wired in |
 | **Phase 2** multi-agent orchestration | Structurally present (fan-out module boundaries, critic loop, contracts) but workers are deterministic, not LLM subagents; remains: real fan-out with open models, Skill export, wrapped VuLens/AeroSense |
 | **Phase 3** KG/BNK/VA operational plane | not started |
 | **Phase 4** 3D pipeline (A2) | not started (3D BAG viewer exists as front-end seed) |
 | **Phase 5** policy-cycle integration & federation | monitoring-stage drift design included (§10); A2A/Participate/Marketplace future |
 
-**Pilot exit criterion (Phase 1):** a wind opportunity map for province Utrecht whose every zone traces to NormCard → CVDR704250 article → geometry service, with V3 agreement recorded — the quantified "to what extent" answer paper B asks for, in deterministic form.
+**Pilot exit criterion (Phase 1):** opportunity maps for province Utrecht — wind, zon and bos — whose every zone traces to NormCard → CVDR704250 article → geometry service, with V3 agreement recorded per track (IoU 0.99994 / 0.99998 / 0.9997) — the quantified "to what extent" answer paper B asks for, in deterministic form, for three of the four use cases paper B names (congestion remaining).
 
 ---
 
@@ -271,7 +293,7 @@ Extends plan §8 with the PoC column.
 | B3 tri-modal binding | co-embeddings + link records | future Phase 0 completion (binding-record schema reserved) |
 | B4 corpus quality | cleaning + versioning | pinned corpus + snapshots + evidence classes (`docs/research/sources/`) |
 | B5 explainability/contestability | decision tables, PROV, citations | `explainer.py`; every row → NormCard; abstention register |
-| B pilot (Utrecht, wind/bos/zon) | — | this pilot: wind end-to-end; bos/zon corpora pre-loaded |
+| B pilot (Utrecht, wind/bos/zon) | — | this pilot: wind, zon and bos end-to-end on one pipeline (canonical runs 2026-08-30, all pass) |
 | B congestion use case | EnergyCast as MCP tool | art. 5.10/5.11 energietoets formalized as non-spatial condition; grid model Phase 4/5 |
 | A4 FAIR cross-org sharing | data space + identities | future Phase 5 (EU LDT Data Space Ready) |
 | B5 citizen contestability | eParticipation for V4 | V4 review bundle designed as the contestation artifact |

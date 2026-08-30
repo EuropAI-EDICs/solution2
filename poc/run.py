@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""CLI orchestrator for the wind-turbine opportunity-map PoC (plan section 3.2, agent #1).
+"""CLI orchestrator for the opportunity-map PoC (plan section 3.2, agent #1).
+
+Tracks: ``wind`` (wind turbines), ``zon`` (zonnevelden / solar fields) and
+``bos`` (new nature / forest planting) — same instrument (Omgevingsverordening
+provincie Utrecht, CVDR704250), same agent architecture, per-track evidence
+shards and cite-or-abstain ledgers.
 
 Wires the planning plane end-to-end:
 
@@ -15,6 +20,8 @@ Every agent boundary emits JSON validated against poc/schemas/*.schema.json
 Usage (no install, from the workspace root):
 
     python3 poc/run.py                     # wind use case, cache-first
+    python3 poc/run.py --use-case zon      # solar fields (zonnevelden)
+    python3 poc/run.py --use-case bos      # new nature / forest planting
     python3 poc/run.py --refresh           # re-download live layers
     python3 poc/run.py --bbox 130000,440000,160000,470000   # EPSG:28992 clip
     python3 poc/run.py --out poc/runs/demo
@@ -92,24 +99,129 @@ ZONE_SOURCES: Dict[str, Dict[str, Any]] = {
         "sourceId": "agrest-ov-landelijk-gebied",
         "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Landelijk gebied'",
     },
+    "gebied_zonneveld": {
+        "sourceId": "agrest-ov-gebied-zonneveld",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied zonneveld' (art. 5.5)",
+    },
+    "oude_bosgroeiplaatsen": {
+        "sourceId": "agrest-ov-oude-bosgroeiplaatsen",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Waardevolle Houtopstanden - oude bosgroeiplaatsen' (art. 6.13)",
+    },
 }
 
 INSTRUMENT = "Omgevingsverordening provincie Utrecht, CVDR704250 geldend 13-10-2025 t/m heden"
+
+# --------------------------------------------------------------------------- #
+# per-track configuration: evidence shard, cite-or-abstain ledger, report texts
+# and track-specific limitations. Every use case shares the instrument, the
+# agent architecture and the zone-alias registry above.
+# --------------------------------------------------------------------------- #
+
+TRACKS: Dict[str, Dict[str, Any]] = {
+    "wind": {
+        "shard": "corpus/evidence-wind.json",
+        "ledger": "corpus/normcards-rejected.json",
+        "report_title": "Where can wind turbines be sited in province Utrecht?",
+        "decision_table_id": "DT-wind-utrecht-poc1",
+        "decision_table_title": "Where can wind turbines be sited in province Utrecht? "
+                               "Decision table (programming stage)",
+        "prov_namespace": "ldttoolbox:poc:wind:",
+        "headline_note": (
+            "Semantics: the final zone is the union of the formalized inclusion zones (Gebied windenergie \u22653 MW "
+            "path, Gebied kleine windturbine \u226420 m path, Landelijk gebied scope) clipped to the province "
+            "boundary, minus Natura 2000 areas, ganzenrustgebieden and the Natuurnetwerk Nederland (default "
+            "exclusion; art. 6.3 lid 2 exceptions are discretionary). Stiltegebied / Groene contour overlays are "
+            "markers (attention / compensation), not eliminations. This is a programming-stage screening artifact; "
+            "per-location permission assessment remains required."
+        ),
+        "limitations": lambda cov, abst: [
+            "The province-scale 'Gebied windenergie' polygon (1166.5 km\u00b2) is a designation envelope, not a "
+            "'suitable everywhere' area: clustering, removal duty, beeldkwaliteit and municipal omgevingsplan "
+            "rules still apply per location.",
+            (
+                f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms such as "
+                "'onevenredig aantasten', deviation paths, noise ambitions): they carry no executable predicate "
+                "(cite-or-abstain) and are routed to the V4 human-expert checkpoint; the deterministic map "
+                f"consumed only the {cov['formalized']} formalized rules."
+            ),
+            "Abstained topics (no verified provincial citation): stikstof deposition, national wind-turbine noise "
+            "limits (Wgh/Bal), tip height/setback distances, Natura 2000 GIO absence, ET_wind tracking-layer "
+            "misrepresentation risk, the pending 1-1-2027 amendment.",
+        ],
+    },
+    "zon": {
+        "shard": "corpus/evidence-zon.json",
+        "ledger": "corpus/normcards-rejected-zon.json",
+        "report_title": "Where can zonnevelden (solar fields) be sited in province Utrecht?",
+        "decision_table_id": "DT-zon-utrecht-poc1",
+        "decision_table_title": "Where can zonnevelden (solar fields) be sited in province Utrecht? "
+                                "Decision table (programming stage)",
+        "prov_namespace": "ldttoolbox:poc:zon:",
+        "headline_note": (
+            "Semantics: the opportunity zone is the 'Gebied zonneveld' designation (art. 5.5 lid 1) clipped to "
+            "the province boundary, minus the Natura 2000 areas and ganzenrustgebieden (toelichting on art. 5.5: "
+            "the article covers the landelijk gebied excluding those areas, and the verordening contains no solar "
+            "provisions for the stedelijk gebied). The Groene contour overlay is a compensation marker (art. 6.5a "
+            "lid 3: new nature as compensation realised within 25 years of panel placement \u2014 zonnevelden "
+            "inside the contour are implicitly temporary), not an elimination. Rooftop/facade solar is outside "
+            "the zonneveld object definition (Bijlage I). Programming-stage screening artifact; per-location "
+            "assessment remains required."
+        ),
+        "limitations": lambda cov, abst: [
+            "The 'Gebied zonneveld' designation is a designation envelope: the three qualitative proviso's of "
+            "art. 5.5 lid 1 (recognisable structures / landscape integration, soil- and water-quality-fitting "
+            "panel arrangement, removal duty) are per-project assessments routed to V4/procedural review, never "
+            "executed as geometry.",
+            (
+                f"{cov['ambiguous']} of {cov['output_rules']} rules are 'ambiguous' (routed to V4); "
+                f"{cov['formalized']} formalized and {cov['rejected']} rejected as non-binding "
+                "(definition / visie ambition) — every zonneveld norm in the verordening is either executed or "
+                "explicitly grounded as non-executable."
+            ),
+            "Abstained topics (no verified provincial citation): stikstof, national solar-field rules "
+            "(BAL / Bouwbesluit / grid law), the energy test for the zon track, rooftop/facade solar (outside "
+            "the zonneveld definition), GIO download access, the pending 1-1-2027 amendment.",
+        ],
+    },
+    "bos": {
+        "shard": "corpus/evidence-bos.json",
+        "ledger": "corpus/normcards-rejected-bos.json",
+        "report_title": "Where can new nature / forest planting be realised in province Utrecht?",
+        "decision_table_id": "DT-bos-utrecht-poc1",
+        "decision_table_title": "Where can new nature / forest planting be realised in province Utrecht? "
+                                "Decision table (programming stage)",
+        "prov_namespace": "ldttoolbox:poc:bos:",
+        "headline_note": (
+            "Semantics: the opportunity zone is the Groene contour \u2014 the provincial zoekgebied for new "
+            "nature (art. 6.4 lid 1) \u2014 clipped to the province boundary; forest planting proceeds through "
+            "voluntary conversion, with realised nature added to the Natuurnetwerk Nederland. The art. 6.5 lid 2 "
+            "onder d \u22651:1 compensation ratio is a marker attached to the contour, and the 'Waardevolle "
+            "Houtopstanden - oude bosgroeiplaatsen' (art. 6.13) a conditional overlay (protect existing "
+            "old-forest values) \u2014 neither eliminates area. Programming-stage screening artifact; realisation "
+            "runs through area processes and the Natuurbeheerplan."
+        ),
+        "limitations": lambda cov, abst: [
+            "The Groene contour is a zoekgebied (search area) for voluntary conversion: art. 6.4 obliges "
+            "omgevingsplannen to keep possibilities for new nature open within the contour \u2014 it binds plans, "
+            "not landowners; actual realisation depends on voluntary participation, land acquisition and the "
+            "Natuurbeheerplan (see the abstentions ledger).",
+            (
+                f"{cov['ambiguous']} of {cov['output_rules']} rules are 'ambiguous' (routed to V4; the art. 6.15 "
+                "velling-reporting exemption thresholds are deterministic but govern forest management, not "
+                f"siting); {cov['formalized']} formalized, {cov['rejected']} rejected as non-binding ambition."
+            ),
+            "Abstained topics (no verified provincial citation): stikstof, the NNN-addition procedure, land "
+            "acquisition / area-process financing, nature-type selection (Natuurbeheerplan maatgevend), GIO "
+            "download access, the pending 1-1-2027 amendment.",
+        ],
+    },
+}
 
 _LIMITATIONS = [
     "GIO geometry via the DSO Omgevingsdocumenten Downloaden API is key-gated (HTTP 401, verified); "
     "provincial zones are therefore served by the province's own vigerende-verordening open data "
     "(agrest Omgevingsverordening FeatureServer, IMOW ids + AKN DOCUMENT_URL) as provenance aliases of "
     "the Bijlage-II join-ids cited on each NormCard.",
-    "The province-scale 'Gebied windenergie' polygon (1166.5 km\u00b2) is a designation envelope, not a "
-    "'suitable everywhere' area: clustering, removal duty, beeldkwaliteit and municipal omgevingsplan "
-    "rules still apply per location.",
-    "13 of 24 rules are intentionally 'ambiguous' (open norms such as 'onevenredig aantasten', deviation "
-    "paths, noise ambitions): they carry no executable predicate (cite-or-abstain) and are routed to the "
-    "V4 human-expert checkpoint; the deterministic map consumed only the 9 formalized rules.",
-    "Abstained topics (no verified provincial citation): stikstof deposition, national wind-turbine noise "
-    "limits (Wgh/Bal), tip height/setback distances, Natura 2000 GIO absence, ET_wind tracking-layer "
-    "misrepresentation risk, the pending 1-1-2027 amendment.",
     "Natura 2000 geometry is the 2021 national designation layer (14 features, province hub copy), not a "
     "provincial instrument; ganzenrustgebieden come from the verordening's own designation set.",
     "A major verordening/visie amendment is in progress (PS decision expected 18-11-2026, in werking "
@@ -385,7 +497,9 @@ def count_repairs(steps: Sequence[str]) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--use-case", default="wind", help="use case id (default: wind)")
+    ap.add_argument("--use-case", default="wind",
+                    help="use case id (default: wind; wind=wind turbines, zon=solar fields, "
+                         "bos=new nature/forest planting)")
     ap.add_argument("--refresh", action="store_true", help="ignore the layer cache and re-download live layers")
     ap.add_argument("--bbox", default=None,
                     help="optional clip xmin,ymin,xmax,ymax in EPSG:28992 applied to the AOI")
@@ -434,15 +548,19 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
               f"stage={request['policyStage']} AOI={aoi.area/1e6:.3f} km2")
 
     # ---------------- 2. Norm Analyst ------------------------------------- #
+    track_cfg = TRACKS.get(args.use_case)
+    if track_cfg is None:
+        raise SystemExit(f"unknown use case {args.use_case!r}: no track registered (known: {sorted(TRACKS)})")
+    shard_rel = track_cfg["shard"]
     with log.stage("norm-analyst", "Norm Analyst: harvest NormCards (deterministic replay)",
-                   agents.NormAnalyst.agent_name, used=["corpus/evidence-wind.json", "corpus/sources.json"],
+                   agents.NormAnalyst.agent_name, used=[shard_rel, "corpus/sources.json"],
                    generated=["normcards.json", "normcards-rejected.json"]):
         analyst = agents.NormAnalyst()
-        cards_obj = analyst.read(agents.CORPUS_DIR / "evidence-wind.json")
+        cards_obj = analyst.read(POC_ROOT / shard_rel)
         cards = [c.to_dict() for c in cards_obj]
         for c in cards:
             contracts.validate(c, "norm-card")
-        rejected_ledger = json.loads((agents.CORPUS_DIR / "normcards-rejected.json").read_text(encoding="utf-8"))
+        rejected_ledger = json.loads((POC_ROOT / track_cfg["ledger"]).read_text(encoding="utf-8"))
         rejected_ledger["analystRejectedThisRun"] = analyst.rejected
         dump_json(run_dir / "normcards.json", cards, indent=1)
         dump_json(run_dir / "normcards-rejected.json", rejected_ledger, indent=1)
@@ -574,6 +692,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         report_input = cartographer.build_report_input(
             rich_zones, sources=sources_prov,
             outputs={"geojson": str(gj), "gml": gml["path"] if gml["ok"] else None, "gmlStatus": gml},
+            title=track_cfg["report_title"],
         )
         dump_json(run_dir / "report_input.json", report_input, indent=1)
 
@@ -596,6 +715,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             inclusion_area_m2=inclusion_zone["areaM2"] if inclusion_zone else None,
             degradations=degradations,
             run_id=run_id,
+            track=args.use_case,
         )
         verdict0 = reports_l[-1]["verdict"]
         print(f"[critic] pre-explainer pipeline verdict: {verdict0}")
@@ -607,7 +727,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                    generated=["decision-table.json", "decision-table.md", "prov.json"]):
         expl = explainer.Explainer()
         prov_narrative = (
-            f"run {run_id} of {RUN_VERSION}; norm corpus poc/corpus/evidence-wind.json replayed by "
+            f"run {run_id} of {RUN_VERSION}; norm corpus poc/{shard_rel} replayed by "
             f"{agents.ANALYST_RUN}; rules by {agents.FORMALIZER_RUN}; instrument {INSTRUMENT}; "
             f"zone geometry from provincial open data (agrest Omgevingsverordening FeatureServer + "
             f"province ArcGIS hub), lastChecked stamps in layers.json; full PROV in prov.json"
@@ -615,6 +735,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         dt = expl.build_decision_table(
             request=request, normcards=cards, formalrules=rules,
             generated_at=utcnow(), prov_narrative=prov_narrative,
+            table_id=track_cfg["decision_table_id"], title=track_cfg["decision_table_title"],
         )
         dump_json(run_dir / "decision-table.json", dt, indent=1)
         (run_dir / "decision-table.md").write_text(expl.decision_table_markdown(dt), encoding="utf-8")
@@ -633,6 +754,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             inclusion_area_m2=inclusion_zone["areaM2"] if inclusion_zone else None,
             degradations=degradations,
             run_id=run_id,
+            track=args.use_case,
         )
         vdir = run_dir / "validation"
         for vr in reports_l:
@@ -644,7 +766,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         # PROV bundle (hashes over what is already on disk)
         ent = [
             explainer.entity_for(run_dir / "request.json", "OpportunityMapRequest"),
-            explainer.entity_for(POC_ROOT / "corpus" / "evidence-wind.json", "evidence shard"),
+            explainer.entity_for(POC_ROOT / shard_rel, "evidence shard"),
             explainer.entity_for(POC_ROOT / "corpus" / "sources.json", "document source registry"),
             explainer.entity_for(POC_ROOT / "data" / "sources.json", "geo source registry"),
             explainer.entity_for(run_dir / "normcards.json", "NormCard[]"),
@@ -670,6 +792,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             run_id=run_id,
             generated_at=utcnow(),
             request_id=str(request["id"]),
+            namespace=track_cfg["prov_namespace"],
             agents=[
                 ORCHESTRATOR_AGENT,
                 {"id": "legal-recon-agent", "name": "NormAnalyst", "version": agents.ANALYST_RUN,
@@ -694,7 +817,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             derivations=[
                 {"generatedEntity": "formalrules.json", "usedEntity": "normcards.json",
                  "note": "NormFormalizer deterministic templates"},
-                {"generatedEntity": "normcards.json", "usedEntity": "evidence-wind.json",
+                {"generatedEntity": "normcards.json", "usedEntity": Path(shard_rel).name,
                  "note": "NormAnalyst replay (cite-or-abstain)"},
                 {"generatedEntity": "zones.json", "usedEntity": "formalrules.json",
                  "note": "engine executed FormalRules over fetched layers"},
@@ -741,14 +864,6 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             {"k": "Zones emitted", "v": str(len(rich_zones)), "s": "incl. markers (attention/conditional/compensation)"},
             {"k": "Geometry repairs", "v": str(total_repairs), "s": "invalid-as-served features, recorded in prov"},
         ]
-        headline_note = (
-            "Semantics: the final zone is the union of the formalized inclusion zones (Gebied windenergie \u22653 MW "
-            "path, Gebied kleine windturbine \u226420 m path, Landelijk gebied scope) clipped to the province "
-            "boundary, minus Natura 2000 areas, ganzenrustgebieden and the Natuurnetwerk Nederland (default "
-            "exclusion; art. 6.3 lid 2 exceptions are discretionary). Stiltegebied / Groene contour overlays are "
-            "markers (attention / compensation), not eliminations. This is a programming-stage screening artifact; "
-            "per-location permission assessment remains required."
-        )
         zones_table = [
             {
                 "id": z.get("id"),
@@ -804,12 +919,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 for s in prov["hadPrimarySource"]
             ],
         }
-        limitations = list(_LIMITATIONS)
+        limitations = list(_LIMITATIONS) + list(
+            track_cfg["limitations"](cov, rejected_ledger.get("abstentions", []))
+        )
         for d in degradations:
             limitations.append(f"Degradation this run: {json.dumps(d, ensure_ascii=False)}")
         report_data = {
             "run": {
-                "title": "Where can wind turbines be sited in province Utrecht?",
+                "title": track_cfg["report_title"],
                 "run_id": run_id,
                 "use_case": args.use_case,
                 "generated_at": utcnow(),
@@ -818,7 +935,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 "badges": badges,
             },
             "headline": headline,
-            "headline_note": headline_note,
+            "headline_note": track_cfg["headline_note"],
             "map": map_data,
             "zones_table": zones_table,
             "decision": {"columns": dt["columns"], "rows": dt["rows"]},
