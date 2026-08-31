@@ -417,3 +417,117 @@ class RealCacheEndToEnd(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# --------------------------------------------------------------------------- #
+# verdict-assertion gate (qwen3.8 fabricated "eindstatus van de validatie is
+# 'fail'" on a PASSING report; numbers and ids were grounded, the claim was not)
+# --------------------------------------------------------------------------- #
+
+class VerdictAssertionGateTests(unittest.TestCase):
+
+    def _report(self):
+        spec = _spec("SC-GATE-DROP",
+                     {"type": "policy_variant", "normCardId": "NC-02",
+                      "provenanceNote": "test"},
+                     [{"ruleId": "FR-T-02", "action": "drop"}])
+        report = scenarios.run_scenario_set(
+            baseline=_baseline(), layers=LAYERS, specs=[spec],
+            scenario_set_id="SSET-gate", report_id="SR-gate")
+        report.pop("_validation")
+        report.pop("_control_rich")
+        return report
+
+    def test_fabricated_fail_claim_on_passing_report_is_rejected(self):
+        report = self._report()
+        prose = (scenarios.deterministic_narrative(report)
+                 + " De eindstatus van de validatie is 'fail'.")
+        check = scenarios.check_narrative_grounding(prose, report)
+        self.assertEqual(check["status"], "fail")
+        self.assertIn("verdict word", check["detail"])
+
+    def test_passing_report_prose_may_say_pass(self):
+        report = self._report()
+        row = report["scenarios"][0]
+        prose = (f"Scenario {row['scenarioId']} shifts the zone by "
+                 f"{row['deltaVsControlKm2']:+.3f} km2; overall verdict pass.")
+        check = scenarios.check_narrative_grounding(prose, report)
+        self.assertEqual(check["status"], "pass", check["detail"])
+
+    def test_fail_report_prose_may_say_fail(self):
+        report = self._report()
+        report["verdict"] = "fail"
+        row = report["scenarios"][0]
+        prose = (f"Scenario {row['scenarioId']} shifts the zone by "
+                 f"{row['deltaVsControlKm2']:+.3f} km2; the run failed.")
+        check = scenarios.check_narrative_grounding(prose, report)
+        self.assertEqual(check["status"], "pass", check["detail"])
+
+    def test_fail_report_prose_may_not_claim_pass(self):
+        report = self._report()
+        report["verdict"] = "fail"
+        row = report["scenarios"][0]
+        prose = (f"Scenario {row['scenarioId']} shifts the zone by "
+                 f"{row['deltaVsControlKm2']:+.3f} km2; overall pass.")
+        check = scenarios.check_narrative_grounding(prose, report)
+        self.assertEqual(check["status"], "fail")
+
+
+class NarrationSeesFinalVerdictTests(unittest.TestCase):
+    """Regression: the narrator must never see the placeholder verdict."""
+
+    def test_narrator_receives_report_with_final_verdict(self):
+        seen = []
+
+        def spy(report):
+            seen.append(report.get("verdict"))
+            row = report["scenarios"][0]
+            return (f"Scenario {row['scenarioId']} shifts the zone by "
+                    f"{row['deltaVsControlKm2']:+.3f} km2.")
+
+        spec = _spec("SC-GATE-DROP",
+                     {"type": "policy_variant", "normCardId": "NC-02",
+                      "provenanceNote": "test"},
+                     [{"ruleId": "FR-T-02", "action": "drop"}])
+        report = scenarios.run_scenario_set(
+            baseline=_baseline(), layers=LAYERS, specs=[spec],
+            scenario_set_id="SSET-gate", report_id="SR-gate", narrator=spy)
+        self.assertEqual(seen, [report["verdict"]])
+        self.assertEqual(report["verdict"], "pass")
+
+
+class MagnitudeFoldTests(unittest.TestCase):
+    """Narrations may state a negative delta as its magnitude (afname van X)."""
+
+    def test_magnitude_of_reported_negative_resolves(self):
+        spec = _spec("SC-GATE-DROP",
+                     {"type": "policy_variant", "normCardId": "NC-02",
+                      "provenanceNote": "test"},
+                     [{"ruleId": "FR-T-02", "action": "drop"}])
+        report = scenarios.run_scenario_set(
+            baseline=_baseline(), layers=LAYERS, specs=[spec],
+            scenario_set_id="SSET-gate", report_id="SR-gate")
+        report.pop("_validation"); report.pop("_control_rich")
+        row = report["scenarios"][0]
+        delta = abs(float(row["deltaVsControlKm2"]))
+        self.assertGreater(delta, 0.0)
+        prose = (f"Scenario {row['scenarioId']} geeft een afname van "
+                 f"{delta:.6f} km2 ten opzichte van de controle.")
+        check = scenarios.check_narrative_grounding(prose, report)
+        self.assertEqual(check["status"], "pass", check["detail"])
+
+    def test_unreported_magnitude_still_rejected(self):
+        spec = _spec("SC-GATE-DROP",
+                     {"type": "policy_variant", "normCardId": "NC-02",
+                      "provenanceNote": "test"},
+                     [{"ruleId": "FR-T-02", "action": "drop"}])
+        report = scenarios.run_scenario_set(
+            baseline=_baseline(), layers=LAYERS, specs=[spec],
+            scenario_set_id="SSET-gate", report_id="SR-gate")
+        report.pop("_validation"); report.pop("_control_rich")
+        row = report["scenarios"][0]
+        fake = abs(float(row["deltaVsControlKm2"])) + 111.111
+        prose = (f"Scenario {row['scenarioId']} geeft een afname van "
+                 f"{fake:.3f} km2.")
+        check = scenarios.check_narrative_grounding(prose, report)
+        self.assertEqual(check["status"], "fail")

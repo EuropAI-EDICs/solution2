@@ -49,12 +49,26 @@ __all__ = [
 
 AUTHOR_DETERMINISTIC = "deterministic-scenario-author#poc-v1-auto"
 AUTHOR_LLM = "llm-proposal"
+NARRATOR_LLM_RUN = "llm-narrator"
 
 #: default exploration distance (m) for hypothetical setbacks on un-buffered
 #: exclusion rules — mirrors the demo sets; recorded in every proposal
 HYPOTHETICAL_SETBACK_M = 500.0
 
 DETERMINISTIC_AUTHOR_RUN = AUTHOR_DETERMINISTIC
+
+
+def _llm_timeout(default: float = 180.0) -> float:
+    try:
+        return float(os.environ.get("LDT_SCENARIO_LLM_TIMEOUT", default))
+    except ValueError:
+        return default
+
+
+def strip_reasoning(text: str) -> str:
+    """Remove ``<think>…</think>`` blocks some open models emit before the
+    answer (e.g. Qwen3 reasoning mode); harmless when absent."""
+    return re.sub(r"<think>.*?</think>", "", str(text), flags=re.S).strip()
 
 
 class ScenarioAuthorError(ValueError):
@@ -217,6 +231,60 @@ class DeterministicScenarioAuthor:
 # LLM author (seam S7 — proposals only, gated before execution)
 # --------------------------------------------------------------------------- #
 
+#: benign field aliases some models emit despite the vocabulary in the prompt;
+#: normalized transparently at the seam BEFORE validation — every other key
+#: must match the schema exactly or the proposal is ledgered as invalid
+_SPEC_ALIASES = {"scenarioId": "id", "title": "name", "specId": "id"}
+_MUTATION_ALIASES = {"type": "action", "distance": "bufferDistanceM",
+                     "distanceM": "bufferDistanceM"}
+#: keys a flat basis form leaves at the top level
+_BASIS_BODY_KEYS = ("normCardId", "variedAspect", "rationale")
+
+
+def _normalize_aliases(item: Dict[str, Any], baseline_object_type: str = "") -> Dict[str, Any]:
+    item = dict((_SPEC_ALIASES.get(k, k), v) for k, v in item.items())
+    fixes: List[str] = []
+    # flat basis form: "basis": "policy_variant", "normCardId": "NC-Z-03", …
+    if isinstance(item.get("basis"), str):
+        basis = {"type": item["basis"]}
+        for k in _BASIS_BODY_KEYS:
+            if k in item:
+                basis[k] = item.pop(k)
+                fixes.append(f"basis.{k} folded from flat form")
+        item["basis"] = basis
+    # mutation action aliases
+    if isinstance(item.get("mutations"), list):
+        fixed = []
+        for m in item["mutations"]:
+            if isinstance(m, dict):
+                fixed.append(dict((_MUTATION_ALIASES.get(k, k), v) for k, v in m.items()))
+            else:
+                fixed.append(m)
+        item["mutations"] = fixed
+    # benignly-missing form fields the seam completes deterministically (no
+    # legal content is invented — objectType is the baseline's, provenanceNote
+    # is the seam's own disclosure, name is derived from the id)
+    if "name" not in item and item.get("id"):
+        item["name"] = f"Model proposal {item['id']}"
+        fixes.append("name synthesized from id")
+    if not item.get("objectType") and baseline_object_type:
+        item["objectType"] = baseline_object_type
+        fixes.append("objectType defaulted to the baseline request's")
+    if isinstance(item.get("basis"), dict) and not item["basis"].get("provenanceNote"):
+        btype = item["basis"].get("type", "")
+        item["basis"]["provenanceNote"] = (
+            ("NOT legally grounded: model-proposed hypothetical (no normCardId cited); "
+             "analytical variation only" if btype == "hypothetical" else
+             f"model-proposed {btype or 'variant'} on the cited norm card; the "
+             "deterministic critic re-grounds every id against the baseline run")
+        )
+        fixes.append("basis.provenanceNote synthesized by the seam")
+    if fixes and "notes" in item and isinstance(item["notes"], str):
+        item["notes"] = (item["notes"].rstrip(". ") + ". "
+                         + " Seam normalized: " + "; ".join(fixes) + ".")
+    return item
+
+
 class LLMScenarioAuthor:
     """Proposes ScenarioSpecs from an OpenAI-compatible chat endpoint.
 
@@ -233,11 +301,22 @@ class LLMScenarioAuthor:
 
     def __init__(self, endpoint: Optional[str] = None, model: Optional[str] = None,
                  llm_call: Optional[Callable[..., str]] = None,
-                 timeout: float = 120.0) -> None:
+                 timeout: Optional[float] = None) -> None:
         self.endpoint = endpoint if endpoint is not None else os.environ.get("LDT_SCENARIO_LLM_ENDPOINT", "")
         self.model = model or os.environ.get("LDT_SCENARIO_LLM_MODEL", "open-model-local")
-        self._llm_call = llm_call or self._http_chat_completions
-        self.timeout = timeout
+        self._llm_call = llm_call or self._resolve_transport()
+        self.timeout = timeout if timeout is not None else _llm_timeout()
+
+    @staticmethod
+    def _resolve_transport() -> Callable[..., str]:
+        """``LDT_SCENARIO_LLM_API`` selects the wire format: ``openai``
+        (default, any OpenAI-compatible server) or ``ollama`` (native
+        /api/chat — the ONLY way to reliably disable thinking mode on
+        qwen3-style models served by Ollama; their /v1 layer ignores
+        ``think: false`` and burns the whole completion budget on <think>)."""
+        if os.environ.get("LDT_SCENARIO_LLM_API", "openai").lower() == "ollama":
+            return LLMScenarioAuthor._ollama_chat
+        return LLMScenarioAuthor._http_chat_completions
 
     # -- transport -----------------------------------------------------------
 
@@ -246,15 +325,49 @@ class LLMScenarioAuthor:
                                timeout: float) -> str:
         import requests  # toolchain dependency; only imported when actually used
 
+        # Ollama's OpenAI-compat layer honours "think": false to disable
+        # reasoning mode (qwen3-style models otherwise emit very long <think>
+        # chains that can occupy the single-generation server for many
+        # minutes); unknown fields are ignored by vLLM/LM Studio. Set
+        # LDT_SCENARIO_LLM_DISABLE_THINK=0 to omit the flag. max_tokens bounds
+        # runaway generations client-independently.
+        payload: Dict[str, Any] = {
+            "model": model, "temperature": 0, "max_tokens": 4096,
+            "messages": [{"role": "system", "content": system},
+                         {"role": "user", "content": user}],
+        }
+        if os.environ.get("LDT_SCENARIO_LLM_DISABLE_THINK", "1") != "0":
+            payload["think"] = False
         resp = requests.post(
             f"{endpoint.rstrip('/')}/chat/completions",
-            json={"model": model, "temperature": 0,
-                  "messages": [{"role": "system", "content": system},
-                               {"role": "user", "content": user}]},
+            json=payload,
             timeout=timeout,
         )
         resp.raise_for_status()
         return resp.json()["choices"][0]["message"]["content"]
+
+    @staticmethod
+    def _ollama_chat(endpoint: str, model: str, system: str, user: str,
+                     timeout: float) -> str:
+        import requests  # toolchain dependency; only imported when actually used
+
+        base = endpoint.rstrip("/")
+        if base.endswith("/v1"):
+            base = base[:-3]
+        payload: Dict[str, Any] = {
+            "model": model, "stream": False,
+            "options": {"temperature": 0, "num_predict": 4096},
+            "messages": [{"role": "system", "content": system},
+                         {"role": "user", "content": user}],
+        }
+        if os.environ.get("LDT_SCENARIO_LLM_DISABLE_THINK", "1") != "0":
+            payload["think"] = False  # native API honours this (the /v1 layer does not)
+        resp = requests.post(f"{base}/api/chat", json=payload, timeout=timeout)
+        resp.raise_for_status()
+        body = resp.json()
+        if not body.get("done", True):
+            raise ScenarioAuthorError(f"ollama chat not done: {str(body)[:200]}")
+        return (body.get("message") or {}).get("content") or ""
 
     # -- prompt ---------------------------------------------------------------
 
@@ -274,7 +387,15 @@ class LLMScenarioAuthor:
             "normCardId) or hypothetical (no legal grounding; requires rationale — "
             "use it only for topics the abstention list marks as uncited); (5) "
             "prefer scenarios a provincial policy maker would actually deliberate; "
-            "(6) do not exceed the given maximum number of scenarios."
+            "(6) do not exceed the given maximum number of scenarios; (7) every "
+            "object must have EXACTLY this shape (fill name/objectType yourself; "
+            "provenanceNote is your own one-sentence provenance disclosure):\n"
+            '{"id": "SC-…-SHORT-SLUG", "name": "human-readable variant name", '
+            '"objectType": "<the digest objectType>", '
+            '"basis": {"type": "policy_variant", "normCardId": "NC-…", '
+            '"provenanceNote": "one sentence"}, '
+            '"mutations": [{"ruleId": "FR-…", "action": "set_buffer_distance_m", '
+            '"bufferDistanceM": 300}]}'
         )
 
     @staticmethod
@@ -304,7 +425,10 @@ class LLMScenarioAuthor:
         accepted: List[Dict[str, Any]] = []
         rejected: List[Dict[str, Any]] = []
         seen_ids = set()
-        proposed_by = f"{AUTHOR_LLM}#{self.model}"
+        # identity stamp must satisfy the schema pattern (lowercase slug); the
+        # raw model tag (e.g. "Qwen3.6:27B-MLX") is sanitized deterministically
+        model_slug = re.sub(r"[^a-z0-9]+", "-", self.model.lower()).strip("-")
+        proposed_by = f"{AUTHOR_LLM}#{model_slug}"
         for item in items:
             if not isinstance(item, dict):
                 rejected.append({"kind": "not-an-object", "proposal": item,
@@ -316,7 +440,9 @@ class LLMScenarioAuthor:
                                  "reason": "scenario id already accepted"})
                 continue
             original_by = item.get("proposedBy")
-            item = dict(item)
+            base_otype = str(baseline.get("objectType")
+                             or (baseline.get("request") or {}).get("objectType", ""))
+            item = _normalize_aliases(item, base_otype)
             item["proposedBy"] = proposed_by  # the seam owns identity, not the model
             try:
                 contracts.validate(item, "scenario-spec")
@@ -357,16 +483,32 @@ class LLMScenarioAuthor:
 
     @staticmethod
     def _extract_json_array(raw: str) -> List[Any]:
-        text = str(raw).strip()
-        try:
-            parsed = json.loads(text)
-        except json.JSONDecodeError:
-            lo, hi = text.find("["), text.rfind("]")
-            if lo == -1 or hi <= lo:
-                raise ScenarioAuthorError(
-                    f"LLM response contains no JSON array (first 200 chars: {text[:200]!r})"
-                )
-            parsed = json.loads(text[lo:hi + 1])
+        text = strip_reasoning(raw)
+        candidates: List[str] = [text]
+        # fenced ```json blocks first (models often wrap arrays), then the
+        # whole (reasoning-stripped) text, then a bracket slice of each
+        for m in re.finditer(r"```(?:json)?\s*(.*?)```", text, flags=re.S):
+            candidates.append(m.group(1).strip())
+        parsed = None
+        for cand in candidates:
+            for attempt in (cand,):
+                try:
+                    parsed = json.loads(attempt)
+                    break
+                except json.JSONDecodeError:
+                    lo, hi = attempt.find("["), attempt.rfind("]")
+                    if lo != -1 and hi > lo:
+                        try:
+                            parsed = json.loads(attempt[lo:hi + 1])
+                            break
+                        except json.JSONDecodeError:
+                            continue
+            if parsed is not None:
+                break
+        if parsed is None:
+            raise ScenarioAuthorError(
+                f"LLM response contains no JSON array (first 200 chars: {text[:200]!r})"
+            )
         if isinstance(parsed, dict):
             parsed = parsed.get("scenarios") or [parsed]
         if not isinstance(parsed, list):
@@ -410,3 +552,92 @@ def build_llm_digest(baseline: Mapping[str, Any], max_scenarios: int) -> Dict[st
             "hypothetical": "requires rationale; use ONLY for abstention topics",
         },
     }
+
+
+# --------------------------------------------------------------------------- #
+# LLM narrator (seam S8 — prose over the report, numeric-grounding gated)
+# --------------------------------------------------------------------------- #
+
+class LLMScenarioNarrator:
+    """Narrates a finished ScenarioReport through the same transport as the
+    LLM author. Callable interface: ``narrator(report) -> str``.
+
+    The output is NEVER trusted directly: the deterministic numeric-grounding
+    check (``scenarios.check_narrative_grounding``) gates it — every number in
+    the prose must resolve to the report, every scenario id must exist. Wrap
+    with :func:`make_fallback_narrator` to fall back (loudly) to the
+    deterministic narration when the gate rejects the model's prose.
+    """
+
+    def __init__(self, endpoint: Optional[str] = None, model: Optional[str] = None,
+                 llm_call: Optional[Callable[..., str]] = None,
+                 timeout: Optional[float] = None) -> None:
+        self.endpoint = (endpoint if endpoint is not None
+                         else os.environ.get("LDT_SCENARIO_LLM_ENDPOINT", ""))
+        self.model = model or os.environ.get("LDT_SCENARIO_LLM_MODEL", "open-model-local")
+        self._llm_call = llm_call or LLMScenarioAuthor._resolve_transport()
+        self.timeout = timeout if timeout is not None else _llm_timeout()
+
+    @staticmethod
+    def system_prompt() -> str:
+        return (
+            "You narrate scenario reports of a regulatory opportunity-zone "
+            "pipeline for provincial policy makers. STRICT RULES: (1) use ONLY "
+            "numbers that appear in the provided report JSON — you may reformat "
+            "them (1181.982 as 1,181.98 or as 'roughly 1,180' is fine ONLY if "
+            "you also give the exact figure), never round differently without "
+            "the exact number present, never compute new numbers (no sums, "
+            "averages or comparisons the report does not state); you may state "
+            "a negative delta as its magnitude ('afname van 64.675 km2' for "
+            "-64.675) — copy the digits exactly; (2) mention "
+            "scenario ids exactly as given (SC-…); (3) no new claims, no legal "
+            "advice, no numbers from memory; (4) do NOT characterize the "
+            "validation outcome in your own words — you may state the report's "
+            "verdict field verbatim, but never use the words fail/failed "
+            "unless the report verdict is exactly \"fail\"; (5) 5-8 sentences, "
+            "plain text, Dutch policy register is welcome but keep the ids and "
+            "units."
+        )
+
+    def __call__(self, report: Mapping[str, Any]) -> str:
+        if not self.endpoint:
+            raise ScenarioAuthorError(
+                "LLMScenarioNarrator requires LDT_SCENARIO_LLM_ENDPOINT; "
+                "refusing to guess"
+            )
+        compact = {k: v for k, v in report.items() if not k.startswith("_")}
+        raw = self._llm_call(self.endpoint, self.model, self.system_prompt(),
+                             json.dumps(compact, ensure_ascii=False), self.timeout)
+        return strip_reasoning(raw)
+
+
+def make_fallback_narrator(narrator: Callable[[Mapping[str, Any]], str],
+                           fallback: Callable[[Mapping[str, Any]], str],
+                           events: Optional[List[Dict[str, Any]]] = None):
+    """Wrap ``narrator`` so a gate rejection falls back loudly, never silently.
+
+    The wrapper runs the deterministic grounding check on the model's prose;
+    on pass the prose is used as-is; on failure (or transport error) the
+    ``fallback`` narration is published, and the rejection (reason + rejected
+    prose) is appended to ``events`` so the CLI can persist it next to the
+    artifacts — the rejection is a first-class, visible outcome.
+    """
+    from pipeline import scenarios  # local import keeps module deps one-way
+
+    events = events if events is not None else []
+
+    def wrapped(report: Mapping[str, Any]) -> str:
+        try:
+            prose = narrator(report)
+        except Exception as exc:  # transport errors fall back too
+            events.append({"kind": "narrator-error", "reason": f"{type(exc).__name__}: {exc}",
+                           "prose": None})
+            return fallback(report)
+        check = scenarios.check_narrative_grounding(prose, report)
+        if check["status"] == "pass":
+            return prose
+        events.append({"kind": "narrative-grounding-rejected",
+                       "reason": check["detail"], "prose": prose})
+        return fallback(report)
+
+    return wrapped

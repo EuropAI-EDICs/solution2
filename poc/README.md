@@ -37,7 +37,7 @@ python3 poc/run.py --use-case zon      # solar fields (zonnevelden, art. 5.5)
 python3 poc/run.py --use-case bos      # new nature / forest planting (art. 6.4)
 python3 poc/run.py --refresh           # force live re-download of every layer
 python3 poc/run.py --bbox 130000,440000,160000,470000   # optional EPSG:28992 clip
-python3 -m unittest discover -s poc/tests               # offline test suite (153 tests)
+python3 -m unittest discover -s poc/tests               # offline test suite (167 tests)
 ```
 
 No API keys are used anywhere (the DSO GIO download API is key-gated and was
@@ -207,6 +207,25 @@ by the seam, not the model) through the same schema; mutations are restricted
 to the engine's actual inputs, V2 grounds every `normCardId`/`ruleId` against
 the baseline run, and unverifiable proposals land in `proposals-rejected.json`
 (`poc/pipeline/scenario_author.py`).
+
+B2 (live open model, local Ollama) is wired: `--narrator llm` has the same
+numeric-grounding gate with a loud deterministic fallback
+(`narrative-rejected.md`); connect with
+
+```bash
+export LDT_SCENARIO_LLM_ENDPOINT=http://localhost:11434   # Ollama base
+export LDT_SCENARIO_LLM_API=ollama                        # native API: think:false works
+export LDT_SCENARIO_LLM_MODEL=qwen3.8:latest
+python3 poc/scenarios/run.py --use-case zon --author llm --narrator llm
+python3 poc/scenarios/compare_authors.py --use-case zon   # golden-set author regression
+```
+
+Canonical LLM-authored run: `poc/scenario-runs/20260831T175842Z-zon-scen/`
+(qwen3.8, 10/10 proposals accepted — every id real; the model's Dutch
+narration passed every grounding gate and is published as
+`scenario-narrative.md`; the rejection path — id drift, sign-fold
+magnitudes, verdict assertions — is covered by 169 offline tests).
+Findings and lessons: `docs/GENAI_SEAMS.md` §5.
 
 ## Cross-track conflict overlay (energy vs nature, deterministic)
 

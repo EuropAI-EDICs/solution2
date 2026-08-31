@@ -1,0 +1,193 @@
+{
+ "author": "llm",
+ "authorModel": "qwen3.8:latest",
+ "authorRun": "llm-proposal#qwen3-8-latest",
+ "maxScenarios": 10,
+ "accepted": 10,
+ "specs": [
+  {
+   "id": "SC-01-EXCLUSION-BUFFER-500",
+   "name": "Extended exclusion buffer for Natura 2000 and goose rest areas",
+   "objectType": "solar_field",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-Z-03",
+    "variedAspect": "bufferDistanceM",
+    "provenanceNote": "Varies the buffer distance parameter of the exclusion rule NC-Z-03 to test spatial separation impacts."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-Z-03",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500
+    }
+   ],
+   "proposedBy": "llm-proposal#qwen3-8-latest"
+  },
+  {
+   "id": "SC-02-COMPENSATION-BUFFER-200",
+   "name": "Mandatory green contour compensation buffer",
+   "objectType": "solar_field",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-Z-04",
+    "variedAspect": "bufferDistanceM",
+    "provenanceNote": "Varies the buffer distance parameter of the compensation rule NC-Z-04 to assess ecological offset requirements."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-Z-04",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 200
+    }
+   ],
+   "proposedBy": "llm-proposal#qwen3-8-latest"
+  },
+  {
+   "id": "SC-03-INCLUSION-SEMANTICS-EXCLUSION",
+   "name": "Reclassify solar field zone as exclusion",
+   "objectType": "solar_field",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-Z-02",
+    "provenanceNote": "Flips the discretionary zone semantics of NC-Z-02 from inclusion to exclusion to test restrictive zoning policy."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-Z-02",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion"
+    }
+   ],
+   "proposedBy": "llm-proposal#qwen3-8-latest"
+  },
+  {
+   "id": "SC-04-EXCLUSION-SEMANTICS-INCLUSION",
+   "name": "Reclassify protected areas as inclusion",
+   "objectType": "solar_field",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-Z-03",
+    "provenanceNote": "Flips the discretionary zone semantics of NC-Z-03 from exclusion to inclusion to test permissive zoning policy."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-Z-03",
+     "action": "set_semantics",
+     "zoneSemantics": "inclusion"
+    }
+   ],
+   "proposedBy": "llm-proposal#qwen3-8-latest"
+  },
+  {
+   "id": "SC-05-COMPENSATION-SEMANTICS-EXCLUSION",
+   "name": "Reclassify green contour as exclusion",
+   "objectType": "solar_field",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-Z-04",
+    "provenanceNote": "Flips the discretionary zone semantics of NC-Z-04 from compensation to exclusion to test strict ecological protection."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-Z-04",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion"
+    }
+   ],
+   "proposedBy": "llm-proposal#qwen3-8-latest"
+  },
+  {
+   "id": "SC-06-DROP-COMPENSATION",
+   "name": "Remove green contour compensation requirement",
+   "objectType": "solar_field",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-Z-04",
+    "provenanceNote": "Drops the compensation rule NC-Z-04 to test policy without ecological offset obligations."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-Z-04",
+     "action": "drop"
+    }
+   ],
+   "proposedBy": "llm-proposal#qwen3-8-latest"
+  },
+  {
+   "id": "SC-07-DROP-EXCLUSION",
+   "name": "Remove Natura 2000 and goose rest area exclusion",
+   "objectType": "solar_field",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-Z-03",
+    "provenanceNote": "Drops the exclusion rule NC-Z-03 to test policy without protected area restrictions."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-Z-03",
+     "action": "drop"
+    }
+   ],
+   "proposedBy": "llm-proposal#qwen3-8-latest"
+  },
+  {
+   "id": "SC-08-INCLUSION-BUFFER-100",
+   "name": "Solar field zone inclusion buffer",
+   "objectType": "solar_field",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-Z-02",
+    "variedAspect": "bufferDistanceM",
+    "provenanceNote": "Varies the buffer distance parameter of the inclusion rule NC-Z-02 to test spatial expansion of eligible zones."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-Z-02",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 100
+    }
+   ],
+   "proposedBy": "llm-proposal#qwen3-8-latest"
+  },
+  {
+   "id": "SC-09-EXCLUSION-BUFFER-1000",
+   "name": "Extended exclusion buffer for protected areas",
+   "objectType": "solar_field",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-Z-03",
+    "variedAspect": "bufferDistanceM",
+    "provenanceNote": "Varies the buffer distance parameter of the exclusion rule NC-Z-03 to test maximum spatial separation."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-Z-03",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 1000
+    }
+   ],
+   "proposedBy": "llm-proposal#qwen3-8-latest"
+  },
+  {
+   "id": "SC-10-COMPENSATION-BUFFER-500",
+   "name": "Extended green contour compensation buffer",
+   "objectType": "solar_field",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-Z-04",
+    "variedAspect": "bufferDistanceM",
+    "provenanceNote": "Varies the buffer distance parameter of the compensation rule NC-Z-04 to test maximum ecological offset requirements."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-Z-04",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500
+    }
+   ],
+   "proposedBy": "llm-proposal#qwen3-8-latest"
+  }
+ ],
+ "rejected": []
+}

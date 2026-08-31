@@ -511,16 +511,29 @@ def run_scenario_set(
         ],
     }
 
-    narrative = None
-    narration_check = None
-    if narrator is not None:
-        narrative, narration_check = narrate_report(report, narrator)
-
+    # critic first, narration second: the narrator must never see the
+    # placeholder verdict ("fail", set during report construction) — a
+    # qwen3.8 narration dutifully quoted that placeholder as "de
+    # eindconclusie van het validatieproces is 'fail'" on a PASSING run.
+    # Narrating against the final report is the only honest input.
     validation = evaluate_scenario_run(
         report=report, unknown_rule_ids=v2_unknown,
-        normcard_missing=v2_normcard_missing, executed_count=len(control_executed),
-        extra_v2_checks=[narration_check] if narration_check else ())
+        normcard_missing=v2_normcard_missing, executed_count=len(control_executed))
+
     report["verdict"] = "pass" if validation["verdict"] == "pass" else "fail"
+
+    narrative = None
+    if narrator is not None:
+        narrative, narration_check = narrate_report(report, narrator)
+        if narration_check is not None:
+            validation["levels"]["V2"]["checks"].append(narration_check)
+            if narration_check["status"] == "fail":
+                v2 = validation["levels"]["V2"]
+                if v2["status"] == "pass":
+                    v2["status"] = "fail"
+                if report["verdict"] == "pass":
+                    report["verdict"] = "fail"
+                    validation["verdict"] = "fail"
     contracts.validate(report, "scenario-report")
     contracts.validate(validation, "validation-report")
     report["_validation"] = validation  # popped by the CLI before dumping
@@ -636,6 +649,13 @@ def evaluate_scenario_run(
 
 _NUMBER_RE = re.compile(r"(?<![\w.])-?\d[\d,]*(?:\.\d+)?(?!\w)")
 _ID_RE = re.compile(r"\b(?:SC|FR|NC)-[A-Za-z0-9][A-Za-z0-9._-]*\b")
+#: verdict-assertion words a narration may use ONLY in agreement with the
+#: report's own verdict field (catches fabricated validation claims — a
+#: qwen3.8 run asserted "de eindstatus van de validatie is 'fail'" on a
+#: passing report; numbers and ids were all grounded, the claim was not)
+_VERDICT_RE = re.compile(r"\b(pass|passed|fails?|failed|failing)\b", re.I)
+_VERDICT_PASS_WORDS = {"pass", "passed"}
+_VERDICT_FAIL_WORDS = {"fail", "fails", "failed", "failing"}
 
 
 def deterministic_narrative(report: Mapping[str, Any]) -> str:
@@ -702,8 +722,26 @@ def check_narrative_grounding(narrative: str, report: Mapping[str, Any]) -> Dict
             continue
         decimals = len(token.split(".")[1]) if "." in token else 0
         tol = 0.5 * (10 ** -decimals) + 1e-9
-        if not any(abs(value - a) <= tol for a in allowed_numbers):
+        # magnitude fold: narrations naturally state a negative delta as its
+        # magnitude ("afname van 64.675 km2" for the reported -64.675); the
+        # magnitude is grounded, so both signs of a reported value resolve
+        if not any(abs(abs(value) - abs(a)) <= tol for a in allowed_numbers):
             problems.append(f"number {m.group(0)} not in the report")
+    # verdict assertions must agree with the report (the gate may only let
+    # through claims the deterministic artifact actually records)
+    verdict = str(report.get("verdict") or "").strip().lower()
+    allowed_verdict_words = (_VERDICT_FAIL_WORDS if verdict == "fail"
+                             else _VERDICT_PASS_WORDS if verdict == "pass"
+                             else set())
+    if allowed_verdict_words:
+        for m in _VERDICT_RE.finditer(prose):
+            word = m.group(0).lower()
+            if word not in allowed_verdict_words:
+                problems.append(
+                    f"verdict word {m.group(0)!r} contradicts the report verdict "
+                    f"{verdict!r} — the verdict may only be stated as the report "
+                    f"records it"
+                )
     check = {
         "id": "v2-narrative-grounding",
         "status": "pass" if not problems else "fail",

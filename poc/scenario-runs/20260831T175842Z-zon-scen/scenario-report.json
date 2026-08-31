@@ -1,0 +1,321 @@
+{
+ "id": "SR-20260830T142439Z-zon-20260831T175842Z",
+ "scenarioSetId": "SSET-llm-qwen3.8:latest",
+ "baselineRunId": "20260830T142439Z-zon",
+ "requestId": "3f2a9c11-6b4d-4e8a-9f21-0c8d5a7b2e40",
+ "objectType": "solar_field",
+ "generatedAt": "2026-08-31T18:00:44Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 1167.936314228,
+  "inclusionIntersectAoiKm2": 1167.947777703,
+  "baselineFinalAreaKm2": 1167.936314228,
+  "baselineInclusionKm2": 1167.947777703,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-01-EXCLUSION-BUFFER-500",
+   "name": "Extended exclusion buffer for Natura 2000 and goose rest areas",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-Z-03",
+    "variedAspect": "bufferDistanceM",
+    "provenanceNote": "Varies the buffer distance parameter of the exclusion rule NC-Z-03 to test spatial separation impacts."
+   },
+   "proposedBy": "llm-proposal#qwen3-8-latest",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-Z-03",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500.0,
+     "note": "bufferDistanceM None -> 500.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 3,
+   "rulesExecuted": 3,
+   "finalAreaKm2": 1103.261429179,
+   "inclusionIntersectAoiKm2": 1167.947777703,
+   "deltaVsControlKm2": -64.674885049,
+   "deltaVsControlPct": -5.537535,
+   "iouVsControl": 0.944624068,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-01-EXCLUSION-BUFFER-500.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-02-COMPENSATION-BUFFER-200",
+   "name": "Mandatory green contour compensation buffer",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-Z-04",
+    "variedAspect": "bufferDistanceM",
+    "provenanceNote": "Varies the buffer distance parameter of the compensation rule NC-Z-04 to assess ecological offset requirements."
+   },
+   "proposedBy": "llm-proposal#qwen3-8-latest",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-Z-04",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 200.0,
+     "note": "bufferDistanceM None -> 200.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 3,
+   "rulesExecuted": 3,
+   "finalAreaKm2": 1167.936314228,
+   "inclusionIntersectAoiKm2": 1167.947777703,
+   "deltaVsControlKm2": 0.0,
+   "deltaVsControlPct": 0.0,
+   "iouVsControl": 1.0,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-02-COMPENSATION-BUFFER-200.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-03-INCLUSION-SEMANTICS-EXCLUSION",
+   "name": "Reclassify solar field zone as exclusion",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-Z-02",
+    "provenanceNote": "Flips the discretionary zone semantics of NC-Z-02 from inclusion to exclusion to test restrictive zoning policy."
+   },
+   "proposedBy": "llm-proposal#qwen3-8-latest",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-Z-02",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "inclusion -> exclusion"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 3,
+   "rulesExecuted": 3,
+   "finalAreaKm2": 314.251296093,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": -853.685018135,
+   "deltaVsControlPct": -73.093456,
+   "iouVsControl": 1.7e-08,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-03-INCLUSION-SEMANTICS-EXCLUSION.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-04-EXCLUSION-SEMANTICS-INCLUSION",
+   "name": "Reclassify protected areas as inclusion",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-Z-03",
+    "provenanceNote": "Flips the discretionary zone semantics of NC-Z-03 from exclusion to inclusion to test permissive zoning policy."
+   },
+   "proposedBy": "llm-proposal#qwen3-8-latest",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-Z-03",
+     "action": "set_semantics",
+     "zoneSemantics": "inclusion",
+     "note": "exclusion -> inclusion"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 3,
+   "rulesExecuted": 3,
+   "finalAreaKm2": 1245.80255021,
+   "inclusionIntersectAoiKm2": 1245.80255021,
+   "deltaVsControlKm2": 77.866235982,
+   "deltaVsControlPct": 6.666993,
+   "iouVsControl": 0.93749745,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-04-EXCLUSION-SEMANTICS-INCLUSION.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-05-COMPENSATION-SEMANTICS-EXCLUSION",
+   "name": "Reclassify green contour as exclusion",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-Z-04",
+    "provenanceNote": "Flips the discretionary zone semantics of NC-Z-04 from compensation to exclusion to test strict ecological protection."
+   },
+   "proposedBy": "llm-proposal#qwen3-8-latest",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-Z-04",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "compensation -> exclusion"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 3,
+   "rulesExecuted": 3,
+   "finalAreaKm2": 1145.270898832,
+   "inclusionIntersectAoiKm2": 1167.947777703,
+   "deltaVsControlKm2": -22.665415396,
+   "deltaVsControlPct": -1.940638,
+   "iouVsControl": 0.980593543,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-05-COMPENSATION-SEMANTICS-EXCLUSION.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-06-DROP-COMPENSATION",
+   "name": "Remove green contour compensation requirement",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-Z-04",
+    "provenanceNote": "Drops the compensation rule NC-Z-04 to test policy without ecological offset obligations."
+   },
+   "proposedBy": "llm-proposal#qwen3-8-latest",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-Z-04",
+     "action": "drop",
+     "note": "dropped compensation rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 2,
+   "rulesExecuted": 2,
+   "finalAreaKm2": 1167.936314228,
+   "inclusionIntersectAoiKm2": 1167.947777703,
+   "deltaVsControlKm2": 0.0,
+   "deltaVsControlPct": 0.0,
+   "iouVsControl": 1.0,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-06-DROP-COMPENSATION.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-07-DROP-EXCLUSION",
+   "name": "Remove Natura 2000 and goose rest area exclusion",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-Z-03",
+    "provenanceNote": "Drops the exclusion rule NC-Z-03 to test policy without protected area restrictions."
+   },
+   "proposedBy": "llm-proposal#qwen3-8-latest",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-Z-03",
+     "action": "drop",
+     "note": "dropped exclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 2,
+   "rulesExecuted": 2,
+   "finalAreaKm2": 1167.947777703,
+   "inclusionIntersectAoiKm2": 1167.947777703,
+   "deltaVsControlKm2": 0.011463475,
+   "deltaVsControlPct": 0.000982,
+   "iouVsControl": 0.999989862,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-07-DROP-EXCLUSION.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-08-INCLUSION-BUFFER-100",
+   "name": "Solar field zone inclusion buffer",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-Z-02",
+    "variedAspect": "bufferDistanceM",
+    "provenanceNote": "Varies the buffer distance parameter of the inclusion rule NC-Z-02 to test spatial expansion of eligible zones."
+   },
+   "proposedBy": "llm-proposal#qwen3-8-latest",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-Z-02",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 100.0,
+     "note": "bufferDistanceM None -> 100.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 3,
+   "rulesExecuted": 3,
+   "finalAreaKm2": 1228.524509795,
+   "inclusionIntersectAoiKm2": 1242.932102828,
+   "deltaVsControlKm2": 60.588195567,
+   "deltaVsControlPct": 5.187628,
+   "iouVsControl": 0.950682151,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-08-INCLUSION-BUFFER-100.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-09-EXCLUSION-BUFFER-1000",
+   "name": "Extended exclusion buffer for protected areas",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-Z-03",
+    "variedAspect": "bufferDistanceM",
+    "provenanceNote": "Varies the buffer distance parameter of the exclusion rule NC-Z-03 to test maximum spatial separation."
+   },
+   "proposedBy": "llm-proposal#qwen3-8-latest",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-Z-03",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 1000.0,
+     "note": "bufferDistanceM None -> 1000.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 3,
+   "rulesExecuted": 3,
+   "finalAreaKm2": 1039.458436488,
+   "inclusionIntersectAoiKm2": 1167.947777703,
+   "deltaVsControlKm2": -128.47787774,
+   "deltaVsControlPct": -11.000418,
+   "iouVsControl": 0.88999504,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-09-EXCLUSION-BUFFER-1000.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-10-COMPENSATION-BUFFER-500",
+   "name": "Extended green contour compensation buffer",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-Z-04",
+    "variedAspect": "bufferDistanceM",
+    "provenanceNote": "Varies the buffer distance parameter of the compensation rule NC-Z-04 to test maximum ecological offset requirements."
+   },
+   "proposedBy": "llm-proposal#qwen3-8-latest",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-Z-04",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500.0,
+     "note": "bufferDistanceM None -> 500.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 3,
+   "rulesExecuted": 3,
+   "finalAreaKm2": 1167.936314228,
+   "inclusionIntersectAoiKm2": 1167.947777703,
+   "deltaVsControlKm2": 0.0,
+   "deltaVsControlPct": 0.0,
+   "iouVsControl": 1.0,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-10-COMPENSATION-BUFFER-500.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

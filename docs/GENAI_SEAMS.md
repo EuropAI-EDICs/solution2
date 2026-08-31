@@ -184,5 +184,55 @@ it without touching any contract.
 |---|---|---|
 | A | scenario contracts + deterministic sweep + critic + demo sets (S7 skeleton) | **done** — `poc/pipeline/scenarios.py`, `poc/scenarios/` |
 | B | the seams themselves: S7 `--author auto|llm` (proposal ledger, identity stamping, pre-execution gating) + S8 `--narrate` (numeric-grounding gate) | **done** — `poc/pipeline/scenario_author.py`, `scenarios.deterministic_narrative` / `check_narrative_grounding` |
-| B2 | plug a real local open model into `--author llm` / LLM narrator; golden-set regression comparing LLM vs deterministic author outputs | next (needs an endpoint) |
+| B2 | plug a real local open model into `--author llm` / LLM narrator; golden-set regression comparing LLM vs deterministic author outputs | **done** — qwen3.8 & qwen3.6 via local Ollama; see §5 |
 | C | S1 norm-harvest fan-out, S2 formalizer proposals, S3 conversational intake, S4 run-directory RAG; cross-track conflict discovery | later — its deterministic base is **done** (`poc/crosstrack/`: pairwise + shared-zone overlays over re-executed controls; canonical findings: 94.7% of the zoekgebied nieuwe natuur is simultaneously open to zonnevelden, and wind × zon compete on 845.4 km²) |
+
+## 5. B2 findings (real model, live endpoint)
+
+Ran the seams against local open models served by Ollama
+(`qwen3.8:latest`, `qwen3.6:27b-mlx`; temperature 0). Four lessons, each
+now enforced in code:
+
+1. **Thinking-mode transports.** Ollama's OpenAI-compat layer ignores
+   `think: false` — a reasoning-mode qwen burned the entire completion
+   budget on `<think>` and returned an empty `content`. The native
+   `/api/chat` endpoint honours it. `LDT_SCENARIO_LLM_API=ollama` selects
+   the native transport; `max_tokens`/`num_predict` bound runaways.
+   Killed clients leave orphaned generations that queue-block the
+   single-generation server — `ollama stop <model>` is the clean recovery.
+2. **Benign shape drift vs fabrication.** Models emit `scenarioId` instead
+   of `id`, `type` instead of `action`, and flatten `basis` to a string
+   with sibling keys. The seam normalizes these documented aliases and
+   completes benignly-missing form fields (`name`, `objectType`,
+   `provenanceNote`) with the only defensible deterministic values —
+   everything else must match the schema exactly or is ledgered.
+   Identity stamps are slugged (`llm-proposal#qwen3-8-latest`).
+3. **The gate catches real drift.** During hardening, qwen3.8 narrations
+   were rejected three ways: a hallucinated id (`SC-08-INCLUSION-BUFFER-1000`;
+   the report says `-100`), an exact-float mismatch on magnitudes (lesson 5),
+   and a quoted placeholder verdict (lesson 4). In the final canonical run
+   (`poc/scenario-runs/20260831T175842Z-zon-scen/`) the model's Dutch
+   narration passes every gate — numbers verbatim, ids real, verdict quoted
+   as `"pass"` — and is published as `scenario-narrative.md`; the rejection
+   path (`narrative-rejected.md` + a skipped V2 check + deterministic
+   fallback) is exercised and tested, not just designed.
+   This led to a new gate rule: **verdict-assertion** — prose may only
+   use pass/fail words in agreement with the report's own verdict field.
+4. **Don't lie to the seam.** The first narrations quoted a *placeholder*
+   verdict (`"fail"` set during report construction, before the critic
+   ran) — the model was faithfully narrating what it was shown. The
+   runner now narrates only after the final verdict exists.
+5. **Gate strictness must not punish grounded phrasing.** A narration
+   stating a negative delta as its magnitude — "afname van 64.674885049
+   km²" for the reported `-64.674885049` — was rejected by exact-float
+   matching. Natural policy prose does this constantly. The number gate
+   now folds sign (a token resolves against either sign of a reported
+   value); magnitudes are grounded, fabrications still are not.
+
+Golden-set regression (`poc/scenarios/compare_authors.py`, proposals
+only, no execution): qwen3.8 zon — deterministic author 3 proposals on 2
+rules vs LLM 10/10 accepted on all 3 rules, both targeting `FR-Z-03` /
+`FR-Z-04`, LLM additionally exploring the inclusion rule `FR-Z-02`;
+bases `norm_variance` + `policy_variant` (deterministic: hypothetical +
+policy_variant). Both authors' proposals execute to identical geometries
+per mutation — the engine, not the author, decides.

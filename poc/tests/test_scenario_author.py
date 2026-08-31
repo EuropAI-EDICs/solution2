@@ -361,3 +361,113 @@ class NarrationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# --------------------------------------------------------------------------- #
+# B2 additions: robust extraction, LLM narrator, loud fallback
+# --------------------------------------------------------------------------- #
+
+class RobustExtractionTests(unittest.TestCase):
+
+    def test_think_block_stripped_before_parsing(self):
+        raw = ("<think>The user wants scenarios. I will pick rule FR-T-02.</think>\n"
+               + json.dumps([VALID_PROPOSAL]))
+        author = scenario_author.LLMScenarioAuthor(
+            endpoint="http://x/v1", model="m", llm_call=_fake_llm(raw))
+        specs, _ = author.propose(_baseline())
+        self.assertEqual(len(specs), 1)
+
+    def test_fenced_json_block_preferred(self):
+        raw = ("Sure! Here you go:\n```json\n" + json.dumps([VALID_PROPOSAL])
+               + "\n```\nAnything else?")
+        author = scenario_author.LLMScenarioAuthor(
+            endpoint="http://x/v1", model="m", llm_call=_fake_llm(raw))
+        specs, _ = author.propose(_baseline())
+        self.assertEqual(len(specs), 1)
+
+    def test_think_block_with_brackets_does_not_confuse_extraction(self):
+        raw = ("<think>maybe [a, list, here]?</think>" + json.dumps([VALID_PROPOSAL]))
+        author = scenario_author.LLMScenarioAuthor(
+            endpoint="http://x/v1", model="m", llm_call=_fake_llm(raw))
+        specs, _ = author.propose(_baseline())
+        self.assertEqual(len(specs), 1)
+
+    def test_garbage_raises_author_error(self):
+        author = scenario_author.LLMScenarioAuthor(
+            endpoint="http://x/v1", model="m", llm_call=_fake_llm("no json here at all"))
+        with self.assertRaises(scenario_author.ScenarioAuthorError):
+            author.propose(_baseline())
+
+
+class LLMNarratorTests(unittest.TestCase):
+
+    def _report(self):
+        report = scenarios.run_scenario_set(
+            baseline=_baseline(), layers=LAYERS,
+            specs=[{**VALID_PROPOSAL, "proposedBy": "llm-proposal#test-model"}],
+            scenario_set_id="SSET-test", report_id="SR-nar")
+        report.pop("_validation")
+        report.pop("_control_rich")
+        return report
+
+    def test_narrator_requires_endpoint(self):
+        import os
+        os.environ.pop("LDT_SCENARIO_LLM_ENDPOINT", None)
+        narrator = scenario_author.LLMScenarioNarrator()
+        with self.assertRaises(scenario_author.ScenarioAuthorError):
+            narrator(self._report())
+
+    def test_grounded_llm_prose_passes_the_gate(self):
+        report = self._report()
+        row = report["scenarios"][0]
+        prose = (f"Scenario {row['scenarioId']} moves the zone to "
+                 f"{row['finalAreaKm2']:,.3f} km2, a change of "
+                 f"{row['deltaVsControlKm2']:+,.3f} km2 "
+                 f"({row['deltaVsControlPct']:+.2f}%).")
+        narrator = scenario_author.LLMScenarioNarrator(
+            endpoint="http://x/v1", model="m", llm_call=_fake_llm(prose))
+        text = narrator(report)
+        check = scenarios.check_narrative_grounding(text, report)
+        self.assertEqual(check["status"], "pass", check["detail"])
+
+    def test_fallback_wrapper_publishes_deterministic_on_rejection(self):
+        report = self._report()
+        lying = "The zone becomes 99999.5 km2 under SC-FABRICATED-1, clearly."
+        narrator = scenario_author.LLMScenarioNarrator(
+            endpoint="http://x/v1", model="m", llm_call=_fake_llm(lying))
+        events: list = []
+        wrapped = scenario_author.make_fallback_narrator(
+            narrator, scenarios.deterministic_narrative, events)
+        text = wrapped(report)
+        # published prose is the deterministic fallback (grounded by construction)
+        self.assertEqual(text, scenarios.deterministic_narrative(report))
+        self.assertEqual(len(events), 1)
+        self.assertIn("99999.5", events[0]["reason"])
+        self.assertEqual(events[0]["kind"], "narrative-grounding-rejected")
+        self.assertIn(lying, events[0]["prose"])
+
+    def test_fallback_wrapper_publishes_model_prose_when_grounded(self):
+        report = self._report()
+        row = report["scenarios"][0]
+        good = (f"Scenario {row['scenarioId']} shifts the zone by "
+                f"{row['deltaVsControlKm2']:+,.3f} km2 to {row['finalAreaKm2']:,.3f} km2.")
+        narrator = scenario_author.LLMScenarioNarrator(
+            endpoint="http://x/v1", model="m", llm_call=_fake_llm(good))
+        events: list = []
+        wrapped = scenario_author.make_fallback_narrator(
+            narrator, scenarios.deterministic_narrative, events)
+        self.assertEqual(wrapped(report), good)
+        self.assertEqual(events, [])
+
+    def test_transport_error_falls_back_with_event(self):
+        def boom(endpoint, model, system, user, timeout):
+            raise RuntimeError("connection refused")
+        narrator = scenario_author.LLMScenarioNarrator(
+            endpoint="http://x/v1", model="m", llm_call=boom)
+        events: list = []
+        wrapped = scenario_author.make_fallback_narrator(
+            narrator, scenarios.deterministic_narrative, events)
+        text = wrapped(self._report())
+        self.assertTrue(text)
+        self.assertEqual(events[0]["kind"], "narrator-error")
+        self.assertIsNone(events[0]["prose"])

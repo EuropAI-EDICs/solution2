@@ -29,6 +29,7 @@ Both PoCs run offline, corpus-first: `python3 poc/run.py` (tracks:
 (stdlib + `jsonschema`; no network at runtime). Deterministic scenario
 sweeps replay the canonical PoC-1 runs: `python3 poc/scenarios/run.py`
 (`--use-case wind|zon|bos`; GenAI seams `--author auto|llm`, gated
-`--narrate`), and the cross-track conflict overlay quantifies the
+`--narrator deterministic|llm` — the live open-model leg ran on local
+Ollama qwen3.8), and the cross-track conflict overlay quantifies the
 energy-vs-nature overlaps: `python3 poc/crosstrack/run.py` — see
 [`docs/GENAI_SEAMS.md`](docs/GENAI_SEAMS.md).

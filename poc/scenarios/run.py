@@ -32,6 +32,10 @@ GenAI seams (docs/GENAI_SEAMS.md Phase B — proposals only, gated):
                                                     # (OpenAI-compatible, temp 0)
     python3 poc/scenarios/run.py --narrate          # seam S8: prose over the
                                                     # report, numeric-grounding gated
+    LDT_SCENARIO_LLM_ENDPOINT=http://localhost:11434/v1 \
+        python3 poc/scenarios/run.py --narrator llm   # the model narrates; the
+                                                    # same gate decides (loud
+                                                    # fallback on rejection)
 
 Exit code 0 only when the scenario critic's verdict is ``pass`` (V4 human
 review stays pending by design).
@@ -43,6 +47,7 @@ import argparse
 import datetime as _dt
 import hashlib
 import json
+import re
 import sys
 import time
 import traceback
@@ -152,8 +157,13 @@ def build_parser() -> argparse.ArgumentParser:
                     help="effort budget for the auto/llm authors (default 10)")
     ap.add_argument("--narrate", action="store_true",
                     help="write scenario-narrative.md (seam S8) and gate it: every "
-                         "number and id in the prose must resolve to the report "
-                         "(deterministic narrator; the check also gates LLM narration)")
+                         "number and id in the prose must resolve to the report")
+    ap.add_argument("--narrator", choices=("deterministic", "llm"), default="deterministic",
+                    help="who narrates (implies --narrate): deterministic (grounded "
+                         "by construction) or llm — the local open-model endpoint "
+                         "narrates and the SAME numeric-grounding gate decides; a "
+                         "rejected narration falls back loudly to the deterministic "
+                         "one and the rejection is persisted (narrative-rejected.md)")
     ap.add_argument("--out", default=None,
                     help="output directory (default: poc/scenario-runs/<ts>-<use-case>)")
     return ap
@@ -213,11 +223,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 raise SystemExit(f"[author] {exc}")
             scenario_set_id = (f"SSET-auto-{args.use_case}" if args.author == "auto"
                                else f"SSET-llm-{getattr(author_obj, 'model', 'model')}")
+            model_slug = re.sub(r"[^a-z0-9]+", "-",
+                                str(getattr(author_obj, "model", "")).lower()).strip("-")
             dump_json(out_dir / "proposals.json", {
                 "author": args.author,
+                "authorModel": str(getattr(author_obj, "model", "")),
                 "authorRun": (scenario_author.DETERMINISTIC_AUTHOR_RUN
                               if args.author == "auto"
-                              else f"llm-proposal#{getattr(author_obj, 'model', '')}"),
+                              else f"llm-proposal#{model_slug}"),
                 "maxScenarios": args.max_scenarios,
                 "accepted": len(specs), "specs": specs,
             }, indent=1)
@@ -266,8 +279,22 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return rel
 
     sweep_generated = ["scenario-report.json"]
-    if args.narrate:
+    narrate = args.narrate or args.narrator != "deterministic"
+    if narrate:
         sweep_generated.append("scenario-narrative.md")
+
+    narrator_fn = None
+    narration_events: List[Dict[str, Any]] = []
+    if narrate:
+        if args.narrator == "llm":
+            llm_narrator = scenario_author.LLMScenarioNarrator()
+            if not llm_narrator.endpoint:
+                raise SystemExit("[narrator] --narrator llm requires "
+                                 "LDT_SCENARIO_LLM_ENDPOINT; refusing to guess")
+            narrator_fn = scenario_author.make_fallback_narrator(
+                llm_narrator, scenarios.deterministic_narrative, narration_events)
+        else:
+            narrator_fn = scenarios.deterministic_narrative
 
     with log.stage("sweep", f"Execute control + {len(specs)} scenarios",
                    "scenario-engine",
@@ -281,11 +308,32 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             report_id=f"SR-{baseline.get('runId')}-{run_ts}",
             degradations=layer_degrades,
             on_scenario_geojson=_geojson_writer,
-            narrator=(scenarios.deterministic_narrative if args.narrate else None),
+            narrator=narrator_fn,
         )
         validation = report.pop("_validation")
         control_rich = report.pop("_control_rich")
         narrative = report.pop("_narrative", None)
+        if narration_events:
+            for ev in narration_events:
+                validation["levels"]["V2"]["checks"].append({
+                    "id": "v2-narrative-llm-rejected", "status": "skipped",
+                    "detail": (f"{ev['kind']}: {ev['reason']} — deterministic "
+                               f"narration published instead (see "
+                               f"narrative-rejected.md)"),
+                })
+            lines = ["# Rejected LLM narration(s)", "",
+                     "The numeric-grounding gate rejected the model's prose (or the",
+                     "transport errored); the deterministic narration was published",
+                     "instead — loud fallback, never silent.", ""]
+            for i, ev in enumerate(narration_events, 1):
+                lines += [f"## Event {i}: `{ev['kind']}`", "",
+                          f"**Reason:** {ev['reason']}", "",
+                          "**Rejected prose:**", "",
+                          "```text", str(ev.get("prose") or "(transport error — no prose)"),
+                          "```", ""]
+            (out_dir / "narrative-rejected.md").write_text("\n".join(lines), encoding="utf-8")
+            print(f"[narrator] LLM narration REJECTED ({len(narration_events)} "
+                  f"event(s)); deterministic fallback published")
         if narrative is not None:
             (out_dir / "scenario-narrative.md").write_text(
                 f"# Scenario narrative — {report['id']}\n\n{narrative}\n",
@@ -331,9 +379,15 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         entities.append(explainer.entity_for(out_dir / "scenario-report.md",
                                              "ScenarioReport (markdown)"))
         if narrative is not None:
+            narrator_label = ("LLM scenario narrator (gated; "
+                              + ("fallback used)" if narration_events else "accepted)"))
             entities.append(explainer.entity_for(
                 out_dir / "scenario-narrative.md",
-                "scenario narrative (seam S8; numeric-grounding gated)"))
+                f"scenario narrative (seam S8; {narrator_label})"))
+            if narration_events:
+                entities.append(explainer.entity_for(
+                    out_dir / "narrative-rejected.md",
+                    "rejected LLM narration ledger (loud fallback)"))
         for sid, rel in sorted(written_geojsons.items()):
             entities.append(explainer.entity_for(
                 out_dir / rel, "per-scenario zones GeoJSON (WGS84)",
@@ -355,8 +409,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         ]
         if narrative is not None:
             agents_list.append({
-                "id": "scenario-narrator", "name": "Deterministic scenario narrator",
-                "version": "poc-v1",
+                "id": "scenario-narrator",
+                "name": (f"{args.narrator} scenario narrator"
+                         if args.narrator == "llm"
+                         else "Deterministic scenario narrator"),
+                "version": (f"{scenario_author.NARRATOR_LLM_RUN}#{getattr(llm_narrator, 'model', '')}"
+                            if args.narrator == "llm" else "poc-v1"),
                 "role": "seam S8: prose over the report; output gated by the "
                         "numeric-grounding check (v2-narrative-grounding)"})
         prov = expl.build_prov(
@@ -400,6 +458,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "author": args.author,
         "scenarioSet": (str(set_path) if args.author == "file" else scenario_set_id),
         "narrated": bool(narrative),
+        "narrator": (f"{args.narrator}" + ("-rejected-fallback" if narration_events else "")
+                     if narrative else None),
         "generatedAt": utcnow(),
         "durationS": round(time.time() - started, 1),
         "orchestrator": RUN_VERSION,
