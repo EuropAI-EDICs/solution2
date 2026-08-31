@@ -1,0 +1,86 @@
+{
+ "id": "SR-20260830T142446Z-bos-20260831T074610Z",
+ "scenarioSetId": "SSET-bos-utrecht-poc1",
+ "baselineRunId": "20260830T142446Z-bos",
+ "requestId": "9d4b7e22-1a3c-4f5b-8e90-2a6c0f4d1b57",
+ "objectType": "forest_planting",
+ "generatedAt": "2026-08-31T07:46:14Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 23.924474703,
+  "inclusionIntersectAoiKm2": 23.924474703,
+  "baselineFinalAreaKm2": 23.924474703,
+  "baselineInclusionKm2": 23.924474703,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-B-OUDE-BOS-HARD",
+   "name": "Oude bosgroeiplaatsen treated as hard exclusion",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-B-03",
+    "provenanceNote": "NC-B-03 (art. 6.13) conditions new planting on old-forest values in the baseline; this variant executes the protective reading as a hard exclusion."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-B-03",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "conditional -> exclusion"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 3,
+   "rulesExecuted": 3,
+   "finalAreaKm2": 23.91081565,
+   "inclusionIntersectAoiKm2": 23.924474703,
+   "deltaVsControlKm2": -0.013659053,
+   "deltaVsControlPct": -0.057092,
+   "iouVsControl": 0.999418907,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-B-OUDE-BOS-HARD.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-B-EXPAND-1KM",
+   "name": "Zoekgebied expanded by a 1 km band",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "The zoekgebied is a voluntary-conversion search area, not a boundary nature cannot cross; this hypothetical measures what a 1 km expansion band would add. No instrument text supports the 1 km figure.",
+    "provenanceNote": "NOT legally grounded: the zoekgebied (NC-B-01, art. 6.4 lid 1) is cited, the 1 km expansion is the scenario's own parameter."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-B-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 1000.0,
+     "note": "bufferDistanceM None -> 1000.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 3,
+   "rulesExecuted": 3,
+   "finalAreaKm2": 395.395631341,
+   "inclusionIntersectAoiKm2": 395.395631341,
+   "deltaVsControlKm2": 371.471156638,
+   "deltaVsControlPct": 1552.682603,
+   "iouVsControl": 0.060507485,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-B-EXPAND-1KM.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

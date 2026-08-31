@@ -1,0 +1,37 @@
+{
+ "id": "SSET-bos-utrecht-poc1",
+ "useCase": "bos",
+ "description": "Phase A deterministic demo set for the bos (new nature / forest planting) track. The zoekgebied itself is small (23.9 km²), so the scenarios probe its boundaries.",
+ "scenarios": [
+  {
+   "id": "SC-B-OUDE-BOS-HARD",
+   "name": "Oude bosgroeiplaatsen treated as hard exclusion",
+   "description": "FR-B-03 (Waardevolle Houtopstanden — oude bosgroeiplaatsen, art. 6.13) is a conditional overlay in the baseline; this variant protects existing old-forest values by hard exclusion.",
+   "objectType": "forest_planting",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-B-03",
+    "provenanceNote": "NC-B-03 (art. 6.13) conditions new planting on old-forest values in the baseline; this variant executes the protective reading as a hard exclusion."
+   },
+   "mutations": [
+    {"ruleId": "FR-B-03", "action": "set_semantics", "zoneSemantics": "exclusion"}
+   ],
+   "proposedBy": "deterministic-scenario-author#poc-v0"
+  },
+  {
+   "id": "SC-B-EXPAND-1KM",
+   "name": "Zoekgebied expanded by a 1 km band",
+   "description": "Buffers the Groene contour zoekgebied (FR-B-01) outward by 1 km — a land-acquisition-budget thought experiment, explicitly hypothetical.",
+   "objectType": "forest_planting",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "The zoekgebied is a voluntary-conversion search area, not a boundary nature cannot cross; this hypothetical measures what a 1 km expansion band would add. No instrument text supports the 1 km figure.",
+    "provenanceNote": "NOT legally grounded: the zoekgebied (NC-B-01, art. 6.4 lid 1) is cited, the 1 km expansion is the scenario's own parameter."
+   },
+   "mutations": [
+    {"ruleId": "FR-B-01", "action": "set_buffer_distance_m", "bufferDistanceM": 1000}
+   ],
+   "proposedBy": "deterministic-scenario-author#poc-v0"
+  }
+ ]
+}

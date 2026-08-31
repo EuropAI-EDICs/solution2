@@ -1,0 +1,23 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://ldttoolbox.example/poc/schemas/scenario-set.schema.json",
+ "title": "ScenarioSet",
+ "description": "Container file for a track's scenario set (e.g. poc/scenarios/wind.json). The wrapper is structural only; every item under scenarios is validated independently against scenario-spec.schema.json by the loader (the PoC schema pack is deliberately self-contained: no cross-file $refs), and every ruleId/normCardId is resolved against the baseline run by the scenario runner's V2 check.",
+ "type": "object",
+ "additionalProperties": false,
+ "required": ["id", "useCase", "scenarios"],
+ "properties": {
+  "id": { "type": "string", "pattern": "^SSET-[A-Za-z0-9][A-Za-z0-9._-]*$" },
+  "useCase": {
+   "type": "string",
+   "enum": ["wind", "zon", "bos"],
+   "description": "Track id; selects the baseline run family (poc/runs/*-<useCase>)."
+  },
+  "description": { "type": "string" },
+  "scenarios": {
+   "type": "array",
+   "minItems": 1,
+   "description": "ScenarioSpec objects; each validated against scenario-spec.schema.json separately. The runner always adds an unmutated control scenario itself (basis type 'baseline' is reserved for it) — a spec with basis.type 'baseline' in a set file is refused."
+  }
+ }
+}

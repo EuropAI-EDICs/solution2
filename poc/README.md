@@ -37,7 +37,7 @@ python3 poc/run.py --use-case zon      # solar fields (zonnevelden, art. 5.5)
 python3 poc/run.py --use-case bos      # new nature / forest planting (art. 6.4)
 python3 poc/run.py --refresh           # force live re-download of every layer
 python3 poc/run.py --bbox 130000,440000,160000,470000   # optional EPSG:28992 clip
-python3 -m unittest discover -s poc/tests               # offline test suite (100 tests)
+python3 -m unittest discover -s poc/tests               # offline test suite (145 tests)
 ```
 
 No API keys are used anywhere (the DSO GIO download API is key-gated and was
@@ -156,6 +156,57 @@ bos → Groene contour ∩ AOI 23.924 km² = final (no exclusions; IoU 0.9997).
   ArcGIS REST only. If a live layer fails mid-run the orchestrator degrades
   gracefully: the affected rules are dropped, recorded in the validation report
   (`needs_human`), never guessed.
+
+## Scenario planning (deterministic sweep, GenAI-seam Phase A)
+
+[`docs/GENAI_SEAMS.md`](../docs/GENAI_SEAMS.md) specifies where GenAI enters
+the deterministic PoCs; its Phase A is implemented here. A scenario is a
+**contract** (`schemas/scenario-spec.schema.json`), not a prompt: an ordered
+list of mutations (`drop` / `set_semantics` / `set_buffer_distance_m`) over a
+*baseline run's* FormalRules, each with a provenance **basis** —
+`norm_variance` (varies a cited rule's parameter), `policy_variant` (flips a
+documented discretionary choice) or `hypothetical` (explicitly *not* legally
+grounded, `rationale` required — the honest counterpart of the abstention
+ledger). The sweep always re-executes an unmutated **control** first (V3:
+must reproduce the baseline ≤0.1% rel), replays the baseline's cached layers
+offline at its recorded tunings, and gates on a scenario critic (V0–V3
+deterministic, V4 pending by design):
+
+```bash
+python3 poc/scenarios/run.py                     # wind, latest baseline run
+python3 poc/scenarios/run.py --use-case zon      # solar fields
+python3 poc/scenarios/run.py --use-case bos      # new nature
+python3 poc/scenarios/run.py --baseline poc/runs/20260830T113234Z-wind
+python3 poc/scenarios/run.py --author auto       # deterministic author derives
+                                                 # proposals from the artifacts
+LDT_SCENARIO_LLM_ENDPOINT=http://localhost:8000/v1 \
+    python3 poc/scenarios/run.py --author llm    # GenAI seam: open-model endpoint
+                                                 # (proposals only, gated)
+python3 poc/scenarios/run.py --narrate           # prose over the report, gated
+                                                 # (every number must resolve)
+```
+
+Output: `poc/scenario-runs/<ts>-<track>/` — `scenario-report.json` /
+`.md` (per-scenario final area, Δ vs control, IoU vs control, mutations
+applied/skipped), `scenario-narrative.md` (with `--narrate`), `scenarios/
+<SC-id>.geojson` per scenario + `CONTROL.geojson` (WGS84, diffable in QGIS),
+`validation.json`, `prov.json`, `run_summary.json`; with `--author auto|llm`
+also `proposals.json` + `proposals-rejected.json` (the author's
+cite-or-abstain ledger: schema-invalid or hallucinated ids are recorded and
+never executed). Exit code 0 only on verdict `pass`. Demo sets:
+`poc/scenarios/{wind,zon,bos}.json` — headline findings: the NNN lid-2
+exception is the largest wind lever (+322.5 km², +37.5%), silence-area
+strictness up to −61%, the zon Natura carve is negligible (+0.011 km²), a 1 km
+bos zoekgebied band would grow it 16.5×; `--author auto` adds: a hypothetical
+500 m NNN buffer costs −52.2%, and hard-enforcing the NNN *conditional*
+overlay changes nothing (it is subsumed by the default exclusion).
+
+A Phase-B LLM ScenarioAuthor may only do what the deterministic author does
+today — emit `ScenarioSpec` proposals (`proposedBy: "llm-proposal#…"`, stamped
+by the seam, not the model) through the same schema; mutations are restricted
+to the engine's actual inputs, V2 grounds every `normCardId`/`ruleId` against
+the baseline run, and unverifiable proposals land in `proposals-rejected.json`
+(`poc/pipeline/scenario_author.py`).
 
 ## Adding use cases
 

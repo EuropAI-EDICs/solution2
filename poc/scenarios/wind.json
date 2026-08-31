@@ -1,0 +1,102 @@
+{
+ "id": "SSET-wind-utrecht-poc1",
+ "useCase": "wind",
+ "description": "Phase A deterministic demo set for the wind track (province Utrecht). Every basis grounds in the baseline run's cited NormCards, except the Natura 2000 setback which is explicitly hypothetical: setback distances are in the cite-or-abstain ledger (no verified provincial citation), so exploring them must say so.",
+ "scenarios": [
+  {
+   "id": "SC-W-NNN-EXCEPTION",
+   "name": "art. 6.3 lid 2 exception granted province-wide",
+   "description": "The Natuurnetwerk Nederland default exclusion (FR-W-14) is dropped: the discretionary lid-2 exception is assumed granted everywhere. Upper bound of the NNN policy space.",
+   "objectType": "wind_turbine",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-W-14",
+    "provenanceNote": "NC-W-14 (art. 6.3) excludes the NNN by default; lid 2 allows discretionary exceptions. This variant flips that documented choice province-wide — the exception itself is cited, its province-wide granting is the policy assumption."
+   },
+   "mutations": [
+    {"ruleId": "FR-W-14", "action": "drop"}
+   ],
+   "proposedBy": "deterministic-scenario-author#poc-v0"
+  },
+  {
+   "id": "SC-W-STILTE-HARD",
+   "name": "Stiltegebieden treated as hard exclusion",
+   "description": "FR-W-12 (art. 9.28) is a conditional overlay in the baseline; this variant reclassifies it as a hard exclusion — the strict reading of the silence-area policy.",
+   "objectType": "wind_turbine",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-W-12",
+    "provenanceNote": "NC-W-12 (Stiltegebied, art. 9.28) conditions rather than excludes in the baseline formalization; this variant executes the strict reading as a hard exclusion."
+   },
+   "mutations": [
+    {"ruleId": "FR-W-12", "action": "set_semantics", "zoneSemantics": "exclusion"}
+   ],
+   "proposedBy": "deterministic-scenario-author#poc-v0"
+  },
+  {
+   "id": "SC-W-AANDACHT-500",
+   "name": "Aandachtsgebied stiltegebied enforced as 500 m exclusion",
+   "description": "FR-W-10 (art. 9.25 lid 2 attention buffer, 1500 m) is reclassified as a hard exclusion and narrowed to 500 m — enforcing the attention marker as a ban at a reduced distance.",
+   "objectType": "wind_turbine",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-W-10",
+    "variedAspect": "buffer_distance 1500 m -> 500 m, attention marker -> hard exclusion",
+    "provenanceNote": "NC-W-10 (art. 9.25 lid 2) fixes a 1500 m attention buffer around Stiltegebieden; the 1500 m figure is cited, the 500 m variant and the hard-exclusion enforcement are the scenario's own parameters."
+   },
+   "mutations": [
+    {"ruleId": "FR-W-10", "action": "set_semantics", "zoneSemantics": "exclusion"},
+    {"ruleId": "FR-W-10", "action": "set_buffer_distance_m", "bufferDistanceM": 500}
+   ],
+   "proposedBy": "deterministic-scenario-author#poc-v0"
+  },
+  {
+   "id": "SC-W-AANDACHT-1500",
+   "name": "Aandachtsgebied stiltegebied enforced as 1500 m exclusion",
+   "description": "Same reclassification at the cited distance: the art. 9.25 lid 2 buffer exactly as written, but enforced as a hard exclusion instead of an attention marker.",
+   "objectType": "wind_turbine",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-W-10",
+    "provenanceNote": "NC-W-10 (art. 9.25 lid 2) cites the 1500 m figure itself; only the enforcement choice (attention marker -> hard exclusion) varies."
+   },
+   "mutations": [
+    {"ruleId": "FR-W-10", "action": "set_semantics", "zoneSemantics": "exclusion"},
+    {"ruleId": "FR-W-10", "action": "set_buffer_distance_m", "bufferDistanceM": 1500}
+   ],
+   "proposedBy": "deterministic-scenario-author#poc-v0"
+  },
+  {
+   "id": "SC-W-AANDACHT-3000",
+   "name": "Aandachtsgebied stiltegebied enforced as 3000 m exclusion",
+   "description": "Same reclassification, doubled distance: a stress test of how sensitive the opportunity zone is to silence-area strictness.",
+   "objectType": "wind_turbine",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-W-10",
+    "variedAspect": "buffer_distance 1500 m -> 3000 m, attention marker -> hard exclusion",
+    "provenanceNote": "NC-W-10 (art. 9.25 lid 2) cites 1500 m; the 3000 m variant and hard-exclusion enforcement are the scenario's own parameters."
+   },
+   "mutations": [
+    {"ruleId": "FR-W-10", "action": "set_semantics", "zoneSemantics": "exclusion"},
+    {"ruleId": "FR-W-10", "action": "set_buffer_distance_m", "bufferDistanceM": 3000}
+   ],
+   "proposedBy": "deterministic-scenario-author#poc-v0"
+  },
+  {
+   "id": "SC-W-NATURA-SETBACK",
+   "name": "500 m setback around Natura 2000 / ganzenrustgebieden",
+   "description": "Adds a 500 m buffer around the hard exclusions of FR-W-08. Setback/tip-height distances are in the cite-or-abstain ledger (no verified provincial citation), so this is explicitly hypothetical.",
+   "objectType": "wind_turbine",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "National setback distances (Wgh/Bal, tip height) are abstained topics in the baseline run — no verified provincial citation exists, so no FormalRule carries them. This hypothetical explores what a 500 m setback would cost, flagged as not legally grounded.",
+    "provenanceNote": "NOT legally grounded: no citation exists for a setback distance; the abstention ledger records the topic. The underlying exclusion zones (Natura 2000, ganzenrustgebieden) are cited via NC-W-08."
+   },
+   "mutations": [
+    {"ruleId": "FR-W-08", "action": "set_buffer_distance_m", "bufferDistanceM": 500}
+   ],
+   "proposedBy": "deterministic-scenario-author#poc-v0"
+  }
+ ]
+}

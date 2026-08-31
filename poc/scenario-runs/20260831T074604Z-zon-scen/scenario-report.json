@@ -1,0 +1,85 @@
+{
+ "id": "SR-20260830T142439Z-zon-20260831T074604Z",
+ "scenarioSetId": "SSET-zon-utrecht-poc1",
+ "baselineRunId": "20260830T142439Z-zon",
+ "requestId": "3f2a9c11-6b4d-4e8a-9f21-0c8d5a7b2e40",
+ "objectType": "solar_field",
+ "generatedAt": "2026-08-31T07:46:10Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 1167.936314228,
+  "inclusionIntersectAoiKm2": 1167.947777703,
+  "baselineFinalAreaKm2": 1167.936314228,
+  "baselineInclusionKm2": 1167.947777703,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-Z-GROENE-CONTOUR-HARD",
+   "name": "Groene contour treated as hard exclusion (nature first)",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-Z-04",
+    "provenanceNote": "NC-Z-04 (art. 6.5a lid 3) makes solar fields inside the Groene contour implicitly temporary via a compensation duty; this variant executes the strictest reading — exclusion — instead."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-Z-04",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "compensation -> exclusion"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 3,
+   "rulesExecuted": 3,
+   "finalAreaKm2": 1145.270898832,
+   "inclusionIntersectAoiKm2": 1167.947777703,
+   "deltaVsControlKm2": -22.665415396,
+   "deltaVsControlPct": -1.940638,
+   "iouVsControl": 0.980593543,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-Z-GROENE-CONTOUR-HARD.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-Z-GEEN-NATURA-CARVE",
+   "name": "Designation taken at face value (no Natura/ganzenrust carve)",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "The carve follows from the toelichting on art. 5.5, not from an explicit lid; dropping it isolates how much area the interpretive carve actually costs. Purely analytical — not a legal reading.",
+    "provenanceNote": "NOT legally grounded as a reading of the verordening: the baseline's carve (NC-Z-03) is the defensible interpretation; this variant removes it to measure its footprint."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-Z-03",
+     "action": "drop",
+     "note": "dropped exclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 2,
+   "rulesExecuted": 2,
+   "finalAreaKm2": 1167.947777703,
+   "inclusionIntersectAoiKm2": 1167.947777703,
+   "deltaVsControlKm2": 0.011463475,
+   "deltaVsControlPct": 0.000982,
+   "iouVsControl": 0.999989862,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-Z-GEEN-NATURA-CARVE.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

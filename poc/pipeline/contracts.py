@@ -35,6 +35,9 @@ SCHEMA_NAMES = (
     "zone-result",
     "validation-report",
     "decision-table",
+    "scenario-spec",
+    "scenario-set",
+    "scenario-report",
 )
 
 #: domains where these contracts are deliberately strict (see schema files)
@@ -382,6 +385,133 @@ class DecisionTable(_ContractMixin):
     requestId: Optional[str] = None
 
 
+# ---------------------------------------------------------------------------
+# ScenarioSpec / ScenarioSet / ScenarioReport (scenario-planning plane, Phase A
+# of docs/GENAI_SEAMS.md — deterministic sweep; the LLM ScenarioAuthor of
+# Phase B may only propose specs through the same contracts)
+# ---------------------------------------------------------------------------
+
+#: basis types; "baseline" is reserved for the control the runner synthesises
+SCENARIO_BASIS_TYPES = ("baseline", "norm_variance", "policy_variant", "hypothetical")
+SCENARIO_MUTATION_ACTIONS = ("drop", "set_semantics", "set_buffer_distance_m")
+
+
+@dataclass
+class ScenarioBasis:
+    type: str
+    provenanceNote: str
+    normCardId: Optional[str] = None
+    variedAspect: Optional[str] = None
+    rationale: Optional[str] = None
+
+
+@dataclass
+class ScenarioMutation:
+    ruleId: str
+    action: str
+    zoneSemantics: Optional[str] = None
+    bufferDistanceM: Optional[float] = None
+
+
+@dataclass
+class ScenarioSpec(_ContractMixin):
+    SCHEMA_NAME = "scenario-spec"
+    __nested__ = {"basis": ScenarioBasis, "mutations": ScenarioMutation}
+
+    id: str
+    name: str
+    objectType: str
+    basis: ScenarioBasis
+    mutations: List[ScenarioMutation]
+    proposedBy: str
+    description: Optional[str] = None
+    notes: Optional[str] = None
+
+
+@dataclass
+class ScenarioSet(_ContractMixin):
+    SCHEMA_NAME = "scenario-set"
+
+    id: str
+    useCase: str
+    scenarios: List[Dict[str, Any]]  # each validated separately against scenario-spec
+    description: Optional[str] = None
+
+
+@dataclass
+class ScenarioControl:
+    finalAreaKm2: float
+    baselineFinalAreaKm2: float
+    reproductionDeltaKm2: float
+    reproductionRelDelta: float
+    reproductionWithinTolerance: bool
+    inclusionIntersectAoiKm2: Optional[float] = None
+    baselineInclusionKm2: Optional[float] = None
+
+
+@dataclass
+class ScenarioOutcome:
+    """One row of the ScenarioReport; basis echoes the spec's basis verbatim."""
+
+    scenarioId: str
+    name: str
+    basis: ScenarioBasis
+    proposedBy: str
+    mutationsApplied: List[Dict[str, Any]]
+    mutationsSkipped: List[Dict[str, Any]]
+    rulesTotal: int
+    rulesExecuted: int
+    finalAreaKm2: float
+    deltaVsControlKm2: float
+    iouVsControl: float
+    geometryValid: bool
+    geometryFile: str
+    status: str
+    inclusionIntersectAoiKm2: Optional[float] = None
+    deltaVsControlPct: Optional[float] = None
+
+    def to_row(self) -> Dict[str, Any]:
+        return _clean(
+            {
+                "scenarioId": self.scenarioId,
+                "name": self.name,
+                "basis": asdict(self.basis),
+                "proposedBy": self.proposedBy,
+                "mutationsApplied": self.mutationsApplied,
+                "mutationsSkipped": self.mutationsSkipped,
+                "rulesTotal": self.rulesTotal,
+                "rulesExecuted": self.rulesExecuted,
+                "finalAreaKm2": self.finalAreaKm2,
+                "inclusionIntersectAoiKm2": self.inclusionIntersectAoiKm2,
+                "deltaVsControlKm2": self.deltaVsControlKm2,
+                "deltaVsControlPct": self.deltaVsControlPct,
+                "iouVsControl": self.iouVsControl,
+                "geometryValid": self.geometryValid,
+                "geometryFile": self.geometryFile,
+                "status": self.status,
+            }
+        )
+
+
+@dataclass
+class ScenarioReport(_ContractMixin):
+    SCHEMA_NAME = "scenario-report"
+
+    id: str
+    scenarioSetId: str
+    baselineRunId: str
+    requestId: str
+    objectType: str
+    generatedAt: str
+    generatedBy: str
+    control: ScenarioControl
+    scenarios: List[Dict[str, Any]]  # ScenarioOutcome.to_row() dicts
+    verdict: str
+    validationReportFile: str
+    degradations: Optional[List[Dict[str, Any]]] = None
+    notes: Optional[List[str]] = None
+
+
 __all__ = [
     "SCHEMA_NAMES",
     "SCHEMA_DIR",
@@ -405,4 +535,11 @@ __all__ = [
     "CheckResult",
     "EvidenceRef",
     "DecisionTable",
+    "ScenarioBasis",
+    "ScenarioMutation",
+    "ScenarioSpec",
+    "ScenarioSet",
+    "ScenarioControl",
+    "ScenarioOutcome",
+    "ScenarioReport",
 ]

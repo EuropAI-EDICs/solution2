@@ -1,0 +1,37 @@
+{
+ "id": "SSET-zon-utrecht-poc1",
+ "useCase": "zon",
+ "description": "Phase A deterministic demo set for the zonneveld (solar field) track. The Groene contour compensation duty (art. 6.5a lid 3) versus the designation itself is the natural first policy axis.",
+ "scenarios": [
+  {
+   "id": "SC-Z-GROENE-CONTOUR-HARD",
+   "name": "Groene contour treated as hard exclusion (nature first)",
+   "description": "FR-Z-04 carries the art. 6.5a lid 3 compensation marker in the baseline; this variant reclassifies the contour as a hard exclusion — no solar inside the zoekgebied voor nieuwe natuur at all.",
+   "objectType": "solar_field",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-Z-04",
+    "provenanceNote": "NC-Z-04 (art. 6.5a lid 3) makes solar fields inside the Groene contour implicitly temporary via a compensation duty; this variant executes the strictest reading — exclusion — instead."
+   },
+   "mutations": [
+    {"ruleId": "FR-Z-04", "action": "set_semantics", "zoneSemantics": "exclusion"}
+   ],
+   "proposedBy": "deterministic-scenario-author#poc-v0"
+  },
+  {
+   "id": "SC-Z-GEEN-NATURA-CARVE",
+   "name": "Designation taken at face value (no Natura/ganzenrust carve)",
+   "description": "FR-Z-03 subtracts Natura 2000 and ganzenrustgebieden from the Gebied zonneveld; the toelichting-based carve is small because the designation already avoids those areas. This variant shows exactly how small.",
+   "objectType": "solar_field",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "The carve follows from the toelichting on art. 5.5, not from an explicit lid; dropping it isolates how much area the interpretive carve actually costs. Purely analytical — not a legal reading.",
+    "provenanceNote": "NOT legally grounded as a reading of the verordening: the baseline's carve (NC-Z-03) is the defensible interpretation; this variant removes it to measure its footprint."
+   },
+   "mutations": [
+    {"ruleId": "FR-Z-03", "action": "drop"}
+   ],
+   "proposedBy": "deterministic-scenario-author#poc-v0"
+  }
+ ]
+}

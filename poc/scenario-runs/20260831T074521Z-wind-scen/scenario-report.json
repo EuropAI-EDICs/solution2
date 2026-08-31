@@ -1,0 +1,221 @@
+{
+ "id": "SR-20260830T113234Z-wind-20260831T074521Z",
+ "scenarioSetId": "SSET-wind-utrecht-poc1",
+ "baselineRunId": "20260830T113234Z-wind",
+ "requestId": "0d9f61aa-4b8e-4f2f-9f6a-6f21cb53d001",
+ "objectType": "wind_turbine",
+ "generatedAt": "2026-08-31T07:46:04Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 859.462827229,
+  "inclusionIntersectAoiKm2": 1259.840668619,
+  "baselineFinalAreaKm2": 859.462827229,
+  "baselineInclusionKm2": 1259.840668619,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-W-NNN-EXCEPTION",
+   "name": "art. 6.3 lid 2 exception granted province-wide",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-W-14",
+    "provenanceNote": "NC-W-14 (art. 6.3) excludes the NNN by default; lid 2 allows discretionary exceptions. This variant flips that documented choice province-wide — the exception itself is cited, its province-wide granting is the policy assumption."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-W-14",
+     "action": "drop",
+     "note": "dropped exclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 8,
+   "rulesExecuted": 8,
+   "finalAreaKm2": 1181.982194323,
+   "inclusionIntersectAoiKm2": 1259.840668619,
+   "deltaVsControlKm2": 322.519367094,
+   "deltaVsControlPct": 37.525691,
+   "iouVsControl": 0.727136308,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-W-NNN-EXCEPTION.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-W-STILTE-HARD",
+   "name": "Stiltegebieden treated as hard exclusion",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-W-12",
+    "provenanceNote": "NC-W-12 (Stiltegebied, art. 9.28) conditions rather than excludes in the baseline formalization; this variant executes the strict reading as a hard exclusion."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-W-12",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "conditional -> exclusion"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 9,
+   "rulesExecuted": 9,
+   "finalAreaKm2": 716.241440459,
+   "inclusionIntersectAoiKm2": 1259.840668619,
+   "deltaVsControlKm2": -143.22138677,
+   "deltaVsControlPct": -16.664058,
+   "iouVsControl": 0.833359412,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-W-STILTE-HARD.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-W-AANDACHT-500",
+   "name": "Aandachtsgebied stiltegebied enforced as 500 m exclusion",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-W-10",
+    "variedAspect": "buffer_distance 1500 m -> 500 m, attention marker -> hard exclusion",
+    "provenanceNote": "NC-W-10 (art. 9.25 lid 2) fixes a 1500 m attention buffer around Stiltegebieden; the 1500 m figure is cited, the 500 m variant and the hard-exclusion enforcement are the scenario's own parameters."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-W-10",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "attention -> exclusion"
+    },
+    {
+     "ruleId": "FR-W-10",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500.0,
+     "note": "bufferDistanceM 1500 -> 500.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 9,
+   "rulesExecuted": 9,
+   "finalAreaKm2": 644.506439759,
+   "inclusionIntersectAoiKm2": 1259.840668619,
+   "deltaVsControlKm2": -214.95638747,
+   "deltaVsControlPct": -25.010551,
+   "iouVsControl": 0.749894525,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-W-AANDACHT-500.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-W-AANDACHT-1500",
+   "name": "Aandachtsgebied stiltegebied enforced as 1500 m exclusion",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-W-10",
+    "provenanceNote": "NC-W-10 (art. 9.25 lid 2) cites the 1500 m figure itself; only the enforcement choice (attention marker -> hard exclusion) varies."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-W-10",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "attention -> exclusion"
+    },
+    {
+     "ruleId": "FR-W-10",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 1500.0,
+     "note": "bufferDistanceM 1500 -> 1500.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 9,
+   "rulesExecuted": 9,
+   "finalAreaKm2": 525.499797043,
+   "inclusionIntersectAoiKm2": 1259.840668619,
+   "deltaVsControlKm2": -333.963030186,
+   "deltaVsControlPct": -38.857181,
+   "iouVsControl": 0.611427889,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-W-AANDACHT-1500.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-W-AANDACHT-3000",
+   "name": "Aandachtsgebied stiltegebied enforced as 3000 m exclusion",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-W-10",
+    "variedAspect": "buffer_distance 1500 m -> 3000 m, attention marker -> hard exclusion",
+    "provenanceNote": "NC-W-10 (art. 9.25 lid 2) cites 1500 m; the 3000 m variant and hard-exclusion enforcement are the scenario's own parameters."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-W-10",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "attention -> exclusion"
+    },
+    {
+     "ruleId": "FR-W-10",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 3000.0,
+     "note": "bufferDistanceM 1500 -> 3000.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 9,
+   "rulesExecuted": 9,
+   "finalAreaKm2": 333.7118278,
+   "inclusionIntersectAoiKm2": 1259.840668619,
+   "deltaVsControlKm2": -525.750999429,
+   "deltaVsControlPct": -61.172046,
+   "iouVsControl": 0.388279419,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-W-AANDACHT-3000.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-W-NATURA-SETBACK",
+   "name": "500 m setback around Natura 2000 / ganzenrustgebieden",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "National setback distances (Wgh/Bal, tip height) are abstained topics in the baseline run — no verified provincial citation exists, so no FormalRule carries them. This hypothetical explores what a 500 m setback would cost, flagged as not legally grounded.",
+    "provenanceNote": "NOT legally grounded: no citation exists for a setback distance; the abstention ledger records the topic. The underlying exclusion zones (Natura 2000, ganzenrustgebieden) are cited via NC-W-08."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-W-08",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500.0,
+     "note": "bufferDistanceM None -> 500.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 9,
+   "rulesExecuted": 9,
+   "finalAreaKm2": 812.541094775,
+   "inclusionIntersectAoiKm2": 1259.840668619,
+   "deltaVsControlKm2": -46.921732454,
+   "deltaVsControlPct": -5.459425,
+   "iouVsControl": 0.945405363,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-W-NATURA-SETBACK.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

@@ -1,0 +1,114 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://ldttoolbox.example/poc/schemas/scenario-report.schema.json",
+ "title": "ScenarioReport",
+ "description": "Deterministic sweep output: the unmutated control re-execution (V3 reproduction of the baseline run), one outcome row per ScenarioSpec with deltas/IoU against that control, and the runner's verdict. The companion validation.json carries the schema-valid ValidationReport (V0 syntactic, V1 geometric, V2 basis grounding, V3 control reproduction, V4 pending by design). GenAI may later narrate this report (Phase B); it may never alter it — see docs/GENAI_SEAMS.md.",
+ "type": "object",
+ "additionalProperties": false,
+ "required": ["id", "scenarioSetId", "baselineRunId", "requestId", "objectType", "generatedAt", "generatedBy", "control", "scenarios", "verdict", "validationReportFile"],
+ "properties": {
+  "id": { "type": "string", "pattern": "^SR-[A-Za-z0-9][A-Za-z0-9._-]*$" },
+  "scenarioSetId": { "type": "string", "minLength": 3 },
+  "baselineRunId": { "type": "string", "minLength": 3 },
+  "requestId": { "type": "string", "minLength": 3 },
+  "objectType": {
+   "enum": ["wind_turbine", "solar_field", "forest_planting", "biomass_installation", "energy_storage"]
+  },
+  "generatedAt": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$" },
+  "generatedBy": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*#[A-Za-z0-9][A-Za-z0-9._-]*$" },
+  "control": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["finalAreaKm2", "baselineFinalAreaKm2", "reproductionDeltaKm2", "reproductionRelDelta", "reproductionWithinTolerance"],
+   "properties": {
+    "finalAreaKm2": { "type": "number", "minimum": 0 },
+    "inclusionIntersectAoiKm2": { "type": ["number", "null"], "description": "Null when the rule set yielded no inclusion zone." },
+    "baselineFinalAreaKm2": { "type": "number", "minimum": 0, "description": "headline.finalOpportunityKm2 of the baseline run_summary.json." },
+    "baselineInclusionKm2": { "type": ["number", "null"] },
+    "reproductionDeltaKm2": { "type": "number" },
+    "reproductionRelDelta": { "type": "number", "description": "|reproduced - baseline| / baseline; must stay under the recorded tolerance for V3 to pass." },
+    "reproductionWithinTolerance": { "type": "boolean" }
+   }
+  },
+  "scenarios": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["scenarioId", "name", "basis", "proposedBy", "mutationsApplied", "mutationsSkipped", "rulesTotal", "rulesExecuted", "finalAreaKm2", "deltaVsControlKm2", "iouVsControl", "geometryValid", "geometryFile", "status"],
+    "properties": {
+     "scenarioId": { "type": "string", "pattern": "^SC-[A-Za-z0-9][A-Za-z0-9._-]*$" },
+     "name": { "type": "string", "minLength": 1 },
+     "basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "provenanceNote"],
+      "properties": {
+       "type": { "enum": ["norm_variance", "policy_variant", "hypothetical"] },
+       "normCardId": { "type": "string" },
+       "variedAspect": { "type": "string" },
+       "rationale": { "type": "string" },
+       "provenanceNote": { "type": "string" }
+      }
+     },
+     "proposedBy": { "type": "string" },
+     "mutationsApplied": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": ["ruleId", "action"],
+       "properties": {
+        "ruleId": { "type": "string" },
+        "action": { "enum": ["drop", "set_semantics", "set_buffer_distance_m"] },
+        "zoneSemantics": { "type": "string" },
+        "bufferDistanceM": { "type": "number" },
+        "note": { "type": "string" }
+       }
+      }
+     },
+     "mutationsSkipped": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": ["ruleId", "action", "reason"],
+       "properties": {
+        "ruleId": { "type": "string" },
+        "action": { "type": "string" },
+        "reason": { "type": "string" }
+       }
+      }
+     },
+     "rulesTotal": { "type": "integer", "minimum": 0, "description": "Rules in the mutated set offered to the engine." },
+     "rulesExecuted": { "type": "integer", "minimum": 0, "description": "Rules the engine actually executed (after any degradation drops)." },
+     "finalAreaKm2": { "type": "number", "minimum": 0 },
+     "inclusionIntersectAoiKm2": { "type": ["number", "null"] },
+     "deltaVsControlKm2": { "type": "number" },
+     "deltaVsControlPct": { "type": ["number", "null"] },
+     "iouVsControl": { "type": "number", "minimum": 0, "maximum": 1 },
+     "geometryValid": { "type": "boolean" },
+     "geometryFile": { "type": "string", "description": "Path (relative to the scenario run dir) of the per-scenario GeoJSON with all emitted zones incl. the final." },
+     "status": { "enum": ["ok", "degraded"] }
+    }
+   }
+  },
+  "verdict": { "enum": ["pass", "fail"] },
+  "validationReportFile": { "type": "string" },
+  "degradations": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["kind", "error"],
+    "properties": {
+     "kind": { "type": "string" },
+     "scenarioId": { "type": "string" },
+     "rule": { "type": "string" },
+     "error": { "type": "string" }
+    }
+   }
+  },
+  "notes": { "type": "array", "items": { "type": "string" } }
+ }
+}

@@ -1,0 +1,109 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://ldttoolbox.example/poc/schemas/scenario-spec.schema.json",
+ "title": "ScenarioSpec",
+ "description": "One what-if scenario for the opportunity-map pipeline: an ordered list of deterministic mutations over a baseline run's FormalRule set, plus the provenance basis that keeps the scenario traceable WITHOUT pretending to carry a legal citation it does not have. GenAI (Phase B, docs/GENAI_SEAMS.md) may only ever author a ScenarioSpec proposal (proposedBy = 'llm-proposal#...'); the deterministic engine executes it and the critic validates it. Mutations are deliberately restricted to what the zone engine actually consumes (zoneSemantics, bufferDistanceM, rule presence) — conditions are never re-derived by a scenario.",
+ "type": "object",
+ "additionalProperties": false,
+ "required": ["id", "name", "objectType", "basis", "mutations", "proposedBy"],
+ "properties": {
+  "id": {
+   "type": "string",
+   "pattern": "^SC-[A-Za-z0-9][A-Za-z0-9._-]*$",
+   "description": "Stable scenario id; also used as the per-scenario geometry filename stem."
+  },
+  "name": { "type": "string", "minLength": 1 },
+  "description": { "type": "string" },
+  "objectType": {
+   "description": "Must match the baseline request's objectType; validated again by the scenario runner.",
+   "enum": ["wind_turbine", "solar_field", "forest_planting", "biomass_installation", "energy_storage"]
+  },
+  "basis": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["type", "provenanceNote"],
+   "properties": {
+    "type": {
+     "enum": ["baseline", "norm_variance", "policy_variant", "hypothetical"],
+     "description": "baseline = unmutated control (synthesised by the runner, never authored); norm_variance = varies a parameter of a CITED rule (normCardId required); policy_variant = flips a documented discretionary choice (normCardId required); hypothetical = free parameter exploration with NO legal grounding (rationale required) — the abstention ledger's honest counterpart."
+    },
+    "normCardId": {
+     "type": "string",
+     "pattern": "^NC-[A-Za-z0-9][A-Za-z0-9._-]*$",
+     "description": "The cited NormCard this scenario varies or whose discretionary clause it flips. Required for norm_variance and policy_variant; resolved against the baseline run's normcards.json by the V2 check."
+    },
+    "variedAspect": {
+     "type": "string",
+     "description": "What parameter/aspect is varied (e.g. 'buffer_distance 1500m -> 500m'). Required for norm_variance."
+    },
+    "rationale": {
+     "type": "string",
+     "minLength": 1,
+     "description": "Why this hypothetical is worth exploring despite having no verified citation (e.g. an abstained topic such as setback distances). Required for hypothetical."
+    },
+    "provenanceNote": {
+     "type": "string",
+     "minLength": 1,
+     "description": "Human-readable grounding note: for norm_variance/policy_variant, how it relates to the cited card; for hypothetical, an explicit 'not legally grounded' statement."
+    }
+   },
+   "allOf": [
+    {
+     "if": { "properties": { "type": { "const": "norm_variance" } } },
+     "then": { "required": ["normCardId", "variedAspect"] }
+    },
+    {
+     "if": { "properties": { "type": { "const": "policy_variant" } } },
+     "then": { "required": ["normCardId"] }
+    },
+    {
+     "if": { "properties": { "type": { "const": "hypothetical" } } },
+     "then": { "required": ["rationale"] }
+    }
+   ]
+  },
+  "mutations": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["ruleId", "action"],
+    "properties": {
+     "ruleId": {
+      "type": "string",
+      "description": "Must resolve in the baseline run's formalrules.json. Unknown ids fail the V2 grounding check; known-but-not-executable rules (status ambiguous/rejected) are skipped with a recorded reason, never guessed."
+     },
+     "action": {
+      "enum": ["drop", "set_semantics", "set_buffer_distance_m"],
+      "description": "drop = remove the rule from execution; set_semantics = reclassify (e.g. conditional overlay -> hard exclusion, or exclusion -> marker); set_buffer_distance_m = set/replaces the zoneSelector buffer distance (metres, EPSG:28992)."
+     },
+     "zoneSemantics": {
+     "enum": ["inclusion", "exclusion", "conditional", "attention", "compensation", "none"],
+      "description": "Required with action=set_semantics."
+     },
+     "bufferDistanceM": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Required with action=set_buffer_distance_m."
+     }
+    },
+    "allOf": [
+    {
+     "if": { "properties": { "action": { "const": "set_semantics" } } },
+     "then": { "required": ["zoneSemantics"] }
+    },
+    {
+     "if": { "properties": { "action": { "const": "set_buffer_distance_m" } } },
+     "then": { "required": ["bufferDistanceM"] }
+    }
+    ]
+   }
+  },
+  "proposedBy": {
+   "type": "string",
+   "pattern": "^[a-z0-9][a-z0-9-]*#[A-Za-z0-9][A-Za-z0-9._-]*$",
+   "description": "Author of the spec, agent#run form. Phase A: 'deterministic-scenario-author#poc-v0'. Phase B (GenAI): 'llm-proposal#<model>/<version>' — the seam where an LLM ScenarioAuthor may propose, never decide."
+  },
+  "notes": { "type": "string" }
+ }
+}

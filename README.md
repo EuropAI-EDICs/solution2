@@ -7,6 +7,9 @@ verbatim quote + URL per claim, schema-validated artifacts, PROV provenance).
 - [`MULTI_AGENT_PLAN.md`](MULTI_AGENT_PLAN.md) — the multi-agent architecture plan.
 - [`docs/SOLUTIONS_ARCHITECTURE.md`](docs/SOLUTIONS_ARCHITECTURE.md) — solutions
   architecture (module boundaries, contract catalogue, validation levels).
+- [`docs/GENAI_SEAMS.md`](docs/GENAI_SEAMS.md) — where and how GenAI (LLM)
+  enters the deterministic PoCs: the seam catalogue, the scenario-planning
+  pattern and its provenance-basis contract.
 - [`poc/`](poc/README.md) — **PoC-1**: "Where can I do what?" in province
   Utrecht for three tracks — **wind** turbines, **zon** (zonnevelden/solar
   fields) and **bos** (new nature/forest planting) — on the
@@ -23,4 +26,6 @@ verbatim quote + URL per claim, schema-validated artifacts, PROV provenance).
 
 Both PoCs run offline, corpus-first: `python3 poc/run.py` (tracks:
 `--use-case wind|zon|bos`) and `python3 poc-bp2op/run.py`
-(stdlib + `jsonschema`; no network at runtime).
+(stdlib + `jsonschema`; no network at runtime). Deterministic scenario
+sweeps replay the canonical PoC-1 runs: `python3 poc/scenarios/run.py`
+(`--use-case wind|zon|bos`; see [`docs/GENAI_SEAMS.md`](docs/GENAI_SEAMS.md)).
