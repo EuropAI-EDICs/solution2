@@ -1,0 +1,99 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://ldttoolbox.example/poc/schemas/crosstrack-report.schema.json",
+ "title": "CrossTrackReport",
+ "description": "Cross-track conflict overlay (docs/GENAI_SEAMS.md phase C, deterministic base): re-executes each track's unmutated control from its baseline run (cached layers, recorded tunings) and intersects the opportunity zones pairwise plus against shared instrument zones (e.g. the Groene contour, where the zon compensation duty meets the bos zoekgebied). Alters no legal claims — V2 is not_applicable by design; V3 verifies each track's control reproduces its baseline run.",
+ "type": "object",
+ "additionalProperties": false,
+ "required": ["id", "generatedAt", "generatedBy", "tracks", "conflicts", "sharedZones", "verdict", "validationReportFile"],
+ "properties": {
+  "id": { "type": "string", "pattern": "^XR-[A-Za-z0-9][A-Za-z0-9._-]*$" },
+  "generatedAt": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$" },
+  "generatedBy": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*#[A-Za-z0-9][A-Za-z0-9._-]*$" },
+  "tracks": {
+   "type": "array",
+   "minItems": 2,
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["useCase", "baselineRunId", "requestId", "finalAreaKm2", "baselineFinalAreaKm2", "reproductionRelDelta", "reproductionWithinTolerance"],
+    "properties": {
+     "useCase": { "type": "string", "enum": ["wind", "zon", "bos"] },
+     "baselineRunId": { "type": "string", "minLength": 3 },
+     "requestId": { "type": "string", "minLength": 3 },
+     "objectType": { "type": "string" },
+     "finalAreaKm2": { "type": "number", "minimum": 0 },
+     "inclusionIntersectAoiKm2": { "type": ["number", "null"] },
+     "baselineFinalAreaKm2": { "type": "number", "minimum": 0 },
+     "reproductionRelDelta": { "type": "number" },
+     "reproductionWithinTolerance": { "type": "boolean" }
+    }
+   }
+  },
+  "conflicts": {
+   "type": "array",
+   "description": "Pairwise intersections of the tracks' final opportunity zones: where two land-use claims are open on the same ground.",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["pair", "areaKm2", "shareOfTrackFinal", "geometryFile"],
+    "properties": {
+     "pair": { "type": "array", "items": { "type": "string" }, "minItems": 2, "maxItems": 2 },
+     "areaKm2": { "type": "number", "minimum": 0 },
+     "shareOfTrackFinal": {
+      "type": "object",
+      "additionalProperties": { "type": ["number", "null"] },
+      "description": "percent of each track's own final zone that the conflict covers"
+     },
+     "geometryFile": { "type": "string" }
+    }
+   }
+  },
+  "sharedZones": {
+   "type": "array",
+   "description": "One block per shared instrument zone: how much of it each track's opportunity zone claims.",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["zoneId", "areaKm2", "perTrack", "note"],
+    "properties": {
+     "zoneId": { "type": "string" },
+     "areaKm2": { "type": "number", "minimum": 0 },
+     "note": { "type": "string" },
+     "perTrack": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": ["useCase", "overlapKm2", "shareOfZone", "geometryFile"],
+       "properties": {
+        "useCase": { "type": "string", "enum": ["wind", "zon", "bos"] },
+        "overlapKm2": { "type": "number", "minimum": 0 },
+        "shareOfZone": { "type": ["number", "null"], "description": "percent of the shared zone claimed by this track" },
+        "shareOfTrackFinal": { "type": ["number", "null"] },
+        "geometryFile": { "type": "string" }
+       }
+      }
+     }
+    }
+   }
+  },
+  "verdict": { "enum": ["pass", "fail"] },
+  "validationReportFile": { "type": "string" },
+  "degradations": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["kind", "error"],
+    "properties": {
+     "kind": { "type": "string" },
+     "useCase": { "type": "string" },
+     "zoneId": { "type": "string" },
+     "error": { "type": "string" }
+    }
+   }
+  },
+  "notes": { "type": "array", "items": { "type": "string" } }
+ }
+}

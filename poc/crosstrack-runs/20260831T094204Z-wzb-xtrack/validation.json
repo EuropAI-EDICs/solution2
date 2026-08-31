@@ -1,0 +1,64 @@
+{
+ "id": "VR-crosstrack-run",
+ "artifactId": "XR-20260831T094204Z",
+ "artifactType": "scenario-report",
+ "levels": {
+  "V0": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v0-crosstrack-report-schema",
+     "status": "pass",
+     "detail": "report validated against crosstrack-report.schema.json"
+    }
+   ]
+  },
+  "V1": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v1-geometry-validity",
+     "status": "pass",
+     "detail": "3 conflict(s) + 3 shared-zone overlap(s) emitted as valid WGS84 payloads"
+    }
+   ]
+  },
+  "V2": {
+   "status": "not_applicable",
+   "notes": "the overlay alters no legal claims: every input is a validated artifact of a canonical pipeline run"
+  },
+  "V3": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v3-control-reproduction-wind",
+     "status": "pass",
+     "detail": "wind: control final 859.462827229 km2 vs baseline 859.462827229 km2 (rel 0.0, tolerance 0.001)"
+    },
+    {
+     "id": "v3-control-reproduction-zon",
+     "status": "pass",
+     "detail": "zon: control final 1167.936314228 km2 vs baseline 1167.936314228 km2 (rel 0.0, tolerance 0.001)"
+    },
+    {
+     "id": "v3-control-reproduction-bos",
+     "status": "pass",
+     "detail": "bos: control final 23.924474703 km2 vs baseline 23.924474703 km2 (rel 0.0, tolerance 0.001)"
+    }
+   ]
+  },
+  "V4": {
+   "status": "pending",
+   "notes": "arbitrating between open claims on conflicting ground is a human programming-stage decision"
+  }
+ },
+ "verdict": "pass",
+ "evidence": [
+  {
+   "ref": "crosstrack-report.json",
+   "note": "the overlay report this verdict gates"
+  }
+ ],
+ "evaluatorRun": "crosstrack-orchestrator#poc-v0.1",
+ "evaluatedAt": "2026-08-31T09:42:18Z"
+}

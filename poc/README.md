@@ -37,7 +37,7 @@ python3 poc/run.py --use-case zon      # solar fields (zonnevelden, art. 5.5)
 python3 poc/run.py --use-case bos      # new nature / forest planting (art. 6.4)
 python3 poc/run.py --refresh           # force live re-download of every layer
 python3 poc/run.py --bbox 130000,440000,160000,470000   # optional EPSG:28992 clip
-python3 -m unittest discover -s poc/tests               # offline test suite (145 tests)
+python3 -m unittest discover -s poc/tests               # offline test suite (153 tests)
 ```
 
 No API keys are used anywhere (the DSO GIO download API is key-gated and was
@@ -207,6 +207,36 @@ by the seam, not the model) through the same schema; mutations are restricted
 to the engine's actual inputs, V2 grounds every `normCardId`/`ruleId` against
 the baseline run, and unverifiable proposals land in `proposals-rejected.json`
 (`poc/pipeline/scenario_author.py`).
+
+## Cross-track conflict overlay (energy vs nature, deterministic)
+
+[`docs/GENAI_SEAMS.md`](../docs/GENAI_SEAMS.md) phase C's cross-track conflict
+discovery, deterministic base: re-executes each track's **unmutated control**
+from its baseline run (cached layers, recorded tunings, offline) and overlays
+the opportunity zones — pairwise conflicts plus each track's claim on shared
+instrument zones. No legal claim is added, dropped or mutated (V2
+`not_applicable` by design); V3 verifies every control reproduces its
+baseline; V4 (arbitration) stays pending by design.
+
+```bash
+python3 poc/crosstrack/run.py                    # wind,zon,bos
+python3 poc/crosstrack/run.py --tracks zon,bos   # just the Groene contour pair
+```
+
+Output: `poc/crosstrack-runs/<ts>-wzb-xtrack/` — `crosstrack-report.json`/`.md`,
+`conflicts/<a>-x-<b>.geojson`, `shared/<zone>/<track>.geojson`,
+`controls/<track>.geojson` (the exact inputs the conflicts were computed
+from), `validation.json`, `prov.json`, `run_summary.json`. Exit 0 only on
+verdict `pass`. Canonical run (`20260831T094204Z-wzb-xtrack`):
+
+- **zon × bos: 22.665 km² — 94.7% of the zoekgebied nieuwe natuur is
+  simultaneously open to zonnevelden** (the art.-6.5a-lid-3 compensation duty
+  is the only legal buffer between the two ambitions; matches
+  `SC-Z-GROENE-CONTOUR-HARD` exactly, as the bos final zone *is* the contour);
+- wind × bos: 22.657 km² (94.7% of the zoekgebied) — the contour is claimed
+  by both energy tracks;
+- wind × zon: 845.445 km² (98.4% of the wind zone) — the two energy ambitions
+  compete on nearly identical ground.
 
 ## Adding use cases
 

@@ -68,6 +68,8 @@ __all__ = [
     "load_baseline",
     "load_layers",
     "narrate_report",
+    "aoi_from_baseline",
+    "final_geometry_rd",
     "report_markdown",
     "run_scenario_set",
     "sources_prov_from_manifest",
@@ -342,6 +344,25 @@ def _rd_from_payload(payload: Mapping[str, Any]):
     return _shp_transform(lambda x, y, z=None: _WGS84_TO_RD.transform(x, y), shape(dict(payload)))
 
 
+def aoi_from_baseline(baseline: Mapping[str, Any]):
+    """AOI geometry (EPSG:28992) of a baseline run, simplified at its recorded
+    input tolerance — the exact input the pipeline's zone engine used."""
+    aoi = shape(baseline["request"]["areaOfInterest"]["geometry"])
+    tol = float(baseline.get("inputSimplifyM") or 0)
+    if tol > 0:
+        aoi = aoi.simplify(tol, preserve_topology=True)
+    return aoi
+
+
+def final_geometry_rd(rich_zones: Sequence[Mapping[str, Any]]):
+    """Final zone of an engine execution as a shapely geometry in EPSG:28992
+    (payload reprojected back; used for cross-run overlays and IoU)."""
+    final, _incl = final_and_inclusion(rich_zones)
+    if final is None:
+        return None
+    return _rd_from_payload(final["geometry"]["payload"])
+
+
 # --------------------------------------------------------------------------- #
 # the sweep
 # --------------------------------------------------------------------------- #
@@ -373,8 +394,6 @@ def run_scenario_set(
     numeric-grounding check; the narration lands on ``report["_narrative"]``
     and its check joins the critic's V2 level (pop both in the CLI).
     """
-    from shapely.geometry import shape as _shape
-
     request = baseline["request"]
     manifest = baseline["manifest"]
     summary = baseline["runSummary"]
@@ -382,10 +401,7 @@ def run_scenario_set(
     normcards = baseline["normcards"]
     sources = sources_prov_from_manifest(manifest)
 
-    aoi = _shape(request["areaOfInterest"]["geometry"])
-    tol = float(baseline.get("inputSimplifyM") or 0)
-    if tol > 0:
-        aoi = aoi.simplify(tol, preserve_topology=True)
+    aoi = aoi_from_baseline(baseline)
 
     degradations: List[Dict[str, Any]] = list(degradations or [])
     eligible = eligible_rules(rules)
