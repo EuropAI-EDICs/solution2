@@ -159,3 +159,55 @@ def test_children_of_rejects_non_child_resolution():
     base = h3kit.polygon_to_cells(SQUARE, 8)
     with pytest.raises(h3kit.H3KitError):
         h3kit.children_of([base["cells"][0]["cell"]], 8)
+
+
+def _disk_values(res=9):
+    centre = h3.latlng_to_cell(52.09, 5.11, res)
+    clustered = {centre: 10.0}
+    # h3-py 4.5: grid_disk returns a list; wrap in set for difference
+    for c in set(h3.grid_disk(centre, 1)) - {centre}:
+        clustered[c] = 10.0
+    for c in set(h3.grid_disk(centre, 2)) - set(h3.grid_disk(centre, 1)):
+        clustered[c] = 1.0
+    return clustered
+
+
+def test_morans_i_clustered_is_strongly_positive():
+    stat = h3kit.morans_i(_disk_values())
+    assert stat["n"] == 19
+    # binary grid_disk(1) weights give I ≈ 0.228 for this 7-core/12-ring
+    # pattern (verified against an independent matrix implementation);
+    # E[I] = -1/18, so 0.228 is strongly positive
+    assert stat["moransI"] > 0.2
+    assert stat["pValue"] <= 0.05
+    assert stat["expectedI"] == round(-1 / 18, 9)
+
+
+def test_morans_i_checkerboard_is_negative():
+    centre = h3.latlng_to_cell(52.09, 5.11, 9)
+    # sorted() order is lexicographic, not spatial (it gives I > 0);
+    # walk the ring so values alternate between truly adjacent cells
+    ring = []
+    cur = min(set(h3.grid_disk(centre, 1)) - {centre})
+    ring.append(cur)
+    while len(ring) < 6:
+        cur = min((set(h3.grid_disk(cur, 1)) - {centre}) - set(ring))
+        ring.append(cur)
+    values = {c: (10.0 if i % 2 == 0 else 1.0) for i, c in enumerate(ring)}
+    values[centre] = 10.0
+    assert h3kit.morans_i(values)["moransI"] < 0
+
+
+def test_morans_i_accepts_join_rows():
+    rows = [{"cell": c, "count": v} for c, v in _disk_values().items()]
+    assert h3kit.morans_i(rows) == h3kit.morans_i(_disk_values())
+
+
+def test_morans_i_deterministic():
+    assert h3kit.morans_i(_disk_values()) == h3kit.morans_i(_disk_values())
+
+
+def test_morans_i_degrades_gracefully():
+    assert h3kit.morans_i({"a": 1.0})["moransI"] is None
+    flat = h3kit.morans_i({c: 5.0 for c in _disk_values()})
+    assert flat["moransI"] is None and "no variance" in flat["notes"][0]

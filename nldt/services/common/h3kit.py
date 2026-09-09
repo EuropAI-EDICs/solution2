@@ -16,8 +16,9 @@ from __future__ import annotations
 
 import json
 import math
+import random
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 from urllib.parse import urlparse
 
 import h3
@@ -35,6 +36,7 @@ __all__ = [
     "join_points_to_cells",
     "knn",
     "children_of",
+    "morans_i",
 ]
 
 _TO_RD = Transformer.from_crs("EPSG:4326", "EPSG:28992", always_xy=True)
@@ -285,3 +287,68 @@ def children_of(cells: Any, resolution: Any) -> dict[str, Any]:
                              "exceed the parent's")
         out[cell] = sorted(h3.cell_to_children(cell, res))
     return {"childResolution": res, "children": out, "h3Version": _h3_version()}
+
+
+def _normalise_values(values: Any) -> dict[str, float]:
+    if isinstance(values, Mapping):
+        if "perCell" in values:  # a h3-spatial-join-points output
+            values = values["perCell"]
+        else:
+            return {str(k): float(v) for k, v in values.items()}
+    out: dict[str, float] = {}
+    for row in values:
+        cell = str(row["cell"])
+        if "value" in row:
+            out[cell] = float(row["value"])
+        elif "count" in row:
+            out[cell] = float(row["count"])
+        else:
+            out[cell] = float(row["coverageFraction"])
+    return out
+
+
+def morans_i(values: Any, permutations: Any = 199) -> dict[str, Any]:
+    """Global Moran's I from scratch over grid_disk(1) neighbourhoods
+    (notebook §IV.3, no PySAL). One-sided p-value via seeded permutations."""
+    vals = _normalise_values(values)
+    n = len(vals)
+    perms = _as_int(permutations, 199)
+    empty = {"moransI": None, "expectedI": None, "pValue": None}
+    if n < 3:
+        return {"n": n, "permutations": perms, **empty,
+                "notes": ["too few cells for Moran's I"]}
+    cells = sorted(vals)
+    idx = {c: i for i, c in enumerate(cells)}
+    mean = sum(vals.values()) / n
+    z = [vals[c] - mean for c in cells]
+    den = sum(v * v for v in z)
+    cell_set = set(cells)
+    nbr_idx = {i: sorted(idx[c2] for c2 in set(h3.grid_disk(c, 1)) - {c}
+                         if c2 in cell_set)
+               for i, c in enumerate(cells)}
+    s0 = sum(len(v) for v in nbr_idx.values())
+    if s0 == 0:
+        return {"n": n, "permutations": perms, **empty,
+                "notes": ["no adjacent cells in the value set"]}
+    if den == 0:
+        return {"n": n, "permutations": perms, **empty,
+                "notes": ["no variance in values"]}
+
+    def stat(zvals: list[float]) -> float:
+        num = sum(zvals[i] * zvals[j]
+                  for i in range(n) for j in nbr_idx[i])
+        return (n / s0) * (num / den)
+
+    observed = stat(z)
+    rng = random.Random(0)
+    perm_z = list(z)
+    ge = 0
+    for _ in range(perms):
+        rng.shuffle(perm_z)
+        if stat(perm_z) >= observed:
+            ge += 1
+    return {"n": n, "permutations": perms,
+            "moransI": round(observed, 9),
+            "expectedI": round(-1.0 / (n - 1), 9),
+            "pValue": round((ge + 1) / (perms + 1), 6),
+            "notes": []}
