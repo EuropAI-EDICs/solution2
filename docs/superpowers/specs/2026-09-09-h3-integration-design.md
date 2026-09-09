@@ -26,7 +26,8 @@ Binding constraints (from SOLUTIONS_ARCHITECTURE / GENAI_SEAMS): deterministic a
 Deterministic kernel on `h3` (v4) + existing shapely geo kernel:
 
 - **Coverage:** polygon (GeoJSON, 4326) → cell set via `polygon_to_cells` (center-in-polygon semantics, i.e. the notebook's `polyfill` behavior) → per-cell **coverage fraction** = area(cell ∩ polygon) / area(cell), computed planar in EPSG:28992 (consistent with `services/common/geo.py`'s 28992 assumption). Input polygons `make_valid`-ed first with provenance recorded. Optional `compact` (notebook §III.3).
-- **Join/KNN:** points → containing cells; KNN via `grid_distance` rings with haversine tie-break (notebook §II.3–II.4).
+- **Join/KNN:** points → containing cells; KNN via `grid_distance` rings with haversine tie-break; neighborhood rings via `grid_disk` (notebook §II.3–II.4).
+- **Hierarchy:** parent/children traversal (`cell_to_parent` / `cell_to_children`) for cross-resolution drill-down (notebook §I.2).
 - **Autocorrelation:** global Moran's I from scratch over `grid_ring` neighborhoods + permutation significance test (notebook §IV.3). No PySAL, no TensorFlow.
 
 ### 3.2 Processes (in `process_adapter/handlers.py`, `backend: local`)
@@ -82,9 +83,70 @@ The nldt `h3coverage.schema.json` is mirrored into `poc/schemas/` so both surfac
 - `nldt/tests/test_h3_processes.py` (pytest): determinism (sorted cell sets); coverage-fraction invariants; Moran's I on synthetic grids (clustered ≈ +1, checkerboard ≈ −1, random ≈ 0); CRS-seam tolerance vs h3-py's own cell-area values; rijnsweerd join fixture.
 - `poc/tests/test_h3step.py` + extensions to `test_crosstrack.py` / `test_scenarios.py` (unittest, fixtures only, offline).
 
-## 7. Out of scope
+## 7. Worked examples for the PoCs
+
+Each example shows the process chain, the PoC inputs it consumes, and the planning question it answers. All are deterministic replays over cached process responses.
+
+### 7.1 Groene contour conflict heatmap (crosstrack, zon × bos)
+
+**Question:** *Where* inside the Groene contour (zoekgebied nieuwe natuur, art. 6.4 CVDR704250) does the zonnevelden conflict concentrate — the 94.7% headline says how much, not where.
+
+- **Inputs:** bos-track `zones.json` (Groene contour polygon) + zon-track open-result polygon from the canonical runs.
+- **Chain:** `h3-polygon-to-cells` on both (res 8) → per-cell conflict fraction = coverage(zon-open ∩ cell) for cells in the contour → `h3-cells-to-geojson` for the report layer.
+- **Output:** `h3-crosstrack.json`, one record per cell:
+
+```json
+{
+  "cell": "882a100dd3fffff",
+  "resolution": 8,
+  "in_groene_contour": true,
+  "conflict_fraction": 0.83,
+  "zon_open_fraction": 0.91,
+  "compact_group": "882a100dffffffff"
+}
+```
+
+- **Use:** Leaflet choropleth in the crosstrack report; compact the high-conflict cells (`compact_cells`) to name the largest contiguous conflict areas; the conflict-free ~5% of cells become the "where can bos still proceed unopposed" shortlist.
+
+### 7.2 BAG buildings per track zone (exposure screening)
+
+**Question:** How many buildings lie inside or near each track's zone — where is the participation/objection pressure (zinhebbenden under Omgevingswet) highest?
+
+- **Inputs:** BAG footprint centroids (registry fetch + cache) + each track's zone cells.
+- **Chain:** `h3-spatial-join-points` → per-cell building counts; `h3-knn` for a single building ("which zone cells are nearest to this address").
+- **Use:** per-track building-density maps; cells with high counts flag areas where a zoekgebied is unlikely to survive participation. Feeds PoC-1 reports and the simulation KG panels as a new layer.
+
+### 7.3 Scenario spatial-structure comparison (Moran's I)
+
+**Question:** Does a policy variant fragment or consolidate a track's zone? Polygon area alone can't tell a compact from a scattered zone of equal size.
+
+- **Inputs:** baseline + variant zone outputs from `poc/pipeline/scenarios.py` (e.g. `set_buffer_distance_m` on a wind exclusion).
+- **Chain:** `h3-polygon-to-cells` per variant → coverage vectors → `h3-morans-i` per variant → per-cell delta map vs baseline.
+- **Use:** Moran's I next to area in the scenario comparison table (clustered ≈ +1, scattered ≈ 0); per-cell flip map (open→closed / closed→open) shows *where* the mutation bites. Deterministic author and LLM author (S7/S8) scenarios get the same metrics — no seam changes.
+
+### 7.4 Cross-resolution drill-down (hierarchy)
+
+**Question:** Province overview first, parcel-level detail where it matters.
+
+- **Chain:** res-8 conflict cells (§7.1) → `cell_to_children` at res 9 only for the top-N conflicted cells; keep res-8 `compact_cells` output as the compact store.
+- **Use:** interactive drill-down in the report (res 8 everywhere, res 9 inset for hotspots); artifact stays small — compacted res-8 set plus targeted res-9 children, never a full res-9 provincial grid.
+
+### 7.5 Wind search-area proximity rings (KNN)
+
+**Question:** Which buildings fall within screening distance of the wind zoekgebied, banded by ring?
+
+- **Inputs:** wind-track zone cells + BAG centroids.
+- **Chain:** zone cells → `grid_disk` rings k = 1…3 around the zone boundary cells → `h3-spatial-join-points` per ring.
+- **Use:** distance-band building counts per ring (~cell-size steps) as an early screening table before exact 28992 metric distancing runs; pentagon-cell flags recorded where rings are asymmetric.
+
+### 7.6 Recipe form (nldt side)
+
+The same patterns packaged for agents — `recipes/hex-overlay-analysis.json` applied to the Utrecht AOI: `fetch-features` (AOI layer) → `h3-polygon-to-cells` → `h3-spatial-join-points` (BAG) → `h3-morans-i` — returning one validated, PROV'd artifact set that the LangGraph orchestrator can explain step by step.
+
+## 8. Out of scope
 
 - TensorFlow/hex-convolution classifier (notebook §IV.4) — GenAI/ML stays behind seams per architecture.
+- H3 path/corridor analysis (`grid_path`) for ecological connectivity between nature areas — natural future extension of the kernel, not needed by the integration points above.
 - deck.gl visualization (future option for `context3d`).
 - PostGIS/H3 SQL indexing, Placekey, non-NL CRS support.
 - Changes to `ScenarioSpec`, zone algebra semantics, or the authoritative polygon-based results.
