@@ -64,8 +64,8 @@ All `poc/` unit tests run against committed cache fixtures — the existing offl
 
 - **Crosstrack:** after the existing overlay, discretize the Groene contour (zoekgebied nieuwe natuur) and the zon-open result → per-cell conflict fraction artifact `h3-crosstrack.json`. The canonical polygon-based headline (94.7%) stays authoritative; the hex layer shows *where* conflict concentrates.
 - **Scenarios:** per-scenario hex coverage → per-cell delta vs baseline + Moran's I as spatial-structure comparison metric. `ScenarioSpec` unchanged (computed from existing zone outputs; S7/S8 seams unaffected).
-- **BAG join:** building footprints → centroids → `h3-spatial-join-points` against zone cells (buildings per cell inside/near each track's zone). Provincial extract via the existing registry pattern (`data/sources.json` + cache); rijnsweerd fixture for tests.
-- **Reports/simulation:** hex layers as GeoJSON cell boundaries through the **existing Leaflet** template with a choropleth ramp — no deck.gl, no new CDN dependencies; single-file offline report property preserved. (deck.gl `H3Hexagon` noted as a future `context3d` option.)
+- **BAG join:** building footprints → centroids → `h3-spatial-join-points` against zone cells (buildings per cell inside/near each track's zone). Data: local GeoJSON buildings input (the registry holds no buildings source today — rijnsweerd-style fixtures and any `--buildings` GeoJSON file; a registry fetch is future work when an ArcGIS-compatible BAG service is configured).
+- **Reports/simulation:** hex choropleth as a single-file offline **Leaflet hex map** (`h3-crosstrack.html`) emitted by the crosstrack run, in the same Leaflet idiom as the run reports — no deck.gl, no new CDN dependencies. (Simulation-viewer hex panels and the jinja report-template block are follow-ups once hex artifacts exist.)
 
 ### 4.2 Contracts
 
