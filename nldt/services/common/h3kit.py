@@ -15,6 +15,7 @@ byte-stable across replays.
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -30,6 +31,10 @@ __all__ = [
     "H3KitError",
     "resolve_geojson",
     "polygon_to_cells",
+    "cells_to_geojson",
+    "join_points_to_cells",
+    "knn",
+    "children_of",
 ]
 
 _TO_RD = Transformer.from_crs("EPSG:4326", "EPSG:28992", always_xy=True)
@@ -167,3 +172,116 @@ def polygon_to_cells(
         # coarser parent cells, so this list mixes resolutions.
         result["compactedCells"] = sorted(h3.compact_cells(selected))
     return result
+
+
+def cells_to_geojson(cells: Any) -> dict[str, Any]:
+    """Cell-boundary FeatureCollection (RFC 7946), one feature per cell."""
+    feats = []
+    for cell in sorted({str(c) for c in cells}):
+        if not h3.is_valid_cell(cell):
+            raise H3KitError(f"not an H3 cell: {cell!r}")
+        # h3-py v4.5: cell_to_boundary returns (lat, lng) pairs; build
+        # the GeoJSON [lng, lat] ring ourselves and close it formally.
+        ring = [[lng, lat] for lat, lng in h3.cell_to_boundary(cell)]
+        ring.append(ring[0])
+        feats.append({
+            "type": "Feature",
+            "properties": {"cell": cell, "resolution": h3.get_resolution(cell)},
+            "geometry": {"type": "Polygon", "coordinates": [ring]},
+        })
+    return {"type": "FeatureCollection", "features": feats,
+            "properties": {"computedBy": "nldt-h3kit/1.0",
+                           "h3Version": _h3_version()}}
+
+
+def _point_latlng(point: Any) -> tuple[float, float]:
+    if isinstance(point, dict):
+        return float(point["lat"]), float(point["lng"])
+    lat, lng = point
+    return float(lat), float(lng)
+
+
+def join_points_to_cells(
+    points: Any,
+    cells: Any = None,
+    *,
+    polygon: Any = None,
+    resolution: Any = DEFAULT_RESOLUTION,
+) -> dict[str, Any]:
+    """Index points into cells (notebook §II.4); non-Point geometries join
+    by centroid (building footprints). Either ``cells`` or ``polygon``."""
+    if cells is None and polygon is None:
+        raise H3KitError("join needs either cells or polygon")
+    if cells is None:
+        cells = [r["cell"] for r in polygon_to_cells(polygon, resolution)["cells"]]
+    cell_set = {str(c) for c in cells}
+    res = (h3.get_resolution(next(iter(sorted(cell_set))))
+           if cell_set else _as_int(resolution, DEFAULT_RESOLUTION))
+
+    doc = resolve_geojson(points)
+    feats = (doc.get("features") if doc.get("type") == "FeatureCollection"
+             else [{"geometry": doc, "properties": {}}])
+    per_point, counts = [], {}
+    for i, feat in enumerate(feats or []):
+        geom = feat.get("geometry") or {}
+        if geom.get("type") == "Point":
+            lng, lat = geom["coordinates"][:2]
+        else:  # footprint → centroid (notebook §II.4 bus-stop analog)
+            lng, lat = shape(geom).centroid.x, shape(geom).centroid.y
+        cell = h3.latlng_to_cell(float(lat), float(lng), res)
+        per_point.append({"index": i, "cell": cell, "inCells": cell in cell_set})
+        if cell in cell_set:
+            counts[cell] = counts.get(cell, 0) + 1
+    return {
+        "pointCount": len(per_point),
+        "cellCount": len(cell_set),
+        "resolution": res,
+        "perPoint": per_point,
+        "perCell": [{"cell": c, "count": counts[c]} for c in sorted(counts)],
+        "h3Version": _h3_version(),
+    }
+
+
+def _haversine_km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
+    r = 6371.0088
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dp, dl = p2 - p1, math.radians(lng2 - lng1)
+    a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+    return 2 * r * math.asin(math.sqrt(a))
+
+
+def knn(point: Any, candidates: Any, k: Any = 1,
+        resolution: Any = DEFAULT_RESOLUTION) -> dict[str, Any]:
+    """K nearest candidates by (grid_distance, haversine) — notebook §II.3."""
+    lat0, lng0 = _point_latlng(point)
+    res = _as_int(resolution, DEFAULT_RESOLUTION)
+    origin = h3.latlng_to_cell(lat0, lng0, res)
+    rows = []
+    for i, cand in enumerate(candidates):
+        lat, lng = _point_latlng(cand)
+        cell = h3.latlng_to_cell(lat, lng, res)
+        try:
+            dist = int(h3.grid_distance(origin, cell))
+        except Exception:  # pentagon-distortion: not reachable by grid
+            dist = 10 ** 6
+        rows.append({"index": i, "cell": cell, "gridDistance": dist,
+                     "distanceKm": round(_haversine_km(lat0, lng0, lat, lng), 4)})
+    rows.sort(key=lambda r: (r["gridDistance"], r["distanceKm"], r["index"]))
+    return {"originCell": origin, "resolution": res,
+            "candidateCount": len(rows),
+            "neighbors": rows[:max(1, _as_int(k, 1))],
+            "h3Version": _h3_version()}
+
+
+def children_of(cells: Any, resolution: Any) -> dict[str, Any]:
+    """Parent → children drill-down (notebook §I.2 hierarchy)."""
+    res = _as_int(resolution, DEFAULT_RESOLUTION)
+    out: dict[str, list[str]] = {}
+    for cell in sorted({str(c) for c in cells}):
+        if not h3.is_valid_cell(cell):
+            raise H3KitError(f"not an H3 cell: {cell!r}")
+        if h3.get_resolution(cell) >= res:
+            raise H3KitError(f"cell {cell}: child resolution {res} must "
+                             "exceed the parent's")
+        out[cell] = sorted(h3.cell_to_children(cell, res))
+    return {"childResolution": res, "children": out, "h3Version": _h3_version()}

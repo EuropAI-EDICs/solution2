@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import h3
 import pytest
+from shapely.geometry import Point, shape
 
 from services.common import h3kit
 
@@ -71,3 +72,90 @@ def test_feature_collection_input_is_unioned():
     fc = {"type": "FeatureCollection", "features": [
         {"type": "Feature", "properties": {}, "geometry": SQUARE}]}
     assert h3kit.polygon_to_cells(fc, 9) == h3kit.polygon_to_cells(SQUARE, 9)
+
+
+POINTS = {
+    "type": "FeatureCollection",
+    "features": [
+        {"type": "Feature", "properties": {"id": "a"},
+         "geometry": {"type": "Point", "coordinates": [5.11, 52.09]}},
+        {"type": "Feature", "properties": {"id": "b"},
+         "geometry": {"type": "Point", "coordinates": [5.12, 52.095]}},
+        {"type": "Feature", "properties": {"id": "far"},
+         "geometry": {"type": "Point", "coordinates": [4.90, 52.00]}},
+    ],
+}
+
+
+def test_cells_to_geojson_roundtrip_contains_centres():
+    cov = h3kit.polygon_to_cells(SQUARE, 9)
+    fc = h3kit.cells_to_geojson([r["cell"] for r in cov["cells"]])
+    assert fc["type"] == "FeatureCollection"
+    assert len(fc["features"]) == cov["cellCount"]
+    for feat in fc["features"]:
+        cell = feat["properties"]["cell"]
+        lat, lng = h3.cell_to_latlng(cell)
+        assert shape(feat["geometry"]).buffer(1e-7).contains(Point(lng, lat))
+
+
+def test_cells_to_geojson_rejects_garbage():
+    with pytest.raises(h3kit.H3KitError):
+        h3kit.cells_to_geojson(["nonsense"])
+
+
+def test_join_points_counts_per_cell():
+    cov = h3kit.polygon_to_cells(SQUARE, 9)
+    cells = [r["cell"] for r in cov["cells"]]
+    join = h3kit.join_points_to_cells(POINTS, cells)
+    assert join["pointCount"] == 3
+    assert join["cellCount"] == len(cells)
+    inside = sum(1 for r in join["perPoint"] if r["inCells"])
+    assert inside == 2  # a and b inside the square, far outside
+    assert sum(r["count"] for r in join["perCell"]) == inside
+
+
+def test_join_points_from_polygon_derives_cells():
+    join = h3kit.join_points_to_cells(POINTS, polygon=SQUARE, resolution=9)
+    assert join["pointCount"] == 3
+    assert sum(1 for r in join["perPoint"] if r["inCells"]) == 2
+
+
+def test_join_points_needs_cells_or_polygon():
+    with pytest.raises(h3kit.H3KitError):
+        h3kit.join_points_to_cells(POINTS)
+
+
+def test_join_points_uses_centroid_for_footprints():
+    footprint = {"type": "FeatureCollection", "features": [
+        {"type": "Feature", "properties": {},
+         "geometry": {"type": "Polygon", "coordinates": [
+             [[5.10, 52.08], [5.13, 52.08], [5.13, 52.10], [5.10, 52.10],
+              [5.10, 52.08]]]}}]}
+    join = h3kit.join_points_to_cells(footprint, polygon=SQUARE, resolution=9)
+    assert join["pointCount"] == 1
+    assert join["perPoint"][0]["inCells"] is True  # centroid ≈ (5.115, 52.09)
+
+
+def test_knn_orders_by_grid_distance_then_haversine():
+    origin = {"lat": 52.09, "lng": 5.11}
+    cands = [{"lat": 52.00, "lng": 4.90}, {"lat": 52.0901, "lng": 5.1101},
+             {"lat": 52.0902, "lng": 5.1102}]
+    out = h3kit.knn(origin, cands, k=2)
+    assert out["originCell"].startswith("88")
+    assert len(out["neighbors"]) == 2
+    assert out["neighbors"][0]["gridDistance"] <= out["neighbors"][1]["gridDistance"]
+    assert out["neighbors"][0]["distanceKm"] < 1.0
+
+
+def test_children_of_drills_down():
+    base = h3kit.polygon_to_cells(SQUARE, 8)
+    parent = base["cells"][0]["cell"]
+    kids = h3kit.children_of([parent], 9)["children"][parent]
+    assert len(kids) == 7  # hex parent → 7 children
+    assert all(h3.get_resolution(k) == 9 for k in kids)
+
+
+def test_children_of_rejects_non_child_resolution():
+    base = h3kit.polygon_to_cells(SQUARE, 8)
+    with pytest.raises(h3kit.H3KitError):
+        h3kit.children_of([base["cells"][0]["cell"]], 8)
