@@ -213,3 +213,22 @@ def test_cli_fetch_features_file_uri_source():
     assert rc == 0
     job = _json.loads(buf.getvalue())
     assert job["outputs"]["features"] == fc
+
+
+def test_h3_grid_disk_process():
+    import h3
+
+    centre = h3.latlng_to_cell(52.09, 5.11, 8)
+    out = execute_local("h3-grid-disk", {"cells": [centre]})
+    disk = out["disk"]["disks"][centre]
+    assert len(disk) == 7  # origin + ring 1
+    assert centre in disk
+    assert disk == sorted(disk)
+    assert out["disk"]["ring"] == 1
+    out2 = execute_local("h3-grid-disk", {"cells": [centre], "ring": 2})
+    assert len(out2["disk"]["disks"][centre]) == 19
+
+
+def test_h3_grid_disk_rejects_ring_zero():
+    with pytest.raises(h3kit.H3KitError):
+        execute_local("h3-grid-disk", {"cells": ["882a100d1dfffff"], "ring": 0})

@@ -17,6 +17,7 @@ def seed_records() -> list[dict[str, Any]]:
         ("h3-spatial-join-points", "Join points to H3 cells (counts per cell)"),
         ("h3-knn", "K nearest points by H3 grid distance"),
         ("h3-morans-i", "Global Moran's I over H3 cell values"),
+        ("h3-grid-disk", "H3 grid_disk neighbours per cell"),
     ]
     records: list[dict[str, Any]] = []
     for pid, title in processes:

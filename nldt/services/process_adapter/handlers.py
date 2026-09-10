@@ -159,6 +159,21 @@ PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
             "statistics": {"title": "Moran's I statistics", "schema": {"type": "object"}},
         },
     },
+    "h3-grid-disk": {
+        "id": "h3-grid-disk",
+        "title": "H3 grid_disk neighbours",
+        "description": "Origin plus all cells within k steps, per input cell (display stitching, proximity rings)",
+        "version": "1.0.0",
+        "inputs": {
+            "cells": {"title": "H3 cell indexes",
+                      "schema": {"type": "array", "items": {"type": "string"}}},
+            "ring": {"title": "Ring distance k (default 1)",
+                     "schema": {"type": "integer"}},
+        },
+        "outputs": {
+            "disk": {"title": "Per-cell disks", "schema": {"type": "object"}},
+        },
+    },
 }
 
 
@@ -202,4 +217,7 @@ def execute_local(process_id: str, inputs: dict[str, Any]) -> dict[str, Any]:
     if process_id == "h3-morans-i":
         return {"statistics": h3kit.morans_i(
             inputs["values"], inputs.get("permutations", 199))}
+    if process_id == "h3-grid-disk":
+        return {"disk": h3kit.grid_disk_cells(
+            list(inputs["cells"]), inputs.get("ring", 1))}
     raise KeyError(f"Unknown process: {process_id}")

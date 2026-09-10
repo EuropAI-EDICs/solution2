@@ -37,6 +37,7 @@ __all__ = [
     "knn",
     "children_of",
     "morans_i",
+    "grid_disk_cells",
 ]
 
 _TO_RD = Transformer.from_crs("EPSG:4326", "EPSG:28992", always_xy=True)
@@ -352,3 +353,17 @@ def morans_i(values: Any, permutations: Any = 199) -> dict[str, Any]:
             "expectedI": round(-1.0 / (n - 1), 9),
             "pValue": round((ge + 1) / (perms + 1), 6),
             "notes": []}
+
+
+def grid_disk_cells(cells: Any, ring: Any = 1) -> dict[str, Any]:
+    """grid_disk neighbourhood per cell (notebook §I.3 arrangement):
+    the origin plus all cells within ``ring`` steps, sorted."""
+    k = _as_int(ring, 1)
+    if k < 1:
+        raise H3KitError(f"ring {k} must be >= 1")
+    disks: dict[str, list[str]] = {}
+    for cell in sorted({str(c) for c in cells}):
+        if not h3.is_valid_cell(cell):
+            raise H3KitError(f"not an H3 cell: {cell!r}")
+        disks[cell] = sorted(set(h3.grid_disk(cell, k)))
+    return {"ring": k, "disks": disks, "h3Version": _h3_version()}

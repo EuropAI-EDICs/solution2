@@ -52,6 +52,7 @@ sequenceDiagram
 | `h3-spatial-join-points` | Punten (of footprint-centroïden) indexeren in cellen; aantallen per cel |
 | `h3-knn` | K nearest neighbours via H3-gridafstand met haversine tie-break |
 | `h3-morans-i` | Ruimtelijke autocorrelatie (Moran's I) over `grid_disk`-buurten met permutatie-p-waarde |
+| `h3-grid-disk` | `grid_disk`-buren per cel (origin + cellen binnen k stappen) — o.a. weergave-stitching en nabijheidsringen |
 
 ## Recipe schema
 
