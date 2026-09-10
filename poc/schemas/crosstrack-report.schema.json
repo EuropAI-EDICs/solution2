@@ -78,6 +78,19 @@
     }
    }
   },
+  "h3Overlay": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["zoneId", "resolution", "cells", "conflictCells", "weightedConflictSharePct", "artifactFile"],
+   "properties": {
+    "zoneId": { "type": "string" },
+    "resolution": { "type": "integer" },
+    "cells": { "type": "integer", "minimum": 0 },
+    "conflictCells": { "type": "integer", "minimum": 0 },
+    "weightedConflictSharePct": { "type": ["number", "null"] },
+    "artifactFile": { "type": "string" }
+   }
+  },
   "verdict": { "enum": ["pass", "fail"] },
   "validationReportFile": { "type": "string" },
   "degradations": {

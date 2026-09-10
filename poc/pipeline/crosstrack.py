@@ -39,6 +39,7 @@ __all__ = [
     "CROSSTRACK_VERSION",
     "CROSSTRACK_RUN",
     "CrossTrackError",
+    "attach_h3_overlay",
     "conflict_markdown",
     "run_crosstrack",
     "track_control",
@@ -124,6 +125,83 @@ def union_zone(layers: Mapping[str, Any], zone_id: str):
         u = make_valid(u)
     u, _dropped = engine.polygonal(u)
     return u
+
+
+# --------------------------------------------------------------------------- #
+# H3 per-cell conflict overlay (spec example 7.1; degradable decision support)
+# --------------------------------------------------------------------------- #
+
+def attach_h3_overlay(
+    report: Dict[str, Any],
+    tracks: Sequence[Mapping[str, Any]],
+    *,
+    zone_id: str,
+    layers: Mapping[str, Any],
+    resolution: int = 8,
+    call=None,
+) -> Optional[Dict[str, Any]]:
+    """Attach the per-cell H3 conflict overlay (spec example 7.1).
+
+    ``call(process_id, inputs) -> outputs`` is the poc h3step bridge; when
+    None (offline, no fixtures) the overlay degrades to a recorded
+    degradation and the report stays valid. Returns the artifact dict for
+    ``h3-crosstrack.json`` or None. Polygon headline numbers remain
+    authoritative — this layer only localises them.
+    """
+    if call is None:
+        report.setdefault("degradations", []).append(
+            {"kind": "h3-unavailable", "zoneId": zone_id,
+             "error": "no H3 process client provided (offline run)"})
+        return None
+    contour = union_zone(layers, zone_id)
+    contour_payload = engine.to_zone_geometry(contour, round_dp=6)[0]["payload"]
+
+    def _fc(payload):
+        return {"type": "FeatureCollection", "features": [
+            {"type": "Feature", "properties": {}, "geometry": payload}]}
+
+    cov = call("h3-polygon-to-cells",
+               {"polygon": _fc(contour_payload), "resolution": resolution}
+               )["coverage"]
+    cover = {r["cell"]: r["coverageFraction"] for r in cov["cells"]}
+    area = {r["cell"]: r["cellAreaM2"] for r in cov["cells"]}
+
+    conflict: Dict[str, float] = {}
+    zon = next((t for t in tracks if t.get("useCase") == "zon"), None)
+    if zon is not None:
+        zon_payload = engine.to_zone_geometry(zon["geometry"],
+                                              round_dp=6)[0]["payload"]
+        zcov = call("h3-polygon-to-cells",
+                    {"polygon": _fc(zon_payload), "resolution": resolution,
+                     "restrictCells": sorted(cover)})["coverage"]
+        conflict = {r["cell"]: r["coverageFraction"] for r in zcov["cells"]}
+
+    rows = [{"cell": c, "inZoneFraction": cover[c],
+             "conflictFraction": round(conflict.get(c, 0.0), 6),
+             "cellAreaM2": area[c]} for c in sorted(cover)]
+    num = sum(r["inZoneFraction"] * r["conflictFraction"] * r["cellAreaM2"]
+              for r in rows)
+    den = sum(r["inZoneFraction"] * r["cellAreaM2"] for r in rows)
+    weighted = round(num / den * 100.0, 3) if den else None
+
+    artifact = {
+        "zoneId": zone_id, "resolution": resolution, "cells": rows,
+        "weightedConflictSharePct": weighted,
+        "computedBy": CROSSTRACK_VERSION,
+        "notes": [
+            "conflictFraction = share of each contour cell's area that is "
+            "simultaneously open to the zon track's final zone (planar "
+            "EPSG:28992); polygon headline numbers remain authoritative.",
+        ],
+    }
+    report["h3Overlay"] = {
+        "zoneId": zone_id, "resolution": resolution, "cells": len(rows),
+        "conflictCells": sum(1 for r in rows if r["conflictFraction"] > 0),
+        "weightedConflictSharePct": weighted,
+        "artifactFile": "h3-crosstrack.json",
+    }
+    contracts.validate(report, "crosstrack-report")
+    return artifact
 
 
 # --------------------------------------------------------------------------- #
@@ -374,6 +452,13 @@ def conflict_markdown(report: Mapping[str, Any]) -> str:
         for d in report["degradations"]:
             lines.append(f"- `{d['kind']}` {d.get('zoneId') or d.get('useCase') or ''}: "
                          f"{d['error']}")
+    if report.get("h3Overlay"):
+        h = report["h3Overlay"]
+        lines += ["", f"## H3 overlay: `{h['zoneId']}` at resolution {h['resolution']}", "",
+                  f"{h['conflictCells']} of {h['cells']} cells carry zon conflict; "
+                  f"coverage-weighted conflict share {h['weightedConflictSharePct']}%. "
+                  f"Per-cell detail: `{h['artifactFile']}` (decision support; "
+                  "polygon headline numbers remain authoritative)."]
     lines.append("")
     for note in report.get("notes", []):
         lines.append(f"> {note}")

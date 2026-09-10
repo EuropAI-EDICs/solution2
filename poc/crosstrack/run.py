@@ -89,6 +89,14 @@ def build_parser() -> argparse.ArgumentParser:
                          "--tracks order; default: latest poc/runs/*-<track>)")
     ap.add_argument("--out", default=None,
                     help="output directory (default: poc/crosstrack-runs/<ts>)")
+    ap.add_argument("--no-h3", action="store_true",
+                    help="skip the H3 per-cell overlay (default: run it, "
+                         "degrading gracefully when offline without cache)")
+    ap.add_argument("--refresh-h3", action="store_true",
+                    help="force live re-invocation of the nldt H3 processes "
+                         "(ignore the poc/data/cache/h3 cache)")
+    ap.add_argument("--h3-resolution", type=int, default=8,
+                    help="H3 resolution for the overlay (default: 8)")
     return ap
 
 
@@ -169,6 +177,27 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "used": [f"controls/{t['useCase']}.geojson" for t in tracks_internal],
         "generated": written,
     })
+
+    h3_artifact = None
+    if not args.no_h3:
+        from pipeline import h3step
+
+        def _h3_call(process_id, inputs):
+            return h3step.call(process_id, inputs, refresh=args.refresh_h3)
+
+        try:
+            h3_artifact = crosstrack.attach_h3_overlay(
+                report, tracks_internal,
+                zone_id=SHARED_ZONES[0][0],
+                layers=track_baselines[0][2],
+                resolution=args.h3_resolution, call=_h3_call)
+        except Exception as exc:  # decision support only: never fail the run
+            report.setdefault("degradations", []).append(
+                {"kind": "h3-error", "error": f"{type(exc).__name__}: {exc}"})
+            print(f"[crosstrack] WARNING h3 overlay degraded: {exc}")
+    if h3_artifact is not None:
+        dump_json(out_dir / "h3-crosstrack.json", h3_artifact, indent=1)
+        written.append("h3-crosstrack.json")
 
     dump_json(out_dir / "crosstrack-report.json", report, indent=1)
     dump_json(out_dir / "validation.json", validation, indent=1)

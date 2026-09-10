@@ -22,6 +22,7 @@ if str(POC_ROOT) not in sys.path:
     sys.path.insert(0, str(POC_ROOT))
 
 from pipeline import contracts, crosstrack, scenarios  # noqa: E402
+from shapely.geometry import box, mapping  # noqa: E402
 
 
 def _fc(box, name):
@@ -201,6 +202,91 @@ class RealCacheCrosstrackTests(unittest.TestCase):
         self.assertAlmostEqual(by_uc["zon"]["shareOfZone"], 94.7, delta=0.1)
         self.assertAlmostEqual(by_uc["bos"]["shareOfZone"], 100.0, delta=0.05)
         contracts.validate(report, "crosstrack-report")
+
+
+class TestH3Overlay(unittest.TestCase):
+
+    def _report(self):
+        # minimal schema-valid crosstrack report (generatedBy needs a '#',
+        # tracks needs minItems 2 — see crosstrack-report.schema.json)
+        return {
+            "id": "XR-T", "generatedAt": "2026-01-01T00:00:00Z",
+            "generatedBy": "t#t",
+            "tracks": [
+                {"useCase": "zon", "baselineRunId": "run-zon",
+                 "requestId": "req-zon", "finalAreaKm2": 1.0,
+                 "baselineFinalAreaKm2": 1.0, "reproductionRelDelta": 0.0,
+                 "reproductionWithinTolerance": True},
+                {"useCase": "bos", "baselineRunId": "run-bos",
+                 "requestId": "req-bos", "finalAreaKm2": 1.0,
+                 "baselineFinalAreaKm2": 1.0, "reproductionRelDelta": 0.0,
+                 "reproductionWithinTolerance": True},
+            ],
+            "conflicts": [],
+            "sharedZones": [], "verdict": "pass",
+            "validationReportFile": "validation.json",
+            "degradations": [], "notes": [],
+        }
+
+    def _fake_call(self):
+        calls = {"n": 0}
+
+        def call(process_id, inputs):
+            assert process_id == "h3-polygon-to-cells"
+            calls["n"] += 1
+            if inputs.get("restrictCells") is not None:
+                return {"coverage": {
+                    "resolution": inputs["resolution"],
+                    "cellCount": len(inputs["restrictCells"]),
+                    "cells": [{"cell": c, "coverageFraction": 0.5,
+                               "cellAreaM2": 740000.0}
+                              for c in inputs["restrictCells"]],
+                    "crs": "cells-EPSG:4326-areas-EPSG:28992",
+                    "h3Version": "test"}}
+            return {"coverage": {
+                "resolution": inputs["resolution"], "cellCount": 2,
+                "cells": [{"cell": "c1", "coverageFraction": 0.8,
+                           "cellAreaM2": 740000.0},
+                          {"cell": "c2", "coverageFraction": 0.8,
+                           "cellAreaM2": 740000.0}],
+                "crs": "cells-EPSG:4326-areas-EPSG:28992",
+                "h3Version": "test"}}
+
+        return call, calls
+
+    def test_attach_h3_overlay_weights_and_revalidates(self):
+        layers = {"groene_contour": {"type": "FeatureCollection", "features": [
+            {"type": "Feature", "properties": {},
+             "geometry": mapping(box(155000, 456000, 165000, 464000))}]}}
+        tracks = [{"useCase": "zon", "geometry": box(156000, 457000, 164000, 463000)}]
+        call, calls = self._fake_call()
+        report = self._report()
+        artifact = crosstrack.attach_h3_overlay(
+            report, tracks, zone_id="groene_contour", layers=layers, call=call)
+        self.assertEqual(calls["n"], 2)  # contour cells + restricted zon coverage
+        self.assertEqual(report["h3Overlay"]["cells"], 2)
+        self.assertEqual(report["h3Overlay"]["conflictCells"], 2)
+        self.assertEqual(report["h3Overlay"]["weightedConflictSharePct"], 50.0)
+        self.assertEqual(artifact["cells"][0]["conflictFraction"], 0.5)
+        contracts.validate(report, "crosstrack-report")  # attach already did
+
+    def test_attach_h3_overlay_degrades_without_client(self):
+        report = self._report()
+        self.assertIsNone(
+            crosstrack.attach_h3_overlay(report, [], zone_id="z", layers={}))
+        self.assertNotIn("h3Overlay", report)
+        self.assertEqual(report["degradations"][0]["kind"], "h3-unavailable")
+        contracts.validate(report, "crosstrack-report")
+
+    def test_markdown_renders_h3_section(self):
+        report = self._report()
+        report["h3Overlay"] = {
+            "zoneId": "groene_contour", "resolution": 8, "cells": 10,
+            "conflictCells": 7, "weightedConflictSharePct": 94.7,
+            "artifactFile": "h3-crosstrack.json"}
+        md = crosstrack.conflict_markdown(report)
+        self.assertIn("H3 overlay", md)
+        self.assertIn("7 of 10 cells", md)
 
 
 if __name__ == "__main__":
