@@ -406,5 +406,31 @@ class TestHexMapReport(unittest.TestCase):
         self.assertEqual(h3report.stitch_for_heatmap(fc), fc)
 
 
+    def test_render_hex_map_escapes_script_breakout(self):
+        """The JSON script blocks must not be breakable by a "</script>"
+        in any embedded value: "<" is emitted as the \\u003c escape."""
+        import json as _json
+        import re as _re
+
+        from pipeline import h3report
+
+        fc = {"type": "FeatureCollection", "features": [{
+            "type": "Feature",
+            "properties": {"cell": "deadbeefdeadbee", "resolution": 8,
+                           "conflictFraction": 0.5,
+                           "note": "</script><b>pwn"},
+            "geometry": None}]}
+        html = h3report.render_hex_map(
+            fc, title='t "</script>',
+            stops=[(0.5, '</script>label')])
+        blocks = _re.findall(
+            r'<script type="application/json"[^>]*>(.*?)</script>', html, _re.S)
+        self.assertEqual(len(blocks), 2)
+        for block in blocks:
+            self.assertNotIn("</script>", block)
+            _json.loads(block)  # still valid JSON after escaping
+        self.assertIn("\\u003c", blocks[0])
+
+
 if __name__ == "__main__":
     unittest.main()

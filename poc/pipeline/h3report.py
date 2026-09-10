@@ -311,8 +311,8 @@ def render_hex_map(
     # inside <script> and kills any </script> breakout
     html = _TEMPLATE.format(
         title=_html.escape(title),
-        payload=json.dumps(display_fc, ensure_ascii=False).replace("<", "\u003c"),
-        meta=json.dumps(meta, ensure_ascii=False).replace("<", "\u003c"),
+        payload=json.dumps(display_fc, ensure_ascii=False).replace("<", "\\u003c"),
+        meta=json.dumps(meta, ensure_ascii=False).replace("<", "\\u003c"),
     )
     if out_path is not None:
         out_path = Path(out_path)
