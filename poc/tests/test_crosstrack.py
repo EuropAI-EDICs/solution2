@@ -311,5 +311,30 @@ class TestH3Overlay(unittest.TestCase):
         self.assertIsNone(crosstrack.attach_buildings_join([], {}))
 
 
+class TestHexMapReport(unittest.TestCase):
+
+    def test_render_hex_map_html(self):
+        from pipeline import h3report
+
+        fc = {"type": "FeatureCollection", "features": [{
+            "type": "Feature",
+            "properties": {"cell": "deadbeefdeadbee", "resolution": 8,
+                           "conflictFraction": 0.83},
+            "geometry": {"type": "Polygon", "coordinates": [
+                [[5.10, 52.08], [5.11, 52.08], [5.11, 52.09],
+                 [5.10, 52.09], [5.10, 52.08]]]}}]}
+        html = h3report.render_hex_map(fc, title="XR-T hex overlay")
+        self.assertIn("leaflet@1.9.4", html)
+        self.assertIn("XR-T hex overlay", html)
+        self.assertIn("deadbeefdeadbee", html)
+        self.assertIn("conflictFraction", html)
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as td:
+            out = Path(td) / "h3.html"
+            h3report.render_hex_map(fc, title="t", out_path=out)
+            self.assertTrue(out.exists())
+
+
 if __name__ == "__main__":
     unittest.main()

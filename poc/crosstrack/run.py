@@ -201,6 +201,27 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if h3_artifact is not None:
         dump_json(out_dir / "h3-crosstrack.json", h3_artifact, indent=1)
         written.append("h3-crosstrack.json")
+        try:
+            from pipeline import h3report, h3step
+
+            cells_fc = h3step.call(
+                "h3-cells-to-geojson",
+                {"cells": [r["cell"] for r in h3_artifact["cells"]]},
+                refresh=args.refresh_h3)["features"]
+            by_cell = {r["cell"]: r for r in h3_artifact["cells"]}
+            for feat in cells_fc["features"]:
+                feat["properties"].update(by_cell[feat["properties"]["cell"]])
+            (out_dir / "h3-crosstrack.html").write_text(
+                h3report.render_hex_map(
+                    cells_fc,
+                    title=f"H3 conflict overlay — {report['id']} "
+                          f"(res {h3_artifact['resolution']})"),
+                encoding="utf-8")
+            written.append("h3-crosstrack.html")
+        except Exception as exc:  # map is a convenience; artifact stands alone
+            report.setdefault("degradations", []).append(
+                {"kind": "h3-map-error", "error": f"{type(exc).__name__}: {exc}"})
+            print(f"[crosstrack] WARNING hex map degraded: {exc}")
 
     buildings_artifact = None
     if args.buildings is not None:
