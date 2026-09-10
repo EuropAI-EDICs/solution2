@@ -187,3 +187,29 @@ def test_cli_file_uri_inputs_loaded_as_json():
         job = _json.loads(buf.getvalue())
         assert [r["cell"] for r in job["outputs"]["coverage"]["cells"]] == sorted(restrict)
         assert job["outputs"]["coverage"]["cellCount"] == 3
+
+
+def test_cli_fetch_features_file_uri_source():
+    # Regression (fix 2): _parse_inputs resolves file:// values as JSON,
+    # so "source=file://..." arrives at execute_local's fetch-features
+    # branch as a dict; _load_source must accept already-parsed GeoJSON
+    # instead of str()-ing it into json.loads (JSONDecodeError).
+    import contextlib
+    import io
+    import json as _json
+    from pathlib import Path
+
+    from services.cli import main
+
+    examples = Path(__file__).resolve().parents[1] / "examples"
+    source = examples / "hex-points.geojson"
+    with source.open() as f:
+        fc = _json.load(f)
+
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        rc = main(["run-process", "fetch-features",
+                   "--input", f"source=file://{source}"])
+    assert rc == 0
+    job = _json.loads(buf.getvalue())
+    assert job["outputs"]["features"] == fc

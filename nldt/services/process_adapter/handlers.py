@@ -16,7 +16,9 @@ from services.common.geo import (
 )
 
 
-def _load_source(source: str, aoi: Any = None) -> dict[str, Any]:
+def _load_source(source: str | dict[str, Any] | list[Any], aoi: Any = None) -> dict[str, Any]:
+    if isinstance(source, (dict, list)):
+        return source
     if source.startswith("ngsi-ld://"):
         from services.hybrid_bridge import fetch_ngsi_as_features
 
@@ -172,7 +174,7 @@ def describe_process(process_id: str) -> dict[str, Any]:
 
 def execute_local(process_id: str, inputs: dict[str, Any]) -> dict[str, Any]:
     if process_id == "fetch-features":
-        fc = _load_source(str(inputs["source"]), inputs.get("aoi"))
+        fc = _load_source(inputs["source"], inputs.get("aoi"))
         return {"features": fc}
     if process_id == "spatial-intersection":
         a = parse_geojson_input(inputs["layerA"])
