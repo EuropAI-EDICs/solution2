@@ -143,3 +143,47 @@ def test_hex_overlay_recipe_end_to_end():
     assert outputs["join"]["pointCount"] == 4
     assert sum(1 for r in outputs["join"]["perPoint"] if r["inCells"]) == 2
     assert outputs["autocorrelation"]["n"] >= 1
+
+
+def test_cli_file_uri_inputs_loaded_as_json():
+    # Regression: poc/pipeline/h3step.py passes list/dict inputs as
+    # file:// request paths; _parse_inputs must load them as JSON (a
+    # plain string would make polygon_to_cells iterate characters and
+    # raise H3KitError). Missing files pass through unchanged for
+    # consumers like fetch-features that resolve file URIs themselves.
+    import contextlib
+    import io
+    import json as _json
+    import tempfile
+    from pathlib import Path
+
+    from services.cli import _parse_inputs, main
+
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        cells_file = tmp / "cells.json"
+        cells_file.write_text(_json.dumps(["cell-a", "cell-b"]))
+        parsed = _parse_inputs([f"restrictCells=file://{cells_file}"])
+        assert isinstance(parsed["restrictCells"], list)
+        assert parsed["restrictCells"] == ["cell-a", "cell-b"]
+        assert _parse_inputs(["source=file:///nonexistent/x.json"]) == {
+            "source": "file:///nonexistent/x.json"}
+
+        # End-to-end through the CLI: restrictCells arrives as a file URI
+        # and the coverage must cover exactly the restricted cells.
+        full = execute_local("h3-polygon-to-cells",
+                             {"polygon": SQUARE, "resolution": 9})["coverage"]
+        restrict = [r["cell"] for r in full["cells"][:3]]
+        polygon_file = tmp / "polygon.geojson"
+        polygon_file.write_text(_json.dumps(SQUARE))
+        cells_file.write_text(_json.dumps(restrict))
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = main(["run-process", "h3-polygon-to-cells",
+                       "--input", f"polygon=file://{polygon_file}",
+                       "--input", "resolution=9",
+                       "--input", f"restrictCells=file://{cells_file}"])
+        assert rc == 0
+        job = _json.loads(buf.getvalue())
+        assert [r["cell"] for r in job["outputs"]["coverage"]["cells"]] == sorted(restrict)
+        assert job["outputs"]["coverage"]["cellCount"] == 3
