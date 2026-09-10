@@ -219,3 +219,52 @@ def test_coverage_output_validates_against_contract():
     validate_instance(h3kit.polygon_to_cells(SQUARE, 8), "h3coverage.schema.json")
     validate_instance(h3kit.polygon_to_cells(SQUARE, 9, compact=True),
                       "h3coverage.schema.json")
+
+
+RD_SQUARE = {
+    "type": "Polygon",
+    "coordinates": [[[139000, 455600], [139200, 455600], [139200, 455800],
+                     [139000, 455800], [139000, 455600]]],
+}
+
+
+def test_rd_input_flags_crs_note_and_zero_cells():
+    cov = h3kit.polygon_to_cells(RD_SQUARE, 9)
+    assert cov["cellCount"] == 0
+    assert "input-bounds-outside-wgs84-check-crs" in cov["notes"]
+
+
+def test_resolve_geojson_wraps_errors_as_h3kiterror():
+    with pytest.raises(h3kit.H3KitError):
+        h3kit.resolve_geojson("file:///nonexistent/x.geojson")
+    with pytest.raises(h3kit.H3KitError):
+        h3kit.resolve_geojson("{not json")
+
+
+def test_join_rejects_invalid_cell_entries():
+    with pytest.raises(h3kit.H3KitError):
+        h3kit.join_points_to_cells(POINTS, ["garbage"])
+
+
+def test_knn_and_children_reject_out_of_range_resolution():
+    base = h3kit.polygon_to_cells(SQUARE, 8)
+    cell = base["cells"][0]["cell"]
+    with pytest.raises(h3kit.H3KitError):
+        h3kit.knn({"lat": 52.09, "lng": 5.11}, [], resolution=16)
+    with pytest.raises(h3kit.H3KitError):
+        h3kit.children_of([cell], 16)
+
+
+def test_morans_rejects_malformed_rows():
+    with pytest.raises(h3kit.H3KitError):
+        h3kit.morans_i([{"nonsense": 1.0}])
+    with pytest.raises(h3kit.H3KitError):
+        h3kit.morans_i(42)
+
+
+def test_compact_ignored_note_with_restrict_cells():
+    base = h3kit.polygon_to_cells(SQUARE, 8)
+    subset = [r["cell"] for r in base["cells"]][:3]
+    cov = h3kit.polygon_to_cells(SQUARE, 8, restrict_cells=subset, compact=True)
+    assert "compact-ignored-with-restrict-cells" in cov["notes"]
+    assert "compactedCells" not in cov

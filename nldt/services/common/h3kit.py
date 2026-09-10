@@ -78,9 +78,17 @@ def resolve_geojson(value: Any) -> dict[str, Any]:
     """Accept inline GeoJSON (dict or JSON string) or a ``file://`` URI."""
     if isinstance(value, str):
         if value.startswith("file://"):
-            with Path(urlparse(value).path).open(encoding="utf-8") as f:
-                return json.load(f)
-        return json.loads(value)
+            try:
+                with Path(urlparse(value).path).open(encoding="utf-8") as f:
+                    return json.load(f)
+            except OSError as exc:
+                raise H3KitError(f"cannot read geojson file:// URI: {exc}") from exc
+            except json.JSONDecodeError as exc:
+                raise H3KitError(f"invalid JSON in file:// URI: {exc}") from exc
+        try:
+            return json.loads(value)
+        except json.JSONDecodeError as exc:
+            raise H3KitError(f"invalid GeoJSON JSON string: {exc}") from exc
     if isinstance(value, dict):
         return value
     raise H3KitError("expected GeoJSON dict, JSON string or file:// URI")
@@ -130,6 +138,11 @@ def polygon_to_cells(
     if not geoms:
         raise H3KitError("no geometry found in polygon input")
     u4326 = unary_union(geoms)
+    minx, miny, maxx, maxy = u4326.bounds
+    if not (-180.0 <= minx and maxx <= 180.0 and -90.0 <= miny and maxy <= 90.0):
+        # degree-out-of-range coords (e.g. EPSG:28992 input): H3 silently
+        # returns zero cells — flag it instead of a misleading empty result
+        notes.add("input-bounds-outside-wgs84-check-crs")
     poly_rd = sh_transform(_TO_RD.transform, u4326)
 
     if restrict_cells is not None:
@@ -169,11 +182,15 @@ def polygon_to_cells(
     }
     if notes:
         result["notes"] = sorted(notes)
-    if _as_bool(compact) and restrict_cells is None:
-        selected = {r["cell"] for r in rows if r["coverageFraction"] >= 0.5}
-        # Real H3 compaction: complete child groups are replaced by
-        # coarser parent cells, so this list mixes resolutions.
-        result["compactedCells"] = sorted(h3.compact_cells(selected))
+    if _as_bool(compact):
+        if restrict_cells is not None:
+            notes.add("compact-ignored-with-restrict-cells")
+            result["notes"] = sorted(notes)
+        else:
+            selected = {r["cell"] for r in rows if r["coverageFraction"] >= 0.5}
+            # Real H3 compaction: complete child groups are replaced by
+            # coarser parent cells, so this list mixes resolutions.
+            result["compactedCells"] = sorted(h3.compact_cells(selected))
     return result
 
 
@@ -217,7 +234,12 @@ def join_points_to_cells(
         raise H3KitError("join needs either cells or polygon")
     if cells is None:
         cells = [r["cell"] for r in polygon_to_cells(polygon, resolution)["cells"]]
-    cell_set = {str(c) for c in cells}
+    cell_set = set()
+    for c in cells:
+        c = str(c)
+        if not h3.is_valid_cell(c):
+            raise H3KitError(f"not an H3 cell: {c!r}")
+        cell_set.add(c)
     res = (h3.get_resolution(next(iter(sorted(cell_set))))
            if cell_set else _as_int(resolution, DEFAULT_RESOLUTION))
 
@@ -258,6 +280,8 @@ def knn(point: Any, candidates: Any, k: Any = 1,
     """K nearest candidates by (grid_distance, haversine) — notebook §II.3."""
     lat0, lng0 = _point_latlng(point)
     res = _as_int(resolution, DEFAULT_RESOLUTION)
+    if not 0 <= res <= 15:
+        raise H3KitError(f"resolution {res} out of range 0..15")
     origin = h3.latlng_to_cell(lat0, lng0, res)
     rows = []
     for i, cand in enumerate(candidates):
@@ -279,6 +303,8 @@ def knn(point: Any, candidates: Any, k: Any = 1,
 def children_of(cells: Any, resolution: Any) -> dict[str, Any]:
     """Parent → children drill-down (notebook §I.2 hierarchy)."""
     res = _as_int(resolution, DEFAULT_RESOLUTION)
+    if not 0 <= res <= 15:
+        raise H3KitError(f"resolution {res} out of range 0..15")
     out: dict[str, list[str]] = {}
     for cell in sorted({str(c) for c in cells}):
         if not h3.is_valid_cell(cell):
@@ -296,15 +322,22 @@ def _normalise_values(values: Any) -> dict[str, float]:
             values = values["perCell"]
         else:
             return {str(k): float(v) for k, v in values.items()}
+    if not isinstance(values, (list, tuple)):
+        raise H3KitError("values must be a cell→value map, rows list, or "
+                         "a join output with perCell")
     out: dict[str, float] = {}
     for row in values:
+        if not isinstance(row, Mapping) or "cell" not in row:
+            raise H3KitError(f"malformed values row: {row!r}")
         cell = str(row["cell"])
         if "value" in row:
             out[cell] = float(row["value"])
         elif "count" in row:
             out[cell] = float(row["count"])
-        else:
+        elif "coverageFraction" in row:
             out[cell] = float(row["coverageFraction"])
+        else:
+            raise H3KitError(f"row {cell!r} lacks value/count/coverageFraction")
     return out
 
 

@@ -16,7 +16,7 @@ from services.common.geo import (
 )
 
 
-def _load_source(source: str | dict[str, Any] | list[Any], aoi: Any = None) -> dict[str, Any]:
+def _load_source(source: str | dict[str, Any] | list[Any], aoi: Any = None) -> dict[str, Any] | list[Any]:
     if isinstance(source, (dict, list)):
         return source
     if source.startswith("ngsi-ld://"):
@@ -81,7 +81,7 @@ PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
         "description": "Discretise a GeoJSON polygon layer into H3 cells with planar EPSG:28992 coverage fractions; optional restrictCells / compact",
         "version": "1.0.0",
         "inputs": {
-            "polygon": {"title": "Polygon (GeoJSON or file:// URI)",
+            "polygon": {"title": "Polygon (GeoJSON or file:// URI, EPSG:4326/RFC 7946)",
                         "schema": {"type": ["object", "string"]}},
             "resolution": {"title": "H3 resolution (default 8)",
                            "schema": {"type": "integer"}},
@@ -114,11 +114,11 @@ PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
         "description": "Index points (or footprint centroids) into cells; counts per cell",
         "version": "1.0.0",
         "inputs": {
-            "points": {"title": "Points (GeoJSON or file:// URI)",
+            "points": {"title": "Points (GeoJSON or file:// URI, EPSG:4326/RFC 7946)",
                        "schema": {"type": ["object", "string"]}},
             "cells": {"title": "Cell set (else polygon+resolution)",
                       "schema": {"type": "array", "items": {"type": "string"}}},
-            "polygon": {"title": "Polygon to derive cells from",
+            "polygon": {"title": "Polygon to derive cells from (EPSG:4326)",
                         "schema": {"type": ["object", "string"]}},
             "resolution": {"title": "H3 resolution (default 8)",
                            "schema": {"type": "integer"}},

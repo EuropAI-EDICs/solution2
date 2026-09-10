@@ -1,7 +1,7 @@
 {
   "id": "hex-overlay-analysis",
   "title": "Hex Overlay Analysis (H3)",
-  "description": "nLDT reference recipe: discretise a zone layer into H3 cells, join point data per cell, and measure spatial autocorrelation — the h3-py urban-analytics pattern on Dutch data (spec 2026-09-09-h3-integration, example 7.6).",
+  "description": "nLDT reference recipe: discretise a zone layer into H3 cells, join point data per cell, and measure spatial autocorrelation — the h3-py urban-analytics pattern on Dutch data (spec 2026-09-09-h3-integration, example 7.6). All geojson inputs must be EPSG:4326 (RFC 7946).",
   "version": "1.0.0",
   "tags": ["spatial", "h3", "hex", "aggregation", "autocorrelation"],
   "requiredData": [
@@ -10,10 +10,10 @@
   ],
   "requiredProcesses": ["fetch-features", "h3-polygon-to-cells", "h3-spatial-join-points", "h3-morans-i"],
   "inputs": {
-    "aoi": { "type": "geojson", "description": "Area of interest", "required": false },
+    "aoi": { "type": "geojson", "description": "Area of interest (EPSG:4326)", "required": true },
     "zoneUri": { "type": "uri", "description": "URI to zone GeoJSON", "required": true },
     "pointsUri": { "type": "uri", "description": "URI to points GeoJSON", "required": true },
-    "resolution": { "type": "integer", "description": "H3 resolution (default 8)", "required": false }
+    "resolution": { "type": "integer", "description": "H3 resolution (default 8)", "required": true }
   },
   "outputs": {
     "coverage": { "type": "json", "description": "H3Coverage" },
