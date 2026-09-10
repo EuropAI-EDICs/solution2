@@ -329,8 +329,33 @@ class TestHexMapReport(unittest.TestCase):
         self.assertIn("XR-T hex overlay", html)
         self.assertIn("deadbeefdeadbee", html)
         self.assertIn("conflictFraction", html)
-        self.assertIn("Volledig conflict", html)  # plain-language legend
         self.assertIn("weight: 0", html)  # contiguous heatmap (no borders)
+        # domain copy never leaks without an explicit preset (generic % stops)
+        self.assertNotIn("Groene contour", html)
+        self.assertIn("75%", html)
+        import json as _json
+        import re as _re
+        meta = _json.loads(
+            _re.search(r'id="map-meta">(\{.*?\})</script>', html, _re.S).group(1))
+        self.assertEqual(meta["zoneLabel"], "in zone")  # generic default
+
+    def test_render_hex_map_preset_supplies_domain_copy(self):
+        from pipeline import h3report
+
+        fc = {"type": "FeatureCollection", "features": [{
+            "type": "Feature",
+            "properties": {"cell": "deadbeefdeadbee", "resolution": 8,
+                           "conflictFraction": 0.83, "inZoneFraction": 0.6},
+            "geometry": None}]}
+        html = h3report.render_hex_map(fc, title="t", preset="groene-contour")
+        self.assertIn("Volledig conflict", html)  # preset stops
+        self.assertIn("Aandeel in Groene contour", html)  # preset zone label
+        # explicit zone_label wins over the preset
+        html2 = h3report.render_hex_map(fc, title="t", preset="groene-contour",
+                                        zone_label="Aandeel in peilgebied")
+        self.assertIn("Aandeel in peilgebied", html2)
+        self.assertNotIn("Aandeel in Groene contour", html2)
+
         import tempfile
         from pathlib import Path
         with tempfile.TemporaryDirectory() as td:
@@ -338,28 +363,47 @@ class TestHexMapReport(unittest.TestCase):
             h3report.render_hex_map(fc, title="t", out_path=out)
             self.assertTrue(out.exists())
 
-    def test_stitch_for_heatmap_fills_neighbours(self):
-        import h3
+    def test_stitch_for_heatmap_fills_neighbours_via_bridge(self):
         from pipeline import h3report
 
-        cell = h3.latlng_to_cell(52.09, 5.11, 8)
+        ring = [[[0, 0], [1, 0], [1, 1], [0, 0]]]
         fc = {"type": "FeatureCollection", "features": [{
             "type": "Feature",
-            "properties": {"cell": cell, "resolution": 8,
+            "properties": {"cell": "m1", "resolution": 8,
                            "conflictFraction": 0.9, "inZoneFraction": 0.5},
-            "geometry": {"type": "Polygon", "coordinates": [[[0, 0], [1, 0],
-                                                              [1, 1], [0, 0]]]}}]}
-        stitched = h3report.stitch_for_heatmap(fc)
-        cells = {f["properties"]["cell"] for f in stitched["features"]}
-        self.assertGreaterEqual(len(cells), 7)  # centre + ring
-        measured = [f for f in stitched["features"]
-                    if not f["properties"].get("interpolated")]
-        filled = [f for f in stitched["features"]
-                  if f["properties"].get("interpolated")]
-        self.assertEqual(len(measured), 1)
-        self.assertTrue(filled)
-        self.assertEqual(measured[0]["properties"]["conflictFraction"], 0.9)
-        self.assertEqual(filled[0]["properties"]["conflictFraction"], 0.9)
+            "geometry": {"type": "Polygon", "coordinates": ring}}]}
+
+        def call(process_id, inputs):
+            if process_id == "h3-grid-disk":
+                return {"disk": {"ring": 1,
+                                 "disks": {"m1": ["m1", "n1", "n2"]}}}
+            assert process_id == "h3-cells-to-geojson", process_id
+            assert inputs["cells"] == ["n1", "n2"]
+            return {"features": {"type": "FeatureCollection", "features": [
+                {"type": "Feature",
+                 "properties": {"cell": "n1", "resolution": 8},
+                 "geometry": {"type": "Polygon", "coordinates": ring}},
+                {"type": "Feature",
+                 "properties": {"cell": "n2", "resolution": 8},
+                 "geometry": {"type": "Polygon", "coordinates": ring}}]}}
+
+        stitched = h3report.stitch_for_heatmap(fc, call=call)
+        by = {f["properties"]["cell"]: f["properties"]
+              for f in stitched["features"]}
+        self.assertEqual(set(by), {"m1", "n1", "n2"})
+        self.assertFalse(by["m1"]["interpolated"])
+        self.assertEqual(by["m1"]["conflictFraction"], 0.9)
+        for nbr in ("n1", "n2"):
+            self.assertTrue(by[nbr]["interpolated"])  # display-only fill
+            self.assertEqual(by[nbr]["conflictFraction"], 0.9)  # inherited
+            # inherited too, but the popup gates on !interpolated
+            self.assertEqual(by[nbr]["inZoneFraction"], 0.5)
+        # measured geometry is reused, not refetched
+        m1 = [f for f in stitched["features"]
+              if f["properties"]["cell"] == "m1"][0]
+        self.assertEqual(m1["geometry"]["coordinates"], ring)
+        # without a bridge (offline): input returned unchanged
+        self.assertEqual(h3report.stitch_for_heatmap(fc), fc)
 
 
 if __name__ == "__main__":

@@ -140,6 +140,7 @@ def main(argv=None) -> int:
                     title=f"Peil-conflictheatmap Rijnland — {report['id']}",
                     value_property="conflictFraction",
                     value_label="Peilafwijking in peilgebied",
+                    zone_label="Aandeel in peilgebied",
                     intro=(
                         "Elke hexagon dekt een stukje van het vigerend peilgebied. "
                         "De kleur laat zien welk deel van die hex ook peilafwijking "
@@ -147,6 +148,14 @@ def main(argv=None) -> int:
                         "formeel peilbesluit en praktijkbeheer."
                     ),
                     legend_intro="Van groen (geen afwijking) naar rood (volledige afwijking):",
+                    stops=[
+                        (0.0, "Geen afwijking — alleen vigerend peil"),
+                        (0.25, "Lichte peilafwijking"),
+                        (0.5, "Gedeeld gebied"),
+                        (0.75, "Sterke peilafwijking"),
+                        (1.0, "Volledig in praktijkafwijking"),
+                    ],
+                    call=_h3_call,
                 ),
                 encoding="utf-8",
             )

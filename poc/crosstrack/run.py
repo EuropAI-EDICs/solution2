@@ -217,6 +217,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                     title=f"Conflictheatmap Groene contour — {report['id']}",
                     value_property="conflictFraction",
                     value_label="Conflict zon × bos",
+                    preset="groene-contour",
+                    call=lambda pid, inputs: h3step.call(
+                        pid, inputs, refresh=args.refresh_h3),
                 ),
                 encoding="utf-8")
             written.append("h3-crosstrack.html")

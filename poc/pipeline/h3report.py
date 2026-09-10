@@ -8,7 +8,15 @@ is embedded as a JSON script block.
 Sparse H3 selections (e.g. a thin Groene contour at res 8) are *stitched*
 for display: each measured cell's ``grid_disk`` neighbours are filled in
 so adjacent hexes read as one continuous heatmap surface. Stitched cells
-are marked ``interpolated`` and never pretend to be measured values.
+are marked ``interpolated`` and never pretend to be measured values. The
+H3 work goes through the nldt bridge (``h3-grid-disk`` +
+``h3-cells-to-geojson``) — this module never imports h3 itself; without
+a bridge ``call`` the map simply renders un-stitched.
+
+Domain copy (legend stops, zone label) is always passed explicitly by the
+caller — either a named ``preset`` from ``_LEGEND_PRESETS`` or per-call
+``stops``/``zone_label`` — so one PoC's wording can never leak onto
+another's map.
 """
 
 from __future__ import annotations
@@ -17,10 +25,12 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-#: Plain-language legend presets keyed by the numeric property name.
+#: Plain-language legend presets, keyed by preset NAME (never by property
+#: name — several PoCs share ``conflictFraction`` with different domains).
 _LEGEND_PRESETS: Dict[str, Dict[str, Any]] = {
-    "conflictFraction": {
+    "groene-contour": {
         "title": "Conflict zon × bos",
+        "zone_label": "Aandeel in Groene contour",
         "intro": (
             "Elke hexagon dekt een stukje van de Groene contour. De kleur "
             "laat zien welk deel van die hex tegelijk openstaat voor "
@@ -84,7 +94,7 @@ _TEMPLATE = """<!doctype html>
   if (typeof L === 'undefined') {{
     mapEl.innerHTML = '<div style="padding:24px;color:#5b6472;font-size:14px">' +
       'Leaflet kon niet geladen worden (CDN onbereikbaar). De per-cel tabel in ' +
-      'h3-crosstrack.json bevat dezelfde informatie.</div>';
+      'het JSON-artefact bevat dezelfde informatie.</div>';
     mapEl.style.height = 'auto';
     return;
   }}
@@ -134,7 +144,7 @@ _TEMPLATE = """<!doctype html>
       var p = f.properties;
       var v = Number(p[prop] || 0);
       var zone = (p.inZoneFraction !== undefined && !p.interpolated)
-        ? '<br>Aandeel in Groene contour: ' + Math.round(p.inZoneFraction * 100) + '%'
+        ? '<br>' + meta.zoneLabel + ': ' + Math.round(p.inZoneFraction * 100) + '%'
         : '';
       var note = p.interpolated
         ? '<br><em style="color:#5b6472">Buurcel (alleen weergave, geen meting)</em>'
@@ -173,28 +183,15 @@ _TEMPLATE = """<!doctype html>
 """
 
 
-def _stops_for(value_property: str,
-               stops: Optional[Sequence[Tuple[float, str]]] = None
+def _stops_for(preset_name: Optional[str],
+               stops: Optional[Sequence[Tuple[float, str]]]
                ) -> List[List[Any]]:
     if stops is not None:
         return [[float(v), str(label)] for v, label in stops]
-    preset = _LEGEND_PRESETS.get(value_property)
+    preset = _LEGEND_PRESETS.get(preset_name or "")
     if preset:
         return [[float(v), str(label)] for v, label in preset["stops"]]
     return [[i / 4, f"{i / 4:.0%}"] for i in range(5)]
-
-
-def _cell_polygon_feature(cell: str, properties: Dict[str, Any]) -> Dict[str, Any]:
-    import h3
-
-    ring = [[lng, lat] for lat, lng in h3.cell_to_boundary(cell)]
-    ring.append(ring[0])
-    return {
-        "type": "Feature",
-        "properties": {"cell": cell, "resolution": h3.get_resolution(cell),
-                       **properties},
-        "geometry": {"type": "Polygon", "coordinates": [ring]},
-    }
 
 
 def stitch_for_heatmap(
@@ -202,19 +199,21 @@ def stitch_for_heatmap(
     *,
     value_property: str = "conflictFraction",
     ring: int = 1,
+    call=None,
 ) -> Dict[str, Any]:
     """Fill ``grid_disk`` neighbours so sparse cells form contiguous blobs.
 
-    Measured cells keep their values. Neighbours inherit the max value of
-    adjacent measured cells and are flagged ``interpolated=True`` (display
-    only). Returns the input unchanged when ``h3`` is unavailable or any
-    cell id is invalid (keeps unit-test fixtures working).
+    Measured cells keep their values (and their existing geometries).
+    Neighbours inherit the max value of adjacent measured cells and are
+    flagged ``interpolated=True`` (display only); only the filled cells'
+    boundaries are fetched. All H3 work goes through ``call(process_id,
+    inputs) -> outputs`` — the nldt bridge (``h3-grid-disk`` +
+    ``h3-cells-to-geojson``); this module has no direct h3 dependency.
+    Returns the input unchanged when ``call`` is None (offline without
+    bridge) or there is nothing to fill.
     """
-    try:
-        import h3
-    except ImportError:  # pragma: no cover - offline without h3
+    if call is None:
         return cells_fc
-
     feats = list(cells_fc.get("features") or [])
     if not feats:
         return cells_fc
@@ -223,14 +222,17 @@ def stitch_for_heatmap(
     for feat in feats:
         props = dict(feat.get("properties") or {})
         cell = props.get("cell")
-        if not cell or not h3.is_valid_cell(str(cell)):
-            return cells_fc
-        measured[str(cell)] = props
+        if cell:
+            measured[str(cell)] = props
+    if not measured:
+        return cells_fc
 
+    disks = call("h3-grid-disk",
+                 {"cells": sorted(measured), "ring": ring})["disk"]["disks"]
     filled: Dict[str, Dict[str, Any]] = {}
     for cell, props in measured.items():
         value = float(props.get(value_property) or 0.0)
-        for nbr in h3.grid_disk(cell, ring):
+        for nbr in disks.get(cell, []):
             if nbr in measured:
                 continue
             prev = filled.get(nbr)
@@ -242,12 +244,19 @@ def stitch_for_heatmap(
                 }
 
     out_feats = []
-    for cell, props in sorted(measured.items()):
-        props = dict(props)
+    for feat in feats:
+        props = dict(feat.get("properties") or {})
         props["interpolated"] = False
-        out_feats.append(_cell_polygon_feature(cell, props))
-    for cell, props in sorted(filled.items()):
-        out_feats.append(_cell_polygon_feature(cell, props))
+        out_feats.append({**feat, "properties": props})
+    if filled:
+        boundary_fc = call("h3-cells-to-geojson",
+                           {"cells": sorted(filled)})["features"]
+        by_cell = {f["properties"]["cell"]: f
+                   for f in boundary_fc.get("features") or []}
+        for cell in sorted(filled):
+            feat = by_cell[cell]
+            feat["properties"].update(filled[cell])
+            out_feats.append(feat)
 
     result = dict(cells_fc)
     result["features"] = out_feats
@@ -260,32 +269,40 @@ def render_hex_map(
     title: str,
     value_property: str = "conflictFraction",
     value_label: Optional[str] = None,
+    preset: Optional[str] = None,
+    zone_label: Optional[str] = None,
     intro: Optional[str] = None,
     legend_intro: Optional[str] = None,
     stops: Optional[Sequence[Tuple[float, str]]] = None,
     stitch: bool = True,
     stitch_ring: int = 1,
+    call=None,
     out_path: Optional[Path] = None,
 ) -> str:
-    """Render a cell FeatureCollection as a contiguous hex heatmap."""
+    """Render a cell FeatureCollection as a contiguous hex heatmap.
+
+    ``preset`` names a ``_LEGEND_PRESETS`` entry (domain copy: stops,
+    intro, zone label); explicit arguments always win over the preset.
+    ``call`` is the nldt h3step bridge used for display stitching.
+    """
     display_fc = (
         stitch_for_heatmap(cells_fc, value_property=value_property,
-                           ring=stitch_ring)
+                           ring=stitch_ring, call=call)
         if stitch else cells_fc
     )
-    preset = _LEGEND_PRESETS.get(value_property, {})
-    legend_title = value_label or preset.get("title") or value_property
+    preset_doc = _LEGEND_PRESETS.get(preset or "", {})
     meta = {
         "title": title,
         "valueProperty": value_property,
-        "legendTitle": legend_title,
-        "intro": intro or preset.get("intro") or (
+        "legendTitle": value_label or preset_doc.get("title") or value_property,
+        "zoneLabel": zone_label or preset_doc.get("zone_label") or "in zone",
+        "intro": intro or preset_doc.get("intro") or (
             f"Kleur toont de waarde van «{value_property}» per H3-cel."
         ),
         "legendIntro": legend_intro or (
             "Van groen (laag) naar rood (hoog):"
         ),
-        "stops": _stops_for(value_property, stops),
+        "stops": _stops_for(preset, stops),
     }
     html = _TEMPLATE.format(
         title=title,
