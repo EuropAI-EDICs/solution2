@@ -267,12 +267,12 @@ Zone truth stays polygon-based; H3 is a reporting layer computed by the
   conflict on the Groene contour (`h3-crosstrack.json` + Leaflet
   `h3-crosstrack.html`; e.g. 34 cells, 92.5% weighted conflict share vs
   the 94.7% polygon headline)
-- `python3 poc/crosstrack/run.py --buildings bag-points.geojson` —
+- `python3 poc/crosstrack/run.py --buildings nldt/examples/hex-points.geojson` —
   buildings-per-zone-cell join (`h3-buildings.json`)
 - `python3 poc/scenarios/run.py --use-case zon` — per-scenario Moran's I +
-  cell deltas (`control.h3`, scenario-row `h3`); `--no-h3` disables all
-  of the above
-- fixtures: `POC_H3_OFFLINE= python3 tests/make_h3_fixtures.py` (in `poc/`)
+  cell deltas (`control.h3`, scenario-row `h3`); `--no-h3` skips the hex
+  overlays (omit `--buildings` too for a fully hex-free crosstrack run)
+- fixtures: `POC_H3_OFFLINE= ../nldt/.venv/bin/python tests/make_h3_fixtures.py` (in `poc/`)
 
 ## Adding use cases
 
