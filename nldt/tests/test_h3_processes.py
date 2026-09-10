@@ -99,3 +99,47 @@ def test_route_execute_wraps_h3_with_prov():
 def test_unknown_cell_input_raises():
     with pytest.raises(h3kit.H3KitError):
         execute_local("h3-cells-to-geojson", {"cells": ["garbage"]})
+
+
+def test_hex_overlay_recipe_end_to_end():
+    import json
+    from pathlib import Path
+
+    from pyproj import Transformer
+    from shapely.geometry import mapping, shape
+    from shapely.ops import transform as sh_transform
+
+    from services.mcp_servers.client import ProcessClient
+    from services.process_adapter import jobs as job_store
+    from services.recipe_runner import run_recipe
+
+    # In-process execution (repo pattern from test_nldt_core.py): the default
+    # ProcessClient would POST to a live process service on :8082.
+    class LocalClient(ProcessClient):
+        def execute(self, process_id, inputs, backend="local"):
+            return job_store.create_job(process_id, inputs, backend=backend)
+
+    examples = Path(__file__).resolve().parents[1] / "examples"
+    with (examples / "aoi.geojson").open() as f:
+        aoi = json.load(f)
+    # examples/aoi.geojson is EPSG:28992 (RD); the H3 kernel is WGS84-native,
+    # so reproject the zone to lon/lat and pass it inline (fetch-features
+    # accepts inline GeoJSON JSON strings as well as file:// URIs).
+    to_wgs84 = Transformer.from_crs("EPSG:28992", "EPSG:4326", always_xy=True)
+    zone_wgs84 = json.dumps(mapping(sh_transform(to_wgs84.transform, shape(aoi))))
+    # Res 8/9 leave no cell centre inside this 200 m AOI (verified: cellCount
+    # 0); res 11 discretises it into 21 cells. Of the four fixture points
+    # (centroid, +0.001°/+0.001°, -0.001°/+0.001°, far-away 4.9/52.0) the
+    # first two index into polygon cells, the third lands just outside the
+    # north edge (its cell centre misses the zone), the far one is excluded.
+    result = run_recipe("hex-overlay-analysis", {
+        "aoi": aoi,
+        "zoneUri": zone_wgs84,
+        "pointsUri": f"file://{examples / 'hex-points.geojson'}",
+        "resolution": 11,
+    }, process_client=LocalClient())
+    outputs = result["outputs"]
+    assert outputs["coverage"]["cellCount"] == 21
+    assert outputs["join"]["pointCount"] == 4
+    assert sum(1 for r in outputs["join"]["perPoint"] if r["inCells"]) == 2
+    assert outputs["autocorrelation"]["n"] >= 1

@@ -1,0 +1,68 @@
+{
+  "id": "hex-overlay-analysis",
+  "title": "Hex Overlay Analysis (H3)",
+  "description": "nLDT reference recipe: discretise a zone layer into H3 cells, join point data per cell, and measure spatial autocorrelation — the h3-py urban-analytics pattern on Dutch data (spec 2026-09-09-h3-integration, example 7.6).",
+  "version": "1.0.0",
+  "tags": ["spatial", "h3", "hex", "aggregation", "autocorrelation"],
+  "requiredData": [
+    { "id": "zone", "role": "reference_layer", "format": "geojson" },
+    { "id": "points", "role": "context_layer", "format": "geojson" }
+  ],
+  "requiredProcesses": ["fetch-features", "h3-polygon-to-cells", "h3-spatial-join-points", "h3-morans-i"],
+  "inputs": {
+    "aoi": { "type": "geojson", "description": "Area of interest", "required": false },
+    "zoneUri": { "type": "uri", "description": "URI to zone GeoJSON", "required": true },
+    "pointsUri": { "type": "uri", "description": "URI to points GeoJSON", "required": true },
+    "resolution": { "type": "integer", "description": "H3 resolution (default 8)", "required": false }
+  },
+  "outputs": {
+    "coverage": { "type": "json", "description": "H3Coverage" },
+    "join": { "type": "json", "description": "points-per-cell join" },
+    "autocorrelation": { "type": "json", "description": "Moran's I statistics" }
+  },
+  "steps": [
+    {
+      "id": "fetch-zone",
+      "processId": "fetch-features",
+      "title": "Fetch zone layer",
+      "inputs": { "source": "${recipe.inputs.zoneUri}", "aoi": "${recipe.inputs.aoi}" },
+      "outputs": { "features": "zoneFeatures" },
+      "backend": "local"
+    },
+    {
+      "id": "fetch-points",
+      "processId": "fetch-features",
+      "title": "Fetch points layer",
+      "inputs": { "source": "${recipe.inputs.pointsUri}", "aoi": "${recipe.inputs.aoi}" },
+      "outputs": { "features": "pointsFeatures" },
+      "backend": "local"
+    },
+    {
+      "id": "cells",
+      "processId": "h3-polygon-to-cells",
+      "title": "Discretise zone into H3 cells",
+      "inputs": { "polygon": "${steps.fetch-zone.outputs.features}", "resolution": "${recipe.inputs.resolution}" },
+      "outputs": { "coverage": "coverage" },
+      "backend": "local"
+    },
+    {
+      "id": "join",
+      "processId": "h3-spatial-join-points",
+      "title": "Join points per cell",
+      "inputs": { "points": "${steps.fetch-points.outputs.features}", "polygon": "${steps.fetch-zone.outputs.features}", "resolution": "${recipe.inputs.resolution}" },
+      "outputs": { "join": "join" },
+      "backend": "local"
+    },
+    {
+      "id": "autocorrelation",
+      "processId": "h3-morans-i",
+      "title": "Moran's I over cell counts",
+      "inputs": { "values": "${steps.join.outputs.join}" },
+      "outputs": { "statistics": "autocorrelation" },
+      "backend": "local"
+    }
+  ],
+  "visualizationHint": { "preferredFormat": "geojson", "layerTitle": "H3 coverage" },
+  "riskLevel": "low",
+  "cookbookUri": "http://localhost:8081/recipes/hex-overlay-analysis"
+}
