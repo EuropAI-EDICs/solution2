@@ -30,6 +30,7 @@ Output onder `poc-rijnland/runs/<ts>-rijnland-peil/`:
 
 - `peil-conflict-report.json` / `.md`
 - `h3-peil-conflict.json` + `h3-peil-conflict.html` (gestitchte NL-legenda)
+- `h3-krw-monitoring.json` + `h3-krw-blindspots.html` (fase 2, `--no-krw` om te skippen)
 
 Offline H3-replay: `POC_H3_OFFLINE=1` (gebruikt `poc/data/cache/h3/`).
 
@@ -45,6 +46,15 @@ Optioneel live fixtures (kleine Leiden-bbox):
 ../nldt/.venv/bin/python tests/make_fixtures.py
 ```
 
-## Fase 2 (niet in MVP)
+## Fase 2 — KRW-monitoringdekking (geïmplementeerd)
 
-KRW-waterkwaliteit: meetpunten → `h3-spatial-join-points` → `h3-morans-i` op dezelfde package.
+De Rijnland-stack ontsluit geen gemeten waarden en de KRW-statuswaterlichamen
+(KRW/MapServer lagen 1–3) zijn leeg gepubliceerd; wél de meetlocatieslaag
+(29.050 punten, `WS_TYPEMETING`-gediscrimineerd). Fase 2 beantwoordt daarom:
+*waar wijkt het praktijkpeil af zonder routine waterkwaliteitsmonitoring?*
+
+- routine meetnet (`WS_TYPEMETING = 'routine meetnet waterkwaliteit'`) →
+  `h3-spatial-join-points` op de peilgebied-cellen → per-cel meetdichtheid
+- Moran's I op die dichtheid via `h3-morans-i` (significant geclusterd = 0.40, p 0.005)
+- blinde vlek = conflictcel zonder monitoring in de cel òf haar `grid_disk(1)`-buurt
+  → `h3-krw-blindspots.html` (rood) + `h3-krw-monitoring.json

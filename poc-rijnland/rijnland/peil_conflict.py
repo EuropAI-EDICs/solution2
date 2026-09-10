@@ -223,6 +223,18 @@ def conflict_markdown(report: Dict[str, Any]) -> str:
             "(decision support; polygon headline numbers remain authoritative).",
             "",
         ]
+    k = report.get("krw")
+    if k:
+        lines += [
+            "## KRW-monitoringdekking (fase 2)",
+            "",
+            f"- Routine waterkwaliteits-meetpunten in peilgebied-cellen: **{k['meetpuntenRoutine']}**",
+            f"- Cellen met monitoring: **{k['cellsWithMonitoring']}**",
+            f"- Moran's I op meetdichtheid: **{k['moransI']}** (p = {k['pValue']})",
+            f"- Conflictcellen zonder monitoring in cel of buurt: **{k['blindSpotCells']}/{k['conflictCells']}** "
+            f"({k['blindSpotShareOfConflictPct']}%) — blinde vlekken",
+            "",
+        ]
     if report.get("degradations"):
         lines += ["## Degradations", ""]
         for d in report["degradations"]:

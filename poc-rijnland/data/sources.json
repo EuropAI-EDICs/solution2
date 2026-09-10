@@ -12,14 +12,21 @@
       "layerId": 0,
       "layerName": "PeilgebiedVigerend",
       "geometryType": "esriGeometryPolygon",
-      "crs": { "wkid": 28992 },
+      "crs": {
+        "wkid": 28992
+      },
       "fields": [
-        { "name": "OBJECTID2", "type": "esriFieldTypeOID" }
+        {
+          "name": "OBJECTID2",
+          "type": "esriFieldTypeOID"
+        }
       ],
       "featureCount": 792,
       "maxRecordCount": 1000,
       "queryTemplate": "{serviceUrl}/{layerId}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true&orderByFields=OBJECTID2",
-      "queryTemplateParams": { "where": "1=1" },
+      "queryTemplateParams": {
+        "where": "1=1"
+      },
       "role": "reference",
       "authoritative": true,
       "geojsonFormatSupported": true,
@@ -34,20 +41,60 @@
       "layerId": 0,
       "layerName": "PeilafwijkingGebied",
       "geometryType": "esriGeometryPolygon",
-      "crs": { "wkid": 28992 },
+      "crs": {
+        "wkid": 28992
+      },
       "fields": [
-        { "name": "OBJECTID2", "type": "esriFieldTypeOID" }
+        {
+          "name": "OBJECTID2",
+          "type": "esriFieldTypeOID"
+        }
       ],
       "featureCount": 2035,
       "maxRecordCount": 1000,
       "queryTemplate": "{serviceUrl}/{layerId}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true&orderByFields=OBJECTID2",
-      "queryTemplateParams": { "where": "1=1" },
+      "queryTemplateParams": {
+        "where": "1=1"
+      },
       "role": "conflict",
       "authoritative": true,
       "geojsonFormatSupported": true,
       "supportsPagination": true,
       "lastChecked": "2026-09-10T13:20:00Z",
       "notes": "Practice peil deviations; conflict layer vs vigerend peilgebied."
+    },
+    {
+      "id": "rijnland-meetpunt-waterkwaliteit-routine",
+      "title": "Meetlocaties waterkwaliteit (routine meetnet)",
+      "serviceUrl": "https://rijnland.enl-mcs.nl/arcgis/rest/services/Meetlocatie_waterkwaltiteit/MapServer",
+      "layerId": 0,
+      "layerName": "MeetLocatie_Waterkwaliteit",
+      "geometryType": "esriGeometryPoint",
+      "crs": {
+        "wkid": 28992
+      },
+      "fields": [
+        {
+          "name": "OBJECTID",
+          "type": "esriFieldTypeOID"
+        },
+        {
+          "name": "WS_TYPEMETING",
+          "type": "esriFieldTypeString"
+        }
+      ],
+      "featureCount": 29050,
+      "maxRecordCount": 1000,
+      "queryTemplate": "{serviceUrl}/{layerId}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true&orderByFields=OBJECTID",
+      "queryTemplateParams": {
+        "where": "WS_TYPEMETING = 'routine meetnet waterkwaliteit'"
+      },
+      "role": "context",
+      "authoritative": true,
+      "geojsonFormatSupported": true,
+      "supportsPagination": true,
+      "lastChecked": "2026-09-10T16:40:00Z",
+      "notes": "Routine waterkwaliteits-meetnet (WS_TYPEMETING filter); KRW-status waterlichamen lagen (KRW/1-3) zijn leeg in deze service — meetwaarden zelf worden niet via ArcGIS ontsloten."
     }
   ]
 }

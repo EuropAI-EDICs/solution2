@@ -16,7 +16,7 @@ for p in (str(ROOT), str(POC_ROOT)):
         sys.path.insert(0, p)
 
 from rijnland import peil_conflict  # noqa: E402
-from shapely.geometry import box, mapping  # noqa: E402
+from shapely.geometry import Point, box, mapping  # noqa: E402
 
 FIXDIR = Path(__file__).resolve().parent / "fixtures"
 
@@ -129,3 +129,98 @@ class TestOfflineEnv(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestKrwMonitoring(unittest.TestCase):
+
+    def test_points_fc_to_wgs84(self):
+        from rijnland import krw_quality
+
+        fc = _fc(Point(95000, 462000))
+        out = krw_quality.points_fc_to_wgs84(fc)
+        lng, lat = out["features"][0]["geometry"]["coordinates"]
+        self.assertTrue(4.3 < lng < 4.6)   # Leiden area
+        self.assertTrue(52.0 < lat < 52.3)
+
+    def test_attach_krw_monitoring_blind_spots(self):
+        from rijnland import krw_quality
+
+        peil_cells = [
+            {"cell": "c1", "inZoneFraction": 0.9, "conflictFraction": 0.8,
+             "cellAreaM2": 740000.0},
+            {"cell": "c2", "inZoneFraction": 0.9, "conflictFraction": 0.5,
+             "cellAreaM2": 740000.0},
+            {"cell": "c3", "inZoneFraction": 0.9, "conflictFraction": 0.0,
+             "cellAreaM2": 740000.0},
+        ]
+
+        def call(process_id, inputs):
+            if process_id == "h3-spatial-join-points":
+                self.assertEqual(sorted(inputs["cells"]), ["c1", "c2", "c3"])
+                return {"join": {"pointCount": 4, "cellCount": 3,
+                                 "resolution": inputs["resolution"],
+                                 "perPoint": [],
+                                 "perCell": [{"cell": "c1", "count": 3},
+                                             {"cell": "c3", "count": 1}]}}
+            if process_id == "h3-grid-disk":
+                # c2 is unmonitored; its neighbour c1 IS monitored
+                self.assertEqual(inputs["cells"], ["c2"])
+                return {"disk": {"ring": 1,
+                                 "disks": {"c2": ["c1", "c2", "c9"]}}}
+            assert process_id == "h3-morans-i"
+            self.assertEqual(inputs["values"], {"c1": 3, "c2": 0, "c3": 1})
+            return {"statistics": {"n": 3, "permutations": 199,
+                                   "moransI": None, "expectedI": None,
+                                   "pValue": None, "notes": ["too few cells"]}}
+
+        report = {"degradations": [], "notes": []}
+        art = krw_quality.attach_krw_monitoring(
+            report, peil_cells=peil_cells, meet_fc_rd=_fc(), call=call)
+        by = {r["cell"]: r for r in art["rows"]}
+        # c1: monitored conflict -> not blind
+        self.assertFalse(by["c1"]["blindSpot"])
+        self.assertEqual(by["c1"]["monitoringCount"], 3)
+        # c2: conflict, 0 in cell, but monitored neighbour -> covered
+        self.assertFalse(by["c2"]["blindSpot"])
+        self.assertTrue(by["c2"]["monitoringNearby"])
+        # c3: unmonitored but no conflict -> not blind
+        self.assertFalse(by["c3"]["blindSpot"])
+        k = report["krw"]
+        self.assertEqual(k["meetpuntenRoutine"], 4)
+        self.assertEqual(k["cellsWithMonitoring"], 2)
+        self.assertEqual(k["blindSpotCells"], 0)
+        self.assertEqual(k["conflictCells"], 2)
+
+    def test_attach_krw_monitoring_true_blind_spot(self):
+        from rijnland import krw_quality
+
+        peil_cells = [{"cell": "c1", "inZoneFraction": 0.9,
+                       "conflictFraction": 0.7, "cellAreaM2": 740000.0}]
+
+        def call(process_id, inputs):
+            if process_id == "h3-spatial-join-points":
+                return {"join": {"pointCount": 0, "cellCount": 1,
+                                 "resolution": 8, "perPoint": [],
+                                 "perCell": []}}
+            if process_id == "h3-grid-disk":
+                return {"disk": {"ring": 1, "disks": {"c1": ["c1", "c8"]}}}
+            assert process_id == "h3-morans-i"
+            return {"statistics": {"moransI": 0.0, "pValue": 1.0}}
+
+        report = {"degradations": []}
+        art = krw_quality.attach_krw_monitoring(
+            report, peil_cells=peil_cells, meet_fc_rd=_fc(), call=call)
+        row = art["rows"][0]
+        self.assertTrue(row["blindSpot"])
+        self.assertEqual(row["blindSpotScore"], 0.7)
+        self.assertFalse(row["monitoringNearby"])
+        self.assertEqual(report["krw"]["blindSpotCells"], 1)
+        self.assertEqual(report["krw"]["blindSpotShareOfConflictPct"], 100.0)
+
+    def test_attach_krw_monitoring_degrades_without_client(self):
+        from rijnland import krw_quality
+
+        report = {"degradations": []}
+        self.assertIsNone(krw_quality.attach_krw_monitoring(
+            report, peil_cells=[], meet_fc_rd=_fc()))
+        self.assertEqual(report["degradations"][0]["kind"], "krw-unavailable")

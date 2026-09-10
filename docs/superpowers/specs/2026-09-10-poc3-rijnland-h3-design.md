@@ -52,11 +52,23 @@ Host: `rijnland.enl-mcs.nl`, CRS EPSG:28992, `f=geojson` supported, OID `OBJECTI
 - H3 cache: shared `poc/data/cache/h3/` via `h3step`
 - Tests: `POC_H3_OFFLINE=1` + committed fixtures / bbox subset
 
-## 6. Phase 2 (explicitly out of MVP)
+## 6. Phase 2 — KRW monitoring coverage (implemented 2026-09-10)
 
-- KRW water bodies / monitoring points from the gallery
-- `h3-spatial-join-points` + `h3-morans-i`
-- Combined “peil conflict ∩ poor KRW” story
+Recon finding: the KRW-status water-body layers (KRW/MapServer 1–3) are
+published empty and no measured water-quality values are exposed anywhere
+in the Rijnland ArcGIS catalog. The live layer is MeetLocatie_Waterkwaliteit
+(29,050 points, `WS_TYPEMETING`-discriminated). Phase 2 therefore measures
+**monitoring coverage ∩ peil conflict**:
+
+1. routine meetnet points (`WS_TYPEMETING = 'routine meetnet waterkwaliteit'`)
+   → `h3-spatial-join-points` on the peilgebied cell grid → per-cell density
+2. Moran's I on that density via `h3-morans-i`
+3. blind spot = conflict cell with zero routine monitoring in the cell AND its
+   `grid_disk(1)` neighbourhood → `h3-krw-blindspots.html` + `h3-krw-monitoring.json`
+
+Caveat carried in every artifact: this is monitoring coverage, not measured
+water quality. Original (spec-time) intent "peil conflict ∩ poor KRW" lands
+when measured values become available.
 
 ## 7. Success criteria (MVP)
 

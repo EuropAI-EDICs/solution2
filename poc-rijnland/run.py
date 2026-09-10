@@ -20,13 +20,14 @@ for p in (str(ROOT), str(POC_ROOT)):
     if p not in sys.path:
         sys.path.insert(0, p)
 
-from rijnland import peil_conflict  # noqa: E402
+from rijnland import krw_quality, peil_conflict  # noqa: E402
 from pipeline import geodata, h3report, h3step  # noqa: E402  — PoC-1
 
 SOURCES_PATH = ROOT / "data" / "sources.json"
 CACHE_DIR = ROOT / "data" / "cache"
 PEIL_ID = "rijnland-peilgebied-vigerend"
 AFWIJK_ID = "rijnland-peilafwijking-praktijk"
+MEET_ID = "rijnland-meetpunt-waterkwaliteit-routine"
 
 # Leiden / Haarlemmermeer slice — default demo AOI (full area via --full).
 DEFAULT_BBOX = "90000,455000,105000,470000"
@@ -42,6 +43,8 @@ def build_parser() -> argparse.ArgumentParser:
                     help="force live nldt H3 re-invocation")
     ap.add_argument("--no-h3", action="store_true",
                     help="skip H3 overlay (polygon headline only)")
+    ap.add_argument("--no-krw", action="store_true",
+                    help="skip KRW monitoring-coverage overlay (fase 2)")
     ap.add_argument("--h3-resolution", type=int, default=8,
                     choices=range(0, 16), metavar="{0..15}",
                     help="H3 resolution for the overlay")
@@ -83,6 +86,11 @@ def main(argv=None) -> int:
     afwijk = geodata.fetch_layer(
         AFWIJK_ID, bbox=bbox, refresh=args.refresh, sources=sources,
         cache_dir=CACHE_DIR, simplify_m=simplify, timeout=args.timeout)
+    meet = None
+    if not args.no_krw:
+        meet = geodata.fetch_layer(
+            MEET_ID, bbox=bbox, refresh=args.refresh, sources=sources,
+            cache_dir=CACHE_DIR, timeout=args.timeout)  # points: no simplify
 
     dump_json(out_dir / "peilgebied.28992.geojson", peil)
     dump_json(out_dir / "peilafwijking.28992.geojson", afwijk)
@@ -98,6 +106,8 @@ def main(argv=None) -> int:
     report["featureCounts"] = {
         "peilgebied": len(peil.get("features") or []),
         "peilafwijking": len(afwijk.get("features") or []),
+        **({"meetpuntenRoutine": len(meet.get("features") or [])}
+           if meet is not None else {}),
     }
 
     written = [
@@ -169,6 +179,70 @@ def main(argv=None) -> int:
             })
             print(f"[poc-rijnland] WARNING hex map degraded: {exc}")
 
+    if h3_artifact is not None and meet is not None and not args.no_krw:
+        try:
+            krw_artifact = krw_quality.attach_krw_monitoring(
+                report,
+                peil_cells=h3_artifact["cells"],
+                meet_fc_rd=meet,
+                resolution=args.h3_resolution,
+                call=_h3_call,
+            )
+            if krw_artifact is not None:
+                dump_json(out_dir / "h3-krw-monitoring.json", krw_artifact)
+                written.append("h3-krw-monitoring.json")
+                try:
+                    cells_fc = h3step.call(
+                        "h3-cells-to-geojson",
+                        {"cells": [r["cell"] for r in krw_artifact["rows"]]},
+                        refresh=args.refresh_h3,
+                    )["features"]
+                    by_cell = {r["cell"]: r for r in krw_artifact["rows"]}
+                    for feat in cells_fc["features"]:
+                        feat["properties"].update(
+                            by_cell[feat["properties"]["cell"]])
+                    (out_dir / "h3-krw-blindspots.html").write_text(
+                        h3report.render_hex_map(
+                            cells_fc,
+                            title=f"Peilconflict zonder waterkwaliteitsmonitoring — {report['id']}",
+                            value_property="blindSpotScore",
+                            value_label="Blinde vlekken",
+                            zone_label="Aandeel in peilgebied",
+                            intro=(
+                                "Rood = cel met peilafwijking-conflict én "
+                                "géén routine waterkwaliteits-meetlocatie in "
+                                "de cel of de directe buurt: het praktijkpeil "
+                                "wijkt daar af zonder dat de waterkwaliteit "
+                                "routinematig gemeten wordt. Groen = elders "
+                                "in het peilgebied."
+                            ),
+                            legend_intro=(
+                                "Rood: conflict zonder monitoringdekking. "
+                                "Groen: gedekt of geen conflict:"
+                            ),
+                            stops=[
+                                (0.0, "Gedekt — monitoring in cel of buurt, of geen conflict"),
+                                (0.5, "Conflict, deels ongedekt (score 0.5)"),
+                                (1.0, "Conflict, volledig ongedekt (blinde vlek)"),
+                            ],
+                            call=_h3_call,
+                        ),
+                        encoding="utf-8",
+                    )
+                    written.append("h3-krw-blindspots.html")
+                except Exception as exc:  # map is a convenience
+                    report.setdefault("degradations", []).append({
+                        "kind": "krw-map-error",
+                        "error": f"{type(exc).__name__}: {exc}",
+                    })
+                    print(f"[poc-rijnland] WARNING krw map degraded: {exc}")
+        except Exception as exc:  # decision support only
+            report.setdefault("degradations", []).append({
+                "kind": "krw-error",
+                "error": f"{type(exc).__name__}: {exc}",
+            })
+            print(f"[poc-rijnland] WARNING krw overlay degraded: {exc}")
+
     dump_json(out_dir / "peil-conflict-report.json", report)
     md = peil_conflict.conflict_markdown(report)
     (out_dir / "peil-conflict-report.md").write_text(md, encoding="utf-8")
@@ -188,6 +262,12 @@ def main(argv=None) -> int:
     if h:
         print(f"  H3             {h['conflictCells']}/{h['cells']} cells, "
               f"weighted {h['weightedConflictSharePct']}%")
+    k = report.get("krw")
+    if k:
+        print(f"  KRW monitoring {k['meetpuntenRoutine']} routine-meetpunten, "
+              f"Moran's I {k['moransI']} (p={k['pValue']}); "
+              f"{k['blindSpotCells']}/{k['conflictCells']} conflictcellen "
+              f"zonder dekking ({k['blindSpotShareOfConflictPct']}%)")
     print(f"  artifacts: {', '.join(written)}")
     print("=" * 70)
     return 0
