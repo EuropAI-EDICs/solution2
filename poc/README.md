@@ -257,6 +257,23 @@ verdict `pass`. Canonical run (`20260831T094204Z-wzb-xtrack`):
 - wind × zon: 845.445 km² (98.4% of the wind zone) — the two energy ambitions
   compete on nearly identical ground.
 
+## H3 hex overlays (nldt bridge)
+
+Zone truth stays polygon-based; H3 is a reporting layer computed by the
+`nldt` h3-* OGC processes via `pipeline/h3step.py` (cache-first under
+`poc/data/cache/h3/`, offline replays via `POC_H3_OFFLINE=1`).
+
+- `python3 poc/crosstrack/run.py --tracks zon,bos` — per-cell zon×bos
+  conflict on the Groene contour (`h3-crosstrack.json` + Leaflet
+  `h3-crosstrack.html`; e.g. 34 cells, 92.5% weighted conflict share vs
+  the 94.7% polygon headline)
+- `python3 poc/crosstrack/run.py --buildings bag-points.geojson` —
+  buildings-per-zone-cell join (`h3-buildings.json`)
+- `python3 poc/scenarios/run.py --use-case zon` — per-scenario Moran's I +
+  cell deltas (`control.h3`, scenario-row `h3`); `--no-h3` disables all
+  of the above
+- fixtures: `POC_H3_OFFLINE= python3 tests/make_h3_fixtures.py` (in `poc/`)
+
 ## Adding use cases
 
 A track is the combination of (a) an `OpportunityMapRequest` instance in
