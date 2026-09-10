@@ -325,15 +325,41 @@ class TestHexMapReport(unittest.TestCase):
                  [5.10, 52.09], [5.10, 52.08]]]}}]}
         html = h3report.render_hex_map(fc, title="XR-T hex overlay")
         self.assertIn("leaflet@1.9.4", html)
+        self.assertIn("L.map('map'", html)
         self.assertIn("XR-T hex overlay", html)
         self.assertIn("deadbeefdeadbee", html)
         self.assertIn("conflictFraction", html)
+        self.assertIn("Volledig conflict", html)  # plain-language legend
+        self.assertIn("weight: 0", html)  # contiguous heatmap (no borders)
         import tempfile
         from pathlib import Path
         with tempfile.TemporaryDirectory() as td:
             out = Path(td) / "h3.html"
             h3report.render_hex_map(fc, title="t", out_path=out)
             self.assertTrue(out.exists())
+
+    def test_stitch_for_heatmap_fills_neighbours(self):
+        import h3
+        from pipeline import h3report
+
+        cell = h3.latlng_to_cell(52.09, 5.11, 8)
+        fc = {"type": "FeatureCollection", "features": [{
+            "type": "Feature",
+            "properties": {"cell": cell, "resolution": 8,
+                           "conflictFraction": 0.9, "inZoneFraction": 0.5},
+            "geometry": {"type": "Polygon", "coordinates": [[[0, 0], [1, 0],
+                                                              [1, 1], [0, 0]]]}}]}
+        stitched = h3report.stitch_for_heatmap(fc)
+        cells = {f["properties"]["cell"] for f in stitched["features"]}
+        self.assertGreaterEqual(len(cells), 7)  # centre + ring
+        measured = [f for f in stitched["features"]
+                    if not f["properties"].get("interpolated")]
+        filled = [f for f in stitched["features"]
+                  if f["properties"].get("interpolated")]
+        self.assertEqual(len(measured), 1)
+        self.assertTrue(filled)
+        self.assertEqual(measured[0]["properties"]["conflictFraction"], 0.9)
+        self.assertEqual(filled[0]["properties"]["conflictFraction"], 0.9)
 
 
 if __name__ == "__main__":

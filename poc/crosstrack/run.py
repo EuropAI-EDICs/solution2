@@ -214,8 +214,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             (out_dir / "h3-crosstrack.html").write_text(
                 h3report.render_hex_map(
                     cells_fc,
-                    title=f"H3 conflict overlay — {report['id']} "
-                          f"(res {h3_artifact['resolution']})"),
+                    title=f"Conflictheatmap Groene contour — {report['id']}",
+                    value_property="conflictFraction",
+                    value_label="Conflict zon × bos",
+                ),
                 encoding="utf-8")
             written.append("h3-crosstrack.html")
         except Exception as exc:  # map is a convenience; artifact stands alone
