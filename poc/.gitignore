@@ -1,0 +1,13 @@
+# The workspace root .gitignore ignores `data/` at any depth, which would
+# make the committed H3 fixture cache unreachable (git cannot re-include
+# files under an excluded directory). Re-include the directory chain down
+# to data/cache/h3/ (poc/tests/make_h3_fixtures.py writes <fingerprint>.json
+# entries there, committed so the offline test suite never invokes nldt),
+# keep every other data/ content ignored as before, and exclude the
+# subprocess scratch requests (data/cache/h3/req/, never committed).
+!data/
+data/*
+!data/cache/
+data/cache/*
+!data/cache/h3/
+data/cache/h3/req/
