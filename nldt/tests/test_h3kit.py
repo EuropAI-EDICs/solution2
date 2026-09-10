@@ -211,3 +211,11 @@ def test_morans_i_degrades_gracefully():
     assert h3kit.morans_i({"a": 1.0})["moransI"] is None
     flat = h3kit.morans_i({c: 5.0 for c in _disk_values()})
     assert flat["moransI"] is None and "no variance" in flat["notes"][0]
+
+
+def test_coverage_output_validates_against_contract():
+    from services.common.schema import validate_instance
+
+    validate_instance(h3kit.polygon_to_cells(SQUARE, 8), "h3coverage.schema.json")
+    validate_instance(h3kit.polygon_to_cells(SQUARE, 9, compact=True),
+                      "h3coverage.schema.json")

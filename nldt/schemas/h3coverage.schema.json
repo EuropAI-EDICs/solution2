@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft/2020-12/schema#",
+  "$id": "https://nldt.local/schemas/h3coverage.schema.json",
+  "title": "H3Coverage",
+  "description": "Output contract of the h3-polygon-to-cells process: cell set with planar EPSG:28992 coverage fractions. Mirrored into poc/schemas/ for the PoC bridge; keep both copies byte-identical.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["resolution", "cellCount", "cells", "crs", "h3Version"],
+  "properties": {
+    "resolution": {"type": "integer", "minimum": 0, "maximum": 15},
+    "cellCount": {"type": "integer", "minimum": 0},
+    "cells": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["cell", "coverageFraction", "cellAreaM2"],
+        "properties": {
+          "cell": {"type": "string", "pattern": "^[0-9a-f]{15,16}$"},
+          "coverageFraction": {"type": "number", "minimum": 0, "maximum": 1},
+          "cellAreaM2": {"type": "number", "exclusiveMinimum": 0}
+        }
+      }
+    },
+    "crs": {"const": "cells-EPSG:4326-areas-EPSG:28992"},
+    "h3Version": {"type": "string"},
+    "notes": {"type": "array", "items": {"type": "string"}},
+    "compactedCells": {"type": "array", "items": {"type": "string", "pattern": "^[0-9a-f]{15,16}$"}}
+  }
+}
