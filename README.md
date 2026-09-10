@@ -18,13 +18,16 @@ verbatim quote + URL per claim, schema-validated artifacts, PROV provenance).
   omgevingsplan met AI" for gemeente Eindhoven — the recorded Amsterdams aanpak
   (VNG netwerksessie 19-06-2026) as method cards MC-1…12, each traceable from run
   artifact back to transcript timestamp.
+- [`poc-rijnland/`](poc-rijnland/README.md) — **PoC-3**: peilgebied (vigerend) ×
+  peilafwijking (praktijk) for Hoogheemraadschap van Rijnland, H3 conflict
+  heatmap via the PoC-1/nldt bridge (MVP; KRW clustering is phase 2).
 - [`simulation/`](simulation/README.md) — animated step-through simulation of
   both PoCs, replayed from their canonical run artifacts
   (`python3 simulation/build_simulation.py`, then open `simulation.html`).
 - [`3d-viewer/`](3d-viewer) — 3D BAG LOD22 tile mirror/viewer experiment.
 - [`SETUP.md`](SETUP.md) — environment setup; [`sql/`](sql) — database scratchpad.
 
-Both PoCs run offline, corpus-first: `python3 poc/run.py` (tracks:
+PoC-1 and PoC-2 run offline, corpus-first: `python3 poc/run.py` (tracks:
 `--use-case wind|zon|bos`) and `python3 poc-bp2op/run.py`
 (stdlib + `jsonschema`; no network at runtime). Deterministic scenario
 sweeps replay the canonical PoC-1 runs: `python3 poc/scenarios/run.py`
@@ -32,4 +35,5 @@ sweeps replay the canonical PoC-1 runs: `python3 poc/scenarios/run.py`
 `--narrator deterministic|llm` — the live open-model leg ran on local
 Ollama qwen3.8), and the cross-track conflict overlay quantifies the
 energy-vs-nature overlaps: `python3 poc/crosstrack/run.py` — see
-[`docs/GENAI_SEAMS.md`](docs/GENAI_SEAMS.md).
+[`docs/GENAI_SEAMS.md`](docs/GENAI_SEAMS.md). PoC-3 (Rijnland peil-conflict)
+uses live/cached ArcGIS + H3: `nldt/.venv/bin/python poc-rijnland/run.py`.
