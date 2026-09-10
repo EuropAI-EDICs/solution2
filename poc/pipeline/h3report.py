@@ -21,6 +21,7 @@ another's map.
 
 from __future__ import annotations
 
+import html as _html
 import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
@@ -155,7 +156,9 @@ _TEMPLATE = """<!doctype html>
       );
     }}
   }}).addTo(map);
-  map.fitBounds(layer.getBounds().pad(0.08));
+  if (cells.features && cells.features.length) {{
+    map.fitBounds(layer.getBounds().pad(0.08));
+  }}
   banner.addTo(map);
 
   var legend = L.control({{position: 'bottomright'}});
@@ -304,10 +307,12 @@ def render_hex_map(
         ),
         "stops": _stops_for(preset, stops),
     }
+    # escape for embedding: "<" as \u003c keeps both JSON blocks valid
+    # inside <script> and kills any </script> breakout
     html = _TEMPLATE.format(
-        title=title,
-        payload=json.dumps(display_fc, ensure_ascii=False),
-        meta=json.dumps(meta, ensure_ascii=False),
+        title=_html.escape(title),
+        payload=json.dumps(display_fc, ensure_ascii=False).replace("<", "\u003c"),
+        meta=json.dumps(meta, ensure_ascii=False).replace("<", "\u003c"),
     )
     if out_path is not None:
         out_path = Path(out_path)

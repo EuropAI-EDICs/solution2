@@ -41,7 +41,7 @@ def load_json(name: str):
 class SchemaFileTests(unittest.TestCase):
     """V0 gate: every published schema must itself be valid draft 2020-12."""
 
-    def test_all_six_schemas_load_and_meta_validate(self):
+    def test_all_registered_schemas_load_and_meta_validate(self):
         for name in contracts.SCHEMA_NAMES:
             schema = contracts.load_schema(name)
             self.assertEqual(schema["$schema"], "https://json-schema.org/draft/2020-12/schema")

@@ -42,7 +42,9 @@ def build_parser() -> argparse.ArgumentParser:
                     help="force live nldt H3 re-invocation")
     ap.add_argument("--no-h3", action="store_true",
                     help="skip H3 overlay (polygon headline only)")
-    ap.add_argument("--h3-resolution", type=int, default=8)
+    ap.add_argument("--h3-resolution", type=int, default=8,
+                    choices=range(0, 16), metavar="{0..15}",
+                    help="H3 resolution for the overlay")
     ap.add_argument("--simplify-m", type=float, default=25.0,
                     help="ArcGIS maxAllowableOffset metres (default 25)")
     ap.add_argument("--bbox", default=DEFAULT_BBOX,

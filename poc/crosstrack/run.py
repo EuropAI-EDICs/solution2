@@ -99,6 +99,7 @@ def build_parser() -> argparse.ArgumentParser:
                     help="force live re-invocation of the nldt H3 processes "
                          "(ignore the poc/data/cache/h3 cache)")
     ap.add_argument("--h3-resolution", type=int, default=8,
+                    choices=range(0, 16), metavar="{0..15}",
                     help="H3 resolution for the overlay (default: 8)")
     return ap
 
@@ -178,8 +179,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "startedAt": utcnow(), "endedAt": utcnow(),
         "durationS": round(time.time() - t0, 3),
         "used": [f"controls/{t['useCase']}.geojson" for t in tracks_internal],
-        "generated": written,
+        "generated": list(written),  # snapshot: later appends are other activities'
     })
+
+    h3_written: List[str] = []
+    h3_used = [f"controls/{t['useCase']}.geojson" for t in tracks_internal]
+    t0_h3 = time.time()
 
     h3_artifact = None
     if not args.no_h3:
@@ -201,6 +206,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if h3_artifact is not None:
         dump_json(out_dir / "h3-crosstrack.json", h3_artifact, indent=1)
         written.append("h3-crosstrack.json")
+        h3_written.append("h3-crosstrack.json")
         try:
             from pipeline import h3report, h3step
 
@@ -223,6 +229,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 ),
                 encoding="utf-8")
             written.append("h3-crosstrack.html")
+            h3_written.append("h3-crosstrack.html")
         except Exception as exc:  # map is a convenience; artifact stands alone
             report.setdefault("degradations", []).append(
                 {"kind": "h3-map-error", "error": f"{type(exc).__name__}: {exc}"})
@@ -247,6 +254,17 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if buildings_artifact is not None:
         dump_json(out_dir / "h3-buildings.json", buildings_artifact, indent=1)
         written.append("h3-buildings.json")
+        h3_written.append("h3-buildings.json")
+
+    if h3_written:
+        activities.append({
+            "id": "h3-overlay", "label": "H3 overlays (decision support)",
+            "type": "h3-overlay", "agent": crosstrack.CROSSTRACK_VERSION,
+            "startedAt": utcnow(), "endedAt": utcnow(),
+            "durationS": round(time.time() - t0_h3, 3),
+            "used": h3_used,
+            "generated": list(h3_written),
+        })
 
     dump_json(out_dir / "crosstrack-report.json", report, indent=1)
     dump_json(out_dir / "validation.json", validation, indent=1)
@@ -267,8 +285,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     entities.append(explainer.entity_for(out_dir / "validation.json", "ValidationReport"))
     entities.append(explainer.entity_for(out_dir / "crosstrack-report.md",
                                          "CrossTrackReport (markdown)"))
+    _H3_ENTITY_LABELS = {
+        "h3-crosstrack.json": "H3 crosstrack overlay (JSON)",
+        "h3-crosstrack.html": "H3 crosstrack hex map (HTML)",
+        "h3-buildings.json": "H3 buildings join (JSON)",
+    }
     for rel in written:
-        entities.append(explainer.entity_for(out_dir / rel, "overlay geometry GeoJSON"))
+        entities.append(explainer.entity_for(
+            out_dir / rel, _H3_ENTITY_LABELS.get(rel, "overlay geometry GeoJSON")))
     prov = expl.build_prov(
         run_id=run_id, generated_at=utcnow(),
         request_id=str(track_baselines[0][1]["request"].get("id")),

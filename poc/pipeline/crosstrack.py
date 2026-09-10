@@ -188,6 +188,7 @@ def attach_h3_overlay(
     artifact = {
         "zoneId": zone_id, "resolution": resolution, "cells": rows,
         "weightedConflictSharePct": weighted,
+        "h3Version": cov.get("h3Version"),
         "computedBy": CROSSTRACK_VERSION,
         "notes": [
             "conflictFraction = share of each contour cell's area that is "

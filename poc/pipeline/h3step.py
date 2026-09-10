@@ -24,7 +24,6 @@ from typing import Any, Dict, Optional
 POC_ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE = POC_ROOT.parent
 NLDT_ROOT = WORKSPACE / "nldt"
-NLDT_CLI = NLDT_ROOT / "services" / "cli.py"
 CACHE_DIR = POC_ROOT / "data" / "cache" / "h3"
 REQ_DIR = CACHE_DIR / "req"
 
@@ -67,7 +66,12 @@ def call(process_id: str, inputs: Dict[str, Any], *,
         else:
             argv += ["--input", f"{key}={value}"]
     proc = subprocess.run(argv, cwd=str(NLDT_ROOT), capture_output=True,
-                          text=True, check=True)
+                          text=True, check=False)
+    if proc.returncode != 0:
+        tail = (proc.stderr or proc.stdout or "").strip()[-2000:]
+        raise RuntimeError(
+            f"nldt process {process_id!r} failed (exit {proc.returncode}): "
+            f"{tail or 'no output'}")
     job = json.loads(proc.stdout)
     outputs = job["outputs"]
     CACHE_DIR.mkdir(parents=True, exist_ok=True)

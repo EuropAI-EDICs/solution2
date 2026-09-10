@@ -167,7 +167,9 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--no-h3", action="store_true",
                     help="skip per-scenario H3 hex metrics (default: attach "
                          "them, degrading gracefully when offline)")
-    ap.add_argument("--h3-resolution", type=int, default=8)
+    ap.add_argument("--h3-resolution", type=int, default=8,
+                    choices=range(0, 16), metavar="{0..15}",
+                    help="H3 resolution for the per-scenario hex metrics")
     ap.add_argument("--refresh-h3", action="store_true")
     ap.add_argument("--out", default=None,
                     help="output directory (default: poc/scenario-runs/<ts>-<use-case>)")
