@@ -157,6 +157,7 @@ def attach_peil_h3_overlay(
         "resolution": resolution,
         "cells": rows,
         "weightedConflictSharePct": weighted,
+        "h3Version": cov.get("h3Version"),
         "computedBy": PEIL_CONFLICT_VERSION,
         "notes": [
             "conflictFraction = share of each peilgebied cell that also "
