@@ -1,0 +1,53 @@
+{
+  "registryVersion": "1.0",
+  "generatedBy": "PoC-3 Rijnland probe 2026-09-10",
+  "generatedAt": "2026-09-10T13:20:00Z",
+  "galleryUrl": "https://rijnland.maps.arcgis.com/apps/instant/filtergallery/index.html?appid=cc74a510ca1644d78dfb914e09cb1b5a",
+  "crsNote": "Rijnland MapServers are EPSG:28992 native and accept f=geojson + outSR=28992.",
+  "sources": [
+    {
+      "id": "rijnland-peilgebied-vigerend",
+      "title": "Peilgebied (vigerend besluit)",
+      "serviceUrl": "https://rijnland.enl-mcs.nl/arcgis/rest/services/Peilgebied_vigerend_besluit/MapServer",
+      "layerId": 0,
+      "layerName": "PeilgebiedVigerend",
+      "geometryType": "esriGeometryPolygon",
+      "crs": { "wkid": 28992 },
+      "fields": [
+        { "name": "OBJECTID2", "type": "esriFieldTypeOID" }
+      ],
+      "featureCount": 792,
+      "maxRecordCount": 1000,
+      "queryTemplate": "{serviceUrl}/{layerId}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true&orderByFields=OBJECTID2",
+      "queryTemplateParams": { "where": "1=1" },
+      "role": "reference",
+      "authoritative": true,
+      "geojsonFormatSupported": true,
+      "supportsPagination": true,
+      "lastChecked": "2026-09-10T13:20:00Z",
+      "notes": "Formal peil areas under a vigerend besluit; OID OBJECTID2."
+    },
+    {
+      "id": "rijnland-peilafwijking-praktijk",
+      "title": "Peilafwijking (praktijk)",
+      "serviceUrl": "https://rijnland.enl-mcs.nl/arcgis/rest/services/Peilafwijking_praktijk/MapServer",
+      "layerId": 0,
+      "layerName": "PeilafwijkingGebied",
+      "geometryType": "esriGeometryPolygon",
+      "crs": { "wkid": 28992 },
+      "fields": [
+        { "name": "OBJECTID2", "type": "esriFieldTypeOID" }
+      ],
+      "featureCount": 2035,
+      "maxRecordCount": 1000,
+      "queryTemplate": "{serviceUrl}/{layerId}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true&orderByFields=OBJECTID2",
+      "queryTemplateParams": { "where": "1=1" },
+      "role": "conflict",
+      "authoritative": true,
+      "geojsonFormatSupported": true,
+      "supportsPagination": true,
+      "lastChecked": "2026-09-10T13:20:00Z",
+      "notes": "Practice peil deviations; conflict layer vs vigerend peilgebied."
+    }
+  ]
+}
