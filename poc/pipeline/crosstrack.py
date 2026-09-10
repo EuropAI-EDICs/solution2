@@ -39,6 +39,7 @@ __all__ = [
     "CROSSTRACK_VERSION",
     "CROSSTRACK_RUN",
     "CrossTrackError",
+    "attach_buildings_join",
     "attach_h3_overlay",
     "conflict_markdown",
     "run_crosstrack",
@@ -202,6 +203,43 @@ def attach_h3_overlay(
     }
     contracts.validate(report, "crosstrack-report")
     return artifact
+
+
+# --------------------------------------------------------------------------- #
+# H3 buildings-per-zone-cell join (spec example 7.2; degradable)
+# --------------------------------------------------------------------------- #
+
+def attach_buildings_join(
+    tracks: Sequence[Mapping[str, Any]],
+    points: Mapping[str, Any],
+    *,
+    resolution: int = 8,
+    call=None,
+) -> Optional[Dict[str, Any]]:
+    """Per-track building counts per zone cell via h3-spatial-join-points
+    (spec example 7.2). ``points``: GeoJSON FeatureCollection of points
+    or footprints (joined by centroid). Returns the ``h3-buildings.json``
+    artifact or None when no client."""
+    if call is None:
+        return None
+    rows = []
+    for t in tracks:
+        payload = engine.to_zone_geometry(t["geometry"], round_dp=6)[0]["payload"]
+        fc = {"type": "FeatureCollection", "features": [
+            {"type": "Feature", "properties": {}, "geometry": payload}]}
+        join = call("h3-spatial-join-points",
+                    {"points": points, "polygon": fc,
+                     "resolution": resolution})["join"]
+        rows.append({
+            "useCase": t["useCase"],
+            "buildingsInZoneCells": sum(r["count"] for r in join["perCell"]),
+            "perCell": join["perCell"],
+        })
+    return {"resolution": resolution, "computedBy": CROSSTRACK_VERSION,
+            "tracks": rows,
+            "notes": ["buildings per zone cell via the nldt h3-spatial-join "
+                      "process; footprints join by centroid (decision "
+                      "support, not a zoning verdict)"]}
 
 
 # --------------------------------------------------------------------------- #

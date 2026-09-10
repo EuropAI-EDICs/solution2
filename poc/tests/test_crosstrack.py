@@ -288,6 +288,28 @@ class TestH3Overlay(unittest.TestCase):
         self.assertIn("H3 overlay", md)
         self.assertIn("7 of 10 cells", md)
 
+    def test_attach_buildings_join_counts_per_track(self):
+        def call(process_id, inputs):
+            assert process_id == "h3-spatial-join-points"
+            return {"join": {"pointCount": 3, "cellCount": 2, "resolution": 8,
+                             "perPoint": [], "perCell": [
+                                 {"cell": "c1", "count": 2},
+                                 {"cell": "c2", "count": 1}],
+                             "h3Version": "test"}}
+
+        tracks = [{"useCase": "zon", "geometry": box(156000, 457000, 164000, 463000)},
+                  {"useCase": "bos", "geometry": box(150000, 450000, 160000, 460000)}]
+        points = {"type": "FeatureCollection", "features": [
+            {"type": "Feature", "properties": {},
+             "geometry": {"type": "Point", "coordinates": [5.11, 52.09]}}]}
+        art = crosstrack.attach_buildings_join(tracks, points, call=call)
+        self.assertEqual([t["buildingsInZoneCells"] for t in art["tracks"]],
+                         [3, 3])
+        self.assertEqual(art["resolution"], 8)
+
+    def test_attach_buildings_join_without_client_returns_none(self):
+        self.assertIsNone(crosstrack.attach_buildings_join([], {}))
+
 
 if __name__ == "__main__":
     unittest.main()

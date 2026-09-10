@@ -92,6 +92,9 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--no-h3", action="store_true",
                     help="skip the H3 per-cell overlay (default: run it, "
                          "degrading gracefully when offline without cache)")
+    ap.add_argument("--buildings", default=None, metavar="GEOJSON",
+                    help="GeoJSON points/footprints: buildings-per-zone-cell "
+                         "join artifact h3-buildings.json (e.g. a BAG extract)")
     ap.add_argument("--refresh-h3", action="store_true",
                     help="force live re-invocation of the nldt H3 processes "
                          "(ignore the poc/data/cache/h3 cache)")
@@ -198,6 +201,26 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if h3_artifact is not None:
         dump_json(out_dir / "h3-crosstrack.json", h3_artifact, indent=1)
         written.append("h3-crosstrack.json")
+
+    buildings_artifact = None
+    if args.buildings is not None:
+        from pipeline import h3step
+
+        try:
+            points_doc = json.loads(Path(args.buildings).read_text(encoding="utf-8"))
+            call_b = (lambda pid, inputs: h3step.call(pid, inputs,
+                                                      refresh=args.refresh_h3))
+            buildings_artifact = crosstrack.attach_buildings_join(
+                tracks_internal, points_doc,
+                resolution=args.h3_resolution, call=call_b)
+        except Exception as exc:  # decision support only
+            report.setdefault("degradations", []).append(
+                {"kind": "h3-buildings-error",
+                 "error": f"{type(exc).__name__}: {exc}"})
+            print(f"[crosstrack] WARNING buildings join degraded: {exc}")
+    if buildings_artifact is not None:
+        dump_json(out_dir / "h3-buildings.json", buildings_artifact, indent=1)
+        written.append("h3-buildings.json")
 
     dump_json(out_dir / "crosstrack-report.json", report, indent=1)
     dump_json(out_dir / "validation.json", validation, indent=1)
