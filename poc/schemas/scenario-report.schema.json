@@ -27,7 +27,20 @@
     "baselineInclusionKm2": { "type": ["number", "null"] },
     "reproductionDeltaKm2": { "type": "number" },
     "reproductionRelDelta": { "type": "number", "description": "|reproduced - baseline| / baseline; must stay under the recorded tolerance for V3 to pass." },
-    "reproductionWithinTolerance": { "type": "boolean" }
+    "reproductionWithinTolerance": { "type": "boolean" },
+    "h3": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": ["resolution", "cellCount", "moransI", "pValue", "cellsGainedVsControl", "cellsLostVsControl"],
+     "properties": {
+      "resolution": { "type": "integer" },
+      "cellCount": { "type": "integer", "minimum": 0 },
+      "moransI": { "type": ["number", "null"] },
+      "pValue": { "type": ["number", "null"] },
+      "cellsGainedVsControl": { "type": ["integer", "null"] },
+      "cellsLostVsControl": { "type": ["integer", "null"] }
+     }
+    }
    }
   },
   "scenarios": {
@@ -89,7 +102,20 @@
      "iouVsControl": { "type": "number", "minimum": 0, "maximum": 1 },
      "geometryValid": { "type": "boolean" },
      "geometryFile": { "type": "string", "description": "Path (relative to the scenario run dir) of the per-scenario GeoJSON with all emitted zones incl. the final." },
-     "status": { "enum": ["ok", "degraded"] }
+     "status": { "enum": ["ok", "degraded"] },
+     "h3": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resolution", "cellCount", "moransI", "pValue", "cellsGainedVsControl", "cellsLostVsControl"],
+      "properties": {
+       "resolution": { "type": "integer" },
+       "cellCount": { "type": "integer", "minimum": 0 },
+       "moransI": { "type": ["number", "null"] },
+       "pValue": { "type": ["number", "null"] },
+       "cellsGainedVsControl": { "type": ["integer", "null"] },
+       "cellsLostVsControl": { "type": ["integer", "null"] }
+      }
+     }
     }
    }
   },

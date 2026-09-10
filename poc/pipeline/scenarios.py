@@ -382,6 +382,7 @@ def run_scenario_set(
     degradations: Optional[List[Dict[str, Any]]] = None,
     on_scenario_geojson=None,
     narrator=None,
+    h3_metrics=None,
 ) -> Dict[str, Any]:
     """Execute control + every spec; assemble the ScenarioReport dict.
 
@@ -393,6 +394,14 @@ def run_scenario_set(
     ``callable(report) -> str`` whose output is gated by the deterministic
     numeric-grounding check; the narration lands on ``report["_narrative"]``
     and its check joins the critic's V2 level (pop both in the CLI).
+
+    ``h3_metrics(payload_4326, control_cells) -> dict | None`` (optional)
+    computes the H3 hex summary per zone — the poc h3step bridge. The
+    control call receives ``control_cells=None`` and may include a
+    ``"cells"`` list (popped by the runner, never emitted); scenario calls
+    receive the control's cell set and return gained/lost deltas. Any
+    error degrades to a ``h3-metrics-error`` degradation — verdicts and
+    deltas measured in km²/IoU are unaffected.
     """
     request = baseline["request"]
     manifest = baseline["manifest"]
@@ -418,6 +427,30 @@ def run_scenario_set(
     repro_delta = control_area - base_final
     repro_rel = abs(repro_delta) / base_final if base_final else 0.0
     control_geom = _rd_from_payload(control_final["geometry"]["payload"])
+
+    control_block = {
+        "finalAreaKm2": control_area,
+        "inclusionIntersectAoiKm2": (round(float(control_incl["areaKm2"]), 9)
+                                     if control_incl else None),
+        "baselineFinalAreaKm2": base_final,
+        "baselineInclusionKm2": base_incl,
+        "reproductionDeltaKm2": round(repro_delta, 9),
+        "reproductionRelDelta": round(repro_rel, 12),
+        "reproductionWithinTolerance": repro_rel <= CONTROL_REPRODUCTION_REL_TOLERANCE,
+    }
+    # built before the spec loop: the loop's h3_metrics calls need the
+    # control's cell set, so the control's hex summary is computed first
+    control_cells = None
+    if h3_metrics is not None:
+        try:
+            control_h3 = h3_metrics(control_final["geometry"]["payload"], None)
+            if control_h3 is not None:
+                control_cells = set(control_h3.pop("cells", []))
+                control_block["h3"] = control_h3
+        except Exception as exc:
+            degradations.append({"kind": "h3-metrics-error",
+                                 "scenarioId": "CONTROL",
+                                 "error": f"{type(exc).__name__}: {exc}"})
 
     v2_unknown: List[str] = []
     v2_normcard_missing: List[str] = []
@@ -460,6 +493,21 @@ def run_scenario_set(
         if on_scenario_geojson is not None:
             geom_file = on_scenario_geojson(sid, rich)
         scen_degraded = any(d.get("scenarioId") == sid for d in degradations)
+        if h3_metrics is not None:
+            try:
+                m = h3_metrics(final["geometry"]["payload"], control_cells)
+                if m is not None:
+                    m.pop("cells", None)
+                    outcome_h3 = m
+                else:
+                    outcome_h3 = None
+            except Exception as exc:
+                outcome_h3 = None
+                degradations.append({"kind": "h3-metrics-error",
+                                     "scenarioId": sid,
+                                     "error": f"{type(exc).__name__}: {exc}"})
+        else:
+            outcome_h3 = None
         outcomes.append({
             "scenarioId": sid, "name": spec["name"],
             "basis": spec["basis"], "proposedBy": spec["proposedBy"],
@@ -474,18 +522,9 @@ def run_scenario_set(
             "geometryValid": bool(final.get("geometryValid")),
             "geometryFile": geom_file,
             "status": "degraded" if scen_degraded else "ok",
+            **({"h3": outcome_h3} if outcome_h3 is not None else {}),
         })
 
-    control_block = {
-        "finalAreaKm2": control_area,
-        "inclusionIntersectAoiKm2": (round(float(control_incl["areaKm2"]), 9)
-                                     if control_incl else None),
-        "baselineFinalAreaKm2": base_final,
-        "baselineInclusionKm2": base_incl,
-        "reproductionDeltaKm2": round(repro_delta, 9),
-        "reproductionRelDelta": round(repro_rel, 12),
-        "reproductionWithinTolerance": repro_rel <= CONTROL_REPRODUCTION_REL_TOLERANCE,
-    }
     report = {
         "id": report_id,
         "scenarioSetId": scenario_set_id,

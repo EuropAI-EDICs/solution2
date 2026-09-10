@@ -164,6 +164,11 @@ def build_parser() -> argparse.ArgumentParser:
                          "narrates and the SAME numeric-grounding gate decides; a "
                          "rejected narration falls back loudly to the deterministic "
                          "one and the rejection is persisted (narrative-rejected.md)")
+    ap.add_argument("--no-h3", action="store_true",
+                    help="skip per-scenario H3 hex metrics (default: attach "
+                         "them, degrading gracefully when offline)")
+    ap.add_argument("--h3-resolution", type=int, default=8)
+    ap.add_argument("--refresh-h3", action="store_true")
     ap.add_argument("--out", default=None,
                     help="output directory (default: poc/scenario-runs/<ts>-<use-case>)")
     return ap
@@ -296,6 +301,15 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         else:
             narrator_fn = scenarios.deterministic_narrative
 
+    h3_metrics_fn = None
+    if not args.no_h3:
+        from pipeline import h3step
+
+        def h3_metrics_fn(payload, control_cells):  # noqa: F811
+            return h3step.scenario_metrics(
+                payload, control_cells, resolution=args.h3_resolution,
+                refresh=args.refresh_h3)
+
     with log.stage("sweep", f"Execute control + {len(specs)} scenarios",
                    "scenario-engine",
                    used=["formalrules.json", "layers.json"],
@@ -309,6 +323,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             degradations=layer_degrades,
             on_scenario_geojson=_geojson_writer,
             narrator=narrator_fn,
+            h3_metrics=h3_metrics_fn,
         )
         validation = report.pop("_validation")
         control_rich = report.pop("_control_rich")

@@ -531,3 +531,63 @@ class MagnitudeFoldTests(unittest.TestCase):
                  f"{fake:.3f} km2.")
         check = scenarios.check_narrative_grounding(prose, report)
         self.assertEqual(check["status"], "fail")
+
+
+class H3MetricsTests(unittest.TestCase):
+    """Optional h3_metrics seam: attached when the callable works,
+    degraded when it errors, absent by default."""
+
+    def test_h3_metrics_attached_and_control_cells_popped(self):
+        seen = []
+
+        def fake_metrics(payload, control_cells):
+            seen.append(control_cells)
+            if control_cells is None:  # control call first
+                return {"resolution": 8, "cellCount": 3, "moransI": 0.5,
+                        "pValue": 0.01, "cells": ["a", "b", "c"],
+                        "cellsGainedVsControl": None,
+                        "cellsLostVsControl": None}
+            return {"resolution": 8, "cellCount": 4, "moransI": 0.2,
+                    "pValue": 0.2, "cellsGainedVsControl": 1,
+                    "cellsLostVsControl": 0}
+
+        report = scenarios.run_scenario_set(
+            baseline=_baseline(), layers=LAYERS,
+            specs=[_spec("SC-H3",
+                         {"type": "policy_variant", "normCardId": "NC-02",
+                          "provenanceNote": "n"},
+                         [{"ruleId": "FR-T-02", "action": "drop"}])],
+            scenario_set_id="SSET-h3", report_id="SR-h3-0001",
+            h3_metrics=fake_metrics)
+        report.pop("_validation")
+        report.pop("_control_rich")
+        self.assertIn("h3", report["control"])
+        self.assertNotIn("cells", report["control"]["h3"])  # runner pops it
+        row = report["scenarios"][0]
+        self.assertEqual(row["status"], "ok")
+        self.assertIn("h3", row)
+        self.assertNotIn("cells", row["h3"])
+        self.assertEqual(row["h3"]["cellsGainedVsControl"], 1)
+        contracts.validate(report, "scenario-report")
+        self.assertIsNone(seen[0])                    # control: control_cells None
+        self.assertEqual(seen[1], {"a", "b", "c"})    # scenario: the popped set
+
+    def test_h3_metrics_error_degrades_but_keeps_verdict(self):
+        def boom(payload, control_cells):
+            raise RuntimeError("h3 offline")
+
+        report = scenarios.run_scenario_set(
+            baseline=_baseline(), layers=LAYERS,
+            specs=[_spec("SC-H3-E",
+                         {"type": "policy_variant", "normCardId": "NC-02",
+                          "provenanceNote": "n"},
+                         [{"ruleId": "FR-T-02", "action": "drop"}])],
+            scenario_set_id="SSET-h3e", report_id="SR-h3e-0001",
+            h3_metrics=boom)
+        report.pop("_validation")
+        report.pop("_control_rich")
+        self.assertNotIn("h3", report["control"])
+        self.assertTrue(any(d["kind"] == "h3-metrics-error"
+                            for d in report["degradations"]))
+        self.assertEqual(report["verdict"], "pass")  # decision support only
+        contracts.validate(report, "scenario-report")
