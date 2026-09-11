@@ -67,7 +67,13 @@ _TEMPLATE = """<!doctype html>
     border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,.22);
   }}
   .banner h1 {{ margin: 0 0 4px; font-size: 15px; font-weight: 650; }}
-  .banner p {{ margin: 0; font-size: 12.5px; color: #3d4a5c; }}
+  .banner p {{ margin: 0 0 2px; font-size: 12.5px; color: #3d4a5c; }}
+  .banner .toggle {{
+    margin-top: 4px; font-size: 12px; font-weight: 600; color: #2563eb;
+    cursor: pointer; user-select: none;
+  }}
+  .banner .toggle:hover {{ text-decoration: underline; }}
+  .banner.collapsed p {{ display: none; }}
   .legend {{
     background: rgba(255,255,255,.96); padding: 10px 12px; border-radius: 8px;
     box-shadow: 0 1px 6px rgba(0,0,0,.22); min-width: 220px; line-height: 1.35;
@@ -121,9 +127,21 @@ _TEMPLATE = """<!doctype html>
 
   var banner = L.control({{position: 'topleft'}});
   banner.onAdd = function () {{
-    var d = L.DomUtil.create('div', 'banner');
-    d.innerHTML = '<h1>' + meta.title + '</h1><p>' + meta.intro + '</p>';
+    var d = L.DomUtil.create('div', 'banner collapsed');
+    d.innerHTML = '<h1>' + meta.title + '</h1><p>' + meta.intro + '</p>' +
+                  '<div class="toggle" role="button" tabindex="0">' +
+                  '&#9656; Uitleg</div>';
     L.DomEvent.disableClickPropagation(d);
+    var p = d.querySelector('p');
+    var toggle = d.querySelector('.toggle');
+    var flip = function () {{
+      var collapsed = d.classList.toggle('collapsed');
+      toggle.innerHTML = collapsed ? '&#9656; Uitleg' : '&#9662; Uitleg';
+    }};
+    L.DomEvent.on(toggle, 'click', flip);
+    L.DomEvent.on(toggle, 'keypress', function (e) {{
+      if (e.key === 'Enter' || e.key === ' ') {{ L.DomEvent.stop(e); flip(); }}
+    }});
     return d;
   }};
 

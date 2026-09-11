@@ -330,6 +330,9 @@ class TestHexMapReport(unittest.TestCase):
         self.assertIn("deadbeefdeadbee", html)
         self.assertIn("conflictFraction", html)
         self.assertIn("weight: 0", html)  # contiguous heatmap (no borders)
+        # banner is a collapsible panel, collapsed by default
+        self.assertIn("banner collapsed", html)
+        self.assertIn("Uitleg", html)
         # domain copy never leaks without an explicit preset (generic % stops)
         self.assertNotIn("Groene contour", html)
         self.assertIn("75%", html)
