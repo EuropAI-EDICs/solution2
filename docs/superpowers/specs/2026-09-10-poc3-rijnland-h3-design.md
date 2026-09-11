@@ -101,3 +101,16 @@ offline, no CDN. 2026 shown as partial year in the provenance footer.
 - One CLI run writes report + H3 artifact + stitched NL-legend heatmap HTML
 - Offline unit tests pass without network
 - Root README lists PoC-3
+
+## 6d. Phase 2d — water levels (implemented 2026-09-11)
+
+Recon: measured peil history is not openly served — AGOL live layers carry
+current values only, the public HydroNET efsserviceprovider chart endpoint
+serves a fixed ~12-day window (verified: no range params, no alternative
+endpoints), and HydroNET/RWS-waterinfo APIs need accounts. Delivered: a
+growing archive instead — `fetch_peilen.py` snapshots all 315 stations
+(polders+boezem, latest value + 12-day chart series → daily stats, merged
+into `data/peilen/peilen.json`); `run_peilen.py` renders the timeseries
+page (station selector, mediaan-polders/boezem aggregates, min–max band,
+play cursor). The 2020–2026 window becomes reachable with HydroNet
+credentials or by re-running the fetch forward in time.

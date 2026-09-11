@@ -47,6 +47,17 @@ Optioneel live fixtures (kleine Leiden-bbox):
 ../nldt/.venv/bin/python tests/make_fixtures.py
 ```
 
+## Fase 2d — Waterpeilen polders & boezem (geïmplementeerd)
+
+Gemeten peilhistorie is niet open: de AGOL-lagen van Rijnland geven alleen
+actuele waarden en de publieke HydroNET-chart per station een vast venster
+van ±12 dagen. `scripts/fetch_peilen.py` snapshot daarom alle 315 stations
+(131 polders, 184 boezem; 178.364 punten → 4.079 stationsdagen) naar een
+groeiend archief `data/peilen/peilen.json`; her-runnen breidt het venster
+uit. `run_peilen.py` rendert de tijdreeks-pagina (stations + mediaan-
+aggregaten, mNAP, min–max-band). Voor 2020–2026-historie is een HydroNET-
+account of RWS-waterinfo-sleutel nodig.
+
 ## Fase 2c — Tijdreeks 2020–2026 (geïmplementeerd)
 
 `scripts/fetch_wkp.py --monthly --from-year 2020 --to-year 2026` aggregeert

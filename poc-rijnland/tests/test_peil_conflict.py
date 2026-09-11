@@ -11,7 +11,7 @@ from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 POC_ROOT = ROOT.parent / "poc"
-for p in (str(ROOT), str(POC_ROOT)):
+for p in (str(ROOT), str(ROOT / "scripts"), str(POC_ROOT)):
     if p not in sys.path:
         sys.path.insert(0, p)
 
@@ -383,3 +383,51 @@ class TestTimeseries(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             ts.render_timeseries({"series": {}})
+
+
+class TestPeilen(unittest.TestCase):
+
+    CHART = ('series": [{"name": "WNS test", "data": ['
+             '{"y": -5.5, "x": 1787914058000.0}, '
+             '{"y": -5.4, "x": 1788000458000.0}]}')
+
+    ARCHIVE = {
+        "lastFetchedAt": "2026-09-11T00:00:00Z",
+        "stations": {
+            "a_polder": {"name": "Polder A", "layer": "polders",
+                         "days": {"2026-09-01": {"n": 24, "median": -5.5,
+                                                 "min": -5.6, "max": -5.4},
+                                  "2026-09-02": {"n": 24, "median": -5.4,
+                                                 "min": -5.5, "max": -5.3}}},
+            "b_polder": {"name": "Polder B", "layer": "polders",
+                         "days": {"2026-09-01": {"n": 24, "median": -5.0,
+                                                 "min": -5.1, "max": -4.9}}},
+            "c_boezem": {"name": "Boezem C", "layer": "boezem",
+                         "days": {"2026-09-01": {"n": 24, "median": -0.4,
+                                                 "min": -0.5, "max": -0.3}}},
+        },
+    }
+
+    def test_parse_and_daily(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "fetch_peilen",
+            Path(__file__).resolve().parents[1] / "scripts" / "fetch_peilen.py")
+        fp = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(fp)
+        pts = fp.parse_chart_series(self.CHART)
+        self.assertEqual(len(pts), 2)
+        self.assertEqual(pts[0]["y"], -5.5)
+        days = fp.daily_stats(pts)
+        self.assertEqual(list(days), ["2026-08-28", "2026-08-29"])
+        self.assertEqual(days["2026-08-28"]["n"], 1)
+
+    def test_build_fixture_aggregates(self):
+        import run_peilen as rp
+        fx = rp.build_fixture(self.ARCHIVE)
+        # aggregate needs >=5 stations/day -> none here
+        self.assertNotIn(rp.AGG_POLDERS, fx["series"])
+        self.assertEqual(len(fx["series"]), 3)
+        self.assertIn("a_polder", fx["labels"])
+        self.assertEqual(fx["series"]["a_polder"][0]["ym"], "2026-09-01")
+        self.assertEqual(fx["series"]["a_polder"][0]["p25"], -5.6)  # min as band

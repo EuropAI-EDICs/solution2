@@ -109,11 +109,7 @@ _TEMPLATE = """<!doctype html>
          preserveAspectRatio="none"></svg>
     <div class="note" id="chartnote"></div>
   </div>
-  <div class="card">
-    <h2>Seizoenscyclus — mediaan per maand van het jaar (alle jaren)</h2>
-    <svg id="season" width="100%" height="220" viewBox="0 0 1020 220"></svg>
-    <div class="note" id="seasonnote"></div>
-  </div>
+{season_card}
   <p class="note">{provenance}</p>
 </div>
 <script type="application/json" id="ts-data">{payload}</script>
@@ -241,6 +237,7 @@ _TEMPLATE = """<!doctype html>
 
     // ---- season panel ----
     var clim = DATA.climate[key] || [];
+    if (!document.getElementById('season')) return;
     var cl = clim.filter(function (v) {{ return v !== null; }});
     if (!cl.length) {{ season.innerHTML = ''; snote.textContent = 'geen data'; return; }}
     var SW = 1020, SH = 220, SPL = 64, SPR = 16, SPT = 14, SPB = 30;
@@ -324,9 +321,15 @@ def render_timeseries(
     *,
     title: str = "Waterkwaliteit Rijnland 2020–2026",
     default_parameter: str = "CONCTTE|chloride|mg/l",
+    labels: Optional[Mapping[str, str]] = None,
+    show_season: bool = True,
     out_path: Optional[Path] = None,
 ) -> str:
-    """Render the monthly fixture to a standalone interactive page."""
+    """Render a ``{series: rows[{ym, median, p25, p75, n, nLocations}]}``
+    fixture to a standalone interactive page. ``ym`` buckets may be months
+    or days; ``labels`` overrides display names; ``show_season=False``
+    hides the month-of-year panel (meaningless for short windows)."""
+    labels = dict(labels or {})
     series = fixture.get("series") or {}
     if not series:
         raise ValueError("fixture has no monthly series")
@@ -334,7 +337,7 @@ def render_timeseries(
     for key in sorted(series):
         norm = NORMS.get(key, {})
         unit = _unit_of(key)
-        label = norm.get("label") or key.replace("|", " · ")
+        label = labels.get(key) or norm.get("label") or key.replace("|", " · ")
         worse = norm.get("worse") == "low" and "Lagere waarden zijn ongunstiger." \
             or ("Hogere waarden zijn ongunstiger." if norm else "")
         params.append({
@@ -363,12 +366,18 @@ def render_timeseries(
         f"weggelaten; 2026 is een deels jaar. Geen wettelijke norm — "
         f"spreiding en trend zijn relatief aan de eigen metingen."
     )
+    season_card = """<div class="card">
+    <h2>Seizoenscyclus — mediaan per maand van het jaar (alle jaren)</h2>
+    <svg id="season" width="100%" height="220" viewBox="0 0 1020 220"></svg>
+    <div class="note" id="seasonnote"></div>
+  </div>""" if show_season else ""
     html = _TEMPLATE.format(
         title=title,
         subtitle=subtitle + (" · 2026 deels" if raw.get("2026", 0) < 1000 else ""),
         payload=json.dumps(payload, ensure_ascii=False).replace("<", "\\u003c"),
         month_labels_json=json.dumps(_MONTH_LABELS),
         provenance=provenance,
+        season_card=season_card,
     )
     if out_path is not None:
         out_path = Path(out_path)
