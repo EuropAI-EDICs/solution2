@@ -47,6 +47,15 @@ Optioneel live fixtures (kleine Leiden-bbox):
 ../nldt/.venv/bin/python tests/make_fixtures.py
 ```
 
+## Fase 2c — Tijdreeks 2020–2026 (geïmplementeerd)
+
+`scripts/fetch_wkp.py --monthly --from-year 2020 --to-year 2026` aggregeert
+álle jaren tot maandbuckets (mediaan + P25–P75 over locaties per parameter,
+±1,44 mln rijen → 792 buckets). `run_timeseries.py` rendert daaruit één
+offline pagina: parameter-keuze, maandmediaan met spreidingsband,
+12-maands trendlijn, seizoenscyclus en een afspeel-cursor ("simulatie")
+over de periode. 2026 is een deels jaar (thans 6 metingen).
+
 ## Fase 2b — Gemeten waterkwaliteit (geïmplementeerd)
 
 Werkelijke meetwaarden (niet alleen dekkingsdekking) via het

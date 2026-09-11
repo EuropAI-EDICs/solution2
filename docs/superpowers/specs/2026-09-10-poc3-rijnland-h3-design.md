@@ -86,6 +86,16 @@ Moran's I on the scaled values (`h3-morans-i`). Default chloride 2025:
 Note: Power BI embeds expose no data API; the portal API is the same
 request the downloadmodule UI makes. 2026 currently returns 6 rows.
 
+## 6c. Phase 2c — time series 2020–2026 (implemented 2026-09-11)
+
+`fetch_wkp.py --monthly` buckets every measurement (2020–2026, ~1.44M rows)
+per parameter per month (median, P25–P75, n, nLocations across the whole
+beheergebied). `run_timeseries.py` renders `rijnland/timeseries_report.py`'s
+single-file page: parameter selector, monthly median with spread band,
+centred 12-month rolling trend, month-of-year climatology panel, and a play
+cursor sweeping the period (the "simulation"). Vanilla SVG/JS only — fully
+offline, no CDN. 2026 shown as partial year in the provenance footer.
+
 ## 7. Success criteria (MVP)
 
 - One CLI run writes report + H3 artifact + stitched NL-legend heatmap HTML

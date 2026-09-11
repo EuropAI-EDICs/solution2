@@ -327,3 +327,59 @@ class TestWaterQuality(unittest.TestCase):
             water_quality.attach_water_quality(
                 report, fixture=self.FIXTURE, parameter_key="nope",
                 peil_cells=self.PEIL_CELLS, call=self._call())
+
+
+class TestTimeseries(unittest.TestCase):
+
+    FIXTURE = {
+        "source": "test", "subject": "Meetgegevens",
+        "areaName": "Rijnland", "fetchedAt": "2026-09-11T00:00:00Z",
+        "rawRowsPerYear": {"2020": 10, "2026": 6},
+        "series": {
+            "CONCTTE|chloride|mg/l": [
+                {"ym": f"2020-{m:02d}", "n": 30, "nLocations": 25,
+                 "median": 100.0 + m, "p25": 80.0, "p75": 130.0}
+                for m in range(1, 13)
+            ] + [
+                {"ym": f"2021-{m:02d}", "n": 30, "nLocations": 25,
+                 "median": 110.0 + m, "p25": 90.0, "p75": 140.0}
+                for m in range(1, 13)
+            ],
+        },
+    }
+
+    def test_climatology_per_month_of_year(self):
+        from rijnland import timeseries_report as ts
+
+        clim = ts.climatology(self.FIXTURE["series"]
+                              ["CONCTTE|chloride|mg/l"])
+        self.assertEqual(len(clim), 12)
+        self.assertEqual(clim[0], 106.0)  # median(101, 111)
+        self.assertEqual(clim[11], 117.0)  # median(112, 122)
+
+    def test_rolling_median_edges_are_none(self):
+        from rijnland import timeseries_report as ts
+
+        roll = ts.rolling_median(self.FIXTURE["series"]
+                                 ["CONCTTE|chloride|mg/l"])
+        self.assertEqual(len(roll), 24)
+        self.assertIsNone(roll[0])
+        self.assertIsNone(roll[-1])
+        self.assertIsNotNone(roll[6])  # first full centered window
+
+    def test_render_timeseries_html(self):
+        from rijnland import timeseries_report as ts
+
+        html = ts.render_timeseries(self.FIXTURE,
+                                    default_parameter="CONCTTE|chloride|mg/l")
+        self.assertIn("chloride", html)
+        self.assertIn("Seizoenscyclus", html)
+        self.assertIn("Afspelen", html)
+        self.assertIn("2020\u20132026", html)
+        self.assertNotIn("</script>x", html.split("ts-data")[1][:100000])
+
+    def test_render_rejects_empty_fixture(self):
+        from rijnland import timeseries_report as ts
+
+        with self.assertRaises(ValueError):
+            ts.render_timeseries({"series": {}})
