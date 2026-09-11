@@ -62,11 +62,14 @@ _TEMPLATE = """<!doctype html>
   body {{ margin: 0; font: 14px/1.45 "Segoe UI", system-ui, sans-serif; color: #1a2330; }}
   #map {{ height: 100vh; }}
   .banner {{
-    position: absolute; z-index: 1000; left: 12px; right: 12px; top: 12px;
-    max-width: 440px; background: rgba(255,255,255,.94); padding: 10px 12px;
+    max-width: 420px; background: rgba(255,255,255,.94); padding: 10px 12px;
     border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,.22);
   }}
-  .banner h1 {{ margin: 0 0 4px; font-size: 15px; font-weight: 650; }}
+  .banner h1 {{
+    margin: 0 0 4px; font-size: 15px; font-weight: 650;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }}
+  .banner:not(.collapsed) h1 {{ white-space: normal; }}
   .banner p {{ margin: 0 0 2px; font-size: 12.5px; color: #3d4a5c; }}
   .banner .toggle {{
     margin-top: 4px; font-size: 12px; font-weight: 600; color: #2563eb;
