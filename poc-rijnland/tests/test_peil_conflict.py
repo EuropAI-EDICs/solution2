@@ -224,3 +224,106 @@ class TestKrwMonitoring(unittest.TestCase):
         self.assertIsNone(krw_quality.attach_krw_monitoring(
             report, peil_cells=[], meet_fc_rd=_fc()))
         self.assertEqual(report["degradations"][0]["kind"], "krw-unavailable")
+
+
+class TestWaterQuality(unittest.TestCase):
+
+    FIXTURE = {
+        "year": 2025,
+        "source": "test",
+        "locations": {
+            "L1": {"x": 95000.0, "y": 462000.0, "params": {
+                "CONCTTE|chloride|mg/l": {"n": 12, "median": 100.0,
+                                          "min": 50.0, "max": 150.0}}},
+            "L2": {"x": 95100.0, "y": 462100.0, "params": {
+                "CONCTTE|chloride|mg/l": {"n": 12, "median": 200.0,
+                                          "min": 80.0, "max": 260.0}}},
+            "L3": {"x": 95200.0, "y": 462200.0, "params": {
+                "CONCTTE|chloride|mg/l": {"n": 6, "median": 300.0,
+                                          "min": 100.0, "max": 400.0}}},
+        },
+    }
+
+    PEIL_CELLS = [
+        {"cell": "c1", "inZoneFraction": 0.9, "conflictFraction": 0.8,
+         "cellAreaM2": 740000.0},
+        {"cell": "c2", "inZoneFraction": 0.9, "conflictFraction": 0.0,
+         "cellAreaM2": 740000.0},
+    ]
+
+    @staticmethod
+    def _call(points_in=None):
+        """points_in: list of (index, cell) membership for the join."""
+        points_in = points_in or [(0, "c1"), (1, "c1"), (2, "c2")]
+
+        def call(process_id, inputs):
+            if process_id == "h3-spatial-join-points":
+                assert inputs["cells"] == ["c1", "c2"]
+                return {"join": {
+                    "pointCount": 3, "cellCount": 2,
+                    "resolution": inputs["resolution"],
+                    "perPoint": [{"index": i, "cell": c, "inCells": True}
+                                 for i, c in points_in],
+                    "perCell": []}}
+            assert process_id == "h3-morans-i"
+            return {"statistics": {"moransI": 0.3, "pValue": 0.02}}
+
+        return call
+
+    def test_attach_water_quality_median_and_scale(self):
+        from rijnland import water_quality
+
+        report = {"degradations": []}
+        art = water_quality.attach_water_quality(
+            report, fixture=self.FIXTURE,
+            parameter_key="CONCTTE|chloride|mg/l",
+            peil_cells=self.PEIL_CELLS, call=self._call())
+        by = {r["cell"]: r for r in art["rows"]}
+        self.assertEqual(by["c1"]["value"], 150.0)  # median(100, 200)
+        self.assertEqual(by["c1"]["nLocations"], 2)
+        self.assertEqual(by["c1"]["nMeasurements"], 24)
+        self.assertEqual(by["c1"]["conflictFraction"], 0.8)
+        # chloride: high is worse; c2 (300, the max) must outrank c1
+        self.assertGreater(by["c2"]["value01"], by["c1"]["value01"])
+        w = report["waterkwaliteit"]
+        self.assertEqual(w["locationsWithParameter"], 3)
+        self.assertEqual(w["locationsInCells"], 3)
+        self.assertEqual(w["moransI"], 0.3)
+        self.assertEqual(art["label"], "Chloride (mg/l)")
+
+    def test_attach_water_quality_low_is_worse_inverts(self):
+        from rijnland import water_quality
+
+        fixture = {
+            "year": 2025, "source": "test",
+            "locations": {
+                code: {"x": 95000.0 + i * 100, "y": 462000.0, "params": {
+                    "VERZDGGD|zuurstof|%": {"n": 4, "median": med,
+                                            "min": med, "max": med}}}
+                for i, (code, med) in enumerate(
+                    (("L1", 40.0), ("L2", 70.0), ("L3", 95.0)))
+            },
+        }
+        report = {"degradations": []}
+        art = water_quality.attach_water_quality(
+            report, fixture=fixture, parameter_key="VERZDGGD|zuurstof|%",
+            peil_cells=self.PEIL_CELLS,
+            call=self._call(points_in=[(0, "c1"), (1, "c2"), (2, "c2")]))
+        by = {r["cell"]: r for r in art["rows"]}
+        # zuurstof: low is worse -> the 40% cell must have the HIGHEST score
+        self.assertEqual(by["c1"]["value"], 40.0)
+        self.assertEqual(by["c2"]["value"], 82.5)  # median(70, 95)
+        self.assertGreater(by["c1"]["value01"], by["c2"]["value01"])
+
+    def test_attach_water_quality_degrades(self):
+        from rijnland import water_quality
+
+        report = {"degradations": []}
+        self.assertIsNone(water_quality.attach_water_quality(
+            report, fixture=self.FIXTURE, parameter_key="CONCTTE|chloride|mg/l",
+            peil_cells=self.PEIL_CELLS))
+        self.assertEqual(report["degradations"][0]["kind"], "wq-unavailable")
+        with self.assertRaises(ValueError):
+            water_quality.attach_water_quality(
+                report, fixture=self.FIXTURE, parameter_key="nope",
+                peil_cells=self.PEIL_CELLS, call=self._call())

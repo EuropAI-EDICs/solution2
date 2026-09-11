@@ -70,6 +70,22 @@ Caveat carried in every artifact: this is monitoring coverage, not measured
 water quality. Original (spec-time) intent "peil conflict ∩ poor KRW" lands
 when measured values become available.
 
+## 6b. Phase 2b — measured water quality (implemented 2026-09-10)
+
+Measured values DO exist at the national portal: the Waterkwaliteitsportaal
+download API (`https://wkp.rws.nl/api/v1/data-downloads`, subject 15
+"Meetgegevens" under Oppervlaktewaterkwaliteit) serves Rijnland's full
+surface-water measurement set per year. `scripts/fetch_wkp.py` pulls a year
+and aggregates to per-location annual medians (fixture with provenance under
+`data/wkp/`). `rijnland/water_quality.py` joins locations onto the peilgebied
+grid (`h3-spatial-join-points`), takes the per-cell median, scales against
+the P10–P90 of all location medians (direction-aware per parameter: low
+zuurstof = bad, high chloride = bad — no invented legal norms), and runs
+Moran's I on the scaled values (`h3-morans-i`). Default chloride 2025:
+143 locations / 124 cells, P10–P90 60–298 mg/l, Moran's I 0.70 (p=0.005).
+Note: Power BI embeds expose no data API; the portal API is the same
+request the downloadmodule UI makes. 2026 currently returns 6 rows.
+
 ## 7. Success criteria (MVP)
 
 - One CLI run writes report + H3 artifact + stitched NL-legend heatmap HTML

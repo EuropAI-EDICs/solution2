@@ -20,7 +20,7 @@ for p in (str(ROOT), str(POC_ROOT)):
     if p not in sys.path:
         sys.path.insert(0, p)
 
-from rijnland import krw_quality, peil_conflict  # noqa: E402
+from rijnland import krw_quality, peil_conflict, water_quality  # noqa: E402
 from pipeline import geodata, h3report, h3step  # noqa: E402  — PoC-1
 
 SOURCES_PATH = ROOT / "data" / "sources.json"
@@ -45,6 +45,14 @@ def build_parser() -> argparse.ArgumentParser:
                     help="skip H3 overlay (polygon headline only)")
     ap.add_argument("--no-krw", action="store_true",
                     help="skip KRW monitoring-coverage overlay (fase 2)")
+    ap.add_argument("--no-wq", action="store_true",
+                    help="skip gemeten waterkwaliteit overlay (fase 2b)")
+    ap.add_argument("--wkp-year", type=int, default=2025,
+                    help="year of the WKP measurement fixture (default 2025; "
+                         "2026 levert thans slechts 6 metingen)")
+    ap.add_argument("--parameter", default="CONCTTE|chloride|mg/l",
+                    help="parameter key from the WKP fixture "
+                         "(default chloride; bijv. 'VERZDGGD|zuurstof|%%')")
     ap.add_argument("--h3-resolution", type=int, default=8,
                     choices=range(0, 16), metavar="{0..15}",
                     help="H3 resolution for the overlay")
@@ -243,6 +251,81 @@ def main(argv=None) -> int:
             })
             print(f"[poc-rijnland] WARNING krw overlay degraded: {exc}")
 
+    if h3_artifact is not None and not args.no_wq:
+        wkp_path = ROOT / "data" / "wkp" / f"waterkwaliteit-{args.wkp_year}.json"
+        try:
+            if not wkp_path.is_file():
+                raise FileNotFoundError(
+                    f"{wkp_path} — run scripts/fetch_wkp.py --year "
+                    f"{args.wkp_year} first")
+            fixture = json.loads(wkp_path.read_text(encoding="utf-8"))
+            wq_artifact = water_quality.attach_water_quality(
+                report,
+                fixture=fixture,
+                parameter_key=args.parameter,
+                peil_cells=h3_artifact["cells"],
+                resolution=args.h3_resolution,
+                call=_h3_call,
+            )
+            if wq_artifact is not None:
+                dump_json(out_dir / "h3-waterkwaliteit.json", wq_artifact)
+                written.append("h3-waterkwaliteit.json")
+                try:
+                    cells_fc = h3step.call(
+                        "h3-cells-to-geojson",
+                        {"cells": [r["cell"] for r in wq_artifact["rows"]]},
+                        refresh=args.refresh_h3,
+                    )["features"]
+                    by_cell = {r["cell"]: r for r in wq_artifact["rows"]}
+                    for feat in cells_fc["features"]:
+                        feat["properties"].update(
+                            by_cell[feat["properties"]["cell"]])
+                    label = wq_artifact["label"]
+                    (out_dir / "h3-waterkwaliteit.html").write_text(
+                        h3report.render_hex_map(
+                            cells_fc,
+                            title=f"{label} in peilgebied — {report['id']}",
+                            value_property="value01",
+                            value_label=label,
+                            zone_label="Aandeel in peilgebied",
+                            intro=(
+                                "Elke hexagon toont de mediaan van de "
+                                f"gemeten {label} (jaar {args.wkp_year}, "
+                                "Waterkwaliteitsportaal) over de meetlocaties "
+                                "in die cel, geschaald op het P10–P90-bereik "
+                                "van alle Rijnland-meetlocaties: hoe roder, "
+                                "hoe ongunstiger binnen het eigen gemeten "
+                                "bereik. Groen-grijze cellen hebben "
+                                "peilafwijking-conflict; zie het JSON-artefact "
+                                "voor de combinatie."
+                            ),
+                            legend_intro=(
+                                "Van gunstig (groen) naar ongunstig (rood) "
+                                "binnen het eigen gemeten bereik:"
+                            ),
+                            stops=[
+                                (0.0, "Gunstigste kwart van het gemeten bereik"),
+                                (0.5, "Midden van het gemeten bereik"),
+                                (1.0, "Ongunstigste kwart van het gemeten bereik"),
+                            ],
+                            call=_h3_call,
+                        ),
+                        encoding="utf-8",
+                    )
+                    written.append("h3-waterkwaliteit.html")
+                except Exception as exc:  # map is a convenience
+                    report.setdefault("degradations", []).append({
+                        "kind": "wq-map-error",
+                        "error": f"{type(exc).__name__}: {exc}",
+                    })
+                    print(f"[poc-rijnland] WARNING wq map degraded: {exc}")
+        except Exception as exc:  # decision support only
+            report.setdefault("degradations", []).append({
+                "kind": "wq-error",
+                "error": f"{type(exc).__name__}: {exc}",
+            })
+            print(f"[poc-rijnland] WARNING waterkwaliteit degraded: {exc}")
+
     dump_json(out_dir / "peil-conflict-report.json", report)
     md = peil_conflict.conflict_markdown(report)
     (out_dir / "peil-conflict-report.md").write_text(md, encoding="utf-8")
@@ -268,6 +351,11 @@ def main(argv=None) -> int:
               f"Moran's I {k['moransI']} (p={k['pValue']}); "
               f"{k['blindSpotCells']}/{k['conflictCells']} conflictcellen "
               f"zonder dekking ({k['blindSpotShareOfConflictPct']}%)")
+    w = report.get("waterkwaliteit")
+    if w:
+        print(f"  Waterkwaliteit {w['label']}: {w['locationsInCells']} locaties "
+              f"in {w['cellsWithData']} cellen, P10-P90 {w['p10']}-{w['p90']}, "
+              f"Moran's I {w['moransI']} (p={w['pValue']})")
     print(f"  artifacts: {', '.join(written)}")
     print("=" * 70)
     return 0

@@ -31,6 +31,7 @@ Output onder `poc-rijnland/runs/<ts>-rijnland-peil/`:
 - `peil-conflict-report.json` / `.md`
 - `h3-peil-conflict.json` + `h3-peil-conflict.html` (gestitchte NL-legenda)
 - `h3-krw-monitoring.json` + `h3-krw-blindspots.html` (fase 2, `--no-krw` om te skippen)
+- `h3-waterkwaliteit.json` + `h3-waterkwaliteit.html` (fase 2b: gemeten waarden, `--no-wq` skip, `--parameter` kiest stof)
 
 Offline H3-replay: `POC_H3_OFFLINE=1` (gebruikt `poc/data/cache/h3/`).
 
@@ -45,6 +46,19 @@ Optioneel live fixtures (kleine Leiden-bbox):
 ```bash
 ../nldt/.venv/bin/python tests/make_fixtures.py
 ```
+
+## Fase 2b — Gemeten waterkwaliteit (geïmplementeerd)
+
+Werkelijke meetwaarden (niet alleen dekkingsdekking) via het
+[Waterkwaliteitsportaal](https://wkp.rws.nl/downloadmodule) van het
+Informatiehuis Water: `scripts/fetch_wkp.py --year 2025` haalt álle
+Oppervlaktewaterkwaliteit-metingen voor Rijnland via de download-API
+(subject 15 "Meetgegeven"; 304.154 rows, 723 locaties) en aggregeert die
+naar jaarlijkse locatie-medianen per stof in
+`data/wkp/waterkwaliteit-2025.json` (met provenance). Per cel: mediaan
+van locatie-medianen, geschaald op het eigen P10–P90-bereik (0=gunstig,
+1=ongunstig — geen wettelijke norm), plus Moran's I. 2026 levert thans
+slechts 6 metingen; default jaar is 2025.
 
 ## Fase 2 — KRW-monitoringdekking (geïmplementeerd)
 
