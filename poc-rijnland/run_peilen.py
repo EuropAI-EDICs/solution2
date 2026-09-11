@@ -102,15 +102,22 @@ def main(argv=None) -> int:
     n_stations = len([k for k in fixture["series"] if not k.startswith("AGG")])
     default = AGG_POLDERS if AGG_POLDERS in fixture["series"] \
         else sorted(fixture["series"])[0]
+    first = min(r["ym"] for s in fixture["series"].values() for r in s)
+    last = max(r["ym"] for s in fixture["series"].values() for r in s)
+
+    def _nl(iso: str) -> str:
+        d = _dt.date.fromisoformat(iso)
+        return f"{d.day} {_dt.date(2000, d.month, 1).strftime('%b')} {d.year}"
     html = timeseries_report.render_timeseries(
         fixture,
         title="Waterpeilen Rijnland — polders & boezem (mNAP)",
         default_parameter=default,
         labels=fixture["labels"],
+        subtitle_override=(f"venster {_nl(first)} t/m {_nl(last)} · "
+                           f"{n_stations} stations · archief groeit per "
+                           "her-fetch (±12 dagen per run)"),
         show_season=False,
         out_path=out_dir / "peilen.html")
-    first = min(r["ym"] for s in fixture["series"].values() for r in s)
-    last = max(r["ym"] for s in fixture["series"].values() for r in s)
     (out_dir / "peilen.json").write_text(json.dumps({
         "archive": str(ARCHIVE.relative_to(ROOT)),
         "stations": n_stations,

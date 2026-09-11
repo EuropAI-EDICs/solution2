@@ -322,6 +322,7 @@ def render_timeseries(
     title: str = "Waterkwaliteit Rijnland 2020–2026",
     default_parameter: str = "CONCTTE|chloride|mg/l",
     labels: Optional[Mapping[str, str]] = None,
+    subtitle_override: Optional[str] = None,
     show_season: bool = True,
     out_path: Optional[Path] = None,
 ) -> str:
@@ -373,7 +374,8 @@ def render_timeseries(
   </div>""" if show_season else ""
     html = _TEMPLATE.format(
         title=title,
-        subtitle=subtitle + (" · 2026 deels" if raw.get("2026", 0) < 1000 else ""),
+        subtitle=subtitle_override or
+                 subtitle + (" · 2026 deels" if raw.get("2026", 0) < 1000 else ""),
         payload=json.dumps(payload, ensure_ascii=False).replace("<", "\\u003c"),
         month_labels_json=json.dumps(_MONTH_LABELS),
         provenance=provenance,
