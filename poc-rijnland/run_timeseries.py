@@ -36,6 +36,11 @@ def main(argv=None) -> int:
     ap.add_argument("--parameter", default="CONCTTE|chloride|mg/l")
     ap.add_argument("--no-animate", action="store_true",
                     help="skip the animated hex map (hexmap-tijd.html)")
+    ap.add_argument("--no-morans", action="store_true",
+                    help="skip per-step Moran's I (h3-morans-i via de "
+                         "bridge) in the animated map")
+    ap.add_argument("--morans-perms", type=int, default=199,
+                    help="permutations for Moran's I p-values")
     ap.add_argument("--out", type=Path, default=None)
     args = ap.parse_args(argv)
 
@@ -79,7 +84,7 @@ def main(argv=None) -> int:
             stops = [(0.0, "Gunstigste kwart van gemeten bereik"),
                      (0.5, "Midden van gemeten bereik"),
                      (1.0, "Ongunstigste kwart van gemeten bereik")]
-            bundles, metas = {}, {}
+            bundles, metas, trends, morans_all = {}, {}, {}, {}
             for pkey, per_loc in per_loc_all.items():
                 locs = [{"x": l["x"], "y": l["y"], "values": l["values"]}
                         for l in per_loc.values()]
@@ -92,6 +97,19 @@ def main(argv=None) -> int:
                     call=lambda pid, inputs: h3step.call(pid, inputs))
                 if not bundle:
                     continue
+                trend_s = hexmap_time.build_trend_series(
+                    bundle["values"], months)
+                if trend_s:
+                    trends[pkey] = trend_s
+                if not args.no_morans:
+                    try:
+                        morans_all[pkey] = hexmap_time.build_morans_series(
+                            bundle["values"],
+                            call=lambda pid, inputs: h3step.call(pid, inputs),
+                            permutations=args.morans_perms)
+                    except Exception as exc:  # per stof degraderen
+                        print(f"[ts] WARNING Moran's I {pkey} overgeslagen: "
+                              f"{exc}")
                 norm = NORMS.get(pkey, {})
                 worse_low = norm.get("worse") == "low"
                 name = (norm.get("label") or pkey.replace("|", " · ")
@@ -118,13 +136,21 @@ def main(argv=None) -> int:
                     title=(f"Waterkwaliteit per cel, per maand "
                            f"{months[0][:4]}–{months[-1][:4]}"),
                     stops=stops,
+                    trend=trends or None,
+                    morans=morans_all or None,
                     out_path=out_dir / "hexmap-tijd.html")
                 (out_dir / "hexmap-tijd.json").write_text(json.dumps({
                     "parameters": {k: {"cells": len(b["values"]),
                                        "scale": [metas[k]["vmin"],
-                                                 metas[k]["vmax"]]}
+                                                 metas[k]["vmax"]],
+                                       "trend": bool(trends.get(k)),
+                                       "moransSteps": sum(
+                                           1 for m in (morans_all.get(k) or [])
+                                           if m)}
                                    for k, b in bundles.items()},
                     "steps": len(steps),
+                    "moransPermutations": (None if args.no_morans
+                                           else args.morans_perms),
                 }, indent=1) + "\n", encoding="utf-8")
                 print(f"[ts] {out_dir / 'hexmap-tijd.html'} "
                       f"({len(anim):,} bytes, {len(bundles)} stoffen, "

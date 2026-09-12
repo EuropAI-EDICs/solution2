@@ -570,3 +570,99 @@ class TestHexmapTimeMulti(unittest.TestCase):
         data = _json.loads(block.group(1))  # valid JSON na < escaping
         self.assertEqual(data["params"]["A|x|mg/l"]["label"],
                          "</script>Stof A")
+
+    def test_build_trend_series(self):
+        from rijnland.hexmap_time import build_trend_series
+
+        months = [f"2020-{m:02d}" for m in range(1, 13)] + \
+                 [f"2021-{m:02d}" for m in range(1, 13)]
+        nul = [None] * 24
+
+        def series(spots):  # {stap: waarde}
+            s = list(nul)
+            for i, v in spots.items():
+                s[i] = v
+            return s
+
+        values = {
+            "a": [10.0] * 24,                                # onveranderd
+            "b": series({0: 5.0, 1: 6.0, 2: 7.0,            # +3 per maand
+                         12: 8.0, 13: 9.0, 14: 10.0}),
+            "c": series({0: 4.0, 12: 5.0}),                  # 1 overlap
+            "d": [1.0] * 12 + [7.0] * 12,                    # +6
+            "e": [0.0] * 12 + [9.0] * 12,                    # +9
+        }
+        trend = build_trend_series(values, months)
+        self.assertEqual(trend["baseYear"], 2020)
+        self.assertEqual(trend["years"], [2021])
+        # P90 van [0,3,6,9] = 8.1 (lineaire interpolatie)
+        self.assertEqual(trend["q"], {"2021": 8.1})
+        self.assertEqual(trend["cells"]["a"], {"2021": 0.0})
+        self.assertEqual(trend["cells"]["b"], {"2021": 3.0})
+        self.assertEqual(trend["cells"]["d"], {"2021": 6.0})
+        self.assertEqual(trend["cells"]["e"], {"2021": 9.0})
+        self.assertNotIn("c", trend["cells"])  # <2 overlappende maanden
+
+    def test_build_trend_series_needs_two_years(self):
+        from rijnland.hexmap_time import build_trend_series
+
+        self.assertIsNone(build_trend_series({"a": [1.0] * 12},
+                                             [f"2020-{m:02d}"
+                                              for m in range(1, 13)]))
+
+    def test_build_morans_series(self):
+        from rijnland.hexmap_time import build_morans_series
+
+        seen = []
+
+        def call(pid, inputs):
+            seen.append((pid, inputs))
+            return {"statistics": {"moransI": 0.42, "pValue": 0.03}}
+
+        values = {"x": [1.0, 2.0], "y": [3.0, 4.0], "z": [None, 5.0]}
+        series = build_morans_series(values, call=call, permutations=49)
+        # stap 0 heeft maar 2 gevulde cellen → null; stap 1 wél een call
+        self.assertEqual(series, [None, {"I": 0.42, "p": 0.03}])
+        self.assertEqual(len(seen), 1)
+        pid, inputs = seen[0]
+        self.assertEqual(pid, "h3-morans-i")
+        self.assertEqual(inputs["values"], {"x": 2.0, "y": 4.0, "z": 5.0})
+        self.assertEqual(inputs["permutations"], 49)
+
+    def test_render_multi_embeds_trend_morans_and_mode_ui(self):
+        from rijnland import hexmap_time
+
+        fc = {"type": "FeatureCollection", "features": [
+            {"type": "Feature", "properties": {"cell": "aaa"},
+             "geometry": None}]}
+        bundles = {"A|x|mg/l": {"cells_fc": fc,
+                                "values": {"aaa": [1.0, 2.0]},
+                                "nSteps": 2}}
+        metas = {"A|x|mg/l": {"label": "Stof A", "unit": "mg/l",
+                              "vmin": 0.0, "vmax": 2.0}}
+        trend = {"A|x|mg/l": {"baseYear": 2020, "years": [2021],
+                              "q": {"2021": 4.0},
+                              "cells": {"aaa": {"2021": -2.0}}}}
+        morans = {"A|x|mg/l": [{"I": 0.1, "p": 0.2}, None]}
+        html = hexmap_time.render_hexmap_time_multi(
+            bundles, steps=["jan 2020", "jan 2021"], metas=metas,
+            default="A|x|mg/l", title="T", trend=trend, morans=morans)
+        import json as _json
+        import re as _re
+        block = _re.search(r'id="anim-data">(\{.*?\})</script>', html, _re.S)
+        data = _json.loads(block.group(1))
+        p = data["params"]["A|x|mg/l"]
+        self.assertEqual(p["trend"]["years"], [2021])
+        self.assertEqual(p["trend"]["cells"]["aaa"], {"2021": -2.0})
+        self.assertEqual(p["morans"], [{"I": 0.1, "p": 0.2}, None])
+        # UI: modus-toggle en Moran-sparkline aanwezig
+        self.assertIn('<select id="mode"', html)
+        self.assertIn('id="spark-wrap"', html)
+        # zonder trend/morans: geen crash en de opties degraderen
+        html2 = hexmap_time.render_hexmap_time_multi(
+            bundles, steps=["jan 2020", "jan 2021"], metas=metas,
+            default="A|x|mg/l", title="T")
+        data2 = _json.loads(_re.search(
+            r'id="anim-data">(\{.*?\})</script>', html2, _re.S).group(1))
+        self.assertIsNone(data2["params"]["A|x|mg/l"]["trend"])
+        self.assertIsNone(data2["params"]["A|x|mg/l"]["morans"])

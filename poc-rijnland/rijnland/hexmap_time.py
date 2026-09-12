@@ -104,6 +104,93 @@ def build_cell_steps(
     return {"cells_fc": cells_fc, "values": values, "nSteps": n_steps}
 
 
+def _p90(xs: Sequence[float]) -> float:
+    # numpy-stijl lineaire interpolatie; voldoende voor een kleurschaal
+    if not xs:
+        return 0.0
+    s = sorted(xs)
+    if len(s) == 1:
+        return s[0]
+    pos = 0.9 * (len(s) - 1)
+    lo = int(pos)
+    return s[lo] + (s[min(lo + 1, len(s) - 1)] - s[lo]) * (pos - lo)
+
+
+def build_trend_series(
+    values: Mapping[str, Sequence[Optional[float]]],
+    months: Sequence[str],
+    *,
+    min_overlap: int = 2,
+) -> Optional[Dict[str, Any]]:
+    """Verandering per cel t.o.v. het eerste jaar (H3-cel als stabiele
+    sleutel over de tijd).
+
+    Per cel en eindjaar: mediaan over kalendermaanden van
+    waarde(eindjaar, maand) − waarde(eerste jaar, maand); alleen
+    maanden die in beide jaren gemeten zijn (≥ ``min_overlap``, anders
+    geen uitspraak). ``months``: ISO "YYYY-MM" per stap. Kleurschaal
+    ``q`` per jaar: P90 van |delta| over cellen, symmetrisch rond 0.
+    """
+    n_steps = max((len(s) for s in values.values()), default=0)
+    if not values or not months or len(months) != n_steps:
+        return None
+    years = sorted({int(m[:4]) for m in months})
+    end_years = [y for y in years if y > years[0]]
+    if not end_years:
+        return None
+    per_cell: Dict[str, Dict[int, float]] = {}
+    for cell, series in values.items():
+        by_ym = {(int(months[t][:4]), int(months[t][5:7])): float(v)
+                 for t, v in enumerate(series) if v is not None}
+        deltas = {}
+        for ey in end_years:
+            diffs = [by_ym[(ey, m)] - by_ym[(years[0], m)]
+                     for m in range(1, 13)
+                     if (ey, m) in by_ym and (years[0], m) in by_ym]
+            if len(diffs) >= min_overlap:
+                deltas[ey] = round(statistics.median(diffs), 4)
+        if deltas:
+            per_cell[cell] = deltas
+    q: Dict[str, float] = {}
+    for ey in end_years:
+        ds = [abs(d[ey]) for d in per_cell.values() if ey in d]
+        q[str(ey)] = round(_p90(ds), 4) if len(ds) >= 4 else 0.0
+    return {
+        "baseYear": years[0],
+        "years": end_years,
+        "q": q,
+        "cells": {c: {str(y): d for y, d in ds.items()}
+                  for c, ds in per_cell.items()},
+    }
+
+
+def build_morans_series(
+    values: Mapping[str, Sequence[Optional[float]]],
+    *,
+    call,
+    permutations: int = 199,
+) -> Optional[List[Any]]:
+    """Global Moran's I per tijdstap, via het nldt-proces (H3-grid-
+    buurschap). Stappen met minder dan 3 gevulde cellen krijgen null:
+    dan is autocorrelatie niet gedefinieerd."""
+    if call is None or not values:
+        return None
+    n_steps = max(len(s) for s in values.values())
+    series: List[Any] = []
+    for t in range(n_steps):
+        vals = {c: s[t] for c, s in values.items()
+                if t < len(s) and s[t] is not None}
+        if len(vals) < 3:
+            series.append(None)
+            continue
+        stats = call("h3-morans-i",
+                     {"values": vals,
+                      "permutations": permutations})["statistics"]
+        series.append({"I": stats.get("moransI"),
+                       "p": stats.get("pValue")})
+    return series
+
+
 _TEMPLATE = """<!doctype html>
 <html lang="nl">
 <head>
@@ -315,10 +402,20 @@ _MULTI_TEMPLATE = """<!doctype html>
 <div class="panel">
   <h1>{title}</h1>
   <select id="param" aria-label="Parameter"></select>
+  <select id="mode" aria-label="Weergave">
+    <option value="waarde">Waarde per maand</option>
+    <option value="trend">Trend t.o.v. eerste jaar</option>
+  </select>
   <div class="step" id="step-label"></div>
   <div class="row">
     <button id="play" title="Speel de tijdstappen af">&#9654; Afspelen</button>
     <input type="range" id="slider" min="0" max="{n_steps_1}" value="0" step="1">
+  </div>
+  <div id="spark-wrap" style="display:none">
+    <svg id="spark" width="100%" height="38" preserveAspectRatio="none"
+         role="img" aria-label="Moran's I per maand"></svg>
+    <div style="font-size:11px;color:#5b6472;margin:0 0 2px">
+      ruimtelijke clustering (Moran's I) per maand — stip = huidige stap</div>
   </div>
 </div>
 {legend_html}
@@ -349,6 +446,16 @@ _MULTI_TEMPLATE = """<!doctype html>
     maxZoom: 18, attribution: '&copy; OpenStreetMap contributors'
   }}).addTo(map);
   var layer = null, curKey = null, fitted = false;
+  var slider = document.getElementById('slider');
+  var label = document.getElementById('step-label');
+  var modeSel = document.getElementById('mode');
+  var trendOpt = modeSel.options[1];
+  var MODE = 'waarde';
+
+  function yearOf (i) {{ return +steps[i].split(' ').pop(); }}
+  function fmt1 (v) {{
+    return Math.abs(v) >= 10 ? String(Math.round(v)) : String(+v.toFixed(1));
+  }}
   function rampFor (p) {{
     return function (v) {{
       if (v === null || v === undefined) return '#d8dde3';
@@ -358,19 +465,94 @@ _MULTI_TEMPLATE = """<!doctype html>
       return 'hsl(' + Math.round(110 * (1 - t)) + ', 72%, 46%)';
     }};
   }}
+  function trendYearFor (p, i) {{
+    var ys = p.trend.years, y = yearOf(i);
+    for (var k = 0; k < ys.length; k++) if (ys[k] >= y) return ys[k];
+    return ys[ys.length - 1];
+  }}
+  function rampTrendFor (p, year) {{
+    var q = p.trend.q[String(year)] || 0;
+    return function (d) {{
+      if (d === null || d === undefined) return '#d8dde3';
+      var t = q > 0 ? Math.max(0, Math.min(1, (d + q) / (2 * q))) : 0.5;
+      if (p.invert) t = 1 - t;  // t=0 = gunstig einde, als bij rampFor
+      return 'hsl(' + Math.round(110 * (1 - t)) + ', 72%, 46%)';
+    }};
+  }}
+  function legendRows (p, year) {{
+    var rows = '';
+    if (MODE === 'trend' && p.trend) {{
+      var q = p.trend.q[String(year)] || 0;
+      [[0, 'Gunstig veranderd', -q], [0.5, 'Onveranderd', 0],
+       [1, 'Ongunstig veranderd', q]].forEach(function (r) {{
+        var b = p.invert ? 1 - r[0] : r[0];
+        rows += '<div class="row"><span class="swatch" style="background:' +
+          'hsl(' + Math.round(110 * (1 - b)) + ', 72%, 46%)"></span><span>' +
+          r[1] + ' — <b>' + fmt1(r[2]) + ' ' + p.unit + '</b></span></div>';
+      }});
+    }} else {{
+      p.stops.forEach(function (s) {{
+        var hue = Math.round(110 * (1 - s.b));
+        rows += '<div class="row"><span class="swatch" style="background:' +
+          'hsl(' + hue + ', 72%, 46%)"></span><span>' + s.label +
+          ' — <b>' + s.value + ' ' + p.unit + '</b></span></div>';
+      }});
+    }}
+    return rows;
+  }}
+  function updateLegend (p, year) {{
+    var lr = document.getElementById('legend-rows');
+    if (lr) lr.innerHTML = legendRows(p, year);
+    var lt = document.getElementById('legend-title');
+    if (lt) lt.textContent = p.label +
+      (MODE === 'trend' && p.trend ? ' — trend' : '');
+  }}
+  var SPARK_W = 420, SPARK_H = 38, SPARK_LO = -0.25, SPARK_HI = 1.0;
+  function sparkY (I) {{
+    return SPARK_H - 3 - ((I - SPARK_LO) / (SPARK_HI - SPARK_LO)) * (SPARK_H - 8);
+  }}
+  function drawSpark (p) {{
+    var wrap = document.getElementById('spark-wrap');
+    var svg = document.getElementById('spark');
+    if (!svg || !wrap) return;
+    if (!p.morans || !p.morans.length) {{ wrap.style.display = 'none'; return; }}
+    wrap.style.display = '';
+    var n = p.morans.length, pts = [];
+    p.morans.forEach(function (m, i) {{
+      if (m && m.I !== null && m.I !== undefined)
+        pts.push(((i / (n - 1)) * SPARK_W).toFixed(1) + ',' +
+                 sparkY(m.I).toFixed(1));
+    }});
+    var base = sparkY(0).toFixed(1);
+    svg.setAttribute('viewBox', '0 0 ' + SPARK_W + ' ' + SPARK_H);
+    svg.innerHTML = '<line x1="0" y1="' + base + '" x2="' + SPARK_W +
+      '" y2="' + base + '" stroke="#d8dde3" stroke-width="1"/>' +
+      '<polyline points="' + pts.join(' ') +
+      '" fill="none" stroke="#2563eb" stroke-width="1.5"/>' +
+      '<circle id="spark-dot" r="3" fill="#2563eb" cx="0" cy="-10"/>';
+  }}
+  function moveSparkDot (p, i) {{
+    var dot = document.getElementById('spark-dot');
+    if (!dot || !p.morans) return;
+    var n = p.morans.length, m = p.morans[i];
+    dot.setAttribute('cx', ((i / (n - 1)) * SPARK_W).toFixed(1));
+    if (m && m.I !== null && m.I !== undefined) {{
+      dot.setAttribute('cy', sparkY(m.I).toFixed(1));
+      dot.setAttribute('opacity', 1);
+    }} else {{
+      dot.setAttribute('cy', '-10');
+      dot.setAttribute('opacity', 0.25);
+    }}
+  }}
   function buildLayer (key) {{
     curKey = key;
     var p = DATA.params[key];
-    var ramp = rampFor(p);
-    var rows = '';
-    p.stops.forEach(function (s) {{
-      var hue = Math.round(110 * (1 - s.b));
-      rows += '<div class="row"><span class="swatch" style="background:' +
-              'hsl(' + hue + ', 72%, 46%)"></span><span>' + s.label +
-              ' — <b>' + s.value + ' ' + p.unit + '</b></span></div>';
-    }});
-    var lr = document.getElementById('legend-rows');
-    if (lr) lr.innerHTML = rows;
+    trendOpt.disabled = !p.trend;
+    if (trendOpt.disabled && MODE === 'trend') {{
+      MODE = 'waarde'; modeSel.value = 'waarde';
+    }}
+    trendOpt.textContent = p.trend
+      ? 'Trend t.o.v. ' + p.trend.baseYear + ' (per kalendermaand)' : 'Trend';
     if (layer) map.removeLayer(layer);
     layer = L.geoJSON(p.fc, {{
       style: function () {{ return {{color: '#d8dde3', weight: 0, fillOpacity: 0.25}}; }},
@@ -382,27 +564,50 @@ _MULTI_TEMPLATE = """<!doctype html>
     if (!fitted && p.fc.features && p.fc.features.length) {{
       map.fitBounds(layer.getBounds().pad(0.08)); fitted = true;
     }}
-    var lt = document.getElementById('legend-title');
-    if (lt) lt.textContent = p.label;
+    drawSpark(p);
   }}
-  var slider = document.getElementById('slider');
-  var label = document.getElementById('step-label');
   function setStep (i) {{
     var p = DATA.params[curKey];
     var ramp = rampFor(p);
+    var year = (MODE === 'trend' && p.trend) ? trendYearFor(p, i) : null;
+    var tramp = year ? rampTrendFor(p, year) : null;
     layer.eachLayer(function (lyr) {{
       var cell = lyr.feature.properties.cell;
-      var v = p.cells[cell] ? p.cells[cell][i] : null;
-      lyr.setStyle({{fillColor: ramp(v), fillOpacity: v === null ? 0.25 : 0.85}});
       var pv = document.getElementById('pv-' + cell);
-      if (pv) pv.textContent = steps[i] + ': ' +
-        (v === null ? 'geen meting' : v + ' ' + p.unit);
+      if (tramp) {{
+        var d = (p.trend.cells[cell] || {{}})[String(year)];
+        lyr.setStyle({{fillColor: tramp(d === undefined ? null : d),
+                       fillOpacity: d === undefined ? 0.25 : 0.85}});
+        if (pv) pv.textContent = 'trend ' + p.trend.baseYear + ' \u2192 ' + year + ': ' +
+          (d === undefined ? 'te weinig jaren'
+            : (d > 0 ? '+' : '') + d + ' ' + p.unit);
+      }} else {{
+        var v = p.cells[cell] ? p.cells[cell][i] : null;
+        lyr.setStyle({{fillColor: ramp(v), fillOpacity: v === null ? 0.25 : 0.85}});
+        if (pv) pv.textContent = steps[i] + ': ' +
+          (v === null ? 'geen meting' : v + ' ' + p.unit);
+      }}
     }});
-    label.textContent = steps[i];
+    label.textContent = tramp
+      ? ('trend ' + p.trend.baseYear + ' \u2192 ' + year) : steps[i];
     slider.value = i;
+    moveSparkDot(p, i);
+    updateLegend(p, year);
   }}
+  function applyMode () {{
+    MODE = modeSel.value;
+    var p = DATA.params[curKey];
+    var minI = 0;
+    if (MODE === 'trend' && p.trend) {{
+      for (var i = 0; i < steps.length; i++)
+        if (yearOf(i) >= p.trend.years[0]) {{ minI = i; break; }}
+    }}
+    slider.min = minI;
+    setStep(Math.max(minI, +slider.value));
+  }}
+  modeSel.addEventListener('change', function () {{ stop(); applyMode(); }});
   sel.addEventListener('change', function () {{
-    stop(); buildLayer(sel.value); setStep(+slider.value);
+    stop(); buildLayer(sel.value); applyMode();
   }});
   slider.addEventListener('input', function () {{ stop(); setStep(+slider.value); }});
   var playBtn = document.getElementById('play');
@@ -414,14 +619,14 @@ _MULTI_TEMPLATE = """<!doctype html>
   playBtn.addEventListener('click', function () {{
     if (timer) {{ stop(); return; }}
     playBtn.innerHTML = '&#9632; Stoppen';
-    var i = +slider.value;
+    var i = +slider.value, minI = +slider.min, span = steps.length - minI;
     timer = setInterval(function () {{
-      i = (i + 1) % steps.length;
+      i = minI + (i - minI + 1) % span;
       setStep(i);
     }}, {interval_ms});
   }});
   buildLayer(sel.value);
-  setStep(0);
+  applyMode();
 }})();
 </script>
 {legend_html}
@@ -442,6 +647,8 @@ def render_hexmap_time_multi(
     default: str,
     title: str,
     stops: Optional[Sequence[Tuple[float, str]]] = None,
+    trend: Optional[Mapping[str, Mapping[str, Any]]] = None,
+    morans: Optional[Mapping[str, Sequence[Any]]] = None,
     step_interval_ms: int = 700,
     out_path: Optional[Path] = None,
 ) -> str:
@@ -450,7 +657,10 @@ def render_hexmap_time_multi(
     ``bundles``: {param_key: build_cell_steps bundle}; ``metas``:
     {param_key: {label, unit, vmin, vmax, invert, [stops]}} — per-stof
     stops (b, label) met groen=gunstig; zonder eigen stops gelden
-    Gunstig/Mediaan/Ongunstig. Gedeelde stappenlijst.
+    Gunstig/Mediaan/Ongunstig. ``trend``: {param_key:
+    build_trend_series}; ``morans``: {param_key: build_morans_series}
+    — beiden optioneel per stof; de UI verbergt wat ontbreekt.
+    Gedeelde stappenlijst.
     """
     stops = stops or _default_stops_labels()
     def _sw(t: float, invert: bool) -> str:
@@ -482,6 +692,8 @@ def render_hexmap_time_multi(
                 ],
                 "fc": bundles[key]["cells_fc"],
                 "cells": bundles[key]["values"],
+                "trend": (trend or {}).get(key),
+                "morans": (morans or {}).get(key),
             }
             for key in bundles
         },
