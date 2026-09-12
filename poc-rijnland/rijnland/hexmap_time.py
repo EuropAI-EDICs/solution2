@@ -417,6 +417,9 @@ _MULTI_TEMPLATE = """<!doctype html>
     <div style="font-size:11px;color:#5b6472;margin:0 0 2px">
       ruimtelijke clustering (Moran's I) per maand — stip = huidige stap</div>
   </div>
+  <label style="display:block;font-size:12px;color:#1a2330;margin-top:2px">
+    <input type="checkbox" id="show-derived"> Toon afgeleide cellen
+    (opgevuld via afwateringsgraad)</label>
 </div>
 {legend_html}
 <script type="application/json" id="anim-data">{payload}</script>
@@ -450,6 +453,7 @@ _MULTI_TEMPLATE = """<!doctype html>
   var label = document.getElementById('step-label');
   var modeSel = document.getElementById('mode');
   var trendOpt = modeSel.options[1];
+  var showDerived = document.getElementById('show-derived');
   var MODE = 'waarde';
 
   function yearOf (i) {{ return +steps[i].split(' ').pop(); }}
@@ -497,6 +501,11 @@ _MULTI_TEMPLATE = """<!doctype html>
           'hsl(' + hue + ', 72%, 46%)"></span><span>' + s.label +
           ' — <b>' + s.value + ' ' + p.unit + '</b></span></div>';
       }});
+    }}
+    if (showDerived.checked && p.derived) {{
+      rows += '<div class="note" style="margin-top:4px">gestippeld/open = ' +
+        'afgeleid: mediaan eigen peilgebied, anders stroomopwaarts ' +
+        '(afwateringsgraad uit Rijnlands legger)</div>';
     }}
     return rows;
   }}
@@ -583,9 +592,23 @@ _MULTI_TEMPLATE = """<!doctype html>
             : (d > 0 ? '+' : '') + d + ' ' + p.unit);
       }} else {{
         var v = p.cells[cell] ? p.cells[cell][i] : null;
-        lyr.setStyle({{fillColor: ramp(v), fillOpacity: v === null ? 0.25 : 0.85}});
-        if (pv) pv.textContent = steps[i] + ': ' +
-          (v === null ? 'geen meting' : v + ' ' + p.unit);
+        var d = null;
+        if (v === null && showDerived.checked && p.derived &&
+            p.derived[cell]) d = p.derived[cell][i];
+        if (d !== null && d !== undefined) {{
+          lyr.setStyle({{fillColor: ramp(d), fillOpacity: 0.5,
+                         color: '#3d4a5c', weight: 0.8, dashArray: '3,3'}});
+          if (pv) pv.textContent = steps[i] + ': afgeleid — ' +
+            (p.derivedNote[cell] || 'stroomopwaartse metingen') +
+            ' (' + d + ' ' + p.unit + ')';
+        }} else {{
+          lyr.setStyle({{fillColor: ramp(v), fillOpacity: v === null ? 0.25 : 0.85,
+                         color: '#d8dde3', weight: 0, dashArray: ''}});
+          if (pv) pv.textContent = steps[i] + ': ' +
+            (v === null ? 'geen meting' : v + ' ' + p.unit);
+        }}
+        if (pv && DATA.cellPg[cell])
+          pv.textContent += ' \\u00b7 peilgebied ' + DATA.cellPg[cell].name;
       }}
     }});
     label.textContent = tramp
@@ -610,6 +633,9 @@ _MULTI_TEMPLATE = """<!doctype html>
     stop(); buildLayer(sel.value); applyMode();
   }});
   slider.addEventListener('input', function () {{ stop(); setStep(+slider.value); }});
+  showDerived.addEventListener('change', function () {{
+    stop(); setStep(+slider.value);
+  }});
   var playBtn = document.getElementById('play');
   var timer = null;
   function stop () {{
@@ -649,6 +675,8 @@ def render_hexmap_time_multi(
     stops: Optional[Sequence[Tuple[float, str]]] = None,
     trend: Optional[Mapping[str, Mapping[str, Any]]] = None,
     morans: Optional[Mapping[str, Sequence[Any]]] = None,
+    derived: Optional[Mapping[str, Mapping[str, Any]]] = None,
+    cell_pg: Optional[Mapping[str, Mapping[str, Any]]] = None,
     step_interval_ms: int = 700,
     out_path: Optional[Path] = None,
 ) -> str:
@@ -658,8 +686,10 @@ def render_hexmap_time_multi(
     {param_key: {label, unit, vmin, vmax, invert, [stops]}} — per-stof
     stops (b, label) met groen=gunstig; zonder eigen stops gelden
     Gunstig/Mediaan/Ongunstig. ``trend``: {param_key:
-    build_trend_series}; ``morans``: {param_key: build_morans_series}
-    — beiden optioneel per stof; de UI verbergt wat ontbreekt.
+    build_trend_series}; ``morans``: {param_key: build_morans_series};
+    ``derived``: {param_key: flow.derive_values-uitkomst} en
+    ``cell_pg``: {cell: {name, peil}} uit de stroomgraad — de UI toont
+    afgeleide cellen alleen expliciet aangevinkt en visueel onderscheiden.
     Gedeelde stappenlijst.
     """
     stops = stops or _default_stops_labels()
@@ -675,6 +705,7 @@ def render_hexmap_time_multi(
     payload = {
         "default": default,
         "steps": list(steps),
+        "cellPg": dict(cell_pg or {}),
         "params": {
             key: {
                 "label": metas[key]["label"],
@@ -694,6 +725,8 @@ def render_hexmap_time_multi(
                 "cells": bundles[key]["values"],
                 "trend": (trend or {}).get(key),
                 "morans": (morans or {}).get(key),
+                "derived": (derived or {}).get(key, {}).get("derived"),
+                "derivedNote": (derived or {}).get(key, {}).get("notes"),
             }
             for key in bundles
         },

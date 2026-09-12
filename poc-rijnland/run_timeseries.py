@@ -41,6 +41,9 @@ def main(argv=None) -> int:
                          "bridge) in the animated map")
     ap.add_argument("--morans-perms", type=int, default=199,
                     help="permutations for Moran's I p-values")
+    ap.add_argument("--no-flow", action="store_true",
+                    help="skip de afwateringsgraad-opvulling (flow-aware "
+                         "derived cells) in the animated map")
     ap.add_argument("--out", type=Path, default=None)
     args = ap.parse_args(argv)
 
@@ -85,6 +88,20 @@ def main(argv=None) -> int:
                      (0.5, "Midden van gemeten bereik"),
                      (1.0, "Ongunstigste kwart van gemeten bereik")]
             bundles, metas, trends, morans_all = {}, {}, {}, {}
+            call_fn = lambda pid, inputs: h3step.call(pid, inputs)  # noqa: E731
+            graph = None
+            if not args.no_flow:
+                try:
+                    from rijnland import flow as flow_mod
+
+                    fx = flow_mod.load_fixtures()
+                    graph = flow_mod.build_flow_graph(
+                        peilgebieden_fc=fx["peilgebieden"],
+                        gemalen_fc=fx["gemalen"],
+                        watergangen=fx["watergangen"],
+                        resolution=8, call=call_fn)
+                except Exception as exc:  # stroomgraad is decision support
+                    print(f"[ts] WARNING stroomgraad overgeslagen: {exc}")
             for pkey, per_loc in per_loc_all.items():
                 locs = [{"x": l["x"], "y": l["y"], "values": l["values"]}
                         for l in per_loc.values()]
@@ -93,8 +110,7 @@ def main(argv=None) -> int:
                     continue  # te weinig metingen voor een betrouwbare schaal
                 qs = statistics.quantiles(vals, n=10)
                 bundle = hexmap_time.build_cell_steps(
-                    locations=locs, resolution=8,
-                    call=lambda pid, inputs: h3step.call(pid, inputs))
+                    locations=locs, resolution=8, call=call_fn)
                 if not bundle:
                     continue
                 trend_s = hexmap_time.build_trend_series(
@@ -104,8 +120,7 @@ def main(argv=None) -> int:
                 if not args.no_morans:
                     try:
                         morans_all[pkey] = hexmap_time.build_morans_series(
-                            bundle["values"],
-                            call=lambda pid, inputs: h3step.call(pid, inputs),
+                            bundle["values"], call=call_fn,
                             permutations=args.morans_perms)
                     except Exception as exc:  # per stof degraderen
                         print(f"[ts] WARNING Moran's I {pkey} overgeslagen: "
@@ -129,6 +144,23 @@ def main(argv=None) -> int:
                     ],
                 }
             if bundles:
+                derived_all, cell_pg = {}, {}
+                if graph:
+                    nodes = graph["nodes"]
+                    for pk in bundles:
+                        try:
+                            derived_all[pk] = flow_mod.derive_values(
+                                graph, bundles[pk]["values"])
+                        except Exception as exc:
+                            print(f"[ts] WARNING afleiding {pk} overgeslagen: "
+                                  f"{exc}")
+                    for pk, b in bundles.items():
+                        for cell in b["values"]:
+                            pg = graph["cellPg"].get(cell)
+                            if pg and cell not in cell_pg:
+                                nd = nodes[pg]
+                                cell_pg[cell] = {"name": nd["name"],
+                                                 "peil": nd["peil"]}
                 default = (args.parameter if args.parameter in bundles
                            else sorted(bundles)[0])
                 anim = hexmap_time.render_hexmap_time_multi(
@@ -138,7 +170,11 @@ def main(argv=None) -> int:
                     stops=stops,
                     trend=trends or None,
                     morans=morans_all or None,
+                    derived=derived_all or None,
+                    cell_pg=cell_pg or None,
                     out_path=out_dir / "hexmap-tijd.html")
+                n_derived = sum(len(d.get("derived") or {})
+                                for d in derived_all.values())
                 (out_dir / "hexmap-tijd.json").write_text(json.dumps({
                     "parameters": {k: {"cells": len(b["values"]),
                                        "scale": [metas[k]["vmin"],
@@ -151,6 +187,15 @@ def main(argv=None) -> int:
                     "steps": len(steps),
                     "moransPermutations": (None if args.no_morans
                                            else args.morans_perms),
+                    "flow": None if not graph else {
+                        "source": "legger (peilgebieden + gemalen + "
+                                  "primaire watergangen)",
+                        "edges": len(graph["edges"]),
+                        "gemaalEdges": sum(1 for e in graph["edges"]
+                                           if e["kind"] == "gemaal"),
+                        "cellsWithPeilgebied": len(cell_pg),
+                        "derivedCells": n_derived,
+                    },
                 }, indent=1) + "\n", encoding="utf-8")
                 print(f"[ts] {out_dir / 'hexmap-tijd.html'} "
                       f"({len(anim):,} bytes, {len(bundles)} stoffen, "

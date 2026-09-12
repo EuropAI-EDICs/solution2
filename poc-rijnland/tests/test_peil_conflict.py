@@ -666,3 +666,157 @@ class TestHexmapTimeMulti(unittest.TestCase):
             r'id="anim-data">(\{.*?\})</script>', html2, _re.S).group(1))
         self.assertIsNone(data2["params"]["A|x|mg/l"]["trend"])
         self.assertIsNone(data2["params"]["A|x|mg/l"]["morans"])
+
+
+class TestFlowGraph(unittest.TestCase):
+    """Trede 1: capaciteitsgewogen afwateringsgraad (synthetisch)."""
+
+    def _fixtures(self):
+        # drie peilgebieden: A polder (-2.0), C stapsteen (-1.0),
+        # B boezem (-0.6); watergang verbindt A–C, gemaal bemaalt A→B
+        pg = {"type": "FeatureCollection", "features": [
+            {"type": "Feature",
+             "properties": {"CODE": "A", "NAAM": "Polder A",
+                            "SOORTAFWATERING": "Bemalen", "VASTPEIL": -2.0,
+                            "ZOMERPEIL": 0, "WINTERPEIL": 0},
+             "geometry": {"type": "Polygon", "coordinates":
+                          [[[4.60, 52.10], [4.62, 52.10],
+                            [4.62, 52.12], [4.60, 52.12], [4.60, 52.10]]]}},
+            {"type": "Feature",
+             "properties": {"CODE": "C", "NAAM": "Polder C",
+                            "SOORTAFWATERING": "Gestuwd", "VASTPEIL": -1.0,
+                            "ZOMERPEIL": 0, "WINTERPEIL": 0},
+             "geometry": {"type": "Polygon", "coordinates":
+                          [[[4.62, 52.10], [4.64, 52.10],
+                            [4.64, 52.12], [4.62, 52.12], [4.62, 52.10]]]}},
+            {"type": "Feature",
+             "properties": {"CODE": "B", "NAAM": "Boezem", "VASTPEIL": -0.6},
+             "geometry": {"type": "Polygon", "coordinates":
+                          [[[4.64, 52.10], [4.66, 52.10],
+                            [4.66, 52.12], [4.64, 52.12], [4.64, 52.10]]]}},
+        ]}
+        gem = {"type": "FeatureCollection", "features": [
+            {"type": "Feature",
+             "properties": {"CODE": "G1", "NAAM": "Gemaal A",
+                            "CODEPEILGEBIEDPRAKTIJK": "A",
+                            "MAXIMALECAPACITEIT": 60.0},
+             "geometry": {"type": "Point", "coordinates": [4.645, 52.115]}},
+        ]}
+        wg = {"rows": [
+            {"a": {"BODEMBREEDTE": 3.0, "WATERDIEPTE": 1.0,
+                   "TALUDHELLINGLINKS": 1.0, "TALUDHELLINGRECHTS": 1.0,
+                   "RUWHEIDSWAARDELAAG": 0.03},
+             "p": [[4.615, 52.11], [4.62, 52.11], [4.625, 52.11]]},
+        ]}
+        # stub: cel per peilgebied-code (deterministische H3-brug)
+        cells = {"A": ["8824a1001bfffff"], "C": ["8824a1007ffffff"],
+                 "B": ["8824a100ffffffff"]}
+
+        def call(pid, inputs):
+            assert pid == "h3-polygon-to-cells"
+            code = inputs["polygon"]["features"][0]["properties"]["CODE"]
+            return {"coverage": {"cells": [{"cell": c, "coverageFraction": 1.0}
+                                           for c in cells[code]]}}
+
+        return pg, gem, wg, call
+
+    def test_streefpeil(self):
+        from rijnland.flow import streefpeil
+
+        self.assertEqual(streefpeil({"VASTPEIL": -2.0}), -2.0)
+        self.assertEqual(streefpeil({"ZOMERPEIL": -0.6, "WINTERPEIL": -0.7}),
+                         -0.65)
+        self.assertIsNone(streefpeil({}))
+
+    def test_conveyance(self):
+        from rijnland.flow import conveyance
+
+        base = {"BODEMBREEDTE": 3.0, "WATERDIEPTE": 1.0,
+                "TALUDHELLINGLINKS": 1.0, "TALUDHELLINGRECHTS": 1.0,
+                "RUWHEIDSWAARDELAAG": 0.03}
+        self.assertGreater(conveyance(base), 0.0)
+        # breder profiel → groter doorvoervermogen
+        self.assertGreater(conveyance({**base, "BODEMBREEDTE": 6.0}),
+                           conveyance(base))
+        # ruwer → kleiner
+        self.assertLess(conveyance({**base, "RUWHEIDSWAARDELAAG": 0.05}),
+                        conveyance(base))
+        # ontbrekend profiel → 0, geen fantasie
+        self.assertEqual(conveyance({"BODEMBREEDTE": None}), 0.0)
+
+    def test_build_flow_graph(self):
+        from rijnland.flow import build_flow_graph
+
+        pg, gem, wg, call = self._fixtures()
+        g = build_flow_graph(peilgebieden_fc=pg, gemalen_fc=gem,
+                             watergangen=wg, resolution=8, call=call)
+        self.assertEqual(g["cellPg"],
+                         {"8824a1001bfffff": "A", "8824a1007ffffff": "C",
+                          "8824a100ffffffff": "B"})
+        edges = {(e["from"], e["to"], e["kind"]): e for e in g["edges"]}
+        # zwaartekracht: C (-1.0) ligt hoger dan A (-2.0) → C→A
+        self.assertIn(("C", "A", "gravity"), edges)
+        self.assertGreater(edges[("C", "A", "gravity")]["capacity"], 0.0)
+        # gemaal pompt A op richting boezem B, 60 m3/min → 1.0 m3/s
+        self.assertIn(("A", "B", "gemaal"), edges)
+        self.assertEqual(edges[("A", "B", "gemaal")]["capacity"], 1.0)
+        # A stroomopwaarts = C (zwaartekracht)
+        self.assertEqual([u["from"] for u in g["upstream"]["A"]], ["C"])
+
+    def test_derive_values(self):
+        from rijnland.flow import build_flow_graph, derive_values
+
+        pg, gem, wg, call = self._fixtures()
+        g = build_flow_graph(peilgebieden_fc=pg, gemalen_fc=gem,
+                             watergangen=wg, resolution=8, call=call)
+        # cel C gemeten (5.0 en 7.0), A en B ongemeten, X buiten elk gebied
+        values = {"8824a1007ffffff": [5.0, 7.0],
+                  "8824a1001bfffff": [None, None],
+                  "8824a100ffffffff": [None, None],
+                  "buitengebied": [None, None]}
+        out = derive_values(g, values)
+        d = out["derived"]
+        # A: stroomopwaarts C (diepte 1); B: via gemaal A → C (diepte 2)
+        self.assertEqual(d["8824a1001bfffff"], [5.0, 7.0])
+        self.assertIn("stroomopwaarts peilgebied Polder C",
+                      out["notes"]["8824a1001bfffff"])
+        self.assertEqual(d["8824a100ffffffff"], [5.0, 7.0])
+        self.assertIn("diepte 2", out["notes"]["8824a100ffffffff"])
+        self.assertNotIn("buitengebied", d)
+        # eigen peilgebied-mediaan gaat vóór stroomopwaarts: cel C2 in
+        # hetzelfde gebied als de meting erft direct
+        values2 = {"8824a1007ffffff": [5.0], "c2": [None]}
+        g2 = {"nodes": g["nodes"], "cellPg": {**g["cellPg"], "c2": "C"},
+              "edges": g["edges"], "upstream": g["upstream"]}
+        out2 = derive_values(g2, values2)
+        self.assertEqual(out2["derived"]["c2"], [5.0])
+        self.assertIn("mediaan peilgebied Polder C", out2["notes"]["c2"])
+
+    def test_render_multi_embeds_derived_and_pg(self):
+        from rijnland import hexmap_time
+
+        fc = {"type": "FeatureCollection", "features": [
+            {"type": "Feature", "properties": {"cell": "aaa"},
+             "geometry": None}]}
+        bundles = {"A|x|mg/l": {"cells_fc": fc,
+                                "values": {"aaa": [1.0, None]},
+                                "nSteps": 2}}
+        metas = {"A|x|mg/l": {"label": "Stof A", "unit": "mg/l",
+                              "vmin": 0.0, "vmax": 2.0}}
+        derived = {"A|x|mg/l": {"derived": {"aaa": [None, 1.5]},
+                                "notes": {"aaa": "mediaan peilgebied X (n=2)"}}}
+        html = hexmap_time.render_hexmap_time_multi(
+            bundles, steps=["jan 2020", "feb 2020"], metas=metas,
+            default="A|x|mg/l", title="T", derived=derived,
+            cell_pg={"aaa": {"name": "Polder X", "peil": -2.0}})
+        import json as _json
+        import re as _re
+        data = _json.loads(_re.search(
+            r'id="anim-data">(\{.*?\})</script>', html, _re.S).group(1))
+        p = data["params"]["A|x|mg/l"]
+        self.assertEqual(p["derived"]["aaa"], [None, 1.5])
+        self.assertIn("mediaan peilgebied X", p["derivedNote"]["aaa"])
+        self.assertEqual(data["cellPg"]["aaa"]["name"], "Polder X")
+        self.assertIn('id="show-derived"', html)
+        # gemeten stap 0 blijft gemeten (None in derived) ondanks meting
+        self.assertIsNone(p["derived"]["aaa"][0])
