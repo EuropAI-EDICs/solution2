@@ -114,3 +114,16 @@ into `data/peilen/peilen.json`); `run_peilen.py` renders the timeseries
 page (station selector, mediaan-polders/boezem aggregates, min–max band,
 play cursor). The 2020–2026 window becomes reachable with HydroNet
 credentials or by re-running the fetch forward in time.
+
+## 6e. Phase 2e — animated hex maps (implemented 2026-09-12)
+
+`hexmap_time.py`: one Leaflet page per time-stepped phenomenon — slider +
+play cursor recolour the hexes per step (median over each cell's
+locations; grey = no measurement that step). Quality: monthly steps
+2020–2026, fixed P10–P90 colour scale (comparable frames), direction-aware
+per parameter. Peilen: daily steps, deviation from each station's period
+median in cm, symmetric scale. Bridge-only H3 (join + cells-to-geojson),
+degree-tolerant coordinate intake (AGOL peil archive stores WGS84).
+`fetch_wkp.py --monthly` now also emits per-location monthly medians
+(aligned arrays) and caches year-zips on disk with retry/skip-year
+tolerance for the portal's slow days.

@@ -48,14 +48,37 @@ PARAMETERS = [
 ]
 
 
-def fetch_zip(year: int) -> zipfile.ZipFile:
+ZIP_CACHE = OUT_DIR / "zips"
+
+
+def fetch_zip(year: int, attempts: int = 3) -> zipfile.ZipFile:
+    """Download a year's zip (cached on disk; failing years can be
+    re-fetched later without redoing the rest)."""
+    ZIP_CACHE.mkdir(parents=True, exist_ok=True)
+    cached = ZIP_CACHE / f"{year}.zip"
+    if cached.is_file() and cached.stat().st_size > 1000:
+        return zipfile.ZipFile(cached)
     body = json.dumps([{"subjectId": 15, "year": year,
                         "areaLevel": AREA_LEVEL, "areaName": AREA}]).encode()
-    req = Request(API, data=body, method="POST",
-                  headers={"Content-Type": "application/json",
-                           "Accept": "application/zip"})
-    with urlopen(req, timeout=300) as resp:
-        return zipfile.ZipFile(io.BytesIO(resp.read()))
+    last = None
+    for attempt in range(1, attempts + 1):
+        req = Request(API, data=body, method="POST",
+                      headers={"Content-Type": "application/json",
+                               "Accept": "application/zip"})
+        try:
+            with urlopen(req, timeout=300) as resp:
+                data = resp.read()
+            zf = zipfile.ZipFile(io.BytesIO(data))
+            cached.write_bytes(data)  # prime the disk cache
+            return zf
+        except Exception as exc:  # transient portal timeouts
+            last = exc
+            print(f"[wkp] {year}: poging {attempt} mislukt "
+                  f"({type(exc).__name__}: {exc})", flush=True)
+            if attempt < attempts:
+                import time
+                time.sleep(10 * attempt)
+    raise last
 
 
 def aggregate(year: int) -> dict:
@@ -119,15 +142,20 @@ def aggregate(year: int) -> dict:
 
 
 def aggregate_monthly(year_from: int, year_to: int) -> dict:
-    """Monthly beheergebied-wide stats per parameter across years.
-
-    Buckets every measurement by its Monsterophaaldatum month: median,
-    P25–P75, n measurements and n distinct locations per bucket.
-    """
-    acc: dict = {}
+    """Monthly stats per parameter: area-wide buckets AND per-location
+    medians (aligned arrays over one shared month list) — the per-location
+    part feeds the animated hex map."""
+    acc: dict = {}          # pkey -> ym -> {"vals": [], "locs": set()}
+    per_loc: dict = {}      # pkey -> loc -> {"x":, "y":, "vals": {ym: [v]}}
     year_rows: dict = {}
+    failed_years = []
     for year in range(year_from, year_to + 1):
-        zf = fetch_zip(year)
+        try:
+            zf = fetch_zip(year)
+        except Exception as exc:
+            failed_years.append(year)
+            print(f"[wkp] {year}: OVERGESLAGEN ({type(exc).__name__})", flush=True)
+            continue
         mv_name = next(n for n in zf.namelist()
                        if n.startswith("WKP_Meetwaarden_"))
         want = {(g, p) for g, p in PARAMETERS}
@@ -151,9 +179,17 @@ def aggregate_monthly(year_from: int, year_to: int) -> dict:
                     ym, {"vals": [], "locs": set()})
                 bucket["vals"].append(val)
                 bucket["locs"].add(r["MeetobjectCode"])
+                loc = per_loc.setdefault(pkey, {}).setdefault(
+                    r["MeetobjectCode"],
+                    {"x": None, "y": None, "vals": {}})
+                if loc["x"] is None and r.get("GeometriePuntX_RD"):
+                    loc["x"] = float(r["GeometriePuntX_RD"])
+                    loc["y"] = float(r["GeometriePuntY_RD"])
+                loc["vals"].setdefault(ym, []).append(val)
         year_rows[year] = n_rows
         print(f"[wkp] {year}: {n_rows} raw rows", flush=True)
 
+    months_all = sorted({ym for p in acc.values() for ym in p})
     series = {}
     for pkey, months in sorted(acc.items()):
         rows = []
@@ -171,7 +207,26 @@ def aggregate_monthly(year_from: int, year_to: int) -> dict:
                 "p75": round(qs[2], 4),
             })
         series[pkey] = rows
-    return {"series": series, "rawRowsPerYear": year_rows}
+
+    per_location = {}
+    for pkey, locs in per_loc.items():
+        keep = {}
+        for code, loc in locs.items():
+            if loc["x"] is None:
+                continue
+            keep[code] = {
+                "x": loc["x"], "y": loc["y"],
+                "values": [round(statistics.median(loc["vals"][ym]), 4)
+                           if ym in loc["vals"] else None
+                           for ym in months_all],
+            }
+        if keep:
+            per_location[pkey] = keep
+    if not year_rows:
+        raise RuntimeError("geen enkel jaar kon worden opgehaald")
+    return {"series": series, "perLocation": per_location,
+            "months": months_all, "rawRowsPerYear": year_rows,
+            "failedYears": failed_years}
 
 
 def main() -> int:
@@ -198,13 +253,18 @@ def main() -> int:
             "fetchedAt": _dt.datetime.now(_dt.timezone.utc).strftime(
                 "%Y-%m-%dT%H:%M:%SZ"),
             "series": agg["series"],
+            "months": agg["months"],
+            "perLocation": agg["perLocation"],
+            "failedYears": agg.get("failedYears") or [],
         }
         OUT_DIR.mkdir(parents=True, exist_ok=True)
         path = OUT_DIR / (f"waterkwaliteit-monthly-"
                           f"{args.from_year}-{args.to_year}.json")
         path.write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
         print(f"[wkp] {path}: {len(out['series'])} parameters, "
-              f"{sum(len(v) for v in out['series'].values())} month buckets")
+              f"{sum(len(v) for v in out['series'].values())} month buckets, "
+              f"{sum(len(v) for v in out['perLocation'].values())} "
+              "location-series")
         return 0
     data = aggregate(args.year)
     out = {

@@ -431,3 +431,73 @@ class TestPeilen(unittest.TestCase):
         self.assertIn("a_polder", fx["labels"])
         self.assertEqual(fx["series"]["a_polder"][0]["ym"], "2026-09-01")
         self.assertEqual(fx["series"]["a_polder"][0]["p25"], -5.6)  # min as band
+
+
+class TestHexmapTime(unittest.TestCase):
+
+    def _call(self):
+        # two locations: index 0 -> cell A (both months), index 1 -> cell B
+        def call(process_id, inputs):
+            if process_id == "h3-spatial-join-points":
+                return {"join": {
+                    "pointCount": 2, "cellCount": 2, "resolution": 8,
+                    "perPoint": [
+                        {"index": 0, "cell": "aaa", "inCells": True},
+                        {"index": 1, "cell": "bbb", "inCells": True}],
+                    "perCell": []}}
+            assert process_id == "h3-cells-to-geojson", process_id
+            ring = [[[0, 0], [1, 0], [1, 1], [0, 0]]]
+            return {"features": {"type": "FeatureCollection", "features": [
+                {"type": "Feature", "properties": {"cell": "aaa",
+                                                   "resolution": 8},
+                 "geometry": {"type": "Polygon", "coordinates": ring}},
+                {"type": "Feature", "properties": {"cell": "bbb",
+                                                   "resolution": 8},
+                 "geometry": {"type": "Polygon", "coordinates": ring}}]}}
+        return call
+
+    def test_build_cell_steps_median_and_gaps(self):
+        from rijnland import hexmap_time
+
+        locs = [
+            {"x": 95000.0, "y": 462000.0,
+             "values": [100.0, 200.0]},          # in cell aaa both steps
+            {"x": 96100.0, "y": 463100.0,
+             "values": [None, 40.0]},            # cell bbb: gap then value
+        ]
+        bundle = hexmap_time.build_cell_steps(
+            locations=locs, resolution=8, call=self._call())
+        self.assertEqual(bundle["nSteps"], 2)
+        self.assertEqual(bundle["values"]["aaa"], [100.0, 200.0])
+        self.assertEqual(bundle["values"]["bbb"], [None, 40.0])
+        self.assertEqual(len(bundle["cells_fc"]["features"]), 2)
+
+    def test_build_cell_steps_without_call_returns_none(self):
+        from rijnland import hexmap_time
+
+        self.assertIsNone(hexmap_time.build_cell_steps(
+            locations=[{"x": 1, "y": 2, "values": [1.0]}], call=None))
+
+    def test_render_hexmap_time_html(self):
+        from rijnland import hexmap_time
+
+        bundle = {"cells_fc": {"type": "FeatureCollection", "features": [
+            {"type": "Feature", "properties": {"cell": "aaa"},
+             "geometry": None}]},
+            "values": {"aaa": [1.0, 2.0]}, "nSteps": 2}
+        html = hexmap_time.render_hexmap_time(
+            bundle, steps=["jan 2020", "feb 2020"], title="T",
+            value_label="Chloride", unit="mg/l", vmin=0.0, vmax=2.0,
+            stops=[(0.0, "laag"), (1.0, "hoog")])
+        self.assertIn("leaflet@1.9.4", html)
+        self.assertIn('type="range"', html)
+        self.assertIn("Afspelen", html)
+        self.assertIn("jan 2020", html)
+        self.assertIn("Chloride", html)
+        import json as _json
+        import re as _re
+        blocks = _re.findall(
+            r'<script type="application/json"[^>]*>(.*?)</script>',
+            html, _re.S)
+        for b in blocks:
+            _json.loads(b)  # still valid JSON after < escaping

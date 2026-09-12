@@ -24,10 +24,12 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+POC_ROOT = ROOT.parent / "poc"
+for _p in (str(ROOT), str(POC_ROOT)):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
-from rijnland import timeseries_report  # noqa: E402
+from rijnland import hexmap_time, timeseries_report  # noqa: E402
 
 ARCHIVE = ROOT / "data" / "peilen" / "peilen.json"
 
@@ -80,6 +82,8 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--refresh", action="store_true",
                     help="re-fetch stations first (grows the archive)")
+    ap.add_argument("--no-animate", action="store_true",
+                    help="skip the animated hex map (hexmap-peilen-tijd.html)")
     ap.add_argument("--out", type=Path, default=None)
     args = ap.parse_args(argv)
 
@@ -127,6 +131,47 @@ def main(argv=None) -> int:
     }, indent=1) + "\n", encoding="utf-8")
     print(f"[peilen] {out_dir / 'peilen.html'} ({len(html):,} bytes; "
           f"{n_stations} stations, venster {first} … {last})")
+
+    if not args.no_animate:
+        try:
+            from pipeline import h3step
+
+            days_all = sorted({d for r in archive["stations"].values()
+                               for d in (r.get("days") or {})})
+            locs = []
+            devs_all = []
+            for rec in archive["stations"].values():
+                days = rec.get("days") or {}
+                if not days:
+                    continue
+                med = statistics.median([d["median"] for d in days.values()])
+                values = [round((days[d]["median"] - med) * 100.0, 1)
+                          if d in days else None for d in days_all]
+                devs_all += [v for v in values if v is not None]
+                locs.append({"x": rec["x"], "y": rec["y"], "values": values})
+            scale = statistics.quantiles([abs(v) for v in devs_all],
+                                         n=10)[-1] or 1.0
+            bundle = hexmap_time.build_cell_steps(
+                locations=locs, resolution=8,
+                call=lambda pid, inputs: h3step.call(pid, inputs))
+            if bundle:
+                steps = [_dt.date.fromisoformat(d).strftime("%d %b")
+                         for d in days_all]
+                anim = hexmap_time.render_hexmap_time(
+                    bundle, steps=steps,
+                    title=("Waterpeil-afwijking per cel t.o.v. mediane peil "
+                           f"(cm) — {steps[0]} t/m {steps[-1]}"),
+                    value_label="Afwijking t.o.v. mediane peil (cm)",
+                    unit="cm",
+                    vmin=-scale, vmax=scale,
+                    stops=[(0.0, "Ver lager (droger)"),
+                           (0.5, "Op mediaan"),
+                           (1.0, "Ver hoger (natter)")],
+                    out_path=out_dir / "hexmap-peilen-tijd.html")
+                print(f"[peilen] {out_dir / 'hexmap-peilen-tijd.html'} "
+                      f"({len(anim):,} bytes, {bundle['nSteps']} dagen)")
+        except Exception as exc:  # animatie is decision support
+            print(f"[peilen] WARNING hexmap-animatie overgeslagen: {exc}")
     return 0
 
 

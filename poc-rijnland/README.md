@@ -47,6 +47,18 @@ Optioneel live fixtures (kleine Leiden-bbox):
 ../nldt/.venv/bin/python tests/make_fixtures.py
 ```
 
+## Fase 2e — Geanimeerde hexagonenkaarten (geïmplementeerd)
+
+`rijnland/hexmap_time.py` rendert hexagonen die per tijdstap van kleur
+veranderen (slider + ▶ Afspelen, offline Leaflet): per cel de mediaan
+over de meetlocaties, grijze cellen = geen meting die stap. Kwaliteit:
+`run_timeseries.py` zet nu ook `hexmap-tijd.html` (per maand, vast
+P10–P90-kleurschaal zodat verandering over tijd zichtbaar is; richting
+per stof — bij zuurstof is laag ongunstig). Peilen: `run_peilen.py` zet
+`hexmap-peilen-tijd.html` (per dag, afwijking t.o.v. het mediane peil
+per station in cm, symmetrische schaal). De AGOL-peilcoördinaten bleken
+al WGS84 (niet RD) — de renderer is graden-tolerant.
+
 ## Fase 2d — Waterpeilen polders & boezem (geïmplementeerd)
 
 Gemeten peilhistorie is niet open: de AGOL-lagen van Rijnland geven alleen
