@@ -93,12 +93,22 @@ def main(argv=None) -> int:
                 if not bundle:
                     continue
                 norm = NORMS.get(pkey, {})
+                worse_low = norm.get("worse") == "low"
+                name = (norm.get("label") or pkey.replace("|", " · ")
+                        ).split(" (")[0].lower()
+                good, bad = (("hoog", "laag") if worse_low
+                             else ("laag", "hoog"))
                 bundles[pkey] = bundle
                 metas[pkey] = {
                     "label": norm.get("label") or pkey.replace("|", " · "),
                     "unit": pkey.split("|")[-1],
                     "vmin": qs[0], "vmax": qs[-1],
-                    "invert": norm.get("worse") == "low",
+                    "invert": worse_low,
+                    "stops": [
+                        (0.0, f"Gunstig ({good} {name})"),
+                        (0.5, f"Mediaan {name}"),
+                        (1.0, f"Ongunstig ({bad} {name})"),
+                    ],
                 }
             if bundles:
                 default = (args.parameter if args.parameter in bundles

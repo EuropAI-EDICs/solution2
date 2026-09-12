@@ -361,6 +361,14 @@ _MULTI_TEMPLATE = """<!doctype html>
     curKey = key;
     var p = DATA.params[key];
     var ramp = rampFor(p);
+    var rows = '';
+    p.stops.forEach(function (s) {{
+      var hue = Math.round(110 * (1 - s.b));
+      rows += '<div class="row"><span class="swatch" style="background:' +
+              'hsl(' + hue + ', 72%, 46%)"></span><span>' + s.label +
+              ' — <b>' + s.value + ' ' + p.unit + '</b></span></div>';
+    }});
+    document.getElementById('legend-rows').innerHTML = rows;
     if (layer) map.removeLayer(layer);
     layer = L.geoJSON(p.fc, {{
       style: function () {{ return {{color: '#d8dde3', weight: 0, fillOpacity: 0.25}}; }},
@@ -419,6 +427,10 @@ _MULTI_TEMPLATE = """<!doctype html>
 """
 
 
+def _default_stops_labels():
+    return [(0.0, "Gunstig"), (0.5, "Mediaan"), (1.0, "Ongunstig")]
+
+
 def render_hexmap_time_multi(
     bundles: Mapping[str, Mapping[str, Any]],
     *,
@@ -426,20 +438,26 @@ def render_hexmap_time_multi(
     metas: Mapping[str, Mapping[str, Any]],
     default: str,
     title: str,
-    stops: Sequence[Tuple[float, str]],
+    stops: Optional[Sequence[Tuple[float, str]]] = None,
     step_interval_ms: int = 700,
     out_path: Optional[Path] = None,
 ) -> str:
     """One animated hex map with a parameter switcher.
 
     ``bundles``: {param_key: build_cell_steps bundle}; ``metas``:
-    {param_key: {label, unit, vmin, vmax, invert}}. Shared step list.
+    {param_key: {label, unit, vmin, vmax, invert, [stops]}} — per-stof
+    stops (b, label) met groen=gunstig; zonder eigen stops gelden
+    Gunstig/Mediaan/Ongunstig. Gedeelde stappenlijst.
     """
+    stops = stops or _default_stops_labels()
     def _sw(t: float, invert: bool) -> str:
         tt = max(0.0, min(1.0, t))
         if invert:
             tt = 1 - tt
         return f"hsl({round(110 * (1 - tt))}, 72%, 46%)"
+
+    def _fmt(v: float) -> str:
+        return f"{v:.0f}" if abs(v) >= 10 else f"{v:g}"
 
     payload = {
         "default": default,
@@ -450,27 +468,28 @@ def render_hexmap_time_multi(
                 "unit": metas[key]["unit"],
                 "min": metas[key]["vmin"], "max": metas[key]["vmax"],
                 "invert": bool(metas[key].get("invert")),
+                "stops": [
+                    {"b": b,
+                     "label": lbl,
+                     "value": _fmt(metas[key]["vmin"] +
+                                   ((b if not metas[key].get("invert")
+                                     else 1.0 - b)
+                                    * (metas[key]["vmax"] - metas[key]["vmin"])))}
+                    for b, lbl in metas[key].get("stops", stops)
+                ],
                 "fc": bundles[key]["cells_fc"],
                 "cells": bundles[key]["values"],
             }
             for key in bundles
         },
     }
-    rows_normal = "".join(
-        f'<div class="row"><span class="swatch" style="background:{_sw(t, False)}">'
-        f'</span><span>{lbl}</span></div>' for t, lbl in stops)
-    rows_invert = "".join(
-        f'<div class="row"><span class="swatch" style="background:{_sw(t, True)}">'
-        f'</span><span>{lbl}</span></div>' for t, lbl in stops)
     legend_html = (
         '<div class="legend" style="position:absolute;z-index:1000;'
         'right:12px;bottom:20px;"><div class="title" id="legend-title"></div>'
-        f'{rows_normal}<div class="note" style="margin-top:6px">Bij stoffen '
-        f'waar een lage waarde ongunstig is (bijv. zuurstof) is de schaal '
-        f'gespiegeld:</div>{rows_invert}'
-        '<div class="note">Kleur = mediaan over meetlocaties in de cel per '
-        'tijdstap, vaste schaal per stof; grijs = geen meting die stap.</div>'
-        '</div>')
+        '<div id="legend-rows"></div>'
+        '<div class="note" style="margin-top:6px">Groen = gunstig, rood = '
+        'ongunstig binnen het eigen gemeten bereik (P10–P90); grijs = '
+        'geen meting die stap.</div></div>')
     n_steps = max(b["nSteps"] for b in bundles.values())
     html = _MULTI_TEMPLATE.format(
         title=title,
