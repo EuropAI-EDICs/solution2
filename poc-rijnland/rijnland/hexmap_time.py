@@ -23,7 +23,8 @@ try:
 except ImportError:  # pragma: no cover
     Transformer = None  # type: ignore
 
-__all__ = ["build_cell_steps", "render_hexmap_time"]
+__all__ = ["build_cell_steps", "render_hexmap_time",
+           "render_hexmap_time_multi"]
 
 _TO_WGS84 = None
 
@@ -270,6 +271,213 @@ def render_hexmap_time(
     # insert the legend before the closing body tag (kept out of .format
     # because the legend contains braces-free html but simpler to append)
     html = html.replace("</body>", meta_html + "</body>")
+    if out_path is not None:
+        out_path = Path(out_path)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(html, encoding="utf-8")
+    return html
+
+
+_MULTI_TEMPLATE = """<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>{title}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<style>
+  body {{ margin: 0; font: 14px/1.45 "Segoe UI", system-ui, sans-serif; color: #1a2330; }}
+  #map {{ height: 100vh; }}
+  .panel {{ position: absolute; z-index: 1000; left: 12px; right: 12px; top: 12px;
+            max-width: 460px; background: rgba(255,255,255,.95); padding: 10px 12px;
+            border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,.22); }}
+  .panel h1 {{ margin: 0 0 4px; font-size: 15px; font-weight: 650; }}
+  .panel select {{ font: inherit; max-width: 100%; margin: 2px 0 6px;
+                   padding: 4px 6px; border-radius: 6px; border: 1px solid #c6cdd6; }}
+  .panel .step {{ font-size: 17px; font-weight: 700; color: #2563eb; margin: 2px 0 6px; }}
+  .panel input[type=range] {{ width: 100%; accent-color: #2563eb; }}
+  .panel .row {{ display: flex; gap: 10px; align-items: center; }}
+  .panel button {{ font: inherit; font-weight: 600; color: #2563eb; background: #fff;
+                   border: 1px solid #c6cdd6; border-radius: 6px; padding: 4px 10px;
+                   cursor: pointer; }}
+  .legend {{ background: rgba(255,255,255,.96); padding: 10px 12px; border-radius: 8px;
+             box-shadow: 0 1px 6px rgba(0,0,0,.22); min-width: 220px; }}
+  .legend .title {{ font-weight: 650; margin-bottom: 4px; }}
+  .legend .row {{ display: flex; align-items: flex-start; gap: 8px; margin: 3px 0; font-size: 12px; }}
+  .legend .swatch {{ flex: 0 0 16px; width: 16px; height: 16px; border-radius: 3px;
+                     box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }}
+  .legend .note {{ margin-top: 6px; font-size: 11px; color: #5b6472; }}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class="panel">
+  <h1>{title}</h1>
+  <select id="param" aria-label="Parameter"></select>
+  <div class="step" id="step-label"></div>
+  <div class="row">
+    <button id="play" title="Speel de tijdstappen af">&#9654; Afspelen</button>
+    <input type="range" id="slider" min="0" max="{n_steps_1}" value="0" step="1">
+  </div>
+</div>
+<script type="application/json" id="anim-data">{payload}</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+(function () {{
+  var mapEl = document.getElementById('map');
+  if (typeof L === 'undefined') {{
+    mapEl.innerHTML = '<div style="padding:24px;color:#5b6472;font-size:14px">' +
+      'Leaflet kon niet geladen worden (CDN onbereikbaar); de per-cel waarden '
+      'staan in het JSON-artefact.</div>';
+    mapEl.style.height = 'auto'; return;
+  }}
+  var DATA = JSON.parse(document.getElementById('anim-data').textContent);
+  var steps = DATA.steps;
+  var sel = document.getElementById('param');
+  Object.keys(DATA.params).forEach(function (key, i) {{
+    var o = document.createElement('option');
+    o.value = key;
+    o.textContent = DATA.params[key].label + ' [' + DATA.params[key].unit + ']';
+    if (key === DATA.default) sel.selectedIndex = i;
+    sel.appendChild(o);
+  }});
+  var map = L.map('map', {{zoomSnap: 0.25}});
+  L.tileLayer('https://tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
+    maxZoom: 18, attribution: '&copy; OpenStreetMap contributors'
+  }}).addTo(map);
+  var layer = null, curKey = null, fitted = false;
+  function rampFor (p) {{
+    return function (v) {{
+      if (v === null || v === undefined) return '#d8dde3';
+      var span = (p.max - p.min) || 1;
+      var t = Math.max(0, Math.min(1, (v - p.min) / span));
+      if (p.invert) t = 1 - t;
+      return 'hsl(' + Math.round(110 * (1 - t)) + ', 72%, 46%)';
+    }};
+  }}
+  function buildLayer (key) {{
+    curKey = key;
+    var p = DATA.params[key];
+    var ramp = rampFor(p);
+    if (layer) map.removeLayer(layer);
+    layer = L.geoJSON(p.fc, {{
+      style: function () {{ return {{color: '#d8dde3', weight: 0, fillOpacity: 0.25}}; }},
+      onEachFeature: function (f, lyr) {{
+        lyr.bindPopup('<b>cel ' + f.properties.cell + '</b><br>' +
+          '<span id="pv-' + f.properties.cell + '"></span>');
+      }}
+    }}).addTo(map);
+    if (!fitted && p.fc.features && p.fc.features.length) {{
+      map.fitBounds(layer.getBounds().pad(0.08)); fitted = true;
+    }}
+    document.getElementById('legend-title').textContent = p.label;
+  }}
+  var slider = document.getElementById('slider');
+  var label = document.getElementById('step-label');
+  function setStep (i) {{
+    var p = DATA.params[curKey];
+    var ramp = rampFor(p);
+    layer.eachLayer(function (lyr) {{
+      var cell = lyr.feature.properties.cell;
+      var v = p.cells[cell] ? p.cells[cell][i] : null;
+      lyr.setStyle({{fillColor: ramp(v), fillOpacity: v === null ? 0.25 : 0.85}});
+      var pv = document.getElementById('pv-' + cell);
+      if (pv) pv.textContent = steps[i] + ': ' +
+        (v === null ? 'geen meting' : v + ' ' + p.unit);
+    }});
+    label.textContent = steps[i];
+    slider.value = i;
+  }}
+  sel.addEventListener('change', function () {{
+    stop(); buildLayer(sel.value); setStep(+slider.value);
+  }});
+  slider.addEventListener('input', function () {{ stop(); setStep(+slider.value); }});
+  var playBtn = document.getElementById('play');
+  var timer = null;
+  function stop () {{
+    if (timer) {{ clearInterval(timer); timer = null; }}
+    playBtn.innerHTML = '&#9654; Afspelen';
+  }}
+  playBtn.addEventListener('click', function () {{
+    if (timer) {{ stop(); return; }}
+    playBtn.innerHTML = '&#9632; Stoppen';
+    var i = +slider.value;
+    timer = setInterval(function () {{
+      i = (i + 1) % steps.length;
+      setStep(i);
+    }}, {interval_ms});
+  }});
+  buildLayer(sel.value);
+  setStep(0);
+}})();
+</script>
+{legend_html}
+</body>
+</html>
+"""
+
+
+def render_hexmap_time_multi(
+    bundles: Mapping[str, Mapping[str, Any]],
+    *,
+    steps: Sequence[str],
+    metas: Mapping[str, Mapping[str, Any]],
+    default: str,
+    title: str,
+    stops: Sequence[Tuple[float, str]],
+    step_interval_ms: int = 700,
+    out_path: Optional[Path] = None,
+) -> str:
+    """One animated hex map with a parameter switcher.
+
+    ``bundles``: {param_key: build_cell_steps bundle}; ``metas``:
+    {param_key: {label, unit, vmin, vmax, invert}}. Shared step list.
+    """
+    def _sw(t: float, invert: bool) -> str:
+        tt = max(0.0, min(1.0, t))
+        if invert:
+            tt = 1 - tt
+        return f"hsl({round(110 * (1 - tt))}, 72%, 46%)"
+
+    payload = {
+        "default": default,
+        "steps": list(steps),
+        "params": {
+            key: {
+                "label": metas[key]["label"],
+                "unit": metas[key]["unit"],
+                "min": metas[key]["vmin"], "max": metas[key]["vmax"],
+                "invert": bool(metas[key].get("invert")),
+                "fc": bundles[key]["cells_fc"],
+                "cells": bundles[key]["values"],
+            }
+            for key in bundles
+        },
+    }
+    rows_normal = "".join(
+        f'<div class="row"><span class="swatch" style="background:{_sw(t, False)}">'
+        f'</span><span>{lbl}</span></div>' for t, lbl in stops)
+    rows_invert = "".join(
+        f'<div class="row"><span class="swatch" style="background:{_sw(t, True)}">'
+        f'</span><span>{lbl}</span></div>' for t, lbl in stops)
+    legend_html = (
+        '<div class="legend" style="position:absolute;z-index:1000;'
+        'right:12px;bottom:20px;"><div class="title" id="legend-title"></div>'
+        f'{rows_normal}<div class="note" style="margin-top:6px">Bij stoffen '
+        f'waar een lage waarde ongunstig is (bijv. zuurstof) is de schaal '
+        f'gespiegeld:</div>{rows_invert}'
+        '<div class="note">Kleur = mediaan over meetlocaties in de cel per '
+        'tijdstap, vaste schaal per stof; grijs = geen meting die stap.</div>'
+        '</div>')
+    n_steps = max(b["nSteps"] for b in bundles.values())
+    html = _MULTI_TEMPLATE.format(
+        title=title,
+        n_steps_1=max(0, n_steps - 1),
+        payload=json.dumps(payload, ensure_ascii=False).replace("<", "\u003c"),
+        interval_ms=step_interval_ms,
+        legend_html=legend_html)
     if out_path is not None:
         out_path = Path(out_path)
         out_path.parent.mkdir(parents=True, exist_ok=True)

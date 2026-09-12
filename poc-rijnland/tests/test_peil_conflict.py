@@ -501,3 +501,39 @@ class TestHexmapTime(unittest.TestCase):
             html, _re.S)
         for b in blocks:
             _json.loads(b)  # still valid JSON after < escaping
+
+
+class TestHexmapTimeMulti(unittest.TestCase):
+
+    def test_render_multi_switcher(self):
+        from rijnland import hexmap_time
+
+        fc = {"type": "FeatureCollection", "features": [
+            {"type": "Feature", "properties": {"cell": "aaa"},
+             "geometry": None}]}
+        bundles = {
+            "A|x|mg/l": {"cells_fc": fc, "values": {"aaa": [1.0, 2.0]},
+                         "nSteps": 2},
+            "B|y|%": {"cells_fc": fc, "values": {"aaa": [50.0, 10.0]},
+                      "nSteps": 2},
+        }
+        metas = {
+            "A|x|mg/l": {"label": "Stof A", "unit": "mg/l",
+                         "vmin": 0.0, "vmax": 2.0},
+            "B|y|%": {"label": "Stof B", "unit": "%",
+                      "vmin": 0.0, "vmax": 50.0, "invert": True},
+        }
+        html = hexmap_time.render_hexmap_time_multi(
+            bundles, steps=["jan", "feb"], metas=metas, default="A|x|mg/l",
+            title="T", stops=[(0.0, "laag"), (1.0, "hoog")])
+        self.assertIn('<select id="param"', html)
+        # de dropdown-opties bouwt de JS runtime; labels staan in de payload
+        import json as _json
+        import re as _re
+        block = _re.search(r'id="anim-data">(\{.*?\})</script>', html, _re.S)
+        data = _json.loads(block.group(1))
+        self.assertEqual(set(data["params"]), {"A|x|mg/l", "B|y|%"})
+        self.assertEqual(data["params"]["A|x|mg/l"]["label"], "Stof A")
+        self.assertEqual(data["params"]["B|y|%"]["unit"], "%")
+        self.assertTrue(data["params"]["B|y|%"]["invert"])
+        self.assertEqual(data["default"], "A|x|mg/l")

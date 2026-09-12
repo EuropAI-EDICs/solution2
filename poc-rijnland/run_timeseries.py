@@ -70,41 +70,55 @@ def main(argv=None) -> int:
         try:
             from pipeline import h3step
 
-            per_loc = (fixture.get("perLocation") or {}).get(args.parameter)
+            per_loc_all = fixture.get("perLocation") or {}
             months = fixture.get("months") or []
-            if not per_loc or not months:
+            if not per_loc_all or not months:
                 raise ValueError("geen per-locatie maandseries in de fixture")
-            locs = [{"x": l["x"], "y": l["y"], "values": l["values"]}
-                    for l in per_loc.values()]
-            vals = [v for l in locs for v in l["values"] if v is not None]
-            qs = statistics.quantiles(vals, n=10)
-            bundle = hexmap_time.build_cell_steps(
-                locations=locs, resolution=8,
-                call=lambda pid, inputs: h3step.call(pid, inputs))
-            if bundle:
-                steps = [_dt.date(int(m[:4]), int(m[5:7]), 1).strftime("%b %Y")
-                         for m in months]
-                norm = NORMS.get(args.parameter, {})
-                anim = hexmap_time.render_hexmap_time(
-                    bundle, steps=steps,
-                    title=(f"{norm.get('label', args.parameter)} per cel, "
-                           f"per maand {months[0][:4]}–{months[-1][:4]}"),
-                    value_label=norm.get("label", args.parameter),
-                    unit=args.parameter.split("|")[-1],
-                    vmin=qs[0], vmax=qs[-1],
-                    invert=norm.get("worse") == "low",
-                    stops=[(0.0, "Gunstigste kwart van gemeten bereik"),
-                           (0.5, "Midden van gemeten bereik"),
-                           (1.0, "Ongunstigste kwart van gemeten bereik")],
+            steps = [_dt.date(int(m[:4]), int(m[5:7]), 1).strftime("%b %Y")
+                     for m in months]
+            stops = [(0.0, "Gunstigste kwart van gemeten bereik"),
+                     (0.5, "Midden van gemeten bereik"),
+                     (1.0, "Ongunstigste kwart van gemeten bereik")]
+            bundles, metas = {}, {}
+            for pkey, per_loc in per_loc_all.items():
+                locs = [{"x": l["x"], "y": l["y"], "values": l["values"]}
+                        for l in per_loc.values()]
+                vals = [v for l in locs for v in l["values"] if v is not None]
+                if len(vals) < 30:
+                    continue  # te weinig metingen voor een betrouwbare schaal
+                qs = statistics.quantiles(vals, n=10)
+                bundle = hexmap_time.build_cell_steps(
+                    locations=locs, resolution=8,
+                    call=lambda pid, inputs: h3step.call(pid, inputs))
+                if not bundle:
+                    continue
+                norm = NORMS.get(pkey, {})
+                bundles[pkey] = bundle
+                metas[pkey] = {
+                    "label": norm.get("label") or pkey.replace("|", " · "),
+                    "unit": pkey.split("|")[-1],
+                    "vmin": qs[0], "vmax": qs[-1],
+                    "invert": norm.get("worse") == "low",
+                }
+            if bundles:
+                default = (args.parameter if args.parameter in bundles
+                           else sorted(bundles)[0])
+                anim = hexmap_time.render_hexmap_time_multi(
+                    bundles, steps=steps, metas=metas, default=default,
+                    title=(f"Waterkwaliteit per cel, per maand "
+                           f"{months[0][:4]}–{months[-1][:4]}"),
+                    stops=stops,
                     out_path=out_dir / "hexmap-tijd.html")
                 (out_dir / "hexmap-tijd.json").write_text(json.dumps({
-                    "parameter": args.parameter,
-                    "cells": len(bundle["values"]),
+                    "parameters": {k: {"cells": len(b["values"]),
+                                       "scale": [metas[k]["vmin"],
+                                                 metas[k]["vmax"]]}
+                                   for k, b in bundles.items()},
                     "steps": len(steps),
-                    "scale": [qs[0], qs[-1]],
                 }, indent=1) + "\n", encoding="utf-8")
                 print(f"[ts] {out_dir / 'hexmap-tijd.html'} "
-                      f"({len(anim):,} bytes, {bundle['nSteps']} stappen)")
+                      f"({len(anim):,} bytes, {len(bundles)} stoffen, "
+                      f"{len(steps)} stappen)")
         except Exception as exc:  # animatie is decision support
             print(f"[ts] WARNING hexmap-animatie overgeslagen: {exc}")
     return 0
