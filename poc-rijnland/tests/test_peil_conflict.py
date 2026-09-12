@@ -539,7 +539,7 @@ class TestHexmapTimeMulti(unittest.TestCase):
         self.assertEqual(data["default"], "A|x|mg/l")
         # stof-geadapterede legenda: stops meegaven in de payload
         stops_b = data["params"]["B|y|%"]["stops"]
-        self.assertEqual(stops_b[0]["label"], "Gunstig")
+        self.assertEqual(stops_b[0]["label"], "laag")  # eigen stops-labels
         self.assertEqual(stops_b[0]["value"], "50")  # hoog = gunstig (gespiegeld)
         self.assertEqual(stops_b[-1]["value"], "0")
         self.assertEqual(data["params"]["A|x|mg/l"]["stops"][-1]["value"], "2")
