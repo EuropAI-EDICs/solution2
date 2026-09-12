@@ -268,8 +268,8 @@ def render_hexmap_time(
         meta=json.dumps(meta, ensure_ascii=False).replace("<", "\\u003c"),
         interval_ms=step_interval_ms,
     )
-    # insert the legend before the closing body tag (kept out of .format
-    # because the legend contains braces-free html but simpler to append)
+    # de legenda is statisch voor de single-renderer; na de scripts
+    # invoegen is dus veilig (geen JS leest deze elementen)
     html = html.replace("</body>", meta_html + "</body>")
     if out_path is not None:
         out_path = Path(out_path)
@@ -321,6 +321,7 @@ _MULTI_TEMPLATE = """<!doctype html>
     <input type="range" id="slider" min="0" max="{n_steps_1}" value="0" step="1">
   </div>
 </div>
+{legend_html}
 <script type="application/json" id="anim-data">{payload}</script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -340,8 +341,8 @@ _MULTI_TEMPLATE = """<!doctype html>
     var o = document.createElement('option');
     o.value = key;
     o.textContent = DATA.params[key].label + ' [' + DATA.params[key].unit + ']';
-    if (key === DATA.default) sel.selectedIndex = i;
     sel.appendChild(o);
+    if (key === DATA.default) sel.selectedIndex = i;
   }});
   var map = L.map('map', {{zoomSnap: 0.25}});
   L.tileLayer('https://tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
@@ -368,7 +369,8 @@ _MULTI_TEMPLATE = """<!doctype html>
               'hsl(' + hue + ', 72%, 46%)"></span><span>' + s.label +
               ' — <b>' + s.value + ' ' + p.unit + '</b></span></div>';
     }});
-    document.getElementById('legend-rows').innerHTML = rows;
+    var lr = document.getElementById('legend-rows');
+    if (lr) lr.innerHTML = rows;
     if (layer) map.removeLayer(layer);
     layer = L.geoJSON(p.fc, {{
       style: function () {{ return {{color: '#d8dde3', weight: 0, fillOpacity: 0.25}}; }},
@@ -380,7 +382,8 @@ _MULTI_TEMPLATE = """<!doctype html>
     if (!fitted && p.fc.features && p.fc.features.length) {{
       map.fitBounds(layer.getBounds().pad(0.08)); fitted = true;
     }}
-    document.getElementById('legend-title').textContent = p.label;
+    var lt = document.getElementById('legend-title');
+    if (lt) lt.textContent = p.label;
   }}
   var slider = document.getElementById('slider');
   var label = document.getElementById('step-label');
@@ -494,7 +497,7 @@ def render_hexmap_time_multi(
     html = _MULTI_TEMPLATE.format(
         title=title,
         n_steps_1=max(0, n_steps - 1),
-        payload=json.dumps(payload, ensure_ascii=False).replace("<", "\u003c"),
+        payload=json.dumps(payload, ensure_ascii=False).replace("<", "\\u003c"),
         interval_ms=step_interval_ms,
         legend_html=legend_html)
     if out_path is not None:

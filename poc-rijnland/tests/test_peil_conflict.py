@@ -543,3 +543,30 @@ class TestHexmapTimeMulti(unittest.TestCase):
         self.assertEqual(stops_b[0]["value"], "50")  # hoog = gunstig (gespiegeld)
         self.assertEqual(stops_b[-1]["value"], "0")
         self.assertEqual(data["params"]["A|x|mg/l"]["stops"][-1]["value"], "2")
+
+    def test_render_multi_legend_before_script_and_escapes(self):
+        from rijnland import hexmap_time
+
+        fc = {"type": "FeatureCollection", "features": [
+            {"type": "Feature", "properties": {"cell": "aaa"},
+             "geometry": None}]}
+        bundles = {"A|x|mg/l": {"cells_fc": fc,
+                                "values": {"aaa": [1.0, 2.0]},
+                                "nSteps": 2}}
+        metas = {"A|x|mg/l": {"label": "</script>Stof A", "unit": "mg/l",
+                              "vmin": 0.0, "vmax": 2.0}}
+        html = hexmap_time.render_hexmap_time_multi(
+            bundles, steps=["jan", "feb"], metas=metas,
+            default="A|x|mg/l", title="T")
+        # de legenda-elementen moeten vóór het hoofdscript in de DOM staan:
+        # buildLayer() vult ze direct bij het parsen van de pagina
+        self.assertLess(html.index('id="legend-rows"'),
+                        html.index('<script src="https://unpkg.com/leaflet'))
+        import json as _json
+        import re as _re
+        block = _re.search(r'id="anim-data">(\{.*?\})</script>', html, _re.S)
+        self.assertIsNotNone(block)
+        self.assertNotIn("</script>", block.group(1))
+        data = _json.loads(block.group(1))  # valid JSON na < escaping
+        self.assertEqual(data["params"]["A|x|mg/l"]["label"],
+                         "</script>Stof A")
