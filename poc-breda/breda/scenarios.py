@@ -509,6 +509,13 @@ BASIS_NL = {
     "policy_variant": "Beleidskeuze",
     "hypothetical": "Verkenning — geen onderbouwing",
 }
+# congres-trackkleuren per waarde: [licht, donker] — donker bij grote onderlinge spreiding
+WAARDE_KLEUREN = {
+    "democratic": ["#7fd8e8", "#0087a8"],
+    "spatial": ["#8fd3a8", "#2e8b57"],
+    "economic": ["#f3cd8a", "#c07d17"],
+    "social": ["#f8b99b", "#d45d10"],
+}
 
 
 def _mutatie_plat(m: dict) -> str:
@@ -542,9 +549,11 @@ def _mutatie_plat(m: dict) -> str:
 
 
 def build_whatif_html(report: dict, layers: dict) -> str:
-    """What-if-kaart in beleidstaal: per buurt wint/verliest per waarde
-    t.o.v. het 0-scenario (huidige situatie). Zelfde offline-Leaflet-idioom
-    als het hoofdrapport; JSON letterlijk ge-escaped."""
+    """What-if-kaart in beleidstaal. Standaardmodus 'waarden onderling':
+    kleur = de waarde die in de buurt relatief wint t.o.v. de andere drie
+    (congreskleuren, donker bij grote spreiding); optioneel één waarde
+    volgen (wint/verliest t.o.v. het 0-scenario). Zelfde offline-Leaflet-
+    idioom als het hoofdrapport; JSON letterlijk ge-escaped."""
     from . import report as report_mod
 
     buurten_fc = layers.get("buurten") or {}
@@ -577,12 +586,13 @@ def build_whatif_html(report: dict, layers: dict) -> str:
         "geo": {"type": "FeatureCollection", "features": features},
         "perBuurt": per_buurt_all,
         "waarden": [
-            {"key": w, "label": WAARDE_NL[w]} for w in WAARDEN
+            {"key": w, "label": WAARDE_NL[w],
+             "kleur": WAARDE_KLEUREN[w]} for w in WAARDEN
         ],
     }
     data = _json.dumps(payload, ensure_ascii=False).replace("<", "\\u003c")
 
-    return """<!DOCTYPE html>
+    return '''<!DOCTYPE html>
 <html lang="nl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Wat als…? — Breda vijf-waardenscan</title>
@@ -594,7 +604,7 @@ def build_whatif_html(report: dict, layers: dict) -> str:
  #map{height:76vh;background:#eef2f5}
  .paneel{position:absolute;top:12px;right:12px;z-index:1000;background:#fff;
    border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.3);padding:14px 16px;
-   font-size:14px;width:340px;max-height:86vh;overflow-y:auto}
+   font-size:14px;width:350px;max-height:86vh;overflow-y:auto}
  .paneel h3{margin:0 0 6px;font-size:14px;color:#6b7280;font-weight:600;
    text-transform:uppercase;letter-spacing:.04em}
  .scen-kaart{border:1px solid #e5e7eb;border-radius:8px;padding:8px 10px;margin:5px 0;
@@ -605,23 +615,26 @@ def build_whatif_html(report: dict, layers: dict) -> str:
  .scen-kaart .soort{font-size:11px;padding:1px 7px;border-radius:9px;background:#eef2f7;
    color:#1d6fa4;display:inline-block;margin:3px 4px 3px 0}
  .scen-kaart .wat{font-size:12.5px;color:#4b5563}
- .waarde-rij label{display:inline-block;margin:2px 6px 2px 0;cursor:pointer;
+ .modus-rij label,.waarde-rij label{display:inline-block;margin:2px 6px 2px 0;cursor:pointer;
    border:1px solid #e5e7eb;border-radius:6px;padding:2px 8px;font-size:13px}
- .waarde-rij input{margin-right:3px}
- .waarde-rij label.actief{border-color:#060644;background:#060644;color:#fff}
+ .modus-rij input,.waarde-rij input{margin-right:3px}
+ .modus-rij label.actief,.waarde-rij label.actief{border-color:#060644;background:#060644;color:#fff}
+ .waarde-rij{display:none}
+ .waarde-rij.zichtbaar{display:block}
  .uitleg{margin-top:10px;border-top:1px solid #eef0f3;padding-top:8px;font-size:13.5px}
  .uitleg .zin{font-size:14px;color:#060644;font-weight:600}
+ .kaartvraag{font-size:12.5px;color:#6b7280;margin-top:6px}
  .chips{margin:6px 0}
  .chip{display:inline-block;font-size:12px;padding:1px 8px;border-radius:10px;margin:2px 2px}
  .chip.winst{background:#e6f4ea;color:#1e7e34}.chip.verlies{background:#fdecea;color:#b00020}
- .chip.gelijk{background:#eef2f7;color:#6b7280}
  .movers{font-size:13px;margin-top:6px}
  .legend{background:#fff;padding:8px 10px;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.25);
    font-size:12px}
  .legend .sw span{display:inline-block;width:22px;height:11px;border:1px solid #999;margin-right:2px}
- .leaflet-popup-content{font-size:13.5px;min-width:260px}
+ .leaflet-popup-content{font-size:13.5px;min-width:270px}
  .rij{display:flex;justify-content:space-between;border-bottom:1px solid #f0f2f5;padding:3px 0}
  .pijl{font-weight:700}.op{color:#1e7e34}.neer{color:#b00020}
+ .onderling{margin:6px 0 2px;font-size:13.5px}
  .grootste{margin-top:6px;font-size:12.5px;color:#4b5563}
 </style></head><body>
 <header>
@@ -633,7 +646,11 @@ def build_whatif_html(report: dict, layers: dict) -> str:
 <div id="map">
  <div class="paneel">
   <h3>Kies een scenario</h3><div id="scen"></div>
-  <h3 style="margin-top:12px">Kies een waarde</h3>
+  <h3 style="margin-top:12px">Kaartmodus</h3>
+  <div class="modus-rij" id="modus">
+   <label class="actief"><input type="radio" name="modus" value="onderling" checked> Waarden onderling</label>
+   <label><input type="radio" name="modus" value="een"> Één waarde volgen</label>
+  </div>
   <div class="waarde-rij" id="vals"></div>
   <div class="uitleg" id="uitleg"></div>
  </div>
@@ -651,48 +668,87 @@ window.__DATA__ = __PAYLOAD__;
  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,
    attribution:'&copy; OpenStreetMap-bijdragers'}).addTo(map);
  var KLEUREN={op:['#a5d6a7','#2e7d32','#14520f'],neer:['#f2b8b5','#b71c1c','#7f0d0d']};
- var actScen=null,actVal=D.waarden[0].key;
- function scen(){return D.scenarios.find(function(s){return s.id===actScen;});}
- function deltaVan(f){var b=(D.perBuurt[f.properties.code]||{})[actScen];
-   return b?b.deltas[actVal]:undefined;}
- function maxAbs(){var m=0.5;D.geo.features.forEach(function(f){var d=deltaVan(f);
+ var actScen=null,actModus='onderling',actVal=D.waarden[0].key;
+ function label(k){var w=D.waarden.find(function(x){return x.key===k;});return w?w.label:k;}
+ function kleurVan(k,donker){var w=D.waarden.find(function(x){return x.key===k;});
+   return w.kleur[donker?1:0];}
+ function blob(f){var b=(D.perBuurt[f.properties.code]||{})[actScen];return b||null;}
+ function sterkste(b){ // onderling: sterkst verschuivende waarde t.o.v. de rest
+   var vector={};
+   D.waarden.forEach(function(w){vector[w.key]=
+     (b.deltas[w.key]!==undefined&&b.deltas[w.key]!==null)?b.deltas[w.key]:0;});
+   var ks=D.waarden.map(function(w){return w.key;});
+   var w=ks[0],v=ks[0],m=ks[0],mv=0;
+   ks.forEach(function(k){
+     if(vector[k]>vector[w])w=k;
+     if(vector[k]<vector[v])v=k;
+     if(Math.abs(vector[k])>mv){mv=Math.abs(vector[k]);m=k;}});
+   return {w:w,v:v,m:m,omvang:mv,spreiding:vector[w]-vector[v]};}
+ function maxSpreiding(){var m=0.5;D.geo.features.forEach(function(f){var b=blob(f);
+   if(!b)return;var sv=sterkste(b);
+   if(sv&&sv.omvang>m)m=sv.omvang;});return m;}
+ function maxAbsEen(){var m=0.5;D.geo.features.forEach(function(f){var b=blob(f);
+   if(!b)return;var d=b.deltas[actVal];
    if(d!==undefined&&Math.abs(d)>m)m=Math.abs(d);});return m;}
- function kleur(f){var d=deltaVan(f);
+ function kleur(f){var b=blob(f);
+   if(!b)return '#d1d5db';
+   if(actModus==='onderling'){
+     var sv=sterkste(b);
+     if(!sv||sv.omvang<0.5)return '#d1d5db';
+     var donker=sv.omvang>0.55*maxSpreiding();
+     return kleurVan(sv.m,donker);}
+   var d=b.deltas[actVal];
    if(d===undefined||d===null)return '#d1d5db';
-   var t=Math.abs(d)/maxAbs();if(t<0.08)return '#cfd4da';
+   var t=Math.abs(d)/maxAbsEen();if(t<0.08)return '#cfd4da';
    var i=t>0.66?2:(t>0.33?1:0);return KLEUREN[d>0?'op':'neer'][i];}
  var layer=L.geoJSON(D.geo,{style:function(f){return{color:'#fff',weight:1,
      fillOpacity:0.85,fillColor:kleur(f)};},
    onEachFeature:function(f,lyr){lyr.bindPopup(popup(f));}});
  layer.addTo(map);map.fitBounds(layer.getBounds(),{padding:[10,10]});
- function popup(f){
-  var b=(D.perBuurt[f.properties.code]||{})[actScen];
-  var regels='';
-  if(!b){regels='<i>in dit scenario verandert hier niets</i>';}
-  else{
-   D.waarden.forEach(function(w){
-     var vn=b.vanNaar[w.key];if(!vn)return;
-     var d=b.deltas[w.key];
-     var pijl='<span class="pijl gelijk">=</span>';
-     if(d>0)pijl='<span class="pijl op">&#8593; +'+d+'</span>';
-     if(d<0)pijl='<span class="pijl neer">&#8595; '+d+'</span>';
-     regels+='<div class="rij"><span>'+w.label+'</span><span>'+
-       vn.van.toLocaleString('nl-NL')+' &rarr; '+vn.naar.toLocaleString('nl-NL')+
-       ' &nbsp;'+pijl+'</span></div>';});
-   var grootste=Object.keys(b.deltas).sort(function(a,c){
-     return Math.abs(b.deltas[c])-Math.abs(b.deltas[a]);})[0];
-   if(grootste)regels+='<div class="grootste">grootste verschuiving: '+
-     label(grootste)+(b.deltas[grootste]>0?' (winst)':' (verlies)')+'</div>';
-  }
-  return '<b>'+(f.properties.naam||f.properties.code)+'</b>'+regels;}
- function label(k){var w=D.waarden.find(function(x){return x.key===k;});return w?w.label:k;}
+ function fmtGetal(g){return (g>0?'+':'')+g.toLocaleString('nl-NL');}
+ function popup(f){var b=blob(f);
+  var kop='<b>'+(f.properties.naam||f.properties.code)+'</b>';
+  if(!b)return kop+'<div class="onderling" style="color:#6b7280">'+
+    '<i>in dit scenario verandert hier niets</i></div>';
+  var sv=sterkste(b),regels='';
+  if(sv&&sv.omvang>=0.5){
+   var dW=b.deltas[sv.w],dV=b.deltas[sv.v];
+   if(sv.w!==sv.v&&dV<0&&dW>0)
+    regels+='<div class="onderling">onderling verschuift dit van <b>'+label(sv.v)+
+     '</b> naar <b>'+label(sv.w)+'</b> ('+fmtGetal(dV)+' → '+
+     fmtGetal(dW)+')</div>';
+   else{
+    var richting=b.deltas[sv.m]>0?'wint':'verliest';
+    regels+='<div class="onderling"><b>'+label(sv.m)+'</b> '+richting+
+     ' hier het sterkst ('+fmtGetal(b.deltas[sv.m])+
+     ') t.o.v. de andere waarden</div>';}}
+  D.waarden.forEach(function(w){
+   var vn=b.vanNaar[w.key];if(!vn)return;
+   var d=b.deltas[w.key];
+   var pijl='<span class="pijl">=</span>';
+   if(d>0)pijl='<span class="pijl op">&#8593; +'+d.toLocaleString('nl-NL')+'</span>';
+   if(d<0)pijl='<span class="pijl neer">&#8595; '+d.toLocaleString('nl-NL')+'</span>';
+   regels+='<div class="rij"><span>'+w.label+'</span><span>'+
+     vn.van.toLocaleString('nl-NL')+' &rarr; '+vn.naar.toLocaleString('nl-NL')+
+     ' &nbsp;'+pijl+'</span></div>';});
+  return kop+regels;}
  var legend=L.control({position:'bottomleft'});
  legend.onAdd=function(){var d=L.DomUtil.create('div','legend');this._d=d;this.upd();return d;};
- legend.upd=function(){this._d.innerHTML='<b>Waar verandert '+label(actVal)+'?</b>'+
+ legend.upd=function(){
+  if(actModus==='onderling'){
+   var sw=D.waarden.map(function(w){
+     return '<span style="background:'+w.kleur[0]+'"></span>';}).join('');
+   this._d.innerHTML='<b>Welke waarde verschuift het sterkst?</b><br><div class="sw">'+sw+
+     '</div><div style="margin-top:2px">'+D.waarden.map(function(w){
+       return w.label;}).join(' · ')+
+     '</div><br><span style="background:#d1d5db;display:inline-block;width:22px;height:11px;'+
+     'border:1px solid #999"></span> geen verschuiving<br>(donker = sterke verschuiving '+
+     't.o.v. de andere waarden; klik een buurt voor winst of verlies)';}
+  else{this._d.innerHTML='<b>Waar verandert '+label(actVal)+'?</b>'+
    '<br><div class="sw">'+['<span style="background:#a5d6a7"></span>',
    '<span style="background:#2e7d32"></span>','<span style="background:#cfd4da"></span>',
    '<span style="background:#f2b8b5"></span>','<span style="background:#b71c1c"></span>'
-   ].join('')+'</div><br>wint &nbsp;&middot;&nbsp; geen verandering &nbsp;&middot;&nbsp; verliest<br>(t.o.v. het 0-scenario)';};
+   ].join('')+'</div><br>wint &nbsp;&middot;&nbsp; geen verandering &nbsp;&middot;&nbsp; verliest<br>(t.o.v. het 0-scenario)';}};
  legend.addTo(map);
  function nadruk(s){
   if(s.n===0)return 'Dit scenario verandert <b>niets</b> — de uitkomst is robuust '+
@@ -709,14 +765,14 @@ window.__DATA__ = __PAYLOAD__;
    {var nchg=hoogste.w+hoogste.vt;
     return 'De verandering zit volledig in <b>'+label(laagste.v)+'</b>: '+
     nchg+' buurt'+(nchg===1?'':'en')+' veranderen (gemiddeld '+
-    fmt(hoogste.g)+' punten).'}
+    fmt(hoogste.g)+' punten).';}
   return 'De nadruk verschuift van <b>'+label(laagste.v)+'</b> naar <b>'+
    label(hoogste.v)+'</b> (gemiddeld '+fmt(laagste.g)+' en '+
    fmt(hoogste.g)+' punten waar buurten veranderen).';}
  function chips(s){var uit='';
   D.waarden.forEach(function(w){var p=s.profiel[w.key];if(!p||(!p.winst&&!p.verlies))return;
    uit+='<span class="chip '+(p.winst>=p.verlies?'winst':'verlies')+'">'+w.label+
-   ': '+p.winst+' buurt'+(p.winst===1?'':'en')+' winst, '+p.verlies+' verlies</span>';});
+   ': '+p.winst+' winst, '+p.verlies+' verlies</span>';});
   return uit?'<div class="chips">'+uit+'</div>':'';}
  function movers(s){if(!s.movers.length)return '';
   var rijen=s.movers.slice(0,3).map(function(m){
@@ -725,11 +781,18 @@ window.__DATA__ = __PAYLOAD__;
    return '<div><b>'+(m.buurt||m.buurtcode)+'</b>: '+delen.join(', ')+'</div>';}).join('');
   return '<div class="movers"><b>Grootste verschuivers</b>'+rijen+
    '<span style="color:#6b7280;font-size:11.5px">+ = stijgt in de Breda-ranglijst</span></div>';}
+ function kaartvraag(){
+  return actModus==='onderling'
+   ?'<div class="kaartvraag">De kaart kleurt per buurt de waarde die <b>ten opzichte van '+
+    'de andere waarden</b> het sterkst verschuift (winst of verlies — '+
+    'klik de buurt). Donker = sterke afwijking.</div>'
+   :'<div class="kaartvraag">De kaart toont winst/verlies op <b>'+label(actVal)+
+    '</b> t.o.v. het 0-scenario.</div>';}
  function ververs(){layer.setStyle(function(f){return{color:'#fff',weight:1,
     fillOpacity:0.85,fillColor:kleur(f)};});legend.upd();
-  var s=scen(),u=document.getElementById('uitleg');
+  var s=D.scenarios.find(function(x){return x.id===actScen;}),u=document.getElementById('uitleg');
   if(!s){u.innerHTML='';return;}
-  u.innerHTML='<div class="zin">'+nadruk(s)+'</div>'+chips(s)+movers(s);}
+  u.innerHTML='<div class="zin">'+nadruk(s)+'</div>'+chips(s)+movers(s)+kaartvraag();}
  var se=document.getElementById('scen');
  D.scenarios.forEach(function(s,i){var d=document.createElement('div');
   d.className='scen-kaart'+(i===0?' actief':'');
@@ -740,18 +803,25 @@ window.__DATA__ = __PAYLOAD__;
    Array.prototype.forEach.call(se.children,function(c){c.classList.remove('actief');});
    d.classList.add('actief');ververs();};
   se.appendChild(d);if(i===0)actScen=s.id;});
- var ve=document.getElementById('vals');
+ var vr=document.getElementById('vals');
  D.waarden.forEach(function(w,i){var l=document.createElement('label');
-  if(i===0)l.className='actief';
+  if(i===0)l.classList.add('actief');
   var r=document.createElement('input');r.type='radio';r.name='val';r.value=w.key;
   if(i===0)r.checked=true;
   r.onchange=function(){actVal=r.value;
-   Array.prototype.forEach.call(ve.children,function(c){c.classList.remove('actief');});
+   Array.prototype.forEach.call(vr.children,function(c){c.classList.remove('actief');});
    l.classList.add('actief');ververs();};
-  l.appendChild(r);l.appendChild(document.createTextNode(w.label));ve.appendChild(l);});
+  l.appendChild(r);l.appendChild(document.createTextNode(w.label));vr.appendChild(l);});
+ Array.prototype.forEach.call(document.querySelectorAll('#modus input'),function(r){
+  r.onchange=function(){actModus=r.value;
+   Array.prototype.forEach.call(document.querySelectorAll('#modus label'),
+     function(c){c.classList.remove('actief');});
+   r.parentElement.classList.add('actief');
+   document.getElementById('vals').classList.toggle('zichtbaar',actModus==='een');
+   ververs();};});
  ververs();
 })();
-</script></body></html>""".replace("__PAYLOAD__", data)
+</script></body></html>'''.replace("__PAYLOAD__", data)
 
 
 def build_report_md(report: dict) -> str:
