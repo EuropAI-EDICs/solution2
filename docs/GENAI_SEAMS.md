@@ -1,304 +1,194 @@
-# GenAI Seams — adding LLMs to the deterministic PoCs
+# Where AI may help in spatial planning — and where it must never decide
 
-**Design rule (inherited from the PoCs, restated):** *LLMs propose, deterministic
-engines dispose.* Every PoC runs with no LLM at runtime by construction; the only
-sanctioned contact surface is a seam
-(`poc/pipeline/agents.py`, `NormAnalyst(llm_hook=...)`; PoC-4:
-`poc-breda/breda/qa.py` behind `poc-breda/qa_run.py`) — "the interface is
-the only seam where a model may later *propose*, never *decide*" (`docs/SOLUTIONS_ARCHITECTURE.md`).
-This document catalogues every seam where GenAI can be added without giving up
-the properties that make the toolbox trustworthy: cite-or-abstain, schema-validated
-agent boundaries, V0–V4 validation, PROV on every artifact.
+*Written for non-technical readers: elected officials, policy makers,
+programme teams. Engineers: the condensed technical reference is in the
+annex at the bottom; the full technical edition of this document lives in
+git history (up to commit `ae6a5d4`).*
 
-Related: [`../MULTI_AGENT_PLAN.md`](../MULTI_AGENT_PLAN.md) (target multi-agent
-architecture), [`../docs/SOLUTIONS_ARCHITECTURE.md`](SOLUTIONS_ARCHITECTURE.md)
-(module boundaries, validation levels), [`../poc-breda/README.md`](../poc-breda/README.md)
-(the Q&A seam, implemented).
+This document explains how our four proofs-of-concept (Utrecht, Eindhoven,
+Rijnland, **Breda**) let language models help with spatial-planning work —
+without ever letting them make the decision.
 
 ---
 
-## 1. The seam catalogue
+## The one rule
 
-Every seam has the same shape:
+> **AI proposes. The pipeline disposes. A human decides.**
 
-```
-LLM  ──(schema-validated JSON proposal)──▶  deterministic gate  ──▶  engine/critic/human
-        temperature 0, structured output      cite-or-abstain /           decides
-        PROV: model+prompt+version            schema + grounding
-```
+A language model is excellent at reading, writing, summarising and
+suggesting. It is not a source of truth: it can sound confident about
+something that is not there. So in everything we built, the model has the
+role of an *assistant that hands in written proposals* — and deterministic
+software, plus ultimately a person, decides what happens with them.
 
-| # | seam | PoC | today (deterministic) | GenAI role (proposal only) | gate that stays deterministic |
-|---|---|---|---|---|---|
-| S1 | Norm harvesting | 1 | curated `poc/corpus/evidence-*.json` shards (~24 cards/track) | fan-out Norm-Card proposals over the *full* CVDR instrument text — the answer to paper A1's known failure ("could not derive the comprehensive set of norms from hundreds of documents") | V2 quote-entailment: every claim must carry a verbatim quote that string-matches the archived instrument; else → abstention ledger |
-| S2 | Norm formalization | 1 | `TEMPLATE_SPECS`; 13 ambiguous wind rules → V4, never guessed | propose formalizations (parameter/operator/distance/zoneSemantics) for ambiguous cards, status always `voorgesteld` | template registry remains the only path to an executable rule; a human approves a proposal → it becomes a template |
-| S3 | Conversational intake | 1 | fixed `poc/use-cases/<track>.json` | draft an `OpportunityMapRequest` from a policy question in natural language | schema validation + AOI/source resolution |
-| S4 | Run-directory Q&A | 1, 2, **4** | static reports; **PoC-4: deterministic asker + answer template, live-validated** (`poc-breda/qa.py`) | NL question → `ScanQuery` proposal (schema + vocabulary-grounded, shape-drift normalized); LLM narration of the deterministic answer under the number-gate; PoC-1 variant: "why is this parcel excluded?" over decision-table rows + NormCards, cite row/card ids or abstain | the runner reads only the canonical artifact (`value-scan.json` / the decision table); unmappable questions and drifting proposals → `query-rejected.json`; every prose number must resolve (sign/format-folded) or narration is rejected → deterministic fallback |
-| S5 | Knowledgebank matching | 2 | TF-IDF cosine + published-relation boost | LLM re-ranker for the text-driven rows; MC-6 preserved — status stays `voorgesteld` regardless of who scored | V3's independent Jaccard re-scorer keeps measuring disagreement; swap the judge, measure the delta |
-| S6 | New-rule drafting | 2 | `needsNewRules` clusters flagged for the jurist | draft candidate *doelregels* for the `gebruik:overig`-style clusters, `reviewTrail` per row | jurist stays on the buttons (MC-6); nothing is `gekoppeld` by AI |
-| S7 | **Scenario authoring** | 1 | **implemented Phase A** (see §2) | ScenarioAuthor proposes `ScenarioSpec`s grounded in the corpus (pending amendments, discretionary clauses, abstained topics, cross-track conflicts) | mutations restricted to the engine's actual inputs; V2 basis grounding; V3 control reproduction; V4 pending |
-| S8 | Scenario narration | 1 | `scenario-report.md` (deterministic table) | narrate the `ScenarioDelta`s for readers; every number cites a report row | numbers come only from the report; narration carries no new claims |
+Think of a highly eager intern with a perfect memory and no sense of
+responsibility. You want that intern researching and drafting. You never
+want them signing.
 
-## 2. Scenario planning — the pattern (Phase A implemented)
+---
 
-Scenario planning is not a mutation of the pipeline; it is a **replay plane over a
-canonical run**. A scenario is a *contract*, not a prompt:
+## Five natural worries — and the five answers built into the toolbox
 
-```
-ScenarioSpec (schema-validated contract)
-   basis: baseline | norm_variance | policy_variant | hypothetical
-   mutations: drop | set_semantics | set_buffer_distance_m   (per ruleId)
-        │
-        ▼
-unmutated CONTROL re-execution  ──+──▶  per-scenario re-execution
-(from the baseline run's cached    │      (poc/pipeline/scenarios.py)
- layers, same tunings, offline)    │
-        │                          ▼
-        │                   ScenarioReport (schema-validated):
-        │                   areas, Δ vs control, IoU vs control,
-        │                   mutations applied/skipped, degradations
-        ▼                          ▼
-V3: control must reproduce     V0–V3 ValidationReport
-the baseline run (≤0.1% rel)   (validation.json; V4 pending by design)
-```
+| The worry | What we built |
+|---|---|
+| *"The AI will just make things up."* | Every claim must carry a verifiable source — a legal article quoted word for word, an official statistic. No source? Then the system **refuses** (we call it *cite-or-abstain*), and the refusal itself is recorded, so nothing is silently guessed. |
+| *"It will quietly change things."* | The model cannot touch data, rules or maps. It can only hand in proposals on a **fixed form** (a strict digital contract). Anything off-form is automatically rejected and filed. |
+| *"Who checks the result?"* | An automatic checker validates every step; an independent re-run must reproduce the same answer; and the final word always rests with **a human** — a lawyer, an official. That last checkpoint is never skipped, by design. |
+| *"Can we still verify this in two years?"* | Every number keeps its **receipt**: which source, fetched when, checked by whom, in which version. Every result can be re-played from disk, offline. |
+| *"Are we making ourselves dependent on Big Tech?"* | The models run **locally** (open models, no cloud vendor), the data is 100% public (CBS, PDOK, the municipality's own open data), and no API key is needed anywhere. |
 
-### 2.1 The `basis` provenance class (the key design point)
+---
 
-Hypothetical parameters break cite-or-abstain: a varied buffer distance has no
-legal citation, and *pretending it does* would corrupt the toolbox's core
-guarantee. The `ScenarioSpec` contract therefore requires every scenario to
-declare its evidential status:
+## What the AI actually does — three jobs, one pending
 
-| basis type | requires | meaning |
-|---|---|---|
-| `baseline` | — | reserved for the runner's unmutated control; may not appear in a set file |
-| `norm_variance` | `normCardId` + `variedAspect` | varies a parameter of a **cited** rule (e.g. art. 9.25 lid 2's 1500 m attention buffer → 500/3000 m); the citation is real, the varied value is not the instrument's |
-| `policy_variant` | `normCardId` | flips a **documented discretionary choice** (e.g. art. 6.3 lid 2 NNN exception granted province-wide; a conditional overlay read as hard exclusion) |
-| `hypothetical` | `rationale` | free parameter exploration with **no legal grounding** — the honest counterpart of the abstention ledger (e.g. setback distances are an abstained topic, so a 500 m Natura 2000 setback sweep must say so) |
+**1. Answering questions in plain language** *(working — demonstrated live
+in Breda, 13 September 2026)*
 
-The V2 grounding check resolves every `normCardId` against the baseline run's
-`normcards.json` and every mutation `ruleId` against its `formalrules.json`.
-Unknown ids are authoring failures (verdict `fail`), not graceful skips; rules
-that the baseline never executes (status `ambiguous`/`rejected`) are skipped
-with a recorded reason — never guessed into execution.
+> *"Why does Belcrum score low on spatial value?"*
 
-### 2.2 What is implemented today (Phases A+B, deterministic by default, offline)
+The model translates the question into a strictly formatted query. Our
+software — not the model — looks up the answer in the official scan. The
+model then phrases the answer, and a **number-check** verifies that every
+figure in its text literally occurs in the data. If one number does not
+match, the answer is refused and replaced by the plain automatic version.
+Residents and officials get answers in ordinary Dutch (or English), with
+sources — and the system says so openly when the data simply isn't there.
 
-- Contracts: `poc/schemas/scenario-spec|scenario-set|scenario-report.schema.json`
-  (+ `validation-report` extended with the scenario artifact types), dataclasses in
-  `poc/pipeline/contracts.py`.
-- Engine: `poc/pipeline/scenarios.py` — baseline replay from a canonical run dir
-  (request + rules + manifest + cached layers + recorded tunings), mutation
-  application, per-scenario re-execution through the *unmodified* zone engine,
-  control reproduction check, V0–V3 critic (+ narration grounding), PROV bundle.
-- Authors: `poc/pipeline/scenario_author.py` — `file` / `auto` / `llm` behind one
-  interface, with the rejected-proposals ledger (§2.3).
-- Narration: `deterministic_narrative` + `check_narrative_grounding` (seam S8).
-- CLI: `python3 poc/scenarios/run.py [--use-case wind|zon|bos] [--author
-  file|auto|llm] [--max-scenarios N] [--narrate]` →
-  `poc/scenario-runs/<ts>-<track>/` (exit 0 only on verdict `pass`).
-- Demo sets grounded in the canonical runs: `poc/scenarios/{wind,zon,bos}.json`.
-- Tests: `poc/tests/test_scenarios.py` (25) + `poc/tests/test_scenario_author.py`
-  (20), all offline incl. a real-cache e2e.
+**2. Proposing what-if scenarios** *(working — province of Utrecht)*
 
-Canonical first results (baseline runs of 2026-08-30, control reproduces all
-three to 0.000000 rel delta):
+> *"What if the silence-area rule were interpreted strictly province-wide?"*
 
-| track | scenario | basis | final km² | Δ vs control |
-|---|---|---|---:|---:|
-| wind | control | baseline | 859.463 | — |
-| wind | NNN lid-2 exception province-wide | policy_variant | 1181.982 | **+322.519 (+37.5%)** |
-| wind | Stiltegebied as hard exclusion | policy_variant | 716.241 | −143.221 (−16.7%) |
-| wind | Aandachtsgebied as 500/1500/3000 m exclusion | norm_variance | 644.506 / 525.500 / 333.712 | −214.956 / −333.963 / −525.751 |
-| wind | 500 m Natura 2000 setback | hypothetical | 812.541 | −46.922 (−5.5%) |
-| zon | control | baseline | 1167.936 | — |
-| zon | Groene contour as hard exclusion | policy_variant | 1145.271 | −22.665 (−1.9%) |
-| zon | designation at face value (no Natura carve) | hypothetical | 1167.948 | **+0.011** — the carve is measurable but negligible |
-| bos | control | baseline | 23.924 | — |
-| bos | oude bosgroeiplaatsen as hard exclusion | policy_variant | 23.911 | −0.014 |
-| bos | zoekgebied +1 km band | hypothetical | 395.396 | +371.471 (16.5×) |
+The model proposes policy variants a policy maker would realistically
+weigh. Deterministic software then calculates the consequences — in square
+kilometres, on the map — and the proposal must always declare what it is
+based on: a **real legal rule being varied**, a **documented policy
+choice being flipped**, or a **pure hypothesis** (no legal basis claimed,
+and it says so). Real example from Utrecht: one discretionary clause, read
+differently, moves the wind opportunity zone by **322 km² (+37.5%)**. That
+is a fact a council needs before deciding — not after.
 
-These are exactly the kind of policy-relevant facts scenario planning exists
-for: the NNN discretionary clause is the single largest lever on wind siting
-(+37%), silence-area strictness is worth up to −61%, the zon Natura carve is
-symbolic (+0.01 km²), and the bos zoekgebied boundary dominates everything.
+**3. Watching the data sources** *(planned)*
 
-### 2.3 Phase B — the seam is implemented (still no network by default)
+Open data changes without notice. During this build, a source quietly
+shrunk from 117,012 trees to 1,000 because of a hidden server setting —
+we caught it by reading the source table. A monitoring agent will
+periodically check all sources and draft a readable change report;
+**a human always merges the change**.
 
-The `ScenarioSpec` contract **is** the seam, and it now has three authors behind
-one interface (`poc/pipeline/scenario_author.py`, `propose(baseline,
-max_scenarios) -> (accepted, rejected_ledger)`):
+---
 
-| author | what it does | gate |
-|---|---|---|
-| `--author file` | ships the demo sets (`poc/scenarios/*.json`) | schema + V2 grounding |
-| `--author auto` | `DeterministicScenarioAuthor`: derives proposals mechanically from the baseline artifacts — drop/hard-classify every executed rule, half/double every cited buffer, hypothetical 500 m setbacks for un-buffered exclusions (rationale referencing the abstention ledger); effort budget records its cuts | same |
-| `--author llm` | `LLMScenarioAuthor`: builds an id-complete digest of the baseline run (formalized rules with articles + footprints, abstention topics, mutation/basis vocabulary), calls an OpenAI-compatible endpoint (`LDT_SCENARIO_LLM_ENDPOINT` / `LDT_SCENARIO_LLM_MODEL`, local open model per paper B, temperature 0), and treats the response as **proposals only** | same, *before* execution: schema-invalid items, hallucinated rule/normCard ids, duplicate ids, object-type mismatches and budget overruns land in `proposals-rejected.json` — the author's cite-or-abstain ledger — and never reach the engine |
+## What the AI never does
 
-Key trust properties of the LLM seam:
+- It never **calculates** scores or areas.
+- It never issues a **verdict** on whether a result passes.
+- It never **changes** rules, corpora, maps or its own instructions.
+- It never takes the **final decision** — that stays with a named human.
+- It never works **unlogged**: every proposal records which model, which
+  prompt version, which moment.
 
-- **Identity is stamped by the seam, not the model**: `proposedBy` is always
-  overwritten with `llm-proposal#<model>` (any self-claim is recorded in the
-  proposal notes), so PROV cannot be spoofed through the prompt.
-- **Hallucinated ids cannot fail the run** — they are ledgered, not executed;
-  what does execute passes the same V0/V2 gates as every other spec.
-- The deterministic author doubles as the **golden-set fixture** for the LLM
-  seam: same interface, same gates, zero cost — CI regression compares
-  hooked vs unhooked sweeps.
+---
 
-The narration seam (S8) is implemented the same way (`--narrate`):
-`deterministic_narrative` renders prose whose every number is f-stringed from
-the report rows, and `check_narrative_grounding` gates *any* narrator — every
-numeric token in the prose must match a number in the serialized report (at the
-token's own precision) and every `SC-/FR-/NC-` id must resolve. A rejected
-narration fails the V2 level (`v2-narrative-grounding`) and with it the run
-verdict; prose never replaces numbers. An LLM narrator plugs in through the
-same `narrator=` callable and must survive the identical check.
+## The safety valves, in one paragraph each
 
-What `--author auto` already discovered on the canonical wind baseline (beyond
-the demo set's findings): a hypothetical 500 m NNN buffer would cost **−52.2%**
-(`SC-FR-W-14-SETBACK500`), and hard-enforcing the NNN *conditional* overlay
-(`SC-FR-W-13-HARD`) changes **nothing** (Δ +0.000, IoU 1.0) — the conditional
-overlay is fully subsumed by the default NNN exclusion, a non-obvious fact
-about the rule set that the sweep makes visible.
+**The contract.** Every model output must arrive on a fixed digital form
+(a schema). Like a form at a counter: fill it in properly or it goes back.
+This one rule blocks most chaos before it starts.
 
-The paper-B constraint (open-source models only, transparency) applies to model
-*choice*: the hook is model-agnostic, so a local vLLM/Ollama endpoint satisfies
-it without touching any contract.
+**The gate.** Behind the counter sits an automatic check: does every
+quoted source really exist? Does every identifier occur in our data? Is
+every number in the story literally in the result? Anything failing goes
+to the **rejection ledger** — a public list of refused proposals, with
+reasons. Refusals are results, not failures to hide.
 
-## 3. Guardrails that apply to every seam
+**The control re-run.** Before any variant is believed, the software
+re-executes the unchanged original and must get exactly the known answer
+back. Only then are new numbers trusted.
 
-- **Structured output, temperature 0** for anything feeding a gate (plan §5
-  determinism rules); free-form text only *after* the numbers exist.
-- **Cite-or-abstain extended, never bypassed**: proposals carry citations when
-  they exist and `basis`/`rationale` declarations when they do not.
-- **LLM output never mutates rules, corpora or the KG**; proposals land in
-  `voorgesteld`/pending states that only humans (or deterministic gates) promote.
-- **PROV per proposal**: model, version, prompt hash — the existing
-  `extractedBy`/`formalizedBy`/`proposedBy` fields already anticipate this.
-- **Golden-set regression in CI** on every prompt/model change (plan §4):
-  GS-1 benchmark maps for PoC-1; the canonical scenario sweeps as fixtures.
-- **Effort/cost budgets** on any fan-out seam (S1 especially) per the
-  orchestrator spec (plan §3.2).
-- **Gates are code and get their own tests** (B3 lesson): every grounding
-  gate ships unit tests for fabricated, rounded, reformatted and verbatim-
-  copied numbers — before its first rejection is trusted as evidence about
-  a model. The seam stamps what it normalizes: question text and identity
-  come from the seam, never from the model.
+**The receipt trail.** Every number in every report traces to a source
+with a date; every result file carries a checksum. Re-playable in two
+years, offline, by anyone.
 
-## 4. Phased path
+---
 
-| phase | content | status |
-|---|---|---|
-| A | scenario contracts + deterministic sweep + critic + demo sets (S7 skeleton) | **done** — `poc/pipeline/scenarios.py`, `poc/scenarios/` |
-| B | the seams themselves: S7 `--author auto|llm` (proposal ledger, identity stamping, pre-execution gating) + S8 `--narrate` (numeric-grounding gate) | **done** — `poc/pipeline/scenario_author.py`, `scenarios.deterministic_narrative` / `check_narrative_grounding` |
-| B2 | plug a real local open model into `--author llm` / LLM narrator; golden-set regression comparing LLM vs deterministic author outputs | **done** — qwen3.8 & qwen3.6 via local Ollama; see §5 |
-| B3 | S4 as a full Q&A seam on PoC-4: contract + deterministic asker + LLM asker/narrator behind the number-gate, live-validated end to end | **done 2026-09-13** — `poc-breda/breda/qa.py`, `poc-breda/qa_run.py`, `poc-breda/schemas/scan-query.schema.json`; see §6 |
-| C | S1 norm-harvest fan-out, S2 formalizer proposals, S3 conversational intake, S4 for PoC-1 (decision-table grounding); cross-track conflict discovery; scenario seam transplanted to PoC-4 value politics (indicator-weight variants, control must reproduce canonical scores bit-identically); source-monitor agent over `sources.json`/`layers.json` (probe diff → drafted registry patch, number-gated, human-merged) | later — its deterministic base is **done** (`poc/crosstrack/`: pairwise + shared-zone overlays over re-executed controls; canonical findings: 94.7% of the zoekgebied nieuwe natuur is simultaneously open to zonnevelden, and wind × zon compete on 845.4 km²) |
+## Lessons we learned the hard way (plain words)
 
-## 5. B2 findings (real model, live endpoint)
+1. **The checker was wrong, not the AI.** Our first live-validated answer
+   was rejected for "three fabricated numbers". Investigation: the model
+   had copied everything correctly; our own checking routine truncated
+   decimals, ignored part of the data, and didn't understand Dutch
+   thousands separators ("4.245" = four thousand). Lesson: **test the
+   examiner before you trust its verdicts.** Every fix became a permanent
+   automatic test.
+2. **Refusing is a feature.** When a question doesn't fit what the data
+   can answer, both the human-made parser and the AI refuse — in the same
+   public log, with a reason. We also had to teach the AI *when not to
+   refuse*: "why"-questions are exactly the questions it should answer.
+3. **Models reshape the form.** They fill in a neighbourhood name where a
+   category belongs, add fields, reformat numbers. Predictable repairs are
+   done automatically — strictly by our software, never by guessing — and
+   everything else is rejected.
+4. **The question itself is stamped by our software.** The AI may not
+   rephrase or replace the question it is answering — the record always
+   shows the question that was actually asked.
 
-Ran the seams against local open models served by Ollama
-(`qwen3.8:latest`, `qwen3.6:27b-mlx`; temperature 0). Four lessons, each
-now enforced in code:
+---
 
-1. **Thinking-mode transports.** Ollama's OpenAI-compat layer ignores
-   `think: false` — a reasoning-mode qwen burned the entire completion
-   budget on `<think>` and returned an empty `content`. The native
-   `/api/chat` endpoint honours it. `LDT_SCENARIO_LLM_API=ollama` selects
-   the native transport; `max_tokens`/`num_predict` bound runaways.
-   Killed clients leave orphaned generations that queue-block the
-   single-generation server — `ollama stop <model>` is the clean recovery.
-2. **Benign shape drift vs fabrication.** Models emit `scenarioId` instead
-   of `id`, `type` instead of `action`, and flatten `basis` to a string
-   with sibling keys. The seam normalizes these documented aliases and
-   completes benignly-missing form fields (`name`, `objectType`,
-   `provenanceNote`) with the only defensible deterministic values —
-   everything else must match the schema exactly or is ledgered.
-   Identity stamps are slugged (`llm-proposal#qwen3-8-latest`).
-3. **The gate catches real drift.** During hardening, qwen3.8 narrations
-   were rejected three ways: a hallucinated id (`SC-08-INCLUSION-BUFFER-1000`;
-   the report says `-100`), an exact-float mismatch on magnitudes (lesson 5),
-   and a quoted placeholder verdict (lesson 4). In the final canonical run
-   (`poc/scenario-runs/20260831T175842Z-zon-scen/`) the model's Dutch
-   narration passes every gate — numbers verbatim, ids real, verdict quoted
-   as `"pass"` — and is published as `scenario-narrative.md`; the rejection
-   path (`narrative-rejected.md` + a skipped V2 check + deterministic
-   fallback) is exercised and tested, not just designed.
-   This led to a new gate rule: **verdict-assertion** — prose may only
-   use pass/fail words in agreement with the report's own verdict field.
-4. **Don't lie to the seam.** The first narrations quoted a *placeholder*
-   verdict (`"fail"` set during report construction, before the critic
-   ran) — the model was faithfully narrating what it was shown. The
-   runner now narrates only after the final verdict exists.
-5. **Gate strictness must not punish grounded phrasing.** A narration
-   stating a negative delta as its magnitude — "afname van 64.674885049
-   km²" for the reported `-64.674885049` — was rejected by exact-float
-   matching. Natural policy prose does this constantly. The number gate
-   now folds sign (a token resolves against either sign of a reported
-   value); magnitudes are grounded, fabrications still are not.
+## What's next
 
-Golden-set regression (`poc/scenarios/compare_authors.py`, proposals
-only, no execution): qwen3.8 zon — deterministic author 3 proposals on 2
-rules vs LLM 10/10 accepted on all 3 rules, both targeting `FR-Z-03` /
-`FR-Z-04`, LLM additionally exploring the inclusion rule `FR-Z-02`;
-bases `norm_variance` + `policy_variant` (deterministic: hypothetical +
-policy_variant). Both authors' proposals execute to identical geometries
-per mutation — the engine, not the author, decides.
+1. **The what-if seam for the Breda five-value scan** — the proven pattern,
+   applied to value politics: what if heat attention weighs twice as heavy
+   where many 65+ residents live? Which neighbourhoods stay at the top or
+   bottom *no matter how you weigh* — that is the robust answer a council
+   can build on.
+2. **The source monitor** — continuity of open data as a monitored process.
+3. **One governed agent layer** over all four PoCs, so the same rules
+   apply everywhere (the nldt/MCP architecture).
 
-## 6. B3 findings — the Q&A seam on PoC-4 (real model, live, 2026-09-13)
+---
 
-S4 implemented end to end for the Breda five-value scan
-(`poc-breda/qa_run.py`): NL question → `ScanQuery` contract →
-deterministic runner over `value-scan.json` → deterministic template or
-LLM narration behind the number-gate. Live with qwen3.8 (Ollama), 73
-offline tests. Six lessons, each now enforced in code:
+## Technical annex (for engineers)
 
-1. **A grounding gate must first prove itself.** The first live narration
-   was rejected on three violations — and the model had copied every
-   number correctly. All three were bugs in *our* gate collection:
-   floats collected via `:g` (6 significant digits, breaking verbatim
-   precision), dict *keys* not counted as grounding ("per 100 inwoners"
-   cites the key `bomen_per_100_inw`), and Dutch thousands separators
-   ("4.245" = 4245) flagged as fabrication. Lesson: extend lesson 5 —
-   natural phrasing folds *format*, not just sign; and unit-test the gate
-   itself against fabricated, rounded, reformatted and correctly-copied
-   numbers before blaming the model.
-2. **Token extraction needs letter boundaries.** Numeric tokens must be
-   matched with `(?<!\w)…(?!\w)` so ids (`WK075800`), versions
-   (`qwen3.8`) and buurt codes never yield false tokens; conversely,
-   digit runs *inside* strings and keys must be collected as known
-   numbers, or citing an id fails the gate.
-3. **Deterministic narrators must be gate-clean by construction.** The
-   template's closing boilerplate "(0 = laagste, 100 = hoogste…)"
-   invented two ungrounded numbers and its own numbered-list markers
-   (1., 2., …) fabricated tokens. Fix the template (digit-free phrasing,
-   bullet markers), not the gate — the gate's strictness is the product.
-4. **Seam normalization grows with each model.** PoC-4 added: strip
-   unknown fields (schema is `additionalProperties: false`), clamp enums
-   (`focus` received a *buurt name* — benign drift, deterministic
-   repair: derive `focus := waarde` when a buurt is set), and **stamp
-   the question**: the seam overwrites `question` with the actually
-   asked question, so a model cannot paraphrase-or-redirect the query it
-   answers. Identity stays seam-stamped (`llm-proposal#<model>`).
-5. **Calibrate abstention with the query taxonomy.** qwen3.8 initially
-   abstained on "waarom…" questions as outside the contract. The prompt
-   now teaches the *mapping* (why/how + buurt → detail query; which/top-N
-   → ranking; aggregate → overview) with one worked example — abstention
-   is for questions truly unrelated to the artifact, not for question
-   forms the contract handles.
-6. **Both askers abstain symmetrically.** The deterministic parser and
-   the LLM land in the same `query-rejected.json` with a reason
-   ("cannot map onto the contract" / "model abstained"). Honest
-   refusal is a first-class result — exit code 1, ledger entry, never a
-   guessed query. Combined-filter questions ("heat attention AND much
-   65+") currently abstain because the contract has no filter language:
-   extend the *contract* first, then the parsers.
+Condensed reference; full detail in the code and this file's git history
+(through `ae6a5d4`).
 
-Data-continuity preconditions discovered while building the substrate
-(the source-monitor agent of Phase C exists to catch these): per-service
-`maxRecordCount` differs (Bomen 1000 vs Wijkdeals 2000 vs
-Hoofdgroenstructuur 20000) and a page smaller than requested silently
-ends GeoJSON paging (117,012 → 1,000 trees) — the fetcher now reads the
-cap live from service metadata; the PDOK CBS WFS ignores `cql_filter`
-and has unstable `bbox`+`startIndex` ordering, while the standard OGC
-XML `filter` is exact.
+**Seam catalogue & status**
+
+| id | seam (controlled contact point) | PoC | status |
+|---|---|---|---|
+| S1 | norm harvesting fan-out | 1 | later (deterministic base done) |
+| S2 | formalization proposals for ambiguous norms | 1 | later |
+| S3 | conversational intake | 1 | later |
+| S4 | run-artifact Q&A (contract → runner → number-gated narration) | **4** (1 planned) | **live-validated** (`poc-breda/qa.py`, `qa_run.py`; `ScanQuery` schema) |
+| S5 | knowledge-bank matching re-rank (swap the judge, measure delta) | 2 | designed; V3 Jaccard re-scorer in place |
+| S6 | candidate-rule drafting (`voorgesteld` only; lawyer decides — MC-6) | 2 | designed |
+| S7 | scenario authoring (file/auto/llm; ledger; control reproduction) | 1 (**4 planned** — indicator-weight variants, bit-identical control) | **implemented** (`poc/pipeline/scenario_author.py`) |
+| S8 | scenario narration (numeric grounding gate) | 1 | **implemented**; live qwen3.8 run published |
+
+**Phase path** — A: scenario contracts + sweep + critic (done) · B: the
+S7/S8 seams + ledgers (done) · B2: real local open models + golden-set
+regression (done, qwen3.8/3.6 via Ollama) · B3: full Q&A seam on PoC-4,
+live end-to-end (done 2026-09-13) · C: S1/S2/S3, PoC-1 decision-table Q&A,
+cross-track conflicts, PoC-4 scenario transplant, source monitor (later).
+
+**Key code** — `poc/pipeline/scenarios.py` · `scenario_author.py` (authors,
+identity stamping, rejection ledger) · `poc-breda/breda/qa.py` (asker,
+runner, number-gate, seam normalization) · `poc-breda/schemas/scan-query.schema.json` ·
+tests: `poc/tests/test_scenario*.py` (45), `poc-breda/tests/test_qa.py` (25).
+
+**B2 lessons (PoC-1, live)** — thinking-mode must be disabled via the
+native Ollama transport; benign shape drift is normalized deterministically;
+the gate catches real drift (hallucinated ids, exact-float mismatches,
+verdict assertions); narrate only after the final verdict exists; number
+matching folds sign (and, since B3, format).
+
+**B3 lessons (PoC-4, live)** — gate-collection bugs precede model blame
+(`:g` precision, dict keys, thousands separators); letter-boundary token
+extraction; deterministic templates gate-clean by construction (no
+boilerplate digits, no list markers); seam stamps question + identity;
+abstention calibrated via a worked query taxonomy; parser and LLM abstain
+symmetrically into one ledger.
+
+**Data-continuity preconditions** — per-service `maxRecordCount` (fetchers
+read it live from service metadata); PDOK CBS WFS ignores `cql_filter`,
+has unstable `bbox`+`startIndex` ordering, honours the OGC XML `filter`;
+a new CBS year can change the buurt set itself.

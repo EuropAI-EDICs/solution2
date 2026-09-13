@@ -115,6 +115,10 @@ deterministic to make the five promises *demonstrable, not claimed*.
 
 ## Two agentic patterns, one anatomy
 
+*A **seam** = a strictly controlled gateway where the model may hand in
+proposals on a fixed form — like a counter form: fill it in properly, or
+it goes back.*
+
 ```
         ┌─ SCENARIO-PLANNING SEAM (S7/S8) ─────────────────────────┐
 agent ─▶│ proposes what-if variants as a CONTRACT (ScenarioSpec)   │
@@ -665,7 +669,8 @@ every number traceable to a source · every agent proposal gated
 
 - LDT toolbox: `poc/` (Utrecht) · `poc-bp2op/` (Eindhoven) ·
   `poc-rijnland/` · `poc-breda/` — every run re-runnable, offline from cache
-- Doctrine: `docs/GENAI_SEAMS.md` · agent layer: `nldt/05-agentic-ai-layer.md`
+- Doctrine in plain language (incl. technical annex):
+  `docs/GENAI_SEAMS.md` · agent layer: `nldt/05-agentic-ai-layer.md`
 - Breda scan: `poc-breda/runs/20260913T152919Z-breda-scan/report.html`
   (56 neighbourhoods, verdict pass) · live Q&A: `poc-breda/qa_run.py --demo`
 - Congress programme quotes: indestad.ai/en/#programme (consulted 13-9-2026)
