@@ -1,0 +1,153 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://ldttoolbox.local/poc-breda/schemas/value-scan.schema.json",
+ "title": "Breda vijf-waardenscan — scan-artifact",
+ "type": "object",
+ "required": ["scan", "sources", "values", "buurten", "rollup"],
+ "properties": {
+  "scan": {
+   "type": "object",
+   "required": ["scanId", "generatedAt", "gemeente", "gemeenteCode", "congress"],
+   "properties": {
+    "scanId": {"type": "string"},
+    "generatedAt": {"type": "string", "format": "date-time"},
+    "gemeente": {"type": "string"},
+    "gemeenteCode": {"type": "string", "pattern": "^GM[0-9]{4}$"},
+    "congress": {"type": "string"}
+   }
+  },
+  "sources": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "object",
+    "required": ["id", "title", "url", "licenseNote", "featureCount"],
+    "properties": {
+     "id": {"type": "string"},
+     "title": {"type": "string"},
+     "url": {"type": "string"},
+     "role": {"type": "string"},
+     "authoritative": {"type": "string"},
+     "licenseNote": {"type": "string"},
+     "lastChecked": {"type": ["string", "null"]},
+     "fetchedAt": {"type": ["string", "null"]},
+     "featureCount": {"type": ["integer", "null"]}
+    }
+   }
+  },
+  "values": {
+   "type": "object",
+   "required": ["democratic", "spatial", "economic", "social", "autonomous"],
+   "additionalProperties": false,
+   "properties": {
+    "democratic": {"$ref": "#/$defs/valueSpec"},
+    "spatial": {"$ref": "#/$defs/valueSpec"},
+    "economic": {"$ref": "#/$defs/valueSpec"},
+    "social": {"$ref": "#/$defs/valueSpec"},
+    "autonomous": {
+     "type": "object",
+     "required": ["label", "description", "programmeItems", "manifest"],
+     "properties": {
+      "label": {"type": "string"},
+      "description": {"type": "string"},
+      "programmeItems": {"type": "array", "items": {"type": "string"}},
+      "manifest": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "required": ["criterion", "met", "evidence"],
+        "properties": {
+         "criterion": {"type": "string"},
+         "met": {"type": "boolean"},
+         "evidence": {"type": "string"}
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "buurten": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "object",
+    "required": ["buurtcode", "buurtnaam", "wijkcode", "water", "scores", "missing"],
+    "properties": {
+     "buurtcode": {"type": "string", "pattern": "^BU[0-9]{8}$"},
+     "buurtnaam": {"type": ["string", "null"]},
+     "wijkcode": {"type": ["string", "null"], "pattern": "^WK[0-9]{6}$"},
+     "water": {"type": "string", "enum": ["JA", "NEE", "B"]},
+     "aantalInwoners": {"type": ["integer", "null"], "minimum": 0},
+     "scores": {
+      "type": "object",
+      "required": ["democratic", "spatial", "economic", "social"],
+      "additionalProperties": false,
+      "properties": {
+       "democratic": {"$ref": "#/$defs/scoreBlock"},
+       "spatial": {"$ref": "#/$defs/scoreBlock"},
+       "economic": {"$ref": "#/$defs/scoreBlock"},
+       "social": {"$ref": "#/$defs/scoreBlock"}
+      }
+     },
+     "kansenkaart": {
+      "type": ["array", "null"],
+      "items": {"type": "string"}
+     },
+     "missing": {
+      "type": "object",
+      "required": ["democratic", "spatial", "economic", "social"],
+      "additionalProperties": false,
+      "properties": {
+       "democratic": {"type": "array", "items": {"type": "string"}},
+       "spatial": {"type": "array", "items": {"type": "string"}},
+       "economic": {"type": "array", "items": {"type": "string"}},
+       "social": {"type": "array", "items": {"type": "string"}}
+      }
+     }
+    }
+   }
+  },
+  "rollup": {
+   "type": "object",
+   "required": ["democratic", "spatial", "economic", "social"],
+   "additionalProperties": false,
+   "properties": {
+    "democratic": {"$ref": "#/$defs/rollupBlock"},
+    "spatial": {"$ref": "#/$defs/rollupBlock"},
+    "economic": {"$ref": "#/$defs/rollupBlock"},
+    "social": {"$ref": "#/$defs/rollupBlock"}
+   }
+  }
+ },
+ "$defs": {
+  "valueSpec": {
+   "type": "object",
+   "required": ["label", "description", "programmeItems", "formula"],
+   "properties": {
+    "label": {"type": "string"},
+    "description": {"type": "string"},
+    "programmeItems": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "formula": {"type": "string"}
+   }
+  },
+  "scoreBlock": {
+   "type": "object",
+   "required": ["score", "inputs"],
+   "properties": {
+    "score": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+    "inputs": {"type": "object"}
+   }
+  },
+  "rollupBlock": {
+   "type": "object",
+   "required": ["top", "bottom", "n"],
+   "properties": {
+    "top": {"type": "array", "items": {"type": "array", "minItems": 2, "maxItems": 2}},
+    "bottom": {"type": "array", "items": {"type": "array", "minItems": 2, "maxItems": 2}},
+    "n": {"type": "integer", "minimum": 0}
+   }
+  }
+ }
+}
