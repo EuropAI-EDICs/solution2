@@ -1,46 +1,46 @@
 {
- "setDescription": "Demo-set what-if-scenario's Breda vijf-waardenscan — de vier varianten van het congresverhaal (slides 'Next 1') plus de bomen-gevoeligheidstest",
+ "setDescription": "Demo set of what-if scenarios for the Breda five-value scan — the four variants from the congress story (slides 'Next 1') plus the tree sensitivity test",
  "scenarios": [
   {
    "scenarioId": "VS-ACC-MIN6",
-   "name": "Toegankelijkheid vereist alle zes voorzieningen",
+   "name": "Accessibility requires all six services",
    "basis": {"type": "indicator_variance", "variedAspect": "access_min_present"},
    "mutations": [{"action": "set_access_min_present", "value": 6}],
-   "provenanceNote": "drempel 4/6 → 6/6 (canonieke waarde is 4)"
+   "provenanceNote": "threshold 4/6 → 6/6 (canonical value is 4)"
   },
   {
    "scenarioId": "VS-SOC-GATED",
-   "name": "Hitte-aandacht dubbel boven 25% 65+",
+   "name": "Heat attention doubled above 25% aged 65+",
    "basis": {"type": "policy_variant", "variedAspect": "social_rule"},
    "mutations": [{"action": "set_social_rule", "rule": "ouderen_gated", "thresholdPct": 25}],
-   "provenanceNote": "verharding telt dubbel waar 65+-aandeel > 25%"
+   "provenanceNote": "paved share counts double where the 65+ share exceeds 25%"
   },
   {
    "scenarioId": "VS-DEM-FLOOR",
-   "name": "Wijkdeals als harde democratische ondergrens",
+   "name": "Neighbourhood deals as a hard democratic floor",
    "basis": {"type": "policy_variant", "variedAspect": "deals_rule"},
    "mutations": [{"action": "set_deals_rule", "rule": "floor"}],
-   "provenanceNote": "gemiddelde → minimum van toegankelijkheid en deals"
+   "provenanceNote": "mean → minimum of accessibility and deals"
   },
   {
    "scenarioId": "VS-SPA-GROEN2",
-   "name": "Groendekking dubbel in ruimtelijke waarde",
+   "name": "Green coverage doubled in spatial value",
    "basis": {
     "type": "hypothetical",
-    "rationale": "exploratie: géén beleidsdocument die groendekking zwaarder weegt dan groenafstand en bomen"
+    "rationale": "exploration: no policy document weighs green coverage heavier than green distance and trees"
    },
    "mutations": [{"action": "set_spatial_weights", "groen": 2}],
-   "provenanceNote": "gewicht 1 → 2 (hypothetisch)"
+   "provenanceNote": "weight 1 → 2 (hypothetical)"
   },
   {
    "scenarioId": "VS-SPA-ZONDER-BOMEN",
-   "name": "Ruimtelijke waarde zonder bomen-teller",
+   "name": "Spatial value without the tree counter",
    "basis": {
     "type": "hypothetical",
-    "rationale": "gevoeligheidstest zonder beleidsonderbouwing: de bomenlaag telt alleen openbaar groen, dus weglaten toont hoeveel de ruimtelijke score van die ene bron afhangt"
+    "rationale": "sensitivity test without a policy basis: the tree layer counts public green only, so dropping it shows how much the spatial score depends on that single source"
    },
    "mutations": [{"action": "drop_input", "input": "bomen"}],
-   "provenanceNote": "gevoeligheidstest — geen gedocumenteerde beleidskeuze"
+   "provenanceNote": "sensitivity test — not a documented policy choice"
   }
  ]
 }

@@ -58,6 +58,16 @@ class TestParser(unittest.TestCase):
         q = qa.parse_question("HOE SCOORT CEL 0-0 OP ALLE WAARDEN", self.scan)
         self.assertEqual(q["buurtNaam"], "Cel 0-0")
 
+    def test_engelse_vraag_door_parser(self):
+        q = qa.parse_question("why does Cel 3-2 score low on spatial value?", self.scan)
+        self.assertIsNotNone(q)
+        self.assertEqual(q["buurtNaam"], "Cel 3-2")
+        self.assertEqual(q["waarde"], "spatial")
+        q2 = qa.parse_question("which neighbourhoods score highest on social value?",
+                               self.scan)
+        self.assertEqual(q2["ranking"], "hoogste")
+        self.assertEqual(q2["waarde"], "social")
+
     def test_vraag_woordenschat_kleur(self):
         q = qa.parse_question("vertel meer over Cel 5-5", self.scan)
         self.assertEqual(q["buurtNaam"], "Cel 5-5")
@@ -75,7 +85,7 @@ class TestRunnerEnAntwoord(unittest.TestCase):
         self.assertEqual(len(result["rows"]), 1)
         tekst = qa.deterministic_answer(result, self.scan)
         self.assertIn("Cel 3-2", tekst)
-        self.assertIn("ruimtelijke waarde", tekst)
+        self.assertIn("spatial value", tekst)  # Engels label; de NL-vraag wordt ge-echo'd
         # elk cijfer in het antwoord groundt (deterministische narrator moet altijd door de gate)
         self.assertEqual(qa.check_answer_grounding(tekst, result, self.scan), [])
 
@@ -307,7 +317,7 @@ class TestCLI(unittest.TestCase):
                 "--out", str(self.run_dir / "qa2"),
             ])
         self.assertEqual(code, 1)
-        self.assertIn("onthouden", buf.getvalue())
+        self.assertIn("abstained", buf.getvalue())
         self.assertTrue((self.run_dir / "qa2" / "query-rejected.json").exists())
 
     def test_demo_golden_set(self):
@@ -318,7 +328,7 @@ class TestCLI(unittest.TestCase):
         with contextlib.redirect_stdout(buf):
             code = self.mod.main(["--run", str(self.run_dir), "--demo"])
         self.assertEqual(code, 0)
-        self.assertIn("beantwoord", buf.getvalue())
+        self.assertIn("answered", buf.getvalue())
 
 
 if __name__ == "__main__":

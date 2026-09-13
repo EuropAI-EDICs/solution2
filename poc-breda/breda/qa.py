@@ -28,19 +28,20 @@ from pathlib import Path
 
 WAARDEN = ("democratic", "spatial", "economic", "social")
 WAARDE_LABELS = {
-    "democratic": "democratische waarde",
-    "spatial": "ruimtelijke waarde",
-    "economic": "economische waarde",
-    "social": "sociale waarde",
-    "alle": "alle vier de waarden",
+    "democratic": "democratic value",
+    "spatial": "spatial value",
+    "economic": "economic value",
+    "social": "social value",
+    "alle": "all four values",
 }
 _WAARDE_SYNONIEMEN = [
     (("democra",), "democratic"),
-    (("ruimtelij", "groen", "ruggegraat"), "spatial"),
-    (("econom", "dak", "zon", "bedrijv"), "economic"),
-    (("sociaa", "sociale", "hitte", "warm", "verhard", "klimaatadaptatie", "kwetsbaar"),
-     "social"),
-    (("alle waarden", "alle vier", "waardenprofiel"), "alle"),
+    (("ruimtelij", "groen", "ruggegraat", "spatial", "backbone", "green"), "spatial"),
+    (("econom", "dak", "zon", "bedrijv", "roof", "solar", "business"), "economic"),
+    (("sociaa", "sociale", "hitte", "warm", "verhard", "klimaatadaptatie", "kwetsbaar",
+      "social", "heat", "paved", "vulnerab", "wellbeing"), "social"),
+    (("alle waarden", "alle vier", "waardenprofiel", "all values", "all four",
+      "value profile"), "alle"),
 ]
 
 DEFAULT_LIMIT = 5
@@ -103,9 +104,9 @@ def parse_question(question: str, scan: dict) -> dict | None:
     buurt = resolve_buurt(question, scan)
     waarde = detect_waarde(question)
     ranking = None
-    if re.search(r"\b(hoogst\w*|top|best\w*|meeste)\b", q):
+    if re.search(r"\b(hoogst\w*|top|best\w*|meeste|highest|most)\b", q):
         ranking = "hoogste"
-    elif re.search(r"\b(laagst\w*|slechtst\w*|onderkant|minst\w*)\b", q):
+    elif re.search(r"\b(laagst\w*|slechtst\w*|onderkant|minst\w*|lowest|worst|bottom|least)\b", q):
         ranking = "laagste"
 
     limit = None
@@ -212,47 +213,47 @@ def _fmt(v):
 
 def deterministic_answer(result: dict, scan: dict) -> str:
     q = result["query"]
-    lines = [f"Vraag: {q['question']}"]
+    lines = [f"Question: {q['question']}"]
     if result["mode"] == "detail":
         b = result["rows"][0]
         lines.append(
-            f"Buurt {b['buurtnaam']} ({b['buurtcode']}, wijk {b['wijkcode']}, "
-            f"{_fmt(b.get('aantalInwoners'))} inwoners):"
+            f"Neighbourhood {b['buurtnaam']} ({b['buurtcode']}, district {b['wijkcode']}, "
+            f"{_fmt(b.get('aantalInwoners'))} residents):"
         )
         for v in WAARDEN:
             score = _score(b, v)
             ctx = result["context"][v]
             lines.append(
                 f"- {WAARDE_LABELS[v]}: score {_fmt(score)} "
-                f"(mediaan gemeente {_fmt(ctx['mediaanGemeente'])} over "
-                f"{ctx['nGescoord']} buurten)"
+                f"(municipal median {_fmt(ctx['mediaanGemeente'])} over "
+                f"{ctx['nGescoord']} neighbourhoods)"
             )
             for k, val in (b["scores"][v].get("inputs") or {}).items():
                 if val is not None:
                     lines.append(f"    {k}: {_fmt(val)}")
             miss = (b.get("missing") or {}).get(v) or []
             if miss:
-                lines.append(f"    ontbrekend: {', '.join(miss)}")
+                lines.append(f"    missing: {', '.join(miss)}")
         kans = b.get("kansenkaart") or []
         if kans:
-            lines.append(f"Kansenkaart: {'; '.join(kans)}")
+            lines.append(f"Climate opportunities: {'; '.join(kans)}")
         lines.append(
-            "Scores zijn percentielen binnen Breda: hoger betekent een hogere "
-            "rangorde onder de gescoorde buurten."
+            "Scores are percentiles within Breda: higher means a higher rank "
+            "among the scored neighbourhoods."
         )
         return "\n".join(lines)
 
     waarde = q.get("waarde")
     if waarde in WAARDEN and q.get("ranking"):
         label = WAARDE_LABELS[waarde]
-        richting = "hoogste" if q["ranking"] == "hoogste" else "laagste"
-        lines.append(f"De {richting} {len(result['rows'])} buurten op {label}:")
+        richting = "highest" if q["ranking"] == "hoogste" else "lowest"
+        lines.append(f"The {richting} {len(result['rows'])} neighbourhoods on {label}:")
         for b in result["rows"]:
             lines.append(f"• {b['buurtnaam']} — {_fmt(_score(b, waarde))}")
         stats = result["cityStats"]["waardeStats"][waarde]
         lines.append(
-            f"(mediaan {_fmt(stats['mediaan'])}, {stats['nGescoord']} van "
-            f"{result['cityStats']['nLandBuurten']} land-buurten gescoord)"
+            f"(median {_fmt(stats['mediaan'])}, {stats['nGescoord']} of "
+            f"{result['cityStats']['nLandBuurten']} land neighbourhoods scored)"
         )
         return "\n".join(lines)
 
@@ -262,20 +263,20 @@ def deterministic_answer(result: dict, scan: dict) -> str:
             {**q, "ranking": "hoogste", "limit": 3}, scan
         )
         lines.append(
-            f"{WAARDE_LABELS[waarde].capitalize()} over de gemeente: "
-            f"{stats['nGescoord']} van {result['cityStats']['nLandBuurten']} "
-            f"land-buurten gescoord, mediaan {_fmt(stats['mediaan'])}."
+            f"{WAARDE_LABELS[waarde].capitalize()} across the municipality: "
+            f"{stats['nGescoord']} of {result['cityStats']['nLandBuurten']} "
+            f"land neighbourhoods scored, median {_fmt(stats['mediaan'])}."
         )
-        lines.append("Hoogste drie: " + ", ".join(
+        lines.append("Highest three: " + ", ".join(
             f"{b['buurtnaam']} ({_fmt(_score(b, waarde))})" for b in top["rows"]
         ))
         return "\n".join(lines)
 
     lines.append(
-        f"De scan bevat {result['cityStats']['nBuurten']} buurten "
-        f"({result['cityStats']['nLandBuurten']} land-buurten). "
-        "Vraag naar een buurt of een waarde (democratisch, ruimtelijk, "
-        "economisch, sociaal) voor specifieke cijfers."
+        f"The scan covers {result['cityStats']['nBuurten']} neighbourhoods "
+        f"({result['cityStats']['nLandBuurten']} land neighbourhoods). "
+        "Ask about a neighbourhood or a value (democratic, spatial, "
+        "economic, social) for specific figures."
     )
     return "\n".join(lines)
 
@@ -430,29 +431,31 @@ class LLMAsker:
     def system_prompt(self) -> str:
         namen = [canoniek for _, canoniek in buurt_woordenschat(self.scan)][::-1]
         return (
-            "Je zet een Nederlandse vraag over de Breda vijf-waardenscan om in "
-            "PRECIES EEN JSON-object (geen uitleg eromheen). Een deterministische "
-            "runner voert het uit en beantwoordt de vraag MET DATA; jij kiest "
-            "alleen de queryvorm. Vraagvormen: (a) 'waarom/hoe scoort <buurt> "
-            "<laag/hoog> op <waarde>?' → detail-query: buurtNaam + waarde "
-            "invullen ('waarom' is een data-vraag, géén reden om je te onthouden); "
-            "(b) 'welke buurten ... hoogst/laagst/top N ...?' → ranking-query: "
-            "waarde + ranking + limit; (c) 'wat is de mediaan/hoe staat X ervoor "
-            "in de gemeente?' → waarde zonder ranking; (d) iets anders over één "
-            "buurt → buurtNaam. Regels: (1) buurtNaam moet VERBATIM een naam uit "
-            "de lijst zijn of null — verzin nooit buurtnamen; (2) waarde ∈ "
-            "democratic|spatial|economic|social|alle|null; (3) ranking ∈ "
-            "hoogste|laagste|null; (4) limit 1 t/m 10 of null; (5) focus is "
-            "ALLÉEN de genoemde waarde (democratic|spatial|economic|social|null), "
-            "nooit een buurtnaam; (6) onthoud je alléén als de vraag niets met "
-            "Breda, buurten of waarden te maken heeft. Vorm: "
+            "You translate a Dutch or English question about the Breda five-value "
+            "scan into EXACTLY ONE JSON object (no prose around it). A "
+            "deterministic runner executes it and answers WITH DATA; you only "
+            "choose the query shape. Question forms: (a) 'waarom/hoe scoort "
+            "<buurt> laag/hoog op <waarde>' or 'why/how does <neighbourhood> "
+            "score low/high on <value>' → detail query: fill buurtNaam + waarde "
+            "('why' is a data question, NOT a reason to abstain); (b) 'welke "
+            "buurten … hoogst/laagst/top N' or 'which neighbourhoods … "
+            "highest/lowest/top N' → ranking query: waarde + ranking + limit; "
+            "(c) a median/municipality question → waarde without ranking; "
+            "(d) anything else about one neighbourhood → buurtNaam. Rules: "
+            "(1) buurtNaam must be VERBATIM a name from the list or null — "
+            "never invent neighbourhood names; (2) waarde ∈ democratic|spatial|"
+            "economic|social|alle|null; (3) ranking ∈ hoogste|laagste|null; "
+            "(4) limit 1–10 or null; (5) focus is ONLY the named value "
+            "(democratic|spatial|economic|social|null), never a neighbourhood "
+            "name; (6) abstain ONLY if the question has nothing to do with "
+            "Breda, neighbourhoods or values. Shape: "
             '{"question": "...", "buurtNaam": ..., "waarde": ..., '
-            '"ranking": ..., "limit": ..., "focus": ...}. Voorbeeld: vraag '
-            '"waarom scoort Ginneken laag op groen?" → {"question": '
-            '"waarom scoort Ginneken laag op groen?", "buurtNaam": "Ginneken", '
+            '"ranking": ..., "limit": ..., "focus": ...}. Example: question '
+            '"why does Ginneken score low on green?" → {"question": '
+            '"why does Ginneken score low on green?", "buurtNaam": "Ginneken", '
             '"waarde": "spatial", "ranking": null, "limit": null, '
             '"focus": "spatial"}. '
-            f"Buurtlijst: {json.dumps(namen, ensure_ascii=False)}"
+            f"Neighbourhood list: {json.dumps(namen, ensure_ascii=False)}"
         )
 
     @staticmethod
@@ -546,24 +549,24 @@ class LLMNarrator:
 
     def system_prompt(self) -> str:
         return (
-            "Je beantwoordt een vraag over de Breda vijf-waardenscan in "
-            "Nederlands, voor een bestuurlijk publiek. HARDE REGELS: (1) kopieer "
-            "ELK cijfer verbatim uit het meegegeven JSON-resultaat — verzin, "
-            "rond of bereken niets; (2) noem alleen buurten die in de rijen "
-            "staan; (3) geen adviezen of conclusies die niet in de data staan; "
-            "(4) max 120 woorden; (5) vermeld dat scores percentielen binnen "
-            "Breda zijn."
+            "You answer a question about the Breda five-value scan in "
+            "English, for a policy audience. HARD RULES: (1) copy EVERY "
+            "figure verbatim from the provided JSON result — never invent, "
+            "round or calculate; (2) name only neighbourhoods present in the "
+            "rows; (3) no advice or conclusions beyond the data; (4) max 120 "
+            "words; (5) state that scores are percentiles within Breda. "
+            "Neighbourhood names stay in Dutch — they are data."
         )
 
     def narrate(self, result: dict, deterministic: str) -> str:
         if not self.endpoint:
-            raise QAError("LLMNarrator vereist LDT_SCENARIO_LLM_ENDPOINT")
+            raise QAError("LLMNarrator requires LDT_SCENARIO_LLM_ENDPOINT")
         payload = json.dumps(
             {k: v for k, v in result.items() if k != "_scan"}, ensure_ascii=False
         )
         raw = _strip_think(self._llm_call(
             self.endpoint, self.model, self.system_prompt(),
-            f"Vraag: {result['query']['question']}\nJSON-resultaat:\n{payload}",
+            f"Question: {result['query']['question']}\nJSON result:\n{payload}",
             self.timeout,
         ))
         return raw.strip()

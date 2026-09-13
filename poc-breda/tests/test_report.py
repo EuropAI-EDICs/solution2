@@ -78,9 +78,9 @@ class TestReport(unittest.TestCase):
                 self.assertTrue(50.0 < y < 54.0, f"lat buiten NL: {y}")
 
     def test_markdown_bevat_waardesecties(self):
-        for heading in ("## Democratische waarde", "## Ruimtelijke waarde",
-                        "## Economische waarde", "## Sociale waarde",
-                        "## Autonome waarde", "## Bronnen", "## Beperkingen"):
+        for heading in ("## Democratic value", "## Spatial value",
+                        "## Economic value", "## Social value",
+                        "## Autonomous value", "## Sources", "## Limitations"):
             self.assertIn(heading, self.md)
 
     def test_verdict_zichtbaar(self):

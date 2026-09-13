@@ -13,7 +13,7 @@ voorstellen, de pipeline beslist.
     --demo                  golden-set over de run (deterministisch, offline)
     --asker llm             NL→ScanQuery via LDT_SCENARIO_LLM_ENDPOINT
     --narrator llm          prosa via LLM, achter de gate (fallback bij afkeuring)
-    --interactive           leesvragen-loop vanaf stdin ('stop' einde)
+    --interactive           read questions from stdin until stop
 """
 
 from __future__ import annotations
@@ -33,12 +33,13 @@ for p in (str(POC_ROOT), str(ROOT)):
 from breda import qa  # noqa: E402
 
 GOLDEN_QUESTIONS = [
-    "waarom scoort Belcrum laag op ruimtelijke waarde?",
-    "welke buurten scoren het hoogst op democratische waarde?",
-    "top 3 buurten onbenut dakpotentieel",
-    "hoe scoort Ginneken op alle waarden?",
-    "welke buurten hebben de meeste hitte-aandacht?",
-    "wat is de mediaan op sociale waarde?",
+    "why does Belcrum score low on spatial value?",
+    "which neighbourhoods score highest on democratic value?",
+    "top 3 neighbourhoods unused roof potential",
+    "how does Ginneken score on all values?",
+    "which neighbourhoods have the most heat attention?",
+    "what is the median on social value?",
+    "waarom scoort Belcrum laag op ruimtelijke waarde?",  # bilingual parser: NL blijft werken
 ]
 
 
@@ -49,7 +50,7 @@ def _now_iso() -> str:
 def load_scan(run_dir: Path) -> dict:
     path = run_dir / "value-scan.json"
     if not path.exists():
-        raise qa.QAError(f"geen value-scan.json in {run_dir} (draai eerst poc-breda/run.py)")
+        raise qa.QAError(f"no value-scan.json in {run_dir} (run poc-breda/run.py first)")
     return json.loads(path.read_text(encoding="utf-8"))
 
 
@@ -89,7 +90,7 @@ def answer_question(
             (out_dir / "query-rejected.json").write_text(
                 json.dumps(record, ensure_ascii=False, indent=1), encoding="utf-8"
             )
-        print(f"[onthouden] {rejection['reason']}")
+        print(f"[abstained] {rejection['reason']}")
         return 1
 
     result = qa.execute_query(query, scan)
@@ -136,7 +137,7 @@ def answer_question(
 
     print(answer)
     if narration_rejected:
-        print(f"[narratie afgekeurd → deterministische fallback] "
+        print(f"[narration rejected → deterministic fallback] "
               f"{'; '.join(narration_rejected['violations'])}")
     return 0
 
@@ -144,16 +145,16 @@ def answer_question(
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--run", type=Path, required=True,
-                    help="canonieke run-map (bevat value-scan.json)")
-    ap.add_argument("--question", default=None, help="één vraag (NL)")
+                    help="canonical run dir (contains value-scan.json)")
+    ap.add_argument("--question", default=None, help="one question (Dutch or English)")
     ap.add_argument("--demo", action="store_true",
-                    help="draai de golden-set vragen (deterministisch, offline)")
+                    help="run the golden-set questions (deterministic, offline)")
     ap.add_argument("--asker", choices=["auto", "llm"], default="auto")
     ap.add_argument("--narrator", choices=["auto", "llm"], default="auto")
     ap.add_argument("--interactive", action="store_true",
-                    help="lees vragen van stdin tot 'stop'")
+                    help='read questions from stdin until stop')
     ap.add_argument("--out", type=Path, default=None,
-                    help="artefactenmap (default: <run>/qa/)")
+                    help="artifacts dir (default: <run>/qa/)")
     args = ap.parse_args(argv)
 
     scan = load_scan(args.run)
@@ -168,13 +169,13 @@ def main(argv=None) -> int:
                                 out_dir=out_dir / _slug_q(v))
             )
         print("=" * 78)
-        print(f"golden set: {sum(1 for c in codes if c == 0)}/{len(codes)} beantwoord")
+        print(f"golden set: {sum(1 for c in codes if c == 0)}/{len(codes)} answered")
         return 0
 
     if args.interactive:
         while True:
             try:
-                vraag = input("vraag> ").strip()
+                vraag = input("question> ").strip()
             except EOFError:
                 break
             if not vraag or vraag.lower() in {"stop", "quit", "exit"}:
@@ -184,7 +185,7 @@ def main(argv=None) -> int:
         return 0
 
     if not args.question:
-        ap.error("--question, --demo of --interactive is verplicht")
+        ap.error("--question, --demo or --interactive is required")
     return answer_question(scan, args.question, asker=args.asker,
                            narrator=args.narrator, out_dir=out_dir)
 

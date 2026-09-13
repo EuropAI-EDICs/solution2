@@ -340,60 +340,60 @@ def deterministic_author(max_scenarios: int = 6) -> tuple[list[dict], list[dict]
     voorstellen = [
         {
             "scenarioId": "VS-ACC-MIN6",
-            "name": "Toegankelijkheid vereist alle zes voorzieningen",
+            "name": "Accessibility requires all six services",
             "basis": {"type": "indicator_variance", "variedAspect": "access_min_present"},
             "mutations": [{"action": "set_access_min_present", "value": 6}],
-            "provenanceNote": "drempel 4/6 → 6/6 (canonieke waarde is 4)",
+            "provenanceNote": "threshold 4/6 → 6/6 (canonical value is 4)",
         },
         {
             "scenarioId": "VS-DEM-FLOOR",
-            "name": "Wijkdeals als harde democratische ondergrens",
+            "name": "Neighbourhood deals as a hard democratic floor",
             "basis": {"type": "policy_variant", "variedAspect": "deals_rule"},
             "mutations": [{"action": "set_deals_rule", "rule": "floor"}],
-            "provenanceNote": "gemiddelde → minimum van toegankelijkheid en deals",
+            "provenanceNote": "mean → minimum of accessibility and deals",
         },
         {
             "scenarioId": "VS-SOC-GATED",
-            "name": "Hitte-aandacht dubbel boven 25% 65+",
+            "name": "Heat attention doubled above 25% aged 65+",
             "basis": {"type": "policy_variant", "variedAspect": "social_rule"},
             "mutations": [{"action": "set_social_rule", "rule": "ouderen_gated",
                            "thresholdPct": 25}],
-            "provenanceNote": "verharding telt dubbel waar 65+-aandeel > 25%",
+            "provenanceNote": "paved share counts double where the 65+ share exceeds 25%",
         },
         {
             "scenarioId": "VS-SPA-GROEN2",
-            "name": "Groendekking dubbel in ruimtelijke waarde",
+            "name": "Green coverage doubled in spatial value",
             "basis": {
                 "type": "hypothetical",
-                "rationale": "exploratie: géén beleidsdocument die groendekking "
-                             "zwaarder weegt dan groenafstand en bomen",
+                "rationale": "exploration: no policy document weighs green "
+                             "coverage heavier than green distance and trees",
             },
             "mutations": [{"action": "set_spatial_weights", "groen": 2}],
-            "provenanceNote": "gewicht 1 → 2 (hypothetisch)",
+            "provenanceNote": "weight 1 → 2 (hypothetical)",
         },
         {
             "scenarioId": "VS-SPA-ZONDER-BOMEN",
-            "name": "Ruimtelijke waarde zonder bomen-teller",
+            "name": "Spatial value without the tree counter",
             "basis": {
                 "type": "hypothetical",
-                "rationale": "gevoeligheidstest zonder beleidsonderbouwing: de "
-                             "bomenlaag telt alleen openbaar groen, dus weglaten "
-                             "toont hoeveel de ruimtelijke score van die ene bron "
-                             "afhangt",
+                "rationale": "sensitivity test without a policy basis: the "
+                             "tree layer counts public green only, so dropping it "
+                             "shows how much the spatial score depends on that "
+                             "single source",
             },
             "mutations": [{"action": "drop_input", "input": "bomen"}],
-            "provenanceNote": "gevoeligheidstest — geen gedocumenteerde beleidskeuze",
+            "provenanceNote": "sensitivity test — not a documented policy choice",
         },
         {
             "scenarioId": "VS-ECO-DAK-ZWAAR",
-            "name": "Dakpotentieel domineert economische waarde",
+            "name": "Roof potential dominates economic value",
             "basis": {
                 "type": "hypothetical",
-                "rationale": "exploratie: energie-opbrengst zwaarder wegen dan "
-                             "bedrijvigheidsdichtheid",
+                "rationale": "exploration: weighing energy yield heavier than "
+                             "business density",
             },
             "mutations": [{"action": "set_economic_weights", "dak": 3}],
-            "provenanceNote": "gewicht 1 → 3 (hypothetisch)",
+            "provenanceNote": "weight 1 → 3 (hypothetical)",
         },
     ]
     return voorstellen[:max_scenarios], []
@@ -499,15 +499,15 @@ def _mutatie_str(m: dict) -> str:
 
 
 WAARDE_NL = {
-    "democratic": "Democratisch",
-    "spatial": "Ruimtelijk",
-    "economic": "Economisch",
-    "social": "Sociaal",
+    "democratic": "Democratic",
+    "spatial": "Spatial",
+    "economic": "Economic",
+    "social": "Social",
 }
 BASIS_NL = {
-    "indicator_variance": "Drempel aangepast",
-    "policy_variant": "Beleidskeuze",
-    "hypothetical": "Verkenning — geen onderbouwing",
+    "indicator_variance": "Threshold adjusted",
+    "policy_variant": "Policy choice",
+    "hypothetical": "Exploration — no evidence base",
 }
 # congres-trackkleuren per waarde: [licht, donker] — donker bij grote onderlinge spreiding
 WAARDE_KLEUREN = {
@@ -522,29 +522,29 @@ def _mutatie_plat(m: dict) -> str:
     """Mutatie in beleidstaal (voor de kaart en rapporten)."""
     a = m["action"]
     if a == "set_access_min_present":
-        return ("alle zes voorzieningen moeten dichtbij zijn"
+        return ("all six services must be nearby"
                 if m["value"] == 6 else
-                f"minimaal {m['value']} van de zes voorzieningen moet dichtbij zijn")
+                f"at least {m['value']} of the six services must be nearby")
     if a == "set_deals_rule":
-        return {"mean": "wijkdeals en voorzieningen wegen even zwaar",
-                "floor": "wijkdeals worden een harde ondergrens"}[m["rule"]]
+        return {"mean": "neighbourhood deals and services weigh equally",
+                "floor": "neighbourhood deals become a hard floor"}[m["rule"]]
     if a == "set_social_rule":
-        return {"mean": "hitte en 65+ wegen even zwaar",
-                "ouderen_gated": f"hitte telt dubbel waar meer dan "
-                                 f"{m.get('thresholdPct', 25)}% 65+ woont"}[m["rule"]]
+        return {"mean": "heat and 65+ weigh equally",
+                "ouderen_gated": f"heat counts double where more than "
+                                 f"{m.get('thresholdPct', 25)}% are 65+"}[m["rule"]]
     if a == "set_spatial_weights":
         delen = [f"{k} weegt {'dubbel zo zwaar' if v == 2 else f'{v}× zo zwaar' if v > 2 else 'normaal'}"
                  for k, v in m.items() if k != "action"]
-        return "groen-teller hergewogen: " + ", ".join(delen)
+        return "green score reweighted: " + ", ".join(delen)
     if a == "set_economic_weights":
         delen = [f"{k} weegt {'dubbel zo zwaar' if v == 2 else f'{v}× zo zwaar' if v > 2 else 'normaal'}"
                  for k, v in m.items() if k != "action"]
-        return "economische teller hergewogen: " + ", ".join(delen)
+        return "economic score reweighted: " + ", ".join(delen)
     if a == "drop_input":
-        return {"bomen": "bomen (openbaar groen) tellen niet meer mee",
-                "bedrijvigheid": "bedrijvigheid telt niet meer mee",
-                "deals": "wijkdeals tellen niet meer mee",
-                "groen_afstand": "afstand tot openbaar groen telt niet meer mee"}[m["input"]]
+        return {"bomen": "trees (public green) no longer count",
+                "bedrijvigheid": "business density no longer counts",
+                "deals": "neighbourhood deals no longer count",
+                "groen_afstand": "distance to public green no longer counts"}[m["input"]]
     return _mutatie_str(m)
 
 
@@ -595,7 +595,7 @@ def build_whatif_html(report: dict, layers: dict) -> str:
     return '''<!DOCTYPE html>
 <html lang="nl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wat als…? — Breda vijf-waardenscan</title>
+<title>What if…? — Breda five-value scan</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
  body{margin:0;font-family:-apple-system,'Segoe UI',Roboto,sans-serif;color:#111827;background:#f4f6f8}
@@ -638,18 +638,18 @@ def build_whatif_html(report: dict, layers: dict) -> str:
  .grootste{margin-top:6px;font-size:12.5px;color:#4b5563}
 </style></head><body>
 <header>
- <h1>Wat als…? — gevolgen per buurt</h1>
- <p>Vergeleken met het <b>0-scenario</b>: de huidige situatie. De control herhaalde
-    de huidige situatie exact (controle geslaagd), dus elk verschil hieronder komt
-    écht door het gekozen scenario.</p>
+ <h1>What if…? — consequences per neighbourhood</h1>
+ <p>Compared against the <b>zero scenario</b>: the current situation. The control
+    replayed the current situation exactly (check passed), so every difference below
+    is genuinely caused by the chosen scenario.</p>
 </header>
 <div id="map">
  <div class="paneel">
-  <h3>Kies een scenario</h3><div id="scen"></div>
-  <h3 style="margin-top:12px">Kaartmodus</h3>
+  <h3>Choose a scenario</h3><div id="scen"></div>
+  <h3 style="margin-top:12px">Map mode</h3>
   <div class="modus-rij" id="modus">
-   <label class="actief"><input type="radio" name="modus" value="onderling" checked> Waarden onderling</label>
-   <label><input type="radio" name="modus" value="een"> Één waarde volgen</label>
+   <label class="actief"><input type="radio" name="modus" value="onderling" checked> Values relative to each other</label>
+   <label><input type="radio" name="modus" value="een"> Follow one value</label>
   </div>
   <div class="waarde-rij" id="vals"></div>
   <div class="uitleg" id="uitleg"></div>
@@ -662,7 +662,7 @@ window.__DATA__ = __PAYLOAD__;
 (function(){
  if(window.__noLeaflet||typeof L==='undefined'){
   document.getElementById('map').innerHTML='<div style="padding:40px">'+
-   'Kaart (Leaflet, CDN) onbereikbaar — open dit bestand met internetverbinding.</div>';return;}
+   'Map (Leaflet, CDN) unreachable — open this file with an internet connection.</div>';return;}
  var D=window.__DATA__;
  var map=L.map('map',{preferCanvas:true}).setView([51.59,4.78],12);
  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,
@@ -709,19 +709,19 @@ window.__DATA__ = __PAYLOAD__;
  function popup(f){var b=blob(f);
   var kop='<b>'+(f.properties.naam||f.properties.code)+'</b>';
   if(!b)return kop+'<div class="onderling" style="color:#6b7280">'+
-    '<i>in dit scenario verandert hier niets</i></div>';
+    '<i>nothing changes here in this scenario</i></div>';
   var sv=sterkste(b),regels='';
   if(sv&&sv.omvang>=0.5){
    var dW=b.deltas[sv.w],dV=b.deltas[sv.v];
    if(sv.w!==sv.v&&dV<0&&dW>0)
-    regels+='<div class="onderling">onderling verschuift dit van <b>'+label(sv.v)+
-     '</b> naar <b>'+label(sv.w)+'</b> ('+fmtGetal(dV)+' → '+
+    regels+='<div class="onderling">relative to the other values this shifts from <b>'+label(sv.v)+
+     '</b> towards <b>'+label(sv.w)+'</b> ('+fmtGetal(dV)+' → '+
      fmtGetal(dW)+')</div>';
    else{
-    var richting=b.deltas[sv.m]>0?'wint':'verliest';
+    var richting=b.deltas[sv.m]>0?'gains':'loses';
     regels+='<div class="onderling"><b>'+label(sv.m)+'</b> '+richting+
-     ' hier het sterkst ('+fmtGetal(b.deltas[sv.m])+
-     ') t.o.v. de andere waarden</div>';}}
+     ' most here ('+fmtGetal(b.deltas[sv.m])+
+     ') relative to the other values</div>';}}
   D.waarden.forEach(function(w){
    var vn=b.vanNaar[w.key];if(!vn)return;
    var d=b.deltas[w.key];
@@ -738,21 +738,21 @@ window.__DATA__ = __PAYLOAD__;
   if(actModus==='onderling'){
    var sw=D.waarden.map(function(w){
      return '<span style="background:'+w.kleur[0]+'"></span>';}).join('');
-   this._d.innerHTML='<b>Welke waarde verschuift het sterkst?</b><br><div class="sw">'+sw+
+   this._d.innerHTML='<b>Which value shifts the most?</b><br><div class="sw">'+sw+
      '</div><div style="margin-top:2px">'+D.waarden.map(function(w){
        return w.label;}).join(' · ')+
      '</div><br><span style="background:#d1d5db;display:inline-block;width:22px;height:11px;'+
-     'border:1px solid #999"></span> geen verschuiving<br>(donker = sterke verschuiving '+
-     't.o.v. de andere waarden; klik een buurt voor winst of verlies)';}
-  else{this._d.innerHTML='<b>Waar verandert '+label(actVal)+'?</b>'+
+     'border:1px solid #999"></span> no shift<br>(dark = strong shift relative to '+
+     'the other values; click a neighbourhood for gain or loss)';}
+  else{this._d.innerHTML='<b>Where does '+label(actVal)+' change?</b>'+
    '<br><div class="sw">'+['<span style="background:#a5d6a7"></span>',
    '<span style="background:#2e7d32"></span>','<span style="background:#cfd4da"></span>',
    '<span style="background:#f2b8b5"></span>','<span style="background:#b71c1c"></span>'
-   ].join('')+'</div><br>wint &nbsp;&middot;&nbsp; geen verandering &nbsp;&middot;&nbsp; verliest<br>(t.o.v. het 0-scenario)';}};
+   ].join('')+'</div><br>gains &nbsp;&middot;&nbsp; no change &nbsp;&middot;&nbsp; loses<br>(vs the zero scenario)';}};
  legend.addTo(map);
  function nadruk(s){
-  if(s.n===0)return 'Dit scenario verandert <b>niets</b> — de uitkomst is robuust '+
-   'voor deze aanpassing.';
+  if(s.n===0)return 'This scenario changes <b>nothing</b> — the outcome is robust '+
+   'for this adjustment.';
   var items=Object.keys(s.profiel).map(function(v){return {v:v,g:s.profiel[v].gem,
     w:s.profiel[v].winst,vt:s.profiel[v].verlies};});
   if(!items.length)return '';
@@ -760,34 +760,34 @@ window.__DATA__ = __PAYLOAD__;
   var laagste=items[0],hoogste=items[items.length-1];
   var fmt=function(g){return (g>0?'+':'')+g.toLocaleString('nl-NL');};
   if(Math.abs(hoogste.g)<0.05&&Math.abs(laagste.g)<0.05)
-   return 'De veranderingen verdelen zich gelijk over de waarden — geen nadrukverschuiving.';
+   return 'The changes spread evenly across the values — no shift of emphasis.';
   if(laagste.v===hoogste.v)
    {var nchg=hoogste.w+hoogste.vt;
-    return 'De verandering zit volledig in <b>'+label(laagste.v)+'</b>: '+
-    nchg+' buurt'+(nchg===1?'':'en')+' veranderen (gemiddeld '+
-    fmt(hoogste.g)+' punten).';}
-  return 'De nadruk verschuift van <b>'+label(laagste.v)+'</b> naar <b>'+
-   label(hoogste.v)+'</b> (gemiddeld '+fmt(laagste.g)+' en '+
-   fmt(hoogste.g)+' punten waar buurten veranderen).';}
+    return 'The change sits entirely in <b>'+label(laagste.v)+'</b>: '+
+    nchg+' neighbourhood'+(nchg===1?'':'s')+' change (on average '+
+    fmt(hoogste.g)+' points).';}
+  return 'The emphasis shifts from <b>'+label(laagste.v)+'</b> to <b>'+
+   label(hoogste.v)+'</b> (on average '+fmt(laagste.g)+' and '+
+   fmt(hoogste.g)+' points where neighbourhoods change).';}
  function chips(s){var uit='';
   D.waarden.forEach(function(w){var p=s.profiel[w.key];if(!p||(!p.winst&&!p.verlies))return;
    uit+='<span class="chip '+(p.winst>=p.verlies?'winst':'verlies')+'">'+w.label+
-   ': '+p.winst+' winst, '+p.verlies+' verlies</span>';});
+   ': '+p.winst+' gain, '+p.verlies+' loss</span>';});
   return uit?'<div class="chips">'+uit+'</div>':'';}
  function movers(s){if(!s.movers.length)return '';
   var rijen=s.movers.slice(0,3).map(function(m){
    var delen=Object.keys(m.rangDelta).map(function(v){
-     var d=m.rangDelta[v];return label(v)+' '+(d>0?'+':'')+d+' plek'+(Math.abs(d)===1?'':'en');});
+     var d=m.rangDelta[v];return label(v)+' '+(d>0?'+':'')+d+' place'+(Math.abs(d)===1?'':'s');});
    return '<div><b>'+(m.buurt||m.buurtcode)+'</b>: '+delen.join(', ')+'</div>';}).join('');
-  return '<div class="movers"><b>Grootste verschuivers</b>'+rijen+
-   '<span style="color:#6b7280;font-size:11.5px">+ = stijgt in de Breda-ranglijst</span></div>';}
+  return '<div class="movers"><b>Biggest movers</b>'+rijen+
+   '<span style="color:#6b7280;font-size:11.5px">+ = rises in the Breda ranking</span></div>';}
  function kaartvraag(){
   return actModus==='onderling'
-   ?'<div class="kaartvraag">De kaart kleurt per buurt de waarde die <b>ten opzichte van '+
-    'de andere waarden</b> het sterkst verschuift (winst of verlies — '+
-    'klik de buurt). Donker = sterke afwijking.</div>'
-   :'<div class="kaartvraag">De kaart toont winst/verlies op <b>'+label(actVal)+
-    '</b> t.o.v. het 0-scenario.</div>';}
+   ?'<div class="kaartvraag">The map colours, per neighbourhood, the value that shifts '+
+    'the most <b>relative to the other values</b> (gain or loss — '+
+    'click the neighbourhood). Dark = strong deviation.</div>'
+   :'<div class="kaartvraag">The map shows gain/loss on <b>'+label(actVal)+
+    '</b> versus the zero scenario.</div>';}
  function ververs(){layer.setStyle(function(f){return{color:'#fff',weight:1,
     fillOpacity:0.85,fillColor:kleur(f)};});legend.upd();
   var s=D.scenarios.find(function(x){return x.id===actScen;}),u=document.getElementById('uitleg');
@@ -797,8 +797,8 @@ window.__DATA__ = __PAYLOAD__;
  D.scenarios.forEach(function(s,i){var d=document.createElement('div');
   d.className='scen-kaart'+(i===0?' actief':'');
   d.innerHTML='<b>'+s.name+'</b><span class="soort">'+s.soort+'</span>'+
-   '<div class="wat">'+s.wat+' — gevolg voor '+s.n+' van de '+D.geo.features.length+
-   ' buurten</div>';
+   '<div class="wat">'+s.wat+' — effect on '+s.n+' of the '+D.geo.features.length+
+   ' neighbourhoods</div>';
   d.onclick=function(){actScen=s.id;
    Array.prototype.forEach.call(se.children,function(c){c.classList.remove('actief');});
    d.classList.add('actief');ververs();};
@@ -826,13 +826,13 @@ window.__DATA__ = __PAYLOAD__;
 
 def build_report_md(report: dict) -> str:
     lines = [
-        "# What-if-scenario's — Breda vijf-waardenscan",
+        "# What-if scenarios — Breda five-value scan",
         "",
         f"Verdict: **{report['validation']['verdict']}** · "
-        f"{report['nAccepted']}/{report['nScenarios']} scenario's aangenomen · "
-        f"control {'identiek aan baseline' if report['control']['identicalToBaseline'] else 'WIJKT AF'}.",
+        f"{report['nAccepted']}/{report['nScenarios']} scenarios accepted · "
+        f"control {'identical to baseline' if report['control']['identicalToBaseline'] else 'DEVIATES'}.",
         "",
-        "| scenario | basis | mutaties | buurten Δ | grootste verschuivers |",
+        "| scenario | basis | mutations | neighbourhoods Δ | biggest movers |",
         "|---|---|---|---|---|",
     ]
     for v in report["variants"]:
@@ -845,7 +845,7 @@ def build_report_md(report: dict) -> str:
             f"| {v['name']} | {v['basis']['type']} | {muts} | "
             f"{v['nBuurtenVeranderd']} | {movers} |"
         )
-    lines += ["", "## Rank-stabiliteit (top-5/onderste-5 over alle runs)", ""]
+    lines += ["", "## Rank stability (top-5/bottom-5 across all runs)", ""]
     for waarde, s in report.get("stability", {}).items():
         robuust = ", ".join(
             f"{r['buurt']} ({'top' if r['top'] == s['runs'] else 'bodem'} {r['top']}/{r['bodem']})"
@@ -853,6 +853,6 @@ def build_report_md(report: dict) -> str:
         ) or "—"
         lines.append(f"- **{waarde}** ({s['runs']} runs): {robuust}")
     if report["rejected"]:
-        lines += ["", "## Afgewezen (ledger)", ""]
+        lines += ["", "## Rejected (ledger)", ""]
         lines += [f"- {r.get('scenarioId') or '?'}: {r['reden']}" for r in report["rejected"]]
     return "\n".join(lines) + "\n"

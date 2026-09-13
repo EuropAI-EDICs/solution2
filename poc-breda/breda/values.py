@@ -1,96 +1,98 @@
-"""Waardedefinities van AI in the City 2026 (indestad.ai) — de inhoudelijke index.
+"""Value definitions of AI in the City 2026 (indestad.ai) — the content index.
 
-Citaten zijn woordelijk overgenomen van <https://www.indestad.ai/en/#programme>
-(geraadpleegd 2026-09-13). Programmeonderdelen zijn naamrijk genoemd zodat elke
-kaartlaag in het rapport herleidbaar "beantwoordt" aan het congresprogramma.
+Quotes are taken verbatim from <https://www.indestad.ai/en/#programme>
+(consulted 2026-09-13). Programme items are named explicitly so every map
+layer in the report traces to a congress programme item. Output language:
+English (congress edition); neighbourhood and district names stay Dutch —
+they are data, not interface.
 """
 
-CONGRESS = "AI in the City 2026 — Creating Real Value (23–25 september 2026, Breda)"
+CONGRESS = "AI in the City 2026 — Creating Real Value (23–25 September 2026, Breda)"
 PROGRAMME_URL = "https://www.indestad.ai/en/#programme"
 
 VALUES = {
     "democratic": {
-        "label": "Democratische waarde",
+        "label": "Democratic value",
         "description": (
-            "Waar is de overheid al dicht bij de bewoner — voorzieningen binnen bereik "
-            "en afspraken met bewonersinitiatieven (wijkdeals) aanwezig?"
+            "Where is government already close to residents — services within "
+            "reach and resident agreements (neighbourhood deals, wijkdeals) present?"
         ),
         "quote": "AI makes government more accessible, faster and more human. Residents "
                  "get answers sooner, are involved earlier in shaping their neighbourhoods.",
         "programmeItems": [
-            "Waardethema Democratic value — indestad.ai/en/#programme",
+            "Value theme Democratic value — indestad.ai/en/#programme",
             "Workshop: Residents in the driving seat (Mike de Kreek & Tessa Steenkamp, HvA)",
-            "Demo: Autonomous and democratic (o.a. Gert-Jan Zandbergen, gemeente Breda)",
+            "Demo: Autonomous and democratic (a.o. Gert-Jan Zandbergen, city of Breda)",
         ],
-        "formula": "score = gem( percentiel⁻¹(gem. afstand tot 6 voorzieningen: huisarts, "
-                   "supermarkt, basisschool, kinderdagverblijf, bibliotheek, treinstation), "
-                   "percentiel(aantal wijkdeals in de buurt) )",
+        "formula": "score = mean( percentile⁻¹(mean distance to 6 services: GP, "
+                   "supermarket, primary school, childcare, library, train station), "
+                   "percentile(neighbourhood-deal count in the neighbourhood) )",
         "sources": ["cbs-buurten-2024", "breda-wijkdeals"],
     },
     "spatial": {
-        "label": "Ruimtelijke waarde",
+        "label": "Spatial value",
         "description": (
-            "Waar ligt de groen-blauwe ruggegraat van de stad — en waar is ruimte voor "
-            "klimaatadaptatie bij ruimtelijke ontwikkelingen?"
+            "Where does the city's green-blue backbone lie — and where is room for "
+            "climate adaptation in spatial development?"
         ),
         "quote": "A city is more than a dataset. AI strengthens the quality of the city on "
                  "its own terms — it amplifies the genius loci rather than replacing it.",
         "programmeItems": [
-            "Waardethema Spatial value — indestad.ai/en/#programme",
-            "Workshop: Green Spaces and Water as the backbone of the city (gemeente Breda)",
+            "Value theme Spatial value — indestad.ai/en/#programme",
+            "Workshop: Green Spaces and Water as the backbone of the city (municipality of Breda)",
             "Pitches: Spatial",
         ],
-        "formula": "score = gem( percentiel(dekking Hoofdgroenstructuur), "
-                   "percentiel⁻¹(afstand tot openbaar groen), "
-                   "percentiel(bomen per 100 inwoners) ) + kansenkaart-omschrijving",
+        "formula": "score = mean( percentile(green-backbone coverage), "
+                   "percentile⁻¹(distance to public green), "
+                   "percentile(trees per 100 residents) ) + climate-opportunity map notes",
         "sources": ["breda-hoofdgroenstructuur", "breda-bomen", "breda-kansenkaart",
                     "cbs-buurten-2024"],
     },
     "economic": {
-        "label": "Economische waarde",
+        "label": "Economic value",
         "description": (
-            "Waar liggen de rendementen van efficiëntie en energietransitie — onbenut "
-            "dakpotentieel voor zonnestroom en bedrijvigheid per km²?"
+            "Where are the returns on efficiency and energy transition — unused roof "
+            "potential for solar and business density per km²?"
         ),
         "quote": "AI makes execution more efficient: lower costs, less waste and more "
                  "output with the same capacity.",
         "programmeItems": [
-            "Waardethema Economic value — indestad.ai/en/#programme",
+            "Value theme Economic value — indestad.ai/en/#programme",
             "AI Walk: Energy savings and impact on infrastructure (TNO)",
             "Pitches: Economic",
             "Workshop: From Research to Economic Value — Zürich (Sabine Müller)",
         ],
-        "formula": "score = gem( percentiel(onbenut dakpotentieel = (1−zonnestroom%)×"
-                   "eengezins%), percentiel(bedrijven per km²) )",
+        "formula": "score = mean( percentile(unused roof potential = (1−solar%)×"
+                   "single-family share), percentile(companies per km²) )",
         "sources": ["cbs-buurten-2024"],
     },
     "social": {
-        "label": "Sociale waarde",
+        "label": "Social value",
         "description": (
-            "Waar kan klimaatadaptatie de meeste sociale meerwaarde opleveren: hoge "
-            "verharding (hitte) gecombineerd met een groot aandeel 65+-jarigen?"
+            "Where can climate adaptation yield the most social value: high paved "
+            "share (heat) combined with a large share of residents aged 65+?"
         ),
         "quote": "AI always serves human wellbeing and contributes to a sustainable and "
                  "prosperous future.",
         "programmeItems": [
-            "Waardethema Social value — indestad.ai/en/#programme",
-            "Workshop: Green Spaces and Water as the backbone of the city (gemeente Breda)",
+            "Value theme Social value — indestad.ai/en/#programme",
+            "Workshop: Green Spaces and Water as the backbone of the city (municipality of Breda)",
             "Pitches: Social",
         ],
-        "formula": "score = gem( percentiel(% verharding, klimaatportaal), "
-                   "percentiel(aandeel 65+) ) — hoger = meer adaptatie-opbrengst",
+        "formula": "score = mean( percentile(paved share, climate portal), "
+                   "percentile(65+ share) ) — higher = more adaptation payoff",
         "sources": ["breda-verharding", "cbs-buurten-2024"],
     },
     "autonomous": {
-        "label": "Autonome waarde",
+        "label": "Autonomous value",
         "description": (
-            "Geen kaartlaag maar het manifest van deze scan zelf: digitale soevereiniteit "
-            "is aantoonbaar, niet claimbaar."
+            "Not a map layer but this scan's own manifest: digital sovereignty is "
+            "demonstrable, not claimable."
         ),
         "quote": "People retain control over AI systems — not the other way around. "
                  "…strengthening Europe's digital sovereignty.",
         "programmeItems": [
-            "Waardethema Autonomous value — indestad.ai/en/#programme",
+            "Value theme Autonomous value — indestad.ai/en/#programme",
             "Workshop: Sovereignty (City Deal on AI)",
             "AI Walk: Data sovereignty and -continuity (KPN)",
             "Lecture: From European AI strategy to opportunities for your city "
@@ -100,60 +102,60 @@ VALUES = {
     },
 }
 
-# Soevereiniteitsmanifest — door de orchestrator per run bewezen (evidence ingevuld).
+# Sovereignty manifest — proven per run by the orchestrator (evidence filled in).
 SOVEREIGNTY_CRITERIA = [
     {
-        "criterion": "Alle bronnen zijn publiek en Europees/Nederlands",
+        "criterion": "All sources are public and European/Dutch",
         "met": True,
-        "evidence": "CBS & PDOK (NL), gemeente Breda (data.breda.nl / geo.breda.nl) — zie brontabel",
+        "evidence": "CBS & PDOK (NL), municipality of Breda (data.breda.nl / geo.breda.nl) — see the source table",
     },
     {
-        "criterion": "Geen API-sleutels of betaalde toegang",
+        "criterion": "No API keys or paid access",
         "met": True,
-        "evidence": "alle endpoints anoniem benaderd (recon 2026-09-13); geen .env, geen tokens",
+        "evidence": "all endpoints accessed anonymously (recon 2026-09-13); no .env, no tokens",
     },
     {
-        "criterion": "Geen afhankelijkheid van één cloud-vendor",
+        "criterion": "No dependence on a single cloud vendor",
         "met": True,
-        "evidence": "deterministische stdlib+shapely-pipeline, lokaal draaibaar; cache maakt "
-                    "her-run offline mogelijk",
+        "evidence": "deterministic stdlib+shapely pipeline, runs locally; the cache "
+                    "enables offline re-runs",
     },
     {
-        "criterion": "Elk cijfer is herleidbaar naar bron met retrievedatum",
+        "criterion": "Every number traces to a source with a retrieval date",
         "met": True,
-        "evidence": "layers.json + prov.json: per laag serviceUrl, lastChecked, fetchedAt, sha256",
+        "evidence": "layers.json + prov.json: per layer serviceUrl, lastChecked, fetchedAt, sha256",
     },
     {
-        "criterion": "Ontbrekende data wordt nooit geimputeerd",
+        "criterion": "Missing data is never imputed",
         "met": True,
-        "evidence": "CBS-sentinels (< -90000) → None + missing-registratie per buurt in "
-                    "validation.json",
+        "evidence": "CBS sentinels (< -90000) → None + per-neighbourhood missing-input "
+                    "registration in validation.json",
     },
     {
-        "criterion": "Geen LLM in de beslislijn at runtime",
+        "criterion": "No LLM in the decision line at runtime",
         "met": True,
-        "evidence": "volledig deterministisch; LLM-seam (lokale modellen) optioneel en "
-                    "gedocumenteerd, uitgeschakeld",
+        "evidence": "fully deterministic; the LLM seam (local models) is optional and "
+                    "documented, switched off",
     },
     {
-        "criterion": "Herdraaibaar & controleerbaar door derden",
+        "criterion": "Re-runnable & verifiable by third parties",
         "met": True,
-        "evidence": "python3 poc-breda/run.py her-speelt de scan uit de cache; exit 0 alleen "
-                    "bij validatorverdict pass; unittests offline",
+        "evidence": "python3 poc-breda/run.py replays the scan from cache; exit 0 only "
+                    "on validator verdict pass; offline unit tests",
     },
 ]
 
 LIMITATIONS = [
-    "CBS 2024-buurtstatistiek is op buurtniveau afgerond/geheimgehouden; kleine buurten "
-    "hebben daarom soms ontbrekende inputs (genoteerd per buurt, nooit aangevuld).",
-    "De klimaatportaal-lagen (verharding, kansenkaart) zijn wijk-/gebiedsniveau van de "
-    "gemeente Breda; de join naar buurten gebeurt via grootste-oppervlakte-overlap.",
-    "Onbenut dakpotentieel is een proxy ((1−zonnestroom%)×eengezins-aandeel), geen "
-    "3D-dakanalyse (BAG/AHN-variant is vervolgstap).",
-    "Bomen-per-buurt telt alleen de gemeentelijke bomenlaag (openbaar groen), niet "
-    "privaatgroen.",
-    "Hoofdgroenstructuur is 'stedelijk gebied te behouden groen' (v1) — geen totaal "
-    "groenbestand.",
-    "Scores zijn percentielscores binnen Breda (relatief, niet absoluut); richting per "
-    "waarde staat bij de kaartlegioog en in values.py gequoteerd.",
+    "CBS 2024 neighbourhood statistics are rounded/suppressed; small neighbourhoods "
+    "therefore sometimes lack inputs (recorded per neighbourhood, never imputed).",
+    "The climate-portal layers (paved share, opportunity map) are ward/area level from "
+    "the municipality of Breda; joined to neighbourhoods via largest-area overlap.",
+    "Unused roof potential is a proxy ((1−solar%)×single-family share), not a 3D roof "
+    "analysis (a BAG/AHN variant is a next step).",
+    "Trees per neighbourhood counts only the municipal tree layer (public green), not "
+    "private green.",
+    "The green backbone is 'urban area, green to be preserved' (v1) — not a total "
+    "green inventory.",
+    "Scores are percentile scores within Breda (relative, not absolute); the direction "
+    "per value is stated at the map legend and quoted in values.py.",
 ]

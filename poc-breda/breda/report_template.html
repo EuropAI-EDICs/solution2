@@ -60,56 +60,56 @@
 <body>
 <header>
   <h1>__TITLE__</h1>
-  <p>Gemeente Breda · vijf waarden van <em>AI in the City 2026</em> (23–25 september 2026, Breda) — per buurt, op open data</p>
-  <p>Gegenereerd __GENERATED__ · alle cijfers herleidbaar naar de brontabel onderin · <a href="https://www.indestad.ai/en/#programme">indestad.ai/#programme</a></p>
+  <p>Municipality of Breda · five values of <em>AI in the City 2026</em> (23–25 September 2026, Breda) — per neighbourhood, on open data</p>
+  <p>Generated __GENERATED__ · every number traces to the source table below · <a href="https://www.indestad.ai/en/#programme">indestad.ai/#programme</a></p>
 </header>
 <main>
   <p class="lede">__LEDE__</p>
 
-  <h2>Kaart — kies een waarde</h2>
+  <h2>Map — choose a value</h2>
   <div id="map">
     <div class="controls" id="controls">
       <div class="grp">
-        <strong>Waardelaag</strong>
-        <label><input type="radio" name="vlayer" value="democratic" checked> Democratisch</label>
-        <label><input type="radio" name="vlayer" value="spatial"> Ruimtelijk</label>
-        <label><input type="radio" name="vlayer" value="economic"> Economisch</label>
-        <label><input type="radio" name="vlayer" value="social"> Sociaal</label>
+        <strong>Value layer</strong>
+        <label><input type="radio" name="vlayer" value="democratic" checked> Democratic</label>
+        <label><input type="radio" name="vlayer" value="spatial"> Spatial</label>
+        <label><input type="radio" name="vlayer" value="economic"> Economic</label>
+        <label><input type="radio" name="vlayer" value="social"> Social</label>
       </div>
       <div class="sub">
         <strong>Overlays</strong>
-        <label><input type="checkbox" id="ovl-deals"> Wijkdeals (bewonersafspraken)</label>
-        <label><input type="checkbox" id="ovl-groen"> Hoofdgroenstructuur</label>
-        <label><input type="checkbox" id="ovl-kansen"> Klimaatkansenkaart</label>
+        <label><input type="checkbox" id="ovl-deals"> Neighbourhood deals (wijkdeals)</label>
+        <label><input type="checkbox" id="ovl-groen"> Green backbone</label>
+        <label><input type="checkbox" id="ovl-kansen"> Climate opportunities</label>
       </div>
     </div>
   </div>
   <p style="font-size:12.5px;color:var(--muted)">
-    Grijze buurten: geen data (water-buurt of CBS vermeldt het cijfer niet — nooit geimputeerd).
-    Klik een buurt voor alle deelindicatoren, de ontbrekende inputs en de kansenkaart-omschrijving.
+    Grey neighbourhoods: no data (water zone or CBS does not publish the figure — never imputed).
+    Click a neighbourhood for all sub-indicators, missing inputs and climate-opportunity notes.
   </p>
 
-  <h2>De vijf waarden — wat de data vandaag al zegt</h2>
+  <h2>The five values — what the data already shows today</h2>
   <div class="values">
 __VALUE_CARDS__
   </div>
 
-  <h2>Autonome waarde — het soevereiniteitsmanifest van deze scan</h2>
+  <h2>Autonomous value — this scan's sovereignty manifest</h2>
   <div class="panel" id="manifest">__MANIFEST_HTML__</div>
 
-  <h2>Validatie</h2>
+  <h2>Validation</h2>
   <div class="panel">__VALIDATION_HTML__</div>
 
-  <h2>Bronnen &amp; provenance</h2>
+  <h2>Sources &amp; provenance</h2>
   <div class="panel">__PROV_HTML__</div>
 
-  <h2>Beperkingen</h2>
+  <h2>Limitations</h2>
   <div class="panel" id="limits">__LIMITS_HTML__</div>
 
   <footer>
-    PoC-4 van de LDT-toolbox (nldt / ldttoolbox). Deterministisch, herdraaibaar en offline
-    her-speelbaar: <code>python3 poc-breda/run.py</code> — cache-first, exit&nbsp;0 alleen bij
-    validatorverdict <em>pass</em>. Geen API-sleutels, geen cloud-vendor, geen LLM at runtime.
+    PoC-4 of the LDT toolbox (nldt / ldttoolbox). Deterministic, re-runnable and offline
+    replayable: <code>python3 poc-breda/run.py</code> — cache-first, exit&nbsp;0 only on
+    validator verdict <em>pass</em>. No API keys, no cloud vendor, no LLM at runtime.
   </footer>
 </main>
 
@@ -125,9 +125,9 @@ window.__OVERLAYS__ = __OVERLAYS_JSON__;
   if (window.__noLeaflet || typeof L === "undefined") {
     var m = document.getElementById("map");
     m.innerHTML = "<div style='padding:40px;font-size:15px'>" +
-      "Leaflet kon niet geladen worden (CDN onbereikbaar). De tabellen en waardekaarten " +
+      "Leaflet could not be loaded (CDN unreachable). The tables and value cards " +
       "onder de kaart bevatten dezelfde cijfers; open dit bestand met internetverbinding " +
-      "voor de interactieve kaart.</div>";
+      "— open with an internet connection for the interactive map.</div>";
     return;
   }
   var PALETTES = {
@@ -137,8 +137,8 @@ window.__OVERLAYS__ = __OVERLAYS_JSON__;
     social:     ["#fcbba1", "#fc9272", "#fb6a4a", "#de2d26", "#a50f15"]
   };
   var VALUE_LABELS = {
-    democratic: "Democratische waarde", spatial: "Ruimtelijke waarde",
-    economic: "Economische waarde", social: "Sociale waarde"
+    democratic: "Democratic value", spatial: "Spatial value",
+    economic: "Economic value", social: "Social value"
   };
 
   var map = L.map("map", { preferCanvas: true }).setView([51.59, 4.78], 12);
@@ -199,16 +199,16 @@ window.__OVERLAYS__ = __OVERLAYS_JSON__;
         rows += "<tr><td style='padding-left:14px;color:#555'>" + k + "</td><td>" + v2 + "</td></tr>";
       });
       if ((p.missing && p.missing[v] || []).length) {
-        rows += "<tr><td colspan='2' class='popup-missing'>ontbrekend: " +
+        rows += "<tr><td colspan='2' class='popup-missing'>missing: " +
                 p.missing[v].join(", ") + "</td></tr>";
       }
     });
     var kans = (p.k && p.k.length)
-      ? "<p style='margin:6px 0 0'><b>Kansenkaart:</b> " + p.k.join(" · ") + "</p>" : "";
+      ? "<p style='margin:6px 0 0'><b>Climate opportunities:</b> " + p.k.join(" · ") + "</p>" : "";
     return "<h4 style='margin:0 0 4px'>" + (p.naam || p.code) + "</h4>" +
       "<div style='color:#666;font-size:12px'>" + p.wijkcode + " · " +
-      (p.inw === null ? "inwoners onbekend" : p.inw + " inwoners") +
-      (p.water === "JA" ? " · water-buurt" : "") + "</div>" +
+      (p.inw === null ? "residents unknown" : p.inw.toLocaleString('nl-NL') + " residents") +
+      (p.water === "JA" ? " · water zone" : "") + "</div>" +
       "<table style='border-collapse:collapse;width:100%'>" + rows + "</table>" + kans;
   }
 
@@ -227,7 +227,7 @@ window.__OVERLAYS__ = __OVERLAYS_JSON__;
       sw += "<span style='background:" + pal[i] + "'></span>";
     }
     this._div.innerHTML = "<b>" + VALUE_LABELS[active] + "</b> (0–100)<br>" +
-      "<div class='swatches'>" + sw + "</div><br>grijs = geen data";
+      "<div class='swatches'>" + sw + "</div><br>grey = no data";
   };
   legend.addTo(map);
 

@@ -47,13 +47,13 @@ def _sha256(path: Path) -> str:
 def run(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--run", type=Path, required=True,
-                    help="baseline run-map (bevat value-scan.json)")
+                    help="baseline run dir (contains value-scan.json)")
     ap.add_argument("--author", choices=["file", "auto", "llm"], default="file")
     ap.add_argument("--set", type=Path, default=DEFAULT_SET,
-                    help="set-bestand bij --author file")
+                    help="set file for --author file")
     ap.add_argument("--max-scenarios", type=int, default=6)
     ap.add_argument("--out", type=Path, default=None,
-                    help="uitvoermap (default: poc-breda/scenario-runs/<ts>-breda-scen)")
+                    help="output dir (default: poc-breda/scenario-runs/<ts>-breda-scen)")
     args = ap.parse_args(argv)
 
     baseline = json.loads(
@@ -72,7 +72,7 @@ def run(argv=None) -> int:
     fetched = fetch.fetch_all(include_bomen=True)
     layers = fetched["layers"]
     if layers.get("buurten") is None:
-        print("FATAAL: CBS-buurtvlakten ontbreken (cache leeg? draai poc-breda/run.py)",
+        print("FATAL: CBS neighbourhood polygons missing (empty cache? run poc-breda/run.py)",
               file=sys.stderr)
         return 2
 
@@ -118,18 +118,18 @@ def run(argv=None) -> int:
     )
 
     print(f"What-if run: {out_dir}")
-    print(f"  auteur: {args.author} · aangenomen: {report['nAccepted']}/{report['nScenarios']}")
-    print(f"  control identiek aan baseline: {report['control']['identicalToBaseline']}")
+    print(f"  author: {args.author} · accepted: {report['nAccepted']}/{report['nScenarios']}")
+    print(f"  control identical to baseline: {report['control']['identicalToBaseline']}")
     for v in report["variants"]:
         movers = ", ".join(
             g.get("buurt") or g["buurtcode"] for g in v["grootsteVerschuivers"][:2]
         ) or "—"
-        print(f"  - {v['name']}: {v['nBuurtenVeranderd']} buurten Δ (verschuivers: {movers})")
+        print(f"  - {v['name']}: {v['nBuurtenVeranderd']} neighbourhoods Δ (movers: {movers})")
     for r in report["rejected"] + report.get("rejectedAuthoring", []):
-        print(f"  - AFGEWEZEN {r.get('scenarioId') or '?'}: "
+        print(f"  - REJECTED {r.get('scenarioId') or '?'}: "
               f"{r.get('reden') or r.get('reason', '')[:100]}")
     print(f"  verdict: {report['validation']['verdict']}")
-    print(f"  rapport: {out_dir / 'scenario-report.md'}")
+    print(f"  report: {out_dir / 'scenario-report.md'}")
     return 0 if report["validation"]["verdict"] == "pass" else 1
 
 
