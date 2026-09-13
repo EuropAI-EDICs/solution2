@@ -6,6 +6,10 @@ description: Considerations from four PoCs — AI in the City 2026, Breda
 footer: 'AI in the City 2026 · Creating Real Value · Breda · indestad.ai'
 ---
 
+<!-- Render: npx @marp-team/marp-cli <this file> -o slides.html --allow-local-files
+     (the flag is REQUIRED for the screenshots in assets/ — without it the
+     export silently paints empty backgrounds). PDF/PPTX likewise. -->
+
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
 
@@ -182,6 +186,23 @@ What fails the gate lands in a public rejection ledger — never silently repair
 
 <!-- _class: track-democratic -->
 
+![bg right:52% fit](assets/poc4-breda.png)
+
+## The artifact — live report
+
+**Single-file HTML, opens from disk**
+
+- democratic layer active, 56 neighbourhoods
+- overlays: wijkdeals · green backbone · climate opportunities
+- every number clicks through to its source table
+- verdict **pass** — replays offline from cache
+
+*the congress grid, made walkable per neighbourhood*
+
+---
+
+<!-- _class: track-democratic -->
+
 ## Q&A seam in PoC-4 — a live walk-through
 
 > **"Why does Belcrum score low on spatial value?"** *(asked & answered in Dutch)*
@@ -272,6 +293,23 @@ baseline · every mutated parameter is declared, nothing hidden in a prompt.
 parameters are the *levers* of spatial policy — exactly the things a
 policy maker deliberates. The agent proposes which levers to pull;
 **the engine computes the consequence, the critic the truth about it.**
+
+---
+
+<!-- _class: track-spatial -->
+
+![bg right:52% fit](assets/poc1-utrecht-wind.png)
+
+## The artifact — Utrecht wind
+
+**Where can turbines ≥3 MW stand?**
+
+- final opportunity zone: **859.5 km²** after cited exclusions
+- layer switcher: inclusions, per-exclusion cumulative zones,
+  attention / conditional / compensation markers
+- every marker links to an article — verbatim quote + URL
+
+*zone truth is polygon-based; H3 is only a reporting layer*
 
 ---
 
@@ -388,6 +426,24 @@ with its legal reason attached.*
 
 <!-- _class: track-economic -->
 
+![bg right:52% fit](assets/poc2-eindhoven.png)
+
+## The artifact — Eindhoven
+
+**Method-traceable conversion report**
+
+- every pipeline feature cites its method card (MC-1…MC-12),
+  distilled from the archived VNG session
+- the **omzettabel**: 311 rows old-law rule → new *doelregeling*,
+  with match scores — suggestions are **never auto-applied**
+- knowledge bank of earlier "replaces" relations (MC-5)
+
+*acceleration you can audit, paragraph by paragraph*
+
+---
+
+<!-- _class: track-economic -->
+
 ## PoC-2: agentic AI in plan conversion
 
 Built from the recorded VNG method of the Amsterdam approach (Plangids),
@@ -416,6 +472,24 @@ without transferring legal discretion to a model.
 # Water, levels and quality
 
 # deliberately *without* an agent — for now
+
+---
+
+<!-- _class: track-social -->
+
+![bg right:52% fit](assets/poc3-rijnland.png)
+
+## The artifact — Rijnland water levels
+
+**Growing measurement archive (mNAP)**
+
+- 315 stations — 131 polder, 184 boezem
+- 4,079 station-days snapshotted from public sources
+- station series + median aggregates, min–max band
+- deviations vs. the established level order — deterministic,
+  offline-replayable
+
+*the canonical artifact an agent would later answer over*
 
 ---
 
