@@ -1,17 +1,19 @@
 # GenAI Seams — adding LLMs to the deterministic PoCs
 
 **Design rule (inherited from the PoCs, restated):** *LLMs propose, deterministic
-engines dispose.* Both PoCs run with no LLM at runtime by construction; the only
-sanctioned contact surface is the `llm_hook` seam
-(`poc/pipeline/agents.py`, `NormAnalyst(llm_hook=...)`) — "the interface is the
-only seam where a model may later *propose*, never *decide*" (`docs/SOLUTIONS_ARCHITECTURE.md`).
+engines dispose.* Every PoC runs with no LLM at runtime by construction; the only
+sanctioned contact surface is a seam
+(`poc/pipeline/agents.py`, `NormAnalyst(llm_hook=...)`; PoC-4:
+`poc-breda/breda/qa.py` behind `poc-breda/qa_run.py`) — "the interface is
+the only seam where a model may later *propose*, never *decide*" (`docs/SOLUTIONS_ARCHITECTURE.md`).
 This document catalogues every seam where GenAI can be added without giving up
 the properties that make the toolbox trustworthy: cite-or-abstain, schema-validated
 agent boundaries, V0–V4 validation, PROV on every artifact.
 
 Related: [`../MULTI_AGENT_PLAN.md`](../MULTI_AGENT_PLAN.md) (target multi-agent
 architecture), [`../docs/SOLUTIONS_ARCHITECTURE.md`](SOLUTIONS_ARCHITECTURE.md)
-(module boundaries, validation levels).
+(module boundaries, validation levels), [`../poc-breda/README.md`](../poc-breda/README.md)
+(the Q&A seam, implemented).
 
 ---
 
@@ -30,7 +32,7 @@ LLM  ──(schema-validated JSON proposal)──▶  deterministic gate  ──
 | S1 | Norm harvesting | 1 | curated `poc/corpus/evidence-*.json` shards (~24 cards/track) | fan-out Norm-Card proposals over the *full* CVDR instrument text — the answer to paper A1's known failure ("could not derive the comprehensive set of norms from hundreds of documents") | V2 quote-entailment: every claim must carry a verbatim quote that string-matches the archived instrument; else → abstention ledger |
 | S2 | Norm formalization | 1 | `TEMPLATE_SPECS`; 13 ambiguous wind rules → V4, never guessed | propose formalizations (parameter/operator/distance/zoneSemantics) for ambiguous cards, status always `voorgesteld` | template registry remains the only path to an executable rule; a human approves a proposal → it becomes a template |
 | S3 | Conversational intake | 1 | fixed `poc/use-cases/<track>.json` | draft an `OpportunityMapRequest` from a policy question in natural language | schema validation + AOI/source resolution |
-| S4 | Run-directory Q&A | 1, 2 | static reports | grounded Q&A ("why is this parcel excluded?") over decision-table rows + NormCards; cite row/card ids or abstain | the decision table itself never changes |
+| S4 | Run-directory Q&A | 1, 2, **4** | static reports; **PoC-4: deterministic asker + answer template, live-validated** (`poc-breda/qa.py`) | NL question → `ScanQuery` proposal (schema + vocabulary-grounded, shape-drift normalized); LLM narration of the deterministic answer under the number-gate; PoC-1 variant: "why is this parcel excluded?" over decision-table rows + NormCards, cite row/card ids or abstain | the runner reads only the canonical artifact (`value-scan.json` / the decision table); unmappable questions and drifting proposals → `query-rejected.json`; every prose number must resolve (sign/format-folded) or narration is rejected → deterministic fallback |
 | S5 | Knowledgebank matching | 2 | TF-IDF cosine + published-relation boost | LLM re-ranker for the text-driven rows; MC-6 preserved — status stays `voorgesteld` regardless of who scored | V3's independent Jaccard re-scorer keeps measuring disagreement; swap the judge, measure the delta |
 | S6 | New-rule drafting | 2 | `needsNewRules` clusters flagged for the jurist | draft candidate *doelregels* for the `gebruik:overig`-style clusters, `reviewTrail` per row | jurist stays on the buttons (MC-6); nothing is `gekoppeld` by AI |
 | S7 | **Scenario authoring** | 1 | **implemented Phase A** (see §2) | ScenarioAuthor proposes `ScenarioSpec`s grounded in the corpus (pending amendments, discretionary clauses, abstained topics, cross-track conflicts) | mutations restricted to the engine's actual inputs; V2 basis grounding; V3 control reproduction; V4 pending |
@@ -177,6 +179,11 @@ it without touching any contract.
   GS-1 benchmark maps for PoC-1; the canonical scenario sweeps as fixtures.
 - **Effort/cost budgets** on any fan-out seam (S1 especially) per the
   orchestrator spec (plan §3.2).
+- **Gates are code and get their own tests** (B3 lesson): every grounding
+  gate ships unit tests for fabricated, rounded, reformatted and verbatim-
+  copied numbers — before its first rejection is trusted as evidence about
+  a model. The seam stamps what it normalizes: question text and identity
+  come from the seam, never from the model.
 
 ## 4. Phased path
 
@@ -185,7 +192,8 @@ it without touching any contract.
 | A | scenario contracts + deterministic sweep + critic + demo sets (S7 skeleton) | **done** — `poc/pipeline/scenarios.py`, `poc/scenarios/` |
 | B | the seams themselves: S7 `--author auto|llm` (proposal ledger, identity stamping, pre-execution gating) + S8 `--narrate` (numeric-grounding gate) | **done** — `poc/pipeline/scenario_author.py`, `scenarios.deterministic_narrative` / `check_narrative_grounding` |
 | B2 | plug a real local open model into `--author llm` / LLM narrator; golden-set regression comparing LLM vs deterministic author outputs | **done** — qwen3.8 & qwen3.6 via local Ollama; see §5 |
-| C | S1 norm-harvest fan-out, S2 formalizer proposals, S3 conversational intake, S4 run-directory RAG; cross-track conflict discovery | later — its deterministic base is **done** (`poc/crosstrack/`: pairwise + shared-zone overlays over re-executed controls; canonical findings: 94.7% of the zoekgebied nieuwe natuur is simultaneously open to zonnevelden, and wind × zon compete on 845.4 km²) |
+| B3 | S4 as a full Q&A seam on PoC-4: contract + deterministic asker + LLM asker/narrator behind the number-gate, live-validated end to end | **done 2026-09-13** — `poc-breda/breda/qa.py`, `poc-breda/qa_run.py`, `poc-breda/schemas/scan-query.schema.json`; see §6 |
+| C | S1 norm-harvest fan-out, S2 formalizer proposals, S3 conversational intake, S4 for PoC-1 (decision-table grounding); cross-track conflict discovery; scenario seam transplanted to PoC-4 value politics (indicator-weight variants, control must reproduce canonical scores bit-identically); source-monitor agent over `sources.json`/`layers.json` (probe diff → drafted registry patch, number-gated, human-merged) | later — its deterministic base is **done** (`poc/crosstrack/`: pairwise + shared-zone overlays over re-executed controls; canonical findings: 94.7% of the zoekgebied nieuwe natuur is simultaneously open to zonnevelden, and wind × zon compete on 845.4 km²) |
 
 ## 5. B2 findings (real model, live endpoint)
 
@@ -236,3 +244,61 @@ rules vs LLM 10/10 accepted on all 3 rules, both targeting `FR-Z-03` /
 bases `norm_variance` + `policy_variant` (deterministic: hypothetical +
 policy_variant). Both authors' proposals execute to identical geometries
 per mutation — the engine, not the author, decides.
+
+## 6. B3 findings — the Q&A seam on PoC-4 (real model, live, 2026-09-13)
+
+S4 implemented end to end for the Breda five-value scan
+(`poc-breda/qa_run.py`): NL question → `ScanQuery` contract →
+deterministic runner over `value-scan.json` → deterministic template or
+LLM narration behind the number-gate. Live with qwen3.8 (Ollama), 73
+offline tests. Six lessons, each now enforced in code:
+
+1. **A grounding gate must first prove itself.** The first live narration
+   was rejected on three violations — and the model had copied every
+   number correctly. All three were bugs in *our* gate collection:
+   floats collected via `:g` (6 significant digits, breaking verbatim
+   precision), dict *keys* not counted as grounding ("per 100 inwoners"
+   cites the key `bomen_per_100_inw`), and Dutch thousands separators
+   ("4.245" = 4245) flagged as fabrication. Lesson: extend lesson 5 —
+   natural phrasing folds *format*, not just sign; and unit-test the gate
+   itself against fabricated, rounded, reformatted and correctly-copied
+   numbers before blaming the model.
+2. **Token extraction needs letter boundaries.** Numeric tokens must be
+   matched with `(?<!\w)…(?!\w)` so ids (`WK075800`), versions
+   (`qwen3.8`) and buurt codes never yield false tokens; conversely,
+   digit runs *inside* strings and keys must be collected as known
+   numbers, or citing an id fails the gate.
+3. **Deterministic narrators must be gate-clean by construction.** The
+   template's closing boilerplate "(0 = laagste, 100 = hoogste…)"
+   invented two ungrounded numbers and its own numbered-list markers
+   (1., 2., …) fabricated tokens. Fix the template (digit-free phrasing,
+   bullet markers), not the gate — the gate's strictness is the product.
+4. **Seam normalization grows with each model.** PoC-4 added: strip
+   unknown fields (schema is `additionalProperties: false`), clamp enums
+   (`focus` received a *buurt name* — benign drift, deterministic
+   repair: derive `focus := waarde` when a buurt is set), and **stamp
+   the question**: the seam overwrites `question` with the actually
+   asked question, so a model cannot paraphrase-or-redirect the query it
+   answers. Identity stays seam-stamped (`llm-proposal#<model>`).
+5. **Calibrate abstention with the query taxonomy.** qwen3.8 initially
+   abstained on "waarom…" questions as outside the contract. The prompt
+   now teaches the *mapping* (why/how + buurt → detail query; which/top-N
+   → ranking; aggregate → overview) with one worked example — abstention
+   is for questions truly unrelated to the artifact, not for question
+   forms the contract handles.
+6. **Both askers abstain symmetrically.** The deterministic parser and
+   the LLM land in the same `query-rejected.json` with a reason
+   ("cannot map onto the contract" / "model abstained"). Honest
+   refusal is a first-class result — exit code 1, ledger entry, never a
+   guessed query. Combined-filter questions ("heat attention AND much
+   65+") currently abstain because the contract has no filter language:
+   extend the *contract* first, then the parsers.
+
+Data-continuity preconditions discovered while building the substrate
+(the source-monitor agent of Phase C exists to catch these): per-service
+`maxRecordCount` differs (Bomen 1000 vs Wijkdeals 2000 vs
+Hoofdgroenstructuur 20000) and a page smaller than requested silently
+ends GeoJSON paging (117,012 → 1,000 trees) — the fetcher now reads the
+cap live from service metadata; the PDOK CBS WFS ignores `cql_filter`
+and has unstable `bbox`+`startIndex` ordering, while the standard OGC
+XML `filter` is exact.
