@@ -703,7 +703,7 @@ window.__DATA__ = __PAYLOAD__;
    var i=t>0.66?2:(t>0.33?1:0);return KLEUREN[d>0?'op':'neer'][i];}
  var layer=L.geoJSON(D.geo,{style:function(f){return{color:'#fff',weight:1,
      fillOpacity:0.85,fillColor:kleur(f)};},
-   onEachFeature:function(f,lyr){lyr.bindPopup(popup(f));}});
+   onEachFeature:function(f,lyr){lyr.bindPopup(function(){return popup(f);});}});
  layer.addTo(map);map.fitBounds(layer.getBounds(),{padding:[10,10]});
  function fmtGetal(g){return (g>0?'+':'')+g.toLocaleString('nl-NL');}
  function popup(f){var b=blob(f);
