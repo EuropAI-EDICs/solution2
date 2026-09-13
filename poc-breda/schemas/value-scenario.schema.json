@@ -1,0 +1,96 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://ldttoolbox.local/poc-breda/schemas/value-scenario.schema.json",
+ "title": "Breda vijf-waardenscan — ValueScenarioSpec (what-if contract)",
+ "description": "Een what-if-scenario is een contract, geen prompt: mutaties over de samenstel-parameters van de scan (indicators.DEFAULT_PARAMS), met verplichte bewijsklasse. De runner herhaalt eerst een ongemuteerde control die de baseline bit-identiek moet reproduceren.",
+ "type": "object",
+ "required": ["scenarioId", "name", "basis", "mutations"],
+ "additionalProperties": false,
+ "properties": {
+  "scenarioId": {
+   "type": "string",
+   "pattern": "^VS-[A-Z0-9][A-Z0-9-]{0,40}$",
+   "description": "VS-prefix + uniek binnen de set; lengte verder vrij (les uit de live LLM-run: VS-01 is geldige vormdrift, geen hallucinatie)"
+  },
+  "name": {"type": "string", "minLength": 3},
+  "basis": {
+   "type": "object",
+   "required": ["type"],
+   "additionalProperties": false,
+   "properties": {
+    "type": {
+     "enum": ["indicator_variance", "policy_variant", "hypothetical"],
+     "description": "indicator_variance: varieert een geciteerde drempel/waarde van een indicator · policy_variant: slaat een gedocumenteerde samenstelkeuze om (deals_rule, social_rule) · hypothetical: geen onderbouwing — rationale verplicht"
+    },
+    "variedAspect": {
+     "type": "string",
+     "enum": ["access_min_present", "deals_rule", "social_rule",
+              "spatial_weights", "economic_weights", "drop_input"]
+    },
+    "rationale": {"type": "string", "minLength": 10}
+   }
+  },
+  "mutations": {
+   "type": "array",
+   "minItems": 1,
+   "items": {"$ref": "#/$defs/mutation"}
+  },
+  "provenanceNote": {"type": "string"},
+  "proposedBy": {
+   "type": "string",
+   "description": "identiteitsstempel door de naad (file|auto|llm-proposal#model) — nooit een zelfclaim van het model"
+  }
+ },
+ "$defs": {
+  "mutation": {
+   "type": "object",
+   "required": ["action"],
+   "additionalProperties": false,
+   "properties": {
+    "action": {
+     "enum": ["set_access_min_present", "set_deals_rule", "set_spatial_weights",
+              "set_economic_weights", "set_social_rule", "drop_input"]
+    },
+    "value": {"type": "integer", "minimum": 1, "maximum": 6},
+    "rule": {"enum": ["mean", "floor", "ouderen_gated"]},
+    "thresholdPct": {"type": "number", "minimum": 0, "maximum": 100},
+    "groen": {"type": "integer", "minimum": 1, "maximum": 9},
+    "afstand": {"type": "integer", "minimum": 1, "maximum": 9},
+    "bomen": {"type": "integer", "minimum": 1, "maximum": 9},
+    "dak": {"type": "integer", "minimum": 1, "maximum": 9},
+    "bedrijven": {"type": "integer", "minimum": 1, "maximum": 9},
+    "input": {"enum": ["bomen", "bedrijvigheid", "deals", "groen_afstand"]}
+   },
+   "allOf": [
+    {
+     "if": {"properties": {"action": {"const": "set_access_min_present"}}},
+     "then": {"required": ["value"]}
+    },
+    {
+     "if": {"properties": {"action": {"const": "set_deals_rule"}}},
+     "then": {"required": ["rule"]}
+    },
+    {
+     "if": {"properties": {"action": {"const": "set_social_rule"}}},
+     "then": {"required": ["rule"]}
+    },
+    {
+     "if": {"properties": {"action": {"const": "drop_input"}}},
+     "then": {"required": ["input"]}
+    },
+    {
+     "if": {"properties": {"action": {"const": "set_spatial_weights"}}},
+     "then": {"anyOf": [
+       {"required": ["groen"]}, {"required": ["afstand"]}, {"required": ["bomen"]}
+     ]}
+    },
+    {
+     "if": {"properties": {"action": {"const": "set_economic_weights"}}},
+     "then": {"anyOf": [
+       {"required": ["dak"]}, {"required": ["bedrijven"]}
+     ]}
+    }
+   ]
+  }
+ }
+}

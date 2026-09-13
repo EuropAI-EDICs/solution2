@@ -576,24 +576,24 @@ the product — never a single city grade.
 
 ## Next 1 — the scenario seam for the five-value scan
 
-*Port the pattern PoC-1 proved to value politics — mostly copy-work.*
+*Ported and live (13-9-2026) — the pattern PoC-1 proved, applied to value politics.*
 
-- **Exists:** `scenario_author.py` — file/auto/llm behind one interface ·
-  rejection ledger · control-reproduction gate · offline sweep from cache
-- **To build:** mutations over indicator *inputs*, not rule semantics —
+- Contract mutations over composition parameters, basis declared per
+  variant — first findings from the canonical sweep:
 
-| Example (basis) | Mutation |
+| Variant | Result |
 |---|---|
-| `indicator_variance` | access score requires 6/6 services (now 4/6) |
-| `policy_variant` | heat attention ×2 where 65+ share > 25% |
-| `policy_variant` | wijkdeals coverage as a hard democratic floor |
-| `hypothetical` | green coverage double in spatial — rationale required |
+| access threshold 4 → 6 of 6 services (`indicator_variance`) | **changes nothing** — the indicator is robust |
+| wijkdeals as hard democratic floor (`policy_variant`) | shifts **all 56** neighbourhoods |
+| green coverage ×2 in spatial (`hypothetical`) | shifts 52 — same movers as dropping trees |
+| heat attention ×2 above 25% 65+ (`policy_variant`) | shifts 5 — precisely the gated buurten |
 
-- Gates unchanged: schema · buurtcode grounding vs the scan · control must
-  reproduce the canonical scores **exactly** (deterministic recompute —
-  bit-identical, stricter than PoC-1's ≤0.1%)
-- Deliverable: per-variant Δscores + **rank-stability** — which buurten
-  stay top/bottom whatever the weighting
+- Gates unchanged: schema + basis grounding · control must reproduce the
+  canonical scores **bit-identically** · LLM author (qwen3.8) 4/4 accepted
+  after `'type'`→`'action'` alias normalization — its proposals mirror the
+  golden set: *the engine, not the author, decides*
+- Deliverable ships: Δscores + biggest rank movers + **rank-stability**
+  across all runs — which buurten stay top/bottom whatever the weighting
 
 ---
 

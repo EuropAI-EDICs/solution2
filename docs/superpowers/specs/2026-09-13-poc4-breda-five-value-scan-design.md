@@ -158,3 +158,31 @@ vraag (NL) ─▶ asker (deterministische parser | LLM-voorstel)
 - Buiten scope gebleven (bewust): threshold-/combinatievragen (contract biedt
   geen filtertaal — onthouden in plaats van giswerk) en het
   scenario-auteursnaad (S7-analoog; patroon lig klaar in PoC-1).
+
+## Aanvulling (13-9-2026, tweede gift) — what-if-naad geïmplementeerd (S7-analoog)
+
+"Next 1" uit het congresverhaal staat: `breda/scenarios.py` +
+`scenario_run.py` + `schemas/value-scenario.schema.json` + demo-set
+`scenarios/breda.json`.
+
+- `compute_scan` is geparameteriseerd (`indicators.DEFAULT_PARAMS`:
+  accessMinPresent, dealsRule mean|floor, socialRule mean|ouderen_gated +
+  drempel, spatial/economic-gewichten, dropInputs); DEFAULT loopt via
+  hetzelfde float-pad → **control reproduceert de baseline bit-identiek**
+  (V3-eis, strakker dan PoC-1's ≤0,1%).
+- Contract met basis-klassen: `indicator_variance` (variedAspect moet bij
+  de mutaties passen) · `policy_variant` (alléén deals_rule/social_rule —
+  gedocumenteerde samenstelkeuzes) · `hypothetical` (rationale verplicht;
+  de bomen-gevoeligheidstest is eerlijkheidshalve hypothetical, niet
+  policy_variant).
+- Output per variant: nBuurtenVeranderd, Δscores, grootste
+  rangverschuivers; plus **rank-stabiliteit** over control+varianten
+  (welke buurten top-5/onderste-5 blijven — het robuuste antwoord).
+- Auteurs file/auto/llm achter één gate; LLM-normalisatie van de
+  `'type'`→`'action'`-alias (PoC-1-les §5.2) live gevalideerd met qwen3.8:
+  4/4 aangenomen na normalisatie, voorstellen spiegelen de gouden set —
+  de engine, niet de auteur, beslist.
+- Canonieke run: `scenario-runs/20260913T181100Z-breda-scen` (auto, 6/6,
+  control identiek). Bevindingen: toegankelijkheidsdrempel 4→6 verandert
+  niets (CBS geeft overal 6/6 afstanden — indicator robuust);
+  wijkdeals-vloer verschuift alle 56 buurten; groen×2 en bomen-weg elk 52.

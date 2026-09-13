@@ -1,0 +1,46 @@
+{
+ "setDescription": "Demo-set what-if-scenario's Breda vijf-waardenscan — de vier varianten van het congresverhaal (slides 'Next 1') plus de bomen-gevoeligheidstest",
+ "scenarios": [
+  {
+   "scenarioId": "VS-ACC-MIN6",
+   "name": "Toegankelijkheid vereist alle zes voorzieningen",
+   "basis": {"type": "indicator_variance", "variedAspect": "access_min_present"},
+   "mutations": [{"action": "set_access_min_present", "value": 6}],
+   "provenanceNote": "drempel 4/6 → 6/6 (canonieke waarde is 4)"
+  },
+  {
+   "scenarioId": "VS-SOC-GATED",
+   "name": "Hitte-aandacht dubbel boven 25% 65+",
+   "basis": {"type": "policy_variant", "variedAspect": "social_rule"},
+   "mutations": [{"action": "set_social_rule", "rule": "ouderen_gated", "thresholdPct": 25}],
+   "provenanceNote": "verharding telt dubbel waar 65+-aandeel > 25%"
+  },
+  {
+   "scenarioId": "VS-DEM-FLOOR",
+   "name": "Wijkdeals als harde democratische ondergrens",
+   "basis": {"type": "policy_variant", "variedAspect": "deals_rule"},
+   "mutations": [{"action": "set_deals_rule", "rule": "floor"}],
+   "provenanceNote": "gemiddelde → minimum van toegankelijkheid en deals"
+  },
+  {
+   "scenarioId": "VS-SPA-GROEN2",
+   "name": "Groendekking dubbel in ruimtelijke waarde",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "exploratie: géén beleidsdocument die groendekking zwaarder weegt dan groenafstand en bomen"
+   },
+   "mutations": [{"action": "set_spatial_weights", "groen": 2}],
+   "provenanceNote": "gewicht 1 → 2 (hypothetisch)"
+  },
+  {
+   "scenarioId": "VS-SPA-ZONDER-BOMEN",
+   "name": "Ruimtelijke waarde zonder bomen-teller",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "gevoeligheidstest zonder beleidsonderbouwing: de bomenlaag telt alleen openbaar groen, dus weglaten toont hoeveel de ruimtelijke score van die ene bron afhangt"
+   },
+   "mutations": [{"action": "drop_input", "input": "bomen"}],
+   "provenanceNote": "gevoeligheidstest — geen gedocumenteerde beleidskeuze"
+  }
+ ]
+}

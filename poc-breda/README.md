@@ -105,6 +105,35 @@ door de schema-gate gevangen, eerlijke onthouding gerespecteerd, en een
 Nederlandse narratie met duizendtallen/komma-decimalen geaccepteerd — de
 rejection-paden zijn gedemonstreerd én offline getest (73 tests).
 
+## What-if-naad (scenario's over de samenstelling, S7-analoog)
+
+`scenario_run.py` herhaalt eerst een **ongemuteerde control** die de
+baseline bit-identiek moet reproduceren; pas dan worden varianten geloofd.
+Een scenario is een **contract** (`schemas/value-scenario.schema.json`),
+geen prompt: mutaties over de samenstel-parameters (drempels, regels,
+gewichten, input-selectie) met verplichte bewijsklasse —
+`indicator_variance` · `policy_variant` (alléén de gedocumenteerde
+samenstelkeuzes `deals_rule`/`social_rule`) · `hypothetical` (rationale
+verplicht).
+
+```bash
+nldt/.venv/bin/python poc-breda/scenario_run.py --run poc-breda/runs/<ts>-breda-scan
+… --author auto     # deterministische auteur (golden set, 6 voorstellen)
+… --author llm      # LDT_SCENARIO_LLM_* (voorstel-only, ledger, naad-stempel)
+```
+
+Uitgang `poc-breda/scenario-runs/<ts>-breda-scen/`: `scenario-report.json`
+/ `.md` (per scenario: buurten Δ, grootste rangverschuivers; plus
+**rank-stabiliteit**: welke buurten top-5/onderste-5 blijven over alle
+runs), `run_summary.json`. Canonieke run (auto, 2026-09-13, control
+identiek): toegankelijkheidsdrempel 4→6 verandert **niets** (CBS geeft
+overal 6/6 afstanden — de indicator is robuust); wijkdeals als
+democratische vloer verschuift **alle 56** buurten; groen dubbel tellen en
+bomen weglaten verschuiven elk 52 buurten; LLM-auteur (qwen3.8) kreeg 4/4
+door na naad-normalisatie van de `'type'`-i.p.v.-`'action'`-alias
+(PoC-1-les §5.2) — de voorstellen spiegelen de gouden set: de engine, niet
+de auteur, beslist.
+
 ## Wat het rapport laat zien (canonieke run)
 
 - `runs/20260913T*-breda-scan/report.html` — start hier.

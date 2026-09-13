@@ -135,11 +135,14 @@ years, offline, by anyone.
 
 ## What's next
 
-1. **The what-if seam for the Breda five-value scan** — the proven pattern,
-   applied to value politics: what if heat attention weighs twice as heavy
-   where many 65+ residents live? Which neighbourhoods stay at the top or
-   bottom *no matter how you weigh* — that is the robust answer a council
-   can build on.
+1. **The what-if seam for the Breda five-value scan** — *working since
+   13 September 2026*: the proven pattern applied to value politics. First
+   findings: the access threshold (4→6 of 6 services) changes *nothing*
+   (the indicator is robust — CBS supplies all six distances everywhere);
+   wijkdeals as a hard democratic floor shifts all 56 neighbourhoods;
+   doubling green or dropping the trees counter each shift 52. The
+   rank-stability output shows which neighbourhoods stay top/bottom across
+   every weighting — the robust answer a council can build on.
 2. **The source monitor** — continuity of open data as a monitored process.
 3. **One governed agent layer** over all four PoCs, so the same rules
    apply everywhere (the nldt/MCP architecture).
@@ -161,14 +164,18 @@ Condensed reference; full detail in the code and this file's git history
 | S4 | run-artifact Q&A (contract → runner → number-gated narration) | **4** (1 planned) | **live-validated** (`poc-breda/qa.py`, `qa_run.py`; `ScanQuery` schema) |
 | S5 | knowledge-bank matching re-rank (swap the judge, measure delta) | 2 | designed; V3 Jaccard re-scorer in place |
 | S6 | candidate-rule drafting (`voorgesteld` only; lawyer decides — MC-6) | 2 | designed |
-| S7 | scenario authoring (file/auto/llm; ledger; control reproduction) | 1 (**4 planned** — indicator-weight variants, bit-identical control) | **implemented** (`poc/pipeline/scenario_author.py`) |
+| S7 | scenario authoring (file/auto/llm; ledger; control reproduction) | 1 · **4** | **implemented on both** (`poc/pipeline/scenario_author.py`; `poc-breda/breda/scenarios.py` — indicator-weight variants over `indicators.DEFAULT_PARAMS`, bit-identical control) |
 | S8 | scenario narration (numeric grounding gate) | 1 | **implemented**; live qwen3.8 run published |
 
 **Phase path** — A: scenario contracts + sweep + critic (done) · B: the
 S7/S8 seams + ledgers (done) · B2: real local open models + golden-set
 regression (done, qwen3.8/3.6 via Ollama) · B3: full Q&A seam on PoC-4,
-live end-to-end (done 2026-09-13) · C: S1/S2/S3, PoC-1 decision-table Q&A,
-cross-track conflicts, PoC-4 scenario transplant, source monitor (later).
+live end-to-end (done 2026-09-13) · B4: the what-if seam on PoC-4 —
+value-politics variants over composition parameters, control bit-identical,
+rank-stability output, file/auto/llm authors (done 2026-09-13, live with
+qwen3.8 4/4 accepted after `'type'`→`'action'` alias normalization) · C:
+S1/S2/S3, PoC-1 decision-table Q&A, cross-track conflicts, source monitor
+(later).
 
 **Key code** — `poc/pipeline/scenarios.py` · `scenario_author.py` (authors,
 identity stamping, rejection ledger) · `poc-breda/breda/qa.py` (asker,

@@ -38,6 +38,22 @@ ACCESS_FIELDS = [
 ]
 ACCESS_MIN_PRESENT = 4  # van de 6 — anders te onvolledig voor een score
 
+# Samenstel-parameters van de scan. De what-if-naad (scenarios.py) muteert
+# uitsluitend deze dict — nooit de code. DEFAULT_PARAMS reproduceert de
+# canonieke runs bit-identiek (gelijke gewichten lopen via hetzelfde
+# gemiddelde-pad, geen ander float-traject).
+DEFAULT_PARAMS = {
+    "accessMinPresent": ACCESS_MIN_PRESENT,
+    "dealsRule": "mean",           # "mean" | "floor" (wijkdeals als harde ondergrens)
+    "spatialWeights": {"groen": 1, "afstand": 1, "bomen": 1},
+    "economicWeights": {"dak": 1, "bedrijven": 1},
+    "socialRule": "mean",          # "mean" | "ouderen_gated"
+    "socialGatePct": 25.0,         # bij ouderen_gated: verharding dubbel boven deze 65+-drempel
+    "dropInputs": [],              # {"bomen","bedrijvigheid","deals","groen_afstand"}
+}
+
+DROP_INPUT_NAMES = ("bomen", "bedrijvigheid", "deals", "groen_afstand")
+
 BEDRIJVEN_FIELDS = [
     "aantalBedrijvenLandbouwBosbouwVisserij",
     "aantalBedrijvenNijverheidEnergie",
@@ -228,13 +244,43 @@ def _mask_water(values, is_water):
     return [None if w else v for v, w in zip(values, is_water)]
 
 
-def compute_scan(layers: dict) -> dict:
+def _weighted_mean(parts, weights):
+    """Gewogen gemiddelde over aanwezige parts (None valt weg). Bij alle
+    gewichten 1 identiek aan mean_available (zelfde somvolgorde, dus zelfde
+    floats) — de control-herhaling vereist dat."""
+    present = [(x, w) for x, w in zip(parts, weights) if x is not None]
+    if not present:
+        return None
+    if all(w == 1 for _, w in present):
+        gem = mean_available([x for x, _ in present])
+        return gem if not isinstance(gem, tuple) else gem[0]
+    total = sum(x * w for x, w in present)
+    wsum = sum(w for _, w in present)
+    return round(total / wsum, 1)
+
+
+def compute_scan(layers: dict, params: dict | None = None) -> dict:
     """Bouw de volledige vijf-waardenscan uit de opgehaalde lagen.
 
     ``layers``: keys ``buurten`` (verplicht) en optioneel ``wijkdeals``,
     ``hoofdgroenstructuur``, ``verharding``, ``kansenkaart``, ``bomen``
     (elk GeoJSON FeatureCollection RD of None bij degradatie).
+
+    ``params``: samenstel-parameters (zie DEFAULT_PARAMS); ``None`` of
+    leeg = de canonieke samenstelling. De what-if-naad muteert hierop.
     """
+    p_all = dict(DEFAULT_PARAMS)
+    if params:
+        onbekend = set(params) - set(DEFAULT_PARAMS)
+        if onbekend:
+            raise ValueError(f"compute_scan: onbekende parameters: {sorted(onbekend)}")
+        p_all.update(params)
+    drop = set(p_all["dropInputs"]) - set(DROP_INPUT_NAMES)
+    if drop:
+        raise ValueError(f"compute_scan: onbekende dropInputs: {sorted(drop)}")
+
+    def _dropped(naam, scores):
+        return [None] * len(scores) if naam in p_all["dropInputs"] else scores
     buurten_fc = layers.get("buurten")
     if not buurten_fc or not buurten_fc.get("features"):
         raise ValueError("compute_scan: geen CBS-buurtvlakken (cbs-buurten-2024)")
@@ -254,7 +300,7 @@ def compute_scan(layers: dict) -> dict:
         present = [v for v in per_field.values() if v is not None]
         access_vals.append(
             round(sum(present) / len(present), 3)
-            if len(present) >= ACCESS_MIN_PRESENT
+            if len(present) >= p_all["accessMinPresent"]
             else None
         )
         access_missing.append(
@@ -273,7 +319,7 @@ def compute_scan(layers: dict) -> dict:
             ),
             is_water,
         )
-        deals_score = percentile_scores(deal_counts)
+        deals_score = _dropped("deals", percentile_scores(deal_counts))
     else:
         deal_counts, deals_score = [None] * len(polys), [None] * len(polys)
 
@@ -284,7 +330,9 @@ def compute_scan(layers: dict) -> dict:
     groen_share_score = percentile_scores(groen_share)
 
     groen_afstand = [clean(p.get("afstandTotOpenbaarGroenTotaal")) for p in props]
-    groen_afstand_score = inverse(percentile_scores(groen_afstand))
+    groen_afstand_score = _dropped(
+        "groen_afstand", inverse(percentile_scores(groen_afstand))
+    )
 
     inwoners = [clean(p.get("aantalInwoners")) for p in props]
     bomen_fc = layers.get("bomen")
@@ -296,7 +344,7 @@ def compute_scan(layers: dict) -> dict:
             else None
             for c, inw in zip(boom_counts, inwoners)
         ]
-        bomen_score = percentile_scores(bomen_per_100)
+        bomen_score = _dropped("bomen", percentile_scores(bomen_per_100))
     else:
         boom_counts, bomen_per_100, bomen_score = (
             [None] * len(polys),
@@ -331,7 +379,9 @@ def compute_scan(layers: dict) -> dict:
             bedrijven_per_km2.append(round(tot / (ha / 100.0), 1))
         else:
             bedrijven_per_km2.append(None)
-    bedrijvigheid_score = percentile_scores(bedrijven_per_km2)
+    bedrijvigheid_score = _dropped(
+        "bedrijvigheid", percentile_scores(bedrijven_per_km2)
+    )
 
     # -- sociaal: hitte-aandacht (verharding × 65+) -------------------------- #
     verh_fc = layers.get("verharding")
@@ -346,17 +396,40 @@ def compute_scan(layers: dict) -> dict:
     ouderen_score = percentile_scores(ouderen)
 
     # -- samenvoegen per buurt ---------------------------------------------- #
+    sw = p_all["spatialWeights"]
+    ew = p_all["economicWeights"]
     buurten_out = []
     for i, p in enumerate(props):
         dem_parts = [access_score[i], deals_score[i]]
-        soc_parts = [verharding_score[i], ouderen_score[i]]
-        spatial_parts = [groen_share_score[i], groen_afstand_score[i], bomen_score[i]]
-        econ_parts = [onbenut_score[i], bedrijvigheid_score[i]]
+        if p_all["dealsRule"] == "floor":
+            aanwezig = [x for x in dem_parts if x is not None]
+            dem = round(min(aanwezig), 1) if aanwezig else None
+        else:
+            dem = _weighted_mean(dem_parts, [1, 1])
 
-        dem = mean_available(dem_parts)
-        soc = mean_available(soc_parts)
-        spa = mean_available(spatial_parts)
-        eco = mean_available(econ_parts)
+        soc_parts = [verharding_score[i], ouderen_score[i]]
+        if (
+            p_all["socialRule"] == "ouderen_gated"
+            and ouderen[i] is not None
+            and ouderen[i] > p_all["socialGatePct"]
+        ):
+            # boven de 65+-drempel telt verharding dubbel: adaptatie
+            # levert daar méér sociale waarde op (beleidsvariant)
+            soc = _weighted_mean(
+                [verharding_score[i], verharding_score[i], ouderen_score[i]],
+                [1, 1, 1],
+            )
+        else:
+            soc = _weighted_mean(soc_parts, [1, 1])
+
+        spa = _weighted_mean(
+            [groen_share_score[i], groen_afstand_score[i], bomen_score[i]],
+            [sw["groen"], sw["afstand"], sw["bomen"]],
+        )
+        eco = _weighted_mean(
+            [onbenut_score[i], bedrijvigheid_score[i]],
+            [ew["dak"], ew["bedrijven"]],
+        )
 
         missing = {
             "democratic": access_missing[i]
