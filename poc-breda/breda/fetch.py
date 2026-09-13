@@ -187,6 +187,25 @@ def fetch_cbs_buurten(
     return fc
 
 
+def _patch_max_record_count(src_entry, session, timeout):
+    """Zet de actuele maxRecordCount uit de service-metadata in de registry-entry.
+
+    Les uit de canonieke run: Bomen heeft maxRecordCount=1000 terwijl het
+    register 2000 vroeg — GeoJSON-paging stopte toen stil na 1 pagina
+    (1.000 van 117.012 bomen). Live-metadata is de bron van waarheid; bij
+    falen (offline replay) geldt de registerwaarde als fallback.
+    """
+    url = f"{src_entry['serviceUrl'].rstrip('/')}/{src_entry['layerId']}?f=json"
+    try:
+        resp = session.get(url, timeout=timeout)
+        info = resp.json()
+        mrc = info.get("maxRecordCount")
+        if isinstance(mrc, int) and mrc > 0:
+            src_entry["maxRecordCount"] = mrc
+    except Exception:
+        pass  # offline replay / metadata onbereikbaar: registerval blijft staan
+
+
 def fetch_all(
     *,
     refresh: bool = False,
@@ -206,19 +225,24 @@ def fetch_all(
     # geodata.fetch_layer(sources=…) verwacht {sourceId: meta} (zoals
     # pipeline.geodata.load_sources() oplevert), niet het registry-bestand zelf.
     arcgis_registry = {s["id"]: s for s in src.get("sources", [])}
+    session = requests.Session()
+    session.headers["User-Agent"] = USER_AGENT
     layers: dict[str, dict | None] = {}
     degradations: list[dict] = []
 
     def _get(source_id: str, bbox=None, **kw) -> dict | None:
+        entry = dict(arcgis_registry[source_id])
+        _patch_max_record_count(entry, session, timeout)
         try:
             return geodata.fetch_layer(
                 source_id,
                 bbox=bbox,
                 refresh=refresh,
-                sources=arcgis_registry,
+                sources={source_id: entry},
                 cache_dir=cache_dir,
                 simplify_m=kw.pop("simplify_m", None),
                 timeout=timeout,
+                session=session,
             )
         except Exception as exc:  # bewust breed: elke falende laag is een degradatie
             degradations.append(

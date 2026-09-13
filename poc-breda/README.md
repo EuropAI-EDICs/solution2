@@ -62,7 +62,11 @@ cd poc-breda && ../nldt/.venv/bin/python -m unittest discover -s tests -v
   op `services-eu1.arcgis.com`; **geo.breda.nl/server1** host het
   klimaatportaal (hitte/wateroverlast/kansen). Beide: `f=geojson` + `outSR
   28992` + `resultOffset`-paging — dus hergebruikt de PoC de
-  ArcGIS-REST-fetcher uit PoC-1 (`poc/pipeline/geodata.py`).
+  ArcGIS-REST-fetcher uit PoC-1 (`poc/pipeline/geodata.py`). Les uit de eerste
+  canonieke run: `maxRecordCount` verschilt **per service** (Bomen=1000,
+  Wijkdeals=2000, Hoofdgroenstructuur=20000) en te hoog gevraagde pages stoppen
+  de GeoJSON-paging stil na één pagina — de fetcher leest de limiet daarom
+  live uit de service-metadata (registerwaarde als offline-fallback).
 - Sentinels (`< -90000`, CBS-verduistering) worden **nooit** geimputeerd;
   ontbrekende inputs staan per buurt geregistreerd in `validation.json` en in
   de kaart-popup.
