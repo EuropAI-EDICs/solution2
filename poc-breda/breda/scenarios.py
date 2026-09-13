@@ -207,6 +207,7 @@ def run_scenarios(baseline_scan: dict, layers: dict, specs: list[dict]) -> dict:
     variant_scans = []
     if not verschillen:  # alleen geloven als de control klopt
         ctrl_ranks = _ranks(control)
+        naam_by_code = {b["buurtcode"]: b.get("buurtnaam") for b in control["buurten"]}
         for spec in gevalideerd:
             params = apply_mutations(spec["mutations"])
             variant = indicators.compute_scan(layers, params)
@@ -215,25 +216,37 @@ def run_scenarios(baseline_scan: dict, layers: dict, specs: list[dict]) -> dict:
             var_ranks = _ranks(variant)
             per_buurt = {}
             movers = []
+            profiel = {v: {"winst": 0, "verlies": 0, "som": 0.0, "n": 0}
+                       for v in WAARDEN}
             for code in ctrl:
-                deltas = {
-                    v: (
-                        None
-                        if ctrl[code][v] is None or var_scores[code][v] is None
-                        else round(var_scores[code][v] - ctrl[code][v], 1)
-                    )
-                    for v in WAARDEN
-                }
+                deltas = {}
+                van_naar = {}
                 rank_deltas = {}
                 for v in WAARDEN:
+                    c0, c1 = ctrl[code][v], var_scores[code][v]
+                    if c0 is not None and c1 is not None:
+                        d = round(c1 - c0, 1)
+                        van_naar[v] = {"van": c0, "naar": c1}
+                        if d != 0:
+                            deltas[v] = d
+                            profiel[v]["som"] += d
+                            profiel[v]["n"] += 1
+                            if d > 0:
+                                profiel[v]["winst"] += 1
+                            else:
+                                profiel[v]["verlies"] += 1
                     r0 = ctrl_ranks[v].get(code)
                     r1 = var_ranks[v].get(code)
                     if r0 is not None and r1 is not None and r0 != r1:
                         rank_deltas[v] = r1 - r0
-                if any(d not in (None, 0) for d in deltas.values()):
-                    per_buurt[code] = deltas
+                if deltas:
+                    per_buurt[code] = {"deltas": deltas, "vanNaar": van_naar}
                 if rank_deltas:
                     movers.append((code, rank_deltas))
+            profiel_out = {}
+            for v, p in profiel.items():
+                if p["n"]:
+                    profiel_out[v] = {**p, "gem": round(p["som"] / p["n"], 2)}
             varianten.append({
                 "scenarioId": spec["scenarioId"],
                 "name": spec["name"],
@@ -243,8 +256,10 @@ def run_scenarios(baseline_scan: dict, layers: dict, specs: list[dict]) -> dict:
                 "proposedBy": spec.get("proposedBy", "file"),
                 "nBuurtenVeranderd": len(per_buurt),
                 "deltas": per_buurt,
+                "profiel": profiel_out,
                 "grootsteVerschuivers": [
-                    {"buurtcode": c, "rangDelta": d} for c, d in
+                    {"buurtcode": c, "buurt": naam_by_code.get(c, c),
+                     "rangDelta": d} for c, d in
                     sorted(movers, key=lambda t: -sum(abs(x) for x in t[1].values()))[:5]
                 ],
             })
@@ -481,6 +496,262 @@ def _mutatie_str(m: dict) -> str:
     if "thresholdPct" in m:
         tekst += f" [{m['thresholdPct']}%]"
     return tekst
+
+
+WAARDE_NL = {
+    "democratic": "Democratisch",
+    "spatial": "Ruimtelijk",
+    "economic": "Economisch",
+    "social": "Sociaal",
+}
+BASIS_NL = {
+    "indicator_variance": "Drempel aangepast",
+    "policy_variant": "Beleidskeuze",
+    "hypothetical": "Verkenning — geen onderbouwing",
+}
+
+
+def _mutatie_plat(m: dict) -> str:
+    """Mutatie in beleidstaal (voor de kaart en rapporten)."""
+    a = m["action"]
+    if a == "set_access_min_present":
+        return ("alle zes voorzieningen moeten dichtbij zijn"
+                if m["value"] == 6 else
+                f"minimaal {m['value']} van de zes voorzieningen moet dichtbij zijn")
+    if a == "set_deals_rule":
+        return {"mean": "wijkdeals en voorzieningen wegen even zwaar",
+                "floor": "wijkdeals worden een harde ondergrens"}[m["rule"]]
+    if a == "set_social_rule":
+        return {"mean": "hitte en 65+ wegen even zwaar",
+                "ouderen_gated": f"hitte telt dubbel waar meer dan "
+                                 f"{m.get('thresholdPct', 25)}% 65+ woont"}[m["rule"]]
+    if a == "set_spatial_weights":
+        delen = [f"{k} weegt {'dubbel zo zwaar' if v == 2 else f'{v}× zo zwaar' if v > 2 else 'normaal'}"
+                 for k, v in m.items() if k != "action"]
+        return "groen-teller hergewogen: " + ", ".join(delen)
+    if a == "set_economic_weights":
+        delen = [f"{k} weegt {'dubbel zo zwaar' if v == 2 else f'{v}× zo zwaar' if v > 2 else 'normaal'}"
+                 for k, v in m.items() if k != "action"]
+        return "economische teller hergewogen: " + ", ".join(delen)
+    if a == "drop_input":
+        return {"bomen": "bomen (openbaar groen) tellen niet meer mee",
+                "bedrijvigheid": "bedrijvigheid telt niet meer mee",
+                "deals": "wijkdeals tellen niet meer mee",
+                "groen_afstand": "afstand tot openbaar groen telt niet meer mee"}[m["input"]]
+    return _mutatie_str(m)
+
+
+def build_whatif_html(report: dict, layers: dict) -> str:
+    """What-if-kaart in beleidstaal: per buurt wint/verliest per waarde
+    t.o.v. het 0-scenario (huidige situatie). Zelfde offline-Leaflet-idioom
+    als het hoofdrapport; JSON letterlijk ge-escaped."""
+    from . import report as report_mod
+
+    buurten_fc = layers.get("buurten") or {}
+    shapes = report_mod._shapes(buurten_fc)
+    codes = [(f.get("properties") or {}).get("buurtcode") for f in buurten_fc["features"]]
+    namen = [(f.get("properties") or {}).get("buurtnaam") for f in buurten_fc["features"]]
+    features = [
+        {"type": "Feature",
+         "geometry": report_mod._geom_to_geojson(report_mod._wgs84_geom(geom)),
+         "properties": {"code": code, "naam": naam}}
+        for geom, code, naam in zip(shapes, codes, namen)
+    ]
+    per_buurt_all = {}
+    for v in report["variants"]:
+        for code, blob in v["deltas"].items():
+            per_buurt_all.setdefault(code, {})[v["scenarioId"]] = blob
+
+    import json as _json
+
+    payload = {
+        "scenarios": [
+            {"id": v["scenarioId"], "name": v["name"],
+             "soort": BASIS_NL.get(v["basis"]["type"], v["basis"]["type"]),
+             "wat": "; ".join(_mutatie_plat(m) for m in v["mutations"]),
+             "n": v["nBuurtenVeranderd"],
+             "profiel": v.get("profiel", {}),
+             "movers": v["grootsteVerschuivers"]}
+            for v in report["variants"]
+        ],
+        "geo": {"type": "FeatureCollection", "features": features},
+        "perBuurt": per_buurt_all,
+        "waarden": [
+            {"key": w, "label": WAARDE_NL[w]} for w in WAARDEN
+        ],
+    }
+    data = _json.dumps(payload, ensure_ascii=False).replace("<", "\\u003c")
+
+    return """<!DOCTYPE html>
+<html lang="nl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wat als…? — Breda vijf-waardenscan</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+ body{margin:0;font-family:-apple-system,'Segoe UI',Roboto,sans-serif;color:#111827;background:#f4f6f8}
+ header{background:#060644;color:#fff;padding:16px 24px}
+ header h1{margin:0;font-size:21px} header p{margin:4px 0 0;color:#9fb3d9;font-size:13.5px}
+ #map{height:76vh;background:#eef2f5}
+ .paneel{position:absolute;top:12px;right:12px;z-index:1000;background:#fff;
+   border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.3);padding:14px 16px;
+   font-size:14px;width:340px;max-height:86vh;overflow-y:auto}
+ .paneel h3{margin:0 0 6px;font-size:14px;color:#6b7280;font-weight:600;
+   text-transform:uppercase;letter-spacing:.04em}
+ .scen-kaart{border:1px solid #e5e7eb;border-radius:8px;padding:8px 10px;margin:5px 0;
+   cursor:pointer;display:block}
+ .scen-kaart:hover{border-color:#099f80}
+ .scen-kaart.actief{border-color:#099f80;background:#f0fdf9}
+ .scen-kaart b{display:block;font-size:14px}
+ .scen-kaart .soort{font-size:11px;padding:1px 7px;border-radius:9px;background:#eef2f7;
+   color:#1d6fa4;display:inline-block;margin:3px 4px 3px 0}
+ .scen-kaart .wat{font-size:12.5px;color:#4b5563}
+ .waarde-rij label{display:inline-block;margin:2px 6px 2px 0;cursor:pointer;
+   border:1px solid #e5e7eb;border-radius:6px;padding:2px 8px;font-size:13px}
+ .waarde-rij input{margin-right:3px}
+ .waarde-rij label.actief{border-color:#060644;background:#060644;color:#fff}
+ .uitleg{margin-top:10px;border-top:1px solid #eef0f3;padding-top:8px;font-size:13.5px}
+ .uitleg .zin{font-size:14px;color:#060644;font-weight:600}
+ .chips{margin:6px 0}
+ .chip{display:inline-block;font-size:12px;padding:1px 8px;border-radius:10px;margin:2px 2px}
+ .chip.winst{background:#e6f4ea;color:#1e7e34}.chip.verlies{background:#fdecea;color:#b00020}
+ .chip.gelijk{background:#eef2f7;color:#6b7280}
+ .movers{font-size:13px;margin-top:6px}
+ .legend{background:#fff;padding:8px 10px;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.25);
+   font-size:12px}
+ .legend .sw span{display:inline-block;width:22px;height:11px;border:1px solid #999;margin-right:2px}
+ .leaflet-popup-content{font-size:13.5px;min-width:260px}
+ .rij{display:flex;justify-content:space-between;border-bottom:1px solid #f0f2f5;padding:3px 0}
+ .pijl{font-weight:700}.op{color:#1e7e34}.neer{color:#b00020}
+ .grootste{margin-top:6px;font-size:12.5px;color:#4b5563}
+</style></head><body>
+<header>
+ <h1>Wat als…? — gevolgen per buurt</h1>
+ <p>Vergeleken met het <b>0-scenario</b>: de huidige situatie. De control herhaalde
+    de huidige situatie exact (controle geslaagd), dus elk verschil hieronder komt
+    écht door het gekozen scenario.</p>
+</header>
+<div id="map">
+ <div class="paneel">
+  <h3>Kies een scenario</h3><div id="scen"></div>
+  <h3 style="margin-top:12px">Kies een waarde</h3>
+  <div class="waarde-rij" id="vals"></div>
+  <div class="uitleg" id="uitleg"></div>
+ </div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        onerror="window.__noLeaflet=true"></script>
+<script>
+window.__DATA__ = __PAYLOAD__;
+(function(){
+ if(window.__noLeaflet||typeof L==='undefined'){
+  document.getElementById('map').innerHTML='<div style="padding:40px">'+
+   'Kaart (Leaflet, CDN) onbereikbaar — open dit bestand met internetverbinding.</div>';return;}
+ var D=window.__DATA__;
+ var map=L.map('map',{preferCanvas:true}).setView([51.59,4.78],12);
+ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,
+   attribution:'&copy; OpenStreetMap-bijdragers'}).addTo(map);
+ var KLEUREN={op:['#a5d6a7','#2e7d32','#14520f'],neer:['#f2b8b5','#b71c1c','#7f0d0d']};
+ var actScen=null,actVal=D.waarden[0].key;
+ function scen(){return D.scenarios.find(function(s){return s.id===actScen;});}
+ function deltaVan(f){var b=(D.perBuurt[f.properties.code]||{})[actScen];
+   return b?b.deltas[actVal]:undefined;}
+ function maxAbs(){var m=0.5;D.geo.features.forEach(function(f){var d=deltaVan(f);
+   if(d!==undefined&&Math.abs(d)>m)m=Math.abs(d);});return m;}
+ function kleur(f){var d=deltaVan(f);
+   if(d===undefined||d===null)return '#d1d5db';
+   var t=Math.abs(d)/maxAbs();if(t<0.08)return '#cfd4da';
+   var i=t>0.66?2:(t>0.33?1:0);return KLEUREN[d>0?'op':'neer'][i];}
+ var layer=L.geoJSON(D.geo,{style:function(f){return{color:'#fff',weight:1,
+     fillOpacity:0.85,fillColor:kleur(f)};},
+   onEachFeature:function(f,lyr){lyr.bindPopup(popup(f));}});
+ layer.addTo(map);map.fitBounds(layer.getBounds(),{padding:[10,10]});
+ function popup(f){
+  var b=(D.perBuurt[f.properties.code]||{})[actScen];
+  var regels='';
+  if(!b){regels='<i>in dit scenario verandert hier niets</i>';}
+  else{
+   D.waarden.forEach(function(w){
+     var vn=b.vanNaar[w.key];if(!vn)return;
+     var d=b.deltas[w.key];
+     var pijl='<span class="pijl gelijk">=</span>';
+     if(d>0)pijl='<span class="pijl op">&#8593; +'+d+'</span>';
+     if(d<0)pijl='<span class="pijl neer">&#8595; '+d+'</span>';
+     regels+='<div class="rij"><span>'+w.label+'</span><span>'+
+       vn.van.toLocaleString('nl-NL')+' &rarr; '+vn.naar.toLocaleString('nl-NL')+
+       ' &nbsp;'+pijl+'</span></div>';});
+   var grootste=Object.keys(b.deltas).sort(function(a,c){
+     return Math.abs(b.deltas[c])-Math.abs(b.deltas[a]);})[0];
+   if(grootste)regels+='<div class="grootste">grootste verschuiving: '+
+     label(grootste)+(b.deltas[grootste]>0?' (winst)':' (verlies)')+'</div>';
+  }
+  return '<b>'+(f.properties.naam||f.properties.code)+'</b>'+regels;}
+ function label(k){var w=D.waarden.find(function(x){return x.key===k;});return w?w.label:k;}
+ var legend=L.control({position:'bottomleft'});
+ legend.onAdd=function(){var d=L.DomUtil.create('div','legend');this._d=d;this.upd();return d;};
+ legend.upd=function(){this._d.innerHTML='<b>Waar verandert '+label(actVal)+'?</b>'+
+   '<br><div class="sw">'+['<span style="background:#a5d6a7"></span>',
+   '<span style="background:#2e7d32"></span>','<span style="background:#cfd4da"></span>',
+   '<span style="background:#f2b8b5"></span>','<span style="background:#b71c1c"></span>'
+   ].join('')+'</div><br>wint &nbsp;&middot;&nbsp; geen verandering &nbsp;&middot;&nbsp; verliest<br>(t.o.v. het 0-scenario)';};
+ legend.addTo(map);
+ function nadruk(s){
+  if(s.n===0)return 'Dit scenario verandert <b>niets</b> — de uitkomst is robuust '+
+   'voor deze aanpassing.';
+  var items=Object.keys(s.profiel).map(function(v){return {v:v,g:s.profiel[v].gem,
+    w:s.profiel[v].winst,vt:s.profiel[v].verlies};});
+  if(!items.length)return '';
+  items.sort(function(a,b){return a.g-b.g;});
+  var laagste=items[0],hoogste=items[items.length-1];
+  var fmt=function(g){return (g>0?'+':'')+g.toLocaleString('nl-NL');};
+  if(Math.abs(hoogste.g)<0.05&&Math.abs(laagste.g)<0.05)
+   return 'De veranderingen verdelen zich gelijk over de waarden — geen nadrukverschuiving.';
+  if(laagste.v===hoogste.v)
+   {var nchg=hoogste.w+hoogste.vt;
+    return 'De verandering zit volledig in <b>'+label(laagste.v)+'</b>: '+
+    nchg+' buurt'+(nchg===1?'':'en')+' veranderen (gemiddeld '+
+    fmt(hoogste.g)+' punten).'}
+  return 'De nadruk verschuift van <b>'+label(laagste.v)+'</b> naar <b>'+
+   label(hoogste.v)+'</b> (gemiddeld '+fmt(laagste.g)+' en '+
+   fmt(hoogste.g)+' punten waar buurten veranderen).';}
+ function chips(s){var uit='';
+  D.waarden.forEach(function(w){var p=s.profiel[w.key];if(!p||(!p.winst&&!p.verlies))return;
+   uit+='<span class="chip '+(p.winst>=p.verlies?'winst':'verlies')+'">'+w.label+
+   ': '+p.winst+' buurt'+(p.winst===1?'':'en')+' winst, '+p.verlies+' verlies</span>';});
+  return uit?'<div class="chips">'+uit+'</div>':'';}
+ function movers(s){if(!s.movers.length)return '';
+  var rijen=s.movers.slice(0,3).map(function(m){
+   var delen=Object.keys(m.rangDelta).map(function(v){
+     var d=m.rangDelta[v];return label(v)+' '+(d>0?'+':'')+d+' plek'+(Math.abs(d)===1?'':'en');});
+   return '<div><b>'+(m.buurt||m.buurtcode)+'</b>: '+delen.join(', ')+'</div>';}).join('');
+  return '<div class="movers"><b>Grootste verschuivers</b>'+rijen+
+   '<span style="color:#6b7280;font-size:11.5px">+ = stijgt in de Breda-ranglijst</span></div>';}
+ function ververs(){layer.setStyle(function(f){return{color:'#fff',weight:1,
+    fillOpacity:0.85,fillColor:kleur(f)};});legend.upd();
+  var s=scen(),u=document.getElementById('uitleg');
+  if(!s){u.innerHTML='';return;}
+  u.innerHTML='<div class="zin">'+nadruk(s)+'</div>'+chips(s)+movers(s);}
+ var se=document.getElementById('scen');
+ D.scenarios.forEach(function(s,i){var d=document.createElement('div');
+  d.className='scen-kaart'+(i===0?' actief':'');
+  d.innerHTML='<b>'+s.name+'</b><span class="soort">'+s.soort+'</span>'+
+   '<div class="wat">'+s.wat+' — gevolg voor '+s.n+' van de '+D.geo.features.length+
+   ' buurten</div>';
+  d.onclick=function(){actScen=s.id;
+   Array.prototype.forEach.call(se.children,function(c){c.classList.remove('actief');});
+   d.classList.add('actief');ververs();};
+  se.appendChild(d);if(i===0)actScen=s.id;});
+ var ve=document.getElementById('vals');
+ D.waarden.forEach(function(w,i){var l=document.createElement('label');
+  if(i===0)l.className='actief';
+  var r=document.createElement('input');r.type='radio';r.name='val';r.value=w.key;
+  if(i===0)r.checked=true;
+  r.onchange=function(){actVal=r.value;
+   Array.prototype.forEach.call(ve.children,function(c){c.classList.remove('actief');});
+   l.classList.add('actief');ververs();};
+  l.appendChild(r);l.appendChild(document.createTextNode(w.label));ve.appendChild(l);});
+ ververs();
+})();
+</script></body></html>""".replace("__PAYLOAD__", data)
 
 
 def build_report_md(report: dict) -> str:

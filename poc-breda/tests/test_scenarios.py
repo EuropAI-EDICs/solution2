@@ -311,6 +311,12 @@ class TestE2E(unittest.TestCase):
             self.assertEqual(report["nAccepted"], 6)
             self.assertTrue((Path(tmp) / "scen" / "scenario-report.md").exists())
             self.assertTrue((Path(tmp) / "scen" / "run_summary.json").exists())
+            # what-if-kaart: data ge-escaped, géén ruwe </script> in het JSON-blok
+            html = (Path(tmp) / "scen" / "what-if.html").read_text(encoding="utf-8")
+            start = html.index("window.__DATA__")
+            end = html.index(";", start)
+            self.assertNotIn("</script>", html[start:end])
+            self.assertIn("VS-ACC-MIN6", html)
 
 
 if __name__ == "__main__":

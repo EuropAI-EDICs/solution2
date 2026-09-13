@@ -93,6 +93,9 @@ def run(argv=None) -> int:
     (out_dir / "scenario-report.md").write_text(
         scenarios.build_report_md(report), encoding="utf-8"
     )
+    (out_dir / "what-if.html").write_text(
+        scenarios.build_whatif_html(report, layers), encoding="utf-8"
+    )
     summary = {
         "generatedAt": _now_iso(),
         "baselineRun": args.run.name,
@@ -105,6 +108,9 @@ def run(argv=None) -> int:
         "artifacts": {
             p.name: {"sha256": _sha256(p), "bytes": p.stat().st_size}
             for p in sorted(out_dir.glob("scenario-report.*"))
+        } | {
+            "what-if.html": {"sha256": _sha256(out_dir / "what-if.html"),
+                             "bytes": (out_dir / "what-if.html").stat().st_size},
         },
     }
     (out_dir / "run_summary.json").write_text(
@@ -116,7 +122,7 @@ def run(argv=None) -> int:
     print(f"  control identiek aan baseline: {report['control']['identicalToBaseline']}")
     for v in report["variants"]:
         movers = ", ".join(
-            g["buurtcode"] for g in v["grootsteVerschuivers"][:2]
+            g.get("buurt") or g["buurtcode"] for g in v["grootsteVerschuivers"][:2]
         ) or "—"
         print(f"  - {v['name']}: {v['nBuurtenVeranderd']} buurten Δ (verschuivers: {movers})")
     for r in report["rejected"] + report.get("rejectedAuthoring", []):
