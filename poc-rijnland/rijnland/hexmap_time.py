@@ -230,6 +230,10 @@ _TEMPLATE = """<!doctype html>
     <button id="play" title="Speel de tijdstappen af">&#9654; Afspelen</button>
     <input type="range" id="slider" min="0" max="{n_steps_1}" value="0" step="1">
   </div>
+  <label id="derived-wrap" style="display:none;font-size:12px;color:#1a2330;
+         margin-top:2px">
+    <input type="checkbox" id="show-derived"> Toon afgeleide cellen
+    (opgevuld via afwateringsgraad)</label>
 </div>
 <script type="application/json" id="cells-data">{payload}</script>
 <script type="application/json" id="anim-meta">{meta}</script>
@@ -270,19 +274,43 @@ _TEMPLATE = """<!doctype html>
 
   var slider = document.getElementById('slider');
   var label = document.getElementById('step-label');
+  var showDerived = document.getElementById('show-derived');
+  var derivedWrap = document.getElementById('derived-wrap');
+  if (meta.derived) derivedWrap.style.display = '';
   function setStep (i) {{
     layer.eachLayer(function (lyr) {{
       var cell = lyr.feature.properties.cell;
       var v = cells[cell] ? cells[cell][i] : null;
-      lyr.setStyle({{fillColor: ramp(v), fillOpacity: v === null ? 0.25 : 0.85}});
+      var d = null;
+      if (v === null && meta.derived && showDerived.checked &&
+          meta.derived[cell]) d = meta.derived[cell][i];
       var pv = document.getElementById('pv-' + cell);
-      if (pv) pv.textContent = steps[i] + ': ' +
-        (v === null ? 'geen meting' : v + ' ' + meta.unit);
+      if (d !== null && d !== undefined) {{
+        lyr.setStyle({{fillColor: ramp(d), fillOpacity: 0.5,
+                       color: '#3d4a5c', weight: 0.8, dashArray: '3,3'}});
+        if (pv) pv.textContent = steps[i] + ': afgeleid — ' +
+          ((meta.derivedNote || {{}})[cell] || 'stroomopwaartse metingen') +
+          ' (' + d + ' ' + meta.unit + ')';
+      }} else {{
+        lyr.setStyle({{fillColor: ramp(v), fillOpacity: v === null ? 0.25 : 0.85,
+                       color: '#d8dde3', weight: 0, dashArray: ''}});
+        if (pv) pv.textContent = steps[i] + ': ' +
+          (v === null ? 'geen meting' : v + ' ' + meta.unit);
+      }}
+      if (pv && (meta.cellPg || {{}})[cell])
+        pv.textContent += ' \\u00b7 peilgebied ' + meta.cellPg[cell].name;
     }});
     label.textContent = steps[i];
     slider.value = i;
   }}
   slider.addEventListener('input', function () {{ stop(); setStep(+slider.value); }});
+  showDerived.addEventListener('change', function () {{
+    stop();
+    // lui lookup: de statische legenda staat ná dit script in de pagina
+    var el = document.getElementById('derived-legend-note');
+    if (el) el.style.display = showDerived.checked ? '' : 'none';
+    setStep(+slider.value);
+  }});
 
   var playBtn = document.getElementById('play');
   var timer = null;
@@ -319,10 +347,16 @@ def render_hexmap_time(
     vmax: float,
     invert: bool = False,
     stops: Optional[Sequence[Tuple[float, str]]] = None,
+    derived: Optional[Mapping[str, Any]] = None,
+    cell_pg: Optional[Mapping[str, Mapping[str, Any]]] = None,
     step_interval_ms: int = 700,
     out_path: Optional[Path] = None,
 ) -> str:
-    """Render the ``build_cell_steps`` bundle as an animated hex map."""
+    """Render the ``build_cell_steps`` bundle as an animated hex map.
+
+    ``derived``: flow.derive_values-uitkomst en ``cell_pg``: {cell:
+    {name, peil}} uit de stroomgraad — optioneel; de checkbox voor
+    afgeleide cellen verschijnt alleen als ``derived`` er is."""
     stops = stops or [(0.0, "Laag"), (0.5, "Midden"), (1.0, "Hoog")]
 
     def _sw(t: float) -> str:
@@ -337,6 +371,11 @@ def render_hexmap_time(
         "cells": bundle["values"],
         "min": vmin, "max": vmax, "invert": invert, "unit": unit,
     }
+    if derived:
+        meta["derived"] = derived.get("derived")
+        meta["derivedNote"] = derived.get("notes")
+    if cell_pg:
+        meta["cellPg"] = dict(cell_pg)
     legend_rows = "".join(
         f'<div class="row"><span class="swatch" style="background:{_sw(t)}">'
         f'</span><span>{label}</span></div>' for t, label in stops)
@@ -346,7 +385,12 @@ def render_hexmap_time(
         f'{legend_rows}'
         f'<div class="note">Kleur = waarde per cel per tijdstap '
         f'(mediaan over meetlocaties in de cel); grijze cellen hebben '
-        f'die stap geen meting.</div></div>')
+        f'die stap geen meting.</div>'
+        + (f'<div class="note" id="derived-legend-note" '
+           f'style="display:none">gestippeld/open = afgeleid: mediaan '
+           f'eigen peilgebied, anders stroomopwaarts (afwateringsgraad '
+           f'uit Rijnlands legger)</div>' if derived else '')
+        + f'</div>')
     html = _TEMPLATE.format(
         title=title,
         n_steps_1=max(0, bundle["nSteps"] - 1),

@@ -84,6 +84,8 @@ def main(argv=None) -> int:
                     help="re-fetch stations first (grows the archive)")
     ap.add_argument("--no-animate", action="store_true",
                     help="skip the animated hex map (hexmap-peilen-tijd.html)")
+    ap.add_argument("--no-flow", action="store_true",
+                    help="skip de afwateringsgraad-opvulling in de kaart")
     ap.add_argument("--out", type=Path, default=None)
     args = ap.parse_args(argv)
 
@@ -155,6 +157,31 @@ def main(argv=None) -> int:
                 locations=locs, resolution=8,
                 call=lambda pid, inputs: h3step.call(pid, inputs))
             if bundle:
+                derived, cell_pg = None, None
+                if not args.no_flow:
+                    try:
+                        from rijnland import flow as flow_mod
+
+                        fx = flow_mod.load_fixtures()
+                        graph = flow_mod.build_flow_graph(
+                            peilgebieden_fc=fx["peilgebieden"],
+                            gemalen_fc=fx["gemalen"],
+                            watergangen=fx["watergangen"],
+                            resolution=8,
+                            call=lambda pid, inputs: h3step.call(pid, inputs))
+                        if graph:
+                            derived = flow_mod.derive_values(
+                                graph, bundle["values"])
+                            cell_pg = {}
+                            for cell in bundle["values"]:
+                                pg = graph["cellPg"].get(cell)
+                                if pg:
+                                    nd = graph["nodes"][pg]
+                                    cell_pg[cell] = {"name": nd["name"],
+                                                     "peil": nd["peil"]}
+                    except Exception as exc:  # stroomgraad is decision support
+                        print(f"[peilen] WARNING stroomgraad overgeslagen: "
+                              f"{exc}")
                 steps = [_dt.date.fromisoformat(d).strftime("%d %b")
                          for d in days_all]
                 anim = hexmap_time.render_hexmap_time(
@@ -167,9 +194,12 @@ def main(argv=None) -> int:
                     stops=[(0.0, "Ver lager (droger)"),
                            (0.5, "Op mediaan"),
                            (1.0, "Ver hoger (natter)")],
+                    derived=derived, cell_pg=cell_pg,
                     out_path=out_dir / "hexmap-peilen-tijd.html")
+                n_derived = len((derived or {}).get("derived") or {})
                 print(f"[peilen] {out_dir / 'hexmap-peilen-tijd.html'} "
-                      f"({len(anim):,} bytes, {bundle['nSteps']} dagen)")
+                      f"({len(anim):,} bytes, {bundle['nSteps']} dagen, "
+                      f"{n_derived} afgeleide cellen)")
         except Exception as exc:  # animatie is decision support
             print(f"[peilen] WARNING hexmap-animatie overgeslagen: {exc}")
     return 0

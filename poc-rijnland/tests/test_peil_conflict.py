@@ -820,3 +820,41 @@ class TestFlowGraph(unittest.TestCase):
         self.assertIn('id="show-derived"', html)
         # gemeten stap 0 blijft gemeten (None in derived) ondanks meting
         self.assertIsNone(p["derived"]["aaa"][0])
+
+
+class TestHexmapTimeSingleDerived(unittest.TestCase):
+
+    def test_render_single_embeds_derived(self):
+        from rijnland import hexmap_time
+
+        fc = {"type": "FeatureCollection", "features": [
+            {"type": "Feature", "properties": {"cell": "aaa"},
+             "geometry": None}]}
+        bundle = {"cells_fc": fc, "values": {"aaa": [1.0, None]},
+                  "nSteps": 2}
+        derived = {"derived": {"aaa": [None, -3.5]},
+                   "notes": {"aaa": "mediaan peilgebied Polder X (n=2)"}}
+        html = hexmap_time.render_hexmap_time(
+            bundle, steps=["1 jan", "2 jan"], title="T",
+            value_label="Afwijking (cm)", unit="cm",
+            vmin=-10.0, vmax=10.0,
+            derived=derived,
+            cell_pg={"aaa": {"name": "Polder X", "peil": -2.0}})
+        import json as _json
+        import re as _re
+        meta = _json.loads(_re.search(
+            r'id="anim-meta">(\{.*?\})</script>', html, _re.S).group(1))
+        self.assertEqual(meta["derived"]["aaa"], [None, -3.5])
+        self.assertIn("mediaan peilgebied Polder X", meta["derivedNote"]["aaa"])
+        self.assertEqual(meta["cellPg"]["aaa"]["name"], "Polder X")
+        self.assertIn('id="show-derived"', html)
+        self.assertIn('id="derived-legend-note"', html)
+        # zonder derived: checkbox blijft verborgen, geen meta-sleutels
+        html2 = hexmap_time.render_hexmap_time(
+            bundle, steps=["1 jan", "2 jan"], title="T",
+            value_label="Afwijking (cm)", unit="cm", vmin=-10.0, vmax=10.0)
+        self.assertIn('id="derived-wrap" style="display:none', html2)
+        self.assertNotIn('id="derived-legend-note"', html2)
+        meta2 = _json.loads(_re.search(
+            r'id="anim-meta">(\{.*?\})</script>', html2, _re.S).group(1))
+        self.assertNotIn("derived", meta2)
