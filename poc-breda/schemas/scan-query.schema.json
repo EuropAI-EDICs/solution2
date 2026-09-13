@@ -1,0 +1,28 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://ldttoolbox.local/poc-breda/schemas/scan-query.schema.json",
+ "title": "Breda vijf-waardenscan — ScanQuery (Q&A-contract)",
+ "description": "Het enige grensvlak tussen een natuurlijke vraag en de scan: een vraag (LLM of deterministische parser) mag alleen een ScanQuery voorstellen; de runner voert deterministisch uit.",
+ "type": "object",
+ "required": ["question", "proposedBy"],
+ "additionalProperties": false,
+ "properties": {
+  "question": {"type": "string", "minLength": 3},
+  "buurtNaam": {
+   "type": ["string", "null"],
+   "description": "Canonieke buurtnaam uit value-scan.json (geen vrije tekst); null = hele gemeente"
+  },
+  "waarde": {
+   "type": ["string", "null"],
+   "enum": ["democratic", "spatial", "economic", "social", "alle", null]
+  },
+  "ranking": {"type": ["string", "null"], "enum": ["hoogste", "laagste", null]},
+  "limit": {"type": ["integer", "null"], "minimum": 1, "maximum": 10},
+  "focus": {
+   "type": ["string", "null"],
+   "enum": ["democratic", "spatial", "economic", "social", null],
+   "description": "waarde die de vraag specifiek noemde (voor detail-antwoorden)"
+  },
+  "proposedBy": {"type": "string", "minLength": 1}
+ }
+}

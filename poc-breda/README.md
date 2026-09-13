@@ -71,6 +71,40 @@ cd poc-breda && ../nldt/.venv/bin/python -m unittest discover -s tests -v
   ontbrekende inputs staan per buurt geregistreerd in `validation.json` en in
   de kaart-popup.
 
+## Grounded Q&A over een run (GenAI-seam, S4-analoog)
+
+`qa_run.py` beantwoordt Nederlandse vragen over een canonieke run — *LLMs
+propose, deterministic engines dispose* (`docs/GENAI_SEAMS.md`): de vraag wordt
+een schema-gevalideerd `ScanQuery`-voorstel (deterministische parser met
+cite-or-abstain, of LLM via dezelfde `LDT_SCENARIO_LLM_*`-env als PoC-1), een
+deterministische runner leest alleen `value-scan.json`, en de LLM-narratie
+moet door de numerieke grounding-gate (elk cijfer resolvet — teken-gevouwen,
+volle precisie, Nederlandse duizendtallen; geen buurten buiten de rijen) —
+anders afkeuring + deterministische fallback. Gehallucineerde buurten,
+vormdrift en onmappbare vragen landen in `query-rejected.json`, nooit in de
+runner.
+
+```bash
+# deterministisch + offline (standaard)
+nldt/.venv/bin/python poc-breda/qa_run.py --run poc-breda/runs/<ts>-breda-scan \
+    --question "waarom scoort Belcrum laag op ruimtelijke waarde?"
+nldt/.venv/bin/python poc-breda/qa_run.py --run <run> --demo       # golden set
+nldt/.venv/bin/python poc-breda/qa_run.py --run <run> --interactive
+
+# met lokale LLM's (Ollama, zelfde env-conventie als PoC-1)
+LDT_SCENARIO_LLM_ENDPOINT=http://localhost:11434 LDT_SCENARIO_LLM_API=ollama \
+LDT_SCENARIO_LLM_MODEL=qwen3.8:latest \
+nldt/.venv/bin/python poc-breda/qa_run.py --run <run> \
+    --question "..." --asker llm --narrator llm
+```
+
+Uitgang per vraag: `qa/answer.{json,md}` (query, rijen, antwoord,
+identiteitsstempel `llm-proposal#<model>` door de seam) of `qa/query-rejected.json`.
+Live gevalideerd met qwen3.8 (13-9-2026): vormdrift (`'Belcrum'` in `focus`)
+door de schema-gate gevangen, eerlijke onthouding gerespecteerd, en een
+Nederlandse narratie met duizendtallen/komma-decimalen geaccepteerd — de
+rejection-paden zijn gedemonstreerd én offline getest (73 tests).
+
 ## Wat het rapport laat zien (canonieke run)
 
 - `runs/20260913T*-breda-scan/report.html` — start hier.

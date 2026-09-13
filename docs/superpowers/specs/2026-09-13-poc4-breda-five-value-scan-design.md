@@ -126,3 +126,35 @@ composietmath, overlay/dekking op handgemaakte vlakken, rapport-escaping
   (zelfde patroniek als PoC-1); nooit giswerk.
 - CBS 2024-indeling wijkt mogelijk af van Breda-wijknamen in klimaatportaal →
   joins lopen op wijkcode/statcode waar kan, anders oppervlakte-overlap (deterministisch, herleidbaar).
+
+## Aanvulling (13-9-2026, na de eerste oplevering) — grounded Q&A-seam (S4-analoog)
+
+Toepassing van agentic AI rondom (nooit ín) de pijplijn, conform
+`docs/GENAI_SEAMS.md` ("LLMs propose, deterministic engines dispose"):
+
+```
+vraag (NL) ─▶ asker (deterministische parser | LLM-voorstel)
+                │  gate: schema (scan-query.schema.json) + woordenschatgronding
+                │         (buurtNaam moet resolven; vormdrift wordt door de seam
+                │          genormaliseerd — PoC-1-les §5.2)
+                ▼
+           ScanQuery ─▶ deterministische runner (leest alleen value-scan.json)
+                ▼
+           antwoord ─▶ deterministisch sjabloon | LLM-narratie achter de
+                       numerieke grounding-gate (volledige precisie, teken- en
+                       duizendtal-vouw, geen buurten buiten de rijen);
+                       afkeuring → ledger + deterministische fallback
+```
+
+- CLI: `poc-breda/qa_run.py` (--demo golden set, --interactive, --asker/--narrator
+  auto|llm met dezelfde `LDT_SCENARIO_LLM_*`-env als PoC-1, Ollama-native transport).
+- Identiteitsstempel door de seam (`llm-proposal#<model>`); de query
+  `question` wordt door de seam overstemd met de gestelde vraag (geen
+  paraphrase-doorvoer).
+- Live gevalideerd met qwen3.8: schema-gate ving `'Belcrum'`-in-`focus`-vormdrift,
+  eerlijke onthouding gerespecteerd, Nederlandse narratie (duizendtallen,
+  komma-decimalen, volle float-precisie) geaccepteerd na drie gate-fixes die
+  de eigen collectie betroffen (:g-verkorting, dict-keys, NL-duizendtallen).
+- Buiten scope gebleven (bewust): threshold-/combinatievragen (contract biedt
+  geen filtertaal — onthouden in plaats van giswerk) en het
+  scenario-auteursnaad (S7-analoog; patroon lig klaar in PoC-1).
