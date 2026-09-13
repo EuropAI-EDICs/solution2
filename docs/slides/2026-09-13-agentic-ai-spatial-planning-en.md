@@ -59,6 +59,7 @@ section.lead::after, section.lead footer { color: rgba(255,255,255,0.55); }
 .track-social { border-top-color: var(--signal); }
 .track-autonomous { border-top-color: var(--violet); }
 .track-neutral { border-top-color: var(--navy); }
+section.compact { font-size: 21px; }
 </style>
 
 <!-- _class: lead -->
@@ -567,6 +568,79 @@ the product — never a single city grade.
 
 ---
 
+<!-- _class: track-spatial compact -->
+
+## Next 1 — the scenario seam for the five-value scan
+
+*Port the pattern PoC-1 proved to value politics — mostly copy-work.*
+
+- **Exists:** `scenario_author.py` — file/auto/llm behind one interface ·
+  rejection ledger · control-reproduction gate · offline sweep from cache
+- **To build:** mutations over indicator *inputs*, not rule semantics —
+
+| Example (basis) | Mutation |
+|---|---|
+| `indicator_variance` | access score requires 6/6 services (now 4/6) |
+| `policy_variant` | heat attention ×2 where 65+ share > 25% |
+| `policy_variant` | wijkdeals coverage as a hard democratic floor |
+| `hypothetical` | green coverage double in spatial — rationale required |
+
+- Gates unchanged: schema · buurtcode grounding vs the scan · control must
+  reproduce the canonical scores **exactly** (deterministic recompute —
+  bit-identical, stricter than PoC-1's ≤0.1%)
+- Deliverable: per-variant Δscores + **rank-stability** — which buurten
+  stay top/bottom whatever the weighting
+
+---
+
+<!-- _class: track-autonomous compact -->
+
+## Next 2 — a source-monitor agent
+
+Answers *Data sovereignty and -continuity* — continuity is a monitored
+process, not a snapshot. Substrate already ships: `sources.json` +
+`layers.json` (lastChecked, featureCount) per run.
+
+- **Deterministic probe (scheduled):** service metadata (`maxRecordCount`,
+  fields, layer list) · feature counts vs registry · sample attributes ·
+  WFS capabilities → machine diff registry-vs-live
+- **Agent role (proposal only):** draft the human-readable change report +
+  registry patch — every number must cite probe output (the Q&A number-gate,
+  reused); **never auto-applied**, a human merges (V4)
+
+Hard-won monitor checklist, from this build: per-service page caps
+(Bomen=1000 vs Wijkdeals=2000) · CBS ignores `cql_filter` — the OGC XML
+filter works · a new CBS year can change the buurt set itself ·
+license/endpoint drift
+
+> Catches the failure we actually hit: 117,012 trees quietly
+> becoming 1,000 in a run's source table.
+
+---
+
+<!-- _class: track-neutral -->
+
+## Next 3 — nldt/MCP orchestration of the agent layer
+
+One governed agent layer over all PoCs, instead of per-PoC seams.
+The pieces exist (`nldt/05-agentic-ai-layer.md`):
+
+- **Roster:** Orchestrator (LangGraph, checkpointed) · Catalog Navigator ·
+  Recipe Planner · Process Executor · **Critic** · Explainer
+- **MCP servers:** `nldt-catalog-mcp` (search_records, get_record,
+  list_processes) · `nldt-process-mcp` (describe/execute/get_job_status)
+- **To build:** register the scan pipelines as catalog processes/recipes —
+  the five-value scan becomes callable like
+  `spatial-overlay-analysis` today; the PoC seams (Q&A, scenario author)
+  become tools the planner may compose
+
+Same doctrine, one level up: S1 ranking · S2 NL→AgentPlan (schema gate) ·
+S3 narration (cite job keys only) — LLM plans and explains, **the critic
+and the process engines stay deterministic**; checkpoints give audit trails
+per step.
+
+---
+
 <!-- _class: lead -->
 
 <span class="tag">Closing</span>
@@ -581,8 +655,7 @@ every number traceable to a source · every agent proposal gated
 
 # **it is who holds the buttons.**
 
-Next: the scenario seam for the five-value scan · a source-monitor agent ·
-nldt/MCP orchestration for the generic agent layer
+*Build orders: the scenario seam · the source monitor · nldt/MCP orchestration*
 
 ---
 
