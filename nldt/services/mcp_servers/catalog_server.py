@@ -122,6 +122,11 @@ async def list_poc_capabilities() -> str:
 
 
 def main() -> None:
+    if os.environ.get("NLDT_MCP_TRANSPORT", "stdio") == "streamable-http":
+        from services.mcp_servers.http_transport import run_mcp_http
+
+        run_mcp_http(mcp, 8090)
+        return
     mcp.run()
 
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from typing import Any
 
 from mcp.server.mcpserver import MCPServer
@@ -104,6 +105,11 @@ async def get_freshness(name: str = "rijnland_peilen") -> str:
 
 
 def main() -> None:
+    if os.environ.get("NLDT_MCP_TRANSPORT", "stdio") == "streamable-http":
+        from services.mcp_servers.http_transport import run_mcp_http
+
+        run_mcp_http(mcp, 8092)
+        return
     mcp.run()
 
 
