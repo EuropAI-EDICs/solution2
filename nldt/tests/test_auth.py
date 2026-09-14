@@ -114,3 +114,45 @@ def test_services_open_by_default():
 
     client = TestClient(process_app)
     assert client.get("/processes").status_code == 200
+
+
+def test_lowercase_bearer_scheme_accepted(guarded_client, monkeypatch):
+    monkeypatch.setenv("NLDT_AUTH_MODE", "static")
+    monkeypatch.setenv("NLDT_STATIC_TOKENS", "tok-a")
+    resp = guarded_client.get("/ping", headers={"Authorization": "bearer tok-a"})
+    assert resp.status_code == 200
+
+
+def test_keycloak_missing_config_is_503_without_network(guarded_client, monkeypatch):
+    for var in (
+        "KEYCLOAK_URL",
+        "KEYCLOAK_CLIENT_ID",
+        "KEYCLOAK_CLIENT_SECRET",
+        "KEYCLOAK_INTROSPECT_CLIENT_ID",
+        "KEYCLOAK_INTROSPECT_CLIENT_SECRET",
+    ):
+        monkeypatch.delenv(var, raising=False)
+    monkeypatch.setenv("NLDT_AUTH_MODE", "keycloak")
+    resp = guarded_client.get("/ping", headers={"Authorization": "Bearer x"})
+    assert resp.status_code == 503
+    assert resp.json()["detail"] == "token introspection unavailable"
+
+
+def test_introspection_result_is_cached(monkeypatch):
+    import asyncio
+
+    import services.common.auth as auth
+
+    calls = {"n": 0}
+
+    async def counting(token: str) -> bool:
+        calls["n"] += 1
+        return True
+
+    monkeypatch.setattr(auth, "introspect_keycloak", counting)
+    monkeypatch.delenv("NLDT_INTROSPECTION_CACHE_TTL", raising=False)
+    auth.clear_introspection_cache()
+    assert asyncio.run(auth.cached_introspect("t1")) is True
+    assert asyncio.run(auth.cached_introspect("t1")) is True
+    assert calls["n"] == 1
+    auth.clear_introspection_cache()

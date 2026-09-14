@@ -98,7 +98,7 @@ def seed_records() -> list[dict[str, Any]]:
         (
             "breda-scan-qa",
             "Breda five-value scan Q&A",
-            ["poc-breda", "qa", "s4", "scan", "beleidskompas", "policy-step:substantiation"],
+            ["poc-breda", "qa", "s4", "scan", "legal", "beleidskompas", "policy-step:substantiation"],
         ),
         (
             "utrecht-scenario-sweep",

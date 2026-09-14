@@ -7,8 +7,11 @@ EU LDT Identity Management).
 
 from __future__ import annotations
 
+import hashlib
+import hmac
 import logging
 import os
+import time
 
 import httpx
 from fastapi import HTTPException, Request
@@ -25,6 +28,25 @@ def auth_mode() -> str:
 def _static_tokens() -> list[str]:
     raw = os.environ.get("NLDT_STATIC_TOKENS", "")
     return [t.strip() for t in raw.split(",") if t.strip()]
+
+
+_INTROSPECTION_CACHE: dict[str, tuple[float, bool]] = {}
+
+
+def clear_introspection_cache() -> None:
+    _INTROSPECTION_CACHE.clear()
+
+
+async def cached_introspect(token: str) -> bool:
+    """RFC 7662 introspection with a short per-token cache (keyed by SHA-256)."""
+    ttl = float(os.environ.get("NLDT_INTROSPECTION_CACHE_TTL", "30"))
+    key = hashlib.sha256(token.encode()).hexdigest()
+    hit = _INTROSPECTION_CACHE.get(key)
+    if hit and hit[0] > time.time():
+        return hit[1]
+    active = await introspect_keycloak(token)
+    _INTROSPECTION_CACHE[key] = (time.time() + ttl, active)
+    return active
 
 
 async def introspect_keycloak(token: str) -> bool:
@@ -57,12 +79,13 @@ async def require_bearer(request: Request) -> None:
     if scheme.lower() != "bearer" or not token:
         raise _unauthorized("missing bearer token")
     if mode == "static":
-        if token not in _static_tokens():
+        ok = any(hmac.compare_digest(token, candidate) for candidate in _static_tokens())
+        if not ok:
             raise _unauthorized("invalid token")
         return
     if mode == "keycloak":
         try:
-            active = await introspect_keycloak(token)
+            active = await cached_introspect(token)
         except Exception as exc:
             logger.warning("token introspection failed: %s", exc)
             raise HTTPException(status_code=503, detail="token introspection unavailable") from exc

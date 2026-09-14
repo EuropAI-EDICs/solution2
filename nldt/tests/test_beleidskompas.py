@@ -31,3 +31,4 @@ def test_scan_qa_recipe_tagged_for_beleidskompas():
     tags = rec["properties"]["tags"]
     assert "beleidskompas" in tags
     assert "policy-step:substantiation" in tags
+    assert "legal" in tags
