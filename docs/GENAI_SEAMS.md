@@ -106,7 +106,13 @@ back. Only then are new numbers trusted.
 
 **The receipt trail.** Every number in every report traces to a source
 with a date; every result file carries a checksum. Re-playable in two
-years, offline, by anyone.
+years, offline, by anyone. When wallet mode is on, "checked by whom"
+becomes concrete: executor and approver identity are wallet-anchored —
+the job record carries the wallet-verified executor claims and, where a
+human approved the run, the approver's claims too (see
+[nldt/16-eid-wallet-identity.md](../nldt/16-eid-wallet-identity.md));
+which executions are allowed is decided by trust-policy gates, not UI
+promises.
 
 ---
 

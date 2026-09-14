@@ -139,12 +139,17 @@ wallet-backed, the static mode stays available (testbed/dev).
   human who approved). PROV bundle and the S9 run annex include both → the
   receipt trail answers *"which agent executed this, deployed by whom"* and
   *"which human signed it off"* — additive fields, no format break.
-- **trustPolicy extension (twin instance):**
-  `"identity": {"wallet": {"required": false, "minLoa": "substantial",
-  "requiredRoles": ["policy-officer"], "agentCapabilityModel": "recipes"}}` —
-  per-twin, overridable per recipe by riskLevel (high → minLoa high + role
-  gate + agent-executor allowed only with an explicit capability for that
-  recipe). Agent `capabilities` bind to the BK-2 `application` record's
+- **trustPolicy extension (implemented shape, W3):** gates live in a
+  policy file (example:
+  [`data/trust-policy.example.json`](data/trust-policy.example.json))
+  pointed at by env `NLDT_TRUST_POLICY_FILE`, with per-process entries
+  `{"minLoa": "substantial", "requiredRoles": ["policy-officer"],
+  "agentAssurance": "attested", "humanOnly": true}` (all fields optional;
+  processes without an entry are ungated; an unreadable/invalid policy
+  file fails closed). Agent executors on any gated process additionally
+  need the process id in their claims `capabilities`. Deriving gates from
+  the recipe `riskLevel` automatically (per-recipe overrides) is future
+  work. Agent `capabilities` bind to the BK-2 `application` record's
   `consumesRecipes` allow-list: the credential authorises what the catalog
   record declares.
 
@@ -245,6 +250,8 @@ the test suite.
 produces an nLDT token through the same edge as the mock.
 
 ### W3 — Governance wiring (1 sprint)
+
+**Status:** done (2026-09-14) — trust-policy gates + wallet-verified approver; orchestrator HITL-integration (interrupt wiring) remains W4+.
 
 - trustPolicy identity gates enforced in the process adapter (pre-execution
   check: recipe riskLevel vs human actor LoA/roles **and agent-executor

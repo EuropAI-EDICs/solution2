@@ -91,7 +91,7 @@ A **twin instance** is not a monolith but a configuration:
     "beleidskompas-omgevingsanalyse",
     "breda-scan-qa"
   ],
-  "trustPolicy": { "defaultRiskLevel": "low", "hitlOnFail": true }
+  "trustPolicy": { "defaultRiskLevel": "low", "hitlOnFail": true, "trustPolicyFile": "data/trust-policy.example.json" }
 }
 ```
 
@@ -99,6 +99,10 @@ A **twin instance** is not a monolith but a configuration:
 twin's front door may launch, each scoped to the recipes it may consume —
 first example: beleidskompas
 ([14-beleidskompas-integration.md](14-beleidskompas-integration.md) §8 BK-2).
+The `trustPolicy.trustPolicyFile` pointer plus the `NLDT_TRUST_POLICY_FILE`
+env var activate per-process identity gates (minLoa/requiredRoles/
+agentAssurance/humanOnly) in the process adapter — see
+[16-eid-wallet-identity.md](16-eid-wallet-identity.md).
 
 ## Guiding principles (Geonovum)
 

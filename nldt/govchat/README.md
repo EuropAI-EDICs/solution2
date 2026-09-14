@@ -133,3 +133,41 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST localhost:8088/token \
 Honest caveat: these are ARF-*shaped* mock envelopes against a mock
 verifier — useful for wiring, claims-schema and governance work, never a
 production trust anchor. Protocol truth (real OpenID4VP) is pinned in W2.
+
+### 6a. Trust-policy gates + wallet-verified approver (W3)
+
+Enable (process adapter, `:8082`): point `NLDT_TRUST_POLICY_FILE` at a
+policy file — copy
+[`../data/trust-policy.example.json`](../data/trust-policy.example.json)
+to start from. Without the env var nothing is gated (behavior identical
+to pre-W3); with it, each entry under `"gates"` guards one process with
+optional `minLoa` (low/substantial/high), `requiredRoles`,
+`agentAssurance` (basic/attested/audited, agent executors only) and
+`humanOnly` (agent executors refused). A configured-but-unreadable policy
+file fails closed: every execution gets 503.
+
+Enforced pre-execution in `POST /processes/{id}/execution`: a denial is a
+403 with `{"gate": "<process>", "reason": "..."}` — reasons:
+`missing_wallet_claims` (gated process, no wallet claims), `agent_not_allowed`
+(`humanOnly`), `agent_capability_missing` (agent lacks the process id in
+its `capabilities`), `agent_assurance_below_minimum`, `loa_below_minimum`,
+`missing_role`. Agent executors on *any* gated process need the process id
+in their claims `capabilities` (RP-side, independent of the agent
+wallet's own check in §6).
+
+**Approver header.** Agent runs on gated processes can carry a human
+approver: add `X-nLDT-Approver-Token: <human wallet token>` (wallet auth
+mode only; introspected like the caller token). The approver must be
+`subject_type: human` and satisfy the same gate — refusals reuse the
+reasons above prefixed `approver_` (plus `approver_not_human`). On
+success the job's `actor` records both `executor` and `approver` claims.
+
+```bash
+# agent token from the agent virtual wallet (§6), gated process, approver header
+curl -s -X POST localhost:8082/processes/breda-scan-query/execution \
+  -H 'Content-Type: application/json' \
+  -H "Authorization: Bearer $AGENT_NLDT_TOKEN" \
+  -H "X-nLDT-Approver-Token: $HUMAN_WALLET_TOKEN" \
+  -d '{"inputs": {...}}'
+# 200: actor = {executor: <agent claims>, approver: <human claims>}
+```
