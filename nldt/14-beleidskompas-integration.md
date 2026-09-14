@@ -224,6 +224,12 @@ twin instance lists it; demo shows discover → launch → consume-recipes.
 
 ### BK-3 — Governance hardening (S9)
 
+**Status:** partially done (2026-09-14) — S9 run-annex generator shipped
+(deterministic receipts, `schemas/run-annex.schema.json`, CLI `build-run-annex`);
+auth hardening swept (constant-time compare, introspection cache). Still open:
+HITL/RBAC↔trustPolicy mapping, OTel propagation, Keycloak client (needs IM), and
+the Word/PDF attachment + foreign-side number gate (needs beleidskompas code).
+
 - Specify and implement S9 (§6): grounded-artifact contract + **run annex
   generator** attached to the Word/PDF export; rejection/refusal ledger
   visible on both sides.

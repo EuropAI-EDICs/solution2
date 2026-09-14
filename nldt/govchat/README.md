@@ -49,6 +49,22 @@ protection rejects non-loopback Host headers with 421.
 `ask_scan` returns the full S4 bundle (answer, citations, verdict/gates);
 beleidskompas must quote only from it (seam S9, integration plan §6).
 
+### 3a. Run annex for the policy document (S9)
+
+Save a recipe execution, then generate the traceability annex (JSON + Markdown)
+that travels with the exported document:
+
+```bash
+PYTHONPATH=. python -m services.cli run-recipe beleidskompas-omgevingsanalyse \
+  --aoi-file examples/rijnsweerd/aoi.geojson \
+  --input layerAUri=file://$(pwd)/examples/rijnsweerd/layer-a.geojson \
+  --input layerBUri=file://$(pwd)/examples/rijnsweerd/layer-b.geojson \
+  > /tmp/exec.json
+PYTHONPATH=. python -m services.cli build-run-annex /tmp/exec.json --out annex.md
+```
+
+Beleidskompas (S9 contract): quote only figures that trace to an annex entry.
+
 ## 4. Verify
 
 ```bash

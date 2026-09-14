@@ -171,6 +171,7 @@ Condensed reference; full detail in the code and this file's git history
 | S6 | candidate-rule drafting (`voorgesteld` only; lawyer decides — MC-6) | 2 | designed |
 | S7 | scenario authoring (file/auto/llm; ledger; control reproduction) | 1 · **4** | **implemented on both** (`poc/pipeline/scenario_author.py`; `poc-breda/breda/scenarios.py` — indicator-weight variants over `indicators.DEFAULT_PARAMS`, bit-identical control) |
 | S8 | scenario narration (numeric grounding gate) | 1 | **implemented**; live qwen3.8 run published |
+| S9 | policy-document narration in an external front door (grounded-artifact contract; deterministic run annex, schema `run-annex.schema.json`) | — (beleidskompas BK-3) | **generator implemented** (`nldt/services/run_annex.py` + CLI `build-run-annex`); Word/PDF attachment + number-grounding on the foreign platform's text still open (needs beleidskompas app code) |
 
 **Phase path** — A: scenario contracts + sweep + critic (done) · B: the
 S7/S8 seams + ledgers (done) · B2: real local open models + golden-set

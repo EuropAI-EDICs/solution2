@@ -85,6 +85,7 @@ def cmd_export_context(args: argparse.Namespace) -> int:
 
 
 def cmd_build_run_annex(args: argparse.Namespace) -> int:
+    from services.common.schema import validate_instance
     from services.run_annex import build_run_annex, render_annex_markdown
 
     executions = []
@@ -92,6 +93,7 @@ def cmd_build_run_annex(args: argparse.Namespace) -> int:
         with Path(path).open(encoding="utf-8") as f:
             executions.append(json.load(f))
     annex = build_run_annex(executions)
+    validate_instance(annex, "run-annex.schema.json")
     md = render_annex_markdown(annex)
     if args.out:
         Path(args.out).write_text(md, encoding="utf-8")

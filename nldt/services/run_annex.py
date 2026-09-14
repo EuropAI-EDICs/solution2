@@ -2,9 +2,11 @@
 
 Given recipe executions (services.recipe_runner.run_recipe shape), build a
 deterministic annex document: every spatial number in an exported policy
-document must trace to a step jobId + PROV bundle recorded here. Identical
-executions produce an identical annex — no wall-clock fields — so an annex
-re-generated after an offline replay must match byte-for-byte.
+document must trace to a step jobId + PROV bundle recorded here. Annex
+generation is a pure function of the recorded executions: re-generating
+from the same execution JSON is byte-identical. Re-executing a recipe
+produces fresh jobIds and PROV timestamps by design — the annex records
+the runs that actually produced the numbers.
 """
 
 from __future__ import annotations
