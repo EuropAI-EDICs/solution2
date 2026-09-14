@@ -7,7 +7,7 @@ capabilities through the governed seams.
 
 | | |
 |---|---|
-| Status | Decided 2026-09-14 (§10) · BK-0 not yet started |
+| Status | Decided 2026-09-14 (§10) · BK-0 + BK-1 implemented (runbook: govchat/README.md) |
 | Source app | [beleidskompas.md (GovChat-NL)](https://github.com/jeannotdamoiseaux/GovChat-NL/blob/main/docs/app-launcher/beleidskompas/beleidskompas.md) |
 | Related | [04](04-recipes-and-processes.md) · [05](05-agentic-ai-layer.md) · [07](07-trust-and-governance.md) · [09](09-federation-and-observability.md) · [10](10-toolbox-integration.md) · [12](12-governed-agent-layer.md) · [`../docs/GENAI_SEAMS.md`](../docs/GENAI_SEAMS.md) |
 | Strategic frame | NLDT App Store 2028 — *modular apps exchanged in existing front doors* ([Q3 2026 report](../NLDT%20Q3%202026%20Quarterly%20Report%20%E2%80%93%20Summary%20in%20English%20%28App%20Store%20Focus%29.md)) |
@@ -166,6 +166,8 @@ under the rug.
 
 ### BK-0 — Connectivity spike (days)
 
+**Status:** done — see [govchat/BK0-FINDINGS.md](govchat/BK0-FINDINGS.md) (bridge engine: Kestra, decision 6).
+
 - Run GovChat-NL locally per their README; `./scripts/start-services.sh`.
 - Kestra flow (Option C, throwaway; decision 6): webhook trigger → `POST :8082/processes/fetch-features/execution` on the layer-a example → publish features via `POST :8084/exports` → answer with the GeoJSON export URL. Every execution is kept as a per-task audit record (inputs/outputs per task, replayable) — extending the receipt-trail doctrine to the bridge layer. (The spec originally said n8n and `spatial-overlay-analysis/execution`; that id is a *recipe*, not a process, so the POST would 404 — corrected during execution.)
 - Docs-only stance towards GovChat-NL (decision 5, §10): monitor their repo
@@ -179,6 +181,8 @@ audit record; findings written down. Surfacing in OpenWebUI chat is a
 recorded human step (needs the front door's admin login).
 
 ### BK-1 — Governed MVP via MCP (1–2 sprints)
+
+**Status:** done — see [govchat/README.md](govchat/README.md) (context3d :8084 left public, see §7).
 
 - Beleidskompas mounts the nLDT MCP servers (`nldt-catalog-mcp`,
   `nldt-process-mcp`, `nldt-poc-mcp`) via its platform's engine or directly —

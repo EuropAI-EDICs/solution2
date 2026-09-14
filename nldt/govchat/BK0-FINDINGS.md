@@ -49,5 +49,5 @@ Verified 2026-09-14 (Task 3). Retitled from "n8n → nLDT bridge" — engine swa
 ## Deviations / surprises
 - Running OpenWebUI is the **upstream** `:main` image (0.11.3), not a GovChat-NL fork build — that is their compose default; GovChat-NL's repo version label (0.8.12 in package.json) does not match what runs.
 - The `govchat-nl_open-webui` Docker volume predates this task (admin account from 2025-11-11), so the planned `bk-admin@local.test` first-run signup could not be created (403, signup disabled + owner exists). Pre-existing admin `marc.minnee@gmail.com` is used instead.
-- The GovChat-NL compose includes an `ollama` sidecar that BK-0 does not use (nLDT is the intended backend via the Task 3 n8n bridge); it is left running as-is.
-- n8n owner account has not been created yet (setup screen pending) — Task 3 needs it before building workflows.
+- The GovChat-NL compose includes an `ollama` sidecar that BK-0 does not use; it is left running as-is.
+- n8n spike superseded by Kestra (decision 6) — see Kestra → nLDT bridge section.
