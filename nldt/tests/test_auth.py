@@ -86,3 +86,31 @@ def test_unknown_mode_fails_closed(guarded_client, monkeypatch):
     monkeypatch.setenv("NLDT_AUTH_MODE", "banana")
     resp = guarded_client.get("/ping", headers={"Authorization": "Bearer x"})
     assert resp.status_code == 500
+
+
+def test_services_guarded_in_static_mode(monkeypatch):
+    from services.a2a.app import app as a2a_app
+    from services.catalog_adapter.app import app as catalog_app
+    from services.cookbook.app import app as cookbook_app
+    from services.process_adapter.app import app as process_app
+
+    monkeypatch.setenv("NLDT_AUTH_MODE", "static")
+    monkeypatch.setenv("NLDT_STATIC_TOKENS", "svc-tok")
+    cases = [
+        (cookbook_app, "/recipes/spatial-overlay-analysis"),
+        (process_app, "/processes"),
+        (catalog_app, "/records"),
+        (a2a_app, "/agent-card"),
+    ]
+    for app, path in cases:
+        client = TestClient(app)
+        assert client.get(path).status_code == 401, f"{app.title}: anonymous must be 401"
+        ok = client.get(path, headers={"Authorization": "Bearer svc-tok"})
+        assert ok.status_code == 200, f"{app.title}: valid token must pass ({ok.status_code})"
+
+
+def test_services_open_by_default():
+    from services.process_adapter.app import app as process_app
+
+    client = TestClient(process_app)
+    assert client.get("/processes").status_code == 200
