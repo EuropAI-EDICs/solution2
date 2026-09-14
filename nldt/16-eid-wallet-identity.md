@@ -170,6 +170,34 @@ wallet-backed, the static mode stays available (testbed/dev).
   shapes real, trust anchors local); real Keycloak OID4VCI issuer + EC
   reference wallet interop in W2/W6.
 
+### Alignment with European Business Wallets (EBW)
+
+The deploying administration in §6a is a **legal person** — and the EC's
+[European Business Wallets](https://digital-strategy.ec.europa.eu/en/policies/business-wallets)
+track covers exactly this: a Regulation on the establishment of European
+Business Wallets is in the ordinary legislative procedure (proposal in the
+digital omnibus package; Council general approach 9 June 2026; trilogue
+pending), building on the EUDI Wallet architecture, with mandatory acceptance
+by public administrations two years after adoption. Its function list includes
+**"delegate others to act on their behalf in a legal capacity"** — which is
+precisely the deploying-administration → agent delegation this plan models.
+
+Consequences:
+
+- The **agent credential is profiled as an EBW-style organisational
+  delegation attestation**, not a bespoke format: issuer = the deploying
+  administration (organisational wallet / Keycloak OID4VCI in the testbed),
+  subject = the agent, semantics = delegation with capability scope. Our
+  claims model (`agentId`/`deployingOrg`/`capabilities`/`assurance`) already
+  matches; only the credential encoding profiles onto the EBW rulebook when
+  it lands (W6 tracks it).
+- Public-administration acceptance of business wallets will be **obligatory**
+  post-adoption — the nLDT testbed becoming an early EBW-accepting relying
+  party is the same strategic play as the EUDI reference-RP positioning
+  (decisions 5), and strengthens the App Store governance story.
+- The [WeBuild consortium](https://webuildconsortium.eu) pilot (Digital
+  Europe Programme) is the observation point for implementation practice.
+
 ## 7. Phased plan
 
 ### W0 — Contracts & decisions (days, docs only)
@@ -286,6 +314,7 @@ revocation blocks a subsequent presentation.
 | Machine assurance not standardised (eIDAS LoA is person-oriented) | Confusing trust semantics | Administration defines its own `assurance` scale for agent credentials, documented in the issuer config; nLDT gates on the declared scale, never assumes LoA equivalence |
 | Capability drift (credential vs BK-2 application record) | Over-authorised agent | Issuance derives capabilities from the record's `consumesRecipes`; RP edge cross-checks both; re-issuance on record change |
 | Agent-credential revocation latency | Revoked agent keeps working | Status-list check at presentation AND token TTL short (minutes, not days); trustPolicy may cap TTL for high-risk recipes |
+| Business Wallet Regulation in trilogue (not adopted; shapes may shift) | Agent-credential profile rework in W6 | Claims model is profile-agnostic; W6 profiles onto the EBW rulebook only when final; track the trilogue + WeBuild pilot; post-adoption public-admin acceptance obligation is an opportunity, not a threat |
 
 ## 9. Relation to the previous BK-3 scope
 
@@ -312,6 +341,7 @@ revocation blocks a subsequent presentation.
 | 7 | Agent assurance scale | Administration-defined three levels: **`basic | attested | audited`** (never equated to eIDAS human LoA) |
 | 8 | Capability model | **Recipe/process-level** (`consumesRecipes`-aligned, BK-2) |
 | 9 | Token TTL | **Minutes (default 300 s)** for wallet-issued tokens; trustPolicy may cap tighter for high-risk recipes |
+| 10 | Agent-credential profiling (2026-09-14, after user review of the EBW track) | **Profile the agent credential as an EBW-style organisational delegation attestation** ("delegate others to act on their behalf in a legal capacity"); W6 profiles onto the final EBW rulebook, tracking the trilogue and the WeBuild pilot |
 
 **ARF alignment (binding for all wallet work):** implementations follow the
 [ARF](https://github.com/eu-digital-identity-wallet/eudi-doc-architecture-and-reference-framework)
@@ -338,6 +368,13 @@ implementation plan and findings, never silent.
 - NL: <https://www.nldigitalgovernment.nl/overview/identity/id-wallet/> ·
   EU pilots (POTENTIAL incl. NL):
   <https://digital-strategy.ec.europa.eu/en/policies/eudi-wallet-implementation>
+- European Business Wallets:
+  <https://digital-strategy.ec.europa.eu/en/policies/business-wallets> ·
+  proposal:
+  <https://digital-strategy.ec.europa.eu/en/library/proposal-regulation-establishment-european-business-wallets> ·
+  EP legislative train:
+  <https://www.europarl.europa.eu/legislative-train/theme-a-new-plan-for-europe-s-sustainable-prosperity-and-competitiveness/file-european-business-wallet> ·
+  WeBuild pilot: <https://webuildconsortium.eu>
 - Internal: [07-trust-and-governance.md](07-trust-and-governance.md) ·
   [10-toolbox-integration.md](10-toolbox-integration.md) ·
   [14-beleidskompas-integration.md](14-beleidskompas-integration.md) §8/§10
