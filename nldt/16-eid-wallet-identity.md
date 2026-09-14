@@ -298,28 +298,32 @@ revocation blocks a subsequent presentation.
 - **Replaced:** "Keycloak client provisioning when IM exists" broadens into
   the wallet track (Keycloak remains the production verifier candidate, W2).
 
-## 10. Open decisions
+## 10. Decisions (2026-09-14 — user directive: follow the EUDI implementation
+## guidelines as closely as possible; controller recommendations adopted)
 
-1. **Verifier path:** confirm C (pluggable, mock-first) with convergence on
-   Keycloak — or go straight for pyeudiw direct?
-2. **Token model:** opaque tokens + local introspection (recommended — mirrors
-   the keycloak mode, zero new deps) vs signed JWTs (needs a JWT library).
-3. **Claims set:** is `sub/loa/org/roles` the right minimal set, or do
-   scenarios need pseudonymised citizen access (residents asking scan
-   questions) with a lower LoA lane?
-4. **Port/namespace:** auth_wallet on :8087, agent_wallet on :8088?
-5. **NL engagement:** approach Logius/NL Digital Government about reference-RP
-   participation — same moment as the GovChat-NL outreach (one story:
-   "wallet-ready DT front doors").
-6. **Agent wallet form:** sidecar service (recommended — one implementation,
-   keys isolated from agent runtimes) vs in-process library per agent?
-7. **Agent assurance scale:** adopt a simple three-level administration-defined
-   scale (e.g. `basic|attested|audited`), or align with an existing scheme
-   (EU Cloud/IAL-style)?
-8. **Capability model:** bind credentials to `consumesRecipes` (recipe-level,
-   recommended — matches BK-2) or to capability tags (`mcp`, `ogc-processes`)?
-9. **Token TTL for agent tokens:** minutes (tight revocation, recommended) vs
-   hours (fewer introspections)?
+| # | Decision | Choice |
+|---|---|---|
+| 1 | Verifier path | **C — pluggable, mock-first**, converging on Keycloak (toolbox IM) for production; pyeudiw adapter as fallback |
+| 2 | Token model | **Opaque tokens + local RFC 7662 introspection** (mirrors keycloak mode, zero new deps) |
+| 3 | Claims set | `subject_type` + human `sub/loa/org/roles` + agent `agentId/deployingOrg/capabilities/assurance`; pseudonymised low-LoA citizen lane deferred (data model allows it) |
+| 4 | Ports | **auth_wallet :8087, agent_wallet :8088** |
+| 5 | NL engagement | Approach Logius/NL Digital Government on reference-RP participation together with the GovChat-NL outreach (organisational action) |
+| 6 | Agent wallet form | **Sidecar service** — one implementation, keys isolated from agent runtimes |
+| 7 | Agent assurance scale | Administration-defined three levels: **`basic | attested | audited`** (never equated to eIDAS human LoA) |
+| 8 | Capability model | **Recipe/process-level** (`consumesRecipes`-aligned, BK-2) |
+| 9 | Token TTL | **Minutes (default 300 s)** for wallet-issued tokens; trustPolicy may cap tighter for high-risk recipes |
+
+**ARF alignment (binding for all wallet work):** implementations follow the
+[ARF](https://github.com/eu-digital-identity-wallet/eudi-doc-architecture-and-reference-framework)
+(latest tagged release; Annex 2 high-level technical requirements) and the
+profiles it mandates — OpenID4VP (client_id scheme `x509_san_dns` for
+redirect-based RPs), DCQL-style credential queries, mdoc (ISO/IEC 18013-5)
+and SD-JWT VC credential formats, and Token Status List for revocation.
+W1/W5 use ARF-*shaped* envelopes against the mock verifier; W2 pins the exact
+ARF requirement IDs and runs the EC conformance materials
+([conformance.eudi.dev](https://conformance.eudi.dev)) when the real backend
+lands. Deviations (e.g. a local mock trust anchor) are recorded in the
+implementation plan and findings, never silent.
 
 ## 11. References
 
