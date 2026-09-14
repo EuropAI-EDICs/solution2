@@ -193,6 +193,7 @@ Diagram: [`diagrams/data-lake-space.mmd`](diagrams/data-lake-space.mmd).
 | `opportunity-map-run`, `scenario-*`, `crosstrack-overlay` | Utrecht · [12](12-governed-agent-layer.md) |
 | `breda-scan-run`, `breda-scan-query` | Breda S4 · [11](11-poc-patterns-scenarios-qa.md) |
 | `rijnland-peil-conflict` | Rijnland peil · recipe [`recipes/rijnland-peil-conflict.json`](recipes/rijnland-peil-conflict.json) |
+| `rijnland-peil-whatif` | Peilen what-if → CDC lake + multi-scenario Leaflet map · [15](15-cdc-data-lake-pipeline.md) |
 | `lake-publish-dataset` | Data Space · [13](13-data-lake-and-space.md) |
 
 Tests: [`tests/test_poc_processes.py`](tests/test_poc_processes.py),
@@ -255,7 +256,7 @@ Scripts: [`build_lake_inventory.py`](scripts/build_lake_inventory.py),
 |-----|------|--------------|
 | Utrecht opportunity / scenario / crosstrack | [`../poc/`](../poc/) | processes + recipes · [SOLUTIONS_ARCHITECTURE](../docs/SOLUTIONS_ARCHITECTURE.md) |
 | Breda five-value scan | [`../poc-breda/`](../poc-breda/) | `breda-scan-*` |
-| Rijnland peil conflict | [`../poc-rijnland/`](../poc-rijnland/) | `rijnland-peil-conflict` · ArcGIS lake bronze |
+| Rijnland peil conflict + peilen what-if (CDC) | [`../poc-rijnland/`](../poc-rijnland/) | `rijnland-peil-conflict`, `rijnland-peil-whatif` · ArcGIS lake bronze · [15](15-cdc-data-lake-pipeline.md) |
 | Eindhoven BP2OP | [`../poc-bp2op/`](../poc-bp2op/) | registration open ([12 §5.5](12-governed-agent-layer.md)) |
 
 Governed agent layer plan: [12-governed-agent-layer.md](12-governed-agent-layer.md).  
@@ -330,6 +331,7 @@ CLI: `PYTHONPATH=. python -m services.cli …`
 | Publish Data Space offer | process `lake-publish-dataset` · [13 § Data Space](13-data-lake-and-space.md#data-space-participant) |
 | Utrecht wind/solar/forest opportunity map | [SOLUTIONS_ARCHITECTURE](../docs/SOLUTIONS_ARCHITECTURE.md) |
 | Rijnland peil conflict | [`../poc-rijnland/README.md`](../poc-rijnland/README.md) · process `rijnland-peil-conflict` |
+| Rijnland peilen what-if (CDC + scenario map) | [15](15-cdc-data-lake-pipeline.md) · process `rijnland-peil-whatif` · MCP tool `run_peil_whatif` |
 
 ---
 
@@ -341,6 +343,7 @@ CLI: `PYTHONPATH=. python -m services.cli …`
 | 3–4 | Federation, 3D, A2A, OTel | [09](09-federation-and-observability.md) |
 | **5** | Governed agent layer over PoCs | [12](12-governed-agent-layer.md) |
 | **6** | Data lake + Data Space + lakehouse | [13](13-data-lake-and-space.md) |
+| **6b** | CDC pipeline in the lake (Rijnland peilen) | [15](15-cdc-data-lake-pipeline.md) |
 | **BK** | Beleidskompas front-door app (BK-0…BK-2 done; BK-3 = wallet track) | [14](14-beleidskompas-integration.md) |
 | **W** | eID Wallet identity (W1/W3/W5 done, mock; W2/W6 real backend) | [16](16-eid-wallet-identity.md) |
 
