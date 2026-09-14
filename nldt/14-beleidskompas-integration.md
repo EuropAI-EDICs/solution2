@@ -272,6 +272,7 @@ numbers and its annex re-runs offline, bit-identically.
 | 4 | `application` record type (BK-2) | **After the BK-1 MVP** proves the consumption loop |
 | 5 | GovChat-NL engagement | **Docs-only** until the local MVP works, then approach the community (biweekly meeting) with a working demo; license verified from the repo in the meantime (§9) |
 | 6 | Bridge/orchestration engine (added mid-execution, 2026-09-14) | **Kestra** — Apache-2.0 (n8n's Sustainable-Use license is not open source), flow-as-code in git, per-task execution I/O records and replay = the auditability the nLDT receipt-trail doctrine demands; doubles as scheduler for the future source monitor. Node-RED rejected (no persisted per-message history); Activepieces rejected (DB-stored builder flows); OpenWebUI-native tool kept as a future option (needs admin login). The nLDT seams (MCP/OGC-HTTP) stay engine-agnostic — any engine can drive them. |
+| 7 | BK-3 re-scope (2026-09-14) | **Drop the annex-attachment work** (Word/PDF attachment + foreign-side number gate — deferred until beleidskompas code exists; the annex generator stays as merged) **and integrate EU Digital Identity Wallet** identity instead. Plan: [16-eid-wallet-identity.md](16-eid-wallet-identity.md) — pluggable verifier (mock now, Keycloak/pyeudiw later), wallet-verified actors in jobs/PROV/annex, trustPolicy LoA gates. The Keycloak-client-provisioning item broadens into that track. |
 
 ## 11. References
 
