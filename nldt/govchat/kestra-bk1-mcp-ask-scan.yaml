@@ -1,0 +1,79 @@
+id: bk1-mcp-ask-scan
+namespace: bk0
+description: >
+  BK-1 governed demo — Kestra (Docker) calls the nLDT poc MCP server over
+  streamable-HTTP (:8093) with a bearer token: MCP handshake -> tools/call
+  ask_scan (S4 grounded Q&A, cite-or-abstain). Every execution is a durable
+  per-task audit record. See nldt/14-beleidskompas-integration.md (BK-1) and
+  nldt/govchat/README.md.
+
+triggers:
+  - id: mcp-demo
+    type: io.kestra.plugin.core.trigger.Webhook
+    key: mcp-demo
+
+tasks:
+  - id: initialize
+    type: io.kestra.plugin.core.http.Request
+    uri: http://host.docker.internal:8093/mcp
+    method: POST
+    headers:
+      Content-Type: application/json
+      Accept: application/json, text/event-stream
+      Authorization: Bearer beleidskompas-svc-tok
+    body: |
+      {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "initialize",
+        "params": {
+          "protocolVersion": "2025-03-26",
+          "capabilities": {},
+          "clientInfo": {"name": "kestra-bk1-demo", "version": "1.0.0"}
+        }
+      }
+
+  - id: initialized
+    type: io.kestra.plugin.core.http.Request
+    uri: http://host.docker.internal:8093/mcp
+    method: POST
+    headers:
+      Content-Type: application/json
+      Accept: application/json, text/event-stream
+      Authorization: Bearer beleidskompas-svc-tok
+      Mcp-Session-Id: "{{ outputs.initialize.headers['mcp-session-id'][0] }}"
+    body: |
+      {"jsonrpc": "2.0", "method": "notifications/initialized"}
+
+  - id: call_ask_scan
+    type: io.kestra.plugin.core.http.Request
+    uri: http://host.docker.internal:8093/mcp
+    method: POST
+    headers:
+      Content-Type: application/json
+      Accept: application/json, text/event-stream
+      Authorization: Bearer beleidskompas-svc-tok
+      Mcp-Session-Id: "{{ outputs.initialize.headers['mcp-session-id'][0] }}"
+    body: |
+      {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "method": "tools/call",
+        "params": {
+          "name": "ask_scan",
+          "arguments": {"question": "Why does Belcrum score low on spatial value?"}
+        }
+      }
+
+  - id: answer
+    type: io.kestra.plugin.core.debug.Return
+    format: |
+      {{ outputs['call_ask_scan'].body }}
+
+outputs:
+  - id: rawAnswer
+    type: STRING
+    value: "{{ outputs['call_ask_scan'].body }}"
+  - id: sessionId
+    type: STRING
+    value: "{{ outputs.initialize.headers['mcp-session-id'][0] }}"

@@ -61,6 +61,11 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST http://127.0.0.1:8091/mcp \
 BK-0 spike artifacts: [`BK0-FINDINGS.md`](BK0-FINDINGS.md),
 [`kestra-bk0-bridge-flow.yaml`](kestra-bk0-bridge-flow.yaml) (throwaway
 plain-HTTP bridge, superseded by the MCP path; engine pluggable — decision 6).
+Governed demo (BK-1):
+[`kestra-bk1-mcp-ask-scan.yaml`](kestra-bk1-mcp-ask-scan.yaml) — webhook →
+MCP handshake on :8093 with bearer token → `tools/call ask_scan`; verified
+2026-09-14 (status `answered`, `groundingFails: []`, jobId traceable, whole
+chain a per-task audited Kestra execution).
 
 ## 5. Kestra bridge (BK-0 artifact)
 
