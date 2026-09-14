@@ -351,7 +351,7 @@ Extends plan §8 with the PoC column.
 | B1+ "what if the rules change?" | scenario planning behind gated seams | scenario plane (§3.4): deterministic sweeps + provenance-basis contracts; open-model author/narrator (S7/S8) propose-only, schema+grounding gated, verified live on qwen3.8 |
 | B1+ "where do ambitions collide?" | deterministic overlay over re-executed controls | cross-track conflict engine (`poc/pipeline/crosstrack.py`): pairwise + shared-zone claims; canonical finding zon × bos 94.7% |
 | B congestion use case | EnergyCast as MCP tool | art. 5.10/5.11 energietoets formalized as non-spatial condition; grid model Phase 4/5 |
-| A4 FAIR cross-org sharing | data space + identities | future Phase 5 (EU LDT Data Space Ready) |
+| A4 FAIR cross-org sharing | data space + identities | **nLDT Fase 6** — lake + Data Space participant (`nldt/13-data-lake-and-space.md`); mock connector + ODRL stub; production IDS/EDC later |
 | B5 citizen contestability | eParticipation for V4 | V4 review bundle designed as the contestation artifact |
 
 ---

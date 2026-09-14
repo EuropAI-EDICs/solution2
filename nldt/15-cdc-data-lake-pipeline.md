@@ -227,28 +227,58 @@ Scenario deltas on peilen archive → CDC bronze batch → DuckDB silver apply �
 `whatif-report.json` + `whatif-diff.html` + **`whatif-map.html`** (Leaflet,
 Breda-style scenario panel; modes na / vóór / Δ) + optional peil-conflict replay.
 
-Smoke (map): after a run, open
-`poc-rijnland/runs/<ts>-peilen-whatif/whatif-map.html` (needs network for
-Leaflet/OSM CDN). Default colour = absolute peil **na** scenario so uniform
-Δ still shows spatial variation.
+**Artefacts** (under `poc-rijnland/runs/<ts>-peilen-whatif/`):
 
-### Multi-scenario map (fase 2)
+| File | Role |
+|------|------|
+| `peilen-whatif.json` | Active scenario applied to peilen archive |
+| `changes.json` / `whatif-diff.html` | Station delta table |
+| `whatif-map.html` | Multi-scenario Leaflet map (default) |
+| `whatif-report.json` | Summary + `mapHtml` / doctrine |
+| `cdc-apply.json` | Present when lake apply ran |
 
-Default map loads `examples/rijnland-whatif-demo-pack.json` (boezem ±5 cm,
-polders +10 cm) plus the CLI/process scenario. Click scenario cards to recolour.
-Only the active scenario is written to CDC/silver.
+Smoke (map): after a run, open `whatif-map.html` (needs network for
+**jsDelivr Leaflet** + **Carto** basemap tiles — not OSM
+`tile.openstreetmap.org`, which often returns 403). Default colour =
+absolute peil **na** the selected scenario so uniform Δ still shows spatial
+variation.
+
+### Multi-scenario map (fase 2 — implemented)
+
+Default map loads [`examples/rijnland-whatif-demo-pack.json`](examples/rijnland-whatif-demo-pack.json)
+(boezem ±5 cm, polders +10 cm) plus the CLI/process scenario. Click scenario
+cards to recolour client-side. Only the **active** scenario is written to
+CDC/silver (`lakeApplied` badge on the panel). Doctrine: *AI proposes ·
+pipeline disposes · human decides*.
 
 ```bash
-PYTHONPATH=. python scripts/rijnland_whatif_peilen.py --delta-m 0.05 --layer boezem --no-conflict --no-lake
+cd nldt
+PYTHONPATH=. .venv/bin/python scripts/rijnland_whatif_peilen.py \
+  --delta-m 0.05 --layer boezem --no-conflict --no-lake
 open ../poc-rijnland/runs/<ts>-peilen-whatif/whatif-map.html
-# v1 single-scenario map:
-PYTHONPATH=. python scripts/rijnland_whatif_peilen.py --delta-m 0.05 --layer boezem --no-demo-pack --no-lake --no-conflict
+
+# v1 single-scenario map (no demo pack):
+PYTHONPATH=. .venv/bin/python scripts/rijnland_whatif_peilen.py \
+  --delta-m 0.05 --layer boezem --no-demo-pack --no-lake --no-conflict
 ```
 
+CLI flags: `--demo-pack PATH`, `--no-demo-pack`, `--no-lake`, `--no-conflict`.
+
+Design / plan:
+
+- [`docs/superpowers/specs/2026-09-14-rijnland-peilen-whatif-map-design.md`](../docs/superpowers/specs/2026-09-14-rijnland-peilen-whatif-map-design.md) (v1 map)
+- [`docs/superpowers/specs/2026-09-14-rijnland-peilen-whatif-map-fase2-design.md`](../docs/superpowers/specs/2026-09-14-rijnland-peilen-whatif-map-fase2-design.md) (multi-scenario)
+
 - Module: [`services/rijnland_whatif.py`](services/rijnland_whatif.py)
-- CLI: `scripts/rijnland_whatif_peilen.py`
+- CLI: [`scripts/rijnland_whatif_peilen.py`](scripts/rijnland_whatif_peilen.py)
 - Process / recipe: `rijnland-peil-whatif`
-- Example: [`examples/rijnland-whatif-boezem-plus5cm.json`](examples/rijnland-whatif-boezem-plus5cm.json)
+- MCP alias: `run_peil_whatif`
+- Examples: [`examples/rijnland-whatif-boezem-plus5cm.json`](examples/rijnland-whatif-boezem-plus5cm.json),
+  [`examples/rijnland-whatif-demo-pack.json`](examples/rijnland-whatif-demo-pack.json)
+- Tests: `tests/test_rijnland_whatif.py`
+
+**Later (not done):** fase 3 hex / peil-conflict herattach on what-if peilen;
+fase 4 MCP list/open artefact URI.
 
 ---
 

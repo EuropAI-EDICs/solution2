@@ -1,5 +1,6 @@
 # Rijnland peilen what-if map fase 2 (multi-scenario) Implementation Plan
 
+> **Status:** implemented on branch (commit series ending with multi-scenario map).
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Ship a multi-scenario Breda-style peilen map: fixed demo pack in the panel, only the CLI/process scenario disposed to CDC/lake.

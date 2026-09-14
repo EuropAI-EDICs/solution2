@@ -107,6 +107,7 @@ Geen wijziging aan `poc-breda/`. Optioneel later: CLI-flag `--no-map`.
 
 ## Niet-doelen / latere fasen
 
-- Fase 2: multi-scenario in één HTML (meerdere variants zoals Breda).
+- ~~Fase 2: multi-scenario in één HTML~~ — **done**
+  ([fase2 design](2026-09-14-rijnland-peilen-whatif-map-fase2-design.md)).
 - Fase 3: hex-choropleth of peil-conflict herattach op what-if peilen.
 - Fase 4: MCP-tool `open`/`list` artefact-URI voor agents.

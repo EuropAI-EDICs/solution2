@@ -27,7 +27,7 @@ Generic reference implementation of a **Dutch Local Digital Twin (nLDT)** for ag
 | [12-governed-agent-layer.md](12-governed-agent-layer.md) | **Phase 5:** one nLDT/MCP layer across all PoCs |
 | [13-data-lake-and-space.md](13-data-lake-and-space.md) | **Phase 6:** data lake + DuckDB/Iceberg/dbt + Data Space |
 | [14-beleidskompas-integration.md](14-beleidskompas-integration.md) | **Plan:** GovChat-NL beleidskompas as first external front-door app |
-| [15-cdc-data-lake-pipeline.md](15-cdc-data-lake-pipeline.md) | **Plan:** CDC in data lake pipeline only (DuckDB/Iceberg/dbt; no RisingWave) |
+| [15-cdc-data-lake-pipeline.md](15-cdc-data-lake-pipeline.md) | **Implemented:** CDC lake pipeline + Rijnland peilen what-if map (multi-scenario) |
 | [16-eid-wallet-identity.md](16-eid-wallet-identity.md) | **Plan:** EU Digital Identity Wallet identity layer (BK-3 re-scope) |
 
 ## Code

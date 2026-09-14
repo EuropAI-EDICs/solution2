@@ -13,6 +13,22 @@ via ArcGIS REST (`rijnland.enl-mcs.nl`), peilgebied (vigerend) × peilafwijking 
 
 Design: [`docs/superpowers/specs/2026-09-10-poc3-rijnland-h3-design.md`](../docs/superpowers/specs/2026-09-10-poc3-rijnland-h3-design.md).
 
+## What-if peilen-kaart (nLDT CDC — geïmplementeerd)
+
+Simulatie van peilverschuivingen (bijv. boezem +5 cm) via de nLDT lake-pipeline,
+niet via ArcGIS-schrijven. Output o.a. multi-scenario Leaflet-kaart:
+
+```bash
+cd ../nldt
+PYTHONPATH=. .venv/bin/python scripts/rijnland_whatif_peilen.py \
+  --delta-m 0.05 --layer boezem --no-conflict --no-lake
+open ../poc-rijnland/runs/<ts>-peilen-whatif/whatif-map.html
+```
+
+Paneel: demopakket (boezem ±5 cm, polders +10 cm) + actief CLI-scenario;
+alleen het actieve scenario gaat naar CDC/silver. Docs:
+[`nldt/15-cdc-data-lake-pipeline.md`](../nldt/15-cdc-data-lake-pipeline.md#rijnland-what-if-implemented).
+
 ## Run
 
 ```bash

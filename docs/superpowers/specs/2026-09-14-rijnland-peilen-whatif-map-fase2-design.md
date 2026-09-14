@@ -1,5 +1,10 @@
 # Rijnland peilen what-if map — fase 2 multi-scenario (design)
 
+**Status:** implemented (2026-09-14) — see
+[`nldt/15-cdc-data-lake-pipeline.md`](../../../nldt/15-cdc-data-lake-pipeline.md#multi-scenario-map-fase-2--implemented)
+and plan
+[`../plans/2026-09-14-rijnland-peilen-whatif-map-fase2.md`](../plans/2026-09-14-rijnland-peilen-whatif-map-fase2.md).
+
 **Vraag.** Hoe tonen we **meerdere peilen-scenario’s in één** Breda-stijl
 `whatif-map.html`, met een vast demopakket, terwijl de lake-pipeline alleen het
 CLI-/process-scenario disposet?

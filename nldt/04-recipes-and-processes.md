@@ -61,6 +61,7 @@ sequenceDiagram
 | `breda-scan-query` / `breda-scan-run` | Breda five-value scan Q&A / run |
 | `opportunity-map-run` / `scenario-*` / `crosstrack-overlay` | Utrecht Plane A/B/C |
 | `rijnland-peil-conflict` | Rijnland water-level area × water-level deviation |
+| `rijnland-peil-whatif` | Peilen what-if → CDC bronze/silver + multi-scenario Leaflet map (`whatif-map.html`) |
 | `lake-publish-dataset` | Data Space offer (ODRL stub) over `lake://` URI |
 
 **Lake pipeline:** Processes run in the Cook (`process_adapter`), not in

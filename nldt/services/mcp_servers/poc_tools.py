@@ -39,7 +39,7 @@ POC_TOOLS: dict[str, dict[str, Any]] = {
     },
     "run_peil_whatif": {
         "process_id": "rijnland-peil-whatif",
-        "description": "Rijnland peilen what-if simulation via CDC lake pipeline",
+        "description": "Rijnland peilen what-if via CDC lake + multi-scenario Leaflet map (demo pack map-only)",
     },
     "run_bp2op_transform": {
         "process_id": "bp2op-transform",
