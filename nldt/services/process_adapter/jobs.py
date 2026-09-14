@@ -8,7 +8,12 @@ from services.process_adapter.router import route_execute
 _JOBS: dict[str, dict[str, Any]] = {}
 
 
-def create_job(process_id: str, inputs: dict[str, Any], backend: str = "local") -> dict[str, Any]:
+def create_job(
+    process_id: str,
+    inputs: dict[str, Any],
+    backend: str = "local",
+    actor: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     job_id, outputs, prov = route_execute(process_id, inputs, backend=backend)
     record = {
         "jobId": job_id,
@@ -23,6 +28,8 @@ def create_job(process_id: str, inputs: dict[str, Any], backend: str = "local") 
             {"rel": "results", "href": f"/jobs/{job_id}/results"},
         ],
     }
+    if actor is not None:
+        record["actor"] = actor
     _JOBS[job_id] = record
     return record
 

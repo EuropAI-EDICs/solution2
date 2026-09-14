@@ -35,6 +35,8 @@ def build_run_annex(executions: list[dict[str, Any]]) -> dict[str, Any]:
         }
         if isinstance(ex.get("validation_report"), dict):
             run["validationReport"] = ex["validation_report"]
+        if isinstance(ex.get("actor"), dict):
+            run["actor"] = ex["actor"]
         runs.append(run)
     return {"annexVersion": ANNEX_VERSION, "runs": runs}
 

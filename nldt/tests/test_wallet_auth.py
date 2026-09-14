@@ -79,3 +79,24 @@ def test_wallet_mode_rejects_inactive_token(claims_client, monkeypatch):
     monkeypatch.setattr(auth, "introspect_wallet", fake)
     monkeypatch.setenv("NLDT_AUTH_MODE", "wallet")
     assert claims_client.get("/who", headers={"Authorization": "Bearer t"}).status_code == 401
+
+
+def test_wallet_mode_rejects_invalid_claims(monkeypatch):
+    """Active but malformed introspection payload fails loud (500), nothing stored."""
+    import services.common.auth as auth
+
+    async def fake(token: str) -> dict:
+        return {"active": True, "subject_type": "agent"}  # agent without agent claims
+
+    monkeypatch.setattr(auth, "introspect_wallet", fake)
+    monkeypatch.setenv("NLDT_AUTH_MODE", "wallet")
+    app = FastAPI(dependencies=[Depends(require_bearer)])
+
+    @app.get("/who")
+    async def who(request: Request):
+        return {"claims": getattr(request.state, "wallet_claims", None)}
+
+    client = TestClient(app, raise_server_exceptions=False)
+    resp = client.get("/who", headers={"Authorization": "Bearer t"})
+    assert resp.status_code == 500  # claims validator raised before request.state assignment
+    assert resp.text == "Internal Server Error"

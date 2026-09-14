@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from typing import Any
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from pydantic import BaseModel
 
 from services.common.auth import require_bearer
@@ -57,14 +57,20 @@ def process_description(process_id: str) -> dict[str, Any]:
 
 
 @app.post("/processes/{process_id}/execution")
-def execute(process_id: str, body: ExecutionRequest) -> dict[str, Any]:
+def execute(process_id: str, body: ExecutionRequest, request: Request) -> dict[str, Any]:
     init_telemetry("nldt-process-adapter")
     try:
         describe_process(process_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
+    wallet_claims = getattr(request.state, "wallet_claims", None)
     with span("process.execute", {"process.id": process_id, "backend": body.backend}):
-        job = create_job(process_id, body.inputs, backend=body.backend)
+        job = create_job(
+            process_id,
+            body.inputs,
+            backend=body.backend,
+            **({"actor": {"executor": wallet_claims}} if wallet_claims else {}),
+        )
     return job
 
 

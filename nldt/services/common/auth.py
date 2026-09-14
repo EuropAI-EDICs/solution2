@@ -2,7 +2,8 @@
 
 NLDT_AUTH_MODE: off (default, dev/tests) | static (NLDT_STATIC_TOKENS,
 comma-separated, fail closed) | keycloak (RFC 7662 introspection against
-EU LDT Identity Management).
+EU LDT Identity Management) | wallet (introspection against the nLDT
+wallet edge; verified claims land on request.state.wallet_claims).
 """
 
 from __future__ import annotations
@@ -122,6 +123,10 @@ async def require_bearer(request: Request) -> None:
             ) from exc
         if not claims.get("active"):
             raise _unauthorized("invalid token")
-        request.state.wallet_claims = {k: v for k, v in claims.items() if k != "active"}
+        from services.common.schema import validate_instance
+
+        claims_no_active = {k: v for k, v in claims.items() if k != "active"}
+        validate_instance(claims_no_active, "wallet-claims.schema.json")
+        request.state.wallet_claims = claims_no_active
         return
     raise HTTPException(status_code=500, detail=f"unknown NLDT_AUTH_MODE: {mode}")
