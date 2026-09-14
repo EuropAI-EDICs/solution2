@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldttoolbox.example/nldt/schemas/run-annex.schema.json",
+  "title": "Run annex (seam S9)",
+  "description": "Traceability annex for policy documents produced in an external front door: per-run receipts (recipe, step jobIds, PROV bundles, validation verdicts). Deterministic for identical executions — no wall-clock fields. Every spatial number quoted in the document must trace to an entry here (nldt/14-beleidskompas-integration.md §6).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["annexVersion", "runs"],
+  "properties": {
+    "annexVersion": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "runs": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/run" }
+    }
+  },
+  "$defs": {
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recipeId", "steps", "outputKeys"],
+      "properties": {
+        "recipeId": { "type": "string", "minLength": 1 },
+        "steps": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/step" }
+        },
+        "outputKeys": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "validationReport": { "type": "object" }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stepId", "processId", "jobId", "prov"],
+      "properties": {
+        "stepId": { "type": "string", "minLength": 1 },
+        "processId": { "type": "string", "minLength": 1 },
+        "jobId": { "type": ["string", "null"] },
+        "prov": { "type": "object" },
+        "startedAt": { "type": "string" },
+        "finishedAt": { "type": "string" }
+      }
+    }
+  }
+}

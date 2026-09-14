@@ -84,6 +84,21 @@ def cmd_export_context(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_build_run_annex(args: argparse.Namespace) -> int:
+    from services.run_annex import build_run_annex, render_annex_markdown
+
+    executions = []
+    for path in args.execution_file:
+        with Path(path).open(encoding="utf-8") as f:
+            executions.append(json.load(f))
+    annex = build_run_annex(executions)
+    md = render_annex_markdown(annex)
+    if args.out:
+        Path(args.out).write_text(md, encoding="utf-8")
+    print(json.dumps(annex, indent=2))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="nLDT CLI")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -112,6 +127,13 @@ def main(argv: list[str] | None = None) -> int:
     p_ctx.add_argument("--title")
     p_ctx.add_argument("--output-dir")
     p_ctx.set_defaults(func=cmd_export_context)
+
+    p_annex = sub.add_parser(
+        "build-run-annex", help="Build S9 run annex (JSON + Markdown) from execution JSON files"
+    )
+    p_annex.add_argument("execution_file", nargs="+")
+    p_annex.add_argument("--out", help="Write Markdown annex to this path")
+    p_annex.set_defaults(func=cmd_build_run_annex)
 
     args = parser.parse_args(argv)
     return args.func(args)
