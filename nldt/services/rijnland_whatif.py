@@ -260,7 +260,7 @@ def build_whatif_map_html(
 <html lang="nl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>What if…? — Rijnland peilen</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <style>
  body{margin:0;font-family:-apple-system,'Segoe UI',Roboto,sans-serif;color:#111827;background:#f4f6f8}
  header{background:#0b3d5c;color:#fff;padding:16px 24px}
@@ -307,7 +307,7 @@ def build_whatif_map_html(
   <div class="uitleg" id="uitleg"></div>
  </div>
 </div>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"
         onerror="window.__noLeaflet=true"></script>
 <script>
 window.__DATA__ = __PAYLOAD__;
@@ -318,8 +318,11 @@ window.__DATA__ = __PAYLOAD__;
  var D=window.__DATA__;
  var mode=D.defaultMode||'after';
  var map=L.map('map',{preferCanvas:true}).setView([52.15,4.65],10);
- L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,
-   attribution:'&copy; OpenStreetMap-bijdragers'}).addTo(map);
+ // OSM tile.openstreetmap.org often returns 403/x-blocked for file:// and bulk clients;
+ // Carto light basemap is fine for offline demo HTML.
+ L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
+   maxZoom:19, subdomains:'abcd',
+   attribution:'&copy; OpenStreetMap &copy; CARTO'}).addTo(map);
  function seqColor(t){
   var stops=['#08306b','#2171b5','#6baed6','#c6dbef','#f7fbff'];
   var i=Math.min(stops.length-2, Math.max(0, Math.floor(t*(stops.length-1))));
