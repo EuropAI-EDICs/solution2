@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 from services.common.auth import require_bearer
 from services.common.telemetry import init_telemetry, span
+from services.common.trust_policy import GateDenied, TrustPolicyUnavailable, check_gate, load_trust_policy
 from services.process_adapter.handlers import describe_process, list_processes
 from services.process_adapter.jobs import create_job, get_job, job_results
 
@@ -64,6 +65,19 @@ def execute(process_id: str, body: ExecutionRequest, request: Request) -> dict[s
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     wallet_claims = getattr(request.state, "wallet_claims", None)
+    try:
+        policy = load_trust_policy()
+    except TrustPolicyUnavailable as exc:
+        # Fail closed: a policy file is configured but cannot be loaded, so we
+        # cannot know whether this process is gated — refuse execution.
+        raise HTTPException(status_code=503, detail="trust policy unavailable") from exc
+    if policy is not None:
+        try:
+            check_gate(policy, process_id, wallet_claims)
+        except GateDenied as exc:
+            raise HTTPException(
+                status_code=403, detail={"gate": exc.gate, "reason": exc.reason}
+            ) from exc
     with span("process.execute", {"process.id": process_id, "backend": body.backend}):
         job = create_job(
             process_id,
