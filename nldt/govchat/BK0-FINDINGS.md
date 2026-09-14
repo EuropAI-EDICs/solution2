@@ -22,8 +22,29 @@ Verified 2026-09-14 (Task 2).
 - Onboarding state: **owner setup still pending** — DB has one shell `global:owner` row (email/firstName NULL, created at first container start 2026-09-14 10:32), 0 credentials, 0 workflows. First visit to http://localhost:5678 shows the owner-creation screen.
 - Host reachability from inside n8n: `docker exec bk0-n8n sh -c "wget -q -O- http://host.docker.internal:8083/ && echo REACHABLE"` → nLDT catalog landing JSON (`{"title":"nLDT OGC API Records Catalog",...}`) + **REACHABLE**. `host.docker.internal` works unaided on this macOS Docker Desktop.
 
-## n8n → nLDT bridge
-(fill in Task 3)
+## Kestra → nLDT bridge
+Verified 2026-09-14 (Task 3). Retitled from "n8n → nLDT bridge" — engine swapped to Kestra per decision 6 (spec §10: Apache-2.0, flow-as-code in git, per-task execution audit trail).
+
+**n8n decommissioned:** `docker rm -f bk0-n8n` — nothing lost (owner setup was never completed, 0 workflows, 0 credentials; see Task 2 notes above).
+
+**Kestra:**
+- Version **2.0.1** (`kestra/kestra:latest`, pulled 2026-09-14), container `bk0-kestra`, `0.0.0.0:8086->8080`, `server local` mode (embedded H2 — no docker-compose/postgres fallback needed), volume `bk0-kestra-data`.
+- Kestra 2.0 requires authentication (anonymous is gone): provisioned via `KESTRA_CONFIGURATION` env (`kestra.server.basic-auth.username=admin@kestra.io`, password meets the mandatory policy lower+upper+digit ≥8 — a first attempt without an uppercase char/digit was silently stored as a config error and left the API 401).
+- API is **tenant-scoped** in 2.0: everything lives under `/api/v1/main/...` (the pre-2.0 `/api/v1/...` routes 404). The **webhook execution route is unauthenticated** (covered by default basic-auth openUrls), so an external caller (e.g. OpenWebUI) can trigger the bridge without credentials; reading executions/outputs needs the basic-auth credentials.
+- Flow import: `POST /api/v1/main/flows` (create), `PUT /api/v1/main/flows/bk0/bk0-nldt-bridge` (update; POST → 409 once it exists).
+- Flow: `nldt/govchat/kestra-bk0-bridge-flow.yaml` (namespace `bk0`, webhook trigger `spike`).
+
+**Expression/plugin fixes vs. the task's starting-point YAML (2.0 changes):**
+1. Flow-level `outputs` are a typed **list** (`- id / type: STRING / value`), not a map — map form fails import with a deserialization 422.
+2. HTTP task type is `io.kestra.plugin.core.http.Request` — the `fs.http` namespace is gone in 2.0.
+3. The Pebble `| json` **filter no longer exists** (first execution FAILED with `Filter [json] does not exist`) — replaced by the `fromJson()` function: e.g. `{{ fromJson(outputs['fetch_layer'].body).jobId }}`.
+
+**Verified end-to-end (execution `1etuYl2yhYxnZdXpEHKwmL`, flow revision 2):**
+- Trigger: `POST /api/v1/main/executions/webhook/bk0/bk0-nldt-bridge/spike` → state **SUCCESS**.
+- Outputs (read via `GET /api/v1/main/outputs/executions/<id>` — the execution GET itself no longer embeds outputs in 2.0): `jobId` = `8368a631-fab9-4440-858d-a6383a499c67` (nLDT uuid), `exportUrl` = http://localhost:8084/exports/56b5b5fef5a4.geojson → **200**, valid GeoJSON FeatureCollection (rijnsweerd-zone-a).
+- Audit record: `taskRunList` has 3 entries (`fetch_layer`, `publish_export`, `answer`, all SUCCESS, 1 attempt each); per-task inputs/outputs are retrievable, e.g. `GET /api/v1/main/outputs/tasks/<execId>/<taskRunId>` shows `publish_export`'s request URI, HTTP 200 and response body — the durable per-task audit trail decision 6 wanted. The two failed revision-1 executions remain in the log as iteration evidence.
+
+**Remaining human step:** surfacing the bridge answer inside GovChat-NL/OpenWebUI needs Marc's admin login (pre-existing admin `marc.minnee@gmail.com`, see above); chat display would require an OpenWebUI-compatible (OpenAI-style) wrapper around the webhook. Reachability is proven: `docker exec open-webui python3 -c ... http://host.docker.internal:8086` → **200**. BK-1 supersedes this with MCP tools instead of an HTTP wrapper.
 
 ## Deviations / surprises
 - Running OpenWebUI is the **upstream** `:main` image (0.11.3), not a GovChat-NL fork build — that is their compose default; GovChat-NL's repo version label (0.8.12 in package.json) does not match what runs.

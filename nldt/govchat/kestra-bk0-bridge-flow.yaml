@@ -1,0 +1,50 @@
+id: bk0-nldt-bridge
+namespace: bk0
+description: >
+  BK-0 spike — webhook trigger -> nLDT fetch-features (OGC Processes) ->
+  public GeoJSON export (:8084). Every execution is a durable audit record
+  (per-task inputs/outputs) — see nldt/14-beleidskompas-integration.md.
+
+triggers:
+  - id: spike
+    type: io.kestra.plugin.core.trigger.Webhook
+    key: spike
+
+tasks:
+  - id: fetch_layer
+    type: io.kestra.plugin.core.http.Request
+    uri: http://host.docker.internal:8082/processes/fetch-features/execution
+    method: POST
+    contentType: application/json
+    body: |
+      {
+        "inputs": {
+          "source": "file:///Users/marc/Projecten/ldttoolbox/nldt/examples/layer-a.geojson"
+        },
+        "backend": "local"
+      }
+
+  - id: publish_export
+    type: io.kestra.plugin.core.http.Request
+    uri: http://host.docker.internal:8084/exports
+    method: POST
+    contentType: application/json
+    body: |
+      {"geojson": {{ fromJson(outputs['fetch_layer'].body).outputs.features }}}
+
+  - id: answer
+    type: io.kestra.plugin.core.debug.Return
+    format: |
+      nLDT job {{ fromJson(outputs['fetch_layer'].body).jobId }} succeeded.
+      Public GeoJSON export: http://localhost:8084{{ fromJson(outputs['publish_export'].body).href }}
+
+outputs:
+  - id: answer
+    type: STRING
+    value: "{{ outputs['answer'].value }}"
+  - id: jobId
+    type: STRING
+    value: "{{ fromJson(outputs['fetch_layer'].body).jobId }}"
+  - id: exportUrl
+    type: STRING
+    value: "http://localhost:8084{{ fromJson(outputs['publish_export'].body).href }}"
