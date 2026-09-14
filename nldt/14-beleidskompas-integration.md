@@ -207,6 +207,11 @@ jobId, ValidationReport `pass` and citations — no ungated numbers.
 
 ### BK-2 — Beleidskompas as catalogued app (App Store proof)
 
+**Status:** done (2026-09-14) — `application` record type + beleidskompas
+registered and schema-validated at seed; twin-instance `apps` config in
+[examples/twin-instance.example.json](examples/twin-instance.example.json).
+Marketplace publication deferred (optional per plan).
+
 - New catalog record type `application` + new
   `schemas/application.schema.json` (launchUrl, publisher,
   requiredCapabilities/scopes, trustLevel, docsUrl).

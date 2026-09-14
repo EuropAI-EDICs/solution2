@@ -54,3 +54,15 @@ def test_seed_rejects_invalid_application(monkeypatch):
     monkeypatch.setattr(seed, "APPLICATIONS", [bad])
     with pytest.raises(ValidationError):
         seed.seed_records()
+
+
+def test_seed_allows_application_without_docs_url(monkeypatch):
+    from services.catalog_adapter import seed
+
+    aid, title, descriptor, tags = seed.APPLICATIONS[0]
+    descriptor = {k: v for k, v in descriptor.items() if k != "docsUrl"}
+    monkeypatch.setattr(seed, "APPLICATIONS", [(aid, title, descriptor, tags)])
+    records = seed.seed_records()
+    rec = next(r for r in records if r["id"] == f"application-{aid}")
+    rels = [l["rel"] for l in rec["links"]]
+    assert "docs" not in rels and "launch" in rels

@@ -171,17 +171,21 @@ def seed_records() -> list[dict[str, Any]]:
 
     for aid, title, descriptor, tags in APPLICATIONS:
         validate_instance({**descriptor, "tags": tags}, "application.schema.json")
+        links = [
+            {"rel": "self", "href": f"{CATALOG_BASE}/records/application-{aid}"},
+            {"rel": "launch", "href": descriptor["launchUrl"], "type": "text/html"},
+        ]
+        if "docsUrl" in descriptor:
+            links.append(
+                {"rel": "docs", "href": descriptor["docsUrl"], "type": "text/html"}
+            )
         records.append(
             {
                 "id": f"application-{aid}",
                 "type": "application",
                 "title": title,
                 "properties": {**descriptor, "tags": tags},
-                "links": [
-                    {"rel": "self", "href": f"{CATALOG_BASE}/records/application-{aid}"},
-                    {"rel": "launch", "href": descriptor["launchUrl"], "type": "text/html"},
-                    {"rel": "docs", "href": descriptor["docsUrl"], "type": "text/html"},
-                ],
+                "links": links,
             }
         )
 
