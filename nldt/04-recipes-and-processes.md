@@ -1,14 +1,14 @@
-# 04 — Recipes en processen
+# 04 — Recipes and processes
 
 ## AppStore → Cookbook → Cook
 
-Conform [nLDT Testbed 2026 phase 2](../nldt-testbed2026-phase2-invitation-to-tender.pdf):
+Per [nLDT Testbed 2026 phase 2](../nldt-testbed2026-phase2-invitation-to-tender.pdf):
 
-| Rol | Functie | Implementatie |
-|-----|---------|---------------|
-| **AppStore** | Catalogus; metadata + link naar recipe | `catalog_adapter` (OGC API Records) |
-| **Cookbook** | Recipe-definitie (steps, inputs, outputs) | `services/cookbook` |
-| **Cook** | Uitvoering van process steps | `process_adapter` (OGC API Processes) |
+| Role | Function | Implementation |
+|------|----------|----------------|
+| **AppStore** | Catalog; metadata + link to recipe | `catalog_adapter` (OGC API Records) |
+| **Cookbook** | Recipe definition (steps, inputs, outputs) | `services/cookbook` |
+| **Cook** | Execution of process steps | `process_adapter` (OGC API Processes) |
 
 ```mermaid
 sequenceDiagram
@@ -31,8 +31,8 @@ sequenceDiagram
 
 ### Endpoints (process adapter)
 
-| Method | Path | Beschrijving |
-|--------|------|--------------|
+| Method | Path | Description |
+|--------|------|-------------|
 | GET | `/` | Landing page (JSON) |
 | GET | `/processes` | Process list |
 | GET | `/processes/{processId}` | Process description |
@@ -40,58 +40,72 @@ sequenceDiagram
 | GET | `/jobs/{jobId}` | Job status |
 | GET | `/jobs/{jobId}/results` | Job outputs |
 
-### Referentie-processen
+### Reference processes
 
-| processId | Beschrijving |
-|-----------|--------------|
-| `fetch-features` | GeoJSON ophalen van URL of inline |
-| `spatial-intersection` | Intersect twee FeatureCollections |
-| `compute-area-statistics` | Oppervlakte (m²) per feature + totaal |
-| `h3-polygon-to-cells` | Polygoon → H3-cellen met planaire EPSG:28992 dekkingsfracties (optioneel `restrictCells` / `compact`) |
-| `h3-cells-to-geojson` | H3-celgrenzen als GeoJSON FeatureCollection |
-| `h3-spatial-join-points` | Punten (of footprint-centroïden) indexeren in cellen; aantallen per cel |
-| `h3-knn` | K nearest neighbours via H3-gridafstand met haversine tie-break |
-| `h3-morans-i` | Ruimtelijke autocorrelatie (Moran's I) over `grid_disk`-buurten met permutatie-p-waarde |
-| `h3-grid-disk` | `grid_disk`-buren per cel (origin + cellen binnen k stappen) — o.a. weergave-stitching en nabijheidsringen |
+| processId | Description |
+|-----------|-------------|
+| `fetch-features` | Fetch GeoJSON from URL or inline |
+| `spatial-intersection` | Intersect two FeatureCollections |
+| `compute-area-statistics` | Area (m²) per feature + total |
+| `h3-polygon-to-cells` | Polygon → H3 cells with planar EPSG:28992 coverage fractions (optional `restrictCells` / `compact`) |
+| `h3-cells-to-geojson` | H3 cell boundaries as GeoJSON FeatureCollection |
+| `h3-spatial-join-points` | Index points (or footprint centroids) into cells; counts per cell |
+| `h3-knn` | K nearest neighbours via H3 grid distance with haversine tie-break |
+| `h3-morans-i` | Spatial autocorrelation (Moran's I) over `grid_disk` neighbourhoods with permutation p-value |
+| `h3-grid-disk` | `grid_disk` neighbours per cell (origin + cells within k steps) — e.g. display stitching and proximity rings |
+
+### PoC and lake processes (Phase 5/6)
+
+| processId | Description |
+|-----------|-------------|
+| `breda-scan-query` / `breda-scan-run` | Breda five-value scan Q&A / run |
+| `opportunity-map-run` / `scenario-*` / `crosstrack-overlay` | Utrecht Plane A/B/C |
+| `rijnland-peil-conflict` | Rijnland water-level area × water-level deviation |
+| `lake-publish-dataset` | Data Space offer (ODRL stub) over `lake://` URI |
+
+**Lake pipeline:** Processes run in the Cook (`process_adapter`), not in
+Iceberg/dbt. Silver/bronze are inputs (`lake://` via `_load_source`); gold
+receives run artifacts (sync / `NLDT_LAKE_POST_RUN`). See
+[13-data-lake-and-space.md](13-data-lake-and-space.md#ogc-processes-in-de-lake-pipeline).
 
 ## Recipe schema
 
-Zie [`schemas/recipe.schema.json`](schemas/recipe.schema.json). Belangrijke velden:
+See [`schemas/recipe.schema.json`](schemas/recipe.schema.json). Important fields:
 
-- `steps[]` — ordered process invocations met template inputs (`${recipe.inputs.aoi}`)
+- `steps[]` — ordered process invocations with template inputs (`${recipe.inputs.aoi}`)
 - `requiredProcesses[]` — preflight check in catalog
-- `riskLevel` — triggert HITL bij `high` of validation fail
+- `riskLevel` — triggers HITL on `high` or validation fail
 
-## Referentie-recipe: Spatial Overlay Analysis
+## Reference recipe: Spatial Overlay Analysis
 
-Bestand: [`recipes/spatial-overlay-analysis.json`](recipes/spatial-overlay-analysis.json)
+File: [`recipes/spatial-overlay-analysis.json`](recipes/spatial-overlay-analysis.json)
 
-1. **fetch-layer-a** — `fetch-features` met `layerAUri`
-2. **fetch-layer-b** — `fetch-features` met `layerBUri`
-3. **intersect** — `spatial-intersection` met outputs van stap 1+2
-4. **stats** — `compute-area-statistics` op intersect resultaat
+1. **fetch-layer-a** — `fetch-features` with `layerAUri`
+2. **fetch-layer-b** — `fetch-features` with `layerBUri`
+3. **intersect** — `spatial-intersection` with outputs from steps 1+2
+4. **stats** — `compute-area-statistics` on intersect result
 
-## Referentie-recipe: Hex Overlay Analysis (H3)
+## Reference recipe: Hex Overlay Analysis (H3)
 
-Bestand: [`recipes/hex-overlay-analysis.json`](recipes/hex-overlay-analysis.json)
+File: [`recipes/hex-overlay-analysis.json`](recipes/hex-overlay-analysis.json)
 
-1. **fetch-zone** / **fetch-points** — `fetch-features` met `zoneUri` / `pointsUri`
-2. **cells** — `h3-polygon-to-cells` op de zone-polygoon
-3. **join** — `h3-spatial-join-points` van de punten in de cellen
-4. **autocorrelation** — `h3-morans-i` op de join-per-cel waarden
+1. **fetch-zone** / **fetch-points** — `fetch-features` with `zoneUri` / `pointsUri`
+2. **cells** — `h3-polygon-to-cells` on the zone polygon
+3. **join** — `h3-spatial-join-points` of the points into the cells
+4. **autocorrelation** — `h3-morans-i` on the join-per-cell values
 
 ## Template resolution
 
-Step inputs ondersteunen:
+Step inputs support:
 
 - `${recipe.inputs.<name>}` — recipe-level input
-- `${steps.<stepId>.outputs.<name>}` — output van eerdere step
+- `${steps.<stepId>.outputs.<name>}` — output from an earlier step
 
-De recipe runner (`services/cli.py`) lost templates op vóór process execution.
+The recipe runner (`services/cli.py`) resolves templates before process execution.
 
-## Catalog record voor recipe
+## Catalog record for recipe
 
-Records entry (AppStore) bevat minimaal:
+Records entry (AppStore) contains at minimum:
 
 ```json
 {
@@ -105,7 +119,7 @@ Records entry (AppStore) bevat minimaal:
 }
 ```
 
-## CLI zonder agent
+## CLI without agent
 
 ```bash
 python -m services.cli run-recipe spatial-overlay-analysis \

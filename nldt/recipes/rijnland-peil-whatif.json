@@ -1,0 +1,65 @@
+{
+  "id": "rijnland-peil-whatif",
+  "title": "Rijnland peilen what-if (CDC)",
+  "description": "What-if peilen delta → CDC bronze/silver → whatif-report + conflict replay. Lake-only pipeline.",
+  "version": "1.0.0",
+  "tags": ["poc-rijnland", "peil", "whatif", "cdc", "scenario", "simulation"],
+  "requiredProcesses": ["rijnland-peil-whatif"],
+  "inputs": {
+    "delta_m": {
+      "type": "number",
+      "description": "Delta in metres (mNAP), e.g. 0.05 for +5 cm",
+      "required": true
+    },
+    "layer": {
+      "type": "string",
+      "description": "polders|boezem|all",
+      "required": false
+    },
+    "limit": {
+      "type": "number",
+      "description": "Optional max stations",
+      "required": false
+    },
+    "scenarioId": {
+      "type": "string",
+      "description": "Scenario id",
+      "required": false
+    },
+    "scenarioPath": {
+      "type": "string",
+      "description": "Optional scenario JSON path",
+      "required": false
+    },
+    "applyToLake": {
+      "type": "boolean",
+      "description": "Write CDC batch and apply silver (default true)",
+      "required": false
+    }
+  },
+  "outputs": {
+    "summary": {
+      "type": "json",
+      "description": "What-if summary (runDir, stationsTouched, silverUri, conflictVerdict)"
+    }
+  },
+  "steps": [
+    {
+      "id": "whatif",
+      "processId": "rijnland-peil-whatif",
+      "title": "Apply peilen what-if via CDC lake",
+      "inputs": {
+        "delta_m": "${recipe.inputs.delta_m}",
+        "layer": "${recipe.inputs.layer}",
+        "limit": "${recipe.inputs.limit}",
+        "scenarioId": "${recipe.inputs.scenarioId}",
+        "scenarioPath": "${recipe.inputs.scenarioPath}",
+        "applyToLake": "${recipe.inputs.applyToLake}"
+      },
+      "outputs": { "summary": "summary" },
+      "backend": "local"
+    }
+  ],
+  "riskLevel": "high",
+  "cookbookUri": "http://localhost:8081/recipes/rijnland-peil-whatif"
+}

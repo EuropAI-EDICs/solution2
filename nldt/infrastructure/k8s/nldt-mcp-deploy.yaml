@@ -1,0 +1,156 @@
+# nLDT MCP + adapters deploy on ldtsolutions K8s cluster
+# Apply after EU LDT Identity Management (Keycloak) and Data Platform.
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nldt
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nldt-mcp-config
+  namespace: nldt
+data:
+  NLDT_CATALOG_URL: "http://catalog-adapter.nldt.svc:8083"
+  NLDT_PROCESS_URL: "http://process-adapter.nldt.svc:8082"
+  NLDT_COOKBOOK_URL: "http://cookbook.nldt.svc:8081"
+  NLDT_LAKE_BACKEND: "s3"
+  NLDT_LAKE_BUCKET: "nldt-poc-lake"
+  NLDT_LAKE_ENDPOINT: "http://minio.dataplatform.svc:9000"
+  NLDT_NGSI_LD_URL: "https://dp.ldt.local/cb/ngsi-ld/v1"
+  NLDT_TRINO_URL: "https://dq.ldt.local"
+  NLDT_DATA_PLATFORM_MOCK: "false"
+  KEYCLOAK_URL: "https://im.ldt.local"
+  KEYCLOAK_REALM: "LDT"
+  KEYCLOAK_CLIENT_ID: "nldt-agent"
+  NLDT_TRINO_ROW_LIMIT: "100"
+  NLDT_TRINO_TIMEOUT_S: "30"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nldt-mcp-secrets
+  namespace: nldt
+type: Opaque
+stringData:
+  KEYCLOAK_CLIENT_SECRET: "REPLACE_ME"
+  NLDT_LAKE_ACCESS_KEY: "minioadmin"
+  NLDT_LAKE_SECRET_KEY: "minioadmin"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-adapter
+  namespace: nldt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catalog-adapter
+  template:
+    metadata:
+      labels:
+        app: catalog-adapter
+    spec:
+      containers:
+        - name: catalog-adapter
+          image: code.europa.eu:4567/ldt/nldt-catalog-adapter:1.0.0
+          ports:
+            - containerPort: 8083
+          envFrom:
+            - configMapRef:
+                name: nldt-mcp-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-adapter
+  namespace: nldt
+spec:
+  selector:
+    app: catalog-adapter
+  ports:
+    - port: 8083
+      targetPort: 8083
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: process-adapter
+  namespace: nldt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: process-adapter
+  template:
+    metadata:
+      labels:
+        app: process-adapter
+    spec:
+      containers:
+        - name: process-adapter
+          image: code.europa.eu:4567/ldt/nldt-process-adapter:1.0.0
+          ports:
+            - containerPort: 8082
+          envFrom:
+            - configMapRef:
+                name: nldt-mcp-config
+            - secretRef:
+                name: nldt-mcp-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: process-adapter
+  namespace: nldt
+spec:
+  selector:
+    app: process-adapter
+  ports:
+    - port: 8082
+      targetPort: 8082
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orchestrator
+  namespace: nldt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orchestrator
+  template:
+    metadata:
+      labels:
+        app: orchestrator
+    spec:
+      containers:
+        - name: orchestrator
+          image: code.europa.eu:4567/ldt/nldt-orchestrator:1.0.0
+          envFrom:
+            - configMapRef:
+                name: nldt-mcp-config
+            - secretRef:
+                name: nldt-mcp-secrets
+          volumeMounts:
+            - name: lake-data
+              mountPath: /data/lake
+      volumes:
+        - name: lake-data
+          persistentVolumeClaim:
+            claimName: nldt-lake-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nldt-lake-pvc
+  namespace: nldt
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi

@@ -1,0 +1,16 @@
+# Local profile for dbt-duckdb over the nLDT lake mirrors.
+# Usage (from nldt/dbt_lake): dbt run --profiles-dir .
+#
+# Override paths via env:
+#   NLDT_LAKE_INVENTORY_PARQUET  (default: ../data/lake/nldt-poc-lake/iceberg/mirrors/inventory.parquet)
+
+nldt_lake:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "../data/lake/nldt-poc-lake/dbt.duckdb"
+      threads: 4
+      extensions:
+        - parquet
+        - json

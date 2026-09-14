@@ -1,0 +1,26 @@
+{
+  "version": "1.0",
+  "defaultProfile": "local-compose",
+  "profiles": {
+    "local-compose": {
+      "description": "Compose Postgres CDC source (docker-compose.lake.yml)",
+      "dsnEnv": "NLDT_CDC_SOURCE_URL",
+      "defaultDsn": "postgresql://nldt:nldt@127.0.0.1:5433/nldt_cdc",
+      "outboxTable": "peilen_cdc_outbox",
+      "measurementsTable": "peilen_measurements",
+      "poc": "rijnland",
+      "accessClass": "restricted"
+    },
+    "ldt-timescaledb": {
+      "description": "EU LDT Data Platform TimescaleDB (same outbox/CDC contract when provisioned)",
+      "dsnEnv": "NLDT_CDC_SOURCE_URL",
+      "defaultDsn": "",
+      "hostnameEnv": "NLDT_CDC_HOSTNAME",
+      "outboxTable": "peilen_cdc_outbox",
+      "measurementsTable": "peilen_measurements",
+      "poc": "rijnland",
+      "accessClass": "restricted",
+      "notes": "CDC talks Postgres replication/SQL — not Trino. Provision outbox+triggers or equivalent on DP."
+    }
+  }
+}

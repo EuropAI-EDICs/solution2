@@ -1,0 +1,42 @@
+{
+  "id": "breda-scan-qa",
+  "title": "Breda five-value scan Q&A",
+  "description": "GENAI seam S4 via nLDT: grounded Q&A over a canonical Breda value-scan run (cite-or-abstain + number gate).",
+  "version": "1.0.0",
+  "tags": ["poc-breda", "qa", "s4", "scan", "legal"],
+  "requiredProcesses": ["breda-scan-query"],
+  "inputs": {
+    "runDir": {
+      "type": "string",
+      "description": "Path to poc-breda/runs/<ts>-breda-scan (default: latest)",
+      "required": false
+    },
+    "question": {
+      "type": "string",
+      "description": "Natural-language question about the scan",
+      "required": true
+    }
+  },
+  "outputs": {
+    "result": {
+      "type": "json",
+      "description": "Q&A result (answered or abstained)"
+    }
+  },
+  "steps": [
+    {
+      "id": "ask",
+      "processId": "breda-scan-query",
+      "title": "Answer scan question",
+      "inputs": {
+        "runDir": "${recipe.inputs.runDir}",
+        "question": "${recipe.inputs.question}",
+        "asker": "auto"
+      },
+      "outputs": { "result": "result" },
+      "backend": "local"
+    }
+  ],
+  "riskLevel": "medium",
+  "cookbookUri": "http://localhost:8081/recipes/breda-scan-qa"
+}

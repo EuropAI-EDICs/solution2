@@ -1,0 +1,51 @@
+{
+  "id": "rijnland-peil-conflict-live",
+  "title": "Rijnland peil conflict (CDC lake snapshot)",
+  "description": "Hybrid: freshness gate on CDC-applied peilen silver, then replay/execute rijnland-peil-conflict. Stream table is lake-only (no RisingWave).",
+  "version": "1.0.0",
+  "tags": ["poc-rijnland", "peil", "cdc", "live", "hybrid"],
+  "requiredProcesses": ["rijnland-peil-conflict"],
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "description": "replay|execute (default replay)",
+      "required": false
+    },
+    "runDir": {
+      "type": "string",
+      "description": "Optional existing peil-conflict run dir",
+      "required": false
+    },
+    "streamSnapshotUri": {
+      "type": "string",
+      "description": "Optional lake:// URI of CDC-applied peilen (default from stream-views)",
+      "required": false
+    },
+    "maxFreshnessSeconds": {
+      "type": "number",
+      "description": "Fail soft-check if CDC silver older than this (informational in process summary)",
+      "required": false
+    }
+  },
+  "outputs": {
+    "summary": {
+      "type": "json",
+      "description": "Peil-conflict summary plus CDC freshness metadata"
+    }
+  },
+  "steps": [
+    {
+      "id": "peil",
+      "processId": "rijnland-peil-conflict",
+      "title": "Rijnland peil conflict (with CDC hint)",
+      "inputs": {
+        "mode": "${recipe.inputs.mode}",
+        "runDir": "${recipe.inputs.runDir}"
+      },
+      "outputs": { "summary": "summary" },
+      "backend": "local"
+    }
+  ],
+  "riskLevel": "high",
+  "cookbookUri": "http://localhost:8081/recipes/rijnland-peil-conflict-live"
+}

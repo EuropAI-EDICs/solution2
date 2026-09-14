@@ -14,6 +14,10 @@ from services.common.geo import (
     intersect_feature_collections,
     parse_geojson_input,
 )
+from services.process_adapter.poc_handlers import (
+    POC_PROCESS_DEFINITIONS,
+    execute_poc_process,
+)
 
 
 def _load_source(source: str | dict[str, Any] | list[Any], aoi: Any = None) -> dict[str, Any] | list[Any]:
@@ -28,6 +32,12 @@ def _load_source(source: str | dict[str, Any] | list[Any], aoi: Any = None) -> d
         path = Path(urlparse(source).path)
         with path.open(encoding="utf-8") as f:
             return json.load(f)
+    if source.startswith("lake://") or source.startswith("s3://"):
+        from services.lake import resolve_uri_to_local
+
+        path = resolve_uri_to_local(source)
+        with path.open(encoding="utf-8") as f:
+            return json.load(f)
     if source.startswith("{") or source.startswith("["):
         return json.loads(source)
     with httpx.Client(timeout=30.0) as client:
@@ -36,7 +46,7 @@ def _load_source(source: str | dict[str, Any] | list[Any], aoi: Any = None) -> d
         return resp.json()
 
 
-PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
+PROCESS_DEFINITIONS_CORE: dict[str, dict[str, Any]] = {
     "fetch-features": {
         "id": "fetch-features",
         "title": "Fetch features",
@@ -174,6 +184,38 @@ PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
             "disk": {"title": "Per-cell disks", "schema": {"type": "object"}},
         },
     },
+    "lake-publish-dataset": {
+        "id": "lake-publish-dataset",
+        "title": "Publish lake dataset to Data Space",
+        "description": (
+            "Create an ODRL-stub offer for a lake:// or s3:// dataset. "
+            "Rejects accessClass=restricted unless forceHitlApproved=true."
+        ),
+        "version": "1.0.0",
+        "inputs": {
+            "lakeUri": {"title": "Lake URI", "schema": {"type": "string"}},
+            "lakeKey": {"title": "Lake object key", "schema": {"type": "string"}},
+            "datasetId": {"title": "Dataset id", "schema": {"type": "string"}},
+            "accessClass": {
+                "title": "open|internal|restricted",
+                "schema": {"type": "string"},
+            },
+            "forceHitlApproved": {
+                "title": "HITL override for restricted",
+                "schema": {"type": "boolean", "default": False},
+            },
+            "license": {"title": "License string", "schema": {"type": "string"}},
+        },
+        "outputs": {
+            "result": {"title": "Publish result", "schema": {"type": "object"}},
+        },
+    },
+}
+
+
+PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
+    **PROCESS_DEFINITIONS_CORE,
+    **POC_PROCESS_DEFINITIONS,
 }
 
 
@@ -188,6 +230,8 @@ def describe_process(process_id: str) -> dict[str, Any]:
 
 
 def execute_local(process_id: str, inputs: dict[str, Any]) -> dict[str, Any]:
+    if process_id in POC_PROCESS_DEFINITIONS:
+        return execute_poc_process(process_id, inputs)
     if process_id == "fetch-features":
         fc = _load_source(inputs["source"], inputs.get("aoi"))
         return {"features": fc}
@@ -220,4 +264,17 @@ def execute_local(process_id: str, inputs: dict[str, Any]) -> dict[str, Any]:
     if process_id == "h3-grid-disk":
         return {"disk": h3kit.grid_disk_cells(
             list(inputs["cells"]), inputs.get("ring", 1))}
+    if process_id == "lake-publish-dataset":
+        from services.lake.publish import publish_dataset
+
+        return {
+            "result": publish_dataset(
+                lake_uri=inputs.get("lakeUri"),
+                lake_key=inputs.get("lakeKey"),
+                dataset_id=inputs.get("datasetId"),
+                access_class=inputs.get("accessClass"),
+                force_hitl_approved=bool(inputs.get("forceHitlApproved")),
+                license_=inputs.get("license"),
+            )
+        }
     raise KeyError(f"Unknown process: {process_id}")

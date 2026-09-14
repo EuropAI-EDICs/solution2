@@ -1,0 +1,41 @@
+{
+  "id": "rijnland-peil-conflict",
+  "title": "Rijnland peil conflict",
+  "description": "PoC-3: peilgebied (vigerend) × peilafwijking (praktijk) via OGC process rijnland-peil-conflict (replay of canonical run).",
+  "version": "1.0.0",
+  "tags": ["poc-rijnland", "peil", "h3", "conflict"],
+  "requiredProcesses": ["rijnland-peil-conflict"],
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "description": "replay|execute (default replay)",
+      "required": false
+    },
+    "runDir": {
+      "type": "string",
+      "description": "Path to poc-rijnland/runs/*rijnland-peil* (default: latest)",
+      "required": false
+    }
+  },
+  "outputs": {
+    "summary": {
+      "type": "json",
+      "description": "Peil-conflict summary (verdict, areas, optional H3)"
+    }
+  },
+  "steps": [
+    {
+      "id": "peil",
+      "processId": "rijnland-peil-conflict",
+      "title": "Rijnland peil conflict",
+      "inputs": {
+        "mode": "${recipe.inputs.mode}",
+        "runDir": "${recipe.inputs.runDir}"
+      },
+      "outputs": { "summary": "summary" },
+      "backend": "local"
+    }
+  ],
+  "riskLevel": "medium",
+  "cookbookUri": "http://localhost:8081/recipes/rijnland-peil-conflict"
+}

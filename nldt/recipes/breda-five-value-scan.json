@@ -1,0 +1,41 @@
+{
+  "id": "breda-five-value-scan",
+  "title": "Breda five-value scan run",
+  "description": "Plane A via nLDT: replay or execute Breda five-value scan; gold artifacts sync to lake when NLDT_LAKE_POST_RUN=1.",
+  "version": "1.0.0",
+  "tags": ["poc-breda", "scan", "plane-a"],
+  "requiredProcesses": ["breda-scan-run"],
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "description": "replay|execute",
+      "required": false
+    },
+    "runDir": {
+      "type": "string",
+      "description": "Existing poc-breda/runs dir (replay)",
+      "required": false
+    }
+  },
+  "outputs": {
+    "summary": {
+      "type": "json",
+      "description": "Scan run summary"
+    }
+  },
+  "steps": [
+    {
+      "id": "scan",
+      "processId": "breda-scan-run",
+      "title": "Run value scan",
+      "inputs": {
+        "mode": "${recipe.inputs.mode}",
+        "runDir": "${recipe.inputs.runDir}"
+      },
+      "outputs": { "summary": "summary" },
+      "backend": "local"
+    }
+  ],
+  "riskLevel": "medium",
+  "cookbookUri": "http://localhost:8081/recipes/breda-five-value-scan"
+}

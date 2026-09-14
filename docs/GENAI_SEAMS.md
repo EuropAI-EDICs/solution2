@@ -145,7 +145,12 @@ years, offline, by anyone.
    every weighting — the robust answer a council can build on.
 2. **The source monitor** — continuity of open data as a monitored process.
 3. **One governed agent layer** over all four PoCs, so the same rules
-   apply everywhere (the nldt/MCP architecture).
+   apply everywhere (the nldt/MCP architecture) — ***in progress***.
+   Patterns documented (`nldt/11-…`); **Fase 5.1/5.2 done**: six PoC
+   processes + four recipes (Utrecht planes A/B + Breda S4/S7) via
+   `nldt/services/process_adapter/poc_handlers.py`. Still open: uniform
+   Critic/HITL/PROV (5.4), MCP tool aliases (5.3), Eindhoven/Rijnland (5.5).
+   Plan: [`nldt/12-governed-agent-layer.md`](../nldt/12-governed-agent-layer.md).
 
 ---
 
@@ -175,7 +180,9 @@ value-politics variants over composition parameters, control bit-identical,
 rank-stability output, file/auto/llm authors (done 2026-09-13, live with
 qwen3.8 4/4 accepted after `'type'`→`'action'` alias normalization) · C:
 S1/S2/S3, PoC-1 decision-table Q&A, cross-track conflicts, source monitor
-(later).
+(later) · **D: one governed nLDT/MCP agent layer over all PoCs
+([`nldt/12-governed-agent-layer.md`](../nldt/12-governed-agent-layer.md) —
+open)**.
 
 **Key code** — `poc/pipeline/scenarios.py` · `scenario_author.py` (authors,
 identity stamping, rejection ledger) · `poc-breda/breda/qa.py` (asker,

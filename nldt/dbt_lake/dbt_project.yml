@@ -1,0 +1,16 @@
+name: nldt_lake
+version: "1.0.0"
+config-version: 2
+profile: nldt_lake
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  nldt_lake:
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table

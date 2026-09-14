@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  - name: lake
+    description: nLDT lakehouse mirrors (Parquet/Iceberg snapshots)
+    tables:
+      - name: inventory
+        description: Dataset inventory rows from lake-inventory.json
+        meta:
+          external_location: "{{ env_var('NLDT_LAKE_INVENTORY_PARQUET', '../data/lake/nldt-poc-lake/iceberg/mirrors/inventory.parquet') }}"
+        columns:
+          - name: id
+          - name: poc
+          - name: zone
+          - name: accessClass
+          - name: lakeUri
