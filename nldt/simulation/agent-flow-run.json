@@ -1,0 +1,92 @@
+{
+  "runId": "7b19e922",
+  "request": "Voer spatial overlay analysis uit op deze AOI",
+  "recipeId": "spatial-overlay-analysis",
+  "graph": [
+    {
+      "id": "catalog_search",
+      "label": "Catalog Search",
+      "agent": "Catalog Navigator",
+      "service": "OGC API Records :8083",
+      "detail": "Recipe spatial-overlay-analysis gevonden in catalog"
+    },
+    {
+      "id": "plan_recipe",
+      "label": "Plan Recipe",
+      "agent": "Recipe Planner",
+      "service": "Cookbook :8081",
+      "detail": "4 stappen: fetch-layer-a → fetch-layer-b → intersect → stats"
+    },
+    {
+      "id": "validate_plan",
+      "label": "Validate Plan",
+      "agent": "Critic",
+      "service": "V0 schema",
+      "detail": "agent-plan.schema.json → pass · geen HITL (risk: low)"
+    },
+    {
+      "id": "execute_steps",
+      "label": "Execute Steps",
+      "agent": "Executor",
+      "service": "OGC API Processes :8082",
+      "detail": "4 process jobs met PROV per stap"
+    },
+    {
+      "id": "validate_outputs",
+      "label": "Validate Outputs",
+      "agent": "Critic",
+      "service": "V0 + V1 geo",
+      "detail": "intersection + statistics → pass"
+    },
+    {
+      "id": "register_hybrid",
+      "label": "Register Hybrid",
+      "agent": "Hybrid Bridge",
+      "service": "Web3D :8084 · P&V mock",
+      "detail": "context-7b19e922 · layer mock-dl-aa17b4fc"
+    },
+    {
+      "id": "explain",
+      "label": "Explain",
+      "agent": "Explainer",
+      "service": "Samenvatting",
+      "detail": "250.000 m² · 4 steps · verdict pass"
+    }
+  ],
+  "agentPlan": {
+    "id": "aedb7bea-ff09-4862-8339-e2f080a7a931",
+    "recipeId": "spatial-overlay-analysis",
+    "recipeVersion": "1.0.0",
+    "stepOrder": ["fetch-layer-a", "fetch-layer-b", "intersect", "stats"],
+    "proposedBy": { "agent": "recipe-planner", "llmUsed": false },
+    "riskLevel": "low",
+    "requiresHitl": false,
+    "plannedAt": "2026-08-31T18:30:01Z"
+  },
+  "execution": {
+    "steps": [
+      { "stepId": "fetch-layer-a", "processId": "fetch-features", "jobId": "445cb74d-5cde-4e85-8ddb-52607c6d8879" },
+      { "stepId": "fetch-layer-b", "processId": "fetch-features", "jobId": "5f6b8e7a-8540-4020-bdf6-770e5600b102" },
+      { "stepId": "intersect", "processId": "spatial-intersection", "jobId": "be8b9c0a-3f92-4e24-bff2-512731212e62" },
+      { "stepId": "stats", "processId": "compute-area-statistics", "jobId": "50d6b341-3e03-461d-ae9a-e23a3e4bdc08" }
+    ],
+    "totalAreaM2": 250000,
+    "featureCount": 1
+  },
+  "validation": {
+    "plan": { "verdict": "pass", "levels": { "V0": "pass", "V4": "not_applicable" } },
+    "execution": {
+      "verdict": "pass",
+      "levels": { "V0": "pass", "V1": "pass", "V2": "pass", "V3": "not_applicable", "V4": "not_applicable" }
+    }
+  },
+  "hybrid": {
+    "web3dContextId": "context-7b19e922",
+    "dataLayerId": "mock-dl-aa17b4fc",
+    "bbox": [100500, 400500, 101000, 401000]
+  },
+  "explanation": {
+    "summary": "Executed recipe 'spatial-overlay-analysis' in 4 steps.",
+    "validationVerdict": "pass"
+  }
+}

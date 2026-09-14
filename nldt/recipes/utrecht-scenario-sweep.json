@@ -1,0 +1,54 @@
+{
+  "id": "utrecht-scenario-sweep",
+  "title": "Utrecht scenario sweep",
+  "description": "Plane B via nLDT: offline scenario sweep against a baseline opportunity-map run (file or auto author, control reproduction).",
+  "version": "1.0.0",
+  "tags": ["poc-utrecht", "scenario", "s7", "plane-b", "legal"],
+  "requiredProcesses": ["scenario-sweep"],
+  "inputs": {
+    "useCase": {
+      "type": "string",
+      "description": "wind|zon|bos",
+      "required": true
+    },
+    "baselineRunDir": {
+      "type": "string",
+      "description": "Optional baseline poc/runs dir",
+      "required": false
+    },
+    "author": {
+      "type": "string",
+      "description": "file|auto",
+      "required": false
+    },
+    "outDir": {
+      "type": "string",
+      "description": "Output directory for scenario-runs artifacts",
+      "required": false
+    }
+  },
+  "outputs": {
+    "summary": {
+      "type": "json",
+      "description": "Sweep summary (verdict, areas, outDir)"
+    }
+  },
+  "steps": [
+    {
+      "id": "sweep",
+      "processId": "scenario-sweep",
+      "title": "Run scenario sweep",
+      "inputs": {
+        "useCase": "${recipe.inputs.useCase}",
+        "baselineRunDir": "${recipe.inputs.baselineRunDir}",
+        "author": "${recipe.inputs.author}",
+        "outDir": "${recipe.inputs.outDir}",
+        "noH3": true
+      },
+      "outputs": { "summary": "summary" },
+      "backend": "local"
+    }
+  ],
+  "riskLevel": "high",
+  "cookbookUri": "http://localhost:8081/recipes/utrecht-scenario-sweep"
+}

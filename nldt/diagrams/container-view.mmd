@@ -1,0 +1,60 @@
+flowchart TB
+  subgraph agentic [Agentic AI Layer]
+    Orchestrator[Orchestrator Graph recipes]
+    Planner[Recipe Planner]
+    Critic[Critic V0-V4]
+    Explainer[Explainer]
+    NormA[Norm Analyst]
+    NormF[Norm Formalizer]
+    ZoneEng[Zone Engine]
+    ScenAuth[Scenario Author S7]
+    XTrack[Crosstrack Overlay]
+  end
+
+  subgraph nldt_iface [nLDT Standard Interfaces]
+    Records[OGC API Records Catalog]
+    Processes[OGC API Processes]
+    RecipeMeta[Recipe Metadata Schema]
+    Context3D[Web 3D Context Document]
+    LegalContracts[PoC contracts NormCard FormalRule DecisionTable Scenario]
+  end
+
+  subgraph hybrid_impl [Hybrid Implementation EU LDT Toolbox]
+    UCS[UCS Scenarios and DAGs]
+    DPL[Data Platform NGSI-LD]
+    PV[Play and Visualise]
+    IM[Identity Management]
+    MktAgent[Marketplace Agent]
+  end
+
+  subgraph fundament [Fundament Trust and Management]
+    IAM[Identity and Access]
+    PROV[Provenance and Audit]
+    HITL[Human-in-the-Loop Queue]
+    RejectLedger[Reject Ledgers cite-or-abstain]
+  end
+
+  Orchestrator --> Planner
+  Planner --> Records
+  Planner --> RecipeMeta
+  Orchestrator --> Processes
+  Processes --> UCS
+  Records --> MktAgent
+  UCS --> DPL
+  UCS --> PV
+  Orchestrator --> Critic
+  Critic --> PROV
+  Orchestrator --> HITL
+  IAM --> IM
+
+  NormA --> LegalContracts
+  NormA --> RejectLedger
+  NormA --> NormF
+  NormF --> ZoneEng
+  ZoneEng --> Critic
+  ZoneEng --> Explainer
+  ScenAuth --> RejectLedger
+  ScenAuth --> Critic
+  XTrack --> Critic
+  Explainer --> LegalContracts
+  Critic --> HITL

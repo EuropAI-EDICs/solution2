@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldttoolbox.example/nldt/schemas/process-invocation.schema.json",
+  "title": "ProcessInvocation",
+  "description": "Request/response contract for OGC API Processes execution via the nLDT process adapter.",
+  "oneOf": [
+    { "$ref": "#/$defs/executionRequest" },
+    { "$ref": "#/$defs/executionResponse" },
+    { "$ref": "#/$defs/jobStatus" }
+  ],
+  "$defs": {
+    "executionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["processId", "inputs"],
+      "properties": {
+        "processId": { "type": "string", "minLength": 1 },
+        "inputs": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "backend": { "enum": ["local", "ucs", "kubeflow"], "default": "local" },
+        "response": {
+          "type": "string",
+          "enum": ["document", "raw"],
+          "default": "document"
+        }
+      }
+    },
+    "executionResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["jobId", "status", "processId", "startedAt"],
+      "properties": {
+        "jobId": { "type": "string", "minLength": 1 },
+        "processId": { "type": "string" },
+        "status": { "enum": ["accepted", "running", "successful", "failed", "dismissed"] },
+        "startedAt": { "$ref": "#/$defs/dateTime" },
+        "finishedAt": { "$ref": "#/$defs/dateTime" },
+        "outputs": { "type": "object", "additionalProperties": true },
+        "message": { "type": "string" },
+        "links": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/link" }
+        },
+        "prov": { "$ref": "#/$defs/provBundle" }
+      }
+    },
+    "jobStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["jobId", "status"],
+      "properties": {
+        "jobId": { "type": "string" },
+        "status": { "enum": ["accepted", "running", "successful", "failed", "dismissed"] },
+        "progress": { "type": "number", "minimum": 0, "maximum": 100 },
+        "outputs": { "type": "object", "additionalProperties": true },
+        "message": { "type": "string" }
+      }
+    },
+    "link": {
+      "type": "object",
+      "required": ["href", "rel"],
+      "properties": {
+        "href": { "type": "string" },
+        "rel": { "type": "string" },
+        "type": { "type": "string" }
+      }
+    },
+    "provBundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["activity", "agent", "generated"],
+      "properties": {
+        "activity": { "type": "string" },
+        "agent": { "type": "string" },
+        "generated": { "type": "string" },
+        "used": { "type": "array", "items": { "type": "string" } },
+        "startedAtTime": { "$ref": "#/$defs/dateTime" },
+        "endedAtTime": { "$ref": "#/$defs/dateTime" }
+      }
+    },
+    "dateTime": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+    }
+  }
+}

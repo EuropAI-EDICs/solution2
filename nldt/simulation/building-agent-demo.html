@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>nLDT — Daltonlaan 100 + Bestemmingsplan</title>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f1419; --panel: #1a2332; --border: #2d3a4f;
+      --text: #e6edf3; --muted: #8b9cb3; --accent: #3d8bfd;
+      --pass: #3fb950; --warn: #f0883e; --deny: #f85149;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    #app { display: grid; grid-template-rows: auto 1fr; height: 100%; }
+    header { padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
+    header h1 { font-size: 1rem; }
+    header p { font-size: 0.74rem; color: var(--muted); }
+    .toolbar { margin-left: auto; display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    button { background: var(--accent); color: #fff; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.78rem; cursor: pointer; }
+    button.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    #main { display: grid; grid-template-columns: 300px 1fr 280px; min-height: 0; }
+    @media (max-width: 1100px) { #main { grid-template-columns: 1fr; } }
+    .left-col { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--border); background: var(--panel); }
+    .left-col .panel-section { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+    .left-col .panel-body { flex: 1; min-height: 0; overflow-y: auto; }
+    .panel { background: var(--panel); border-right: 1px solid var(--border); overflow-y: auto; }
+    .panel:last-child { border-right: none; border-left: 1px solid var(--border); }
+    .panel-head { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+    .panel-body { padding: 0.7rem; font-size: 0.78rem; }
+    #cesiumWrap { min-height: 0; position: relative; }
+    .hint { position: absolute; bottom: 8px; left: 8px; z-index: 5; font-size: 0.68rem; background: rgba(0,0,0,0.65); color: #fff; padding: 0.35rem 0.5rem; border-radius: 4px; max-width: 92%; }
+    .props dt { color: var(--muted); font-size: 0.68rem; margin-top: 0.35rem; }
+    .props dd { font-family: monospace; font-size: 0.72rem; }
+    .scenario { border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; margin-bottom: 0.45rem; background: var(--bg); }
+    .scenario.ok { border-left: 3px solid var(--pass); }
+    .scenario.no { border-left: 3px solid var(--deny); opacity: 0.85; }
+    .scenario h4 { font-size: 0.78rem; margin-bottom: 0.2rem; }
+    .scenario p { font-size: 0.72rem; color: var(--muted); }
+    .badge { font-size: 0.62rem; padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: 600; }
+    .badge.ok { background: rgba(63,185,80,0.15); color: var(--pass); }
+    .badge.no { background: rgba(248,81,73,0.15); color: var(--deny); }
+    .quote { margin-top: 0.5rem; padding: 0.45rem 0.5rem; border-left: 2px solid var(--border); background: rgba(0,0,0,0.2); font-size: 0.68rem; color: var(--muted); font-style: italic; line-height: 1.4; }
+    .quote cite { display: block; margin-top: 0.3rem; font-style: normal; font-size: 0.62rem; }
+    .quote a { color: var(--accent); }
+    .norm-card { border: 1px solid var(--border); border-radius: 6px; padding: 0.45rem; margin-bottom: 0.4rem; background: var(--bg); font-size: 0.7rem; }
+    .norm-card .nc-id { font-family: monospace; color: var(--accent); font-size: 0.62rem; }
+    .dt-row { font-size: 0.68rem; padding: 0.35rem 0; border-bottom: 1px solid var(--border); }
+    .dt-row:last-child { border-bottom: none; }
+    .dt-effect { font-size: 0.6rem; font-weight: 600; text-transform: uppercase; }
+    .dt-effect.included { color: var(--pass); }
+    .dt-effect.excluded { color: var(--deny); }
+    .dt-effect.not_applicable { color: var(--muted); }
+    .log { font-family: ui-monospace, monospace; font-size: 0.66rem; line-height: 1.45; flex: 1; overflow-y: auto; min-height: 0; }
+    .log-entry { padding: 0.45rem 0.5rem; margin-bottom: 0.35rem; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); animation: logIn 0.25s ease; }
+    .log-entry.active { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(61,139,253,0.15); }
+    .log-entry.done { border-left: 3px solid var(--pass); }
+    .log-entry.warn { border-left: 3px solid var(--warn); }
+    .log-entry .log-meta { display: flex; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.2rem; font-size: 0.6rem; color: var(--muted); }
+    .log-entry .log-agent { color: var(--accent); font-weight: 600; }
+    .log-entry .log-step { font-family: monospace; color: var(--muted); }
+    .log-entry .log-msg { color: var(--text); }
+    .log-entry .log-detail { margin-top: 0.25rem; color: var(--muted); font-size: 0.62rem; }
+    @keyframes logIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div>
+        <h1>Pand-analyse + bestemmingsplan — Daltonlaan 100</h1>
+        <p id="hdrSub">Echt 3D BAG pand · agent scenario verbouwing in 3D</p>
+      </div>
+      <div class="toolbar">
+        <button id="btnZoomIn" class="secondary">＋</button>
+        <button id="btnZoomOut" class="secondary">－</button>
+        <button id="btnFocus" class="secondary">◎ Pand</button>
+        <button id="btnPlay">▶ Start agents</button>
+        <button id="btnReset" class="secondary">Reset</button>
+      </div>
+    </header>
+    <div id="main">
+      <div class="left-col">
+        <div class="panel-section">
+          <div class="panel-head">Uitvoeringslog</div>
+          <div class="panel-body log" id="log">
+            <div class="log-entry" style="opacity:0.65">
+              <div class="log-meta"><span class="log-agent">Systeem</span><span>—</span></div>
+              <div class="log-msg">Wacht op start — agents loggen hier elke stap</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="cesiumWrap"><div class="hint" id="hint">Laden…</div></div>
+      <div class="panel">
+        <div class="panel-head">Pand & scenario</div>
+        <div class="panel-body">
+          <p id="bagId" style="font-family:monospace;font-size:0.7rem;color:var(--muted);word-break:break-all;margin-bottom:0.5rem">—</p>
+          <dl class="props" id="props"></dl>
+          <h3 style="font-size:0.72rem;text-transform:uppercase;color:var(--muted);margin:0.75rem 0 0.4rem">Bestemmingsplan</h3>
+          <dl class="props" id="zoning"></dl>
+          <div id="normcards" style="display:none"></div>
+          <h3 style="font-size:0.72rem;text-transform:uppercase;color:var(--muted);margin:0.75rem 0 0.4rem">Decision table</h3>
+          <div id="decisionTable" style="display:none"></div>
+          <h3 style="font-size:0.72rem;text-transform:uppercase;color:var(--muted);margin:0.75rem 0 0.4rem">Scenario verbouwing</h3>
+          <div id="scenarios"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
+  <script>
+    const GRAPH = [
+      { id: 'catalog_search', label: 'Catalog', agent: 'Catalog Navigator', log: 'Recipe building-renovation-check gevonden', detail: 'GET /collections/records?q=building-renovation → match' },
+      { id: 'fetch_building', label: 'Fetch Building', agent: 'Data Agent', log: '3D BAG pand opgehaald', detail: 'LoD2.2 attributen + footprint geladen', show: ['building'] },
+      { id: 'plan_recipe', label: 'Plan', agent: 'Recipe Planner', log: 'Uitvoeringsplan opgesteld', detail: '3D BAG → normcards BP Rijnsweerd → verbouwingsscenario' },
+      { id: 'validate_plan', label: 'Validate Plan', agent: 'Critic', log: 'Plan validatie: pass', detail: 'V0 schema · 6 normcards geciteerd · cite-or-abstain OK' },
+      { id: 'execute', label: 'Execute', agent: 'Executor', sub: [
+        { id: 'analyze', log: 'Pand eigenschappen geanalyseerd', detail: 'bouwhoogte vs. aanduiding verbeelding (22 m)', show: ['building'] },
+        { id: 'zoning', log: 'Bestemmingsplan toegepast', detail: 'Kantoor-1 · art. 15.2 · NL.IMRO.0344.BPRIJNSMAARSCH-0401', show: ['building'] },
+        { id: 'scenarios', log: 'Verbouwingsscenario\'s berekend', detail: 'bijgebouw toegestaan · uitbouw afgewezen (NC-BP-03) — rood gestippeld in 3D', show: ['building', 'uitbouw', 'bijgebouw'], focus: 'all' },
+      ]},
+      { id: 'validate_outputs', label: 'Validate', agent: 'Critic', log: 'Output validatie: pass', detail: 'scenario-geojson + 3D volumes consistent' },
+      { id: 'explain', label: 'Explain', agent: 'Explainer', log: 'Adviesrapport gegenereerd', detail: 'samenvatting voor eigenaar / vergunningcheck' },
+    ];
+
+    let B = null, viewer, tileset, buildingMesh, entities = {}, playing = false, step = 0, sub = 0;
+
+    function setHint(msg) {
+      document.getElementById('hint').textContent = msg;
+    }
+
+    function addBuildingMesh() {
+      const h = B.properties?.b3_h_dak_max || 20;
+      const pos = Cesium.Cartesian3.fromDegreesArray(flat(B.footprint_wgs84));
+      entities['building-mesh'] = viewer.entities.add({
+        show: true,
+        polygon: {
+          hierarchy: new Cesium.PolygonHierarchy(pos),
+          material: Cesium.Color.fromCssColorString('#d4cfc4').withAlpha(0.92),
+          height: 0,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          extrudedHeight: h,
+          extrudedHeightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
+          outline: false,
+        },
+      });
+    }
+
+    async function loadBuildingMesh(meshFile) {
+      try {
+        const r = await fetch(meshFile);
+        if (!r.ok) return 0;
+        const mesh = await r.json();
+        if (!mesh.triangles?.length) return 0;
+        const positions = [];
+        for (const tri of mesh.triangles) {
+          for (let i = 0; i < 9; i += 3) {
+            positions.push(Cesium.Cartesian3.fromDegrees(tri[i], tri[i + 1], tri[i + 2]));
+          }
+        }
+        const indices = new Uint32Array(positions.length);
+        for (let i = 0; i < positions.length; i++) indices[i] = i;
+        const solid = new Cesium.Geometry({
+          attributes: {
+            position: new Cesium.GeometryAttribute({
+              componentDatatype: Cesium.ComponentDatatype.DOUBLE,
+              componentsPerAttribute: 3,
+              values: Cesium.Cartesian3.packArray(positions),
+            }),
+          },
+          indices,
+          primitiveType: Cesium.PrimitiveType.TRIANGLES,
+          boundingSphere: Cesium.BoundingSphere.fromPoints(positions),
+        });
+        Cesium.GeometryPipeline.computeNormal(solid);
+        buildingMesh = viewer.scene.primitives.add(new Cesium.Primitive({
+          geometryInstances: new Cesium.GeometryInstance({ geometry: solid }),
+          appearance: new Cesium.MaterialAppearance({
+            material: Cesium.Material.fromType('Color', {
+              color: Cesium.Color.fromCssColorString('#d4cfc4'),
+            }),
+            faceForward: true,
+            closed: true,
+          }),
+          asynchronous: false,
+        }));
+        return mesh.triangleCount;
+      } catch (_) {
+        return 0;
+      }
+    }
+
+    function clearLog() {
+      document.getElementById('log').innerHTML = '';
+    }
+
+    function logAgent(agent, stepId, message, detail, state) {
+      document.querySelectorAll('.log-entry.active').forEach((el) => {
+        el.classList.remove('active');
+        el.classList.add('done');
+      });
+      const entry = document.createElement('div');
+      entry.className = `log-entry${state === 'warn' ? ' warn' : ' active'}`;
+      const ts = new Date().toISOString().slice(11, 19);
+      entry.innerHTML = `
+        <div class="log-meta">
+          <span class="log-agent">${agent}</span>
+          <span>${ts}</span>
+        </div>
+        <div class="log-step">${stepId}</div>
+        <div class="log-msg">${message}</div>
+        ${detail ? `<div class="log-detail">${detail}</div>` : ''}`;
+      document.getElementById('log').prepend(entry);
+    }
+
+    function logStep(node, sub) {
+      const agent = sub ? 'Executor' : node.agent;
+      const stepId = sub ? `execute.${sub.id}` : node.id;
+      let detail = sub?.detail || node.detail || '';
+      let message = sub?.log || node.log;
+
+      if (node.id === 'fetch_building' && B) {
+        const p = B.properties;
+        detail = `${B.address} · h=${p.b3_h_dak_max?.toFixed(1)} m · ${p.b3_opp_grond?.toFixed(0)} m² · ${B.bagId}`;
+      }
+      if (sub?.id === 'analyze' && B) {
+        detail = `huidig ${B.properties.b3_h_dak_max?.toFixed(1)} m · max ${B.bestemmingsplan.maxBouwhoogteM} m (verbeelding)`;
+      }
+      if (sub?.id === 'scenarios' && B) {
+        const ok = Object.entries(B.scenario).filter(([, s]) => s.toegestaan).map(([k]) => k);
+        const no = Object.entries(B.scenario).filter(([, s]) => !s.toegestaan).map(([k]) => k);
+        detail = `toegestaan: ${ok.join(', ') || '—'} · afgewezen: ${no.join(', ')} · uitbouw = rood gestippeld`;
+      }
+      if (node.id === 'explain' && B) {
+        detail = `Advies: uitbouw achter + bijgebouw mogelijk · dakopbouw niet · zie 3D visualisatie`;
+      }
+
+      logAgent(agent, stepId, message, detail);
+    }
+
+    function flat(ring) { const a = []; ring.forEach(([lo, la]) => a.push(lo, la)); return a; }
+
+    function addOutline(id, ring, color, width) {
+      const pos = Cesium.Cartesian3.fromDegreesArray(flat(ring));
+      entities[id + '-line'] = viewer.entities.add({
+        show: false,
+        polyline: { positions: pos, width: width || 3, material: color, clampToGround: true },
+      });
+    }
+
+    function addRejectedVolume(id, ring, heightM) {
+      const color = Cesium.Color.fromCssColorString('#f85149');
+      const pos = Cesium.Cartesian3.fromDegreesArray(flat(ring));
+      const dash = new Cesium.PolylineDashMaterialProperty({ color, dashLength: 14 });
+      entities[id + '-line'] = viewer.entities.add({
+        show: false,
+        polyline: { positions: pos, width: 4, material: dash, clampToGround: true },
+      });
+      entities[id + '-vol'] = viewer.entities.add({
+        show: false,
+        polygon: {
+          hierarchy: new Cesium.PolygonHierarchy(pos),
+          material: color.withAlpha(0.12),
+          height: 0,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          extrudedHeight: heightM,
+          extrudedHeightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
+          outline: true,
+          outlineColor: color.withAlpha(0.85),
+          outlineWidth: 2,
+        },
+      });
+    }
+
+    function addVolume(id, ring, color, heightM, alpha) {
+      const pos = Cesium.Cartesian3.fromDegreesArray(flat(ring));
+      entities[id + '-line'] = viewer.entities.add({
+        show: false,
+        polyline: {
+          positions: pos,
+          width: 5,
+          material: color,
+          clampToGround: true,
+        },
+      });
+      entities[id + '-vol'] = viewer.entities.add({
+        show: false,
+        polygon: {
+          hierarchy: new Cesium.PolygonHierarchy(pos),
+          material: color.withAlpha(alpha),
+          height: 0,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          extrudedHeight: heightM,
+          extrudedHeightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
+          outline: true,
+          outlineColor: Cesium.Color.WHITE,
+          outlineWidth: 2,
+        },
+      });
+    }
+
+    function allowedVolumes() {
+      const keys = [];
+      if (B.uitbouw_wgs84) keys.push('uitbouw');
+      if (B.scenario?.bijgebouw?.toegestaan) keys.push('bijgebouw');
+      return keys;
+    }
+
+    function buildVolumes() {
+      addOutline('building', B.footprint_wgs84, Cesium.Color.YELLOW, 4);
+      addBuildingMesh();
+      const vols = B.volumes || {};
+      if (B.uitbouw_wgs84) {
+        const v = vols.uitbouw || {};
+        if (B.scenario?.uitbouwAchter?.toegestaan) {
+          addVolume(
+            'uitbouw', B.uitbouw_wgs84,
+            Cesium.Color.fromCssColorString(v.color || '#3fb950'),
+            v.heightM || 4,
+            v.alpha ?? 0.65,
+          );
+        } else {
+          addRejectedVolume('uitbouw', B.uitbouw_wgs84, v.heightM || 4);
+        }
+      }
+      if (B.bijgebouw_wgs84 && B.scenario?.bijgebouw?.toegestaan) {
+        const v = vols.bijgebouw || {};
+        addVolume(
+          'bijgebouw', B.bijgebouw_wgs84,
+          Cesium.Color.fromCssColorString(v.color || '#a371f7'),
+          v.heightM || 4,
+          v.alpha ?? 0.75,
+        );
+      }
+    }
+
+    function setShow(keys) {
+      const allowed = new Set(['building', ...allowedVolumes()]);
+      const onBuilding = keys.includes('building') && allowed.has('building');
+      if (entities['building-mesh']) entities['building-mesh'].show = onBuilding;
+      ['building', 'uitbouw', 'bijgebouw'].forEach((k) => {
+        const on = keys.includes(k) && allowed.has(k);
+        if (entities[k + '-line']) entities[k + '-line'].show = on;
+        if (entities[k + '-vol']) entities[k + '-vol'].show = on;
+      });
+    }
+
+    function flyToBuilding(rangeM, duration) {
+      const c = B.center_wgs84;
+      const buildingH = B.properties?.b3_h_dak_max || 22;
+      const dist = rangeM ?? 120;
+      const southLat = c.lat - (dist * 0.75) / 111000;
+      const eye = Cesium.Cartesian3.fromDegrees(c.lon, southLat, buildingH + dist * 0.85);
+      const target = Cesium.Cartesian3.fromDegrees(c.lon, c.lat, buildingH * 0.45);
+      const dir = Cesium.Cartesian3.normalize(
+        Cesium.Cartesian3.subtract(target, eye, new Cesium.Cartesian3()),
+        new Cesium.Cartesian3(),
+      );
+
+      const view = { destination: eye, orientation: { direction: dir, up: Cesium.Cartesian3.UNIT_Z } };
+      if (!duration) {
+        viewer.camera.setView(view);
+        return;
+      }
+      viewer.camera.flyTo({ ...view, duration });
+    }
+
+    function flyPand(h) {
+      flyToBuilding(h || 40, 0.8);
+    }
+
+    function clearPanel() {
+      document.getElementById('bagId').textContent = B?.bagId || '—';
+      document.getElementById('props').innerHTML = '<dd style="color:var(--muted);font-size:0.72rem">Wacht op Data Agent…</dd>';
+      document.getElementById('zoning').innerHTML = '<dd style="color:var(--muted);font-size:0.72rem">Wacht op Norm Analyst…</dd>';
+      document.getElementById('normcards').style.display = 'none';
+      document.getElementById('decisionTable').style.display = 'none';
+      document.getElementById('scenarios').innerHTML = '<p style="color:var(--muted);font-size:0.72rem;margin:0">Scenario\'s verschijnen na Executor-stap</p>';
+    }
+
+    function fillBuildingProps() {
+      if (!B) return;
+      document.getElementById('bagId').textContent = B.bagId;
+      document.getElementById('hdrSub').textContent = `${B.address} · ${B.bagId.slice(-8)}`;
+      const p = B.properties;
+      document.getElementById('props').innerHTML = `
+        <dt>Bouwhoogte (3D BAG)</dt><dd>${p.b3_h_dak_max?.toFixed(1)} m</dd>
+        <dt>Bouwlagen</dt><dd>${p.b3_bouwlagen ?? '—'}</dd>
+        <dt>Grondoppervlak</dt><dd>${p.b3_opp_grond?.toFixed(0)} m²</dd>
+        <dt>Volume LoD2.2</dt><dd>${p.b3_volume_lod22?.toFixed(0)} m³</dd>
+        <dt>Daktype</dt><dd>${p.b3_dak_type}</dd>
+        <dt>Maaiveld</dt><dd>${p.b3_h_maaiveld?.toFixed(2)} m NAP</dd>
+        ${p.oorspronkelijkbouwjaar ? `<dt>Bouwjaar</dt><dd>${p.oorspronkelijkbouwjaar}</dd>` : ''}`;
+    }
+
+    function fillZoning() {
+      if (!B?.bestemmingsplan) return;
+      const z = B.bestemmingsplan;
+      document.getElementById('zoning').innerHTML = `
+        <dt>Plan</dt><dd>${z.plan}</dd>
+        <dt>IMRO-idn</dt><dd style="word-break:break-all">${z.planIdn || '—'}</dd>
+        <dt>Bestemming</dt><dd>${z.functie}</dd>
+        <dt>Artikel</dt><dd>${z.artikel || '—'}</dd>
+        <dt>Max bouwhoogte</dt><dd>${z.maxBouwhoogteM} m <span style="color:var(--muted)">(${z.maxBouwhoogteBron || 'verbeelding'})</span></dd>
+        <dt>BVO-regel</dt><dd>${z.maxBvoRegel || '—'}</dd>
+        <dt>Bron</dt><dd><a href="${z.uri}" target="_blank" rel="noopener" style="color:var(--accent)">ruimtelijkeplannen.nl</a></dd>`;
+      fillNormCards();
+      fillDecisionTable();
+    }
+
+    function fillNormCards() {
+      const el = document.getElementById('normcards');
+      if (!B?.normcards?.length) { el.style.display = 'none'; return; }
+      el.style.display = 'block';
+      el.innerHTML = B.normcards.map((nc) => `
+        <div class="norm-card">
+          <div class="nc-id">${nc.id} · ${nc.source.article}</div>
+          <blockquote class="quote" lang="nl">${nc.source.quote}
+            <cite><a href="${nc.source.uri}" target="_blank" rel="noopener">${nc.instrument}</a></cite>
+          </blockquote>
+        </div>`).join('');
+    }
+
+    function fillDecisionTable() {
+      const el = document.getElementById('decisionTable');
+      const dt = B?.decisionTable;
+      if (!dt?.rows?.length) { el.style.display = 'none'; return; }
+      el.style.display = 'block';
+      const scenarioRows = dt.rows.filter((r) => ['excluded', 'included'].includes(r['zone effect']));
+      el.innerHTML = scenarioRows.map((r) => `
+        <div class="dt-row">
+          <span class="dt-effect ${r['zone effect']}">${r['zone effect']}</span>
+          · <span style="font-family:monospace;font-size:0.62rem">${r.normCardId}</span>
+          <div style="color:var(--muted);margin-top:0.15rem">${r.note?.slice(0, 120)}…</div>
+        </div>`).join('');
+    }
+
+    function fillProps() {
+      fillBuildingProps();
+      fillZoning();
+      fillScenarios();
+    }
+
+    function fillScenarios() {
+      if (!B?.scenario) return;
+      document.getElementById('scenarios').innerHTML = Object.entries(B.scenario).map(([k, s]) => {
+        const refs = (s.normCardIds || []).map((id) => `<code style="font-size:0.6rem">${id}</code>`).join(' ');
+        return `
+        <div class="scenario ${s.toegestaan ? 'ok' : 'no'}">
+          <h4>${k} <span class="badge ${s.toegestaan ? 'ok' : 'no'}">${s.toegestaan ? 'toegestaan' : 'niet'}</span></h4>
+          <p>${s.tekst}</p>
+          ${refs ? `<p style="margin-top:0.2rem">${refs}</p>` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    function resetDemo() {
+      step = 0;
+      sub = 0;
+      playing = false;
+      clearPanel();
+      setShow(['building']);
+      clearLog();
+      logAgent('Systeem', 'reset', 'Demo gereset', 'klik ▶ Start agents om opnieuw te beginnen');
+      document.getElementById('btnPlay').disabled = false;
+      document.getElementById('btnPlay').textContent = '▶ Start agents';
+      flyToBuilding(140, 1.0);
+      setHint('Daltonlaan 100 · Start agents voor pand-analyse');
+    }
+
+    function run() {
+      if (step >= GRAPH.length) {
+        playing = false;
+        document.getElementById('btnPlay').disabled = false;
+        document.getElementById('btnPlay').textContent = '↻ Opnieuw';
+        document.querySelectorAll('.log-entry.active').forEach((el) => {
+          el.classList.remove('active');
+          el.classList.add('done');
+        });
+        logAgent('Orchestrator', 'complete', 'Run afgerond', 'alle agents klaar · scenario zichtbaar in 3D');
+        document.getElementById('hint').textContent = 'Scenario compleet — paars = bijgebouw (toegestaan) · rood gestippeld = uitbouw afgewezen (BVO-plafond)';
+        return;
+      }
+      const g = GRAPH[step];
+      if (g.id === 'execute' && g.sub) {
+        if (sub < g.sub.length) {
+          const s = g.sub[sub];
+          logStep(g, s);
+          if (s.show) {
+            setShow(s.show);
+            flyToBuilding(s.focus === 'all' ? 145 : 115, 1.2);
+          }
+          if (s.id === 'zoning') fillZoning();
+          if (s.id === 'scenarios') fillScenarios();
+          sub++;
+          setTimeout(run, 1200);
+          return;
+        }
+        sub = 0;
+      } else {
+        logStep(g);
+        if (g.id === 'fetch_building') { fillBuildingProps(); setShow(['building']); flyToBuilding(110, 1.6); }
+        if (g.id === 'explain') {
+          fillScenarios();
+          setShow(['building', ...allowedVolumes()]);
+          flyToBuilding(125, 1.2);
+        }
+      }
+      step++;
+      setTimeout(run, g.id === 'execute' ? 300 : 900);
+    }
+
+    async function init() {
+      const r = await fetch('building-scenario.json');
+      B = await r.json();
+
+      viewer = new Cesium.Viewer('cesiumWrap', {
+        baseLayerPicker: false, animation: false, timeline: false,
+        geocoder: false, homeButton: false, sceneModePicker: false,
+        navigationHelpButton: false, infoBox: false,
+        terrainProvider: new Cesium.EllipsoidTerrainProvider(),
+      });
+      viewer.imageryLayers.removeAll();
+      viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+        credit: 'Esri',
+        maximumLevel: 19,
+      }));
+      viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString('#e8e4dc');
+      viewer.scene.globe.depthTestAgainstTerrain = false;
+      viewer.scene.fog.enabled = false;
+      const ctrl = viewer.scene.screenSpaceCameraController;
+      ctrl.minimumZoomDistance = 8;
+      ctrl.maximumZoomDistance = 800;
+
+      try {
+        const n = await loadBuildingMesh(B.meshFile || 'building-mesh.json');
+        if (n > 0) setHint(`LoD2.2 detailmesh (${n} vlakken) · omgeving laden…`);
+      } catch (_) {}
+
+      try {
+        tileset = await Cesium.Cesium3DTileset.fromUrl(B.tiles_lod22, { maximumScreenSpaceError: 8 });
+        viewer.scene.primitives.add(tileset);
+        await tileset.readyPromise;
+      } catch (e) {
+        console.warn('3D Tiles omgeving niet geladen', e);
+      }
+
+      buildVolumes();
+      clearPanel();
+      setShow(['building']);
+      flyToBuilding(130, 0);
+      setHint('Daltonlaan 100 · 3D BAG pand + Start agents voor verbouwing');
+
+      document.getElementById('btnPlay').onclick = () => {
+        if (step >= GRAPH.length) {
+          step = 0;
+          sub = 0;
+          clearPanel();
+          setShow(['building']);
+        }
+        if (playing) return;
+        playing = true;
+        document.getElementById('btnPlay').disabled = true;
+        clearLog();
+        logAgent('Orchestrator', 'start', `Run gestart — ${B.address}`, `recipe: building-renovation-check · pand ${B.bagId.slice(-8)}`);
+        setShow(['building']);
+        flyToBuilding(115, 1.8);
+        setHint('Inzoomen op pand…');
+        setTimeout(run, 900);
+      };
+      document.getElementById('btnReset').onclick = resetDemo;
+      document.getElementById('btnFocus').onclick = () => flyToBuilding(105, 1.0);
+      document.getElementById('btnZoomIn').onclick = () => viewer.camera.moveForward(viewer.camera.positionCartographic.height * 0.3);
+      document.getElementById('btnZoomOut').onclick = () => viewer.camera.moveBackward(viewer.camera.positionCartographic.height * 0.45);
+    }
+    init();
+  </script>
+</body>
+</html>

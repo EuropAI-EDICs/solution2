@@ -1,0 +1,73 @@
+{
+  "id": "spatial-overlay-analysis",
+  "title": "Spatial Overlay Analysis",
+  "description": "Generic nLDT reference recipe: fetch two layers, intersect, compute area statistics. Use-case agnostic.",
+  "version": "1.0.0",
+  "tags": ["spatial", "overlay", "analysis", "generic"],
+  "requiredData": [
+    { "id": "aoi", "role": "aoi", "format": "geojson" },
+    { "id": "layerA", "role": "reference_layer", "format": "url" },
+    { "id": "layerB", "role": "context_layer", "format": "url" }
+  ],
+  "requiredProcesses": ["fetch-features", "spatial-intersection", "compute-area-statistics"],
+  "inputs": {
+    "aoi": { "type": "geojson", "description": "Area of interest polygon", "required": true },
+    "layerAUri": { "type": "uri", "description": "URI to layer A GeoJSON", "required": true },
+    "layerBUri": { "type": "uri", "description": "URI to layer B GeoJSON", "required": true }
+  },
+  "outputs": {
+    "intersection": { "type": "geojson", "description": "Intersection FeatureCollection" },
+    "statistics": { "type": "json", "description": "Area statistics in m²" }
+  },
+  "steps": [
+    {
+      "id": "fetch-layer-a",
+      "processId": "fetch-features",
+      "title": "Fetch layer A",
+      "inputs": {
+        "source": "${recipe.inputs.layerAUri}",
+        "aoi": "${recipe.inputs.aoi}"
+      },
+      "outputs": { "features": "features" },
+      "backend": "local"
+    },
+    {
+      "id": "fetch-layer-b",
+      "processId": "fetch-features",
+      "title": "Fetch layer B",
+      "inputs": {
+        "source": "${recipe.inputs.layerBUri}",
+        "aoi": "${recipe.inputs.aoi}"
+      },
+      "outputs": { "features": "features" },
+      "backend": "local"
+    },
+    {
+      "id": "intersect",
+      "processId": "spatial-intersection",
+      "title": "Spatial intersection",
+      "inputs": {
+        "layerA": "${steps.fetch-layer-a.outputs.features}",
+        "layerB": "${steps.fetch-layer-b.outputs.features}"
+      },
+      "outputs": { "result": "intersection" },
+      "backend": "local"
+    },
+    {
+      "id": "stats",
+      "processId": "compute-area-statistics",
+      "title": "Compute area statistics",
+      "inputs": {
+        "features": "${steps.intersect.outputs.result}"
+      },
+      "outputs": { "statistics": "statistics" },
+      "backend": "local"
+    }
+  ],
+  "visualizationHint": {
+    "preferredFormat": "geojson",
+    "layerTitle": "Overlay result"
+  },
+  "riskLevel": "low",
+  "cookbookUri": "http://localhost:8081/recipes/spatial-overlay-analysis"
+}

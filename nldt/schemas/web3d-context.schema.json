@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldttoolbox.example/nldt/schemas/web3d-context.schema.json",
+  "title": "Web3DContext",
+  "description": "Portable Web 3D Context document (nLDT testbed topic 5): services, viewpoint, bbox, layers and provenance for scene reproduction.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["type", "version", "id", "title", "viewpoint", "bbox", "layers"],
+  "properties": {
+    "type": { "const": "Web3DContext" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "id": { "type": "string", "minLength": 3 },
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
+    "viewpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["camera", "projection"],
+      "properties": {
+        "camera": {
+          "type": "object",
+          "required": ["position", "direction", "up"],
+          "properties": {
+            "position": { "type": "array", "items": { "type": "number" }, "minItems": 3, "maxItems": 3 },
+            "direction": { "type": "array", "items": { "type": "number" }, "minItems": 3, "maxItems": 3 },
+            "up": { "type": "array", "items": { "type": "number" }, "minItems": 3, "maxItems": 3 }
+          }
+        },
+        "projection": { "type": "string", "description": "CRS URI e.g. EPSG:4978 or EPSG:28992" }
+      }
+    },
+    "bbox": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 4,
+      "maxItems": 6,
+      "description": "Bounding box [minX,minY,maxX,maxY] or 3D with minZ,maxZ"
+    },
+    "time": {
+      "type": ["string", "null"],
+      "description": "ISO8601 instant or null for static scene"
+    },
+    "services": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "href"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "enum": ["geojson", "3dtiles", "wms", "ogc-features", "process"] },
+          "href": { "type": "string" },
+          "title": { "type": "string" }
+        }
+      }
+    },
+    "layers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "href"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "enum": ["geojson", "3dtiles", "wms"] },
+          "href": { "type": "string" },
+          "title": { "type": "string" },
+          "visible": { "type": "boolean", "default": true },
+          "opacity": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "recipeId": { "type": "string" },
+        "runId": { "type": "string" },
+        "generatedAt": { "type": "string" },
+        "provActivities": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Ancillary human-readable annotations"
+    }
+  }
+}

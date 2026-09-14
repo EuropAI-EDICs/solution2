@@ -1,0 +1,112 @@
+{
+  "type": "Web3DContext",
+  "version": "1.0.0",
+  "id": "context-7b19e922",
+  "title": "3D context for spatial-overlay-analysis",
+  "description": "Exported from nLDT recipe execution spatial-overlay-analysis (run 7b19e922)",
+  "viewpoint": {
+    "camera": {
+      "position": [100750.0, 400750.0, 1250.0],
+      "direction": [0, 0, -1],
+      "up": [0, 1, 0]
+    },
+    "projection": "EPSG:28992"
+  },
+  "bbox": [100500.0, 400500.0, 101000.0, 401000.0],
+  "time": null,
+  "services": [
+    {
+      "id": "nldt-process-adapter",
+      "type": "process",
+      "href": "http://localhost:8082",
+      "title": "nLDT Process Adapter"
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer-a",
+      "type": "geojson",
+      "href": "urn:nldt:geojson:layer-a:7b19e922",
+      "title": "Layer A",
+      "visible": true,
+      "opacity": 0.4
+    },
+    {
+      "id": "layer-b",
+      "type": "geojson",
+      "href": "urn:nldt:geojson:layer-b:7b19e922",
+      "title": "Layer B",
+      "visible": true,
+      "opacity": 0.4
+    },
+    {
+      "id": "overlay-result",
+      "type": "geojson",
+      "href": "urn:nldt:geojson:spatial-overlay-analysis:7b19e922",
+      "title": "Intersectie",
+      "visible": true,
+      "opacity": 0.9
+    }
+  ],
+  "provenance": {
+    "recipeId": "spatial-overlay-analysis",
+    "runId": "7b19e922",
+    "generatedAt": "2026-08-31T18:30:01Z",
+    "provActivities": [
+      "nldt:ProcessExecution/fetch-features",
+      "nldt:ProcessExecution/fetch-features",
+      "nldt:ProcessExecution/spatial-intersection",
+      "nldt:ProcessExecution/compute-area-statistics"
+    ]
+  },
+  "metadata": {
+    "statistics": {
+      "featureCount": 1,
+      "totalAreaM2": 250000.0,
+      "crs": "EPSG:28992-assumed-planar"
+    },
+    "inlineGeoJson": {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "properties": { "operation": "intersection" },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [101000.0, 401000.0],
+                [101000.0, 400500.0],
+                [100500.0, 400500.0],
+                [100500.0, 401000.0],
+                [101000.0, 401000.0]
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "layerA": {
+      "type": "FeatureCollection",
+      "features": [{
+        "type": "Feature",
+        "properties": { "name": "layer-a" },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[[100000,400000],[101000,400000],[101000,401000],[100000,401000],[100000,400000]]]
+        }
+      }]
+    },
+    "layerB": {
+      "type": "FeatureCollection",
+      "features": [{
+        "type": "Feature",
+        "properties": { "name": "layer-b" },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[[100500,400500],[101500,400500],[101500,401500],[100500,401500],[100500,400500]]]
+        }
+      }]
+    }
+  }
+}

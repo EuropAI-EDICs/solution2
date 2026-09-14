@@ -1,0 +1,32 @@
+{
+  "runId": "6d4839a2",
+  "request": "Analyseer de overlap van zone A en B in Rijnsweerd Utrecht",
+  "recipeId": "spatial-overlay-analysis",
+  "area": "Rijnsweerd, Utrecht",
+  "buildingCount": 64,
+  "tiles_lod22": "https://data.3dbag.nl/v20250903/cesium3dtiles/lod22/tileset.json",
+  "center_wgs84": { "lon": 5.154611, "lat": 52.089389 },
+  "layers_wgs84": {
+    "layerA": [[5.153157,52.088488],[5.154616,52.088490],[5.154606,52.090288],[5.153147,52.090285],[5.153157,52.088488]],
+    "layerB": [[5.153886,52.088489],[5.156075,52.088493],[5.156065,52.090291],[5.153877,52.090287],[5.153886,52.088489]],
+    "intersect": [[5.153886,52.088489],[5.154616,52.088490],[5.154606,52.090288],[5.153877,52.090287],[5.153886,52.088489]]
+  },
+  "bbox_rd": [138959.3, 455606.5, 139159.3, 455806.5],
+  "totalAreaM2": 10000,
+  "graph": [
+    { "id": "catalog_search", "label": "Catalog Search", "agent": "Catalog Navigator", "detail": "Recipe spatial-overlay-analysis gevonden", "log": "GET /records?q=Rijnsweerd" },
+    { "id": "plan_recipe", "label": "Plan Recipe", "agent": "Recipe Planner", "detail": "Zone A/B overlap Rijnsweerd · 4 stappen", "log": "agentPlan · llmUsed: false" },
+    { "id": "validate_plan", "label": "Validate Plan", "agent": "Critic", "detail": "V0 pass · geen HITL", "log": "critic#plan-validation → pass" },
+    { "id": "execute_steps", "label": "Execute", "agent": "Executor", "detail": "OGC API Processes op Rijnsweerd", "subSteps": [
+      { "stepId": "fetch-layer-a", "processId": "fetch-features", "jobId": "bbeb6c12…", "show3d": ["layerA"] },
+      { "stepId": "fetch-layer-b", "processId": "fetch-features", "jobId": "6ba78eff…", "show3d": ["layerA","layerB"] },
+      { "stepId": "intersect", "processId": "spatial-intersection", "jobId": "f891a322…", "show3d": ["layerA","layerB","intersect"] },
+      { "stepId": "stats", "processId": "compute-area-statistics", "jobId": "289a88f8…", "show3d": ["layerA","layerB","intersect"] }
+    ]},
+    { "id": "validate_outputs", "label": "Validate Outputs", "agent": "Critic", "detail": "V0+V1 geo → pass", "log": "10.000 m² intersectie" },
+    { "id": "register_hybrid", "label": "Hybrid 3D", "agent": "Hybrid Bridge", "detail": "Web3D Context + 64 BAG panden", "log": "context-6d4839a2 exported" },
+    { "id": "explain", "label": "Explain", "agent": "Explainer", "detail": "Recipe uitgevoerd · verdict pass", "log": "samenvatting voor gebruiker" }
+  ],
+  "validation": { "V0": "pass", "V1": "pass", "V2": "pass", "V3": "not_applicable", "V4": "not_applicable" },
+  "verdict": "pass"
+}

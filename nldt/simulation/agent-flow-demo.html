@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>nLDT Agent Flow — LangGraph Orchestrator</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a2332;
+      --border: #2d3a4f;
+      --text: #e6edf3;
+      --muted: #8b9cb3;
+      --accent: #3d8bfd;
+      --pass: #3fb950;
+      --warn: #f0883e;
+      --layer-a: #3d8bfd;
+      --layer-b: #3fb950;
+      --intersect: #f0883e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 1.25rem;
+    }
+    header { max-width: 1280px; margin: 0 auto 1rem; }
+    header h1 { font-size: 1.3rem; font-weight: 600; }
+    header p { color: var(--muted); font-size: 0.88rem; margin-top: 0.3rem; }
+    .meta { font-family: ui-monospace, monospace; font-size: 0.75rem; color: var(--muted); margin-top: 0.5rem; }
+    .toolbar {
+      max-width: 1280px; margin: 0 auto 1rem;
+      display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center;
+    }
+    button {
+      background: var(--accent); color: #fff; border: none;
+      padding: 0.45rem 1rem; border-radius: 6px; font-size: 0.85rem;
+      cursor: pointer; font-weight: 500;
+    }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    button.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .status { flex: 1; font-size: 0.85rem; color: var(--muted); min-width: 200px; }
+    .status strong { color: var(--text); }
+    .layout {
+      max-width: 1280px; margin: 0 auto;
+      display: grid; grid-template-columns: 280px 1fr 300px; gap: 1rem;
+    }
+    @media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } }
+    .panel {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden;
+    }
+    .panel-head {
+      padding: 0.65rem 0.85rem; border-bottom: 1px solid var(--border);
+      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted);
+    }
+    .panel-body { padding: 0.85rem; font-size: 0.82rem; }
+
+    /* LangGraph flow */
+    .graph { list-style: none; }
+    .graph li {
+      position: relative; margin-bottom: 0.5rem; padding: 0.55rem 0.65rem;
+      border: 1px solid var(--border); border-radius: 6px;
+      background: var(--bg); transition: all 0.35s ease;
+    }
+    .graph li::after {
+      content: ''; position: absolute; left: 50%; bottom: -0.55rem;
+      width: 2px; height: 0.5rem; background: var(--border);
+      transform: translateX(-50%);
+    }
+    .graph li:last-child::after { display: none; }
+    .graph li .node-id { font-family: ui-monospace, monospace; font-size: 0.7rem; color: var(--accent); }
+    .graph li .agent { font-size: 0.72rem; color: var(--muted); margin-top: 0.15rem; }
+    .graph li.pending { opacity: 0.45; }
+    .graph li.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(61,139,253,0.25);
+      opacity: 1;
+    }
+    .graph li.done { border-color: var(--pass); opacity: 1; }
+
+    /* Center: detail + mini map */
+    .detail-box {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 0.75rem; margin-bottom: 0.75rem;
+      min-height: 72px;
+    }
+    .detail-box h3 { font-size: 0.9rem; margin-bottom: 0.35rem; }
+    .detail-box p { color: var(--muted); font-size: 0.8rem; line-height: 1.45; }
+    .detail-box code { font-size: 0.72rem; color: var(--accent); }
+    svg { display: block; width: 100%; height: auto; }
+    .map-wrap { background: #121820; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+    .hidden { opacity: 0; transition: opacity 0.5s; }
+    .visible { opacity: 1; }
+
+    /* Right panel */
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; margin-bottom: 0.75rem; }
+    .stat { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.55rem; }
+    .stat .lbl { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; }
+    .stat .val { font-size: 1rem; font-weight: 600; margin-top: 0.15rem; }
+    .levels { margin-bottom: 0.75rem; }
+    .level {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.35rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem;
+    }
+    .badge {
+      font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px;
+      font-weight: 600; text-transform: uppercase;
+    }
+    .badge.pass { background: rgba(63,185,80,0.15); color: var(--pass); }
+    .badge.na { background: rgba(139,156,179,0.1); color: var(--muted); }
+    .jobs { list-style: none; font-family: ui-monospace, monospace; font-size: 0.68rem; color: var(--muted); }
+    .jobs li { padding: 0.3rem 0; border-bottom: 1px solid var(--border); word-break: break-all; }
+    .jobs li span { color: var(--text); }
+    .verdict {
+      margin-top: 0.75rem; padding: 0.6rem; border-radius: 6px;
+      border: 1px solid var(--border); text-align: center; font-weight: 600;
+    }
+    .verdict.pass { border-color: var(--pass); color: var(--pass); }
+    .log {
+      margin-top: 0.75rem; max-height: 120px; overflow-y: auto;
+      font-family: ui-monospace, monospace; font-size: 0.68rem; color: var(--muted);
+    }
+    .log div { margin-bottom: 0.2rem; }
+    .nav-links { margin-top: 0.75rem; font-size: 0.78rem; }
+    .nav-links a { color: var(--accent); }
+  </style>
+</head>
+<body style="background:#0f1419;color:#e6edf3;">
+  <header>
+    <h1>nLDT Agent Flow — LangGraph Orchestrator</h1>
+    <p>Live run-data van orchestrator <code>agents/orchestrator/run.py</code> · LLMs propose, engines dispose</p>
+    <div class="meta" id="runMeta">runId: — · recipe: —</div>
+  </header>
+
+  <div class="toolbar">
+    <button id="btnPlay">▶ Start agent flow</button>
+    <button id="btnReset" class="secondary">Reset</button>
+    <div class="status" id="statusLabel">Klaar — 7 LangGraph nodes</div>
+  </div>
+
+  <div class="layout">
+    <div class="panel">
+      <div class="panel-head">LangGraph nodes</div>
+      <div class="panel-body">
+        <ul class="graph" id="graph"></ul>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">Node detail + executie</div>
+      <div class="panel-body">
+        <div class="detail-box" id="detailBox">
+          <h3>Wacht op start</h3>
+          <p>Klik <strong>Start agent flow</strong> om door de 7 orchestrator-nodes te stappen.</p>
+        </div>
+        <div class="map-wrap">
+          <svg viewBox="0 0 520 320" xmlns="http://www.w3.org/2000/svg">
+            <rect width="520" height="320" fill="#121820"/>
+            <text x="16" y="24" fill="#8b9cb3" font-size="11">RD New — intersectie uit echte run</text>
+            <polygon id="layerA" class="hidden" points="80,60 280,60 280,200 80,200" fill="#3d8bfd" fill-opacity="0.35" stroke="#3d8bfd" stroke-width="2"/>
+            <polygon id="layerB" class="hidden" points="220,120 420,120 420,260 220,260" fill="#3fb950" fill-opacity="0.35" stroke="#3fb950" stroke-width="2"/>
+            <polygon id="intersect" class="hidden" points="220,120 280,120 280,200 220,200" fill="#f0883e" fill-opacity="0.75" stroke="#f0883e" stroke-width="2"/>
+            <text id="areaLabel" class="hidden" x="228" y="168" fill="#fff" font-size="11" font-weight="600">250.000 m²</text>
+          </svg>
+        </div>
+        <ul class="jobs" id="jobList" style="margin-top:0.75rem"></ul>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">Validatie & resultaat</div>
+      <div class="panel-body">
+        <div class="stats">
+          <div class="stat"><div class="lbl">Oppervlak</div><div class="val" id="statArea">—</div></div>
+          <div class="stat"><div class="lbl">Jobs</div><div class="val" id="statJobs">—</div></div>
+          <div class="stat"><div class="lbl">LLM gebruikt</div><div class="val" id="statLlm">nee</div></div>
+          <div class="stat"><div class="lbl">HITL</div><div class="val" id="statHitl">—</div></div>
+        </div>
+        <div class="levels" id="levels"></div>
+        <div class="verdict" id="verdict">Wacht op simulatie…</div>
+        <div class="log" id="log"></div>
+        <div class="nav-links">
+          <a href="mock-overlay-demo.html">← Overlay simulatie</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const RUN_DATA = {
+      "runId": "7b19e922",
+      "request": "Voer spatial overlay analysis uit op deze AOI",
+      "recipeId": "spatial-overlay-analysis",
+      "graph": [
+        { "id": "catalog_search", "label": "Catalog Search", "agent": "Catalog Navigator", "service": "OGC API Records :8083", "detail": "Recipe spatial-overlay-analysis gevonden in catalog" },
+        { "id": "plan_recipe", "label": "Plan Recipe", "agent": "Recipe Planner", "service": "Cookbook :8081", "detail": "4 stappen: fetch-layer-a → fetch-layer-b → intersect → stats · llmUsed: false" },
+        { "id": "validate_plan", "label": "Validate Plan", "agent": "Critic", "service": "V0 schema", "detail": "agent-plan.schema.json → pass · risk: low · geen HITL" },
+        { "id": "execute_steps", "label": "Execute Steps", "agent": "Executor", "service": "OGC API Processes :8082", "detail": "4 process jobs · PROV per stap · totalAreaM2: 250000" },
+        { "id": "validate_outputs", "label": "Validate Outputs", "agent": "Critic", "service": "V0 + V1 geo", "detail": "output-intersection + geo-intersection → pass" },
+        { "id": "register_hybrid", "label": "Register Hybrid", "agent": "Hybrid Bridge", "service": "Web3D :8084 · P&V mock", "detail": "context-7b19e922 · mock-dl-aa17b4fc" },
+        { "id": "explain", "label": "Explain", "agent": "Explainer", "service": "Samenvatting", "detail": "Executed recipe in 4 steps · verdict pass" }
+      ],
+      "agentPlan": { "proposedBy": { "llmUsed": false }, "riskLevel": "low", "requiresHitl": false, "stepOrder": ["fetch-layer-a","fetch-layer-b","intersect","stats"] },
+      "execution": {
+        "steps": [
+          { "stepId": "fetch-layer-a", "processId": "fetch-features", "jobId": "445cb74d-5cde-4e85-8ddb-52607c6d8879" },
+          { "stepId": "fetch-layer-b", "processId": "fetch-features", "jobId": "5f6b8e7a-8540-4020-bdf6-770e5600b102" },
+          { "stepId": "intersect", "processId": "spatial-intersection", "jobId": "be8b9c0a-3f92-4e24-bff2-512731212e62" },
+          { "stepId": "stats", "processId": "compute-area-statistics", "jobId": "50d6b341-3e03-461d-ae9a-e23a3e4bdc08" }
+        ],
+        "totalAreaM2": 250000
+      },
+      "validation": {
+        "execution": { "verdict": "pass", "levels": { "V0": "pass", "V1": "pass", "V2": "pass", "V3": "not_applicable", "V4": "not_applicable" } }
+      },
+      "explanation": { "summary": "Executed recipe 'spatial-overlay-analysis' in 4 steps.", "validationVerdict": "pass" }
+    };
+
+    let data = RUN_DATA;
+    let idx = 0;
+    let playing = false;
+
+    const els = {
+      graph: document.getElementById('graph'),
+      detailBox: document.getElementById('detailBox'),
+      statusLabel: document.getElementById('statusLabel'),
+      runMeta: document.getElementById('runMeta'),
+      levels: document.getElementById('levels'),
+      verdict: document.getElementById('verdict'),
+      log: document.getElementById('log'),
+      jobList: document.getElementById('jobList'),
+      statArea: document.getElementById('statArea'),
+      statJobs: document.getElementById('statJobs'),
+      statLlm: document.getElementById('statLlm'),
+      statHitl: document.getElementById('statHitl'),
+      btnPlay: document.getElementById('btnPlay'),
+      btnReset: document.getElementById('btnReset'),
+      layerA: document.getElementById('layerA'),
+      layerB: document.getElementById('layerB'),
+      intersect: document.getElementById('intersect'),
+      areaLabel: document.getElementById('areaLabel'),
+    };
+
+    function log(msg) {
+      const d = document.createElement('div');
+      d.textContent = `[${new Date().toISOString().slice(11,19)}] ${msg}`;
+      els.log.prepend(d);
+    }
+
+    function renderGraph() {
+      els.graph.innerHTML = data.graph.map((n, i) => `
+        <li data-idx="${i}" class="pending">
+          <div class="node-id">${n.id}</div>
+          <div><strong>${n.label}</strong></div>
+          <div class="agent">${n.agent} · ${n.service}</div>
+        </li>
+      `).join('');
+    }
+
+    function renderMeta() {
+      els.runMeta.textContent = `runId: ${data.runId} · recipe: ${data.recipeId} · "${data.request}"`;
+      els.statLlm.textContent = data.agentPlan.proposedBy.llmUsed ? 'ja' : 'nee';
+      els.statHitl.textContent = data.agentPlan.requiresHitl ? 'vereist' : 'nee';
+      els.statJobs.textContent = String(data.execution.steps.length);
+    }
+
+    function setMap(phase) {
+      const show = (el, on) => { el.classList.toggle('hidden', !on); el.classList.toggle('visible', on); };
+      show(els.layerA, phase >= 3);
+      show(els.layerB, phase >= 3);
+      show(els.intersect, phase >= 4);
+      show(els.areaLabel, phase >= 4);
+    }
+
+    function setGraphActive(n) {
+      els.graph.querySelectorAll('li').forEach((li, i) => {
+        li.classList.remove('active', 'done', 'pending');
+        if (i < n) li.classList.add('done');
+        else if (i === n) li.classList.add('active');
+        else li.classList.add('pending');
+      });
+    }
+
+    function showLevels(fromNode) {
+      if (fromNode < 4) {
+        els.levels.innerHTML = '<div class="level"><span>Validatie</span><span class="badge na">pending</span></div>';
+        return;
+      }
+      const lv = data.validation.execution.levels;
+      els.levels.innerHTML = Object.entries(lv).map(([k,v]) =>
+        `<div class="level"><span>${k}</span><span class="badge ${v==='pass'?'pass':'na'}">${v}</span></div>`
+      ).join('');
+    }
+
+    function showJobs(fromNode) {
+      if (fromNode < 3) { els.jobList.innerHTML = ''; return; }
+      els.jobList.innerHTML = data.execution.steps.map(s =>
+        `<li><span>${s.stepId}</span> · ${s.processId}<br>${s.jobId}</li>`
+      ).join('');
+    }
+
+    const NODE_MAP = {
+      0: () => { log('GET /records?q=spatial-overlay-analysis → 200'); },
+      1: () => { log(`GET /recipes/${data.recipeId} → agentPlan ${data.agentPlan.stepOrder.join(', ')}`); },
+      2: () => { log('critic#plan-validation → V0 pass'); },
+      3: () => {
+        data.execution.steps.forEach(s => log(`POST /processes/${s.processId}/execution → ${s.jobId.slice(0,8)}…`));
+        setMap(3);
+      },
+      4: () => { log('critic#output-validation → V0+V1 pass'); setMap(4); els.statArea.textContent = '250.000 m²'; },
+      5: () => { log('hybrid_bridge → Web3D context + P&V mock layer'); },
+      6: () => { log(`explain → ${data.explanation.summary}`); },
+    };
+
+    function runStep() {
+      if (idx >= data.graph.length) {
+        playing = false;
+        els.btnPlay.disabled = false;
+        els.btnPlay.textContent = '↻ Opnieuw';
+        els.verdict.textContent = '✓ Validatie PASS — agent flow compleet';
+        els.verdict.className = 'verdict pass';
+        els.statusLabel.innerHTML = '<strong>Klaar</strong> — 7/7 nodes · run ' + data.runId;
+        return;
+      }
+      const node = data.graph[idx];
+      setGraphActive(idx);
+      els.statusLabel.innerHTML = `<strong>Node ${idx+1}/${data.graph.length}</strong> — ${node.id}`;
+      els.detailBox.innerHTML = `<h3>${node.label}</h3><p>${node.detail}</p><p style="margin-top:0.4rem"><code>${node.agent}</code> · ${node.service}</p>`;
+      showLevels(idx);
+      showJobs(idx);
+      (NODE_MAP[idx] || (() => {}))();
+      idx++;
+      setTimeout(runStep, idx === 1 ? 700 : 1100);
+    }
+
+    function reset() {
+      playing = false; idx = 0;
+      setGraphActive(-1);
+      els.graph.querySelectorAll('li').forEach(li => li.classList.add('pending'));
+      setMap(0);
+      els.detailBox.innerHTML = '<h3>Wacht op start</h3><p>Klik <strong>Start agent flow</strong>.</p>';
+      els.statusLabel.textContent = 'Klaar — 7 LangGraph nodes';
+      els.verdict.textContent = 'Wacht op simulatie…';
+      els.verdict.className = 'verdict';
+      els.statArea.textContent = '—';
+      els.log.innerHTML = '';
+      els.jobList.innerHTML = '';
+      els.levels.innerHTML = '';
+      els.btnPlay.disabled = false;
+      els.btnPlay.textContent = '▶ Start agent flow';
+    }
+
+    async function init() {
+      try {
+        const resp = await fetch('agent-flow-run.json');
+        if (resp.ok) data = await resp.json();
+      } catch (_) { /* embedded RUN_DATA */ }
+      renderGraph();
+      renderMeta();
+    }
+
+    els.btnPlay.addEventListener('click', () => {
+      if (idx >= data.graph.length) reset();
+      if (playing) return;
+      playing = true;
+      els.btnPlay.disabled = true;
+      runStep();
+    });
+    els.btnReset.addEventListener('click', reset);
+    init();
+  </script>
+</body>
+</html>

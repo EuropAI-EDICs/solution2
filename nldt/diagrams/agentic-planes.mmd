@@ -1,0 +1,60 @@
+flowchart TB
+  subgraph planeA [Plane A — Opportunity-map]
+    direction TB
+    Intake[Intake OpportunityMapRequest]
+    NormA[Norm Analyst cite-or-abstain]
+    NormF[Norm Formalizer]
+    Geo[Geo Analyst layers]
+    Zone[Zone Engine]
+    Cart[Cartographer]
+    CritA[Critic V0-V4]
+    Exp[Explainer DecisionTable + PROV]
+    Intake --> NormA
+    NormA -->|NormCards| NormF
+    NormA -->|rejected ledger| Reject[(normcards-rejected)]
+    NormF --> Geo
+    Geo --> Zone
+    Zone --> Cart
+    Zone --> CritA
+    Cart --> Exp
+    CritA --> Exp
+  end
+
+  subgraph planeB [Plane B — Scenario-sweep S7/S8]
+    direction TB
+    Base[Load baseline run]
+    Author[Scenario Author proposals]
+    Sweep[Sweep control + mutations]
+    CritB[Scenario Critic V0-V3]
+    Narr[Narrator S8]
+    Base --> Author
+    Author -->|schema-valid| Sweep
+    Author -->|reject| PropRej[(proposals-rejected)]
+    Sweep --> CritB
+    CritB --> Narr
+  end
+
+  subgraph planeC [Plane C — Crosstrack]
+    direction TB
+    Ctrl[Controls per track]
+    Overlay[Pairwise intersect]
+    CritC[Crosstrack Critic V2 N/A]
+    Ctrl --> Overlay
+    Overlay --> CritC
+  end
+
+  subgraph nldtRecipe [nLDT Recipe LangGraph]
+    direction TB
+    Cat[catalog_search]
+    Plan[plan_recipe]
+    ValP[validate_plan]
+    Exec[execute_steps]
+    ValO[validate_outputs]
+    Hyb[register_hybrid]
+    Expl[explain]
+    Cat --> Plan --> ValP --> Exec --> ValO --> Hyb --> Expl
+  end
+
+  planeA -->|baseline zones| planeB
+  planeA -->|per-track control| planeC
+  nldtRecipe -.->|shared V0-V4 vocab + PROV + HITL| CritA

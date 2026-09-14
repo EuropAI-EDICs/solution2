@@ -1,0 +1,77 @@
+{
+  "id": "DT-building-daltonlaan100",
+  "requestId": "OMR-building-renovation-daltonlaan100",
+  "title": "Verbouwingsscenario's Daltonlaan 100 — bestemmingsplan Rijnsweerd, Maarschalkerweerd",
+  "columns": [
+    "criterion",
+    "norm",
+    "source",
+    "zone effect",
+    "ruleId",
+    "normCardId",
+    "condition",
+    "note"
+  ],
+  "rows": [
+    {
+      "criterion": "Grounds designated 'Kantoor - 1' are for offices and related ancillary uses within the kantorenpark Rijnsweerd.",
+      "norm": "art. 15.1 — Bestemmingsplan Rijnsweerd, Maarschalkerweerd (NL.IMRO.0344.BPRIJNSMAARSCH-0401) [binding]",
+      "source": "S-BP01: https://0344.ropubliceer.nl/data/0344/rodata/93F671F3-8432-44C2-87E7-48299025AE09/r_NL.IMRO.0344.BPRIJNSMAARSCH-0401_2.15.html",
+      "zone effect": "included",
+      "normCardId": "NC-BP-01",
+      "ruleId": "FR-BP-01",
+      "note": "Zone-identificatie voor pand op Daltonlaan 100; functie kantoor conform BAG en planverbeelding."
+    },
+    {
+      "criterion": "Building height may not exceed the 'maximale bouwhoogte (m)' designation on the verbeelding (22 m at this location).",
+      "norm": "art. 15.2.1, onder c — Bestemmingsplan Rijnsweerd, Maarschalkerweerd [binding]",
+      "source": "S-BP01: https://0344.ropubliceer.nl/data/0344/rodata/93F671F3-8432-44C2-87E7-48299025AE09/r_NL.IMRO.0344.BPRIJNSMAARSCH-0401_2.15.html",
+      "zone effect": "excluded",
+      "normCardId": "NC-BP-02",
+      "ruleId": "FR-BP-02",
+      "condition": "huidige_hoogte_m >= max_bouwhoogte_m",
+      "note": "3D BAG ~21,8 m vs. aanduiding 22 m → geen ruimte voor extra verdieping/dakopbouw met volume."
+    },
+    {
+      "criterion": "Without a BVO designation on the bouwvlak, gross floor area may not exceed the existing gross floor area.",
+      "norm": "art. 15.2.1, onder b — Bestemmingsplan Rijnsweerd, Maarschalkerweerd [binding]",
+      "source": "S-BP01: https://0344.ropubliceer.nl/data/0344/rodata/93F671F3-8432-44C2-87E7-48299025AE09/r_NL.IMRO.0344.BPRIJNSMAARSCH-0401_2.15.html",
+      "zone effect": "excluded",
+      "normCardId": "NC-BP-03",
+      "ruleId": "FR-BP-03",
+      "condition": "uitbouw_vergroot_bvo",
+      "note": "Uitbouw achterzijde (+~48 m²) vergroot BVO → niet toegestaan zonder afwijking/wijzigingsbevoegdheid."
+    },
+    {
+      "criterion": "Subordinate buildings (berging/fietsenstalling) may be built outside the bouwvlak up to 100 m² and 3 m height per bouwperceel.",
+      "norm": "art. 15.2.1, onder e — Bestemmingsplan Rijnsweerd, Maarschalkerweerd [binding]",
+      "source": "S-BP01: https://0344.ropubliceer.nl/data/0344/rodata/93F671F3-8432-44C2-87E7-48299025AE09/r_NL.IMRO.0344.BPRIJNSMAARSCH-0401_2.15.html",
+      "zone effect": "included",
+      "normCardId": "NC-BP-04",
+      "ruleId": "FR-BP-04",
+      "condition": "oppervlak_m2 <= 100; hoogte_m <= 3",
+      "note": "Scenario bijgebouw 24 m² × 3,5 m → oppervlak OK; hoogte scenario 3,5 m licht boven plafond — toon als 3 m in 3D."
+    },
+    {
+      "criterion": "'Bouwen' includes enlarging a structure — renovation extensions fall under plan rules.",
+      "norm": "art. 1.29 — Bestemmingsplan Rijnsweerd, Maarschalkerweerd [binding]",
+      "source": "S-BP01: https://0344.ropubliceer.nl/data/0344/rodata/93F671F3-8432-44C2-87E7-48299025AE09/r_NL.IMRO.0344.BPRIJNSMAARSCH-0401_1.1.html",
+      "zone effect": "not_applicable",
+      "normCardId": "NC-BP-05",
+      "ruleId": "FR-BP-05",
+      "note": "Scope-bepaling; geen geometrie."
+    },
+    {
+      "criterion": "Plan term 'dakopbouw' means subordinate technical roof structures (stairs/HVAC/lifts), not an extra office storey.",
+      "norm": "art. 1.41 — Bestemmingsplan Rijnsweerd, Maarschalkerweerd [binding]",
+      "source": "S-BP01: https://0344.ropubliceer.nl/data/0344/rodata/93F671F3-8432-44C2-87E7-48299025AE09/r_NL.IMRO.0344.BPRIJNSMAARSCH-0401_1.1.html",
+      "zone effect": "not_applicable",
+      "normCardId": "NC-BP-06",
+      "ruleId": "FR-BP-06",
+      "note": "Verduidelijkt dat 'dakopbouw' in scenario ≠ extra verdieping."
+    }
+  ],
+  "generatedBy": "norm-analyst#bp-rijnsweerd-building",
+  "generatedAt": "2026-08-31T19:00:00+02:00",
+  "provenance": "cite-or-abstain corpus simulation/corpus/; instrument NL.IMRO.0344.BPRIJNSMAARSCH-0401; locatie Daltonlaan 100 RD 139375,455480"
+}

@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>nLDT Agent + 3D BAG — Rijnsweerd Simulatie</title>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f1419; --panel: #1a2332; --border: #2d3a4f;
+      --text: #e6edf3; --muted: #8b9cb3; --accent: #3d8bfd; --pass: #3fb950; --warn: #f0883e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    #app { display: grid; grid-template-rows: auto 1fr; height: 100%; }
+    header {
+      padding: 0.65rem 1rem; border-bottom: 1px solid var(--border);
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.65rem;
+    }
+    header h1 { font-size: 1.05rem; }
+    header p { font-size: 0.75rem; color: var(--muted); max-width: 520px; }
+    .toolbar { margin-left: auto; display: flex; gap: 0.45rem; align-items: center; flex-wrap: wrap; }
+    button {
+      background: var(--accent); color: #fff; border: none;
+      padding: 0.42rem 0.9rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 500;
+    }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    button.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .toolbar button.secondary.zoom { min-width: 2rem; padding: 0.38rem 0.55rem; font-size: 1rem; line-height: 1; }
+    #status { font-size: 0.78rem; color: var(--muted); min-width: 140px; }
+    #main { display: grid; grid-template-columns: 250px 1fr 270px; min-height: 0; }
+    @media (max-width: 1000px) { #main { grid-template-columns: 1fr; grid-template-rows: auto 50vh auto; } }
+    .panel { background: var(--panel); border-right: 1px solid var(--border); overflow-y: auto; }
+    .panel:last-child { border-right: none; border-left: 1px solid var(--border); }
+    .panel-head {
+      padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--border);
+      font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted);
+    }
+    .panel-body { padding: 0.7rem; font-size: 0.78rem; }
+    .graph { list-style: none; }
+    .graph li {
+      margin-bottom: 0.4rem; padding: 0.45rem 0.55rem;
+      border: 1px solid var(--border); border-radius: 6px; background: var(--bg);
+      transition: all 0.3s ease; opacity: 0.4;
+    }
+    .graph li.active { opacity: 1; border-color: var(--accent); box-shadow: 0 0 0 1px rgba(61,139,253,0.2); }
+    .graph li.done { opacity: 1; border-color: var(--pass); }
+    .graph .nid { font-family: monospace; font-size: 0.65rem; color: var(--accent); }
+    .graph .ag { font-size: 0.68rem; color: var(--muted); }
+    #cesiumWrap { position: relative; min-height: 0; }
+    .request-box {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+      padding: 0.55rem; margin-bottom: 0.65rem; font-size: 0.76rem; line-height: 1.4;
+    }
+    .request-box em { color: var(--accent); font-style: normal; }
+    .detail { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.55rem; margin-bottom: 0.65rem; min-height: 64px; }
+    .detail h3 { font-size: 0.82rem; margin-bottom: 0.25rem; }
+    .detail p { color: var(--muted); font-size: 0.74rem; line-height: 1.4; }
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; margin-bottom: 0.65rem; }
+    .stat { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.45rem; }
+    .stat .lbl { font-size: 0.62rem; color: var(--muted); text-transform: uppercase; }
+    .stat .val { font-size: 0.88rem; font-weight: 600; }
+    .levels div { display: flex; justify-content: space-between; padding: 0.25rem 0; border-bottom: 1px solid var(--border); font-size: 0.72rem; }
+    .badge { font-size: 0.62rem; padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: 600; }
+    .badge.pass { background: rgba(63,185,80,0.15); color: var(--pass); }
+    .badge.na { color: var(--muted); }
+    .log { font-family: monospace; font-size: 0.65rem; color: var(--muted); max-height: 130px; overflow-y: auto; margin-top: 0.5rem; }
+    .log div { margin-bottom: 0.2rem; }
+    .verdict { margin-top: 0.55rem; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border); text-align: center; font-weight: 600; font-size: 0.78rem; }
+    .verdict.pass { border-color: var(--pass); color: var(--pass); }
+    .jobs { list-style: none; font-family: monospace; font-size: 0.62rem; color: var(--muted); margin-top: 0.5rem; }
+    .jobs li { padding: 0.25rem 0; border-bottom: 1px solid var(--border); }
+    .jobs span { color: var(--text); }
+    .hint { position: absolute; bottom: 8px; left: 8px; font-size: 0.68rem; color: #fff; background: rgba(0,0,0,0.55); padding: 0.35rem 0.55rem; border-radius: 4px; z-index: 5; max-width: 90%; line-height: 1.35; }
+    .legend { margin-bottom: 0.65rem; font-size: 0.72rem; }
+    .legend div { display: flex; align-items: center; gap: 0.4rem; padding: 0.2rem 0; color: var(--muted); }
+    .legend .sw { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.2); }
+    .legend .sw.classify { box-shadow: inset 0 0 0 2px rgba(255,255,255,0.35); }
+    .effect-note { font-size: 0.72rem; color: var(--warn); margin-top: 0.35rem; line-height: 1.35; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div>
+        <h1>Agent + 3D BAG Simulatie — Rijnsweerd</h1>
+        <p id="hdrSub">LangGraph agents voeren recipe uit · resultaat verschijnt in 3D BAG scene</p>
+      </div>
+      <div class="toolbar">
+        <span id="status">Klaar</span>
+        <button id="btnShowZones" class="secondary">Toon zones</button>
+        <button id="btnZoomIn" class="secondary zoom" title="Inzoomen">＋</button>
+        <button id="btnZoomOut" class="secondary zoom" title="Uitzoomen">－</button>
+        <button id="btnFocus" class="secondary" title="Naar studiegebied">◎ Gebied</button>
+        <button id="btnPlay">▶ Start agent simulatie</button>
+        <button id="btnReset" class="secondary">Reset</button>
+      </div>
+    </header>
+
+    <div id="main">
+      <div class="panel">
+        <div class="panel-head">LangGraph agents</div>
+        <div class="panel-body">
+          <ul class="graph" id="graph"></ul>
+        </div>
+      </div>
+
+      <div id="cesiumWrap">
+        <div class="hint" id="mapHint">OSM + 3D BAG laden… · overlay kleurt <strong>gebouwen</strong> in de analysezones</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">Agent output</div>
+        <div class="panel-body">
+          <div class="request-box" id="requestBox">—</div>
+          <div class="detail" id="detailBox"><h3>Wacht op start</h3><p>OSM + 3D BAG direct zichtbaar. Overlay kleurt panden per zone.</p></div>
+          <div class="legend" id="legend">
+            <div><span class="sw classify" style="background:#3d8bfd"></span> Zone A — panden blauw</div>
+            <div><span class="sw classify" style="background:#3fb950"></span> Zone B — panden groen</div>
+            <div><span class="sw classify" style="background:#ff6b00"></span> Intersectie — panden oranje</div>
+          </div>
+          <div class="stats">
+            <div class="stat"><div class="lbl">Intersectie</div><div class="val" id="sArea">—</div></div>
+            <div class="stat"><div class="lbl">BAG panden</div><div class="val" id="sBag">—</div></div>
+            <div class="stat"><div class="lbl">Process jobs</div><div class="val" id="sJobs">4</div></div>
+            <div class="stat"><div class="lbl">Run ID</div><div class="val" id="sRun">—</div></div>
+          </div>
+          <div class="levels" id="levels"></div>
+          <ul class="jobs" id="jobs"></ul>
+          <div class="verdict" id="verdict">Wacht op agents…</div>
+          <div class="log" id="log"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
+  <script>
+    const RUN = {"runId":"6d4839a2","request":"Analyseer de overlap van zone A en B in Rijnsweerd Utrecht","recipeId":"spatial-overlay-analysis","area":"Rijnsweerd, Utrecht","buildingCount":64,"tiles_lod22":"https://data.3dbag.nl/v20250903/cesium3dtiles/lod22/tileset.json","center_wgs84":{"lon":5.154611,"lat":52.089389},"totalAreaM2":10000,"verdict":"pass","validation":{"V0":"pass","V1":"pass","V2":"pass","V3":"not_applicable","V4":"not_applicable"},"graph":[{"id":"catalog_search","label":"Catalog Search","agent":"Catalog Navigator","detail":"Recipe spatial-overlay-analysis gevonden in catalog","log":"GET /records → recipe match"},{"id":"plan_recipe","label":"Plan Recipe","agent":"Recipe Planner","detail":"4 stappen: fetch A/B → intersect → stats","log":"agentPlan · llmUsed: false"},{"id":"validate_plan","label":"Validate Plan","agent":"Critic","detail":"Schema V0 pass · risk: low","log":"critic#plan-validation → pass"},{"id":"execute_steps","label":"Execute","agent":"Executor","detail":"Processes op Rijnsweerd lagen","subSteps":[{"stepId":"fetch-layer-a","processId":"fetch-features","jobId":"bbeb6c12…","show3d":["layerA"]},{"stepId":"fetch-layer-b","processId":"fetch-features","jobId":"6ba78eff…","show3d":["layerA","layerB"]},{"stepId":"intersect","processId":"spatial-intersection","jobId":"f891a322…","show3d":["layerA","layerB","intersect"]},{"stepId":"stats","processId":"compute-area-statistics","jobId":"289a88f8…","show3d":["layerA","layerB","intersect"]}]},{"id":"validate_outputs","label":"Validate Outputs","agent":"Critic","detail":"Geo + output checks pass","log":"V0+V1 → pass · 10.000 m²"},{"id":"register_hybrid","label":"Hybrid 3D","agent":"Hybrid Bridge","detail":"Web3D Context export naar viewer","log":"Web3DContext + BAG scene actief"},{"id":"explain","label":"Explain","agent":"Explainer","detail":"Samenvatting voor eindgebruiker","log":"verdict: pass"}]};
+
+    const STYLE = {
+      layerA: { color: Cesium.Color.fromCssColorString('#3d8bfd'), alpha: 0.72, h: 75, line: 3 },
+      layerB: { color: Cesium.Color.fromCssColorString('#3fb950'), alpha: 0.72, h: 75, line: 3 },
+      intersect: { color: Cesium.Color.fromCssColorString('#ff6b00'), alpha: 0.92, h: 90, line: 4, pulse: true },
+    };
+
+    let data = RUN;
+    let viewer, tileset;
+    let overlayEntities = { outline: {}, fill: {}, classify: {} };
+    let layersWgs = {};
+    let playing = false, stepIdx = 0, subIdx = 0;
+    let pulseStart = Cesium.JulianDate.now();
+
+    const els = {
+      graph: document.getElementById('graph'),
+      detail: document.getElementById('detailBox'),
+      status: document.getElementById('status'),
+      log: document.getElementById('log'),
+      jobs: document.getElementById('jobs'),
+      levels: document.getElementById('levels'),
+      verdict: document.getElementById('verdict'),
+      sArea: document.getElementById('sArea'),
+      sBag: document.getElementById('sBag'),
+      sRun: document.getElementById('sRun'),
+      requestBox: document.getElementById('requestBox'),
+      btnPlay: document.getElementById('btnPlay'),
+      btnReset: document.getElementById('btnReset'),
+    };
+
+    function log(msg) {
+      const d = document.createElement('div');
+      d.textContent = `[${new Date().toISOString().slice(11,19)}] ${msg}`;
+      els.log.prepend(d);
+    }
+
+    function flat(ring) {
+      const a = [];
+      ring.forEach(([lo, la]) => a.push(lo, la));
+      return a;
+    }
+
+    function pulseMaterial(baseColor, baseAlpha) {
+      return new Cesium.ColorMaterialProperty(new Cesium.CallbackProperty((time) => {
+        const t = Cesium.JulianDate.secondsDifference(time, pulseStart);
+        const a = baseAlpha * (0.75 + 0.25 * Math.abs(Math.sin(t * 2.5)));
+        return baseColor.withAlpha(a);
+      }, false));
+    }
+
+    function buildAllLayers() {
+      Object.keys(STYLE).forEach((id) => {
+        const ring = layersWgs[id];
+        const st = STYLE[id];
+        if (!ring?.length) return;
+        const positions = Cesium.Cartesian3.fromDegreesArray(flat(ring));
+
+        overlayEntities.outline[id] = viewer.entities.add({
+          id: id + '-outline',
+          show: false,
+          polyline: {
+            positions,
+            width: st.line + 2,
+            material: st.color,
+            clampToGround: true,
+          },
+        });
+
+        overlayEntities.fill[id] = viewer.entities.add({
+          id: id + '-fill',
+          show: false,
+          polygon: {
+            hierarchy: new Cesium.PolygonHierarchy(positions),
+            material: st.color.withAlpha(0.42),
+            height: 0,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            outline: false,
+          },
+        });
+
+        const material = st.pulse
+          ? pulseMaterial(st.color, st.alpha)
+          : st.color.withAlpha(st.alpha);
+
+        overlayEntities.classify[id] = viewer.entities.add({
+          id: id + '-classify',
+          show: false,
+          polygon: {
+            hierarchy: positions,
+            material,
+            height: 0,
+            extrudedHeight: st.h,
+            outline: true,
+            outlineColor: Cesium.Color.WHITE.withAlpha(0.9),
+            outlineWidth: 2,
+            classificationType: Cesium.ClassificationType.BOTH,
+          },
+        });
+      });
+    }
+
+    function set3dLayers(keys, mode) {
+      const show = new Set(keys || []);
+      const emphasizeIntersect = mode === 'intersect' || show.has('intersect');
+
+      ['layerA', 'layerB', 'intersect'].forEach((id) => {
+        const on = show.has(id);
+        const ol = overlayEntities.outline[id];
+        const fl = overlayEntities.fill[id];
+        const cl = overlayEntities.classify[id];
+        if (ol) ol.show = on;
+        if (fl) fl.show = on;
+        if (cl) {
+          if (!on) {
+            cl.show = false;
+          } else if (emphasizeIntersect && id !== 'intersect') {
+            cl.show = false;
+            if (fl) fl.show = true;
+            if (ol) ol.show = true;
+          } else {
+            cl.show = true;
+          }
+        }
+      });
+
+      if (keys?.length) flyToOverlay();
+
+      const hint = document.getElementById('mapHint');
+      if (!keys?.length) {
+        hint.innerHTML = 'OSM + 3D BAG · scroll = <strong>zoom</strong> · sleep = draaien · shift+sleep = pannen';
+      } else if (emphasizeIntersect && show.has('intersect')) {
+        hint.innerHTML = '<strong>Intersectie actief</strong> — oranje panden = overlap zone A ∩ B (10.000 m²)';
+      } else if (show.has('layerB')) {
+        hint.innerHTML = 'Zone A (blauw) + Zone B (groen) · gekleurde <strong>3D BAG panden</strong>';
+      } else if (show.has('layerA')) {
+        hint.innerHTML = 'Zone A · blauwe <strong>gebouwen</strong> in westelijk deel Rijnsweerd';
+      }
+    }
+
+    function setGraph(n) {
+      els.graph.querySelectorAll('li').forEach((li, i) => {
+        li.classList.remove('active', 'done');
+        if (i < n) li.classList.add('done');
+        if (i === n) li.classList.add('active');
+      });
+    }
+
+    function setDetail(node, extra) {
+      els.detail.innerHTML = `<h3>${node.label}</h3><p><code>${node.agent}</code> — ${node.detail}${extra ? '<br>'+extra : ''}</p>`;
+    }
+
+    function showLevels(fromExec) {
+      if (!fromExec) { els.levels.innerHTML = ''; return; }
+      els.levels.innerHTML = Object.entries(data.validation).map(([k,v]) =>
+        `<div><span>${k}</span><span class="badge ${v==='pass'?'pass':'na'}">${v}</span></div>`
+      ).join('');
+    }
+
+    function studyCenter() {
+      return data.center_wgs84 || { lon: 5.154611, lat: 52.089389 };
+    }
+
+    function flyToStudyArea(heightM) {
+      const c = studyCenter();
+      const h = heightM || 220;
+      viewer.camera.setView({
+        destination: Cesium.Cartesian3.fromDegrees(c.lon, c.lat, h),
+        orientation: {
+          heading: Cesium.Math.toRadians(32),
+          pitch: Cesium.Math.toRadians(-48),
+          roll: 0,
+        },
+      });
+    }
+
+    function flyToOverlay() {
+      flyToStudyArea(180);
+    }
+
+    function flyScene() {
+      flyToStudyArea(240);
+    }
+
+    function zoomBy(factor) {
+      const cam = viewer.camera;
+      const dist = cam.positionCartographic.height;
+      const delta = dist * (factor < 1 ? 0.35 : 0.55);
+      if (factor < 1) cam.moveForward(delta);
+      else cam.moveBackward(delta);
+    }
+
+    function setupOsmViewer() {
+      viewer = new Cesium.Viewer('cesiumWrap', {
+        baseLayerPicker: false,
+        animation: false,
+        timeline: false,
+        geocoder: false,
+        homeButton: false,
+        sceneModePicker: false,
+        navigationHelpButton: false,
+        infoBox: false,
+        selectionIndicator: true,
+        terrainProvider: new Cesium.EllipsoidTerrainProvider(),
+        requestRenderMode: false,
+      });
+      const ctrl = viewer.scene.screenSpaceCameraController;
+      ctrl.minimumZoomDistance = 20;
+      ctrl.maximumZoomDistance = 5000;
+      viewer.imageryLayers.removeAll();
+      viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+        credit: 'Esri World Street Map',
+        maximumLevel: 19,
+      }));
+      viewer.scene.globe.show = true;
+      viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString('#d8d4c8');
+      viewer.scene.globe.depthTestAgainstTerrain = false;
+      viewer.scene.fog.enabled = false;
+      viewer.scene.skyAtmosphere.show = true;
+      if (location.protocol === 'file:') {
+        document.getElementById('mapHint').innerHTML =
+          '<strong>Tip:</strong> open via <a href="http://127.0.0.1:8090/agent-3d-demo.html" style="color:#7eb6ff">http://127.0.0.1:8090/agent-3d-demo.html</a> voor kaarttegels';
+      }
+    }
+
+    function renderGraph() {
+      els.graph.innerHTML = data.graph.map((n,i) =>
+        `<li data-i="${i}"><div class="nid">${n.id}</div><strong>${n.label}</strong><div class="ag">${n.agent}</div></li>`
+      ).join('');
+    }
+
+    function fillStatic() {
+      els.requestBox.innerHTML = `NL-aanvraag: <em>${data.request}</em>`;
+      els.sBag.textContent = data.buildingCount;
+      els.sRun.textContent = data.runId;
+      document.getElementById('hdrSub').textContent =
+        `${data.area} · run ${data.runId} · ${data.buildingCount} BAG panden · recipe ${data.recipeId}`;
+    }
+
+    async function runNode() {
+      if (stepIdx >= data.graph.length) {
+        playing = false;
+        els.btnPlay.disabled = false;
+        els.btnPlay.textContent = '↻ Opnieuw';
+        els.verdict.textContent = '✓ Agents klaar · 3D context geëxporteerd';
+        els.verdict.className = 'verdict pass';
+        els.sArea.textContent = data.totalAreaM2.toLocaleString('nl-NL') + ' m²';
+        els.status.textContent = 'Compleet';
+        flyScene();
+        return;
+      }
+
+      const node = data.graph[stepIdx];
+      setGraph(stepIdx);
+      els.status.innerHTML = `<strong>Stap ${stepIdx+1}/${data.graph.length}</strong> ${node.id}`;
+
+      if (node.id === 'execute_steps' && node.subSteps) {
+        if (subIdx < node.subSteps.length) {
+          const sub = node.subSteps[subIdx];
+          const hasIntersect = sub.show3d.includes('intersect');
+          setDetail(node, `Process: <code>${sub.processId}</code> · ${sub.stepId}` +
+            (hasIntersect ? '<p class="effect-note">Panden in de overlap worden oranje gekleurd op het 3D BAG-model.</p>' : ''));
+          set3dLayers(sub.show3d, hasIntersect ? 'intersect' : 'normal');
+          log(`POST /processes/${sub.processId}/execution → ${sub.jobId}`);
+          const li = document.createElement('li');
+          li.innerHTML = `<span>${sub.stepId}</span> ${sub.jobId}`;
+          els.jobs.appendChild(li);
+          if (sub.stepId === 'stats') els.sArea.textContent = data.totalAreaM2.toLocaleString('nl-NL') + ' m²';
+          subIdx++;
+          setTimeout(runNode, 1100);
+          return;
+        }
+        subIdx = 0;
+      } else {
+        setDetail(node);
+        if (node.log) log(node.log);
+        if (node.id === 'validate_outputs') showLevels(true);
+        if (node.id === 'register_hybrid') {
+          set3dLayers(['layerA', 'layerB', 'intersect'], 'intersect');
+          flyScene();
+          log('Web3DContext geëxporteerd · intersectie op gebouwen');
+        }
+      }
+
+      stepIdx++;
+      setTimeout(runNode, node.id === 'execute_steps' ? 400 : 1000);
+    }
+
+    function reset() {
+      playing = false; stepIdx = 0; subIdx = 0;
+      pulseStart = Cesium.JulianDate.now();
+      set3dLayers([]);
+      setGraph(-1);
+      els.graph.querySelectorAll('li').forEach(li => li.classList.remove('active','done'));
+      els.detail.innerHTML = '<h3>Wacht op start</h3><p>OSM + 3D BAG direct zichtbaar. Overlay kleurt panden per zone.</p>';
+      els.log.innerHTML = '';
+      els.jobs.innerHTML = '';
+      els.levels.innerHTML = '';
+      els.verdict.textContent = 'Wacht op agents…';
+      els.verdict.className = 'verdict';
+      els.sArea.textContent = '—';
+      els.status.textContent = 'Klaar';
+      els.btnPlay.disabled = false;
+      els.btnPlay.textContent = '▶ Start agent simulatie';
+      flyScene();
+    }
+
+    async function init() {
+      try {
+        const r = await fetch('agent-3d-run.json');
+        if (r.ok) data = await r.json();
+      } catch (_) {}
+      try {
+        const m = await fetch('rijnsweerd-meta.json');
+        if (m.ok) {
+          const meta = await m.json();
+          layersWgs = meta.layers_wgs84 || {};
+          data.buildingCount = meta.buildingCount;
+          data.center_wgs84 = meta.center_wgs84;
+        }
+      } catch (_) {}
+
+      renderGraph();
+      fillStatic();
+      setupOsmViewer();
+
+      try {
+        tileset = await Cesium.Cesium3DTileset.fromUrl(data.tiles_lod22, {
+          maximumScreenSpaceError: 8,
+        });
+        viewer.scene.primitives.add(tileset);
+        buildAllLayers();
+        set3dLayers(['layerA', 'layerB', 'intersect'], 'normal');
+        flyToStudyArea(200);
+        document.getElementById('mapHint').innerHTML =
+          'Rijnsweerd · scroll = zoom · <strong>◎ Gebied</strong> = terug naar overlay';
+        log('3D BAG + kaart klaar — Rijnsweerd');
+      } catch (e) {
+        document.getElementById('mapHint').textContent = '3D BAG laden mislukt — check netwerk';
+        log('3D BAG fout: ' + e.message);
+        flyToStudyArea(400);
+      }
+
+      els.btnPlay.addEventListener('click', () => {
+        if (stepIdx >= data.graph.length) reset();
+        if (playing) return;
+        playing = true;
+        els.btnPlay.disabled = true;
+        log(`Orchestrator start · run ${data.runId}`);
+        runNode();
+      });
+      els.btnReset.addEventListener('click', reset);
+      document.getElementById('btnZoomIn').addEventListener('click', () => zoomBy(0.55));
+      document.getElementById('btnZoomOut').addEventListener('click', () => zoomBy(1.8));
+      document.getElementById('btnFocus').addEventListener('click', () => flyToStudyArea(180));
+      document.getElementById('btnShowZones').addEventListener('click', () => {
+        set3dLayers(['layerA', 'layerB', 'intersect'], 'normal');
+        log('Overlay zones zichtbaar op kaart');
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>

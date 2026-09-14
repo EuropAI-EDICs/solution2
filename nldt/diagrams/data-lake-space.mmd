@@ -1,0 +1,51 @@
+flowchart TB
+  subgraph sources [Sources]
+    ArcGIS[ArcGIS_PDOK_CBS_WKP]
+    Legal[CVDR_GMB_corpus]
+  end
+  subgraph lake [nLDT_Data_Lake_medallion]
+    Bronze[bronze_raw]
+    Silver[silver_normalized]
+    Gold[gold_runs_PROV]
+    Cat[catalog_DCAT_Records]
+    Ice[Iceberg_lake_inventory]
+    Dbt[dbt_Core_marts]
+  end
+  subgraph cook [Cook_OGC_API_Processes]
+    Proc[process_adapter]
+    Handlers[poc_handlers_GIS_H3]
+  end
+  subgraph orch [Cookbook_and_Agent]
+    Recipes[Recipes]
+    Orch[LangGraph_orchestrator]
+  end
+  subgraph query [Lakehouse_analytics]
+    Duck[DuckDB]
+  end
+  subgraph space [Data_Space_participant]
+    PubProc[lake_publish_dataset]
+    Conn[Connector_mock_or_EDIC]
+    Pol[ODRL_policies]
+    Pub[Published_offers]
+  end
+
+  ArcGIS --> Bronze
+  Legal --> Bronze
+  Bronze --> Silver
+  Silver -->|lake_uri_or_file_cache| Proc
+  Proc --> Handlers
+  Handlers -->|run_artifacts| Gold
+  Recipes --> Proc
+  Orch --> Recipes
+  Orch -->|post_execution_hooks| Gold
+  Gold --> Cat
+  Silver --> Cat
+  Cat --> PubProc
+  PubProc --> Conn
+  Pol --> Conn
+  Conn --> Pub
+  Silver --> Ice
+  Gold --> Ice
+  Ice --> Duck
+  Ice --> Dbt
+  Dbt --> Duck

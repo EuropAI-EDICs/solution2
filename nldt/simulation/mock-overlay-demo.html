@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>nLDT Mock Demo — Spatial Overlay Simulation</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a2332;
+      --border: #2d3a4f;
+      --text: #e6edf3;
+      --muted: #8b9cb3;
+      --accent: #3d8bfd;
+      --layer-a: #3d8bfd;
+      --layer-b: #3fb950;
+      --intersect: #f0883e;
+      --aoi: #8b9cb3;
+      --pass: #3fb950;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "SF Pro Text", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+    header {
+      max-width: 1200px;
+      margin: 0 auto 1.5rem;
+    }
+    header h1 { font-size: 1.35rem; font-weight: 600; }
+    header p { color: var(--muted); margin-top: 0.35rem; font-size: 0.9rem; }
+    .layout {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1rem;
+    }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+    .map-panel, .side-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .map-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.45rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    button.secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .step-label {
+      flex: 1;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .step-label strong { color: var(--text); }
+    svg { display: block; width: 100%; height: auto; }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+    }
+    .legend span { display: flex; align-items: center; gap: 0.35rem; }
+    .swatch { width: 12px; height: 12px; border-radius: 2px; opacity: 0.85; }
+    .side-panel { padding: 1rem; font-size: 0.85rem; }
+    .side-panel h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.75rem; }
+    .flow { list-style: none; margin-bottom: 1.25rem; }
+    .flow li {
+      padding: 0.5rem 0.65rem;
+      border-left: 3px solid var(--border);
+      margin-bottom: 0.35rem;
+      border-radius: 0 4px 4px 0;
+      color: var(--muted);
+      transition: all 0.35s ease;
+    }
+    .flow li.active {
+      border-left-color: var(--accent);
+      background: rgba(61, 139, 253, 0.08);
+      color: var(--text);
+    }
+    .flow li.done { border-left-color: var(--pass); color: var(--text); }
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .stat {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.65rem;
+    }
+    .stat .val { font-size: 1.1rem; font-weight: 600; margin-top: 0.2rem; }
+    .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; }
+    .verdict {
+      padding: 0.65rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .verdict.pass { border-color: var(--pass); color: var(--pass); }
+    .log {
+      margin-top: 1rem;
+      max-height: 140px;
+      overflow-y: auto;
+      font-family: ui-monospace, monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .log div { margin-bottom: 0.25rem; }
+    polygon, rect { transition: opacity 0.5s ease; }
+    .hidden { opacity: 0; pointer-events: none; }
+    .visible { opacity: 1; }
+  </style>
+</head>
+<body style="background:#0f1419;color:#e6edf3;margin:0;">
+  <noscript>
+    <p style="padding:2rem;font-family:system-ui,sans-serif;">JavaScript is vereist. Open dit bestand in Safari of Chrome.</p>
+  </noscript>
+  <header>
+    <h1>nLDT Mock Demo — Spatial Overlay Simulation</h1>
+    <p>Simulatie van recipe <code>spatial-overlay-analysis</code>: AppStore → Cookbook → OGC API Processes → validatie (mock data, RD New)</p>
+  </header>
+
+  <div class="layout">
+    <div class="map-panel">
+      <div class="map-toolbar">
+        <button id="btnPlay">▶ Start simulatie</button>
+        <button id="btnReset" class="secondary">Reset</button>
+        <div class="step-label" id="stepLabel">Klaar om te starten</div>
+      </div>
+      <svg viewBox="0 0 520 420" xmlns="http://www.w3.org/2000/svg" aria-label="Kaart simulatie">
+        <rect width="520" height="420" fill="#121820"/>
+        <text x="16" y="28" fill="#8b9cb3" font-size="11">Rijnsweerd, Utrecht (RD · 3D BAG gebied)</text>
+        <!-- AOI -->
+        <polygon id="aoi" class="hidden" points="20,50 500,50 500,390 20,390" fill="none" stroke="#8b9cb3" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.6"/>
+        <!-- Layer A 1km² -->
+        <polygon id="layerA" class="hidden" points="80,120 380,120 380,420 80,420" fill="#3d8bfd" fill-opacity="0.35" stroke="#3d8bfd" stroke-width="2"/>
+        <!-- Layer B 1km² offset -->
+        <polygon id="layerB" class="hidden" points="280,220 580,220 580,520 280,520" fill="#3fb950" fill-opacity="0.35" stroke="#3fb950" stroke-width="2"/>
+        <!-- Intersection 0.25 km² -->
+        <polygon id="intersect" class="hidden" points="280,220 380,220 380,420 280,420" fill="#f0883e" fill-opacity="0.7" stroke="#f0883e" stroke-width="2.5"/>
+        <text id="areaLabel" class="hidden" x="290" y="330" fill="#fff" font-size="11" font-weight="600">10.000 m²</text>
+      </svg>
+      <div class="legend">
+        <span><i class="swatch" style="background:#8b9cb3;border:1px dashed #8b9cb3"></i> AOI</span>
+        <span><i class="swatch" style="background:var(--layer-a)"></i> Layer A</span>
+        <span><i class="swatch" style="background:var(--layer-b)"></i> Layer B</span>
+        <span><i class="swatch" style="background:var(--intersect)"></i> Intersectie</span>
+      </div>
+    </div>
+
+    <div class="side-panel">
+      <h2>Recipe flow</h2>
+      <ul class="flow" id="flow">
+        <li data-step="0">Catalog — recipe gevonden</li>
+        <li data-step="1">fetch-layer-a</li>
+        <li data-step="2">fetch-layer-b</li>
+        <li data-step="3">spatial-intersection</li>
+        <li data-step="4">compute-area-statistics</li>
+        <li data-step="5">Validatie V0–V1 + hybrid hooks</li>
+      </ul>
+
+      <h2>Resultaat</h2>
+      <div class="stats">
+        <div class="stat"><div class="lbl">Oppervlak</div><div class="val" id="statArea">—</div></div>
+        <div class="stat"><div class="lbl">Features</div><div class="val" id="statFeat">—</div></div>
+        <div class="stat"><div class="lbl">IoU overlap</div><div class="val" id="statIou">—</div></div>
+        <div class="stat"><div class="lbl">Process jobs</div><div class="val" id="statJobs">—</div></div>
+      </div>
+      <div class="verdict" id="verdict">Wacht op simulatie…</div>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+
+  <script>
+    const STEPS = [
+      { label: 'AppStore: recipe spatial-overlay-analysis', flow: 0, show: [], log: 'GET /records/recipe-spatial-overlay-analysis → 200' },
+      { label: 'Cookbook: 4 stappen geladen', flow: 0, show: ['aoi'], log: 'GET /recipes/spatial-overlay-analysis → 200' },
+      { label: 'Process: fetch-features (layer A)', flow: 1, show: ['aoi', 'layerA'], log: 'POST /processes/fetch-features/execution → job OK' },
+      { label: 'Process: fetch-features (layer B)', flow: 2, show: ['aoi', 'layerA', 'layerB'], log: 'POST /processes/fetch-features/execution → job OK' },
+      { label: 'Process: spatial-intersection', flow: 3, show: ['aoi', 'layerA', 'layerB', 'intersect', 'areaLabel'], log: 'POST /processes/spatial-intersection/execution → 1 feature' },
+      { label: 'Process: compute-area-statistics', flow: 4, show: ['aoi', 'layerA', 'layerB', 'intersect', 'areaLabel'], log: 'totalAreaM2 = 10000' },
+      { label: 'Critic: verdict pass · Web3D + P&V mock', flow: 5, show: ['aoi', 'layerA', 'layerB', 'intersect', 'areaLabel'], log: 'ValidationReport.pass · context exported' },
+    ];
+
+    let playing = false;
+    let idx = 0;
+
+    const els = {
+      aoi: document.getElementById('aoi'),
+      layerA: document.getElementById('layerA'),
+      layerB: document.getElementById('layerB'),
+      intersect: document.getElementById('intersect'),
+      areaLabel: document.getElementById('areaLabel'),
+      stepLabel: document.getElementById('stepLabel'),
+      flow: document.getElementById('flow'),
+      log: document.getElementById('log'),
+      verdict: document.getElementById('verdict'),
+      btnPlay: document.getElementById('btnPlay'),
+      btnReset: document.getElementById('btnReset'),
+      statArea: document.getElementById('statArea'),
+      statFeat: document.getElementById('statFeat'),
+      statIou: document.getElementById('statIou'),
+      statJobs: document.getElementById('statJobs'),
+    };
+
+    function log(msg) {
+      const d = document.createElement('div');
+      d.textContent = `[${new Date().toISOString().slice(11, 19)}] ${msg}`;
+      els.log.prepend(d);
+    }
+
+    function setVisible(ids) {
+      ['aoi', 'layerA', 'layerB', 'intersect', 'areaLabel'].forEach(id => {
+        const el = document.getElementById(id);
+        if (ids.includes(id)) {
+          el.classList.remove('hidden');
+          el.classList.add('visible');
+        } else {
+          el.classList.add('hidden');
+          el.classList.remove('visible');
+        }
+      });
+    }
+
+    function setFlow(n) {
+      els.flow.querySelectorAll('li').forEach(li => {
+        const s = +li.dataset.step;
+        li.classList.remove('active', 'done');
+        if (s < n) li.classList.add('done');
+        if (s === n) li.classList.add('active');
+      });
+    }
+
+    function reset() {
+      playing = false;
+      idx = 0;
+      setVisible([]);
+      setFlow(-1);
+      els.stepLabel.innerHTML = 'Klaar om te starten';
+      els.verdict.textContent = 'Wacht op simulatie…';
+      els.verdict.className = 'verdict';
+      els.log.innerHTML = '';
+      ['statArea', 'statFeat', 'statIou', 'statJobs'].forEach(k => els[k].textContent = '—');
+      els.btnPlay.disabled = false;
+      els.btnPlay.textContent = '▶ Start simulatie';
+    }
+
+    async function runStep() {
+      if (idx >= STEPS.length) {
+        playing = false;
+        els.btnPlay.disabled = false;
+        els.btnPlay.textContent = '↻ Opnieuw';
+        els.statArea.textContent = '10.000 m²';
+        els.statFeat.textContent = '1';
+        els.statIou.textContent = '25%';
+        els.statJobs.textContent = '4';
+        els.verdict.textContent = '✓ Validatie PASS — mock demo compleet';
+        els.verdict.className = 'verdict pass';
+        return;
+      }
+      const s = STEPS[idx];
+      els.stepLabel.innerHTML = `<strong>Stap ${idx + 1}/${STEPS.length}</strong> — ${s.label}`;
+      setFlow(s.flow);
+      setVisible(s.show);
+      log(s.log);
+      idx++;
+      setTimeout(runStep, idx === 1 ? 600 : 900);
+    }
+
+    els.btnPlay.addEventListener('click', () => {
+      if (idx >= STEPS.length) reset();
+      if (playing) return;
+      playing = true;
+      els.btnPlay.disabled = true;
+      runStep();
+    });
+    els.btnReset.addEventListener('click', reset);
+  </script>
+</body>
+</html>

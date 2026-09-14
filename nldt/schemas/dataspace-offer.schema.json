@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nldt.example/schemas/dataspace-offer.schema.json",
+  "title": "nLDT Data Space offer (ODRL stub)",
+  "type": "object",
+  "required": ["uid", "datasetId", "lakeUri", "accessClass", "permission", "status"],
+  "properties": {
+    "@type": { "const": "Offer" },
+    "uid": { "type": "string" },
+    "datasetId": { "type": "string" },
+    "lakeUri": { "type": "string" },
+    "accessClass": { "enum": ["open", "internal", "restricted"] },
+    "license": { "type": ["string", "null"] },
+    "status": { "enum": ["draft", "published", "revoked"] },
+    "hitlApproved": { "type": "boolean" },
+    "createdAt": { "type": "string" },
+    "permission": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["action"],
+        "properties": {
+          "action": { "type": "string" },
+          "constraint": { "type": "array" }
+        }
+      }
+    }
+  }
+}

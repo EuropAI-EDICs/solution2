@@ -1,0 +1,48 @@
+{
+  "id": "utrecht-scenario-author",
+  "title": "Utrecht scenario author (S7 proposals)",
+  "description": "GENAI seam S7 via nLDT: deterministic scenario proposals from a baseline run (reject ledger; no zone writes).",
+  "version": "1.0.0",
+  "tags": ["poc-utrecht", "scenario", "s7", "proposals"],
+  "requiredProcesses": ["scenario-author-propose"],
+  "inputs": {
+    "useCase": {
+      "type": "string",
+      "description": "wind|zon|bos",
+      "required": false
+    },
+    "baselineRunDir": {
+      "type": "string",
+      "description": "Baseline poc/runs dir",
+      "required": false
+    },
+    "maxScenarios": {
+      "type": "integer",
+      "description": "Effort budget",
+      "required": false
+    }
+  },
+  "outputs": {
+    "proposals": {
+      "type": "json",
+      "description": "Accepted + rejected proposals"
+    }
+  },
+  "steps": [
+    {
+      "id": "propose",
+      "processId": "scenario-author-propose",
+      "title": "Propose scenarios",
+      "inputs": {
+        "author": "auto",
+        "useCase": "${recipe.inputs.useCase}",
+        "baselineRunDir": "${recipe.inputs.baselineRunDir}",
+        "maxScenarios": "${recipe.inputs.maxScenarios}"
+      },
+      "outputs": { "proposals": "proposals" },
+      "backend": "local"
+    }
+  ],
+  "riskLevel": "high",
+  "cookbookUri": "http://localhost:8081/recipes/utrecht-scenario-author"
+}
