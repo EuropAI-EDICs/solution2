@@ -5,8 +5,30 @@ import os
 from pathlib import Path
 from typing import Any
 
+from services.common.schema import validate_instance
+
 COOKBOOK_BASE = os.environ.get("NLDT_COOKBOOK_URL", "http://localhost:8081")
 CATALOG_BASE = os.environ.get("NLDT_CATALOG_URL", "http://localhost:8083")
+
+# Catalogued applications (App Store records, type "application"). Every
+# entry's descriptor is validated against application.schema.json at seed
+# time — an invalid app fails loudly, it is never served unvalidated.
+APPLICATIONS: list[tuple[str, str, dict[str, Any], list[str]]] = [
+    (
+        "beleidskompas",
+        "Beleidskompas (GovChat-NL)",
+        {
+            "appId": "beleidskompas",
+            "launchUrl": "https://www.govchat-nl.nl",
+            "publisher": "GovChat-NL / Provincie Limburg",
+            "trustLevel": "experimental",
+            "docsUrl": "https://github.com/jeannotdamoiseaux/GovChat-NL/blob/main/docs/app-launcher/beleidskompas/beleidskompas.md",
+            "requiredCapabilities": ["mcp", "ogc-processes"],
+            "consumesRecipes": ["beleidskompas-omgevingsanalyse", "breda-scan-qa"],
+        },
+        ["beleidskompas", "govchat-nl", "policy", "app-launcher"],
+    ),
+]
 
 
 def seed_records() -> list[dict[str, Any]]:
@@ -143,6 +165,22 @@ def seed_records() -> list[dict[str, Any]]:
                         "href": f"{COOKBOOK_BASE}/recipes/{rid}",
                         "type": "application/json",
                     },
+                ],
+            }
+        )
+
+    for aid, title, descriptor, tags in APPLICATIONS:
+        validate_instance({**descriptor, "tags": tags}, "application.schema.json")
+        records.append(
+            {
+                "id": f"application-{aid}",
+                "type": "application",
+                "title": title,
+                "properties": {**descriptor, "tags": tags},
+                "links": [
+                    {"rel": "self", "href": f"{CATALOG_BASE}/records/application-{aid}"},
+                    {"rel": "launch", "href": descriptor["launchUrl"], "type": "text/html"},
+                    {"rel": "docs", "href": descriptor["docsUrl"], "type": "text/html"},
                 ],
             }
         )

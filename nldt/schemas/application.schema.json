@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldttoolbox.example/nldt/schemas/application.schema.json",
+  "title": "Application (App Store record descriptor)",
+  "description": "Descriptor for a catalogued nLDT application (OGC API Records type 'application'): an external or platform app a twin front door can discover and launch, scoped to the capabilities and recipes it may consume. Lives in the record's 'properties'.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["appId", "launchUrl", "publisher", "trustLevel"],
+  "properties": {
+    "appId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "description": "Stable application identifier, e.g. beleidskompas"
+    },
+    "launchUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "Where the front door launches the app (platform or product URL)"
+    },
+    "publisher": { "type": "string", "minLength": 2 },
+    "docsUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "Human-readable documentation of the app"
+    },
+    "trustLevel": {
+      "type": "string",
+      "enum": ["experimental", "verified"],
+      "description": "Governance mark; 'verified' requires the App Store quality process (future)"
+    },
+    "requiredCapabilities": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true,
+      "description": "nLDT seams the app consumes, e.g. mcp, ogc-processes, a2a, web3d-context"
+    },
+    "consumesRecipes": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+      "uniqueItems": true,
+      "description": "Recipe ids the app is scoped to; the twin instance trusts this as the allow-list"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    }
+  },
+  "$defs": {}
+}
