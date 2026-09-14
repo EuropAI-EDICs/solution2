@@ -86,7 +86,11 @@ A **twin instance** is not a monolith but a configuration:
       "allowedRecipes": ["beleidskompas-omgevingsanalyse", "breda-scan-qa"]
     }
   ],
-  "recipes": ["spatial-overlay-analysis"],
+  "recipes": [
+    "spatial-overlay-analysis",
+    "beleidskompas-omgevingsanalyse",
+    "breda-scan-qa"
+  ],
   "trustPolicy": { "defaultRiskLevel": "low", "hitlOnFail": true }
 }
 ```
