@@ -8,6 +8,7 @@ import httpx
 from mcp.server.mcpserver import MCPServer
 
 from services.mcp_servers.client import PROCESS_URL
+from services.mcp_servers.headers import mcp_auth_headers
 
 mcp = MCPServer("nldt-process-mcp")
 
@@ -16,9 +17,9 @@ async def _request(method: str, path: str, json_body: dict | None = None) -> Any
     async with httpx.AsyncClient(timeout=120.0) as client:
         url = f"{PROCESS_URL.rstrip('/')}{path}"
         if method == "GET":
-            resp = await client.get(url)
+            resp = await client.get(url, headers=mcp_auth_headers())
         else:
-            resp = await client.post(url, json=json_body)
+            resp = await client.post(url, json=json_body, headers=mcp_auth_headers())
         resp.raise_for_status()
         return resp.json()
 

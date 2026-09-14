@@ -7,6 +7,8 @@ from typing import Any
 import httpx
 from mcp.server.mcpserver import MCPServer
 
+from services.mcp_servers.headers import mcp_auth_headers
+
 CATALOG_URL = os.environ.get("NLDT_CATALOG_URL", "http://localhost:8083")
 
 mcp = MCPServer("nldt-catalog-mcp")
@@ -14,7 +16,7 @@ mcp = MCPServer("nldt-catalog-mcp")
 
 async def _get(path: str) -> Any:
     async with httpx.AsyncClient(timeout=30.0) as client:
-        resp = await client.get(f"{CATALOG_URL}{path}")
+        resp = await client.get(f"{CATALOG_URL}{path}", headers=mcp_auth_headers())
         resp.raise_for_status()
         return resp.json()
 

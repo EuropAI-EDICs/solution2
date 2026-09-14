@@ -5,6 +5,8 @@ from typing import Any
 
 import httpx
 
+from services.mcp_servers.headers import mcp_auth_headers
+
 PROCESS_URL = os.environ.get("NLDT_PROCESS_URL", "http://localhost:8082")
 
 
@@ -19,6 +21,7 @@ class ProcessClient:
             resp = client.post(
                 f"{self.base_url}/processes/{process_id}/execution",
                 json={"inputs": inputs, "backend": backend},
+                headers=mcp_auth_headers(),
             )
             resp.raise_for_status()
             return resp.json()
