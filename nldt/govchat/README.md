@@ -144,7 +144,9 @@ to pre-W3); with it, each entry under `"gates"` guards one process with
 optional `minLoa` (low/substantial/high), `requiredRoles`,
 `agentAssurance` (basic/attested/audited, agent executors only) and
 `humanOnly` (agent executors refused). A configured-but-unreadable policy
-file fails closed: every execution gets 503.
+file fails closed: every execution gets 503. Gates apply on the HTTP
+execution path (covers MCP servers and A2A, which call it with tokens);
+offline MCP mode (`NLDT_OFFLINE=1`) is dev-only and ungated by design.
 
 Enforced pre-execution in `POST /processes/{id}/execution`: a denial is a
 403 with `{"gate": "<process>", "reason": "..."}` — reasons:

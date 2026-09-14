@@ -201,3 +201,25 @@ def test_invalid_policy_fails_closed(tmp_path, monkeypatch):
     monkeypatch.setenv("NLDT_AUTH_MODE", "off")
     resp = _run(TestClient(process_app), "breda-scan-query")
     assert resp.status_code == 503
+
+
+def test_agent_approver_rejected_on_ungated_process(wallet_env, monkeypatch):
+    """An agent token in the approver header must never be recorded as
+    approver — even on an ungated process (audit-trail integrity)."""
+    import services.common.auth as auth
+
+    async def fake(token: str) -> dict:
+        return AGENT_OK if token == "approver-t" else {**AGENT_OK, "capabilities": ["fetch-features"]}
+
+    monkeypatch.setattr(auth, "introspect_wallet", fake)
+    monkeypatch.setenv("NLDT_AUTH_MODE", "wallet")
+    from pathlib import Path as P
+
+    examples = P(__file__).resolve().parents[1] / "examples"
+    resp = TestClient(process_app).post(
+        "/processes/fetch-features/execution",
+        json={"inputs": {"source": f"file://{examples / 'hex-points.geojson'}"}, "backend": "local"},
+        headers={"Authorization": "Bearer exec-t", "X-nLDT-Approver-Token": "approver-t"},
+    )
+    assert resp.status_code == 403
+    assert resp.json()["detail"]["reason"] == "approver_not_human"

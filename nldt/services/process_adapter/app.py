@@ -117,21 +117,24 @@ def execute(
             raise HTTPException(
                 status_code=403, detail={"gate": exc.gate, "reason": exc.reason}
             ) from exc
-        if gated and approver_claims is not None:
+        if approver_claims is not None:
             # The approver takes responsibility for this run: a wallet-verified
-            # human who satisfies the same gate as the executor.
+            # human who satisfies the same gate as the executor. The human
+            # check applies on ungated processes too — an agent must never be
+            # recorded as an approver in the audit trail.
             if approver_claims.get("subject_type") != "human":
                 raise HTTPException(
                     status_code=403,
                     detail={"gate": process_id, "reason": "approver_not_human"},
                 )
-            try:
-                check_gate(policy, process_id, approver_claims)
-            except GateDenied as exc:
-                raise HTTPException(
-                    status_code=403,
-                    detail={"gate": exc.gate, "reason": f"approver_{exc.reason}"},
-                ) from exc
+            if gated:
+                try:
+                    check_gate(policy, process_id, approver_claims)
+                except GateDenied as exc:
+                    raise HTTPException(
+                        status_code=403,
+                        detail={"gate": exc.gate, "reason": f"approver_{exc.reason}"},
+                    ) from exc
     with span("process.execute", {"process.id": process_id, "backend": body.backend}):
         actor = None
         if wallet_claims:
