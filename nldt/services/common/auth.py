@@ -7,12 +7,15 @@ EU LDT Identity Management).
 
 from __future__ import annotations
 
+import logging
 import os
 
 import httpx
 from fastapi import HTTPException, Request
 
 _CHALLENGE = {"WWW-Authenticate": "Bearer"}
+
+logger = logging.getLogger("nldt.auth")
 
 
 def auth_mode() -> str:
@@ -61,7 +64,8 @@ async def require_bearer(request: Request) -> None:
         try:
             active = await introspect_keycloak(token)
         except Exception as exc:
-            raise HTTPException(status_code=503, detail=f"token introspection failed: {exc}") from exc
+            logger.warning("token introspection failed: %s", exc)
+            raise HTTPException(status_code=503, detail="token introspection unavailable") from exc
         if not active:
             raise _unauthorized("invalid token")
         return

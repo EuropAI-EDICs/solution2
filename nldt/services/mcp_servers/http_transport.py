@@ -26,6 +26,7 @@ def build_mcp_http_app(server: MCPServer, host: str | None = None) -> Any:
     # host.docker.internal) leaves the allowlist off so their Host headers
     # reach the mounted MCP app, which sits behind our own bearer gate.
     bind_host = host if host is not None else os.environ.get("NLDT_MCP_HTTP_HOST", "127.0.0.1")
+    bind_host = bind_host or "127.0.0.1"  # empty NLDT_MCP_HTTP_HOST would break bind + allowlist
     mcp_app = server.streamable_http_app(host=bind_host)  # POST /mcp; creates the session manager
 
     @asynccontextmanager
@@ -61,6 +62,7 @@ def run_mcp_http(server: MCPServer, default_port: int) -> None:
     import uvicorn
 
     host = os.environ.get("NLDT_MCP_HTTP_HOST", "127.0.0.1")
+    host = host or "127.0.0.1"  # empty NLDT_MCP_HTTP_HOST would break the bind
     uvicorn.run(
         build_mcp_http_app(server, host=host),
         host=host,

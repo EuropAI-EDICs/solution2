@@ -11,6 +11,7 @@ cd nldt
 export NLDT_AUTH_MODE=static
 export NLDT_STATIC_TOKENS="beleidskompas-svc-tok"   # any string; one per consumer
 export NLDT_MCP_BEARER_TOKEN="beleidskompas-svc-tok" # used by MCP servers upstream
+export NLDT_MCP_HTTP_HOST=0.0.0.0   # Dockerised clients (host.docker.internal); disables SDK loopback allowlist behind our bearer gate
 NLDT_START_MCP_HTTP=1 ./scripts/start-services.sh
 ```
 
@@ -33,7 +34,10 @@ any MCP-capable or plain-HTTP client works): connect to
 `propose_scenarios`, `run_scenario_sweep`, `run_opportunity_map`, ….
 (Kestra: `io.kestra.plugin.core.http.Request` against the MCP endpoint, or an
 MCP plugin if the installed version ships one — MCP client support across
-engines is still maturing; the HTTP/OGC seam always works.)
+engines is still maturing; the HTTP/OGC seam always works.) Clients connect
+from Docker via `http://host.docker.internal:8091/mcp` — this requires the
+non-loopback bind from §1; on a loopback bind the MCP SDK's DNS-rebinding
+protection rejects non-loopback Host headers with 421.
 
 ## 3. The two wired policy steps
 

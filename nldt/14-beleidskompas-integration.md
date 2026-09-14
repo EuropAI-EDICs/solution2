@@ -187,9 +187,10 @@ recorded human step (needs the front door's admin login).
 - Beleidskompas mounts the nLDT MCP servers (`nldt-catalog-mcp`,
   `nldt-process-mcp`, `nldt-poc-mcp`) via its platform's engine or directly —
   engine-agnostic (decision 6); tool calls carry the
-  `beleidskompas-svc` token. (Servers are stdio — fine for the local
-  topology; expose an HTTP/SSE transport before connecting a hosted
-  GovChat-NL instance, or fall back to A2A/Processes HTTP.)
+  `beleidskompas-svc` token. (Stdio remains the default; this phase adds
+  MCP-over-streamable-HTTP on :8090–8093 behind the same bearer gate — see
+  [govchat/README.md](govchat/README.md); stdio still suits co-located
+  clients.)
 - Wire two policy steps: omgevingsanalyse (five-value scan / overlay) and
   substantiation Q&A (`breda-scan-qa`, S4 pattern: cite-or-abstain + number
   gate).

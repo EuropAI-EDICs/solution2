@@ -4,7 +4,7 @@
 
 **Goal:** Execute phases BK-0 (GovChat-NL connectivity spike) and BK-1 (governed MCP MVP with bearer auth) from [`nldt/14-beleidskompas-integration.md`](../../../nldt/14-beleidskompas-integration.md).
 
-**Architecture:** BK-0 proves the HTTP path: run GovChat-NL (OpenWebUI) + n8n locally, bridge one chat question to `POST :8082` (OGC API Processes) and return a GeoJSON export URL from `:8084`. BK-1 makes the connection governed and MCP-native: an env-gated bearer-auth dependency on the FastAPI services (static tokens now, Keycloak introspection later), MCP servers that forward tokens on their outbound calls, and each MCP server additionally served over streamable-HTTP behind the same gate so a Dockerised n8n/OpenWebUI can mount it.
+**Architecture:** BK-0 proves the HTTP path: run GovChat-NL (OpenWebUI) + the bridge engine (Kestra, decision 6) locally, bridge one chat question to `POST :8082` (OGC API Processes) and return a GeoJSON export URL from `:8084`. BK-1 makes the connection governed and MCP-native: an env-gated bearer-auth dependency on the FastAPI services (static tokens now, Keycloak introspection later), MCP servers that forward tokens on their outbound calls, and each MCP server additionally served over streamable-HTTP behind the same gate so Dockerised clients (Kestra/OpenWebUI; engine-agnostic per decision 6) can mount it.
 
 **Tech Stack:** Python 3 (FastAPI, httpx, `mcp` SDK with `MCPServer` supporting `stdio|sse|streamable-http`), pytest via `fastapi.testclient`, Docker (OpenWebUI fork of GovChat-NL, n8n), curl/jq.
 

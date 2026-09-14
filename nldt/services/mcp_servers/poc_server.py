@@ -10,6 +10,7 @@ import httpx
 from mcp.server.mcpserver import MCPServer
 
 from services.mcp_servers.client import PROCESS_URL
+from services.mcp_servers.headers import mcp_auth_headers
 from services.mcp_servers.poc_tools import POC_TOOLS
 
 mcp = MCPServer("nldt-poc-mcp")
@@ -20,6 +21,7 @@ async def _execute_remote(process_id: str, inputs: dict[str, Any]) -> dict[str, 
         resp = await client.post(
             f"{PROCESS_URL.rstrip('/')}/processes/{process_id}/execution",
             json={"inputs": inputs, "backend": "local"},
+            headers=mcp_auth_headers(),
         )
         resp.raise_for_status()
         return resp.json()
