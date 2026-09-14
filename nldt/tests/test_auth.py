@@ -123,6 +123,15 @@ def test_lowercase_bearer_scheme_accepted(guarded_client, monkeypatch):
     assert resp.status_code == 200
 
 
+def test_non_ascii_token_gets_clean_401(guarded_client, monkeypatch):
+    monkeypatch.setenv("NLDT_AUTH_MODE", "static")
+    monkeypatch.setenv("NLDT_STATIC_TOKENS", "tok-a")
+    # raw bytes: a real ASGI server latin-1-decodes headers, so non-ASCII
+    # token bytes do reach require_bearer as a non-ASCII str
+    resp = guarded_client.get("/ping", headers={"Authorization": b"bearer t\xfey\xf6k"})
+    assert resp.status_code == 401
+
+
 def test_keycloak_missing_config_is_503_without_network(guarded_client, monkeypatch):
     for var in (
         "KEYCLOAK_URL",

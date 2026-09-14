@@ -79,7 +79,12 @@ async def require_bearer(request: Request) -> None:
     if scheme.lower() != "bearer" or not token:
         raise _unauthorized("missing bearer token")
     if mode == "static":
-        ok = any(hmac.compare_digest(token, candidate) for candidate in _static_tokens())
+        # bytes form: total for any header value (str form is ASCII-only and
+        # would 500 on non-ASCII tokens)
+        ok = any(
+            hmac.compare_digest(token.encode(), candidate.encode())
+            for candidate in _static_tokens()
+        )
         if not ok:
             raise _unauthorized("invalid token")
         return
