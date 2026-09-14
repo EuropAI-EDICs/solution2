@@ -67,6 +67,21 @@ async def introspect_keycloak(token: str) -> bool:
     return bool(resp.json().get("active"))
 
 
+def wallet_introspect_url() -> str:
+    url = os.environ.get("NLDT_WALLET_INTROSPECT_URL", "").strip()
+    if not url:
+        raise RuntimeError("wallet auth mode requires NLDT_WALLET_INTROSPECT_URL")
+    return url
+
+
+async def introspect_wallet(token: str) -> dict:
+    """RFC 7662 introspection against the nLDT wallet edge (services/auth_wallet)."""
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.post(wallet_introspect_url(), data={"token": token})
+    resp.raise_for_status()
+    return resp.json()
+
+
 def _unauthorized(detail: str) -> HTTPException:
     return HTTPException(status_code=401, detail=detail, headers=_CHALLENGE)
 
@@ -96,5 +111,17 @@ async def require_bearer(request: Request) -> None:
             raise HTTPException(status_code=503, detail="token introspection unavailable") from exc
         if not active:
             raise _unauthorized("invalid token")
+        return
+    if mode == "wallet":
+        try:
+            claims = await introspect_wallet(token)
+        except Exception as exc:
+            logger.warning("wallet token introspection failed: %s", exc)
+            raise HTTPException(
+                status_code=503, detail="token introspection unavailable"
+            ) from exc
+        if not claims.get("active"):
+            raise _unauthorized("invalid token")
+        request.state.wallet_claims = {k: v for k, v in claims.items() if k != "active"}
         return
     raise HTTPException(status_code=500, detail=f"unknown NLDT_AUTH_MODE: {mode}")

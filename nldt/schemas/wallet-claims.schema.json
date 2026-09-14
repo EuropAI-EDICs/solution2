@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldttoolbox.example/nldt/schemas/wallet-claims.schema.json",
+  "title": "Wallet claims (EUDI Wallet / agent virtual wallet)",
+  "description": "Verified identity claims issued by services/auth_wallet after a wallet presentation (human wallet or agent virtual wallet, nldt/16-eid-wallet-identity.md). Subject model aligned with the EUDI ARF; agent 'assurance' is an administration-defined scale and is never an eIDAS human Level of Assurance.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["subject_type", "exp"],
+  "properties": {
+    "subject_type": {"enum": ["human", "agent"]},
+    "exp": {"type": "number", "description": "Unix expiry timestamp (token TTL, minutes-scale)"},
+    "sub": {"type": "string", "minLength": 1, "description": "Pseudonymous human subject id (stable per wallet+RP pair; no name)"},
+    "loa": {"enum": ["low", "substantial", "high"], "description": "eIDAS Level of Assurance (human subjects only)"},
+    "org": {"type": "string", "description": "Organisation attestation (optional)"},
+    "roles": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "agentId": {"type": "string", "minLength": 1},
+    "deployingOrg": {"type": "string", "minLength": 1, "description": "Public administration that deployed the agent and issued its credential"},
+    "capabilities": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true, "description": "Recipe/process ids the agent is authorised for (consumesRecipes-aligned, BK-2)"},
+    "assurance": {"enum": ["basic", "attested", "audited"], "description": "Administration-defined machine assurance scale"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"subject_type": {"const": "human"}}, "required": ["subject_type"]},
+      "then": {"required": ["sub", "loa"]}
+    },
+    {
+      "if": {"properties": {"subject_type": {"const": "agent"}}, "required": ["subject_type"]},
+      "then": {"required": ["agentId", "deployingOrg", "capabilities", "assurance"]}
+    }
+  ]
+}
