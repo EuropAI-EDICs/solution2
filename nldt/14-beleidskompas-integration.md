@@ -7,7 +7,7 @@ capabilities through the governed seams.
 
 | | |
 |---|---|
-| Status | Decided 2026-09-14 (§10) · BK-0 + BK-1 implemented (runbook: govchat/README.md) |
+| Status | Decided 2026-09-14 (§10, decisions 1–10) · **BK-0, BK-1, BK-2 done; BK-3 re-scoped to the eID-wallet track — [16](16-eid-wallet-identity.md) W1/W3/W5 done (mock), W2/W6 open** · runbook: govchat/README.md |
 | Source app | [beleidskompas.md (GovChat-NL)](https://github.com/jeannotdamoiseaux/GovChat-NL/blob/main/docs/app-launcher/beleidskompas/beleidskompas.md) |
 | Related | [04](04-recipes-and-processes.md) · [05](05-agentic-ai-layer.md) · [07](07-trust-and-governance.md) · [09](09-federation-and-observability.md) · [10](10-toolbox-integration.md) · [12](12-governed-agent-layer.md) · [`../docs/GENAI_SEAMS.md`](../docs/GENAI_SEAMS.md) |
 | Strategic frame | NLDT App Store 2028 — *modular apps exchanged in existing front doors* ([Q3 2026 report](../NLDT%20Q3%202026%20Quarterly%20Report%20%E2%80%93%20Summary%20in%20English%20%28App%20Store%20Focus%29.md)) |

@@ -7,7 +7,7 @@ docs; this file wires them together.
 
 | | |
 |---|---|
-| Status | Living overview · aligned with Phase 5–6 (2026-09) |
+| Status | Living overview · aligned with Phase 5–6 + beleidskompas/eID-wallet tracks (2026-09-14) |
 | Companion (Utrecht pilot SoA) | [`../docs/SOLUTIONS_ARCHITECTURE.md`](../docs/SOLUTIONS_ARCHITECTURE.md) |
 | GenAI seams | [`../docs/GENAI_SEAMS.md`](../docs/GENAI_SEAMS.md) |
 | Multi-agent plan | [`../MULTI_AGENT_PLAN.md`](../MULTI_AGENT_PLAN.md) |
@@ -89,7 +89,7 @@ From [02-reference-architecture.md](02-reference-architecture.md):
 | Data | OGC Features / NGSI-LD | [`services/adapters/`](services/adapters/), lake silver |
 | Processing | **OGC API Processes**, Recipes | [`services/process_adapter/`](services/process_adapter/), [`recipes/`](recipes/) |
 | Visualisation | GeoJSON / Web 3D Context | [`services/context3d/`](services/context3d/), Play & Visualise |
-| Foundation | OGC API Records, OIDC, PROV | [`services/catalog_adapter/`](services/catalog_adapter/), [`schemas/`](schemas/) |
+| Foundation | OGC API Records, OIDC / EUDI-wallet identity, PROV | [`services/catalog_adapter/`](services/catalog_adapter/), [`services/common/auth.py`](services/common/auth.py), [`schemas/`](schemas/) |
 
 Diagram: [`diagrams/container-view.mmd`](diagrams/container-view.mmd).
 
@@ -146,6 +146,9 @@ PoC engine (authoritative calculation)
 | Agent plan | [`schemas/agent-plan.schema.json`](schemas/agent-plan.schema.json) |
 | Web 3D Context | [`schemas/web3d-context.schema.json`](schemas/web3d-context.schema.json) |
 | Data Space offer (ODRL stub) | [`schemas/dataspace-offer.schema.json`](schemas/dataspace-offer.schema.json) |
+| Application (App Store record) | [`schemas/application.schema.json`](schemas/application.schema.json) |
+| Wallet claims (EUDI / agent) | [`schemas/wallet-claims.schema.json`](schemas/wallet-claims.schema.json) |
+| Run annex (seam S9 receipts) | [`schemas/run-annex.schema.json`](schemas/run-annex.schema.json) |
 
 ---
 
@@ -269,6 +272,8 @@ Simulation UX (not production agent): [`simulation/`](simulation/).
 | Critic V0–V4, HITL | [07](07-trust-and-governance.md) | PoC `critic` + ValidationReport schema |
 | Cite-or-abstain / S4–S8 | [11](11-poc-patterns-scenarios-qa.md), [GENAI_SEAMS](../docs/GENAI_SEAMS.md) | per-PoC seams |
 | A2A / OTel | [09](09-federation-and-observability.md) | [`services/a2a/`](services/a2a/), telemetry |
+| **Wallet identity (EUDI + EBW) & trust gates** | [16](16-eid-wallet-identity.md) | [`services/auth_wallet/`](services/auth_wallet/), [`services/agent_wallet/`](services/agent_wallet/), [`services/common/trust_policy.py`](services/common/trust_policy.py) |
+| Beleidskompas front-door app | [14](14-beleidskompas-integration.md) | [`govchat/`](govchat/) |
 
 Principle for lake publication and agent proposals: same HITL gate —
 restricted Data Space offers require explicit approval
@@ -282,7 +287,7 @@ restricted Data Space offers require explicit approval
 |--------------------|--------------|-----|
 | Data Platform (NGSI-LD) | [`adapters/data_platform`](services/adapters/) | [10](10-toolbox-integration.md) |
 | Play & Visualise | [`adapters/play_visualise`](services/adapters/) | [10](10-toolbox-integration.md) |
-| Identity (Keycloak) | env / OIDC | [10](10-toolbox-integration.md) |
+| Identity (Keycloak) | env / OIDC · wallet convergence W2/W6 ([16](16-eid-wallet-identity.md)) | [10](10-toolbox-integration.md) |
 | Marketplace | [`marketplace_publish.py`](services/marketplace_publish.py) | [09](09-federation-and-observability.md) |
 | Post-run hooks | [`hybrid_bridge.py`](services/hybrid_bridge.py) | [06](06-hybrid-implementation.md) |
 | Cluster deploy | — | [`../ldtsolutions/`](../ldtsolutions/), skill `ldt-toolbox-deploy` |
@@ -296,9 +301,16 @@ restricted Data Space offers require explicit approval
 | Cookbook | `services.cookbook.app` | 8081 |
 | Processes | `services.process_adapter.app` | 8082 |
 | Catalog | `services.catalog_adapter.app` | 8083 |
-| Web 3D Context | `services.context3d.app` | 8084 |
+| Web 3D Context (deliberately public exports) | `services.context3d.app` | 8084 |
 | A2A | `services.a2a.app` | 8085 |
-| MinIO (optional lake) | `docker-compose.lake.yml` | 9000 / 9001 |
+| Wallet auth edge (W1) | `services.auth_wallet.app` | 8087 |
+| Agent virtual wallet (W5) | `services.agent_wallet.app` | 8088 |
+| MCP over streamable-HTTP | `services.mcp_servers.*` (`NLDT_MCP_TRANSPORT`) | 8090–8093 |
+
+Auth: `NLDT_AUTH_MODE=off|static|keycloak|wallet` ([`services/common/auth.py`](services/common/auth.py));
+trust gates: `NLDT_TRUST_POLICY_FILE` ([`services/common/trust_policy.py`](services/common/trust_policy.py)).
+External (local Docker): Kestra bridge `:8086` ([`govchat/`](govchat/)), OpenWebUI `:8080`,
+MinIO (optional lake) `9000/9001` ([`docker-compose.lake.yml`](docker-compose.lake.yml)).
 
 Start: [`scripts/start-services.sh`](scripts/start-services.sh) ·
 [README quick start](README.md#snel-starten).
@@ -329,10 +341,13 @@ CLI: `PYTHONPATH=. python -m services.cli …`
 | 3–4 | Federation, 3D, A2A, OTel | [09](09-federation-and-observability.md) |
 | **5** | Governed agent layer over PoCs | [12](12-governed-agent-layer.md) |
 | **6** | Data lake + Data Space + lakehouse | [13](13-data-lake-and-space.md) |
+| **BK** | Beleidskompas front-door app (BK-0…BK-2 done; BK-3 = wallet track) | [14](14-beleidskompas-integration.md) |
+| **W** | eID Wallet identity (W1/W3/W5 done, mock; W2/W6 real backend) | [16](16-eid-wallet-identity.md) |
 
 Open highlights: uniform Critic/HITL on all PoC runs; Eindhoven process
 registration; production IDS/EDC connector; OTLP exporter
-([08](08-roadmap.md)).
+([08](08-roadmap.md)); wallet W2 (real OpenID4VP verifier) + W6 (Keycloak
+OID4VCI issuance) — decision-gated on toolbox IM ([16](16-eid-wallet-identity.md)).
 
 ---
 
@@ -348,6 +363,7 @@ ldttoolbox/
 │   ├── services/                  ← adapters + lake + processes
 │   ├── agents/orchestrator/
 │   ├── recipes/
+│   ├── govchat/                  ← beleidskompas/wallet runbook + bridge artifacts
 │   ├── dbt_lake/
 │   ├── data/lake/                 ← FS lake + iceberg warehouse
 │   └── tests/
