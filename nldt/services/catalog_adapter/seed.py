@@ -170,6 +170,8 @@ def seed_records() -> list[dict[str, Any]]:
         )
 
     for aid, title, descriptor, tags in APPLICATIONS:
+        if aid != descriptor["appId"]:
+            raise ValueError(f"application id mismatch: {aid} != {descriptor['appId']}")
         validate_instance({**descriptor, "tags": tags}, "application.schema.json")
         links = [
             {"rel": "self", "href": f"{CATALOG_BASE}/records/application-{aid}"},

@@ -26,7 +26,7 @@ async def search_records(
     q: str | None = None,
     record_type: str | None = None,
 ) -> str:
-    """Search nLDT catalog records by query and optional type (process|recipe|asset|dataset)."""
+    """Search nLDT catalog records by query and optional type (process|recipe|asset|dataset|application)."""
     if os.environ.get("NLDT_OFFLINE") == "1":
         from services.catalog_adapter.seed import find_records
 
