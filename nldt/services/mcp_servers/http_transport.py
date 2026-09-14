@@ -13,14 +13,20 @@ from typing import Any
 from mcp.server.mcpserver import MCPServer
 
 
-def build_mcp_http_app(server: MCPServer) -> Any:
+def build_mcp_http_app(server: MCPServer, host: str | None = None) -> Any:
     from fastapi import FastAPI, HTTPException
     from fastapi.responses import JSONResponse
     from starlette.requests import Request
 
     from services.common.auth import require_bearer
 
-    mcp_app = server.streamable_http_app()  # POST /mcp; creates the session manager
+    # Forward the bind host to the SDK: loopback keeps the SDK's
+    # DNS-rebinding allowlist (loopback-only Host headers), while a
+    # non-loopback bind such as 0.0.0.0 (Docker clients reaching us via
+    # host.docker.internal) leaves the allowlist off so their Host headers
+    # reach the mounted MCP app, which sits behind our own bearer gate.
+    bind_host = host if host is not None else os.environ.get("NLDT_MCP_HTTP_HOST", "127.0.0.1")
+    mcp_app = server.streamable_http_app(host=bind_host)  # POST /mcp; creates the session manager
 
     @asynccontextmanager
     async def _lifespan(app: Any) -> Any:
@@ -54,8 +60,9 @@ def build_mcp_http_app(server: MCPServer) -> Any:
 def run_mcp_http(server: MCPServer, default_port: int) -> None:
     import uvicorn
 
+    host = os.environ.get("NLDT_MCP_HTTP_HOST", "127.0.0.1")
     uvicorn.run(
-        build_mcp_http_app(server),
-        host=os.environ.get("NLDT_MCP_HTTP_HOST", "127.0.0.1"),
+        build_mcp_http_app(server, host=host),
+        host=host,
         port=int(os.environ.get("NLDT_MCP_HTTP_PORT", str(default_port))),
     )
