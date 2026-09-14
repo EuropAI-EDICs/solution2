@@ -31,7 +31,7 @@ any MCP-capable or plain-HTTP client works): connect to
 `execute_process`, `get_job_status`. Catalog server (:8090) adds
 `search_records`, `list_processes`; poc server (:8093) adds `ask_scan`,
 `propose_scenarios`, `run_scenario_sweep`, `run_opportunity_map`, ….
-(Kestra: `io.kestra.plugin.fs.http.Request` against the MCP endpoint, or an
+(Kestra: `io.kestra.plugin.core.http.Request` against the MCP endpoint, or an
 MCP plugin if the installed version ships one — MCP client support across
 engines is still maturing; the HTTP/OGC seam always works.)
 
