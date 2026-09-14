@@ -76,7 +76,7 @@ def seed_records() -> list[dict[str, Any]]:
         (
             "breda-scan-qa",
             "Breda five-value scan Q&A",
-            ["poc-breda", "qa", "s4", "scan"],
+            ["poc-breda", "qa", "s4", "scan", "beleidskompas", "policy-step:substantiation"],
         ),
         (
             "utrecht-scenario-sweep",
@@ -122,6 +122,11 @@ def seed_records() -> list[dict[str, Any]]:
             "eindhoven-bp2op",
             "Eindhoven bp2op transform",
             ["poc-eindhoven", "bp2op", "legal"],
+        ),
+        (
+            "beleidskompas-omgevingsanalyse",
+            "Beleidskompas omgevingsanalyse (overlay)",
+            ["beleidskompas", "policy-step:omgevingsanalyse", "spatial", "overlay"],
         ),
     ]
     for rid, title, tags in recipes:
