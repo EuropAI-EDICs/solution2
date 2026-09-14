@@ -41,6 +41,13 @@ for machine-to-machine; the wallet layer adds the *user* identity beneath it.
 - **HITL becomes "a named, wallet-verified person decides".** riskLevel: high
   recipes can require an actor with a minimum Level of Assurance and/or an
   organisation attestation — enforced as data (trustPolicy), not UI promises.
+- **Agents become accountable principals.** Deployed agents (beleidskompas,
+  orchestrator, engines) today authenticate with shared static secrets — the
+  architecture cannot answer *"which agent did this, deployed by whom, under
+  what authority?"*. With administration-issued credentials in a virtual
+  wallet (§6a), every autonomous actor is verifiable, capability-scoped and
+  revocable — the missing half of "humans decide": we can hold both the human
+  *and* the machine to account.
 - **Data minimisation by construction.** Selective disclosure means nLDT
   requests the minimal claim set (e.g. `is_official` + organisation, not name)
   — matching the Geonovum principle already in [03](03-building-blocks.md).
@@ -50,13 +57,15 @@ for machine-to-machine; the wallet layer adds the *user* identity beneath it.
 
 ## 3. Integration principle
 
-> **The wallet verifies the human; the token carries the claims; the engines
-> record the actor; the trust policy gates on it.**
+> **The wallet verifies the human; the credential verifies the agent; the
+> token carries the claims; the engines record executor and approver; the
+> trust policy gates on both.**
 
 nLDT does **not** become a wallet implementation. It adds one Relying-Party
-edge that turns a verified wallet presentation into nLDT identity claims, and
-threads those claims through the existing auth → jobs/PROV → annex →
-trustPolicy chain. Wrap, don't rebuild — again.
+edge that turns a verified wallet presentation — from a human's wallet or an
+agent's virtual wallet — into nLDT identity claims, and threads those claims
+through the existing auth → jobs/PROV → annex → trustPolicy chain. Wrap,
+don't rebuild — again.
 
 ## 4. Options considered
 
@@ -79,42 +88,87 @@ Human (ambtenaar / resident)          nLDT testbed
 │ NL Wallet (end-2026) or  │   │ services/auth_wallet  (:8087)            │
 │ EC reference wallet      │   │  OpenID4VP RP edge                       │
 │  PID + role attestations │──▶│  VerifierBackend: mock | pyeudiw | kc    │
-└──────────────────────────┘   │  → issues nLDT user token (opaque,       │
-        QR / redirect          │    TTL, claims: sub, loa, org, roles)    │
+└──────────────────────────┘   │  → issues nLDT token (opaque, TTL,       │
+        QR / redirect          │    claims incl. subject_type)            │
                                │  → RFC 7662 introspection endpoint       │
-Front door (OpenWebUI /        │                                            │
- beleidskompas / any app)      │ services (:8081-8085, :8090-8093)         │
-  user token + svc token  ───▶ │  NLDT_AUTH_MODE=wallet → introspect at    │
-                               │  :8087 (same shape as keycloak mode)      │
-                               │  verified claims → jobs.actor → PROV,     │
-                               │  annex, trustPolicy gates (LoA/role)      │
-                               └──────────────────────────────────────────┘
+Agent (beleidskompas-svc,       │                                            │
+ orchestrator, engine)         │ services (:8081-8085, :8090-8093)         │
+┌──────────────────────────┐   │  NLDT_AUTH_MODE=wallet → introspect at    │
+│ Virtual wallet (sidecar  │   │  :8087 (same shape as keycloak mode)      │
+│  services/agent_wallet)  │──▶│  verified claims → jobs.actor → PROV,     │
+│  agent credential issued │   │  annex, trustPolicy gates (LoA/role/      │
+│  by deploying admin      │   │  capabilities)                            │
+└──────────────────────────┘   │                                            │
+       ▲                       │ Deploying administration (issuer)         │
+       │ OpenID4VCI issuance   │  Keycloak OID4VCI issuer (toolbox IM)     │
+┌──────┴───────────────────┐   │  → agent credentials: agentId, org,      │
+│ Public administration    │──▶│    capabilities, validity, status list   │
+│ (deployment approval)    │   └──────────────────────────────────────────┘
+└──────────────────────────┘
 ```
 
-Two-layer identity, deliberately:
+Three identity layers, deliberately:
 
 | Layer | Who | Credential | Where it applies |
 |---|---|---|---|
 | User identity | Human | Wallet attestation → nLDT user token | Front door login; recorded as `actor` on every job |
-| Service identity | App/engine | beleidskompas-svc token / Keycloak client | MCP/OGC/A2A calls (unchanged, BK-1) |
+| Agent identity | Deployed agent / engine | **Agent credential in a virtual wallet** (issued by the deploying administration, OpenID4VCI) → nLDT agent token | MCP/OGC/A2A calls; recorded as `executor` on every job |
+| (Legacy) service identity | App/engine | beleidskompas-svc static token / Keycloak client | Backward-compatible fallback until wallet-backed agents (BK-1 status quo) |
+
+The agent credential eventually *replaces* the static service token: instead of
+a shared secret in an env var, a deployed agent presents a verifiable,
+revocable credential that says **who deployed it, under whose authority, with
+which capabilities, valid until when**. Until every consumer is
+wallet-backed, the static mode stays available (testbed/dev).
 
 ## 6. Claims and governance design
 
-- **Token claims (introspected):** `sub` (pseudonymous subject id — stable per
-  wallet+relying-party pair, no name needed), `loa` (e.g. `low|substantial|high`
-  per eIDAS LoA mapping), `org` (organisation attestation, if presented),
-  `roles` (e.g. `policy-officer`), `exp`. New contract:
+- **Token claims (introspected), one schema for both subject types:**
+  `subject_type` (`human` | `agent`), and per type — human: `sub`
+  (pseudonymous subject id — stable per wallet+relying-party pair, no name
+  needed), `loa` (eIDAS LoA mapping: `low|substantial|high`), `org`, `roles`;
+  agent: `agentId`, `deployingOrg`, `capabilities` (recipe/process ids or
+  capability tags the administration authorised), `assurance` (administration-
+  defined machine-assurance level — eIDAS LoA is person-oriented, so the
+  issuing administration defines this scale), `exp`, plus credential status
+  (revocation checked at verification). New contract:
   [`schemas/wallet-claims.schema.json`](schemas/) in W1.
-- **Actor propagation:** `create_job` gains an optional `actor` dict; services
-  populate it from the introspected token (the request that executed the
-  process). PROV bundle and the S9 run annex include it → *"checked by
-  whom"* becomes wallet-anchored without changing the annex format's shape
-  (additive field).
+- **Actor propagation — executor *and* approver:** `create_job` gains an
+  optional `actor` dict with `executor` (the authenticated caller: human or
+  agent claims) and, on HITL-approved runs, `approver` (the wallet-verified
+  human who approved). PROV bundle and the S9 run annex include both → the
+  receipt trail answers *"which agent executed this, deployed by whom"* and
+  *"which human signed it off"* — additive fields, no format break.
 - **trustPolicy extension (twin instance):**
   `"identity": {"wallet": {"required": false, "minLoa": "substantial",
-  "requiredRoles": ["policy-officer"]}}` — per-twin, overridable per recipe
-  by riskLevel (high → minLoa high + role gate before HITL approval is
-  accepted).
+  "requiredRoles": ["policy-officer"], "agentCapabilityModel": "recipes"}}` —
+  per-twin, overridable per recipe by riskLevel (high → minLoa high + role
+  gate + agent-executor allowed only with an explicit capability for that
+  recipe). Agent `capabilities` bind to the BK-2 `application` record's
+  `consumesRecipes` allow-list: the credential authorises what the catalog
+  record declares.
+
+## 6a. Agent virtual wallets (design)
+
+- **Wallet form:** a sidecar service (`services/agent_wallet/`) that holds the
+  agent's issued credentials and keys and performs OpenID4VP presentations on
+  the agent's behalf. One implementation serves all agents; agents keep no
+  long-lived secrets themselves. (In-process library is the alternative —
+  rejected for now: N runtimes × key management.)
+- **Issuance flow (deployment):** when an administration deploys an app/agent
+  (the App Store install path, BK-2), its credential issuer (Keycloak
+  OpenID4VCI — shipped Jan 2026, and Keycloak is the toolbox identity
+  building block) issues the agent credential to the agent's virtual wallet:
+  `agentId`, `deployingOrg`, `capabilities` (from the application record's
+  `consumesRecipes`), validity window, status-list revocable. Renewal and
+  revocation are administrative actions with an audit trail.
+- **Runtime flow:** agent → virtual wallet → OpenID4VP presentation to
+  `auth_wallet` RP edge → verified agent claims → nLDT agent token →
+  MCP/OGC/A2A calls introspected as today. Revocation propagates within the
+  credential status check.
+- **Testbed first:** mock issuer + mock virtual wallet in W1 (credential
+  shapes real, trust anchors local); real Keycloak OID4VCI issuer + EC
+  reference wallet interop in W2/W6.
 
 ## 7. Phased plan
 
@@ -137,11 +191,15 @@ Two-layer identity, deliberately:
   `NLDT_WALLET_INTROSPECT_URL` (reuses the keycloak-mode code path, different
   URL + fail-closed semantics identical).
 - Tests: mode wiring, introspection caching reuse, claims propagation into
-  `create_job` actor, 401/503 shapes consistent with existing modes.
+  `create_job` actor, 401/503 shapes consistent with existing modes. Both
+  subject types from day one: a mock **human** wallet presentation and a mock
+  **agent** presentation (per §6a shapes) issue tokens with
+  `subject_type`-correct claims.
 
-**Done when:** a mock-wallet-authenticated request reaches `:8082`, the job
-record carries the actor claims, and anonymous/expired/low-LoA behave
-fail-closed — all in the test suite.
+**Done when:** mock-authenticated requests (human *and* agent) reach `:8082`,
+the job record carries executor (and approver where applicable) claims, and
+anonymous/expired/insufficient-credential calls behave fail-closed — all in
+the test suite.
 
 ### W2 — Real OpenID4VP backend (1–2 sprints; decision-gated)
 
@@ -159,13 +217,17 @@ produces an nLDT token through the same edge as the mock.
 ### W3 — Governance wiring (1 sprint)
 
 - trustPolicy identity gates enforced in the process adapter (pre-execution
-  check: recipe riskLevel vs actor LoA/roles → run or 403 with reason).
-- PROV + run annex carry `actor`; GENAI_SEAMS receipt-trail wording updated
-  ("checked by whom" → wallet-anchored).
-- HITL: high-risk recipe approval records the approver's wallet claims.
+  check: recipe riskLevel vs human actor LoA/roles **and agent-executor
+  capabilities** → run or 403 with reason).
+- PROV + run annex carry `executor` and `approver`; GENAI_SEAMS receipt-trail
+  wording updated ("checked by whom" → wallet-anchored, "executed by which
+  agent, deployed by whom").
+- HITL: high-risk recipe approval records the approver's wallet claims; agent
+  executions of high-risk recipes require an authorised human approver.
 
 **Done when:** a high-risk recipe is rejected for insufficient LoA in a test,
-and an approved run's annex shows the wallet-verified approver.
+an agent without the recipe capability gets 403, and an approved run's annex
+shows the wallet-verified approver and the credentialed executor.
 
 ### W4 — Front-door & federation (aligns with BK-4)
 
@@ -178,6 +240,38 @@ and an approved run's annex shows the wallet-verified approver.
 **Done when:** the beleidskompas-shaped flow authenticates a user via wallet
 and the grounded answer's annex carries that user's verified identity.
 
+### W5 — Agent virtual wallet (1 sprint; may run parallel to W2/W3)
+
+- `services/agent_wallet/` sidecar: credential store (issued agent
+  credentials + keys), `POST /present` (OpenID4VP presentation on behalf of
+  the agent), `GET /credentials`. Mock credentials from W1 initially.
+- `beleidskompas-svc` / orchestrator wiring: the agent's MCP/OGC calls obtain
+  their nLDT token via the virtual wallet instead of a static env token
+  (static mode stays as fallback).
+- Capability binding: virtual wallet only presents credentials whose
+  `capabilities` cover the requested recipe/process (fail closed client-side
+  too).
+
+**Done when:** the BK-1 Kestra demo flow authenticates as a wallet-backed
+agent (mock credential) and a capability-revoked agent is refused.
+
+### W6 — Issuance by the deploying administration (decision-gated, toolbox IM)
+
+- Deploy Keycloak as OID4VCI issuer in the testbed (toolbox Identity
+  building block, [10](10-toolbox-integration.md)); define the agent
+  credential (schema + claims per §6) as an issuer credential configuration.
+- Deployment flow: app install (BK-2 `application` record) → administration
+  approval → OpenID4VCI issuance into the agent's virtual wallet (capabilities
+  derived from the record's `consumesRecipes`) → runtime per §6a.
+- Status-list revocation: revoke/renew as administrative actions; RP edge and
+  virtual wallet check status.
+- NL/EC alignment: profile the credential with the national wallet programme
+  where applicable (ties to the W2/W4 NL engagement).
+
+**Done when:** a credential issued by a testbed Keycloak instance flows
+through issuance → virtual wallet → presentation → verified nLDT token, and
+revocation blocks a subsequent presentation.
+
 ## 8. Risks
 
 | Risk | Impact | Mitigation |
@@ -186,8 +280,12 @@ and the grounded answer's annex carries that user's verified identity.
 | pyeudiw targets the Italian profile; Dutch deltas | Integration friction | Adapter isolates profile specifics; NL Wallet is the W2 interop target, pyeudiw only a candidate |
 | RP registration/certification is a legal process | Production blocked | Testbed runs mock/reference trust framework; registration tracked as an organisational action (W2) |
 | Keycloak verifier remains extension-grade | Option A slips | Option B adapter is the fallback by design |
-| Privacy scope creep (collecting more than needed) | DPIA/legal exposure | Claims set fixed at sub/loa/org/roles; selective disclosure requested minimally; documented in W1 |
+| Privacy scope creep (collecting more than needed) | DPIA/legal exposure | Claims set fixed (human: sub/loa/org/roles; agent: agentId/deployingOrg/capabilities/assurance); selective disclosure requested minimally; documented in W1 |
 | Wallet identity ≠ authorisation | Over-trust | Roles/org attestations gate via trustPolicy; wallet proves identity, policy decides rights |
+| Agent key/credential theft (virtual wallet compromised) | Impersonated agent | Sidecar isolates keys from agent runtimes; credentials are status-list revocable; capabilities limit blast radius; short validity windows |
+| Machine assurance not standardised (eIDAS LoA is person-oriented) | Confusing trust semantics | Administration defines its own `assurance` scale for agent credentials, documented in the issuer config; nLDT gates on the declared scale, never assumes LoA equivalence |
+| Capability drift (credential vs BK-2 application record) | Over-authorised agent | Issuance derives capabilities from the record's `consumesRecipes`; RP edge cross-checks both; re-issuance on record change |
+| Agent-credential revocation latency | Revoked agent keeps working | Status-list check at presentation AND token TTL short (minutes, not days); trustPolicy may cap TTL for high-risk recipes |
 
 ## 9. Relation to the previous BK-3 scope
 
@@ -209,10 +307,19 @@ and the grounded answer's annex carries that user's verified identity.
 3. **Claims set:** is `sub/loa/org/roles` the right minimal set, or do
    scenarios need pseudonymised citizen access (residents asking scan
    questions) with a lower LoA lane?
-4. **Port/namespace:** auth_wallet on :8087 as proposed?
+4. **Port/namespace:** auth_wallet on :8087, agent_wallet on :8088?
 5. **NL engagement:** approach Logius/NL Digital Government about reference-RP
    participation — same moment as the GovChat-NL outreach (one story:
    "wallet-ready DT front doors").
+6. **Agent wallet form:** sidecar service (recommended — one implementation,
+   keys isolated from agent runtimes) vs in-process library per agent?
+7. **Agent assurance scale:** adopt a simple three-level administration-defined
+   scale (e.g. `basic|attested|audited`), or align with an existing scheme
+   (EU Cloud/IAL-style)?
+8. **Capability model:** bind credentials to `consumesRecipes` (recipe-level,
+   recommended — matches BK-2) or to capability tags (`mcp`, `ogc-processes`)?
+9. **Token TTL for agent tokens:** minutes (tight revocation, recommended) vs
+   hours (fewer introspections)?
 
 ## 11. References
 
