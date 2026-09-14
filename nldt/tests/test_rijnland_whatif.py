@@ -94,3 +94,81 @@ def test_poc_tool_registered():
     from services.mcp_servers.poc_tools import POC_TOOLS
 
     assert POC_TOOLS["run_peil_whatif"]["process_id"] == "rijnland-peil-whatif"
+
+
+def test_stations_to_geojson_touched_points():
+    if not PEILEN.is_file():
+        pytest.skip("peilen.json missing")
+    from services.rijnland_whatif import (
+        apply_scenario_to_archive,
+        load_archive,
+        stations_to_geojson,
+    )
+
+    archive = load_archive(PEILEN)
+    scenario = {"id": "t-map", "delta_m": 0.05, "layer": "boezem", "limit": 5}
+    out, changes = apply_scenario_to_archive(archive, scenario)
+    fc = stations_to_geojson(out, changes)
+    assert fc["type"] == "FeatureCollection"
+    assert len(fc["features"]) >= 5
+    touched = [f for f in fc["features"] if f["properties"]["touched"]]
+    assert len(touched) == 5
+    for f in touched:
+        lon, lat = f["geometry"]["coordinates"]
+        assert isinstance(lon, (int, float)) and isinstance(lat, (int, float))
+        assert f["properties"]["delta_m"] == 0.05
+        assert f["properties"]["after"] == pytest.approx(
+            f["properties"]["before"] + 0.05
+        )
+
+
+def test_build_whatif_map_html_has_data_and_modes(tmp_path):
+    if not PEILEN.is_file():
+        pytest.skip("peilen.json missing")
+    from services.rijnland_whatif import (
+        apply_scenario_to_archive,
+        build_whatif_map_html,
+        load_archive,
+    )
+
+    archive = load_archive(PEILEN)
+    scenario = {
+        "id": "boezem-plus5cm",
+        "title": "Boezempeilen +5 cm",
+        "description": "test",
+        "delta_m": 0.05,
+        "layer": "boezem",
+        "limit": 5,
+    }
+    out, changes = apply_scenario_to_archive(archive, scenario)
+    dest = tmp_path / "whatif-map.html"
+    build_whatif_map_html(out, changes, scenario, dest)
+    html = dest.read_text(encoding="utf-8")
+    assert "window.__DATA__" in html
+    assert "leaflet@1.9.4" in html
+    assert '"defaultMode": "after"' in html or '"defaultMode":"after"' in html
+    assert "before" in html and "after" in html and "delta" in html
+    assert "Boezempeilen +5 cm" in html
+
+
+def test_run_whatif_writes_map_html(tmp_path):
+    if not PEILEN.is_file():
+        pytest.skip("peilen.json missing")
+    from services.rijnland_whatif import run_whatif
+
+    out_dir = tmp_path / "whatif-run-map"
+    result = run_whatif(
+        {
+            "id": "map-test",
+            "title": "map test",
+            "delta_m": 0.05,
+            "layer": "boezem",
+            "limit": 5,
+        },
+        archive_path=PEILEN,
+        out_dir=out_dir,
+        apply_to_lake=False,
+        attach_conflict_replay=False,
+    )
+    assert (out_dir / "whatif-map.html").is_file()
+    assert result["summary"]["mapHtml"] == str(out_dir / "whatif-map.html")

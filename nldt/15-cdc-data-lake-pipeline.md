@@ -224,7 +224,13 @@ Estimate: **~1–1.5 weeks** (1 dev).
 ## Rijnland what-if (implemented)
 
 Scenario deltas on peilen archive → CDC bronze batch → DuckDB silver apply →
-`whatif-report.json` + `whatif-diff.html` + optional peil-conflict replay.
+`whatif-report.json` + `whatif-diff.html` + **`whatif-map.html`** (Leaflet,
+Breda-style scenario panel; modes na / vóór / Δ) + optional peil-conflict replay.
+
+Smoke (map): after a run, open
+`poc-rijnland/runs/<ts>-peilen-whatif/whatif-map.html` (needs network for
+Leaflet/OSM CDN). Default colour = absolute peil **na** scenario so uniform
+Δ still shows spatial variation.
 
 - Module: [`services/rijnland_whatif.py`](services/rijnland_whatif.py)
 - CLI: `scripts/rijnland_whatif_peilen.py`
