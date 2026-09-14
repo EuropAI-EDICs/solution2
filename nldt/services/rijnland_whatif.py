@@ -17,11 +17,24 @@ from services.lake import DEFAULT_BUCKET, NLDT_ROOT
 WORKSPACE = NLDT_ROOT.parent
 POC_RIJNLAND = WORKSPACE / "poc-rijnland"
 DEFAULT_ARCHIVE = POC_RIJNLAND / "data" / "peilen" / "peilen.json"
+DEFAULT_DEMO_PACK = NLDT_ROOT / "examples" / "rijnland-whatif-demo-pack.json"
 
 
 def load_archive(path: Path | None = None) -> dict[str, Any]:
     p = path or DEFAULT_ARCHIVE
     return json.loads(p.read_text(encoding="utf-8"))
+
+
+def load_demo_pack(path: Path | None = None) -> list[dict[str, Any]]:
+    p = path or DEFAULT_DEMO_PACK
+    raw = json.loads(p.read_text(encoding="utf-8"))
+    scenarios = raw.get("scenarios") if isinstance(raw, dict) else raw
+    if not isinstance(scenarios, list) or not scenarios:
+        raise ValueError(f"demo pack has no scenarios: {p}")
+    for s in scenarios:
+        if not s.get("id") or s.get("delta_m") is None:
+            raise ValueError(f"demo scenario missing id/delta_m in {p}")
+    return scenarios
 
 
 def apply_scenario_to_archive(
@@ -151,6 +164,99 @@ def stations_to_geojson(
     return {"type": "FeatureCollection", "features": features}
 
 
+def build_multi_scenario_map_payload(
+    baseline: dict[str, Any],
+    active: dict[str, Any],
+    demo_scenarios: list[dict[str, Any]] | None,
+) -> dict[str, Any]:
+    """Merge demo + active scenarios into one map payload (lake only for active)."""
+    demos = list(demo_scenarios or [])
+    active_id = str(active.get("id") or "scenario")
+    by_id: dict[str, dict[str, Any]] = {}
+    order: list[str] = []
+    for s in demos:
+        sid = str(s.get("id") or "demo")
+        if sid not in by_id:
+            order.append(sid)
+        by_id[sid] = {**s, "lakeApplied": False}
+    if active_id in by_id:
+        by_id[active_id] = {**active, "lakeApplied": True}
+    else:
+        order.append(active_id)
+        by_id[active_id] = {**active, "lakeApplied": True}
+
+    change_index: dict[str, dict[str, dict[str, Any]]] = {}
+    for sid in order:
+        _arch, ch_list = apply_scenario_to_archive(baseline, by_id[sid])
+        change_index[sid] = {c["peilgebied_id"]: c for c in ch_list}
+        by_id[sid]["n"] = len(ch_list)
+
+    features: list[dict[str, Any]] = []
+    for st_id, rec in (baseline.get("stations") or {}).items():
+        x, y = rec.get("x"), rec.get("y")
+        if x is None or y is None:
+            continue
+        by_scen: dict[str, Any] = {}
+        for sid in order:
+            ch = change_index[sid].get(st_id)
+            if ch:
+                by_scen[sid] = {
+                    "before": float(ch["before_m"]),
+                    "after": float(ch["waterstand_m"]),
+                    "delta_m": float(ch["delta_m"]),
+                    "touched": True,
+                }
+            else:
+                latest = rec.get("latest") or {}
+                val = latest.get("value")
+                if val is None:
+                    continue
+                v = float(val)
+                by_scen[sid] = {
+                    "before": v,
+                    "after": v,
+                    "delta_m": 0.0,
+                    "touched": False,
+                }
+        if not by_scen:
+            continue
+        features.append(
+            {
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": [float(x), float(y)]},
+                "properties": {
+                    "id": st_id,
+                    "name": rec.get("name") or st_id,
+                    "layer": rec.get("layer") or "",
+                    "byScenario": by_scen,
+                },
+            }
+        )
+
+    scenarios_meta = []
+    for sid in order:
+        s = by_id[sid]
+        scenarios_meta.append(
+            {
+                "id": sid,
+                "title": s.get("title") or sid,
+                "description": s.get("description") or "",
+                "delta_m": s.get("delta_m"),
+                "layer": s.get("layer") or "all",
+                "n": int(s.get("n") or 0),
+                "lakeApplied": bool(s.get("lakeApplied")),
+            }
+        )
+
+    return {
+        "scenarios": scenarios_meta,
+        "geo": {"type": "FeatureCollection", "features": features},
+        "defaultMode": "after",
+        "defaultScenarioId": active_id,
+        "modes": ["after", "before", "delta"],
+    }
+
+
 def write_cdc_batch(changes: list[dict[str, Any]], *, poc: str = "rijnland") -> Path | None:
     if not changes:
         return None
@@ -232,29 +338,8 @@ th{{background:#e8eef5}}
     return dest
 
 
-def build_whatif_map_html(
-    archive: dict[str, Any],
-    changes: list[dict[str, Any]],
-    scenario: dict[str, Any],
-    dest: Path,
-) -> Path:
-    """Breda-style Leaflet map: scenario panel + vóór/na/Δ recolor modes."""
-    fc = stations_to_geojson(archive, changes)
-    payload = {
-        "scenarios": [
-            {
-                "id": scenario.get("id") or "scenario",
-                "title": scenario.get("title") or "Rijnland peilen what-if",
-                "description": scenario.get("description") or "",
-                "delta_m": scenario.get("delta_m"),
-                "layer": scenario.get("layer") or "all",
-                "n": len(changes),
-            }
-        ],
-        "geo": fc,
-        "defaultMode": "after",
-        "modes": ["after", "before", "delta"],
-    }
+def build_whatif_map_html(payload: dict[str, Any], dest: Path) -> Path:
+    """Breda-style Leaflet map: multi-scenario panel + vóór/na/Δ recolor."""
     data = json.dumps(payload, ensure_ascii=False).replace("<", "\\u003c")
     html = """<!DOCTYPE html>
 <html lang="nl"><head><meta charset="utf-8">
@@ -277,6 +362,8 @@ def build_whatif_map_html(
  .scen-kaart.actief{border-color:#0b7ea4;background:#f0f9fc}
  .scen-kaart b{display:block;font-size:14px}
  .scen-kaart .wat{font-size:12.5px;color:#4b5563;margin-top:4px}
+ .scen-kaart .soort{font-size:11px;padding:1px 7px;border-radius:9px;background:#e8f4fa;
+   color:#0b3d5c;display:inline-block;margin:3px 4px 3px 0}
  .modus-rij label{display:inline-block;margin:2px 6px 2px 0;cursor:pointer;
    border:1px solid #e5e7eb;border-radius:6px;padding:2px 8px;font-size:13px}
  .modus-rij input{margin-right:3px}
@@ -292,8 +379,9 @@ def build_whatif_map_html(
 </style></head><body>
 <header>
  <h1>What if…? — Rijnland peilen</h1>
- <p>Scenario deltas on measuring stations (mNAP). Map default = absolute peil
-    <b>na</b> the scenario. <em>AI proposes · pipeline disposes · human decides</em></p>
+ <p>Multi-scenario peilen (mNAP). Default = absolute peil <b>na</b> het actieve scenario.
+    Alleen het lake-scenario gaat naar CDC/silver.
+    <em>AI proposes · pipeline disposes · human decides</em></p>
 </header>
 <div id="map">
  <div class="paneel">
@@ -317,9 +405,8 @@ window.__DATA__ = __PAYLOAD__;
    'Map (Leaflet, CDN) unreachable — open this file with an internet connection.</div>';return;}
  var D=window.__DATA__;
  var mode=D.defaultMode||'after';
+ var actScen=D.defaultScenarioId||(D.scenarios[0]&&D.scenarios[0].id);
  var map=L.map('map',{preferCanvas:true}).setView([52.15,4.65],10);
- // OSM tile.openstreetmap.org often returns 403/x-blocked for file:// and bulk clients;
- // Carto light basemap is fine for offline demo HTML.
  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
    maxZoom:19, subdomains:'abcd',
    attribution:'&copy; OpenStreetMap &copy; CARTO'}).addTo(map);
@@ -335,25 +422,22 @@ window.__DATA__ = __PAYLOAD__;
   if(t>0) return t>0.5?'#1e7e34':'#a5d6a7';
   return '#eeeeee';
  }
- var vals=[];
+ function blob(p){return (p.byScenario||{})[actScen]||null;}
+ var vals=[], maxAbs=0;
  D.geo.features.forEach(function(f){
-  var p=f.properties; vals.push(p.before, p.after);
+  var bs=f.properties.byScenario||{};
+  Object.keys(bs).forEach(function(k){
+   vals.push(bs[k].before, bs[k].after);
+   var a=Math.abs(bs[k].delta_m||0); if(a>maxAbs) maxAbs=a;
+  });
  });
- var vmin=Math.min.apply(null, vals), vmax=Math.max.apply(null, vals);
+ var vmin=Math.min.apply(null, vals.length?vals:[0]), vmax=Math.max.apply(null, vals.length?vals:[0]);
  if(!(isFinite(vmin)&&isFinite(vmax))||vmin===vmax){vmin-=0.05;vmax+=0.05;}
- var maxAbs=0;
- D.geo.features.forEach(function(f){
-  var a=Math.abs(f.properties.delta_m||0); if(a>maxAbs) maxAbs=a;
- });
  if(maxAbs<=0) maxAbs=0.05;
- function valueOf(p){
-  if(mode==='before') return p.before;
-  if(mode==='delta') return p.delta_m;
-  return p.after;
- }
- function fillOf(p){
-  if(mode==='delta') return deltaColor(p.delta_m||0, maxAbs);
-  var v=valueOf(p);
+ function fillOf(b){
+  if(!b) return '#d1d5db';
+  if(mode==='delta') return deltaColor(b.delta_m||0, maxAbs);
+  var v=mode==='before'?b.before:b.after;
   var t=(v-vmin)/(vmax-vmin);
   return seqColor(Math.max(0, Math.min(1, t)));
  }
@@ -361,19 +445,22 @@ window.__DATA__ = __PAYLOAD__;
  var group=L.featureGroup();
  D.geo.features.forEach(function(f){
   var p=f.properties, c=f.geometry.coordinates;
+  var b=blob(p);
   var m=L.circleMarker([c[1], c[0]], {
-    radius: p.touched?8:5,
-    color: p.touched?'#0b3d5c':'#6b7280',
-    weight: p.touched?2:1,
-    fillColor: fillOf(p),
-    fillOpacity: mode==='delta' && !p.touched ? 0.12 : (p.touched?0.9:0.35)
+    radius: (b&&b.touched)?8:5,
+    color: (b&&b.touched)?'#0b3d5c':'#6b7280',
+    weight: (b&&b.touched)?2:1,
+    fillColor: fillOf(b),
+    fillOpacity: (!b || (mode==='delta' && !b.touched)) ? 0.12 : (b.touched?0.9:0.35)
   });
   m.bindPopup(function(){
+   var bb=blob(p);
+   if(!bb) return '<b>'+p.name+'</b><div>geen data in dit scenario</div>';
    return '<b>'+p.name+'</b><div class="rij"><span>Laag</span><span>'+p.layer+
-    '</span></div><div class="rij"><span>Vóór</span><span>'+Number(p.before).toFixed(3)+
-    ' m</span></div><div class="rij"><span>Na</span><span>'+Number(p.after).toFixed(3)+
+    '</span></div><div class="rij"><span>Vóór</span><span>'+Number(bb.before).toFixed(3)+
+    ' m</span></div><div class="rij"><span>Na</span><span>'+Number(bb.after).toFixed(3)+
     ' m</span></div><div class="rij"><span>Δ</span><span>'+
-    (p.delta_m>=0?'+':'')+Number(p.delta_m).toFixed(3)+' m</span></div>';
+    (bb.delta_m>=0?'+':'')+Number(bb.delta_m).toFixed(3)+' m</span></div>';
   });
   markers.push({m:m,p:p});
   group.addLayer(m);
@@ -394,28 +481,34 @@ window.__DATA__ = __PAYLOAD__;
  legend.addTo(map);
  function ververs(){
   markers.forEach(function(x){
+   var b=blob(x.p);
    x.m.setStyle({
-     fillColor: fillOf(x.p),
-     fillOpacity: mode==='delta' && !x.p.touched ? 0.12 : (x.p.touched?0.9:0.35),
-     weight: x.p.touched?2:1
+     radius: (b&&b.touched)?8:5,
+     color: (b&&b.touched)?'#0b3d5c':'#6b7280',
+     weight: (b&&b.touched)?2:1,
+     fillColor: fillOf(b),
+     fillOpacity: (!b || (mode==='delta' && !b.touched)) ? 0.12 : (b.touched?0.9:0.35)
    });
   });
   legend.upd();
-  var s=D.scenarios[0], u=document.getElementById('uitleg');
+  var s=D.scenarios.find(function(x){return x.id===actScen;})||D.scenarios[0];
+  var u=document.getElementById('uitleg');
   if(!s){u.innerHTML='';return;}
   var label={after:'absolute peil na scenario', before:'absolute peil vóór scenario',
-    delta:'delta t.o.v. vóór (uniforme Δ blijft één tint)'};
+    delta:'delta t.o.v. vóór'};
   u.innerHTML='<b>'+s.title+'</b><div>'+s.description+'</div>'+
    '<div style="margin-top:6px">Δ '+s.delta_m+' m · laag '+s.layer+' · '+s.n+
-   ' stations · modus: '+label[mode]+'</div>';
+   ' stations'+(s.lakeApplied?' · <b>lake</b>':'')+
+   ' · modus: '+label[mode]+'</div>';
  }
  var se=document.getElementById('scen');
- D.scenarios.forEach(function(s,i){
+ D.scenarios.forEach(function(s){
   var d=document.createElement('div');
-  d.className='scen-kaart'+(i===0?' actief':'');
-  d.innerHTML='<b>'+s.title+'</b><div class="wat">'+s.description+
-   '<br>Δ '+s.delta_m+' m · '+s.layer+' · '+s.n+' stations</div>';
+  d.className='scen-kaart'+(s.id===actScen?' actief':'');
+  d.innerHTML='<b>'+s.title+'</b>'+(s.lakeApplied?'<span class="soort">lake</span>':'')+
+   '<div class="wat">'+s.description+'<br>Δ '+s.delta_m+' m · '+s.layer+' · '+s.n+' stations</div>';
   d.onclick=function(){
+   actScen=s.id;
    Array.prototype.forEach.call(se.children,function(c){c.classList.remove('actief');});
    d.classList.add('actief'); ververs();
   };
@@ -435,6 +528,7 @@ window.__DATA__ = __PAYLOAD__;
 </script></body></html>""".replace("__PAYLOAD__", data)
     dest.write_text(html, encoding="utf-8")
     return dest
+
 
 
 def build_whatif_report(
@@ -480,6 +574,8 @@ def run_whatif(
     out_dir: Path | None = None,
     apply_to_lake: bool = True,
     attach_conflict_replay: bool = True,
+    include_demo_pack: bool = True,
+    demo_pack_path: Path | None = None,
 ) -> dict[str, Any]:
     archive = load_archive(archive_path)
     scenario_archive, changes = apply_scenario_to_archive(archive, scenario)
@@ -498,9 +594,9 @@ def run_whatif(
         json.dumps(scenario, indent=2) + "\n", encoding="utf-8"
     )
     write_diff_html(changes, scenario, run_dir / "whatif-diff.html")
-    map_html = build_whatif_map_html(
-        scenario_archive, changes, scenario, run_dir / "whatif-map.html"
-    )
+    demos = load_demo_pack(demo_pack_path) if include_demo_pack else []
+    payload = build_multi_scenario_map_payload(archive, scenario, demos)
+    map_html = build_whatif_map_html(payload, run_dir / "whatif-map.html")
 
     cdc_path = None
     silver_uri = None
@@ -548,6 +644,10 @@ def run_whatif(
             "silverUri": silver_uri,
             "diffHtml": str(run_dir / "whatif-diff.html"),
             "mapHtml": str(map_html),
+            "demoPack": (
+                str(demo_pack_path or DEFAULT_DEMO_PACK) if include_demo_pack else None
+            ),
+            "scenariosOnMap": [s["id"] for s in payload["scenarios"]],
             "conflictVerdict": (conflict_summary or {}).get("verdict"),
             "reportPath": str(run_dir / "whatif-report.json"),
             "lakeUriHint": silver_uri,

@@ -232,6 +232,19 @@ Smoke (map): after a run, open
 Leaflet/OSM CDN). Default colour = absolute peil **na** scenario so uniform
 Δ still shows spatial variation.
 
+### Multi-scenario map (fase 2)
+
+Default map loads `examples/rijnland-whatif-demo-pack.json` (boezem ±5 cm,
+polders +10 cm) plus the CLI/process scenario. Click scenario cards to recolour.
+Only the active scenario is written to CDC/silver.
+
+```bash
+PYTHONPATH=. python scripts/rijnland_whatif_peilen.py --delta-m 0.05 --layer boezem --no-conflict --no-lake
+open ../poc-rijnland/runs/<ts>-peilen-whatif/whatif-map.html
+# v1 single-scenario map:
+PYTHONPATH=. python scripts/rijnland_whatif_peilen.py --delta-m 0.05 --layer boezem --no-demo-pack --no-lake --no-conflict
+```
+
 - Module: [`services/rijnland_whatif.py`](services/rijnland_whatif.py)
 - CLI: `scripts/rijnland_whatif_peilen.py`
 - Process / recipe: `rijnland-peil-whatif`

@@ -26,6 +26,17 @@ def main() -> int:
     ap.add_argument("--out", type=Path, default=None)
     ap.add_argument("--no-lake", action="store_true", help="Skip CDC bronze/silver apply")
     ap.add_argument("--no-conflict", action="store_true")
+    ap.add_argument(
+        "--demo-pack",
+        type=Path,
+        default=None,
+        help="Demo pack JSON (default: examples/rijnland-whatif-demo-pack.json)",
+    )
+    ap.add_argument(
+        "--no-demo-pack",
+        action="store_true",
+        help="Map shows only the active scenario (v1 behaviour)",
+    )
     args = ap.parse_args()
 
     if args.scenario:
@@ -53,6 +64,8 @@ def main() -> int:
         out_dir=args.out,
         apply_to_lake=not args.no_lake,
         attach_conflict_replay=not args.no_conflict,
+        include_demo_pack=not args.no_demo_pack,
+        demo_pack_path=args.demo_pack,
     )
     print(json.dumps(result, indent=2))
     return 0
