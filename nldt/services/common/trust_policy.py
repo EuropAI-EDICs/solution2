@@ -64,7 +64,29 @@ def load_trust_policy() -> dict | None:
         raise TrustPolicyUnavailable(str(exc)) from exc
     if not isinstance(policy, dict):
         raise TrustPolicyUnavailable("policy file must contain a JSON object")
+    _validate_policy(policy)
     return policy
+
+
+def _validate_policy(policy: dict) -> None:
+    """Validate gate structure/enums at load time (fail closed -> 503, not a
+    later KeyError -> 500 mid-request)."""
+    gates = policy.get("gates", {})
+    if not isinstance(gates, dict):
+        raise TrustPolicyUnavailable('policy "gates" must be an object')
+    for process_id, gate in gates.items():
+        if not isinstance(gate, dict):
+            raise TrustPolicyUnavailable(f"gate {process_id!r} must be an object")
+        if "minLoa" in gate and gate["minLoa"] not in LOA_ORDER:
+            raise TrustPolicyUnavailable(
+                f"gate {process_id!r}: unknown minLoa {gate['minLoa']!r} "
+                f"(expected one of {sorted(LOA_ORDER)})"
+            )
+        if "agentAssurance" in gate and gate["agentAssurance"] not in ASSURANCE_ORDER:
+            raise TrustPolicyUnavailable(
+                f"gate {process_id!r}: unknown agentAssurance {gate['agentAssurance']!r} "
+                f"(expected one of {sorted(ASSURANCE_ORDER)})"
+            )
 
 
 def check_gate(policy: dict | None, process_id: str, claims: dict | None) -> None:

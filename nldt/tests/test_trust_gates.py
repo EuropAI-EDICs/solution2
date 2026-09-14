@@ -114,6 +114,84 @@ def test_ungated_process_unchanged(wallet_env):
     assert "actor" not in resp.json()
 
 
+AGENT_ON_BREDA = {
+    **AGENT_OK,
+    "capabilities": ["breda-scan-query"],
+    "loa": "substantial",
+    "roles": ["policy-officer"],
+}
+
+
+def _approver_headers(auth_headers):
+    return {**auth_headers, "X-nLDT-Approver-Token": "approver-t"}
+
+
+def test_agent_with_human_approver_runs_gated_process(wallet_env, monkeypatch):
+    import services.common.auth as auth
+
+    async def fake(token: str) -> dict:
+        return HUMAN_OK if token == "approver-t" else {**AGENT_OK, "capabilities": ["crosstrack-overlay"]}
+
+    monkeypatch.setattr(auth, "introspect_wallet", fake)
+    monkeypatch.setenv("NLDT_AUTH_MODE", "wallet")
+    headers = _approver_headers({"Authorization": "Bearer t"})
+    resp = _run(TestClient(process_app), "crosstrack-overlay", headers)
+    assert resp.status_code == 200
+    actor = resp.json()["actor"]
+    assert actor["approver"]["sub"] == "u1"
+    assert actor["executor"]["agentId"] == "beleidskompas-svc"
+    assert "active" not in actor["approver"]
+
+
+def test_agent_type_approver_token_denied(wallet_env, monkeypatch):
+    headers = _approver_headers(_auth(monkeypatch, {**AGENT_OK, "capabilities": ["crosstrack-overlay"]}))
+    import services.common.auth as auth
+
+    async def fake(token: str) -> dict:
+        # executor introspection and approver introspection share the function;
+        # distinguish by token value.
+        if token == "approver-t":
+            return {**AGENT_OK, "capabilities": ["crosstrack-overlay"]}
+        return {**AGENT_OK, "capabilities": ["crosstrack-overlay"]}
+
+    monkeypatch.setattr(auth, "introspect_wallet", fake)
+    resp = _run(TestClient(process_app), "crosstrack-overlay", headers)
+    assert resp.status_code == 403
+    assert resp.json()["detail"]["reason"] == "approver_not_human"
+
+
+def test_approver_below_gate_loa_denied(wallet_env, monkeypatch):
+    import services.common.auth as auth
+
+    async def fake(token: str) -> dict:
+        return HUMAN_LOW if token == "approver-t" else AGENT_ON_BREDA
+
+    monkeypatch.setattr(auth, "introspect_wallet", fake)
+    monkeypatch.setenv("NLDT_AUTH_MODE", "wallet")
+    headers = _approver_headers({"Authorization": "Bearer t"})
+    resp = _run(TestClient(process_app), "breda-scan-query", headers)
+    assert resp.status_code == 403
+    assert resp.json()["detail"]["reason"] == "approver_loa_below_minimum"
+
+
+def test_no_approver_header_actor_shape_unchanged(wallet_env, monkeypatch):
+    headers = _auth(monkeypatch, {**AGENT_OK, "capabilities": ["crosstrack-overlay"]})
+    resp = _run(TestClient(process_app), "crosstrack-overlay", headers)
+    assert resp.status_code == 200
+    assert list(resp.json()["actor"].keys()) == ["executor"]
+
+
+def test_invalid_policy_enum_fails_closed(tmp_path, monkeypatch):
+    import json as j
+
+    p = tmp_path / "policy.json"
+    p.write_text(j.dumps({"gates": {"breda-scan-query": {"minLoa": "medium"}}}))
+    monkeypatch.setenv("NLDT_TRUST_POLICY_FILE", str(p))
+    monkeypatch.setenv("NLDT_AUTH_MODE", "off")
+    resp = _run(TestClient(process_app), "breda-scan-query")
+    assert resp.status_code == 503
+
+
 def test_invalid_policy_fails_closed(tmp_path, monkeypatch):
     import json as j
 

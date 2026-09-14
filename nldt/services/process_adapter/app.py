@@ -1,20 +1,52 @@
 from __future__ import annotations
 
+import logging
 import os
 from typing import Any
 
-from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from pydantic import BaseModel
 
+from services.common import auth
 from services.common.auth import require_bearer
 from services.common.telemetry import init_telemetry, span
 from services.common.trust_policy import GateDenied, TrustPolicyUnavailable, check_gate, load_trust_policy
 from services.process_adapter.handlers import describe_process, list_processes
 from services.process_adapter.jobs import create_job, get_job, job_results
 
+logger = logging.getLogger("nldt.auth")
+
 app = FastAPI(
     title="nLDT Process Adapter", version="1.0.0", dependencies=[Depends(require_bearer)]
 )
+
+
+async def approver_claims(
+    request: Request, x_nldt_approver_token: str | None = Header(default=None)
+) -> None:
+    """Optional wallet-verified approver (X-nLDT-Approver-Token, BK-3 / W3).
+
+    When the header is present and wallet auth mode is active, introspect it
+    like the caller token and land the validated claims (minus "active") on
+    request.state.approver_claims. Human/gate checks happen per-process in
+    execute(); introspection failures mirror the executor path (503).
+    """
+    if not x_nldt_approver_token or auth.auth_mode() != "wallet":
+        return
+    try:
+        claims = await auth.introspect_wallet(x_nldt_approver_token)
+    except Exception as exc:
+        logger.warning("approver token introspection failed: %s", exc)
+        raise HTTPException(status_code=503, detail="token introspection unavailable") from exc
+    if not claims.get("active"):
+        raise HTTPException(
+            status_code=401, detail="invalid approver token", headers={"WWW-Authenticate": "Bearer"}
+        )
+    from services.common.schema import validate_instance
+
+    claims_no_active = {k: v for k, v in claims.items() if k != "active"}
+    validate_instance(claims_no_active, "wallet-claims.schema.json")
+    request.state.approver_claims = claims_no_active
 
 
 class ExecutionRequest(BaseModel):
@@ -58,13 +90,19 @@ def process_description(process_id: str) -> dict[str, Any]:
 
 
 @app.post("/processes/{process_id}/execution")
-def execute(process_id: str, body: ExecutionRequest, request: Request) -> dict[str, Any]:
+def execute(
+    process_id: str,
+    body: ExecutionRequest,
+    request: Request,
+    _approver: None = Depends(approver_claims),
+) -> dict[str, Any]:
     init_telemetry("nldt-process-adapter")
     try:
         describe_process(process_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     wallet_claims = getattr(request.state, "wallet_claims", None)
+    approver_claims = getattr(request.state, "approver_claims", None)
     try:
         policy = load_trust_policy()
     except TrustPolicyUnavailable as exc:
@@ -72,18 +110,39 @@ def execute(process_id: str, body: ExecutionRequest, request: Request) -> dict[s
         # cannot know whether this process is gated — refuse execution.
         raise HTTPException(status_code=503, detail="trust policy unavailable") from exc
     if policy is not None:
+        gated = process_id in policy.get("gates", {})
         try:
             check_gate(policy, process_id, wallet_claims)
         except GateDenied as exc:
             raise HTTPException(
                 status_code=403, detail={"gate": exc.gate, "reason": exc.reason}
             ) from exc
+        if gated and approver_claims is not None:
+            # The approver takes responsibility for this run: a wallet-verified
+            # human who satisfies the same gate as the executor.
+            if approver_claims.get("subject_type") != "human":
+                raise HTTPException(
+                    status_code=403,
+                    detail={"gate": process_id, "reason": "approver_not_human"},
+                )
+            try:
+                check_gate(policy, process_id, approver_claims)
+            except GateDenied as exc:
+                raise HTTPException(
+                    status_code=403,
+                    detail={"gate": exc.gate, "reason": f"approver_{exc.reason}"},
+                ) from exc
     with span("process.execute", {"process.id": process_id, "backend": body.backend}):
+        actor = None
+        if wallet_claims:
+            actor = {"executor": wallet_claims}
+            if approver_claims is not None:
+                actor["approver"] = approver_claims
         job = create_job(
             process_id,
             body.inputs,
             backend=body.backend,
-            **({"actor": {"executor": wallet_claims}} if wallet_claims else {}),
+            **({"actor": actor} if actor else {}),
         )
     return job
 
