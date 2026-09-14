@@ -210,6 +210,8 @@ Consequences:
 
 ### W1 — Token edge with mock verifier (1 sprint)
 
+**Status:** done (2026-09-14, mock verifier) — NLDT_AUTH_MODE=wallet, claims schema, :8087 edge, actor.executor in jobs+annex; real backend in W2.
+
 - `services/auth_wallet/app.py` (:8087): `POST /present` (accepts a
   presentation), `POST /introspect` (RFC 7662, same response shape our
   keycloak mode already parses), token store with TTL.
@@ -269,6 +271,8 @@ shows the wallet-verified approver and the credentialed executor.
 and the grounded answer's annex carries that user's verified identity.
 
 ### W5 — Agent virtual wallet (1 sprint; may run parallel to W2/W3)
+
+**Status:** done (2026-09-14, mock credential) — :8088 sidecar, capability fail-closed; Keycloak-issued EBW-style credential in W6.
 
 - `services/agent_wallet/` sidecar: credential store (issued agent
   credentials + keys), `POST /present` (OpenID4VP presentation on behalf of

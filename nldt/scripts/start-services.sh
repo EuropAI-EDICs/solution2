@@ -40,12 +40,22 @@ if [[ "${NLDT_START_MCP_HTTP:-0}" == "1" ]]; then
   PID9=$!
 fi
 
+if [[ "${NLDT_START_WALLET:-0}" == "1" ]]; then
+  echo "Starting eID Wallet services (W1/W5 mock)"
+  python -m services.auth_wallet.app &
+  PID10=$!
+  NLDT_AUTH_WALLET_URL="${NLDT_AUTH_WALLET_URL:-http://localhost:8087}" \
+    python -m services.agent_wallet.app &
+  PID11=$!
+fi
+
 cleanup() {
-  kill "$PID1" "$PID2" "$PID3" "$PID4" "$PID5" ${PID6:-} ${PID7:-} ${PID8:-} ${PID9:-} 2>/dev/null || true
+  kill "$PID1" "$PID2" "$PID3" "$PID4" "$PID5" ${PID6:-} ${PID7:-} ${PID8:-} ${PID9:-} ${PID10:-} ${PID11:-} 2>/dev/null || true
 }
 trap cleanup EXIT INT TERM
 
 sleep 1
 echo "Ready: cookbook :8081, processes :8082, catalog :8083, context3d :8084, a2a :8085"
 [[ "${NLDT_START_MCP_HTTP:-0}" == "1" ]] && echo "MCP-http: catalog :8090, process :8091, data :8092, poc :8093 (POST /mcp)"
+[[ "${NLDT_START_WALLET:-0}" == "1" ]] && echo "Wallet: auth edge :8087, agent wallet :8088 (W1/W5 mock)"
 wait

@@ -88,3 +88,48 @@ chain a per-task audited Kestra execution).
 The bridge flow runs on Kestra **2.0.1** at http://localhost:8086 (basic
 auth via env config; webhook trigger unauthenticated; API tenant-scoped
 under `/api/v1/main/...`) — see [`BK0-FINDINGS.md`](BK0-FINDINGS.md).
+
+## 6. eID Wallet identity (W1/W5, mock)
+
+EUDI-aligned wallet identity for nLDT: human wallets and agent virtual
+wallets present administration-issued credentials at a token edge, with
+EBW-style delegation per [16](../16-eid-wallet-identity.md) decision 10.
+W1/W5 are the mock stage — a mock verifier and a mock agent credential;
+the real OpenID4VP backend lands in W2 (and Keycloak-issued credentials
+in W6). Design + roadmap: [`../16-eid-wallet-identity.md`](../16-eid-wallet-identity.md).
+
+Run both services (add `NLDT_START_WALLET=1` to §1 instead to start them
+with the rest of the stack):
+
+```bash
+cd nldt
+NLDT_AUTH_WALLET_URL=http://localhost:8087 python -m services.auth_wallet.app &   # :8087
+NLDT_AUTH_WALLET_URL=http://localhost:8087 python -m services.agent_wallet.app &  # :8088
+```
+
+Env vars: `NLDT_WALLET_TOKEN_TTL` (token lifetime seconds, default 300,
+read by :8087), `NLDT_AUTH_WALLET_URL` (:8087 base URL, required by
+:8088 — fails closed 503 without it), `NLDT_WALLET_INTROSPECT_URL`
+(point nLDT services at introspection for `NLDT_AUTH_MODE=wallet`).
+
+The verified chain — agent capability → agent-wallet token → introspectable
+agent claims:
+
+```bash
+# 1. Agent virtual wallet exchanges a covered capability for a token (200)
+curl -s -X POST localhost:8088/token -H 'Content-Type: application/json' \
+  -d '{"capability":"breda-scan-query"}'
+# → {"token":"...","expiresIn":300,"claims":{... agentId, assurance, ...}}
+
+# 2. The auth edge introspects it (RFC 7662) — active agent claims
+curl -s -X POST localhost:8087/introspect -d 'token=<token>'
+# → {"active":true,"subject_type":"agent","agentId":"beleidskompas-svc",...}
+
+# 3. Uncovered capability fails closed (403)
+curl -s -o /dev/null -w "%{http_code}\n" -X POST localhost:8088/token \
+  -H 'Content-Type: application/json' -d '{"capability":"rijnland-peil-conflict"}'
+```
+
+Honest caveat: these are ARF-*shaped* mock envelopes against a mock
+verifier — useful for wiring, claims-schema and governance work, never a
+production trust anchor. Protocol truth (real OpenID4VP) is pinned in W2.

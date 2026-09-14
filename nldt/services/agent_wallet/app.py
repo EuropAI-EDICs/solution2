@@ -2,7 +2,7 @@
 
 Holds agent credentials, enforces capability fail-closed access, and
 presents credentials to the wallet auth edge (:8087) in exchange for
-tokens. Not wired into start-services yet (Task 5).
+tokens. Started via `NLDT_START_WALLET=1 scripts/start-services.sh`.
 """
 
 from __future__ import annotations
@@ -68,14 +68,28 @@ async def token(body: TokenRequest) -> dict:
         "presentation_id": cred["agentId"],
         "credential_issuer": cred["deployingOrg"],
     }
-    async with httpx.AsyncClient(timeout=10) as client:
-        resp = await client.post(
-            f"{base_url.rstrip('/')}/present", json={"presentation": presentation}
-        )
-        resp.raise_for_status()
-        return resp.json()
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.post(
+                f"{base_url.rstrip('/')}/present", json={"presentation": presentation}
+            )
+            resp.raise_for_status()
+    except httpx.HTTPStatusError as exc:
+        raise HTTPException(status_code=502, detail="auth edge unavailable") from exc
+    return resp.json()
 
 
 @app.get("/credentials")
 async def credentials() -> list[dict]:
     return [{field: cred[field] for field in _PUBLIC_FIELDS} for cred in DEMO_CREDENTIALS]
+
+
+def main() -> None:
+    import uvicorn
+
+    port = int(os.environ.get("NLDT_AGENT_WALLET_PORT", "8088"))
+    uvicorn.run(app, host="0.0.0.0", port=port)
+
+
+if __name__ == "__main__":
+    main()

@@ -46,3 +46,14 @@ async def introspect(token: str = Form(...)) -> dict[str, Any]:
     if not entry or entry[0] <= time.time():
         return {"active": False}
     return {"active": True, **entry[1]}
+
+
+def main() -> None:
+    import uvicorn
+
+    port = int(os.environ.get("NLDT_AUTH_WALLET_PORT", "8087"))
+    uvicorn.run(app, host="0.0.0.0", port=port)
+
+
+if __name__ == "__main__":
+    main()
