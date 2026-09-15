@@ -39,7 +39,7 @@ want them signing.
 
 ---
 
-## What the AI actually does — three jobs, one pending
+## What the AI actually does — four jobs shipped
 
 **1. Answering questions in plain language** *(working — demonstrated live
 in Breda, 13 September 2026)*
@@ -67,15 +67,31 @@ and it says so). Real example from Utrecht: one discretionary clause, read
 differently, moves the wind opportunity zone by **322 km² (+37.5%)**. That
 is a fact a council needs before deciding — not after.
 
-**3. Watching the data sources** *(MVP done — 2026-09-15)*
+**3. Watching the data sources** *(MVP done — 2026-09-15; DONL probes added)*
 
 Open data changes without notice. During this build, a source quietly
 shrunk from 117,012 trees to 1,000 because of a hidden server setting —
 we caught it by reading the source table. The **source monitor**
-periodically probes registries (ArcGIS REST), diffs feature counts /
-`maxRecordCount` / fields, and drafts a change report + registry patch
-proposal; **a human always merges the change** (V4). See
+periodically probes registries (ArcGIS REST **and** data.overheid.nl CKAN),
+diffs feature counts / `maxRecordCount` / fields (or CKAN
+`metadata_modified` + resource URLs), and drafts a change report +
+registry patch proposal; **a human always merges the change** (V4). See
 [`nldt/17-source-monitor.md`](../nldt/17-source-monitor.md).
+
+**4. Storing receipts and sharing datasets safely** *(Phase 6 done —
+2026-09-15)*
+
+All PoC inputs and outputs land in a **medallion data lake** with three
+layers: **bronze** (raw snapshots as received), **silver** (normalised,
+ready for software), **gold** (validated run results with receipts).
+Publishing to a **European Data Space** offer is a separate, gated step:
+open data may be offered automatically; restricted data requires an
+explicit human approval (HITL). National open-data metadata from
+[data.overheid.nl](https://data.overheid.nl) is harvested into the same
+lake as DCAT catalog records — without blindly mirroring every file. See
+[`nldt/13-data-lake-and-space.md`](../nldt/13-data-lake-and-space.md) and
+[`nldt/18-donl-harvest.md`](../nldt/18-donl-harvest.md).
+
 ---
 
 ## What the AI never does
@@ -142,28 +158,37 @@ promises.
 
 ## What's next
 
-1. **The what-if seam for the Breda five-value scan** — *working since
-   13 September 2026*: the proven pattern applied to value politics. First
-   findings: the access threshold (4→6 of 6 services) changes *nothing*
-   (the indicator is robust — CBS supplies all six distances everywhere);
-   wijkdeals as a hard democratic floor shifts all 56 neighbourhoods;
-   doubling green or dropping the trees counter each shift 52. The
-   rank-stability output shows which neighbourhoods stay top/bottom across
-   every weighting — the robust answer a council can build on.
-2. **The source monitor** — continuity of open data as a monitored process
-   — ***done (MVP)*** · [`nldt/17-source-monitor.md`](../nldt/17-source-monitor.md).
-3. **One governed agent layer** over all four PoCs, so the same rules
-   apply everywhere (the nldt/MCP architecture) — ***done*** (Phase 5,
-   2026-09-15). Processes, recipes, MCP (`nldt-poc-mcp`), uniform
-   Critic/HITL/PROV, and Eindhoven/Rijnland registration: see
-   [`nldt/12-governed-agent-layer.md`](../nldt/12-governed-agent-layer.md).
+**Done since the last edition (September 2026)**
+
+| Track | What shipped | Doc |
+|-------|--------------|-----|
+| Breda what-if (S7 on PoC-4) | Value-politics variants, rank-stability | this doc §B4 |
+| Source monitor | ArcGIS + DONL probes, human-merge patches | [`nldt/17-source-monitor.md`](../nldt/17-source-monitor.md) |
+| Governed agent layer (Phase 5) | One nLDT/MCP front door over all PoCs | [`nldt/12-governed-agent-layer.md`](../nldt/12-governed-agent-layer.md) |
+| Data lake + Data Space (Phase 6) | Medallion lake, `lake-publish-offer`, EDC connector | [`nldt/13-data-lake-and-space.md`](../nldt/13-data-lake-and-space.md) |
+| DONL harvest | data.overheid.nl CKAN → DCAT lake + pilot publish | [`nldt/18-donl-harvest.md`](../nldt/18-donl-harvest.md) |
+
+**Still open**
+
+1. **Beleidskompas seam S9** — run annex generator exists; Word/PDF
+   attachment + number-grounding on the external platform still needs the
+   beleidskompas app code ([`nldt/14-beleidskompas-integration.md`](../nldt/14-beleidskompas-integration.md)).
+2. **Live Data Space connector** — EDC manifests importable today; point
+   `NLDT_EDC_MANAGEMENT_URL` at a real management API when deployed.
+3. **eID Wallet identity (BK-3)** — mock wallet paths done; real OpenID4VP
+   verifier + Keycloak OID4VCI issuance decision-gated
+   ([`nldt/16-eid-wallet-identity.md`](../nldt/16-eid-wallet-identity.md)).
+4. **PoC-1 seams S1/S2/S3** — norm harvesting fan-out, formalization
+   proposals, conversational intake (deterministic base exists).
+5. **LLM-authored change prose** for source monitor (reuse S4 number-gate
+   pattern; not in MVP).
 
 ---
 
 ## Technical annex (for engineers)
 
 Condensed reference; full detail in the code and this file's git history
-(through `ae6a5d4`).
+(through `d0dfa17`, September 2026).
 
 **Seam catalogue & status**
 
@@ -178,6 +203,9 @@ Condensed reference; full detail in the code and this file's git history
 | S7 | scenario authoring (file/auto/llm; ledger; control reproduction) | 1 · **4** | **implemented on both** (`poc/pipeline/scenario_author.py`; `poc-breda/breda/scenarios.py` — indicator-weight variants over `indicators.DEFAULT_PARAMS`, bit-identical control) |
 | S8 | scenario narration (numeric grounding gate) | 1 | **implemented**; live qwen3.8 run published |
 | S9 | policy-document narration in an external front door (grounded-artifact contract; deterministic run annex, schema `run-annex.schema.json`) | — (beleidskompas BK-3) | **generator implemented** (`nldt/services/run_annex.py` + CLI `build-run-annex`); Word/PDF attachment + number-grounding on the foreign platform's text still open (needs beleidskompas app code) |
+| SM | source monitor (ArcGIS REST + DONL CKAN continuity probes; human-merge patch) | all | **MVP done** (`services/source_monitor/`, recipe `source-monitor-run`; DONL: `donl_probe.py`, watchlist `donl-pilot`) |
+| L6 | lake publish (medallion URI → ODRL offer → EDC connector; Critic V0/V2/V4) | nldt | **done** (`lake-publish-dataset`, recipe `lake-publish-offer`; `services/lake/publish.py`, `dataspace_connector.py`) |
+| DONL | national CKAN harvest (data.overheid.nl → bronze + DCAT catalog; download vs DataService split) | nldt | **done** (`services/donl_harvest/`, recipes `donl-harvest-run` / `donl-harvest-publish`) |
 
 **Phase path** — A: scenario contracts + sweep + critic (done) · B: the
 S7/S8 seams + ledgers (done) · B2: real local open models + golden-set
@@ -186,15 +214,31 @@ live end-to-end (done 2026-09-13) · B4: the what-if seam on PoC-4 —
 value-politics variants over composition parameters, control bit-identical,
 rank-stability output, file/auto/llm authors (done 2026-09-13, live with
 qwen3.8 4/4 accepted after `'type'`→`'action'` alias normalization) · C:
-S1/S2/S3, PoC-1 decision-table Q&A, cross-track conflicts, source monitor
-(later) · **D: one governed nLDT/MCP agent layer over all PoCs
-([`nldt/12-governed-agent-layer.md`](../nldt/12-governed-agent-layer.md) —
-open)**.
+S1/S2/S3, PoC-1 decision-table Q&A, cross-track conflicts (open) · **D:
+one governed nLDT/MCP agent layer over all PoCs (done 2026-09-15,
+[`nldt/12-governed-agent-layer.md`](../nldt/12-governed-agent-layer.md))**
+· **E: medallion data lake + Data Space publish (done 2026-09-15,
+[`nldt/13-data-lake-and-space.md`](../nldt/13-data-lake-and-space.md))**
+· **F: source monitor MVP + DONL harvest (done 2026-09-15,
+[`nldt/17-source-monitor.md`](../nldt/17-source-monitor.md),
+[`nldt/18-donl-harvest.md`](../nldt/18-donl-harvest.md))**.
+
+**Medallion lake (Phase E/F context)** — bronze = raw snapshot (audit,
+replay); silver = normalised inputs for Cook; gold = schema-valid run
+artifacts + PROV. Communication: OGC Records → Cookbook → Processes read
+`lake://` / `s3://` URIs; Data Space offers are a separate publish step
+(never raw MinIO credentials to peers). See
+[`nldt/13-data-lake-and-space.md`](../nldt/13-data-lake-and-space.md) § Lake
+zones & Communication protocol.
 
 **Key code** — `poc/pipeline/scenarios.py` · `scenario_author.py` (authors,
 identity stamping, rejection ledger) · `poc-breda/breda/qa.py` (asker,
 runner, number-gate, seam normalization) · `poc-breda/schemas/scan-query.schema.json` ·
-tests: `poc/tests/test_scenario*.py` (45), `poc-breda/tests/test_qa.py` (25).
+`nldt/services/source_monitor/` · `nldt/services/donl_harvest/` ·
+`nldt/services/lake/publish.py` · `nldt/services/adapters/dataspace_connector.py` ·
+tests: `poc/tests/test_scenario*.py`, `poc-breda/tests/test_qa.py`,
+`nldt/tests/test_donl_harvest.py`, `nldt/tests/test_phase6_dataspace.py`,
+`nldt/tests/test_source_monitor.py`.
 
 **B2 lessons (PoC-1, live)** — thinking-mode must be disabled via the
 native Ollama transport; benign shape drift is normalized deterministically;
@@ -212,4 +256,13 @@ symmetrically into one ledger.
 **Data-continuity preconditions** — per-service `maxRecordCount` (fetchers
 read it live from service metadata); PDOK CBS WFS ignores `cql_filter`,
 has unstable `bbox`+`startIndex` ordering, honours the OGC XML `filter`;
-a new CBS year can change the buurt set itself.
+a new CBS year can change the buurt set itself; DONL CKAN exposes
+`metadata_modified` and resource URLs (not a blob store — payloads often
+live at PDOK/CBS); source monitor diffs ArcGIS feature counts and DONL
+catalog drift; registry patches are **never** auto-applied (V4 HITL).
+
+**Lake / Data Space preconditions** — `accessClass` (`open` | `internal` |
+`restricted`) on every inventory row; `lake-deny.json` defaults;
+`restricted` publish requires `forceHitlApproved`; connector modes
+`mock` | `edc-manifest` | `http` (`NLDT_DATASPACE_CONNECTOR`); live EDC
+deployment out of band until `NLDT_EDC_MANAGEMENT_URL` is set.
