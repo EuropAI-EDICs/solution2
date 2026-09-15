@@ -19,11 +19,46 @@ Leading principle (publication):
 
 ## Lake zones (medallion)
 
-| Zone | Contents | Examples |
-|------|----------|----------|
-| **bronze** | Unchanged source snapshots | ArcGIS/PDOK downloads, WKP zips, CVDR HTML |
-| **silver** | Normalised (dual-CRS GeoJSON, manifests, corpus JSON) | `*.28992.geojson`, `sources.json`, normcards |
-| **gold** | Schema-valid run artifacts + PROV + ValidationReport | `zones.json`, `value-scan.json`, scenario reports |
+The lake uses the **medallion** pattern: three quality layers that answer
+*how trusted and how usable* a blob is. Data only moves “up” when a pipeline
+or human gate has done work; engines never write gold by accident.
+
+| Zone | Meaning | What may change | Who writes | Who reads |
+|------|---------|-----------------|------------|-----------|
+| **bronze** | **Raw landing zone.** Exact copy of what the source delivered (bytes as received). No schema rewrite, no CRS transform, no business logic. | Only packaging (folder + timestamp + sha256). Content = source. | Ingest (`lake_sync`, DONL harvest, ArcGIS/PDOK downloaders) | Replay, audit, re-normalise, provenance |
+| **silver** | **Curated working data.** Normalised for nLDT: stable schemas, dual CRS where geo, manifests, service pointers. Still *source-faithful*, not yet a twin run result. | Geometry CRS, field names, JSON shape, DCAT/service manifests | Normalisers / harvest silver step | Cook (`process_adapter`), agents, catalog |
+| **gold** | **Validated products.** Schema-valid run outputs with PROV + ValidationReport. Safe to cite, publish (per `accessClass`), and reproduce. | Full derivation; must carry lineage | Cook post-hooks / recipe runs (`NLDT_LAKE_POST_RUN`) | Catalog, Data Space offers, QA, lakehouse marts |
+
+```text
+  source API / file
+        │  unchanged snapshot
+        ▼
+     BRONZE   ← “what did we get?”
+        │  normalise / dual-CRS / DCAT
+        ▼
+     SILVER   ← “what can the twin use?”
+        │  OGC Process + PoC engine
+        ▼
+      GOLD    ← “what did we decide / compute?”
+```
+
+### Bronze — “as received”
+
+- **Purpose:** forensic and regenerable landing. If PDOK or DONL changes tomorrow, bronze still holds *this* retrieval.
+- **Examples:** ArcGIS FeatureServer dumps, WKP zips, CVDR HTML, DONL `package.json`, downloaded CSV/ZIP.
+- **Rules:** do not overwrite in place; version by `{retrievedAt}` (or sha256). Prefer not to publish bronze as a Data Space offer (metadata/catalog or silver/gold instead).
+
+### Silver — “ready for cook”
+
+- **Purpose:** inputs the Cook and agents can load without knowing each source’s quirks.
+- **Examples:** `*.28992.geojson` + `*.4326.geojson`, `sources.json`, DONL `DataService` manifests, normcards.
+- **Rules:** must be deterministic from bronze (or declared registry). CRS and license recorded in catalog/`lakeUri` metadata.
+
+### Gold — “ready to trust and share”
+
+- **Purpose:** outputs of recipes/processes that passed schema (V0) and trust gates where applicable.
+- **Examples:** `zones.json`, `value-scan.json`, scenario reports, peil-conflict runs, PROV + ValidationReport sidecars.
+- **Rules:** gold implies a `runId` / recipe; default publish candidate when `accessClass=open`. `restricted` still needs HITL.
 
 ### Object-key convention (S3-compatible)
 
@@ -36,11 +71,102 @@ s3://nldt-poc-lake/
   offers/{offerId}.json
 ```
 
-`poc` ∈ `utrecht` | `breda` | `eindhoven` | `rijnland`  
+`poc` ∈ `utrecht` | `breda` | `eindhoven` | `rijnland` | `donl`  
 `runType` ∈ `run` | `scenario` | `crosstrack` | `qa`
 
 Local (dev without MinIO): same layout under `nldt/data/lake/` via
 `NLDT_LAKE_BACKEND=fs` (default).
+
+---
+
+## Communication protocol
+
+Components do **not** share a private RPC. They talk through a small set of
+**open interfaces** and **URI schemes**. The lake is storage; discovery and
+execution use OGC-shaped HTTP APIs; sharing with other participants uses the
+EU Data Space connector path (EDC-shaped).
+
+### URI schemes (data plane)
+
+| Scheme | Meaning | Resolver |
+|--------|---------|----------|
+| `file://…` | Local filesystem path (offline / PoC cache) | path as-is |
+| `lake://nldt-poc-lake/{key}` | Logical object in the medallion store | `services.lake.get_lake_client` (FS or S3) |
+| `s3://nldt-poc-lake/{key}` | Same object on MinIO/S3 | S3 client (`NLDT_LAKE_*`) |
+
+`_load_source` in the process adapter accepts all three. Recipes and catalog
+records prefer `lakeUri` so the same recipe works on laptop (FS) and cluster (S3).
+
+### Control-plane APIs (nLDT triangle)
+
+| Role | Protocol | Default | Speaks to |
+|------|----------|---------|-----------|
+| **AppStore** | OGC API **Records** (HTTP JSON) | `:8083` | Catalog: processes, recipes, datasets (`lakeUri`, `accessClass`) |
+| **Cookbook** | Recipe JSON over HTTP | `:8081` | Recipe defs (`requiredProcesses`, step wiring) |
+| **Cook** | OGC API **Processes** (`POST /processes/{id}/execution`) | `:8082` | Execute steps; resolve URIs; call PoC engines |
+
+Agents (LangGraph / MCP) call the same surfaces: search Records → load recipe →
+execute process steps. Offline mode (`NLDT_OFFLINE=1`) loads recipes from disk
+and calls `execute_local` without HTTP.
+
+```mermaid
+sequenceDiagram
+  participant Agent as Agent_or_CLI
+  participant Cat as OGC_Records
+  participant Book as Cookbook
+  participant Proc as OGC_Processes
+  participant Lake as Lake_FS_or_S3
+  participant Eng as PoC_engine
+  participant DS as DataSpace_connector
+
+  Agent->>Cat: GET records search lakeUri
+  Cat-->>Agent: dataset and recipe hits
+  Agent->>Book: GET recipes id
+  Book-->>Agent: steps processIds
+  Agent->>Proc: POST processes id execution
+  Proc->>Lake: get lake:// or s3://
+  Lake-->>Proc: silver or bronze bytes
+  Proc->>Eng: run domain logic
+  Eng-->>Proc: artifacts
+  Proc-->>Agent: job result
+  Agent->>Lake: optional gold upload
+  Agent->>Proc: lake-publish-dataset
+  Proc->>DS: register Offer ODRL EDC
+  DS-->>Proc: connector receipt
+```
+
+### Data Space protocol (share plane)
+
+Publication is a separate handshake from Cook:
+
+1. **Catalog** exposes a dataset Record with `lakeUri` + `accessClass`.
+2. Process **`lake-publish-dataset`** builds an ODRL-stub **Offer**
+   ([`schemas/dataspace-offer.schema.json`](schemas/dataspace-offer.schema.json)).
+3. **Connector** ([`dataspace_connector.py`](services/adapters/dataspace_connector.py)):
+   - `mock` — local registry only  
+   - `edc-manifest` — Eclipse Dataspace Connector–shaped Asset + ContractDefinition JSON  
+   - `http` — EDC Management API `POST …/v3/assets` (fallback to manifest on error)
+4. Identity for real participants: Keycloak/OIDC (toolbox); contract negotiation
+   remains with the EDC/DSR stack when live (`NLDT_EDC_MANAGEMENT_URL` / DSR).
+
+Inside the org, Cook reads the lake directly. Across organisations, peers
+negotiate via the connector; they do **not** get raw MinIO credentials.
+
+### Message shapes (contracts)
+
+| Artifact | Where | Role in the protocol |
+|----------|-------|----------------------|
+| Recipe | `schemas/recipe.schema.json` | Orchestration contract (steps → processIds) |
+| Process I/O | OGC Processes execute body | Runtime inputs (`lakeUri`, AOI, flags) |
+| ValidationReport | `schemas/validation-report.schema.json` | Critic / HITL verdict on gold & offers |
+| DCAT record | `catalog/dcat/{id}.json` | Dataset discovery (DONL + inventory) |
+| Offer | `schemas/dataspace-offer.schema.json` | Share request (ODRL stub + `lakeUri`) |
+
+### What is *not* the protocol
+
+- The lake is **not** a message bus; no Kafka required for Cook ↔ lake.
+- Iceberg/dbt are **analytics** over inventory, not the twin execution protocol.
+- DONL CKAN is **ingest discovery** only; FSC/Digikoppeling is out of band for G2G.
 
 ---
 
