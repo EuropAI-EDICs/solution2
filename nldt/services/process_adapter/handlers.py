@@ -210,6 +210,37 @@ PROCESS_DEFINITIONS_CORE: dict[str, dict[str, Any]] = {
             "result": {"title": "Publish result", "schema": {"type": "object"}},
         },
     },
+    "validate-artifact": {
+        "id": "validate-artifact",
+        "title": "Validate artifact against schema",
+        "description": (
+            "Phase 5.0 contract bridge: JSON Schema validate an instance "
+            "(nLDT or poc/* schemas) and return a ValidationReport."
+        ),
+        "version": "1.0.0",
+        "keywords": ["validation", "schema", "trust", "phase-5"],
+        "inputs": {
+            "schemaName": {
+                "title": "Schema file name (e.g. recipe.schema.json or poc/norm-card.schema.json)",
+                "schema": {"type": "string"},
+            },
+            "instance": {
+                "title": "JSON instance to validate",
+                "schema": {"type": "object"},
+            },
+            "artifactId": {
+                "title": "Artifact id for the ValidationReport",
+                "schema": {"type": "string", "default": "artifact"},
+            },
+            "artifactType": {
+                "title": "ValidationReport artifactType",
+                "schema": {"type": "string", "default": "process-output"},
+            },
+        },
+        "outputs": {
+            "result": {"title": "Validation result + report", "schema": {"type": "object"}},
+        },
+    },
 }
 
 
@@ -275,6 +306,17 @@ def execute_local(process_id: str, inputs: dict[str, Any]) -> dict[str, Any]:
                 access_class=inputs.get("accessClass"),
                 force_hitl_approved=bool(inputs.get("forceHitlApproved")),
                 license_=inputs.get("license"),
+            )
+        }
+    if process_id == "validate-artifact":
+        from services.common.artifact_validate import validate_artifact
+
+        return {
+            "result": validate_artifact(
+                inputs["schemaName"],
+                inputs["instance"],
+                artifact_id=str(inputs.get("artifactId") or "artifact"),
+                artifact_type=str(inputs.get("artifactType") or "process-output"),
             )
         }
     raise KeyError(f"Unknown process: {process_id}")

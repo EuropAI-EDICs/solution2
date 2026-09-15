@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import os
 from typing import Any
 
-from services.common.schema import load_recipe, validate_instance
+from services.common.schema import load_recipe
 from services.common.templates import resolve_templates
 from services.mcp_servers.client import ProcessClient
 
@@ -14,14 +15,24 @@ def run_recipe(
     process_client: ProcessClient | None = None,
 ) -> dict[str, Any]:
     recipe = load_recipe(recipe_id)
-    client = process_client or ProcessClient()
+    if process_client is not None:
+        client = process_client
+    elif os.environ.get("NLDT_OFFLINE") == "1":
+        from services.process_adapter import jobs as job_store
+
+        class _OfflineClient:
+            def execute(self, process_id, resolved_inputs, backend="local"):
+                return job_store.create_job(process_id, resolved_inputs, backend=backend)
+
+        client = _OfflineClient()
+    else:
+        client = ProcessClient()
 
     context: dict[str, Any] = {
         "recipe": {"inputs": inputs},
         "steps": {},
     }
     step_results: list[dict[str, Any]] = []
-    final_outputs: dict[str, Any] = {}
 
     for step in recipe["steps"]:
         resolved_inputs = resolve_templates(step["inputs"], context)
@@ -54,10 +65,9 @@ def run_recipe(
                 final_outputs[name] = step_data["outputs"][name]
                 break
 
-    execution = {
+    return {
         "recipeId": recipe_id,
         "inputs": inputs,
         "steps": step_results,
         "outputs": final_outputs,
     }
-    return execution

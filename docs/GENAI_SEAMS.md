@@ -151,12 +151,10 @@ promises.
    every weighting — the robust answer a council can build on.
 2. **The source monitor** — continuity of open data as a monitored process.
 3. **One governed agent layer** over all four PoCs, so the same rules
-   apply everywhere (the nldt/MCP architecture) — ***in progress***.
-   Patterns documented (`nldt/11-…`); **Fase 5.1/5.2 done**: six PoC
-   processes + four recipes (Utrecht planes A/B + Breda S4/S7) via
-   `nldt/services/process_adapter/poc_handlers.py`. Still open: uniform
-   Critic/HITL/PROV (5.4), MCP tool aliases (5.3), Eindhoven/Rijnland (5.5).
-   Plan: [`nldt/12-governed-agent-layer.md`](../nldt/12-governed-agent-layer.md).
+   apply everywhere (the nldt/MCP architecture) — ***done*** (Phase 5,
+   2026-09-15). Processes, recipes, MCP (`nldt-poc-mcp`), uniform
+   Critic/HITL/PROV, and Eindhoven/Rijnland registration: see
+   [`nldt/12-governed-agent-layer.md`](../nldt/12-governed-agent-layer.md).
 
 ---
 

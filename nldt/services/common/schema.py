@@ -9,13 +9,29 @@ from jsonschema import Draft202012Validator
 
 NLDT_ROOT = Path(__file__).resolve().parents[2]
 SCHEMAS_DIR = NLDT_ROOT / "schemas"
+POC_SCHEMAS_DIR = SCHEMAS_DIR / "poc"
 RECIPES_DIR = NLDT_ROOT / "recipes"
 
 
 def load_schema(name: str) -> dict[str, Any]:
-    path = SCHEMAS_DIR / name
-    with path.open(encoding="utf-8") as f:
-        return json.load(f)
+    """Load a JSON Schema by file name.
+
+    Resolution order:
+    1. ``nldt/schemas/<name>``
+    2. ``nldt/schemas/poc/<name>`` (Phase 5.0 contract bridge; may be a symlink)
+    3. ``nldt/schemas/poc/<basename>`` when ``name`` is ``poc/<basename>``
+    """
+    candidates = [
+        SCHEMAS_DIR / name,
+        POC_SCHEMAS_DIR / Path(name).name,
+    ]
+    if name.startswith("poc/"):
+        candidates.insert(0, SCHEMAS_DIR / name)
+    for path in candidates:
+        if path.is_file():
+            with path.open(encoding="utf-8") as f:
+                return json.load(f)
+    raise FileNotFoundError(f"Schema not found: {name} (searched {[str(c) for c in candidates]})")
 
 
 def validate_instance(instance: Any, schema_name: str) -> None:

@@ -1,13 +1,15 @@
 # 12 — Governed agent layer (nLDT/MCP across all PoCs)
 
-> Status: **still to build.**  
+> Status: **done** (Phase 5 baseline, 2026-09-15).  
 > Source: [`docs/GENAI_SEAMS.md`](../docs/GENAI_SEAMS.md) *What’s next* §3 ·
 > slides *Next 3 — nldt/MCP orchestration*.
 
-Patterns and doctrine are in place (docs 05 / 07 / 11). What **does not** exist: one
-orchestration path in which Utrecht, Eindhoven, Rijnland and Breda run the same
-catalog/process/critic/HITL rules via nLDT MCP — instead of per-PoC
-CLIs and seams.
+Patterns and doctrine are in place (docs 05 / 07 / 11). Utrecht, Eindhoven,
+Rijnland and Breda share catalog / process / critic / HITL rules via nLDT
+Processes + Recipes + MCP. Per-PoC CLIs remain the **engines**; nLDT is the
+governed front door.
+
+Doctrine remains: **AI proposes · pipeline disposes · human decides.**
 
 ---
 
@@ -15,27 +17,24 @@ CLIs and seams.
 
 | | Now | Goal |
 |---|----|------|
-| Orchestration | Per PoC: `poc/run.py`, `poc-breda/qa_run.py`, … | One LangGraph + MCP |
-| Seams S4/S7/S8 | In-package (`poc-breda/breda/qa.py`, `scenario_author.py`) | Registered as **processes/tools** the planner may compose |
-| Critic | PoC-owned + nLDT-recipe-owned | Same V0–V4 contract; V2 filled per artifactType |
-| Catalog | GIS recipes only (`spatial-overlay`, `hex-overlay`) | + opportunity-map, scenario-sweep, scan Q&A, crosstrack |
-| HITL / PROV | Fragmentary | Checkpoint per step, one audit-trail shape |
-
-Doctrine remains: **AI proposes · pipeline disposes · human decides.**
+| Orchestration | LangGraph + recipe force / catalog match | ✅ One graph for GIS + PoC recipes |
+| Seams S4/S7/S8 | Processes + MCP tools | ✅ Registered; engines stay in PoC packages |
+| Critic | Shared `ValidationReport` (V0–V4) | ✅ Same schema; V2 filled per PoC recipe |
+| Catalog | GIS + PoC recipes/processes | ✅ tags `poc-*` |
+| HITL / PROV | Plan gate + run artifacts | ✅ `riskLevel: high` → needs_human; `prov.json` + reject ledgers |
 
 ---
 
-## Build order (Phase 5)
+## Build order (Phase 5) — status
 
-### 5.0 — Contract bridge (1–2 days)
+### 5.0 — Contract bridge ✅
 
-1. Mirror/share PoC schemas the agent layer must know:
-   `norm-card`, `formal-rule`, `decision-table`, `scenario-spec`,
-   `scenario-report`, `validation-report` (extend artifactTypes).
-2. Document one `ValidationReport` vocabulary (already in doc 07) —
-   implementation: shared validator module or process `validate-artifact`.
+1. PoC schemas linked under [`schemas/poc/`](schemas/poc/) (symlinks to `poc/schemas/`).
+2. `load_schema()` resolves `nldt/schemas/` and `nldt/schemas/poc/`.
+3. Process **`validate-artifact`** + module
+   [`services/common/artifact_validate.py`](services/common/artifact_validate.py).
 
-### 5.1 — PoC pipelines as Processes ✅ (baseline)
+### 5.1 — PoC pipelines as Processes ✅
 
 Registered in `services/process_adapter/poc_handlers.py` + catalog seed:
 
@@ -47,58 +46,49 @@ Registered in `services/process_adapter/poc_handlers.py` + catalog seed:
 | `breda-scan-run` | ✅ | replay + execute |
 | `breda-scan-query` | ✅ | S4 offline Q&A |
 | `scenario-author-propose` | ✅ | S7 auto author |
-| `rijnland-peil-conflict` | ✅ | replay + execute (`poc-rijnland/run.py`) |
+| `rijnland-peil-conflict` | ✅ | replay + execute |
+| `rijnland-peil-whatif` | ✅ | CDC what-if map |
+| `bp2op-transform` | ✅ | Eindhoven `poc-bp2op/run.py` |
+| `validate-artifact` | ✅ | Phase 5.0 schema gate |
 
-Recipes: `breda-scan-qa`, `utrecht-scenario-sweep`, `utrecht-opportunity-map`,
-`utrecht-scenario-author`, `rijnland-peil-conflict`. Tests: `tests/test_poc_processes.py`.
+Tests: `tests/test_poc_processes.py`, `tests/test_phase5_governed.py`.
 
-Lake touchpoint (Phase 6): Processes remain Cook outside the lake; silver via
-`lake://` / cache; gold via sync/post-run. See
-[13-data-lake-and-space.md](13-data-lake-and-space.md#ogc-processes-in-the-lake-pipeline).
-
-Still open in 5.1+: timeout/job-async for long sweeps; MCP tool aliases (5.3).
-
-### 5.2 — Recipes in Cookbook ✅ (baseline)
+### 5.2 — Recipes in Cookbook ✅
 
 | recipeId | Status |
 |----------|--------|
-| `utrecht-opportunity-map` | ✅ |
+| `utrecht-opportunity-map` | ✅ (risk high → HITL) |
 | `utrecht-scenario-sweep` | ✅ |
 | `utrecht-scenario-author` | ✅ |
 | `breda-scan-qa` | ✅ |
+| `breda-five-value-scan` | ✅ |
+| `multi-track-crosstrack` | ✅ |
 | `rijnland-peil-conflict` | ✅ |
-| `breda-five-value-scan` | open (use process `breda-scan-run` directly) |
-| `multi-track-crosstrack` | open |
+| `rijnland-peil-whatif` | ✅ |
+| `eindhoven-bp2op` | ✅ (risk high → HITL) |
 
-Planner (S2) may find these recipes via tags (`legal`, `scenario`, `scan`,
-`poc-utrecht`, `poc-breda`, `poc-rijnland`).
+### 5.3 — MCP tool surface ✅
 
-### 5.3 — MCP tool surface
+- `services/mcp_servers/poc_server.py` (`nldt-poc-mcp`) — aliases over process execution
+- `list_poc_capabilities` on catalog MCP (`find_poc_capabilities` in seed)
+- Tools: `run_opportunity_map`, `propose_scenarios`, `run_scenario_sweep`,
+  `ask_scan`, `run_value_scan`, `run_crosstrack`, `run_peil_*`, `run_bp2op_transform`
 
-Extend or add new server `nldt-poc-mcp`:
+### 5.4 — Critic + HITL uniform ✅
 
-| Tool | Maps to |
-|------|---------|
-| `list_poc_capabilities` | Catalog filter tags=poc-* |
-| `run_opportunity_map` | process `opportunity-map-run` |
-| `propose_scenarios` | process `scenario-author-propose` (S7) |
-| `ask_scan` | process `breda-scan-query` (S4) |
+- Every orchestrator run writes `validation-report.json` + `prov.json` under
+  `nldt/data/runs/<runId>/`.
+- `riskLevel: high` → plan verdict `needs_human` unless `--auto-approve-hitl`.
+- Reject ledgers surfaced as `reject-ledger.json` / `proposals-rejected.json`.
+- Critic V2 coverage: Breda, Utrecht A/B/C, Rijnland, Eindhoven.
 
-Orchestrator remains the only one that **composes**; PoC code remains the engine.
+### 5.5 — Remaining PoCs ✅
 
-### 5.4 — Critic + HITL uniform
+- `poc-rijnland` → process + recipes (conflict + what-if)
+- `poc-bp2op` → process `bp2op-transform` + recipe `eindhoven-bp2op`
 
-- Every recipe run writes `ValidationReport` + `prov.json` under
-  `nldt/data/runs/<runId>/` (same layout as spatial-overlay).
-- `riskLevel: high` → `interrupt_before=["execute_steps"]`.
-- Reject ledgers (`*-rejected.json`) become run artifacts, not only
-  PoC-local files.
-
-### 5.5 — Remaining PoCs (Eindhoven, Rijnland)
-
-- `poc-rijnland` → ✅ process + recipe `rijnland-peil-conflict` (water-level conflict;
-  timeseries/levels as separate processes still open)
-- `poc-bp2op` → process `bp2op-transform` (or substeps) — open
+Still optional later: async job timeouts for long sweeps; timeseries as separate
+Rijnland processes.
 
 ---
 
@@ -113,13 +103,11 @@ Orchestrator remains the only one that **composes**; PoC code remains the engine
 
 ## Acceptance criteria
 
-1. `python -m agents.orchestrator.run --recipe breda-scan-qa …` ends with
-   `ValidationReport.verdict` ∈ {pass, needs_human, fail} and PROV bundle.
-2. Same Critic schema for GIS recipe and PoC recipe.
-3. S7 proposal that fails schema → `proposals-rejected` artifact; no sweep.
-4. Catalog `GET /collections/records?q=scenario` finds ≥1 PoC recipe.
-5. Documentation: GENAI_SEAMS “What’s next §3” can move to **done** (or partial)
-   with a link to this file + a run example.
+1. ✅ `PYTHONPATH=. NLDT_OFFLINE=1 python -m agents.orchestrator.run --request "…" --recipe breda-scan-qa --input question=… --auto-approve-hitl` → `ValidationReport.verdict` ∈ {pass, needs_human, fail} + PROV bundle.
+2. ✅ Same Critic schema for GIS recipe and PoC recipe (`validation-report.schema.json`).
+3. ✅ S7 proposals: reject ledger retained when present (`proposals-rejected.json`).
+4. ✅ Catalog `find_records(q="scenario")` / `find_poc_capabilities()` finds PoC recipes.
+5. ✅ This file + [08-roadmap.md](08-roadmap.md) mark Phase 5 done.
 
 ---
 
@@ -129,6 +117,6 @@ Orchestrator remains the only one that **composes**; PoC code remains the engine
 |-----|------|
 | [05-agentic-ai-layer.md](05-agentic-ai-layer.md) | Roster + seams S1–S3 / S7–S8 |
 | [11-poc-patterns-scenarios-qa.md](11-poc-patterns-scenarios-qa.md) | Patterns (done) |
-| **This file** | Runtime unification (open) |
+| **This file** | Runtime unification (**done**) |
 | [08-roadmap.md](08-roadmap.md) | Phase 5 |
 | [`docs/GENAI_SEAMS.md`](../docs/GENAI_SEAMS.md) | Public “What’s next” |

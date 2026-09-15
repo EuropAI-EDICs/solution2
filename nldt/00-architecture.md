@@ -257,7 +257,7 @@ Scripts: [`build_lake_inventory.py`](scripts/build_lake_inventory.py),
 | Utrecht opportunity / scenario / crosstrack | [`../poc/`](../poc/) | processes + recipes · [SOLUTIONS_ARCHITECTURE](../docs/SOLUTIONS_ARCHITECTURE.md) |
 | Breda five-value scan | [`../poc-breda/`](../poc-breda/) | `breda-scan-*` |
 | Rijnland peil conflict + peilen what-if (CDC) | [`../poc-rijnland/`](../poc-rijnland/) | `rijnland-peil-conflict`, `rijnland-peil-whatif` · ArcGIS lake bronze · [15](15-cdc-data-lake-pipeline.md) |
-| Eindhoven BP2OP | [`../poc-bp2op/`](../poc-bp2op/) | registration open ([12 §5.5](12-governed-agent-layer.md)) |
+| Eindhoven BP2OP | [`../poc-bp2op/`](../poc-bp2op/) | process + recipe `eindhoven-bp2op` ([12 §5.5](12-governed-agent-layer.md)) |
 
 Governed agent layer plan: [12-governed-agent-layer.md](12-governed-agent-layer.md).  
 Simulation UX (not production agent): [`simulation/`](simulation/).
@@ -347,10 +347,10 @@ CLI: `PYTHONPATH=. python -m services.cli …`
 | **BK** | Beleidskompas front-door app (BK-0…BK-2 done; BK-3 = wallet track) | [14](14-beleidskompas-integration.md) |
 | **W** | eID Wallet identity (W1/W3/W5 done, mock; W2/W6 real backend) | [16](16-eid-wallet-identity.md) |
 
-Open highlights: uniform Critic/HITL on all PoC runs; Eindhoven process
-registration; production IDS/EDC connector; OTLP exporter
+Open highlights: production IDS/EDC connector; OTLP exporter
 ([08](08-roadmap.md)); wallet W2 (real OpenID4VP verifier) + W6 (Keycloak
 OID4VCI issuance) — decision-gated on toolbox IM ([16](16-eid-wallet-identity.md)).
+Phase 5 (governed agent layer) is **done** — see [12](12-governed-agent-layer.md).
 
 ---
 

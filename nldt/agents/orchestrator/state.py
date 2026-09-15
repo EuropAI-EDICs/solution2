@@ -14,6 +14,7 @@ class OrchestratorState(TypedDict, total=False):
     agent_plan: dict[str, Any]
     execution: dict[str, Any]
     validation_report: dict[str, Any]
+    reject_ledger: list[dict[str, Any]]
     hybrid: dict[str, Any]
     explanation: dict[str, Any]
     error: str

@@ -63,21 +63,21 @@ See [06-hybrid-implementation.md](06-hybrid-implementation.md) and [10-toolbox-i
 
 See [09-federation-and-observability.md](09-federation-and-observability.md).
 
-### Phase 5 — Governed agent layer across all PoCs 🔲
+### Phase 5 — Governed agent layer across all PoCs ✅
 
-> GENAI_SEAMS *What’s next* §3 — **still open.**  
-> Plan: [12-governed-agent-layer.md](12-governed-agent-layer.md)
+> Plan: [12-governed-agent-layer.md](12-governed-agent-layer.md) · **done 2026-09-15**
 
 | Item | Status |
 |------|--------|
 | Patterns A/B/C + V0–V4 documented | Done (docs 11, 05, 07) |
-| PoC pipelines as OGC Processes | **Done** (`poc_handlers.py`, 6 processes) |
-| Recipes: opportunity-map, scenario-sweep, breda-scan/qa | **Done** (4 recipes; crosstrack recipe open) |
-| MCP tools for S4/S7 alongside GIS | Open (processes available via process-mcp) |
-| Uniform Critic/HITL/PROV for PoC runs | Open |
-| Eindhoven + Rijnland registration | Open Eindhoven; **Rijnland peil process Done** (`rijnland-peil-conflict`) |
+| Contract bridge (`schemas/poc/`, `validate-artifact`) | **Done** |
+| PoC pipelines as OGC Processes | **Done** (`poc_handlers.py`, 9 PoC processes + validate-artifact) |
+| Recipes: opportunity-map, scenario, crosstrack, breda, rijnland, eindhoven | **Done** |
+| MCP tools (`nldt-poc-mcp` + `list_poc_capabilities`) | **Done** |
+| Uniform Critic/HITL/PROV for PoC runs | **Done** (`critic.py`, run artifacts) |
+| Eindhoven + Rijnland registration | **Done** (`bp2op-transform`, `rijnland-peil-*`) |
 
-**Deliverable:** `orchestrator.run --recipe breda-scan-qa|utrecht-scenario-sweep`
+**Deliverable:** `orchestrator.run --recipe breda-scan-qa|utrecht-scenario-sweep|eindhoven-bp2op`
 with ValidationReport + PROV; catalog discoverable; per-PoC CLI remains as engine.
 
 ### Phase 6 — Data lake & European Data Space 🔲
@@ -110,7 +110,7 @@ restricted refuses without HITL; dbt marts over inventory.
 | 4 | At least 1 hybrid routing path (UCS stub) | ✅ |
 | 5 | Schema-validated outputs + PROV | ✅ |
 | 6 | Testbed 2026 phase 2/3 alignment | ✅ (docs + interfaces) |
-| 7 | One governed agent layer over ≥2 PoCs via nLDT/MCP | 🟡 processes+recipes Utrecht+Breda; Critic/HITL uniform open |
+| 7 | One governed agent layer over ≥2 PoCs via nLDT/MCP | ✅ Phase 5: processes+recipes+MCP+Critic/HITL for Utrecht/Breda/Rijnland/Eindhoven |
 
 ## Verification
 

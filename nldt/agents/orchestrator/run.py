@@ -86,6 +86,23 @@ def main(argv: list[str] | None = None) -> int:
         (out_dir / "lake-hits.json").write_text(
             json.dumps(result.get("lake_hits"), indent=2), encoding="utf-8"
         )
+    # Phase 5.4 — surface reject ledgers as first-class run artifacts
+    reject = result.get("reject_ledger")
+    if reject:
+        (out_dir / "reject-ledger.json").write_text(
+            json.dumps(reject, indent=2), encoding="utf-8"
+        )
+    execution = result.get("execution") or {}
+    outputs = execution.get("outputs") or {}
+    for key in ("proposals", "summary", "result"):
+        blob = outputs.get(key)
+        if isinstance(blob, dict):
+            rejected = blob.get("rejected") or blob.get("proposalsRejected")
+            if rejected:
+                (out_dir / "proposals-rejected.json").write_text(
+                    json.dumps(rejected, indent=2, default=str), encoding="utf-8"
+                )
+                break
 
     if result.get("error"):
         return 1

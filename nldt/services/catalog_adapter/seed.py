@@ -52,6 +52,7 @@ def seed_records() -> list[dict[str, Any]]:
         ("rijnland-peil-whatif", "Rijnland peilen what-if (CDC)"),
         ("bp2op-transform", "Eindhoven bp2op transform"),
         ("lake-publish-dataset", "Publish lake dataset to Data Space (ODRL stub)"),
+        ("validate-artifact", "Validate artifact against nLDT/PoC JSON Schema"),
     ]
     records: list[dict[str, Any]] = []
     for pid, title in processes:
@@ -69,7 +70,11 @@ def seed_records() -> list[dict[str, Any]]:
                             ["poc"]
                             if pid.startswith(("breda-", "scenario-", "opportunity-", "crosstrack-", "rijnland-"))
                             or "scan" in pid
-                            else (["lake", "dataspace"] if pid.startswith("lake-") else [])
+                            else (
+                                ["validation", "trust", "phase-5"]
+                                if pid == "validate-artifact"
+                                else (["lake", "dataspace"] if pid.startswith("lake-") else [])
+                            )
                         )
                     ),
                 },
