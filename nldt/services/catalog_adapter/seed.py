@@ -155,6 +155,11 @@ def seed_records() -> list[dict[str, Any]]:
             "Beleidskompas omgevingsanalyse (overlay)",
             ["beleidskompas", "policy-step:omgevingsanalyse", "spatial", "overlay"],
         ),
+        (
+            "lake-publish-offer",
+            "Publish lake dataset as Data Space offer",
+            ["lake", "dataspace", "publish", "odrl", "phase-6"],
+        ),
     ]
     for rid, title, tags in recipes:
         records.append(

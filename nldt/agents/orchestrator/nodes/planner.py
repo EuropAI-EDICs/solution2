@@ -36,6 +36,20 @@ def plan_recipe(state: dict[str, Any]) -> dict[str, Any]:
             recipe = resp.json()
 
     resolved = dict(state.get("resolved_inputs") or {})
+    requires_hitl = recipe.get("riskLevel") == "high"
+    # Phase 6: restricted Data Space offers always require HITL unless already approved
+    if recipe_id == "lake-publish-offer":
+        ac = str(resolved.get("accessClass") or "internal").lower()
+        if ac == "restricted" and not resolved.get("forceHitlApproved"):
+            requires_hitl = True
+        elif ac == "open" and not resolved.get("forceHitlApproved"):
+            # open offers: recipe is high-risk by default; allow auto path when
+            # caller did not request human gate — still need --auto-approve-hitl
+            # OR we lower requiresHitl for open:
+            requires_hitl = False
+        elif resolved.get("forceHitlApproved"):
+            requires_hitl = False  # approval already supplied as input
+
     plan = {
         "id": str(uuid4()),
         "requestSummary": state.get("natural_language_request", f"Execute recipe {recipe_id}"),
@@ -47,7 +61,7 @@ def plan_recipe(state: dict[str, Any]) -> dict[str, Any]:
         "proposedBy": {"agent": "recipe-planner", "llmUsed": False},
         "effortBudget": {"maxSteps": len(recipe["steps"])},
         "riskLevel": recipe.get("riskLevel", "low"),
-        "requiresHitl": recipe.get("riskLevel") == "high",
+        "requiresHitl": requires_hitl,
         "plannedAt": utc_now(),
     }
     validate_instance(plan, "agent-plan.schema.json")

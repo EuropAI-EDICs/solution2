@@ -342,15 +342,17 @@ CLI: `PYTHONPATH=. python -m services.cli …`
 | 1–2 | Catalog, Processes, Recipes, Toolbox hooks | [08](08-roadmap.md), [10](10-toolbox-integration.md) |
 | 3–4 | Federation, 3D, A2A, OTel | [09](09-federation-and-observability.md) |
 | **5** | Governed agent layer over PoCs | [12](12-governed-agent-layer.md) |
-| **6** | Data lake + Data Space + lakehouse | [13](13-data-lake-and-space.md) |
+| **6** | Data lake + Data Space + lakehouse | [13](13-data-lake-and-space.md) ✅ |
 | **6b** | CDC pipeline in the lake (Rijnland peilen) | [15](15-cdc-data-lake-pipeline.md) |
 | **BK** | Beleidskompas front-door app (BK-0…BK-2 done; BK-3 = wallet track) | [14](14-beleidskompas-integration.md) |
 | **W** | eID Wallet identity (W1/W3/W5 done, mock; W2/W6 real backend) | [16](16-eid-wallet-identity.md) |
 
-Open highlights: production IDS/EDC connector; OTLP exporter
-([08](08-roadmap.md)); wallet W2 (real OpenID4VP verifier) + W6 (Keycloak
-OID4VCI issuance) — decision-gated on toolbox IM ([16](16-eid-wallet-identity.md)).
-Phase 5 (governed agent layer) is **done** — see [12](12-governed-agent-layer.md).
+Open highlights: OTLP exporter ([08](08-roadmap.md)); wallet W2 (real OpenID4VP
+verifier) + W6 (Keycloak OID4VCI issuance) — decision-gated on toolbox IM
+([16](16-eid-wallet-identity.md)).
+Phase 5 (governed agent layer) and Phase 6 (lake + Data Space Critic/HITL +
+pluggable EDC connector) are **done** — see [12](12-governed-agent-layer.md)
+and [13](13-data-lake-and-space.md).
 
 ---
 

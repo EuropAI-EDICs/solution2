@@ -1,4 +1,4 @@
-"""Gold upload + Data Space publish (ODRL stub, accessClass gates)."""
+"""Gold upload + Data Space publish (ODRL stub, accessClass gates, Critic)."""
 
 from __future__ import annotations
 
@@ -9,6 +9,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from services.common.artifact_validate import validate_artifact
+from services.common.prov import utc_now
 from services.lake import DEFAULT_BUCKET, NLDT_ROOT, get_lake_client, load_deny
 from services.lake.sync import access_class_for_local, sync_file
 
@@ -79,6 +81,84 @@ def build_odrl_offer(
     }
 
 
+def _offer_validation_report(
+    *,
+    offer: dict[str, Any] | None,
+    status: str,
+    access_class: str,
+    force_hitl: bool,
+    reason: str | None = None,
+) -> dict[str, Any]:
+    """Build a ValidationReport for a publish attempt (Phase 6 Critic/HITL)."""
+    checks_v0: list[dict[str, Any]] = []
+    checks_v2: list[dict[str, Any]] = []
+    evidence: list[dict[str, str]] = []
+
+    if offer:
+        schema_result = validate_artifact(
+            "dataspace-offer.schema.json",
+            offer,
+            artifact_id=str(offer.get("uid") or "offer"),
+            artifact_type="process-output",
+        )
+        if schema_result["valid"]:
+            checks_v0.append({"id": "offer-schema", "status": "pass"})
+        else:
+            checks_v0.append(
+                {
+                    "id": "offer-schema",
+                    "status": "fail",
+                    "detail": "; ".join(e.get("detail", "") for e in schema_result["errors"]),
+                }
+            )
+    else:
+        checks_v0.append({"id": "offer-schema", "status": "skipped", "detail": "no offer"})
+
+    if status == "rejected":
+        checks_v2.append(
+            {
+                "id": "access-gate",
+                "status": "pass",
+                "detail": reason or "rejected by accessClass gate",
+            }
+        )
+        evidence.append({"ref": "accessClass", "note": reason or access_class})
+        verdict = "fail"
+        v4 = {"status": "pending", "checks": [{"id": "hitl", "status": "fail", "detail": "HITL required"}]}
+    elif access_class == "restricted":
+        if force_hitl and offer and offer.get("hitlApproved"):
+            checks_v2.append({"id": "access-gate", "status": "pass", "detail": "HITL approved"})
+            v4 = {"status": "pass", "checks": [{"id": "hitl", "status": "pass", "detail": "forceHitlApproved"}]}
+            verdict = "pass" if all(c["status"] == "pass" for c in checks_v0 if c["status"] != "skipped") else "fail"
+        else:
+            checks_v2.append({"id": "access-gate", "status": "fail", "detail": "restricted without HITL"})
+            v4 = {"status": "pending", "checks": [{"id": "hitl", "status": "fail"}]}
+            verdict = "needs_human"
+    else:
+        checks_v2.append({"id": "access-gate", "status": "pass", "detail": access_class})
+        v4 = {"status": "not_applicable"}
+        verdict = "pass" if all(c["status"] == "pass" for c in checks_v0 if c["status"] != "skipped") else "fail"
+
+    report: dict[str, Any] = {
+        "id": f"VR-offer-{uuid.uuid4().hex[:8]}",
+        "artifactId": (offer or {}).get("uid") or "offer-rejected",
+        "artifactType": "process-output",
+        "levels": {
+            "V0": {"status": "pass" if all(c["status"] == "pass" for c in checks_v0 if c["status"] != "skipped") else "fail", "checks": checks_v0},
+            "V1": {"status": "not_applicable"},
+            "V2": {"status": "pass" if all(c["status"] == "pass" for c in checks_v2) else "fail", "checks": checks_v2},
+            "V3": {"status": "not_applicable"},
+            "V4": v4,
+        },
+        "verdict": verdict,
+        "evaluatorRun": "lake-publish#offer",
+        "evaluatedAt": utc_now(),
+    }
+    if evidence:
+        report["evidence"] = evidence
+    return report
+
+
 def publish_dataset(
     *,
     lake_uri: str | None = None,
@@ -97,7 +177,6 @@ def publish_dataset(
     key = lake_key or lake_uri.split(f"{DEFAULT_BUCKET}/")[-1]
     cls = access_class
     if not cls:
-        # infer from deny defaults / inventory if present
         inv_path = NLDT_ROOT / "data" / "lake-inventory.json"
         if inv_path.is_file():
             for row in json.loads(inv_path.read_text(encoding="utf-8")).get("datasets") or []:
@@ -110,11 +189,19 @@ def publish_dataset(
 
     err = _deny_publish(cls, force_hitl_approved)
     if err:
+        report = _offer_validation_report(
+            offer=None,
+            status="rejected",
+            access_class=cls,
+            force_hitl=force_hitl_approved,
+            reason=err,
+        )
         return {
             "status": "rejected",
             "reason": err,
             "accessClass": cls,
             "lakeUri": lake_uri,
+            "validationReport": report,
         }
 
     ds_id = dataset_id or key.replace("/", "-")
@@ -128,11 +215,29 @@ def publish_dataset(
         offer["status"] = "published"
         offer["hitlApproved"] = True
 
+    # Schema-validate before persistence
+    schema_result = validate_artifact(
+        "dataspace-offer.schema.json",
+        offer,
+        artifact_id=str(offer["uid"]),
+        artifact_type="process-output",
+    )
+    if not schema_result["valid"]:
+        report = schema_result["validationReport"]
+        report["verdict"] = "fail"
+        return {
+            "status": "rejected",
+            "reason": "offer failed dataspace-offer.schema.json",
+            "accessClass": cls,
+            "lakeUri": lake_uri,
+            "validationReport": report,
+            "schemaErrors": schema_result["errors"],
+        }
+
     offers = _offers_dir()
     path = offers / f"{offer['uid']}.json"
     path.write_text(json.dumps(offer, indent=2), encoding="utf-8")
 
-    # also store under lake offers/
     client = get_lake_client()
     client.put_bytes(
         f"offers/{offer['uid']}.json",
@@ -140,14 +245,21 @@ def publish_dataset(
         content_type="application/json",
     )
 
-    from services.adapters.dataspace_connector import mock_register_offer
+    from services.adapters.dataspace_connector import register_offer
 
-    connector = mock_register_offer(offer)
+    connector = register_offer(offer)
+    report = _offer_validation_report(
+        offer=offer,
+        status="ok",
+        access_class=cls,
+        force_hitl=force_hitl_approved,
+    )
     return {
         "status": "ok",
         "offer": offer,
         "offerPath": str(path),
         "connector": connector,
+        "validationReport": report,
     }
 
 

@@ -80,10 +80,10 @@ See [09-federation-and-observability.md](09-federation-and-observability.md).
 **Deliverable:** `orchestrator.run --recipe breda-scan-qa|utrecht-scenario-sweep|eindhoven-bp2op`
 with ValidationReport + PROV; catalog discoverable; per-PoC CLI remains as engine.
 
-### Phase 6 — Data lake & European Data Space 🔲
+### Phase 6 — Data lake & European Data Space ✅
 
 > Hybrid: lake = storage, Data Space = sharing layer.  
-> Plan: [13-data-lake-and-space.md](13-data-lake-and-space.md)
+> Plan: [13-data-lake-and-space.md](13-data-lake-and-space.md) · **done 2026-09-15**
 
 | Item | Status |
 |------|--------|
@@ -94,11 +94,15 @@ with ValidationReport + PROV; catalog discoverable; per-PoC CLI remains as engin
 | dbt Core (`dbt-duckdb`) marts | Done (`dbt_lake/`) |
 | Catalog dataset Records + `lake://` URI | Done |
 | Publish process + ODRL stub + mock connector | Done (`lake-publish-dataset`) |
-| Uniform Critic/HITL on offers | Open (reuse V4) |
-| Production IDS/EDC connector | Open |
+| Uniform Critic/HITL on offers | **Done** (recipe `lake-publish-offer`, ValidationReport V0/V2/V4) |
+| Pluggable IDS/EDC connector | **Done** (`mock` \| `edc-manifest` \| `http` via `NLDT_DATASPACE_CONNECTOR`) |
 
-**Deliverable:** Utrecht+Breda silver/gold in lake; `lake-publish-dataset` for `open`;
-restricted refuses without HITL; dbt marts over inventory.
+**Deliverable:** Utrecht+Breda silver/gold in lake; `lake-publish-dataset` / recipe for `open`;
+restricted refuses without HITL; EDC manifests for operator import; dbt marts over inventory.
+
+> Note: a live Eclipse Dataspace Connector deployment is **out of band** — point
+> `NLDT_EDC_MANAGEMENT_URL` at a real management API when available; until then
+> `edc-manifest` / http-fallback writes importable Asset+ContractDefinition JSON.
 
 ## Success criteria
 
@@ -111,6 +115,7 @@ restricted refuses without HITL; dbt marts over inventory.
 | 5 | Schema-validated outputs + PROV | ✅ |
 | 6 | Testbed 2026 phase 2/3 alignment | ✅ (docs + interfaces) |
 | 7 | One governed agent layer over ≥2 PoCs via nLDT/MCP | ✅ Phase 5: processes+recipes+MCP+Critic/HITL for Utrecht/Breda/Rijnland/Eindhoven |
+| 8 | Lake publish with Critic/HITL + pluggable EDC connector | ✅ Phase 6: `lake-publish-offer`, ValidationReport, mock/edc-manifest/http |
 
 ## Verification
 

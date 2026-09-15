@@ -1,0 +1,59 @@
+{
+  "id": "lake-publish-offer",
+  "title": "Publish lake dataset as Data Space offer",
+  "description": "Phase 6: create an ODRL-stub Data Space offer over a lake:// URI. accessClass=restricted requires forceHitlApproved and Critic V4.",
+  "version": "1.0.0",
+  "tags": ["lake", "dataspace", "publish", "odrl", "phase-6"],
+  "requiredProcesses": ["lake-publish-dataset"],
+  "inputs": {
+    "lakeUri": {
+      "type": "string",
+      "description": "lake:// or s3:// URI",
+      "required": true
+    },
+    "accessClass": {
+      "type": "string",
+      "description": "open|internal|restricted",
+      "required": false
+    },
+    "datasetId": {
+      "type": "string",
+      "description": "Dataset id for the offer",
+      "required": false
+    },
+    "license": {
+      "type": "string",
+      "description": "License string",
+      "required": false
+    },
+    "forceHitlApproved": {
+      "type": "boolean",
+      "description": "HITL override for restricted",
+      "required": false
+    }
+  },
+  "outputs": {
+    "result": {
+      "type": "json",
+      "description": "Publish result (offer + validationReport + connector)"
+    }
+  },
+  "steps": [
+    {
+      "id": "publish",
+      "processId": "lake-publish-dataset",
+      "title": "Publish Data Space offer",
+      "inputs": {
+        "lakeUri": "${recipe.inputs.lakeUri}",
+        "accessClass": "${recipe.inputs.accessClass}",
+        "datasetId": "${recipe.inputs.datasetId}",
+        "license": "${recipe.inputs.license}",
+        "forceHitlApproved": "${recipe.inputs.forceHitlApproved}"
+      },
+      "outputs": { "result": "result" },
+      "backend": "local"
+    }
+  ],
+  "riskLevel": "high",
+  "cookbookUri": "http://localhost:8081/recipes/lake-publish-offer"
+}

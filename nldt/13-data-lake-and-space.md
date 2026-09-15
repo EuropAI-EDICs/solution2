@@ -183,12 +183,37 @@ Dataset records in catalog_adapter contain at least:
 ## Data Space participant
 
 1. **Identity** — Keycloak/OIDC (existing toolbox path).
-2. **Connector** — thin mock first (`services/adapters/dataspace_connector.py`);
-   later IDS/EDC or EDIC reference connector.
-3. **Policies** — ODRL stub per offer (`schemas/dataspace-offer.schema.json`).
-4. **Publish** — process `lake-publish-dataset` + API; refuses `restricted`
-   without `forceHitlApproved=true`.
+2. **Connector** — pluggable (`services/adapters/dataspace_connector.py`):
+   - `NLDT_DATASPACE_CONNECTOR=mock` (default) — local registry
+   - `edc-manifest` — Eclipse Dataspace Connector–shaped Asset +
+     ContractDefinition JSON under `data/dataspace/edc-manifests/`
+   - `http` — POST to `NLDT_EDC_MANAGEMENT_URL/v3/assets`; on missing URL or
+     transport error, writes the same manifest as fallback
+3. **Policies** — ODRL stub per offer (`schemas/dataspace-offer.schema.json`),
+   schema-validated before persistence.
+4. **Publish** — process `lake-publish-dataset` + recipe `lake-publish-offer`;
+   refuses `restricted` without `forceHitlApproved=true`.
+5. **Critic / HITL** — every publish returns a `ValidationReport` (V0 schema,
+   V2 access gate, V4 HITL for restricted). Orchestrator reuses the same
+   report shape as PoC recipes.
 
+```bash
+# Open offer (orchestrator, offline)
+NLDT_OFFLINE=1 PYTHONPATH=. python -m agents.orchestrator.run \
+  --request "Publish gold" --recipe lake-publish-offer \
+  --input lakeUri=lake://nldt-poc-lake/gold/utrecht/run/demo/out.json \
+  --input accessClass=open --input datasetId=demo-open \
+  --no-register-pv --no-export-3d
+
+# Restricted with HITL already recorded
+NLDT_DATASPACE_CONNECTOR=edc-manifest PYTHONPATH=. python -c "
+from services.lake.publish import publish_dataset
+print(publish_dataset(
+  lake_uri='lake://nldt-poc-lake/bronze/rijnland/peilen/x.json',
+  access_class='restricted', force_hitl_approved=True,
+  dataset_id='peilen')['connector'])
+"
+```
 ---
 
 ## nLDT integration

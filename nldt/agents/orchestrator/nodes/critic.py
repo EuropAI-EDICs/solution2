@@ -128,10 +128,43 @@ def _validate_poc_outputs(recipe_id: str, outputs: dict[str, Any]) -> tuple[list
         summary = outputs.get("summary") or {}
         if summary.get("runDir") or summary.get("mode") in ("replay", "execute"):
             checks_v2.append({"id": "bp2op", "status": "pass"})
-            # Legal conversion always needs human sign-off at V4 when HITL not auto-approved
-            # (handled in validate_outputs via plan.requiresHitl).
         else:
             checks_v2.append({"id": "bp2op", "status": "fail", "detail": "missing summary"})
+            verdict = "fail"
+
+    elif recipe_id == "lake-publish-offer":
+        result = outputs.get("result") or {}
+        status = result.get("status")
+        offer = result.get("offer")
+        report = result.get("validationReport") or {}
+        if status == "rejected":
+            checks_v2.append(
+                {
+                    "id": "publish-gate",
+                    "status": "pass",
+                    "detail": result.get("reason") or "rejected",
+                }
+            )
+            # Gate worked — orchestrator still marks fail so agents do not treat as published
+            verdict = "fail"
+            if report.get("verdict") == "needs_human":
+                verdict = "needs_human"
+        elif status == "ok" and offer:
+            try:
+                validate_instance(offer, "dataspace-offer.schema.json")
+                checks_v2.append({"id": "offer-schema", "status": "pass"})
+            except Exception as exc:
+                checks_v2.append({"id": "offer-schema", "status": "fail", "detail": str(exc)})
+                verdict = "fail"
+            if offer.get("accessClass") == "restricted" and not offer.get("hitlApproved"):
+                checks_v2.append({"id": "offer-hitl", "status": "fail", "detail": "missing hitlApproved"})
+                verdict = "needs_human"
+            else:
+                checks_v2.append({"id": "publish-ok", "status": "pass"})
+            if result.get("connector"):
+                checks_v2.append({"id": "connector", "status": "pass"})
+        else:
+            checks_v2.append({"id": "publish-ok", "status": "fail", "detail": str(status)})
             verdict = "fail"
 
     elif recipe_id in POC_RECIPES:
@@ -205,7 +238,12 @@ def validate_outputs(state: dict[str, Any]) -> dict[str, Any]:
 
     poc_checks, v2_status, poc_verdict, evidence = _validate_poc_outputs(recipe_id, outputs)
     v1 = "pass" if all(c["status"] == "pass" for c in checks_v1) else "fail"
-    verdict = "pass" if v1 == "pass" and poc_verdict == "pass" else "fail"
+    if poc_verdict == "needs_human":
+        verdict = "needs_human"
+    elif v1 == "pass" and poc_verdict == "pass":
+        verdict = "pass"
+    else:
+        verdict = "fail"
 
     requires_hitl = bool(plan.get("requiresHitl"))
     auto = bool(state.get("auto_approve_hitl"))
