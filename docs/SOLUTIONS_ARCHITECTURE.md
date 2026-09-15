@@ -2,11 +2,12 @@
 
 | | |
 |---|---|
-| Document | `docs/SOLUTIONS_ARCHITECTURE.md` · v1.2 · **2026-08-31** |
-| Specializes | `MULTI_AGENT_PLAN.md` v1.2 (§3–§8). That plan is the general spec; this document specializes it for the Utrecht pilot **and fixes the concrete module/data/contract layout** any such pilot follows. It does not repeat the plan — section numbers below link back to it. GenAI seam catalogue (which model roles exist and their gates): `docs/GENAI_SEAMS.md`. |
+| Document | `docs/SOLUTIONS_ARCHITECTURE.md` · v1.3 · **2026-09-15** |
+| Specializes | `MULTI_AGENT_PLAN.md` v1.2 (§3–§8). That plan is the general spec; this document specializes it for the Utrecht pilot **and fixes the concrete module/data/contract layout** any such pilot follows. It does not repeat the plan — section numbers below link back to it. GenAI seam catalogue (which model roles exist and their gates): `docs/GENAI_SEAMS.md`. Platform layer that now wraps this pilot (and sibling PoCs): `nldt/00-architecture.md`. |
 | Pilot instance | Three tracks on one instrument (Omgevingsverordening provincie Utrecht, CVDR704250): **wind** (turbines ≥3 MW and ≤20 m hub paths), **zon** (zonnevelden / solar fields), **bos** (nieuwe natuur / forest planting), province Utrecht (NL) |
 | Grounding inputs | Legal recon: `docs/research/legal-facts.md` + `poc/corpus/*.json` (23 sources, 34 cite-verified evidence records: wind 24 · zon 5 · bos 5) · Geo recon: `docs/research/geo-catalog.md` + `poc/data/sources.json` (78 schema-validated service entries) |
 | Papers served | A = `extracted/geoai_cop.md` (emergency-management COP) · B = `extracted/udt_genai.md` (GenAI opportunity finding in UDTs; its future-work section explicitly requests this Utrecht pilot) |
+| Platform status (v1.3) | **nLDT Phase 5–6 done**: governed agent layer (`nldt/12`), medallion data lake + Data Space publish (`nldt/13`), source monitor (`nldt/17`), DONL CKAN harvest (`nldt/18`). Utrecht engines remain SoT under `poc/`. |
 
 ---
 
@@ -21,6 +22,8 @@
 **Relation to the papers.** Paper A contributes the opportunity-map generator pattern (A1) whose known failure — one agent drowning in hundreds of policy documents — is answered by the plan's fan-out Norm Analyst; the expert-validation role (A4) becomes the V4 HITL checkpoint. Paper B contributes the "where can I do what?" question (B1), the GML-output requirement (B2), the corpus-quality lesson (B4) and the open-source/transparency constraint (B5), and names this exact pilot (Utrecht geodata + Omgevingsvisie; windmill space, solar fields, forest planting, power-net congestion) as its future work.
 
 **Relation to the EU LDT Toolbox — wrap, don't rebuild.** As plan §3.4 states, domain models stay deterministic services that agents call; the multi-agent layer adds legal interpretation, orchestration and validation (catalogue: https://interoperable-europe.ec.europa.eu/collection/ldttoolbox/solutions-catalogue). This pilot applies the same principle one level down: the **province's existing authoritative services are wrapped, never re-derived** — the vigerende Omgevingsverordening geometry is consumed from the province's own IMOW-referenced FeatureServer, the consolidated legal text from the CVDR, and the planMER constraint layers from the province's ArcGIS Hub. The PoC adds only what those sources lack: formalized rules, zone algebra, validation and provenance.
+
+**Relation to nLDT (v1.3).** Since September 2026 the Utrecht pipeline is one **engine** behind the nLDT front door: OGC API Records / Processes / Recipes, LangGraph orchestrator, MCP tools, Critic/HITL/PROV, and a medallion data lake with European Data Space offers (`nldt/`). Sibling engines (Breda five-value scan, Rijnland peilen, Eindhoven bp2op) share the same gates. This document remains the **Utrecht solutions architecture**; the platform hub is [`nldt/00-architecture.md`](../nldt/00-architecture.md). Doctrine is unchanged: *AI proposes · pipeline disposes · human decides* ([`docs/GENAI_SEAMS.md`](GENAI_SEAMS.md)).
 
 ---
 
@@ -41,7 +44,7 @@
 | RES / regional energy coordinator | Provincial-scale siting envelope minus hard/complex constraints | design |
 | Developer / energy cooperative | Screening map + the exact article quotes behind every excluded area | permission |
 | GIS analyst | Schema-validated GeoJSON/GML + reproducible cache | all |
-| Citizen (future, V4/Participate) | Contestable, traceable justification per zone | design (Phase 5) |
+| Citizen (future, V4/Participate) | Contestable, traceable justification per zone | design (HITL / wallet track) |
 
 **Use cases.** Wind, zon and bos — all three implemented end-to-end (canonical runs `poc/runs/20260830T113234Z-wind`, `…T142439Z-zon`, `…T142446Z-bos`, all verdict **pass** with V3 IoU ≥ 0.9997); power-net congestion — art. 5.10/5.11 energietoets + grid data — is the next track candidate (plan §3.4 EnergyCast role). The operational plane (paper A's VA, plan §3.1 right column) is **future scope** (Phase 3).
 
@@ -50,7 +53,7 @@
 - *"What if?"* — scenario sweeps mutate the formalized rule set (drop a rule, flip its zoneSemantics, vary a cited buffer distance) under a provenance contract (`baseline | norm_variance | policy_variant | hypothetical`; hypotheticals are stamped **NOT legally grounded**), re-execute the full zone algebra per variant against cached layers, and report deltas/IoU vs. a re-executed control. Scenario authors: deterministic (offline golden set) and an optional local open model (Ollama qwen3.8 verified) whose proposals pass the same schema + grounding gates before anything executes (seam S7, `docs/GENAI_SEAMS.md`). Canonical LLM-authored run: `poc/scenario-runs/20260831T175842Z-zon-scen/` (10/10 proposals grounded; the model's narration passed every gate).
 - *"Where do the tracks collide?"* — the cross-track overlay re-executes each track's unmutated control and quantifies pairwise conflicts plus claims on shared instrument zones. Canonical finding (`poc/crosstrack-runs/20260831T094204Z-wzb-xtrack/`): **94.7% of the zoekgebied nieuwe natuur is simultaneously open to zonnevelden** — the art.-6.5a-lid-3 compensation duty is the only legal buffer between the two provincial ambitions; wind × zon compete on 845.4 km².
 
-**Policy-cycle stages (plan §4).** Design: ambition/scenario maps (visie-level, non-binding — flagged as such). Programming: opportunity maps from the verordening (this PoC). Permission: per-location rule dossier + V4 signature (Phase 5). Monitoring: re-run V1/V3 on instrument or service refresh — critical because a major verordening amendment is pending (PS 18-11-2026, in werking 01-01-2027, https://zoek.officielebekendmakingen.nl/prb-2026-12.html).
+**Policy-cycle stages (plan §4).** Design: ambition/scenario maps (visie-level, non-binding — flagged as such). Programming: opportunity maps from the verordening (this PoC). Permission: per-location rule dossier + V4 signature (HITL / wallet track open). Monitoring: source monitor + re-run V1/V3 on instrument or service refresh — critical because a major verordening amendment is pending (PS 18-11-2026, in werking 01-01-2027, https://zoek.officielebekendmakingen.nl/prb-2026-12.html); ArcGIS + DONL continuity probes ship as `source-monitor-run` ([`nldt/17-source-monitor.md`](../nldt/17-source-monitor.md)).
 
 ---
 
@@ -80,29 +83,37 @@
 
 Legal sources are consumed **read-only and version-pinned** (snapshot under `docs/research/sources/`); geo sources are consumed through the query mechanics verified in geo-catalog §1 (AGOL: `f=geojson&outSR=28992`, pagination via `resultOffset`, simplification via `maxAllowableOffset`; agrest: `f=json&returnGeometry=true`, pages of 1000; no WFS/OGC-API anywhere on the stack).
 
-### 3.2 Container view — PoC now vs. target
+### 3.2 Container view — PoC engine vs. nLDT platform (v1.3)
 
 ```
-  PoC (now)                                    Target (plan §3.3/§6)
-  ─────────                                    ─────────────────────
-  ┌ one python3 process ──────────────┐        ┌ orchestrator graph (LangGraph 1.0, checkpointed,
-  │ poc/run.py       (CLI orchestrator)         HITL interrupts; N8N as ops trigger)
-  │ poc/pipeline/*.py (agent-stage mods)        ┌ MCP tool servers ──────────────────────────┐
-  │  agents·geodata·engine·cartographer        │ postgis-mcp · ogc/qgis-mcp · bag3d-mcp ·  │
-  │  critic·explainer·report·contracts         │ docstore-mcp (corpus+pgvector) · kg-mcp    │
-  │  scenarios·scenario_author·crosstrack      │ rule-engine-mcp · artifact/trace stores    │
-  │ stores on disk:                   │   ──▶  └────────────────────────────────────────────┘
-  │  poc/corpus/   legal evidence     │        vector index (tri-modal, B3) · KG (RDF/SHACL)
-  │  poc/data/     geo registry+cache │        EU LDT Integrated Environment (deployment shell)
-  │  poc/runs/<id>        artifacts   │        open-source models (B5) behind llm_hook
-  │  poc/scenario-runs/<id>  sweeps   │
-  │  poc/crosstrack-runs/<id> overlays│
-  └ stdlib+geo stack; core offline ───┘
-        ▲ propose-only (temperature 0, gated)
-        └─ optional local open model (Ollama qwen3.8; scenario author/narrator seams only)
+  PoC engine (unchanged SoT)                 nLDT platform (done Phase 5–6)
+  ──────────────────────────                 ──────────────────────────────
+  ┌ one python3 process ──────────────┐      ┌ AppStore · Cookbook · Cook ─────────────┐
+  │ poc/run.py       (CLI orchestrator)       │ catalog_adapter :8083 (OGC Records)     │
+  │ poc/pipeline/*.py (agent-stage mods)      │ cookbook :8081 · process_adapter :8082  │
+  │  agents·geodata·engine·cartographer       │ LangGraph orchestrator + MCP tools      │
+  │  critic·explainer·report·contracts        │ Critic / HITL / PROV (shared schemas)   │
+  │  scenarios·scenario_author·crosstrack     └──────────────────────────────────────────┘
+  │ stores on disk:                   │              │
+  │  poc/corpus/   legal evidence     │              ▼
+  │  poc/data/     geo registry+cache │      ┌ Medallion data lake ─────────────────────┐
+  │  poc/runs/<id>        artifacts   │      │ bronze · silver · gold · catalog/dcat    │
+  │  poc/scenario-runs/<id>  sweeps   │      │ FS or MinIO (NLDT_LAKE_BACKEND)          │
+  │  poc/crosstrack-runs/<id> overlays│      │ Iceberg + DuckDB/dbt lakehouse           │
+  └ stdlib+geo stack; core offline ───┘      │ lake-publish → ODRL offer → EDC connector│
+        ▲ propose-only (temperature 0, gated) └──────────────────────────────────────────┘
+        └─ optional local open model (Ollama)         ▲
+                                                      │ harvest / monitor
+                                      data.overheid.nl CKAN · ArcGIS registries
 ```
 
-The PoC deliberately collapses the target's MCP servers into in-process modules with the **same boundaries**: `pipeline/geodata.py` speaks only to `poc/data/sources.json` + cache exactly as a future `ogc-mcp` would. Migration = moving the module behind an MCP server; agent code and contracts do not change.
+The PoC still collapses MCP into in-process modules with the **same boundaries**
+(`pipeline/geodata.py` ↔ registry+cache). Migration path is **done for the
+front door**: recipes `utrecht-opportunity-map`, `utrecht-scenario-sweep`,
+`utrecht-crosstrack` call the engine via OGC Processes; silver/gold sync into
+the lake; publish is gated (`accessClass` + HITL). Detail:
+[`nldt/12-governed-agent-layer.md`](../nldt/12-governed-agent-layer.md),
+[`nldt/13-data-lake-and-space.md`](../nldt/13-data-lake-and-space.md).
 
 ### 3.3 Component view — PoC pipeline (track-generic)
 
@@ -178,10 +189,10 @@ validation levels and artifacts are unchanged.
 ```
 
 The invariant across all three extensions: **models propose, deterministic
-engines dispose** (`docs/GENAI_SEAMS.md` S1–S8; S7/S8 implemented and verified
-against a live qwen3.8 — findings and gate lessons in its §5). Nothing a model
-emits reaches a zone computation, an artifact or the prose without a
-deterministic gate deciding first.
+engines dispose** (`docs/GENAI_SEAMS.md` S1–S9, SM, L6, DONL; S7/S8
+implemented and verified against a live qwen3.8 — findings and gate lessons
+in its technical annex). Nothing a model emits reaches a zone computation,
+an artifact or the prose without a deterministic gate deciding first.
 
 ---
 
@@ -245,7 +256,27 @@ poc/data/cache/<source-id>.28992.geojson   # normalized EPSG:28992 twin (metric 
 poc/data/cache/<source-id>.4326.geojson    # WGS84 / RFC 7946 twin (output serialization)
 ```
 
-Per-fetch provenance (exact query URL+params, `fetchedAt`, featureCount, sha256 of the response, HTTP status) is recorded per layer in each run's `layers.json` manifest (plus the geo-source registry `poc/data/sources.json`); the cache is re-used only when the instrument version pin and the registry entry are unchanged. Scenario-plane artifacts live beside them: `poc/scenario-runs/<id>/` (report+markdown, per-scenario GeoJSON incl. `CONTROL`, proposal + rejection ledgers, narrative + rejection ledger, validation, PROV) and `poc/crosstrack-runs/<id>/` (conflicts, shared-zone claims, controls, validation, PROV) — all replayable offline from the cache. Future (plan §3.3): PostGIS `exposure` as zone store behind `postgis-mcp`, pgvector corpus index (`docstore-mcp`), RDF/SHACL KG of norms (`kg-mcp`) whose shapes double as V3 rules.
+Per-fetch provenance (exact query URL+params, `fetchedAt`, featureCount, sha256 of the response, HTTP status) is recorded per layer in each run's `layers.json` manifest (plus the geo-source registry `poc/data/sources.json`); the cache is re-used only when the instrument version pin and the registry entry are unchanged. Scenario-plane artifacts live beside them: `poc/scenario-runs/<id>/` (report+markdown, per-scenario GeoJSON incl. `CONTROL`, proposal + rejection ledgers, narrative + rejection ledger, validation, PROV) and `poc/crosstrack-runs/<id>/` (conflicts, shared-zone claims, controls, validation, PROV) — all replayable offline from the cache.
+
+### 5.4 Medallion data lake & Data Space (v1.3)
+
+Utrecht working sets remain the **engine cache**. The nLDT lake is the
+**canonical technical store** for sharing, inventory and lakehouse analytics
+([`nldt/13-data-lake-and-space.md`](../nldt/13-data-lake-and-space.md)):
+
+| Zone | Meaning for this pilot | Typical keys |
+|------|------------------------|--------------|
+| **bronze** | Unchanged source snapshots (ArcGIS/PDOK/DONL bytes as received) | `bronze/utrecht/…`, `bronze/donl/…` |
+| **silver** | Normalised dual-CRS GeoJSON, `sources.json`, service manifests | `silver/utrecht/layers/…`, `silver/utrecht/meta/…` |
+| **gold** | Schema-valid run / scenario / crosstrack artifacts + PROV | `gold/utrecht/{run,scenario,crosstrack}/…` |
+
+**Communication protocol.** Agents and Cook resolve `file://`, `lake://nldt-poc-lake/{key}` or `s3://…` the same way. Discovery uses OGC Records; execution uses OGC Processes; cross-org sharing uses an ODRL offer via the pluggable connector (`mock` \| `edc-manifest` \| `http`) — peers do not get raw MinIO credentials. Default `accessClass` for Utrecht silver/gold is `open`; peilen-class restricted assets (other PoCs) require HITL.
+
+**National discovery.** Curated harvest from [data.overheid.nl](https://data.overheid.nl) (CKAN → DCAT-AP-NL catalog records; downloads vs WFS/WMS as DataService) lands in the same lake ([`nldt/18-donl-harvest.md`](../nldt/18-donl-harvest.md)). DONL is a metadata hub, not a blob store.
+
+**Continuity.** Source monitor probes ArcGIS registries used by this pilot and DONL `metadata_modified` / resource URLs; patch proposals are never auto-applied ([`nldt/17-source-monitor.md`](../nldt/17-source-monitor.md)).
+
+**Ops.** `scripts/lake_sync.py --poc utrecht` · `build_lake_inventory.py` · optional MinIO (`NLDT_LAKE_BACKEND=s3`) · recipe `lake-publish-offer` for Data Space offers. Future KG/pgvector stores (plan §3.3) remain optional behind MCP; they are not required for the lake path.
 
 ---
 
@@ -292,23 +323,24 @@ The pluggable judge: the `llm_hook` callable (optional parameter, no-op default 
 
 **PoC runtime (verified on this machine, 2026-08-31).** python3 3.13 · shapely 2.1.2 · pyproj 3.7.2 · geopandas 1.1.3 · fiona 1.10.1 · requests 2.33.1 · jinja2 3.1.6 · jsonschema 4.25.1. CLI tools: `ogr2ogr`, `pdftotext` (both `/opt/homebrew/bin`). **No API keys of any kind; the core track pipeline runs fully offline** — every agent is a deterministic implementation behind an interface with an optional `llm_hook`. The scenario plane adds an optional **local open-model leg** (paper B constraint B5): Ollama serving `qwen3.8:latest` (also verified: `qwen3.6:27b-mlx`) via its native `/api/chat` (the OpenAI-compat layer ignores `think:false` and lets reasoning-mode models burn the completion budget), temperature 0, `num_predict` 4096, configured by `LDT_SCENARIO_LLM_ENDPOINT` / `_API` / `_MODEL` / `_TIMEOUT`. Deployment = a workspace directory; runs are files under `poc/runs/<run-id>/`, sweeps under `poc/scenario-runs/`, overlays under `poc/crosstrack-runs/`.
 
-**Target evolution (plan §6).** Orchestration → LangGraph 1.0 checkpointed graph (https://docs.langchain.com/oss/python/releases/langgraph-v1) with N8N as ops trigger; tools → MCP servers (registry: https://modelcontextprotocol.io/registry/about; pin/vet versions per plan §7 supply-chain risk); federation → A2A v1.0.0 under the Linux Foundation (https://a2a-protocol.org/latest/specification/), Phase 5; models → open-source only (paper B constraint B5), routed behind `llm_hook`; observability → OTel GenAI semconv + Langfuse. The module boundaries of §4 are chosen so this evolution replaces transport, not logic.
+**Target evolution (plan §6) — status v1.3.** Orchestration → **LangGraph done** (`nldt/agents/orchestrator`, checkpointed HITL); tools → **MCP servers done** (`nldt/services/mcp_servers`, poc-mcp); federation → A2A stub done (`nldt/services/a2a`), Participate/Marketplace live endpoints still out of band; models → open-source only (paper B constraint B5), routed behind `llm_hook` / Ollama; observability → OTel API present, OTLP exporter still open; **data plane** → medallion lake + Iceberg/dbt + Data Space connector **done** (`nldt/13`). Module boundaries of §4 still hold: evolution replaces transport, not zone algebra.
 
 ---
 
-## 9. Phased roadmap alignment (plan §7)
+## 9. Phased roadmap alignment (plan §7 ↔ nLDT)
 
-| Plan phase | Status in this pilot |
+| Plan / nLDT phase | Status in this pilot |
 |---|---|
-| **Phase 0** foundations | Largely done: legal corpus pinned + snapshotted (23 sources, 34 evidence records across three tracks); geo services catalogued + schema-validated registry (78); golden-set material identified (planMER resterende ruimte, province focus-group analog); missing: tri-modal bindings, OTel wiring, GS-1 formal freeze |
+| **Phase 0** foundations | Largely done: legal corpus pinned + snapshotted (23 sources, 34 evidence records across three tracks); geo services catalogued + schema-validated registry (78); golden-set material identified (planMER resterende ruimte, province focus-group analog); missing: tri-modal bindings, GS-1 formal freeze |
 | **Phase 1** single-agent baseline + V0–V3 harness | **Done, ×3 tracks**: full deterministic pipeline (Intake→Explainer) with V0–V3 checks and independent re-execution for wind, zon and bos (all verdict pass; canonical runs 2026-08-30); planMER `Resterende ruimte` identified as benchmark material but not yet wired in |
-| **Phase 1b** scenario plane + GenAI seams | **Done**: deterministic scenario sweeps with provenance-basis contracts (`poc/pipeline/scenarios.py`); seam catalogue S1–S8 (`docs/GENAI_SEAMS.md`); S7 author + S8 narrator seams verified against a live local open model (B2: qwen3.8, 10/10 grounded proposals, gated narration; golden-set author regression); cross-track conflict overlay (phase C deterministic base). 169 offline tests for `poc/` + 32 for `poc-bp2op/` |
-| **Phase 2** multi-agent orchestration | Partially realized: the propose/dispose pattern runs live (model proposes scenarios, deterministic gates dispose); remains: S1 norm-harvest fan-out over the full instrument text, S2 formalizer proposals, S3 conversational intake, S4 run-directory RAG, real orchestration graph, Skill export, wrapped VuLens/AeroSense |
-| **Phase 3** KG/BNK/VA operational plane | not started |
-| **Phase 4** 3D pipeline (A2) | not started (3D BAG viewer exists as front-end seed) |
-| **Phase 5** policy-cycle integration & federation | monitoring-stage drift design included (§10); A2A/Participate/Marketplace future |
+| **Phase 1b** scenario plane + GenAI seams | **Done**: deterministic scenario sweeps with provenance-basis contracts (`poc/pipeline/scenarios.py`); seam catalogue S1–S9 / SM / L6 / DONL (`docs/GENAI_SEAMS.md`); S7 author + S8 narrator seams verified against a live local open model (B2: qwen3.8); cross-track conflict overlay |
+| **Phase 2** multi-agent orchestration (plan) | **Superseded by nLDT Phase 5 (done 2026-09-15)**: one governed agent layer — Processes + Recipes + MCP + Critic/HITL/PROV for Utrecht/Breda/Rijnland/Eindhoven ([`nldt/12`](../nldt/12-governed-agent-layer.md)). Still open inside seams: S1–S3 on PoC-1 text, S9 Word/PDF on beleidskompas |
+| **Phase 3** KG/BNK/VA operational plane | not started (KG/pgvector remain future MCP stores) |
+| **Phase 4** 3D / federation (plan) | **Partial**: Web 3D Context + A2A stubs in nLDT ([`nldt/09`](../nldt/09-federation-and-observability.md)); full CityJSON/3D measures still open |
+| **nLDT Phase 6** data lake + Data Space | **Done (2026-09-15)**: medallion lake, `lake-publish-offer`, pluggable EDC connector, DuckDB/Iceberg/dbt ([`nldt/13`](../nldt/13-data-lake-and-space.md)); DONL harvest ([`nldt/18`](../nldt/18-donl-harvest.md)); source monitor MVP ([`nldt/17`](../nldt/17-source-monitor.md)). Live EDC management API still out of band |
+| **Policy-cycle HITL / wallet** | V4 sign-off queue exists as artifact; eID Wallet mock paths done, real OpenID4VP decision-gated ([`nldt/16`](../nldt/16-eid-wallet-identity.md)) |
 
-**Pilot exit criterion (Phase 1):** opportunity maps for province Utrecht — wind, zon and bos — whose every zone traces to NormCard → CVDR704250 article → geometry service, with V3 agreement recorded per track (IoU 0.99994 / 0.99998 / 0.9997) — the quantified "to what extent" answer paper B asks for, in deterministic form, for three of the four use cases paper B names (congestion remaining).
+**Pilot exit criterion (Phase 1):** opportunity maps for province Utrecht — wind, zon and bos — whose every zone traces to NormCard → CVDR704250 article → geometry service, with V3 agreement recorded per track (IoU 0.99994 / 0.99998 / 0.9997) — the quantified "to what extent" answer paper B asks for, in deterministic form, for three of the four use cases paper B names (congestion remaining). **Platform exit (v1.3):** those maps (and sibling PoC gold) are discoverable as OGC Records with `lakeUri`, publishable as Data Space offers under Critic/HITL, and continuity-monitored against silent registry drift.
 
 ---
 
@@ -317,14 +349,16 @@ The pluggable judge: the `llm_hook` callable (optional parameter, no-op default 
 | Risk | Mitigation (this architecture) |
 |---|---|
 | Legal-text drift on re-publication (amendment PS 18-11-2026, in werking 01-01-2027; prb-2026-12) | Corpus pinning + snapshots; `2e_wijziging_WFL1` draft polygons as change-detection feed; re-run recon + V1/V3 monitoring checks before the date; version field on every NormCard |
-| Data staleness / silent service updates | fetch manifests with sha256 + timestamps; cache invalidated only by explicit re-fetch; `lastChecked` surfaced in ZoneResult provenance |
-| ArcGIS service churn (deleted `Natura2000_gebieden_buffers_1__3__5_km`, duplicate republishes, truncated names — all observed) | registry-driven fetching with role metadata; duplicates flagged in geo-catalog §2.3 and never registered twice; probes re-runnable (`poc/data/probe_services.py`) |
+| Data staleness / silent service updates | fetch manifests with sha256 + timestamps; cache invalidated only by explicit re-fetch; `lastChecked` surfaced in ZoneResult provenance; **source monitor** diffs ArcGIS feature counts / `maxRecordCount` / fields and DONL `metadata_modified` + resource URLs — human merges registry patches (V4), never auto-applied (`nldt/17`) |
+| ArcGIS service churn (deleted `Natura2000_gebieden_buffers_1__3__5_km`, duplicate republishes, truncated names — all observed) | registry-driven fetching with role metadata; duplicates flagged in geo-catalog §2.3 and never registered twice; probes re-runnable (`poc/data/probe_services.py`); watchlist-driven `source-monitor-probe` |
 | Norm hallucination | cite-or-abstain at V2 (quote containment vs. snapshot); abstention register; `derivation` labels separating legal-text, planMER and assumption parameters. **Empirically exercised (v1.2)**: the scenario gates caught a real model drift set — hallucinated scenario id, truncated/mismatched numbers, a fabricated verdict claim and a quoted placeholder verdict — each rejection ledgered with deterministic fallback (`docs/GENAI_SEAMS.md` §5); the gates, not the model's good behaviour, are the mitigation |
 | GIO geometry indirection (DSO API 401) | agrest IMOW mirror as proxy with recorded caveat; apply for DSO key as roadmap item; JOIN-id remains the canonical zone key either way |
 | Designation-envelope misreading (1166.5 km² polygon) | envelope semantics enforced in FormalRules (intersect `Landelijk gebied`, subtract constraints); flagged in geo-catalog and legal-facts hand-over |
 | Geometry defects as served | `make_valid` mandatory, V1 gate, ring-orientation-adaptive conversion for agrest esri-JSON |
 | Large-response truncation on agrest (≳20 MB observed) | where-subsets + pagination + per-page feature-count verification |
 | Cost/complexity blow-up in future fan-out | effort budget in OpportunityMapRequest; Orchestrator refuses unbounded plans (plan §3.2 guardrail) |
+| Over-publishing restricted lake assets | `accessClass` + `lake-deny.json`; `lake-publish-dataset` refuses `restricted` without HITL; ODRL offer Critic V0/V2/V4 (`nldt/13`) |
+| Blind national open-data mirror | DONL harvest is curated watchlist + metadata-first; WFS/WMS registered as DataService, not dumped (`nldt/18`) |
 
 ---
 
@@ -351,9 +385,10 @@ Extends plan §8 with the PoC column.
 | B1+ "what if the rules change?" | scenario planning behind gated seams | scenario plane (§3.4): deterministic sweeps + provenance-basis contracts; open-model author/narrator (S7/S8) propose-only, schema+grounding gated, verified live on qwen3.8 |
 | B1+ "where do ambitions collide?" | deterministic overlay over re-executed controls | cross-track conflict engine (`poc/pipeline/crosstrack.py`): pairwise + shared-zone claims; canonical finding zon × bos 94.7% |
 | B congestion use case | EnergyCast as MCP tool | art. 5.10/5.11 energietoets formalized as non-spatial condition; grid model Phase 4/5 |
-| A4 FAIR cross-org sharing | data space + identities | **nLDT Fase 6** — lake + Data Space participant (`nldt/13-data-lake-and-space.md`); mock connector + ODRL stub; production IDS/EDC later |
-| B5 citizen contestability | eParticipation for V4 | V4 review bundle designed as the contestation artifact |
+| A4 FAIR cross-org sharing | data space + identities | **Done (nLDT Phase 6)** — medallion lake + Data Space participant (`nldt/13`); ODRL offers + pluggable EDC connector (`mock`/`edc-manifest`/`http`); live EDC management API out of band; DONL as national discovery (`nldt/18`) |
+| B5 citizen contestability | eParticipation for V4 | V4 review bundle designed as the contestation artifact; wallet-anchored executor/approver claims when wallet mode is on (`nldt/16`) |
+| Data continuity (ops) | monitoring swarm | Source monitor MVP (`nldt/17`) — ArcGIS + DONL probes, human-merge patches |
 
 ---
 
-*Maintained alongside `MULTI_AGENT_PLAN.md` and `docs/GENAI_SEAMS.md`. Facts current as of 2026-08-31; the instrument pin (CVDR704250 geldend 13-10-2025) must be re-verified before 18-11-2026.*
+*Maintained alongside `MULTI_AGENT_PLAN.md`, `docs/GENAI_SEAMS.md` and `nldt/00-architecture.md`. Facts current as of **2026-09-15** (v1.3: nLDT Phase 5–6, lake, DONL, source monitor). The instrument pin (CVDR704250 geldend 13-10-2025) must be re-verified before 18-11-2026.*
