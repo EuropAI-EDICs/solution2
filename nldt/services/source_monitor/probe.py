@@ -120,32 +120,19 @@ def select_sources(
     return sources
 
 
-def probe_registry(
-    registry_path: Path,
-    *,
-    mode: str = "replay",
-    fixture_dir: Path | None = None,
-    allowlist: list[str] | None = None,
-    timeout: float = 30.0,
-) -> dict[str, Any]:
-    registry = load_registry(registry_path)
-    sources = select_sources(registry, allowlist=allowlist)
-    results: list[dict[str, Any]] = []
-    for src in sources:
-        if mode == "live":
-            results.append(probe_source_live(src, timeout=timeout))
+def _registry_snapshot(sources: list[dict[str, Any]]) -> dict[str, Any]:
+    snapshot: dict[str, Any] = {}
+    for s in sources:
+        sid = s.get("id")
+        if s.get("type") == "donl":
+            snapshot[sid] = {
+                "metadataModified": s.get("metadataModified"),
+                "resourceCount": s.get("resourceCount"),
+                "resourceUrls": s.get("resourceUrls"),
+                "lastChecked": s.get("lastChecked"),
+            }
         else:
-            if fixture_dir is None:
-                raise ValueError("fixture_dir required for replay mode")
-            results.append(probe_source_replay(src, fixture_dir))
-    return {
-        "registryPath": str(registry_path),
-        "mode": mode,
-        "probedAt": utc_now(),
-        "sourceCount": len(results),
-        "results": results,
-        "registrySnapshot": {
-            s.get("id"): {
+            snapshot[sid] = {
                 "featureCount": s.get("featureCount"),
                 "maxRecordCount": s.get("maxRecordCount"),
                 "serviceUrl": s.get("serviceUrl"),
@@ -155,6 +142,48 @@ def probe_registry(
                 ],
                 "lastChecked": s.get("lastChecked"),
             }
-            for s in sources
-        },
+    return snapshot
+
+
+def probe_registry(
+    registry_path: Path,
+    *,
+    mode: str = "replay",
+    fixture_dir: Path | None = None,
+    allowlist: list[str] | None = None,
+    timeout: float = 30.0,
+    registry_type: str | None = None,
+) -> dict[str, Any]:
+    from services.source_monitor.donl_probe import (
+        probe_donl_source_live,
+        probe_donl_source_replay,
+    )
+
+    registry = load_registry(registry_path)
+    sources = select_sources(registry, allowlist=allowlist)
+    results: list[dict[str, Any]] = []
+    for src in sources:
+        is_donl = registry_type == "donl" or src.get("type") == "donl"
+        if is_donl:
+            if mode == "live":
+                results.append(probe_donl_source_live(src, timeout=timeout))
+            else:
+                if fixture_dir is None:
+                    raise ValueError("fixture_dir required for replay mode")
+                results.append(probe_donl_source_replay(src, fixture_dir))
+            continue
+        if mode == "live":
+            results.append(probe_source_live(src, timeout=timeout))
+        else:
+            if fixture_dir is None:
+                raise ValueError("fixture_dir required for replay mode")
+            results.append(probe_source_replay(src, fixture_dir))
+    return {
+        "registryPath": str(registry_path),
+        "registryType": registry_type or ("donl" if any(s.get("type") == "donl" for s in sources) else "arcgis"),
+        "mode": mode,
+        "probedAt": utc_now(),
+        "sourceCount": len(results),
+        "results": results,
+        "registrySnapshot": _registry_snapshot(sources),
     }

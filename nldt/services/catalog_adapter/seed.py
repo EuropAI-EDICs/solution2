@@ -54,6 +54,7 @@ def seed_records() -> list[dict[str, Any]]:
         ("lake-publish-dataset", "Publish lake dataset to Data Space (ODRL stub)"),
         ("validate-artifact", "Validate artifact against nLDT/PoC JSON Schema"),
         ("source-monitor-probe", "Source monitor probe (open-data continuity)"),
+        ("donl-harvest-run", "Harvest data.overheid.nl into data lake"),
     ]
     records: list[dict[str, Any]] = []
     for pid, title in processes:
@@ -77,7 +78,11 @@ def seed_records() -> list[dict[str, Any]]:
                                 else (
                                     ["source-monitor", "continuity", "phase-sm"]
                                     if pid == "source-monitor-probe"
-                                    else (["lake", "dataspace"] if pid.startswith("lake-") else [])
+                                    else (
+                                        ["donl", "ckan", "harvest", "data-lake"]
+                                        if pid == "donl-harvest-run"
+                                        else (["lake", "dataspace"] if pid.startswith("lake-") else [])
+                                    )
                                 )
                             )
                         )
@@ -169,6 +174,16 @@ def seed_records() -> list[dict[str, Any]]:
             "source-monitor-run",
             "Source monitor (open-data continuity)",
             ["source-monitor", "continuity", "phase-sm"],
+        ),
+        (
+            "donl-harvest-run",
+            "Harvest data.overheid.nl into data lake",
+            ["donl", "ckan", "harvest", "data-lake", "dcat"],
+        ),
+        (
+            "donl-harvest-publish",
+            "Harvest DONL dataset and publish Data Space offer",
+            ["donl", "harvest", "dataspace", "publish", "edc"],
         ),
     ]
     for rid, title, tags in recipes:

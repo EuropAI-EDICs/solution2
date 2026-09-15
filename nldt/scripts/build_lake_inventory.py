@@ -19,6 +19,7 @@ POC_MAP = {
     "breda": WORKSPACE / "poc-breda",
     "eindhoven": WORKSPACE / "poc-bp2op",
     "rijnland": WORKSPACE / "poc-rijnland",
+    "donl": NLDT_ROOT / "data" / "lake" / "nldt-poc-lake",
 }
 
 
@@ -286,12 +287,88 @@ def invent_rijnland() -> list[dict[str, Any]]:
     return items
 
 
+def invent_donl() -> list[dict[str, Any]]:
+    """Inventory DONL harvest artifacts under the local lake mirror."""
+    lake_root = POC_MAP["donl"]
+    items: list[dict[str, Any]] = []
+    cat_dir = lake_root / "catalog" / "dcat"
+    if cat_dir.is_dir():
+        for p in sorted(cat_dir.glob("*.json")):
+            dataset_id = p.stem
+            key = f"catalog/dcat/{p.name}"
+            items.append(_entry(
+                poc="donl",
+                zone="catalog",
+                kind="dcat-dataset",
+                local_path=p,
+                lake_key=key,
+                source_id="data.overheid.nl",
+                license_="http://creativecommons.org/publicdomain/zero/1.0/",
+            ))
+    svc_dir = lake_root / "silver" / "donl" / "services"
+    if svc_dir.is_dir():
+        for p in sorted(svc_dir.glob("*/manifest.json")):
+            dataset_id = p.parent.name
+            key = f"silver/donl/services/{dataset_id}/manifest.json"
+            items.append(_entry(
+                poc="donl",
+                zone="silver",
+                kind="data-service-manifest",
+                local_path=p,
+                lake_key=key,
+                source_id="data.overheid.nl",
+                license_="http://creativecommons.org/publicdomain/zero/1.0/",
+            ))
+    bronze_ckan = lake_root / "bronze" / "donl" / "ckan"
+    if bronze_ckan.is_dir():
+        for pkg_dir in sorted(bronze_ckan.iterdir()):
+            if not pkg_dir.is_dir():
+                continue
+            snapshots = sorted(pkg_dir.iterdir())
+            if not snapshots:
+                continue
+            latest = snapshots[-1]
+            pkg_json = latest / "package.json"
+            if pkg_json.is_file():
+                rel_key = f"bronze/donl/ckan/{pkg_dir.name}/{latest.name}/package.json"
+                items.append(_entry(
+                    poc="donl",
+                    zone="bronze",
+                    kind="ckan-snapshot",
+                    local_path=pkg_json,
+                    lake_key=rel_key,
+                    source_id="data.overheid.nl",
+                    license_="http://creativecommons.org/publicdomain/zero/1.0/",
+                ))
+    files_root = lake_root / "bronze" / "donl"
+    if files_root.is_dir():
+        for p in sorted(files_root.rglob("*")):
+            if not p.is_file() or p.name.endswith(".sha256") or p.name.endswith(".meta.json"):
+                continue
+            if "ckan" in p.parts and p.name == "package.json":
+                continue
+            rel = p.relative_to(lake_root).as_posix()
+            if "/files/" not in rel:
+                continue
+            items.append(_entry(
+                poc="donl",
+                zone="bronze",
+                kind="download",
+                local_path=p,
+                lake_key=rel,
+                source_id="data.overheid.nl",
+                license_="http://creativecommons.org/publicdomain/zero/1.0/",
+            ))
+    return items
+
+
 def main() -> int:
     datasets = (
         invent_utrecht()
         + invent_breda()
         + invent_eindhoven()
         + invent_rijnland()
+        + invent_donl()
     )
     inv = {
         "version": "1.0",

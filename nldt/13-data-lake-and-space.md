@@ -251,6 +251,54 @@ PYTHONPATH=. python scripts/lake_sync.py --poc utrecht
 
 ---
 
+## DONL (data.overheid.nl) harvest
+
+National open-data discovery via **CKAN Action API** → medallion lake + DCAT catalog.
+DONL is a metadata hub (not an object store); file payloads live at PDOK/CBS/gemeente URLs.
+
+| Path | Contents |
+|------|----------|
+| `bronze/donl/ckan/{id}/{retrievedAt}/package.json` | Raw CKAN snapshot |
+| `bronze/donl/{id}/files/{resourceId}/…` | Downloaded distributions (CSV/ZIP/…) |
+| `silver/donl/services/{id}/manifest.json` | WFS/WMS/Atom as `DataService` (on-demand) |
+| `catalog/dcat/{id}.json` | DCAT-AP-NL 3-shaped dataset record |
+| `silver/donl/meta/harvest-registry.json` | Source-monitor registry (`metadata_modified`, resource URLs) |
+
+**Distribution split:** downloads → bronze; services → silver manifest only (no blind WFS dump).
+
+**Process / recipes:** `donl-harvest-run`, `donl-harvest-publish` (harvest + `lake-publish-dataset`).
+
+**Watchlist:** [`data/donl-watchlist.json`](data/donl-watchlist.json) — curated pilot datasets.
+
+**Source monitor:** watchlist entry `donl-pilot` probes CKAN `metadata_modified` + resource URL reachability ([17-source-monitor.md](17-source-monitor.md)).
+
+```bash
+# Harvest watchlist (metadata + downloads where configured)
+PYTHONPATH=. python scripts/donl_harvest.py --metadata-only
+
+# Single package offline test
+PYTHONPATH=. python -m services.process_adapter.handlers  # or:
+PYTHONPATH=. python -c "
+from services.process_adapter.handlers import execute_local
+print(execute_local('donl-harvest-run', {'packageId': 'demo-donl-dataset', 'metadataOnly': True}))
+"
+
+# End-to-end harvest + Data Space offer (EDC-manifest)
+NLDT_DATASPACE_CONNECTOR=edc-manifest PYTHONPATH=. python -c "
+from services.process_adapter.handlers import execute_local
+print(execute_local('donl-harvest-run', {
+  'packageId': 'demo-donl-dataset',
+  'metadataOnly': True,
+  'publishDatasetId': 'demo-donl-dataset',
+  'accessClass': 'open',
+})['publish']['status'])
+"
+```
+
+Detail: [18-donl-harvest.md](18-donl-harvest.md).
+
+---
+
 ## Governance
 
 - No PII; keep CBS sentinels.

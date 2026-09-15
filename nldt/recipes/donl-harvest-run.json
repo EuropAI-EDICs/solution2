@@ -1,0 +1,47 @@
+{
+  "id": "donl-harvest-run",
+  "title": "Harvest data.overheid.nl into nLDT data lake",
+  "description": "CKAN harvest from DONL watchlist → bronze + catalog/dcat (DCAT-AP-NL). File downloads optional; WFS/WMS registered as DataService manifests in silver.",
+  "version": "1.0.0",
+  "tags": ["donl", "ckan", "harvest", "data-lake", "dcat", "phase-6"],
+  "requiredProcesses": ["donl-harvest-run"],
+  "inputs": {
+    "watchlistPath": {
+      "type": "string",
+      "description": "Path to donl-watchlist.json",
+      "required": false
+    },
+    "packageId": {
+      "type": "string",
+      "description": "Single CKAN package id (overrides watchlist)",
+      "required": false
+    },
+    "metadataOnly": {
+      "type": "boolean",
+      "description": "Skip downloading file distributions",
+      "required": false
+    }
+  },
+  "outputs": {
+    "summary": {
+      "type": "json",
+      "description": "Harvest summary with lake URIs per dataset"
+    }
+  },
+  "steps": [
+    {
+      "id": "harvest",
+      "processId": "donl-harvest-run",
+      "title": "Harvest DONL CKAN packages",
+      "inputs": {
+        "watchlistPath": "${recipe.inputs.watchlistPath}",
+        "packageId": "${recipe.inputs.packageId}",
+        "metadataOnly": "${recipe.inputs.metadataOnly}"
+      },
+      "outputs": { "summary": "summary" },
+      "backend": "local"
+    }
+  ],
+  "riskLevel": "medium",
+  "cookbookUri": "http://localhost:8081/recipes/donl-harvest-run"
+}

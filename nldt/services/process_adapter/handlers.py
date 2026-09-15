@@ -263,6 +263,36 @@ PROCESS_DEFINITIONS_CORE: dict[str, dict[str, Any]] = {
             "summary": {"title": "Monitor summary", "schema": {"type": "object"}},
         },
     },
+    "donl-harvest-run": {
+        "id": "donl-harvest-run",
+        "title": "Harvest data.overheid.nl into data lake",
+        "description": (
+            "CKAN package_search/show → bronze + catalog/dcat (DCAT-AP-NL). "
+            "Downloads file distributions; registers WFS/WMS as DataService manifests."
+        ),
+        "version": "1.0.0",
+        "keywords": ["donl", "ckan", "harvest", "data-lake", "dcat"],
+        "inputs": {
+            "watchlistPath": {"title": "donl-watchlist.json path", "schema": {"type": "string"}},
+            "packageId": {"title": "Single CKAN package id", "schema": {"type": "string"}},
+            "metadataOnly": {
+                "title": "Skip file downloads",
+                "schema": {"type": "boolean", "default": False},
+            },
+            "publishDatasetId": {
+                "title": "After harvest, publish this dataset's DCAT lakeUri",
+                "schema": {"type": "string"},
+            },
+            "accessClass": {
+                "title": "accessClass for publish step",
+                "schema": {"type": "string", "default": "open"},
+            },
+        },
+        "outputs": {
+            "summary": {"title": "Harvest summary", "schema": {"type": "object"}},
+            "publish": {"title": "Optional publish result", "schema": {"type": "object"}},
+        },
+    },
 }
 
 
@@ -357,4 +387,37 @@ def execute_local(process_id: str, inputs: dict[str, Any]) -> dict[str, Any]:
             out_dir=Path(out) if out else None,
         )
         return {"summary": summary}
+    if process_id == "donl-harvest-run":
+        from pathlib import Path
+
+        from services.donl_harvest.harvest import harvest_datasets, harvest_watchlist
+        from services.lake.publish import publish_dataset
+
+        metadata_only = bool(inputs.get("metadataOnly"))
+        if inputs.get("packageId"):
+            summary = harvest_datasets(
+                [str(inputs["packageId"])],
+                download_files=not metadata_only,
+            )
+        else:
+            watchlist = inputs.get("watchlistPath")
+            summary = harvest_watchlist(
+                Path(watchlist) if watchlist else None,
+                download_files=not metadata_only,
+            )
+        publish_result = None
+        publish_id = inputs.get("publishDatasetId")
+        if publish_id:
+            match = next(
+                (d for d in summary.get("datasets") or [] if d.get("datasetId") == publish_id),
+                None,
+            )
+            if match and match.get("dcatLakeUri"):
+                publish_result = publish_dataset(
+                    lake_uri=match["dcatLakeUri"],
+                    dataset_id=publish_id,
+                    access_class=str(inputs.get("accessClass") or "open"),
+                    license_="http://creativecommons.org/publicdomain/zero/1.0/",
+                )
+        return {"summary": summary, "publish": publish_result}
     raise KeyError(f"Unknown process: {process_id}")

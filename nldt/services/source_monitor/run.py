@@ -10,6 +10,7 @@ from uuid import uuid4
 
 from services.common.prov import utc_now
 from services.source_monitor.diff import diff_probe
+from services.source_monitor.donl_probe import diff_donl_probe
 from services.source_monitor.patch import build_patch_proposal
 from services.source_monitor.paths import DEFAULT_FIXTURES, DEFAULT_RUNS, DEFAULT_WATCHLIST, NLDT_ROOT
 from services.source_monitor.probe import probe_registry
@@ -106,14 +107,30 @@ def run_monitor(
         if not reg_path.is_file():
             raise FileNotFoundError(f"registry not found for {entry.get('id')}: {reg_path}")
         allow = entry.get("sourceIds")
+        entry_fixture = entry.get("fixtureDir")
+        resolved_fixture = fixture_dir
+        if mode == "replay" and entry_fixture:
+            candidates = [
+                Path(entry_fixture),
+                NLDT_ROOT / entry_fixture,
+                NLDT_ROOT.parent / entry_fixture,
+            ]
+            for cand in candidates:
+                if cand.is_dir():
+                    resolved_fixture = cand
+                    break
         probe = probe_registry(
             reg_path,
             mode=mode,
-            fixture_dir=fixture_dir if mode == "replay" else None,
+            fixture_dir=resolved_fixture if mode == "replay" else None,
             allowlist=allow,
             timeout=timeout,
+            registry_type=entry.get("type"),
         )
-        diff = diff_probe(probe)
+        if entry.get("type") == "donl" or probe.get("registryType") == "donl":
+            diff = diff_donl_probe(probe)
+        else:
+            diff = diff_probe(probe)
         all_probes.append(probe)
         all_findings.extend(diff.get("findings") or [])
 

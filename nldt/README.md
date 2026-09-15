@@ -30,6 +30,7 @@ Generic reference implementation of a **Dutch Local Digital Twin (nLDT)** for ag
 | [15-cdc-data-lake-pipeline.md](15-cdc-data-lake-pipeline.md) | **Implemented:** CDC lake pipeline + Rijnland peilen what-if map (multi-scenario) |
 | [16-eid-wallet-identity.md](16-eid-wallet-identity.md) | **Plan:** EU Digital Identity Wallet identity layer (BK-3 re-scope) |
 | [17-source-monitor.md](17-source-monitor.md) | **MVP:** open-data continuity probes + human-merge patches |
+| [18-donl-harvest.md](18-donl-harvest.md) | **Implemented:** data.overheid.nl CKAN harvest → lake + Data Space |
 
 ## Code
 

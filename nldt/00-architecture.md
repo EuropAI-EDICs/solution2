@@ -347,6 +347,7 @@ CLI: `PYTHONPATH=. python -m services.cli …`
 | **BK** | Beleidskompas front-door app (BK-0…BK-2 done; BK-3 = wallet track) | [14](14-beleidskompas-integration.md) |
 | **W** | eID Wallet identity (W1/W3/W5 done, mock; W2/W6 real backend) | [16](16-eid-wallet-identity.md) |
 | **SM** | Source monitor (open-data continuity) | [17](17-source-monitor.md) ✅ |
+| **DONL** | data.overheid.nl CKAN harvest → lake + Data Space | [18](18-donl-harvest.md) ✅ |
 
 Open highlights: OTLP exporter ([08](08-roadmap.md)); wallet W2 (real OpenID4VP
 verifier) + W6 (Keycloak OID4VCI issuance) — decision-gated on toolbox IM

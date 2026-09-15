@@ -1,0 +1,55 @@
+{
+  "version": "1.0",
+  "description": "Paths and globs that must not auto-publish to the Data Space; default accessClass overrides.",
+  "denyPublishGlobs": [
+    "poc-rijnland/data/peilen/**",
+    "**/peilen.json",
+    "**/peilen/*.json"
+  ],
+  "defaultAccessClass": {
+    "utrecht": {
+      "bronze": "open",
+      "silver": "open",
+      "gold": "open"
+    },
+    "breda": {
+      "bronze": "open",
+      "silver": "open",
+      "gold": "open"
+    },
+    "eindhoven": {
+      "bronze": "internal",
+      "silver": "internal",
+      "gold": "internal"
+    },
+    "rijnland": {
+      "bronze": "internal",
+      "silver": "internal",
+      "gold": "internal",
+      "peilen": "restricted"
+    },
+    "donl": {
+      "bronze": "open",
+      "silver": "open",
+      "gold": "open",
+      "catalog": "open"
+    }
+  },
+  "pathOverrides": [
+    {
+      "glob": "poc-rijnland/data/peilen/**",
+      "accessClass": "restricted",
+      "reason": "Measured water-level history is not fully public"
+    },
+    {
+      "glob": "poc-bp2op/corpus/**",
+      "accessClass": "internal",
+      "reason": "Offline-by-design corpus until explicit release"
+    },
+    {
+      "glob": "poc/data/cache/h3/**",
+      "accessClass": "internal",
+      "reason": "Regenerable process cache"
+    }
+  ]
+}

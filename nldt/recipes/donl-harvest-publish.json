@@ -1,0 +1,55 @@
+{
+  "id": "donl-harvest-publish",
+  "title": "Harvest DONL dataset and publish Data Space offer",
+  "description": "End-to-end: harvest one DONL package → DCAT catalog record → Data Space offer (EDC-manifest). Pilot path for open government data.",
+  "version": "1.0.0",
+  "tags": ["donl", "harvest", "dataspace", "publish", "edc", "phase-6"],
+  "requiredProcesses": ["donl-harvest-run"],
+  "inputs": {
+    "packageId": {
+      "type": "string",
+      "description": "CKAN package id to harvest and publish",
+      "required": true
+    },
+    "metadataOnly": {
+      "type": "boolean",
+      "description": "Skip file downloads (metadata + service manifest only)",
+      "required": false
+    },
+    "accessClass": {
+      "type": "string",
+      "description": "open|internal|restricted (default open)",
+      "required": false
+    }
+  },
+  "outputs": {
+    "summary": {
+      "type": "json",
+      "description": "Harvest summary"
+    },
+    "publish": {
+      "type": "json",
+      "description": "Data Space publish result"
+    }
+  },
+  "steps": [
+    {
+      "id": "harvest-publish",
+      "processId": "donl-harvest-run",
+      "title": "Harvest and publish DONL dataset",
+      "inputs": {
+        "packageId": "${recipe.inputs.packageId}",
+        "metadataOnly": "${recipe.inputs.metadataOnly}",
+        "publishDatasetId": "${recipe.inputs.packageId}",
+        "accessClass": "${recipe.inputs.accessClass}"
+      },
+      "outputs": {
+        "summary": "summary",
+        "publish": "publish"
+      },
+      "backend": "local"
+    }
+  ],
+  "riskLevel": "high",
+  "cookbookUri": "http://localhost:8081/recipes/donl-harvest-publish"
+}
