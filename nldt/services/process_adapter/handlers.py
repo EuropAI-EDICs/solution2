@@ -241,6 +241,28 @@ PROCESS_DEFINITIONS_CORE: dict[str, dict[str, Any]] = {
             "result": {"title": "Validation result + report", "schema": {"type": "object"}},
         },
     },
+    "source-monitor-probe": {
+        "id": "source-monitor-probe",
+        "title": "Source monitor probe",
+        "description": (
+            "Probe ArcGIS REST registries vs sources.json; emit machine diff, "
+            "change report, and registry patch proposal (never auto-applied)."
+        ),
+        "version": "1.0.0",
+        "keywords": ["source-monitor", "continuity", "phase-sm"],
+        "inputs": {
+            "mode": {
+                "title": "replay|live",
+                "schema": {"type": "string", "default": "replay"},
+            },
+            "watchlistPath": {"title": "Watchlist JSON path", "schema": {"type": "string"}},
+            "fixtureDir": {"title": "Fixture dir (replay)", "schema": {"type": "string"}},
+            "outDir": {"title": "Output directory", "schema": {"type": "string"}},
+        },
+        "outputs": {
+            "summary": {"title": "Monitor summary", "schema": {"type": "object"}},
+        },
+    },
 }
 
 
@@ -319,4 +341,20 @@ def execute_local(process_id: str, inputs: dict[str, Any]) -> dict[str, Any]:
                 artifact_type=str(inputs.get("artifactType") or "process-output"),
             )
         }
+    if process_id == "source-monitor-probe":
+        from pathlib import Path
+
+        from services.source_monitor.run import run_monitor
+
+        mode = str(inputs.get("mode") or "replay")
+        watchlist = inputs.get("watchlistPath")
+        fixture = inputs.get("fixtureDir")
+        out = inputs.get("outDir")
+        summary = run_monitor(
+            mode=mode,
+            watchlist_path=Path(watchlist) if watchlist else None,
+            fixture_dir=Path(fixture) if fixture else None,
+            out_dir=Path(out) if out else None,
+        )
+        return {"summary": summary}
     raise KeyError(f"Unknown process: {process_id}")

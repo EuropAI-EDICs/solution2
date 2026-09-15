@@ -346,13 +346,14 @@ CLI: `PYTHONPATH=. python -m services.cli …`
 | **6b** | CDC pipeline in the lake (Rijnland peilen) | [15](15-cdc-data-lake-pipeline.md) |
 | **BK** | Beleidskompas front-door app (BK-0…BK-2 done; BK-3 = wallet track) | [14](14-beleidskompas-integration.md) |
 | **W** | eID Wallet identity (W1/W3/W5 done, mock; W2/W6 real backend) | [16](16-eid-wallet-identity.md) |
+| **SM** | Source monitor (open-data continuity) | [17](17-source-monitor.md) ✅ |
 
 Open highlights: OTLP exporter ([08](08-roadmap.md)); wallet W2 (real OpenID4VP
 verifier) + W6 (Keycloak OID4VCI issuance) — decision-gated on toolbox IM
 ([16](16-eid-wallet-identity.md)).
-Phase 5 (governed agent layer) and Phase 6 (lake + Data Space Critic/HITL +
-pluggable EDC connector) are **done** — see [12](12-governed-agent-layer.md)
-and [13](13-data-lake-and-space.md).
+Phase 5, Phase 6, and the source-monitor MVP are **done** — see
+[12](12-governed-agent-layer.md), [13](13-data-lake-and-space.md),
+[17](17-source-monitor.md).
 
 ---
 

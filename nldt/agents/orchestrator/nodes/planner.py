@@ -43,12 +43,12 @@ def plan_recipe(state: dict[str, Any]) -> dict[str, Any]:
         if ac == "restricted" and not resolved.get("forceHitlApproved"):
             requires_hitl = True
         elif ac == "open" and not resolved.get("forceHitlApproved"):
-            # open offers: recipe is high-risk by default; allow auto path when
-            # caller did not request human gate — still need --auto-approve-hitl
-            # OR we lower requiresHitl for open:
             requires_hitl = False
         elif resolved.get("forceHitlApproved"):
             requires_hitl = False  # approval already supplied as input
+    # Source monitor: always human merge of patch proposals (V4)
+    if recipe_id == "source-monitor-run":
+        requires_hitl = True
 
     plan = {
         "id": str(uuid4()),

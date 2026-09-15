@@ -67,14 +67,15 @@ and it says so). Real example from Utrecht: one discretionary clause, read
 differently, moves the wind opportunity zone by **322 km² (+37.5%)**. That
 is a fact a council needs before deciding — not after.
 
-**3. Watching the data sources** *(planned)*
+**3. Watching the data sources** *(MVP done — 2026-09-15)*
 
 Open data changes without notice. During this build, a source quietly
 shrunk from 117,012 trees to 1,000 because of a hidden server setting —
-we caught it by reading the source table. A monitoring agent will
-periodically check all sources and draft a readable change report;
-**a human always merges the change**.
-
+we caught it by reading the source table. The **source monitor**
+periodically probes registries (ArcGIS REST), diffs feature counts /
+`maxRecordCount` / fields, and drafts a change report + registry patch
+proposal; **a human always merges the change** (V4). See
+[`nldt/17-source-monitor.md`](../nldt/17-source-monitor.md).
 ---
 
 ## What the AI never does
@@ -149,7 +150,8 @@ promises.
    doubling green or dropping the trees counter each shift 52. The
    rank-stability output shows which neighbourhoods stay top/bottom across
    every weighting — the robust answer a council can build on.
-2. **The source monitor** — continuity of open data as a monitored process.
+2. **The source monitor** — continuity of open data as a monitored process
+   — ***done (MVP)*** · [`nldt/17-source-monitor.md`](../nldt/17-source-monitor.md).
 3. **One governed agent layer** over all four PoCs, so the same rules
    apply everywhere (the nldt/MCP architecture) — ***done*** (Phase 5,
    2026-09-15). Processes, recipes, MCP (`nldt-poc-mcp`), uniform

@@ -53,6 +53,7 @@ def seed_records() -> list[dict[str, Any]]:
         ("bp2op-transform", "Eindhoven bp2op transform"),
         ("lake-publish-dataset", "Publish lake dataset to Data Space (ODRL stub)"),
         ("validate-artifact", "Validate artifact against nLDT/PoC JSON Schema"),
+        ("source-monitor-probe", "Source monitor probe (open-data continuity)"),
     ]
     records: list[dict[str, Any]] = []
     for pid, title in processes:
@@ -73,7 +74,11 @@ def seed_records() -> list[dict[str, Any]]:
                             else (
                                 ["validation", "trust", "phase-5"]
                                 if pid == "validate-artifact"
-                                else (["lake", "dataspace"] if pid.startswith("lake-") else [])
+                                else (
+                                    ["source-monitor", "continuity", "phase-sm"]
+                                    if pid == "source-monitor-probe"
+                                    else (["lake", "dataspace"] if pid.startswith("lake-") else [])
+                                )
                             )
                         )
                     ),
@@ -159,6 +164,11 @@ def seed_records() -> list[dict[str, Any]]:
             "lake-publish-offer",
             "Publish lake dataset as Data Space offer",
             ["lake", "dataspace", "publish", "odrl", "phase-6"],
+        ),
+        (
+            "source-monitor-run",
+            "Source monitor (open-data continuity)",
+            ["source-monitor", "continuity", "phase-sm"],
         ),
     ]
     for rid, title, tags in recipes:

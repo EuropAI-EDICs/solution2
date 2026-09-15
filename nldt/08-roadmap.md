@@ -116,6 +116,15 @@ restricted refuses without HITL; EDC manifests for operator import; dbt marts ov
 | 6 | Testbed 2026 phase 2/3 alignment | ✅ (docs + interfaces) |
 | 7 | One governed agent layer over ≥2 PoCs via nLDT/MCP | ✅ Phase 5: processes+recipes+MCP+Critic/HITL for Utrecht/Breda/Rijnland/Eindhoven |
 | 8 | Lake publish with Critic/HITL + pluggable EDC connector | ✅ Phase 6: `lake-publish-offer`, ValidationReport, mock/edc-manifest/http |
+| 9 | Source monitor (open-data continuity) | ✅ MVP: `source-monitor-probe` / recipe, page-cap collapse detection, human-merge patches |
+
+## Next tracks (after Phase 6)
+
+| Track | Doc |
+|-------|-----|
+| Source monitor | [17-source-monitor.md](17-source-monitor.md) ✅ MVP |
+| Beleidskompas BK-3 / wallet W2 | [14](14-beleidskompas-integration.md), [16](16-eid-wallet-identity.md) |
+| Live EDC / OTLP | out of band / [09](09-federation-and-observability.md) |
 
 ## Verification
 

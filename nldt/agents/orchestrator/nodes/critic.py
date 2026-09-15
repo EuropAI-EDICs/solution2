@@ -167,6 +167,35 @@ def _validate_poc_outputs(recipe_id: str, outputs: dict[str, Any]) -> tuple[list
             checks_v2.append({"id": "publish-ok", "status": "fail", "detail": str(status)})
             verdict = "fail"
 
+    elif recipe_id == "source-monitor-run":
+        summary = outputs.get("summary") or {}
+        vr = summary.get("validationReport") or {}
+        if not summary.get("runDir"):
+            checks_v2.append({"id": "monitor-run", "status": "fail", "detail": "missing runDir"})
+            verdict = "fail"
+        else:
+            checks_v2.append({"id": "monitor-run", "status": "pass"})
+            if summary.get("autoApply") is True:
+                checks_v2.append({"id": "no-auto-apply", "status": "fail", "detail": "autoApply forbidden"})
+                verdict = "fail"
+            else:
+                checks_v2.append({"id": "no-auto-apply", "status": "pass"})
+            worst = summary.get("worstSeverity") or vr.get("verdict")
+            if summary.get("criticalCount") or worst == "critical" or vr.get("verdict") == "needs_human":
+                checks_v2.append(
+                    {
+                        "id": "continuity",
+                        "status": "pass",
+                        "detail": f"criticalCount={summary.get('criticalCount')}",
+                    }
+                )
+                verdict = "needs_human"
+            elif worst == "warn":
+                checks_v2.append({"id": "continuity", "status": "pass", "detail": "warn"})
+                verdict = "needs_human"
+            else:
+                checks_v2.append({"id": "continuity", "status": "pass"})
+
     elif recipe_id in POC_RECIPES:
         if outputs:
             checks_v2.append({"id": "poc-outputs", "status": "pass"})

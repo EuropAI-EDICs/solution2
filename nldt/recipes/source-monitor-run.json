@@ -1,0 +1,53 @@
+{
+  "id": "source-monitor-run",
+  "title": "Source monitor (open-data continuity)",
+  "description": "Deterministic ArcGIS REST probes vs sources.json; machine diff + change report + registry patch proposal. Never auto-applies — human merges (V4).",
+  "version": "1.0.0",
+  "tags": ["source-monitor", "continuity", "phase-sm", "dataspace"],
+  "requiredProcesses": ["source-monitor-probe"],
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "description": "replay|live (default replay)",
+      "required": false
+    },
+    "watchlistPath": {
+      "type": "string",
+      "description": "Path to watchlist JSON",
+      "required": false
+    },
+    "fixtureDir": {
+      "type": "string",
+      "description": "Fixture dir for replay mode",
+      "required": false
+    },
+    "outDir": {
+      "type": "string",
+      "description": "Output run directory",
+      "required": false
+    }
+  },
+  "outputs": {
+    "summary": {
+      "type": "json",
+      "description": "Monitor summary (severity, paths, validationReport)"
+    }
+  },
+  "steps": [
+    {
+      "id": "probe",
+      "processId": "source-monitor-probe",
+      "title": "Probe and diff open-data sources",
+      "inputs": {
+        "mode": "${recipe.inputs.mode}",
+        "watchlistPath": "${recipe.inputs.watchlistPath}",
+        "fixtureDir": "${recipe.inputs.fixtureDir}",
+        "outDir": "${recipe.inputs.outDir}"
+      },
+      "outputs": { "summary": "summary" },
+      "backend": "local"
+    }
+  ],
+  "riskLevel": "high",
+  "cookbookUri": "http://localhost:8081/recipes/source-monitor-run"
+}

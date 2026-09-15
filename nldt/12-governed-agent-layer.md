@@ -96,7 +96,7 @@ Rijnland processes.
 
 - LLM that writes zones or corpora
 - Replacing PoC zone engines with something new
-- Source monitor (GENAI_SEAMS “watching data sources”) — separate track
+- Source monitor (GENAI_SEAMS “watching data sources”) — **MVP done** · [17-source-monitor.md](17-source-monitor.md)
 - Full S1/S2/S3 from Phase C of GENAI_SEAMS annex (norm harvesting fan-out)
 
 ---

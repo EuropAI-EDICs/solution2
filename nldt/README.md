@@ -29,6 +29,7 @@ Generic reference implementation of a **Dutch Local Digital Twin (nLDT)** for ag
 | [14-beleidskompas-integration.md](14-beleidskompas-integration.md) | **Plan:** GovChat-NL beleidskompas as first external front-door app |
 | [15-cdc-data-lake-pipeline.md](15-cdc-data-lake-pipeline.md) | **Implemented:** CDC lake pipeline + Rijnland peilen what-if map (multi-scenario) |
 | [16-eid-wallet-identity.md](16-eid-wallet-identity.md) | **Plan:** EU Digital Identity Wallet identity layer (BK-3 re-scope) |
+| [17-source-monitor.md](17-source-monitor.md) | **MVP:** open-data continuity probes + human-merge patches |
 
 ## Code
 
