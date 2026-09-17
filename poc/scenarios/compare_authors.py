@@ -1,18 +1,23 @@
 #!/usr/bin/env python3
-"""Golden-set author regression: deterministic author vs the LLM seam.
+"""Golden-set author regression: deterministic vs LLM vs hybrid.
 
-B2 of docs/GENAI_SEAMS.md: run both authors over the same baseline run (no
-zone re-execution — proposals only, so this is cheap) and compare what they
-target. The deterministic author is the reproducible golden set; the LLM
-author's drift against it (and its reject ledger) is the regression signal.
+B2 of docs/GENAI_SEAMS.md: run authors over the same baseline run (no
+zone re-execution — proposals only) and compare what they target. The
+deterministic author is the reproducible golden set; hybrid must keep the
+det floor intact (``overlap.floorIntact``).
 
     python3 poc/scenarios/compare_authors.py                  # wind, latest
     python3 poc/scenarios/compare_authors.py --use-case zon
     python3 poc/scenarios/compare_authors.py --use-case bos --max-scenarios 12
 
+Requires for the LLM leg:
+    export LDT_SCENARIO_LLM_ENDPOINT=http://localhost:11434
+    export LDT_SCENARIO_LLM_API=ollama
+    export LDT_SCENARIO_LLM_MODEL=qwen3.8:latest
+
 Output: poc/scenario-runs/<ts>-<use-case>-authorcmp/comparison.json + console
-table. Offline for the deterministic author; the LLM leg needs
-LDT_SCENARIO_LLM_ENDPOINT (local open model, temperature 0).
+table. Offline for the deterministic/hybrid (soft) legs; the LLM-only leg
+needs LDT_SCENARIO_LLM_ENDPOINT.
 """
 
 from __future__ import annotations
@@ -20,7 +25,9 @@ from __future__ import annotations
 import argparse
 import datetime as _dt
 import json
+import os
 import sys
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
 
@@ -66,19 +73,49 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     baseline_dir = Path(args.baseline) if args.baseline else latest_baseline_run(args.use_case)
     baseline = scenarios.load_baseline(baseline_dir)
 
+    t0 = time.perf_counter()
     det = scenario_author.DeterministicScenarioAuthor()
     det_specs, det_rej = det.propose(baseline, args.max_scenarios)
     det_stats = _author_stats(det_specs, det_rej)
+    det_stats["seconds"] = round(time.perf_counter() - t0, 3)
 
     llm_stats: Optional[Dict[str, Any]] = None
-    llm_specs: List[Dict[str, Any]] = []
     llm_error: Optional[str] = None
-    if scenario_author.LLMScenarioAuthor().endpoint:
-        llm = scenario_author.LLMScenarioAuthor()
-        llm_specs, llm_rej = llm.propose(baseline, args.max_scenarios)
-        llm_stats = _author_stats(llm_specs, llm_rej)
+    llm_model = os.environ.get("LDT_SCENARIO_LLM_MODEL")
+    endpoint = scenario_author.LLMScenarioAuthor().endpoint
+    if endpoint:
+        t1 = time.perf_counter()
+        try:
+            llm = scenario_author.LLMScenarioAuthor()
+            llm_specs, llm_rej = llm.propose(baseline, args.max_scenarios)
+            llm_stats = _author_stats(llm_specs, llm_rej)
+            llm_stats["seconds"] = round(time.perf_counter() - t1, 3)
+            llm_stats["model"] = llm.model
+            llm_model = llm.model
+        except Exception as exc:  # noqa: BLE001 — benchmark must still emit comparison
+            llm_error = f"{type(exc).__name__}: {exc}"
+            llm_stats = {
+                "accepted": 0,
+                "rejected": 0,
+                "rejectKinds": [],
+                "targetedRules": {},
+                "basisTypes": [],
+                "scenarioIds": [],
+                "seconds": round(time.perf_counter() - t1, 3),
+                "model": llm_model,
+            }
     else:
         llm_error = "LDT_SCENARIO_LLM_ENDPOINT not set — LLM leg skipped"
+
+    t2 = time.perf_counter()
+    hyb = scenario_author.HybridScenarioAuthor()
+    hyb_specs, hyb_rej = hyb.propose(baseline, args.max_scenarios)
+    hyb_stats = _author_stats(hyb_specs, hyb_rej)
+    hyb_stats["seconds"] = round(time.perf_counter() - t2, 3)
+    hyb_stats["model"] = getattr(hyb, "model", None)
+
+    det_ids = {s["id"] for s in det_specs}
+    floor_intact = det_ids <= {s["id"] for s in hyb_specs}
 
     det_rules = set(det_stats["targetedRules"])
     llm_rules = set((llm_stats or {}).get("targetedRules", {}))
@@ -86,13 +123,19 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "useCase": args.use_case,
         "baselineRun": str(baseline_dir),
         "maxScenarios": args.max_scenarios,
+        "model": llm_model,
+        "endpoint": os.environ.get("LDT_SCENARIO_LLM_ENDPOINT"),
+        "api": os.environ.get("LDT_SCENARIO_LLM_API"),
         "deterministic": det_stats,
         "llm": llm_stats,
         "llmError": llm_error,
+        "hybrid": hyb_stats,
         "overlap": {
             "bothTarget": sorted(det_rules & llm_rules),
             "llmOnly": sorted(llm_rules - det_rules),
             "deterministicOnly": sorted(det_rules - llm_rules),
+            "hybridAccepted": hyb_stats["scenarioIds"],
+            "floorIntact": floor_intact,
         },
     }
 
@@ -103,19 +146,27 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         json.dumps(comparison, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
 
     print(f"[authorcmp] baseline {baseline_dir.name} (budget {args.max_scenarios})")
-    for name, stats in (("deterministic", det_stats), ("llm", llm_stats)):
+    if llm_model:
+        print(f"  model={llm_model} api={os.environ.get('LDT_SCENARIO_LLM_API', 'openai')}")
+    for name, stats in (("deterministic", det_stats), ("llm", llm_stats), ("hybrid", hyb_stats)):
         if stats is None:
             print(f"  llm: SKIPPED ({llm_error})")
             continue
         print(f"  {name:<13} accepted={stats['accepted']} rejected={stats['rejected']} "
-              f"bases={','.join(stats['basisTypes'])} "
-              f"targets={len(stats['targetedRules'])} rules")
-    if llm_stats is not None:
+              f"bases={','.join(stats['basisTypes']) or '—'} "
+              f"targets={len(stats['targetedRules'])} rules "
+              f"({stats.get('seconds', '?')}s)")
+    print(f"  floorIntact={floor_intact}")
+    if llm_error and endpoint:
+        print(f"  llm error: {llm_error}")
+    elif llm_stats is not None and not llm_error:
         ov = comparison["overlap"]
         print(f"  overlap: both={len(ov['bothTarget'])} "
               f"llm-only={ov['llmOnly'] or '—'} det-only={ov['deterministicOnly'] or '—'}")
     print(f"[authorcmp] {out_dir / 'comparison.json'}")
-    return 0
+    bad_llm = bool(llm_error and endpoint)
+    bad_floor = not floor_intact
+    return 1 if (bad_llm or bad_floor) else 0
 
 
 if __name__ == "__main__":

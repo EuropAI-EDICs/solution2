@@ -47,9 +47,33 @@ Critic/Validator's pipeline-run verdict is `pass`.
 ## What the pipeline does
 
 `poc/run.py` is the orchestrator (plan §3.2 agent #1). One process, no LLM at
-runtime — every "agent" is a deterministic implementation behind the agent
-interface with a pluggable hook (`NormAnalyst(llm_hook=...)`) for future
-deployment:
+runtime by default — every "agent" is a deterministic implementation behind
+the agent interface, with propose-only LLM legs behind gated seams
+(`pipeline/norm_llm.py`; S1/S2, see `docs/GENAI_SEAMS.md`):
+
+```bash
+# default (offline, byte-identical replay)
+python3 poc/run.py --use-case wind
+
+# S1/S2 seams: local open model refines claims / proposes formalizations
+# (propose-only; needs LDT_NORM_LLM_ENDPOINT, e.g. Ollama; loud deterministic
+# fallback + norm-llm-ledger.json in the run dir when unavailable)
+LDT_NORM_LLM_ENDPOINT=http://localhost:11434 LDT_NORM_LLM_API=ollama \
+LDT_NORM_LLM_MODEL=qwen3.8 python3 poc/run.py --use-case wind \
+  --norm-analyst llm --formalizer llm
+
+# golden-set regression deterministic vs LLM (proposals only, cheap)
+python3 poc/llm/compare_norm_llm.py --use-case wind
+```
+
+S1 (`--norm-analyst llm`) may only refine the English claim + confidence —
+citations, legal force and geo bindings are unreachable by construction, and
+the seam stamps `extractedBy`. S2 (`--formalizer llm`) proposes formalizations
+only for template-less ambiguous cards, gated on zone grounding (registry
+aliases / the card's own geo binding) and verbatim quote-numeral grounding;
+curated abstentions (template kind ambiguous/reject) are never re-proposed.
+Both legs share the S7 transport (`pipeline/llm_transport.py`, temperature 0,
+thinking disabled, bounded generation) and reject into ledgers, never guess.
 
 | stage | module | output artifacts (in the run dir) |
 |---|---|---|
@@ -179,6 +203,7 @@ python3 poc/scenarios/run.py --use-case bos      # new nature
 python3 poc/scenarios/run.py --baseline poc/runs/20260830T113234Z-wind
 python3 poc/scenarios/run.py --author auto       # deterministic author derives
                                                  # proposals from the artifacts
+python3 poc/scenarios/run.py --author hybrid  # det floor + LLM explorer (S7 product mode)
 LDT_SCENARIO_LLM_ENDPOINT=http://localhost:8000/v1 \
     python3 poc/scenarios/run.py --author llm    # GenAI seam: open-model endpoint
                                                  # (proposals only, gated)
@@ -190,7 +215,7 @@ Output: `poc/scenario-runs/<ts>-<track>/` — `scenario-report.json` /
 `.md` (per-scenario final area, Δ vs control, IoU vs control, mutations
 applied/skipped), `scenario-narrative.md` (with `--narrate`), `scenarios/
 <SC-id>.geojson` per scenario + `CONTROL.geojson` (WGS84, diffable in QGIS),
-`validation.json`, `prov.json`, `run_summary.json`; with `--author auto|llm`
+`validation.json`, `prov.json`, `run_summary.json`; with `--author auto|llm|hybrid`
 also `proposals.json` + `proposals-rejected.json` (the author's
 cite-or-abstain ledger: schema-invalid or hallucinated ids are recorded and
 never executed). Exit code 0 only on verdict `pass`. Demo sets:

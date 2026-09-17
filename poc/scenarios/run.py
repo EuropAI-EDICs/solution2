@@ -146,15 +146,16 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--set", default=None,
                     help="scenario set file for --author file "
                          "(default: poc/scenarios/<use-case>.json)")
-    ap.add_argument("--author", choices=("file", "auto", "llm"), default="file",
+    ap.add_argument("--author", choices=("file", "auto", "llm", "hybrid"), default="file",
                     help="who proposes the ScenarioSpecs: file = the shipped demo set; "
                          "auto = the deterministic author deriving proposals from the "
                          "baseline artifacts (offline); llm = the GenAI seam — an "
                          "OpenAI-compatible endpoint via LDT_SCENARIO_LLM_ENDPOINT "
                          "(local/open model, temperature 0, proposals gated on schema "
-                         "+ grounding before execution)")
+                         "+ grounding before execution); hybrid = det floor + LLM "
+                         "explorer (S7 product mode; soft-falls back to det)")
     ap.add_argument("--max-scenarios", type=int, default=10,
-                    help="effort budget for the auto/llm authors (default 10)")
+                    help="effort budget for the auto/llm/hybrid authors (default 10)")
     ap.add_argument("--narrate", action="store_true",
                     help="write scenario-narrative.md (seam S8) and gate it: every "
                          "number and id in the prose must resolve to the report")
@@ -216,11 +217,28 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     author_agent = {"id": "deterministic-scenario-author", "name": "file-based demo set",
                     "version": "poc-v0", "role": "shipped ScenarioSpec fixtures"}
     if args.author != "file":
-        author_obj = (scenario_author.DeterministicScenarioAuthor()
-                      if args.author == "auto" else scenario_author.LLMScenarioAuthor())
+        if args.author == "auto":
+            author_obj = scenario_author.DeterministicScenarioAuthor()
+        elif args.author == "hybrid":
+            author_obj = scenario_author.HybridScenarioAuthor()
+        else:
+            author_obj = scenario_author.LLMScenarioAuthor()
+        model_slug = re.sub(r"[^a-z0-9]+", "-",
+                            str(getattr(author_obj, "model", "")).lower()).strip("-")
+        if args.author == "auto":
+            author_run = scenario_author.DETERMINISTIC_AUTHOR_RUN
+            set_prefix = "SSET-auto"
+            agent_id = "deterministic-scenario-author"
+        elif args.author == "hybrid":
+            author_run = f"hybrid-proposal#{model_slug or 'det-fallback'}"
+            set_prefix = "SSET-hybrid"
+            agent_id = "hybrid-scenario-author"
+        else:
+            author_run = f"llm-proposal#{model_slug}"
+            set_prefix = "SSET-llm"
+            agent_id = "llm-scenario-author"
         with log.stage("author", f"Scenario author ({args.author}) proposes ScenarioSpecs",
-                       scenario_author.DETERMINISTIC_AUTHOR_RUN if args.author == "auto"
-                       else f"llm-proposal#{getattr(author_obj, 'model', '')}",
+                       author_run,
                        used=["formalrules.json", "normcards.json", "normcards-rejected.json",
                              "rule-stats.json"],
                        generated=["proposals.json", "proposals-rejected.json"]):
@@ -228,16 +246,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 specs, author_rejected = author_obj.propose(baseline, args.max_scenarios)
             except scenario_author.ScenarioAuthorError as exc:
                 raise SystemExit(f"[author] {exc}")
-            scenario_set_id = (f"SSET-auto-{args.use_case}" if args.author == "auto"
-                               else f"SSET-llm-{getattr(author_obj, 'model', 'model')}")
-            model_slug = re.sub(r"[^a-z0-9]+", "-",
-                                str(getattr(author_obj, "model", "")).lower()).strip("-")
+            scenario_set_id = f"{set_prefix}-{args.use_case}"
+            if args.author in ("llm", "hybrid") and model_slug:
+                scenario_set_id = f"{set_prefix}-{getattr(author_obj, 'model', 'model')}"
             dump_json(out_dir / "proposals.json", {
                 "author": args.author,
                 "authorModel": str(getattr(author_obj, "model", "")),
-                "authorRun": (scenario_author.DETERMINISTIC_AUTHOR_RUN
-                              if args.author == "auto"
-                              else f"llm-proposal#{model_slug}"),
+                "authorRun": author_run,
                 "maxScenarios": args.max_scenarios,
                 "accepted": len(specs), "specs": specs,
             }, indent=1)
@@ -247,12 +262,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                         "grounding or budget gates are recorded here and never executed",
             }, indent=1)
             author_agent = {
-                "id": ("deterministic-scenario-author" if args.author == "auto"
-                       else "llm-scenario-author"),
+                "id": agent_id,
                 "name": f"{args.author} scenario author (seam S7)",
-                "version": (scenario_author.DETERMINISTIC_AUTHOR_RUN
-                            if args.author == "auto"
-                            else f"llm-proposal#{getattr(author_obj, 'model', '')}"),
+                "version": author_run,
                 "role": "proposes ScenarioSpecs; schema+grounding gated before execution",
             }
             print(f"[author] {args.author}: {len(specs)} proposals accepted, "
