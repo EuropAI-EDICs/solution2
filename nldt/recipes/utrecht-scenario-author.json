@@ -1,9 +1,9 @@
 {
   "id": "utrecht-scenario-author",
   "title": "Utrecht scenario author (S7 proposals)",
-  "description": "GENAI seam S7 via nLDT: deterministic scenario proposals from a baseline run (reject ledger; no zone writes).",
-  "version": "1.0.0",
-  "tags": ["poc-utrecht", "scenario", "s7", "proposals"],
+  "description": "GENAI seam S7 via nLDT: hybrid (det floor + LLM explorer) scenario proposals from a baseline run (reject ledger; no zone writes). Override author=auto|llm|hybrid via process inputs.",
+  "version": "1.1.0",
+  "tags": ["poc-utrecht", "scenario", "s7", "proposals", "hybrid"],
   "requiredProcesses": ["scenario-author-propose"],
   "inputs": {
     "useCase": {
@@ -20,6 +20,11 @@
       "type": "integer",
       "description": "Effort budget",
       "required": false
+    },
+    "author": {
+      "type": "string",
+      "description": "auto|llm|hybrid (recipe default hybrid)",
+      "required": false
     }
   },
   "outputs": {
@@ -34,7 +39,7 @@
       "processId": "scenario-author-propose",
       "title": "Propose scenarios",
       "inputs": {
-        "author": "auto",
+        "author": "hybrid",
         "useCase": "${recipe.inputs.useCase}",
         "baselineRunDir": "${recipe.inputs.baselineRunDir}",
         "maxScenarios": "${recipe.inputs.maxScenarios}"

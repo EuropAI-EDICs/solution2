@@ -53,8 +53,9 @@ POC_PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
         "id": "scenario-author-propose",
         "title": "Scenario author proposals (S7)",
         "description": (
-            "Propose ScenarioSpecs from a baseline opportunity-map run. "
-            "Writes nothing to the zone engine — proposals (+ reject ledger) only."
+            "Propose ScenarioSpecs from a baseline opportunity-map run "
+            "(author=auto|llm|hybrid). Writes nothing to the zone engine — "
+            "proposals (+ reject ledger) only. Hybrid = det floor + LLM explorer."
         ),
         "version": "1.0.0",
         "keywords": ["poc-utrecht", "scenario", "s7"],
@@ -64,8 +65,8 @@ POC_PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
                 "schema": {"type": "string"},
             },
             "author": {
-                "title": "Author mode (auto only for local process)",
-                "schema": {"type": "string", "default": "auto"},
+                "title": "Author mode (auto|llm|hybrid)",
+                "schema": {"type": "string", "default": "hybrid"},
             },
             "maxScenarios": {
                 "title": "Effort budget",
@@ -425,9 +426,9 @@ def execute_scenario_author_propose(inputs: dict[str, Any]) -> dict[str, Any]:
     from pipeline import scenario_author, scenarios  # type: ignore
     from scenarios import run as scen_run  # type: ignore
 
-    author_mode = inputs.get("author") or "auto"
-    if author_mode != "auto":
-        raise ValueError("local process supports author=auto only (llm via CLI)")
+    author_mode = str(inputs.get("author") or "auto")
+    if author_mode not in ("auto", "llm", "hybrid"):
+        raise ValueError("author must be auto|llm|hybrid")
 
     use_case = inputs.get("useCase") or "wind"
     baseline_dir = _resolve_dir(
@@ -436,13 +437,29 @@ def execute_scenario_author_propose(inputs: dict[str, Any]) -> dict[str, Any]:
     )
     max_n = int(inputs.get("maxScenarios") or 10)
     baseline = scenarios.load_baseline(baseline_dir)
-    specs, rejected = scenario_author.DeterministicScenarioAuthor().propose(
-        baseline, max_scenarios=max_n
-    )
+
+    if author_mode == "auto":
+        author_obj = scenario_author.DeterministicScenarioAuthor()
+    elif author_mode == "llm":
+        author_obj = scenario_author.LLMScenarioAuthor()
+        if not author_obj.endpoint:
+            raise ValueError(
+                "author=llm requires LDT_SCENARIO_LLM_ENDPOINT "
+                "(use author=hybrid for det fallback)"
+            )
+    else:
+        author_obj = scenario_author.HybridScenarioAuthor()
+
+    try:
+        specs, rejected = author_obj.propose(baseline, max_scenarios=max_n)
+    except scenario_author.ScenarioAuthorError as exc:
+        raise ValueError(str(exc)) from exc
+
     return {
         "proposals": {
             "baselineRunDir": str(baseline_dir),
-            "author": "auto",
+            "author": author_mode,
+            "authorModel": str(getattr(author_obj, "model", "") or ""),
             "accepted": specs,
             "acceptedCount": len(specs),
             "rejected": rejected,

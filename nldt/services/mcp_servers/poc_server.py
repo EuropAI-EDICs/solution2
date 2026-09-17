@@ -69,7 +69,7 @@ async def run_opportunity_map(
 @mcp.tool(name="propose_scenarios", description=POC_TOOLS["propose_scenarios"]["description"])
 async def propose_scenarios(
     baselineRunDir: str,
-    author: str = "auto",
+    author: str = "hybrid",
     maxScenarios: int = 10,
 ) -> str:
     return await _run_poc_tool(

@@ -148,6 +148,36 @@ def test_scenario_author_propose_auto():
     assert isinstance(proposals["rejected"], list)
 
 
+def test_scenario_author_propose_hybrid_without_llm_falls_back():
+    baseline = WORKSPACE / "poc" / "runs" / "20260830T113234Z-wind"
+    if not (baseline / "formalrules.json").is_file():
+        pytest.skip("wind baseline run missing")
+    import os
+    os.environ.pop("LDT_SCENARIO_LLM_ENDPOINT", None)
+    out = execute_local(
+        "scenario-author-propose",
+        {"baselineRunDir": str(baseline), "author": "hybrid", "maxScenarios": 5},
+    )
+    proposals = out["proposals"]
+    assert proposals["author"] == "hybrid"
+    assert proposals["acceptedCount"] >= 1
+    kinds = {r.get("kind") for r in proposals["rejected"]}
+    assert "llm-unavailable" in kinds
+
+
+def test_scenario_author_propose_llm_requires_endpoint():
+    baseline = WORKSPACE / "poc" / "runs" / "20260830T113234Z-wind"
+    if not (baseline / "formalrules.json").is_file():
+        pytest.skip("wind baseline run missing")
+    import os
+    os.environ.pop("LDT_SCENARIO_LLM_ENDPOINT", None)
+    with pytest.raises(Exception):
+        execute_local(
+            "scenario-author-propose",
+            {"baselineRunDir": str(baseline), "author": "llm", "maxScenarios": 2},
+        )
+
+
 def test_crosstrack_replay():
     xroot = WORKSPACE / "poc" / "crosstrack-runs"
     if not xroot.is_dir() or not list(xroot.glob("*-xtrack")):
