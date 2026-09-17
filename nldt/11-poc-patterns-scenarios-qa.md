@@ -100,8 +100,10 @@ Zone semantics: `inclusion` | `exclusion` | `conditional` | `attention` |
 
 Mutations (engine inputs only): `drop` | `set_semantics` | `set_buffer_distance_m`.
 
-Authors: `--author file|auto|llm`. LLM delivers **proposals** only on a fixed
-schema; the deterministic sweep computes km²/IoU.
+Authors: `--author file|auto|llm|hybrid`. Hybrid keeps the deterministic
+golden set as floor and lets the LLM add novel mutation keys only. LLM
+delivers **proposals** only on a fixed schema; the deterministic sweep
+computes km²/IoU.
 
 Control row is mandatory: unmutated re-run of the baseline.
 

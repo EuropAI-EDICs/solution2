@@ -178,8 +178,10 @@ promises.
 3. **eID Wallet identity (BK-3)** — mock wallet paths done; real OpenID4VP
    verifier + Keycloak OID4VCI issuance decision-gated
    ([`nldt/16-eid-wallet-identity.md`](../nldt/16-eid-wallet-identity.md)).
-4. **PoC-1 seams S1/S2/S3** — norm harvesting fan-out, formalization
-   proposals, conversational intake (deterministic base exists).
+4. **PoC-1 seam S3** — conversational intake (S1/S2 shipped 2026-09-15:
+   `--norm-analyst llm` / `--formalizer llm` on `poc/run.py`, gates + ledgers
+   in `poc/pipeline/norm_llm.py`, golden-set regression
+   `poc/llm/compare_norm_llm.py`; live open-model run still pending).
 5. **LLM-authored change prose** for source monitor (reuse S4 number-gate
    pattern; not in MVP).
 
@@ -194,13 +196,13 @@ Condensed reference; full detail in the code and this file's git history
 
 | id | seam (controlled contact point) | PoC | status |
 |---|---|---|---|
-| S1 | norm harvesting fan-out | 1 | later (deterministic base done) |
-| S2 | formalization proposals for ambiguous norms | 1 | later |
+| S1 | norm harvesting fan-out | 1 | **implemented** (claim/confidence refinement behind `NormAnalyst(llm_hook=…)`, `poc/pipeline/norm_llm.py`; offline-verified — live run pending) |
+| S2 | formalization proposals for ambiguous norms | 1 | **implemented** (template-less cards only; zone grounding + quote-numeral grounding gates, rejection ledger; offline-verified — live run pending) |
 | S3 | conversational intake | 1 | later |
 | S4 | run-artifact Q&A (contract → runner → number-gated narration) | **4** (1 planned) | **live-validated** (`poc-breda/qa.py`, `qa_run.py`; `ScanQuery` schema) |
 | S5 | knowledge-bank matching re-rank (swap the judge, measure delta) | 2 | designed; V3 Jaccard re-scorer in place |
 | S6 | candidate-rule drafting (`voorgesteld` only; lawyer decides — MC-6) | 2 | designed |
-| S7 | scenario authoring (file/auto/llm; ledger; control reproduction) | 1 · **4** | **implemented on both** (`poc/pipeline/scenario_author.py`; `poc-breda/breda/scenarios.py` — indicator-weight variants over `indicators.DEFAULT_PARAMS`, bit-identical control) |
+| S7 | scenario authoring (file/auto/llm/**hybrid**; det-floor + LLM-explorer; ledger; control reproduction) | 1 · **4** | **implemented** — hybrid product default in nLDT `utrecht-scenario-author`; PoC `poc/pipeline/scenario_author.py` (`HybridScenarioAuthor`); golden-set via `poc/scenarios/compare_authors.py` (`floorIntact`); Breda parallel in `poc-breda/breda/scenarios.py` (indicator-weight variants) |
 | S8 | scenario narration (numeric grounding gate) | 1 | **implemented**; live qwen3.8 run published |
 | S9 | policy-document narration in an external front door (grounded-artifact contract; deterministic run annex, schema `run-annex.schema.json`) | — (beleidskompas BK-3) | **generator implemented** (`nldt/services/run_annex.py` + CLI `build-run-annex`); Word/PDF attachment + number-grounding on the foreign platform's text still open (needs beleidskompas app code) |
 | SM | source monitor (ArcGIS REST + DONL CKAN continuity probes; human-merge patch) | all | **MVP done** (`services/source_monitor/`, recipe `source-monitor-run`; DONL: `donl_probe.py`, watchlist `donl-pilot`) |
@@ -209,12 +211,17 @@ Condensed reference; full detail in the code and this file's git history
 
 **Phase path** — A: scenario contracts + sweep + critic (done) · B: the
 S7/S8 seams + ledgers (done) · B2: real local open models + golden-set
-regression (done, qwen3.8/3.6 via Ollama) · B3: full Q&A seam on PoC-4,
+regression (done, qwen3.8/3.6 via Ollama) · **S7 product mode = hybrid**:
+deterministic proposals are the floor; LLM may only add novel
+`(ruleId, mutation)` keys. Det remains planning-truth; LLM is explorer/tolk.
+Benchmark: prefer det for coverage regressie; use LLM for extra candidates
+under HITL · B3: full Q&A seam on PoC-4,
 live end-to-end (done 2026-09-13) · B4: the what-if seam on PoC-4 —
 value-politics variants over composition parameters, control bit-identical,
 rank-stability output, file/auto/llm authors (done 2026-09-13, live with
 qwen3.8 4/4 accepted after `'type'`→`'action'` alias normalization) · C:
-S1/S2/S3, PoC-1 decision-table Q&A, cross-track conflicts (open) · **D:
+S1/S2 (done 2026-09-15, offline-verified via `poc/tests/test_norm_llm.py`;
+live qwen run open), S3 + PoC-1 decision-table Q&A + cross-track conflicts (open) · **D:
 one governed nLDT/MCP agent layer over all PoCs (done 2026-09-15,
 [`nldt/12-governed-agent-layer.md`](../nldt/12-governed-agent-layer.md))**
 · **E: medallion data lake + Data Space publish (done 2026-09-15,
@@ -236,7 +243,10 @@ identity stamping, rejection ledger) · `poc-breda/breda/qa.py` (asker,
 runner, number-gate, seam normalization) · `poc-breda/schemas/scan-query.schema.json` ·
 `nldt/services/source_monitor/` · `nldt/services/donl_harvest/` ·
 `nldt/services/lake/publish.py` · `nldt/services/adapters/dataspace_connector.py` ·
+S1/S2: `poc/pipeline/norm_llm.py` + shared transport `poc/pipeline/llm_transport.py`
++ golden-set `poc/llm/compare_norm_llm.py` ·
 tests: `poc/tests/test_scenario*.py`, `poc-breda/tests/test_qa.py`,
+`poc/tests/test_norm_llm.py`,
 `nldt/tests/test_donl_harvest.py`, `nldt/tests/test_phase6_dataspace.py`,
 `nldt/tests/test_source_monitor.py`.
 
@@ -252,6 +262,22 @@ extraction; deterministic templates gate-clean by construction (no
 boilerplate digits, no list markers); seam stamps question + identity;
 abstention calibrated via a worked query taxonomy; parser and LLM abstain
 symmetrically into one ledger.
+
+**S1/S2 lessons (PoC-1, live 2026-09-15, qwen3.8)** — S1: 24/24 claim/
+confidence proposals accepted, 0 rejected, zero citation/legal-force/geo
+invariant violations across the golden-set comparison
+(`poc/llm/compare_norm_llm.py`, stamps in `extractedBy`). S2: the live
+surface is empty for the current corpus — *every* verified card in wind/zon/
+bos has a curated template, so the seam fires only for new provinces/tracks
+whose evidence arrives without templates (its purpose). Observed hazard
+(probe): when a card carries no geoBinding, the model obediently *substitutes*
+the quote's zone with whichever zone id the allowed list offers (it "maps to
+the only allowed option") — the membership gate verifies the id exists, not
+that it corresponds to the quote's zone. Mitigations in depth: cards with a
+geoBinding restrict proposals to their own zoneIds (preference enforced);
+quote-numeral grounding still holds; V2 legal grounding + V4 HITL review the
+correspondence; the prompt now always names the exact allowed set (fix, same
+day). Residual risk recorded here rather than papered over.
 
 **Data-continuity preconditions** — per-service `maxRecordCount` (fetchers
 read it live from service metadata); PDOK CBS WFS ignores `cql_filter`,

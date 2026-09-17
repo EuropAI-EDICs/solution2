@@ -45,7 +45,7 @@ Registered in `services/process_adapter/poc_handlers.py` + catalog seed:
 | `crosstrack-overlay` | ✅ | replay + execute |
 | `breda-scan-run` | ✅ | replay + execute |
 | `breda-scan-query` | ✅ | S4 offline Q&A |
-| `scenario-author-propose` | ✅ | S7 auto author |
+| `scenario-author-propose` | ✅ | S7 auto\|llm\|**hybrid** (default hybrid) |
 | `rijnland-peil-conflict` | ✅ | replay + execute |
 | `rijnland-peil-whatif` | ✅ | CDC what-if map |
 | `bp2op-transform` | ✅ | Eindhoven `poc-bp2op/run.py` |
