@@ -76,8 +76,10 @@ def _validate_poc_outputs(recipe_id: str, outputs: dict[str, Any]) -> tuple[list
             accepted = summary.get("accepted") or summary.get("acceptedCount") or []
             if isinstance(accepted, int):
                 has_accepted = accepted > 0
+                accepted_list: list = []
             else:
                 has_accepted = bool(accepted)
+                accepted_list = accepted if isinstance(accepted, list) else []
             if not has_accepted and rejected:
                 checks_v2.append({"id": "s7-all-rejected", "status": "fail"})
                 verdict = "fail"
@@ -89,6 +91,59 @@ def _validate_poc_outputs(recipe_id: str, outputs: dict[str, Any]) -> tuple[list
                             "id": "s7-reject-ledger",
                             "status": "pass",
                             "detail": f"{len(rejected)} rejected (ledger retained)",
+                        }
+                    )
+                author_mode = summary.get("author") or "auto"
+                if author_mode == "hybrid":
+                    det_n = sum(
+                        1
+                        for s in accepted_list
+                        if isinstance(s, dict)
+                        and str(s.get("proposedBy") or "").startswith(
+                            "deterministic-scenario-author"
+                        )
+                    )
+                    llm_n = sum(
+                        1
+                        for s in accepted_list
+                        if isinstance(s, dict)
+                        and str(s.get("proposedBy") or "").startswith("llm-proposal")
+                    )
+                    rej = rejected if isinstance(rejected, list) else []
+                    llm_down = any(
+                        isinstance(r, dict) and r.get("kind") == "llm-unavailable" for r in rej
+                    )
+                    if det_n >= 1 or (not accepted_list and rej):
+                        checks_v2.append(
+                            {
+                                "id": "s7-hybrid-floor",
+                                "status": "pass",
+                                "detail": f"det={det_n}",
+                            }
+                        )
+                    elif llm_down and det_n == 0 and not accepted_list:
+                        checks_v2.append(
+                            {
+                                "id": "s7-hybrid-floor",
+                                "status": "pass",
+                                "detail": "llm-unavailable; empty",
+                            }
+                        )
+                    else:
+                        checks_v2.append(
+                            {
+                                "id": "s7-hybrid-floor",
+                                "status": "fail",
+                                "detail": "hybrid accepted without deterministic floor",
+                            }
+                        )
+                        verdict = "fail"
+                    checks_v2.append(
+                        {
+                            "id": "s7-llm-explorer",
+                            "status": "pass",
+                            "detail": f"llmOnly-accepted={llm_n}"
+                            + ("; llm-unavailable" if llm_down else ""),
                         }
                     )
         else:
