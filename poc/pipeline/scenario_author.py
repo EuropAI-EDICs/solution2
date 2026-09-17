@@ -42,9 +42,11 @@ __all__ = [
     "AUTHOR_LLM",
     "DETERMINISTIC_AUTHOR_RUN",
     "DeterministicScenarioAuthor",
+    "HybridScenarioAuthor",
     "LLMScenarioAuthor",
     "ScenarioAuthorError",
     "build_llm_digest",
+    "mutation_dedupe_key",
 ]
 
 AUTHOR_DETERMINISTIC = "deterministic-scenario-author#poc-v1-auto"
@@ -514,6 +516,85 @@ class LLMScenarioAuthor:
         if not isinstance(parsed, list):
             raise ScenarioAuthorError("LLM response did not parse to a JSON array")
         return parsed
+
+
+def mutation_dedupe_key(spec: Mapping[str, Any]) -> tuple:
+    """Stable key: sorted (ruleId, action, remaining mutation fields)."""
+    keys = []
+    for m in spec.get("mutations") or []:
+        if not isinstance(m, Mapping):
+            continue
+        rid = str(m.get("ruleId") or "")
+        action = str(m.get("action") or "")
+        rest = tuple(sorted(
+            (str(k), json.dumps(v, sort_keys=True, default=str))
+            for k, v in m.items() if k not in ("ruleId", "action")
+        ))
+        keys.append((rid, action, rest))
+    return tuple(sorted(keys))
+
+
+class HybridScenarioAuthor:
+    """Deterministic floor + LLM explorer (GENAI S7 product mode)."""
+
+    def __init__(
+        self,
+        endpoint: Optional[str] = None,
+        model: Optional[str] = None,
+        llm_call: Optional[Callable[..., str]] = None,
+        timeout: Optional[float] = None,
+        det: Optional["DeterministicScenarioAuthor"] = None,
+        llm: Optional["LLMScenarioAuthor"] = None,
+    ) -> None:
+        self._det = det or DeterministicScenarioAuthor()
+        if llm is not None:
+            self._llm = llm
+        else:
+            self._llm = LLMScenarioAuthor(
+                endpoint=endpoint, model=model, llm_call=llm_call, timeout=timeout)
+        self.model = getattr(self._llm, "model", model or "")
+        self.endpoint = getattr(self._llm, "endpoint", endpoint or "")
+
+    def propose(
+        self, baseline: Mapping[str, Any], max_scenarios: int = 10
+    ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+        det_specs, det_rej = self._det.propose(baseline, max_scenarios=max_scenarios)
+        rejected: List[Dict[str, Any]] = list(det_rej)
+        floor = list(det_specs)
+        floor_keys = {mutation_dedupe_key(s) for s in floor}
+
+        try:
+            if not self._llm.endpoint:
+                raise ScenarioAuthorError("LLM endpoint missing")
+            llm_specs, llm_rej = self._llm.propose(baseline, max_scenarios=max_scenarios)
+            rejected.extend(llm_rej)
+        except ScenarioAuthorError as exc:
+            rejected.append({
+                "kind": "llm-unavailable",
+                "reason": str(exc),
+            })
+            return floor, rejected
+
+        accepted = list(floor)
+        for spec in llm_specs:
+            key = mutation_dedupe_key(spec)
+            if key in floor_keys:
+                rejected.append({
+                    "kind": "superseded-by-deterministic",
+                    "specId": spec.get("id"),
+                    "reason": "deterministic floor already covers this mutation key",
+                })
+                continue
+            if len(accepted) >= max_scenarios:
+                rejected.append({
+                    "kind": "budget-cut",
+                    "specId": spec.get("id"),
+                    "reason": f"effort budget: max_scenarios={max_scenarios}",
+                })
+                continue
+            accepted.append(spec)
+            floor_keys.add(key)
+        return accepted, rejected
 
 
 def build_llm_digest(baseline: Mapping[str, Any], max_scenarios: int) -> Dict[str, Any]:

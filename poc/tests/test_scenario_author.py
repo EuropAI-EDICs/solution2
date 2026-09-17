@@ -471,3 +471,76 @@ class LLMNarratorTests(unittest.TestCase):
         self.assertTrue(text)
         self.assertEqual(events[0]["kind"], "narrator-error")
         self.assertIsNone(events[0]["prose"])
+
+
+# --------------------------------------------------------------------------- #
+# hybrid author (det floor + LLM explorer)
+# --------------------------------------------------------------------------- #
+
+class HybridAuthorTests(unittest.TestCase):
+
+    def setUp(self):
+        self.baseline = _baseline()
+
+    def _hybrid(self, response, endpoint="http://localhost:9999/v1"):
+        return scenario_author.HybridScenarioAuthor(
+            endpoint=endpoint, model="test-model",
+            llm_call=_fake_llm(response))
+
+    def test_dedupe_key_stable_for_same_mutations(self):
+        a = dict(VALID_PROPOSAL)
+        b = dict(VALID_PROPOSAL, id="other", name="x")
+        self.assertEqual(
+            scenario_author.mutation_dedupe_key(a),
+            scenario_author.mutation_dedupe_key(b))
+
+    def test_floor_then_explorer_respects_budget(self):
+        novel = {
+            "id": "SC-LLM-NOVEL",
+            "name": "novel buffer",
+            "objectType": "wind_turbine",
+            "basis": {"type": "norm_variance", "normCardId": "NC-T-07",
+                      "variedAspect": "buffer 1000->750",
+                      "provenanceNote": "explorer"},
+            "mutations": [{"ruleId": "FR-T-07", "action": "set_buffer_distance_m",
+                           "bufferDistanceM": 750}],
+        }
+        author = self._hybrid(json.dumps([VALID_PROPOSAL, novel]))
+        specs, rejected = author.propose(self.baseline, max_scenarios=3)
+        self.assertEqual(len(specs), 3)
+        self.assertTrue(all(
+            s["proposedBy"] == scenario_author.AUTHOR_DETERMINISTIC for s in specs))
+        specs2, rej2 = author.propose(self.baseline, max_scenarios=50)
+        ids = {s["id"] for s in specs2}
+        self.assertIn("SC-LLM-NOVEL", ids)
+        supersede = [r for r in rej2 if r.get("kind") == "superseded-by-deterministic"]
+        self.assertTrue(any(r.get("specId") == "SC-LLM-01" for r in supersede))
+
+    def test_hybrid_without_endpoint_falls_back_to_det(self):
+        import os
+        os.environ.pop("LDT_SCENARIO_LLM_ENDPOINT", None)
+        author = scenario_author.HybridScenarioAuthor(
+            endpoint="", model="m", llm_call=_fake_llm("[]"))
+        specs, rejected = author.propose(self.baseline, max_scenarios=5)
+        det_specs, _ = scenario_author.DeterministicScenarioAuthor().propose(
+            self.baseline, max_scenarios=5)
+        self.assertEqual([s["id"] for s in specs], [s["id"] for s in det_specs])
+        self.assertTrue(any(r.get("kind") == "llm-unavailable" for r in rejected))
+
+    def test_floor_invariant_rule_ids(self):
+        novel = {
+            "id": "SC-LLM-NOVEL2",
+            "name": "novel",
+            "objectType": "wind_turbine",
+            "basis": {"type": "hypothetical", "rationale": "stress",
+                      "provenanceNote": "x"},
+            "mutations": [{"ruleId": "FR-T-05", "action": "set_buffer_distance_m",
+                           "bufferDistanceM": 42}],
+        }
+        author = self._hybrid(json.dumps([novel]))
+        hyb, _ = author.propose(self.baseline, max_scenarios=20)
+        det, _ = scenario_author.DeterministicScenarioAuthor().propose(
+            self.baseline, max_scenarios=20)
+        det_rules = {m["ruleId"] for s in det for m in s["mutations"]}
+        hyb_rules = {m["ruleId"] for s in hyb for m in s["mutations"]}
+        self.assertTrue(det_rules <= hyb_rules)
