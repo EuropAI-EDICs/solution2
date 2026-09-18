@@ -208,6 +208,8 @@ Condensed reference; full detail in the code and this file's git history
 | SM | source monitor (ArcGIS REST + DONL CKAN continuity probes; human-merge patch) | all | **MVP done** (`services/source_monitor/`, recipe `source-monitor-run`; DONL: `donl_probe.py`, watchlist `donl-pilot`) |
 | L6 | lake publish (medallion URI → ODRL offer → EDC connector; Critic V0/V2/V4) | nldt | **done** (`lake-publish-dataset`, recipe `lake-publish-offer`; `services/lake/publish.py`, `dataspace_connector.py`) |
 | DONL | national CKAN harvest (data.overheid.nl → bronze + DCAT catalog; download vs DataService split) | nldt | **done** (`services/donl_harvest/`, recipes `donl-harvest-run` / `donl-harvest-publish`) |
+| L-TS | cross-twin time-series silver (`timeseries-observation` + ingest wave) | nldt | **done** (`services/timeseries/`, recipe `timeseries-open-ingest`) |
+| L-ES | Elasticsearch lake discovery for AI scenarios | nldt | **done** (`services/elasticsearch/`, MCP `search_lake_elasticsearch`, `data_plane` hints → S7 digest) |
 
 **Phase path** — A: scenario contracts + sweep + critic (done) · B: the
 S7/S8 seams + ledgers (done) · B2: real local open models + golden-set
@@ -228,7 +230,9 @@ one governed nLDT/MCP agent layer over all PoCs (done 2026-09-15,
 [`nldt/13-data-lake-and-space.md`](../nldt/13-data-lake-and-space.md))**
 · **F: source monitor MVP + DONL harvest (done 2026-09-15,
 [`nldt/17-source-monitor.md`](../nldt/17-source-monitor.md),
-[`nldt/18-donl-harvest.md`](../nldt/18-donl-harvest.md))**.
+[`nldt/18-donl-harvest.md`](../nldt/18-donl-harvest.md))**
+· **G: cross-twin time-series silver + Elasticsearch scenario discovery (done 2026-09-18,
+[`nldt/13-data-lake-and-space.md`](../nldt/13-data-lake-and-space.md) §TS/ES)**.
 
 **Medallion lake (Phase E/F context)** — bronze = raw snapshot (audit,
 replay); silver = normalised inputs for Cook; gold = schema-valid run

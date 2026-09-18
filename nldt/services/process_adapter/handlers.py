@@ -293,6 +293,32 @@ PROCESS_DEFINITIONS_CORE: dict[str, dict[str, Any]] = {
             "publish": {"title": "Optional publish result", "schema": {"type": "object"}},
         },
     },
+    "timeseries-ingest-run": {
+        "id": "timeseries-ingest-run",
+        "title": "Ingest open time-series into lake silver",
+        "description": (
+            "Normalize Rijnland peilen/WKP + KNMI Gilze-Rijen (350) + CBS KWB Breda "
+            "into silver/timeseries (JSONL + series.json) for Elasticsearch discovery."
+        ),
+        "version": "1.1.0",
+        "keywords": ["timeseries", "lake", "knmi", "cbs", "breda", "rijnland", "open-data"],
+        "inputs": {
+            "includePeilen": {"title": "Include peilen", "schema": {"type": "boolean", "default": True}},
+            "includeWkp": {"title": "Include WKP", "schema": {"type": "boolean", "default": True}},
+            "includeKnmi": {
+                "title": "Include KNMI Gilze-Rijen (350)",
+                "schema": {"type": "boolean", "default": True},
+            },
+            "includeCbs": {
+                "title": "Include CBS KWB Breda",
+                "schema": {"type": "boolean", "default": True},
+            },
+            "maxPeilStations": {"title": "Max peil stations", "schema": {"type": "integer", "default": 5}},
+        },
+        "outputs": {
+            "summary": {"title": "Ingest summary", "schema": {"type": "object"}},
+        },
+    },
 }
 
 
@@ -420,4 +446,23 @@ def execute_local(process_id: str, inputs: dict[str, Any]) -> dict[str, Any]:
                     license_="http://creativecommons.org/publicdomain/zero/1.0/",
                 )
         return {"summary": summary, "publish": publish_result}
+    if process_id == "timeseries-ingest-run":
+        from services.timeseries.ingest import ingest_open_wave
+
+        def _flag(key: str, default: bool = True) -> bool:
+            if key not in inputs or inputs.get(key) is None or inputs.get(key) == "":
+                return default
+            val = inputs.get(key)
+            if isinstance(val, bool):
+                return val
+            return str(val).lower() in ("1", "true", "yes")
+
+        summary = ingest_open_wave(
+            include_peilen=_flag("includePeilen", True),
+            include_wkp=_flag("includeWkp", True),
+            include_knmi=_flag("includeKnmi", True),
+            include_cbs=_flag("includeCbs", True),
+            max_peil_stations=int(inputs.get("maxPeilStations") or 5),
+        )
+        return {"summary": summary}
     raise KeyError(f"Unknown process: {process_id}")

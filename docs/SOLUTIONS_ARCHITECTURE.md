@@ -274,6 +274,8 @@ Utrecht working sets remain the **engine cache**. The nLDT lake is the
 
 **National discovery.** Curated harvest from [data.overheid.nl](https://data.overheid.nl) (CKAN → DCAT-AP-NL catalog records; downloads vs WFS/WMS as DataService) lands in the same lake ([`nldt/18-donl-harvest.md`](../nldt/18-donl-harvest.md)). DONL is a metadata hub, not a blob store.
 
+**Time-series + discovery search.** Cross-twin silver observations (`silver/timeseries/…`) plus Elasticsearch index `nldt-lake-v1` power MCP `search_lake_elasticsearch` and optional S7 `lakeSeriesHints` (propose-only). Compose: `docker-compose.lake.yml` service `elasticsearch`.
+
 **Continuity.** Source monitor probes ArcGIS registries used by this pilot and DONL `metadata_modified` / resource URLs; patch proposals are never auto-applied ([`nldt/17-source-monitor.md`](../nldt/17-source-monitor.md)).
 
 **Ops.** `scripts/lake_sync.py --poc utrecht` · `build_lake_inventory.py` · optional MinIO (`NLDT_LAKE_BACKEND=s3`) · recipe `lake-publish-offer` for Data Space offers. Future KG/pgvector stores (plan §3.3) remain optional behind MCP; they are not required for the lake path.

@@ -398,6 +398,35 @@ DONL is a metadata hub (not an object store); file payloads live at PDOK/CBS/gem
 
 **Source monitor:** watchlist entry `donl-pilot` probes CKAN `metadata_modified` + resource URL reachability ([17-source-monitor.md](17-source-monitor.md)).
 
+---
+
+## Cross-twin time-series + Elasticsearch discovery
+
+Generic observation contract: [`schemas/timeseries-observation.schema.json`](schemas/timeseries-observation.schema.json).
+
+| Path | Contents |
+|------|----------|
+| `bronze/timeseries/{sourceId}/…` | Raw open-data / PoC snapshots |
+| `silver/timeseries/{seriesId}/year=YYYY/observations.jsonl` | Normalized observations |
+| `silver/timeseries/{seriesId}/series.json` | Series metadata (inventory + Elasticsearch) |
+
+**Ingest process / recipe:** `timeseries-ingest-run`, `timeseries-open-ingest` — first wave: Rijnland peilen/WKP + KNMI Gilze-Rijen (350) + CBS KWB Breda (PoC fields).
+
+**Elasticsearch:** compose service in [`docker-compose.lake.yml`](docker-compose.lake.yml) (`localhost:9200`). Index `nldt-lake-v1` documents: `dataset`, `timeseries_series`, `scenario_gold`. Reindex: `PYTHONPATH=. python scripts/lake_elasticsearch_reindex.py`. Offline/dev: set `NLDT_ELASTICSEARCH_MOCK=1` (in-memory) or leave `NLDT_ELASTICSEARCH_URL` unset.
+
+**MCP:** `search_lake_elasticsearch` (full-text) alongside `search_lake_datasets` (substring). Orchestrator `data_plane` prefers Elasticsearch for TS/scenario keywords; falls back to substring.
+
+```bash
+# Ingest curated TS wave (writes silver under NLDT_LAKE_FS_ROOT)
+PYTHONPATH=. python -c "
+from services.process_adapter.handlers import execute_local
+print(execute_local('timeseries-ingest-run', {'maxPeilStations': 3}))
+"
+
+# Reindex discovery
+NLDT_ELASTICSEARCH_MOCK=1 PYTHONPATH=. python scripts/lake_elasticsearch_reindex.py
+```
+
 ```bash
 # Harvest watchlist (metadata + downloads where configured)
 PYTHONPATH=. python scripts/donl_harvest.py --metadata-only

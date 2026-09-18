@@ -55,6 +55,7 @@ def seed_records() -> list[dict[str, Any]]:
         ("validate-artifact", "Validate artifact against nLDT/PoC JSON Schema"),
         ("source-monitor-probe", "Source monitor probe (open-data continuity)"),
         ("donl-harvest-run", "Harvest data.overheid.nl into data lake"),
+        ("timeseries-ingest-run", "Ingest open time-series into lake silver"),
     ]
     records: list[dict[str, Any]] = []
     for pid, title in processes:
@@ -184,6 +185,11 @@ def seed_records() -> list[dict[str, Any]]:
             "donl-harvest-publish",
             "Harvest DONL dataset and publish Data Space offer",
             ["donl", "harvest", "dataspace", "publish", "edc"],
+        ),
+        (
+            "timeseries-open-ingest",
+            "Open time-series ingest (silver)",
+            ["timeseries", "lake", "open-data", "knmi", "cbs", "rijnland"],
         ),
     ]
     for rid, title, tags in recipes:

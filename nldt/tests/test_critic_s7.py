@@ -53,3 +53,25 @@ def test_critic_hybrid_fails_without_det_floor():
     ids = {c["id"]: c for c in checks}
     assert verdict == "fail"
     assert ids["s7-hybrid-floor"]["status"] == "fail"
+
+
+def test_critic_series_grounding():
+    outputs = {
+        "proposals": {
+            "author": "auto",
+            "accepted": [
+                {
+                    "id": "SC-1",
+                    "proposedBy": "deterministic-scenario-author#poc-v1-auto",
+                }
+            ],
+            "rejected": [],
+            "acceptedCount": 1,
+            "lakeSeriesHints": [{"seriesId": "knmi-daily-neerslag-260"}],
+            "claimedSeriesIds": ["knmi-daily-neerslag-260", "ghost-series"],
+        }
+    }
+    checks, _v2, verdict, _ev = _validate_poc_outputs("utrecht-scenario-author", outputs)
+    ids = {c["id"]: c for c in checks}
+    assert verdict == "fail"
+    assert ids["s7-series-grounding"]["status"] == "fail"

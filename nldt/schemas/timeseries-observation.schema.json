@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldttoolbox.example/schemas/timeseries-observation.schema.json",
+  "title": "TimeseriesObservation",
+  "description": "One normalized observation in the nLDT cross-twin time-series silver layer.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "seriesId",
+    "poc",
+    "variable",
+    "unit",
+    "observedAt",
+    "value",
+    "sourceId",
+    "license",
+    "accessClass"
+  ],
+  "properties": {
+    "seriesId": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Stable series identifier (e.g. rijnland-peil-150-105-00001_polder)"
+    },
+    "poc": {
+      "type": "string",
+      "enum": ["utrecht", "breda", "rijnland", "eindhoven", "donl", "cross"]
+    },
+    "variable": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Measured quantity (waterstand, neerslag, ammonium, …)"
+    },
+    "unit": { "type": "string", "minLength": 1 },
+    "observedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp (UTC preferred)"
+    },
+    "value": {
+      "type": ["number", "null"],
+      "description": "Numeric observation; null = missing/quality-flagged"
+    },
+    "spatialRef": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["station", "buurt", "h3", "aoi", "point"]
+        },
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "crs": { "type": "string" },
+        "h3": { "type": "string" }
+      }
+    },
+    "geometry": {
+      "type": "object",
+      "description": "Optional GeoJSON geometry (Point preferred)"
+    },
+    "sourceId": { "type": "string", "minLength": 1 },
+    "license": { "type": "string", "minLength": 1 },
+    "accessClass": {
+      "type": "string",
+      "enum": ["open", "internal", "restricted"]
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Optional quality flags (n, min, max, median, …)"
+    }
+  }
+}

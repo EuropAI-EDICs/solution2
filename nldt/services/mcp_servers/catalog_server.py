@@ -95,6 +95,21 @@ async def search_lake_datasets(
 
 
 @mcp.tool()
+async def search_lake_elasticsearch(
+    q: str,
+    poc: str | None = None,
+    kind: str | None = None,
+    variable: str | None = None,
+    size: int = 20,
+) -> str:
+    """Full-text lake discovery via Elasticsearch (or in-memory mock). kinds: dataset|timeseries_series|scenario_gold."""
+    from services.elasticsearch import search_lake
+
+    hits = search_lake(q, poc=poc, kind=kind, variable=variable, size=size)
+    return json.dumps(hits, indent=2)
+
+
+@mcp.tool()
 async def get_lake_manifest(
     record_id: str | None = None,
     lake_uri: str | None = None,

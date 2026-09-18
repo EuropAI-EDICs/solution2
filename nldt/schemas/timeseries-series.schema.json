@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldttoolbox.example/schemas/timeseries-series.schema.json",
+  "title": "TimeseriesSeries",
+  "description": "Series-level metadata for lake inventory and Elasticsearch (not individual observations).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "seriesId",
+    "poc",
+    "variable",
+    "unit",
+    "sourceId",
+    "license",
+    "accessClass",
+    "timeRange",
+    "observationCount"
+  ],
+  "properties": {
+    "seriesId": { "type": "string", "minLength": 3 },
+    "poc": {
+      "type": "string",
+      "enum": ["utrecht", "breda", "rijnland", "eindhoven", "donl", "cross"]
+    },
+    "variable": { "type": "string", "minLength": 1 },
+    "unit": { "type": "string", "minLength": 1 },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "sourceId": { "type": "string" },
+    "license": { "type": "string" },
+    "accessClass": {
+      "type": "string",
+      "enum": ["open", "internal", "restricted"]
+    },
+    "spatialCoverage": { "type": "object", "additionalProperties": true },
+    "timeRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {
+        "start": { "type": "string" },
+        "end": { "type": "string" }
+      }
+    },
+    "observationCount": { "type": "integer", "minimum": 0 },
+    "lakeUri": { "type": "string" },
+    "lakeKey": { "type": "string" }
+  }
+}

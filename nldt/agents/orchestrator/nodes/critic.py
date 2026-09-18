@@ -146,6 +146,32 @@ def _validate_poc_outputs(recipe_id: str, outputs: dict[str, Any]) -> tuple[list
                             + ("; llm-unavailable" if llm_down else ""),
                         }
                     )
+                # Optional lake series cite-or-abstain: claimed seriesIds must be known
+                claimed = summary.get("claimedSeriesIds") or summary.get("lakeSeriesIds") or []
+                known = {
+                    str(h.get("seriesId"))
+                    for h in (summary.get("lakeSeriesHints") or [])
+                    if h.get("seriesId")
+                }
+                if claimed:
+                    unknown = [c for c in claimed if str(c) not in known]
+                    if unknown and known:
+                        checks_v2.append(
+                            {
+                                "id": "s7-series-grounding",
+                                "status": "fail",
+                                "detail": f"unknown seriesIds: {unknown}",
+                            }
+                        )
+                        verdict = "fail"
+                    elif claimed:
+                        checks_v2.append(
+                            {
+                                "id": "s7-series-grounding",
+                                "status": "pass",
+                                "detail": f"{len(claimed)} series cited",
+                            }
+                        )
         else:
             if summary.get("verdict") == "fail":
                 checks_v2.append({"id": "scenario-sweep", "status": "fail"})

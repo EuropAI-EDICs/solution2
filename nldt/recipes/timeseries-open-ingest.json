@@ -1,0 +1,59 @@
+{
+  "id": "timeseries-open-ingest",
+  "title": "Open time-series ingest (silver)",
+  "description": "Curated TS ingest: Rijnland peilen/WKP + KNMI Gilze-Rijen (350) + CBS KWB Breda → bronze + silver/timeseries. Cross-twin lake layer for Elasticsearch discovery.",
+  "version": "1.1.0",
+  "tags": ["timeseries", "lake", "open-data", "knmi", "cbs", "breda", "rijnland"],
+  "requiredProcesses": ["timeseries-ingest-run"],
+  "inputs": {
+    "includePeilen": {
+      "type": "boolean",
+      "description": "Normalize Rijnland peilen (restricted)",
+      "required": false
+    },
+    "includeWkp": {
+      "type": "boolean",
+      "description": "Normalize Rijnland WKP monthly",
+      "required": false
+    },
+    "includeKnmi": {
+      "type": "boolean",
+      "description": "Ingest KNMI Gilze-Rijen (station 350) tmax/tmean/neerslag for Breda",
+      "required": false
+    },
+    "includeCbs": {
+      "type": "boolean",
+      "description": "Ingest CBS Kerncijfers wijken/buurten for Breda (PoC-aligned fields)",
+      "required": false
+    },
+    "maxPeilStations": {
+      "type": "integer",
+      "description": "Cap peilen stations (default 5)",
+      "required": false
+    }
+  },
+  "outputs": {
+    "summary": {
+      "type": "json",
+      "description": "Ingest summary with series lake URIs"
+    }
+  },
+  "steps": [
+    {
+      "id": "ingest",
+      "processId": "timeseries-ingest-run",
+      "title": "Ingest open time-series wave",
+      "inputs": {
+        "includePeilen": "${recipe.inputs.includePeilen}",
+        "includeWkp": "${recipe.inputs.includeWkp}",
+        "includeKnmi": "${recipe.inputs.includeKnmi}",
+        "includeCbs": "${recipe.inputs.includeCbs}",
+        "maxPeilStations": "${recipe.inputs.maxPeilStations}"
+      },
+      "outputs": { "summary": "summary" },
+      "backend": "local"
+    }
+  ],
+  "riskLevel": "medium",
+  "cookbookUri": "http://localhost:8081/recipes/timeseries-open-ingest"
+}

@@ -362,6 +362,54 @@ def invent_donl() -> list[dict[str, Any]]:
     return items
 
 
+def invent_timeseries() -> list[dict[str, Any]]:
+    """Scan silver/timeseries/*/series.json written by the TS silver writer."""
+    lake_root = NLDT_ROOT / "data" / "lake" / "nldt-poc-lake"
+    ts_root = lake_root / "silver" / "timeseries"
+    items: list[dict[str, Any]] = []
+    if not ts_root.is_dir():
+        return items
+    for series_json in sorted(ts_root.glob("*/series.json")):
+        try:
+            meta = json.loads(series_json.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            meta = {}
+        poc = str(meta.get("poc") or "cross")
+        access = str(meta.get("accessClass") or "open")
+        lake_key = f"silver/timeseries/{series_json.parent.name}/series.json"
+        entry = _entry(
+            poc=poc,
+            zone="silver",
+            kind="timeseries",
+            local_path=series_json,
+            lake_key=lake_key,
+            source_id=str(meta.get("sourceId") or "timeseries"),
+            license_=str(meta.get("license") or "open"),
+        )
+        entry["accessClass"] = access
+        entry["seriesId"] = meta.get("seriesId")
+        entry["variable"] = meta.get("variable")
+        entry["unit"] = meta.get("unit")
+        entry["timeRange"] = meta.get("timeRange")
+        entry["observationCount"] = meta.get("observationCount")
+        items.append(entry)
+        for obs in sorted(series_json.parent.glob("year=*/observations.jsonl")):
+            rel = obs.relative_to(lake_root).as_posix()
+            oentry = _entry(
+                poc=poc,
+                zone="silver",
+                kind="timeseries-observations",
+                local_path=obs,
+                lake_key=rel,
+                source_id=str(meta.get("sourceId") or "timeseries"),
+                license_=str(meta.get("license") or "open"),
+            )
+            oentry["accessClass"] = access
+            oentry["seriesId"] = meta.get("seriesId")
+            items.append(oentry)
+    return items
+
+
 def main() -> int:
     datasets = (
         invent_utrecht()
@@ -369,6 +417,7 @@ def main() -> int:
         + invent_eindhoven()
         + invent_rijnland()
         + invent_donl()
+        + invent_timeseries()
     )
     inv = {
         "version": "1.0",
