@@ -52,6 +52,12 @@ def run(argv=None) -> int:
     ap.add_argument("--set", type=Path, default=DEFAULT_SET,
                     help="set file for --author file")
     ap.add_argument("--max-scenarios", type=int, default=6)
+    ap.add_argument(
+        "--horizon",
+        type=int,
+        default=2050,
+        help="Linear CBS projection year for LLM digest + deterministic 2050 floor (0=off)",
+    )
     ap.add_argument("--out", type=Path, default=None,
                     help="output dir (default: poc-breda/scenario-runs/<ts>-breda-scen)")
     args = ap.parse_args(argv)
@@ -61,12 +67,38 @@ def run(argv=None) -> int:
     )
 
     # auteurs: voorstellen alleen, altijd achter dezelfde gate
+    lake_hints: list = []
+    projections: list = []
     if args.author == "file":
         specs, rejected = scenarios.author_from_file(args.set)
     elif args.author == "auto":
         specs, rejected = scenarios.deterministic_author(args.max_scenarios)
     else:
-        specs, rejected = scenarios.LLMScenarioAuthor().propose(args.max_scenarios)
+        lake_hints = scenarios.breda_lake_series_hints()
+        if args.horizon and args.horizon > 0:
+            projections = scenarios.breda_horizon_projections(args.horizon)
+            lake_hints = scenarios.enrich_hints_with_projections(lake_hints, projections)
+            floor, floor_rej = scenarios.deterministic_scenarios_2050(
+                projections, max_scenarios=3
+            )
+            print(f"  horizon {args.horizon}: {len(projections)} projections, "
+                  f"{len(floor)} floor scenarios")
+            for p in projections[:4]:
+                print(f"    · {p['buurtnaam']} {p['variable']}: "
+                      f"{p['lastObserved']['value']}→{p['horizon']}≈{p['projected']}{p['unit']}")
+        else:
+            floor, floor_rej = [], []
+        print(f"  lakeSeriesHints: {len(lake_hints)} series for LLM digest")
+        llm_budget = max(1, args.max_scenarios - len(floor))
+        llm_specs, llm_rej = scenarios.LLMScenarioAuthor().propose(
+            llm_budget,
+            lake_series_hints=lake_hints,
+            horizon_projections=projections or None,
+        )
+        specs, merge_rej = scenarios.merge_horizon_floor_and_llm(
+            floor, llm_specs, max_scenarios=args.max_scenarios
+        )
+        rejected = floor_rej + llm_rej + merge_rej
 
     # lagen cache-first (offline herhaal na één scan-run)
     fetched = fetch.fetch_all(include_bomen=True)
@@ -80,6 +112,57 @@ def run(argv=None) -> int:
     report["rejectedAuthoring"] = rejected
     report["author"] = args.author
     report["baselineRun"] = args.run.name
+    if lake_hints:
+        report["lakeSeriesHints"] = lake_hints
+    if projections:
+        report["horizonProjections"] = [
+            {
+                "seriesId": p.get("seriesId"),
+                "buurtnaam": p.get("buurtnaam"),
+                "variable": p.get("variable"),
+                "unit": p.get("unit"),
+                "horizon": p.get("horizon"),
+                "projected": p.get("projected"),
+                "slopePerYear": p.get("slopePerYear"),
+                "lastObserved": p.get("lastObserved"),
+                "method": p.get("method"),
+            }
+            for p in projections
+        ]
+        report["horizonYear"] = args.horizon
+
+    if projections:
+        print("  building horizon pathway keyframes (2026→2050, step=4)…")
+        report["horizonPathway"] = scenarios.build_horizon_pathway_frames(
+            layers,
+            baseline,
+            projections,
+            start_year=2026,
+            end_year=int(args.horizon),
+            step=4,
+        )
+        print(f"  pathway keyframes: {list(report['horizonPathway']['keyframes'])}")
+
+    llm_variants = [
+        v for v in report.get("variants") or []
+        if str(v.get("proposedBy") or "").lower().startswith("llm")
+    ]
+    if llm_variants:
+        hz = int(args.horizon) if args.horizon and args.horizon > 0 else 2050
+        print(f"  building per-AI pathways ({len(llm_variants)} proposals → {hz})…")
+        llm_paths = scenarios.build_llm_scenario_pathways(
+            layers,
+            baseline,
+            llm_variants,
+            start_year=2026,
+            end_year=hz,
+            step=4,
+        )
+        if llm_paths:
+            report["llmScenarioPathways"] = llm_paths
+            # drop legacy merged pathway if present
+            report.pop("llmHorizonPathway", None)
+            print(f"  llm scenario pathways: {list(llm_paths)}")
 
     out_dir = args.out or (
         ROOT / "scenario-runs" /
@@ -105,6 +188,12 @@ def run(argv=None) -> int:
         "nAccepted": report["nAccepted"],
         "controlIdentical": report["control"]["identicalToBaseline"],
         "rejected": report["rejected"] + report.get("rejectedAuthoring", []),
+        "lakeSeriesHints": [
+            {"seriesId": h.get("seriesId"), "variable": h.get("variable")}
+            for h in lake_hints
+        ],
+        "horizonYear": args.horizon if args.author == "llm" and args.horizon else None,
+        "horizonProjectionCount": len(projections),
         "artifacts": {
             p.name: {"sha256": _sha256(p), "bytes": p.stat().st_size}
             for p in sorted(out_dir.glob("scenario-report.*"))

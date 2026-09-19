@@ -142,10 +142,21 @@ window.__OVERLAYS__ = __OVERLAYS_JSON__;
   };
 
   var map = L.map("map", { preferCanvas: true }).setView([51.59, 4.78], 12);
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 18,
-    attribution: "&copy; OpenStreetMap-bijdragers"
-  }).addTo(map);
+  // Keyless Dutch basemap (Carto raster now watermarks "API key required"; OSM often blocked).
+  var pdok = L.tileLayer("https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/standaard/EPSG:3857/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: "&copy; Kadaster / PDOK BRT"
+  });
+  var pdokGrijs = L.tileLayer("https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/grijs/EPSG:3857/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: "&copy; Kadaster / PDOK BRT"
+  });
+  var esri = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
+    maxZoom: 16,
+    attribution: "&copy; Esri"
+  });
+  pdok.addTo(map);
+  L.control.layers({"PDOK BRT": pdok, "PDOK grijs": pdokGrijs, "Esri light gray": esri}, null, {position: "bottomleft"}).addTo(map);
 
   function breaksFor(value) {
     var scores = [];

@@ -36,6 +36,8 @@ Navigator Planner  Executor          Zone Engine → Explainer DT
 | **Process Executor** | `agents/orchestrator/nodes/executor.py` | Runs steps via process MCP/client |
 | **Critic** | `agents/orchestrator/nodes/critic.py` | V0–V4 on plan + outputs |
 | **Explainer** | `agents/orchestrator/nodes/explainer.py` | PROV + human-readable summary |
+| **Breda scenario graph** | `agents/breda_scenario/graph.py` | What-if plane: S10 → S7 hybrid → dispose stubs |
+| **Deep research (S10)** | `agents/seams/deep_research.py` | Optional Deep Agents harness → `ResearchBrief` only |
 
 ## Agent roster (PoC — plane A/B/C)
 
@@ -80,10 +82,16 @@ python -m services.mcp_servers.process_server
 | S3 Result narration | Summarize outputs | Cite job output keys only |
 | **S7 Scenario author** | Policy/norm/hypothetical proposals | `ScenarioSpec` schema + reject ledger; engine computes Δ |
 | **S8 Scenario narrative** | Readable scenario summary | Every number/id/verdict must appear in `scenario-report` |
+| **S10 Deep research** | Open research via optional Deep Agents | `ResearchBrief` schema; identity stamped by seam; hints only for S7 |
 
 Default: **no LLM** — planner uses keyword/tag matching; PoC Norm Analyst
 is deterministic replay of a verified corpus. LLM via optional `llm_hook`
-(`poc/pipeline/agents.py`, `scenario_author.py`).
+(`poc/pipeline/agents.py`, `scenario_author.py`). Deep Agents is **never**
+the core orchestrator — only an optional S10 harness behind the gate
+(`NLDT_DEEP_RESEARCH=1`, package `deepagents` optional).
+
+**S10 usage (CLI, stub vs harness, checklist):**
+[19-s10-deep-research.md](19-s10-deep-research.md).
 
 ## LangGraph flow (nLDT recipes)
 
@@ -103,6 +111,29 @@ flowchart TD
 
 Source: `agents/orchestrator/graph.py`. Checkpoints: `MemorySaver` (dev);
 production → Postgres saver. HITL: `interrupt_before=["execute_steps"]`.
+
+## LangGraph flow (Breda what-if plane)
+
+```mermaid
+flowchart TD
+  START([START]) --> S10[deep_research S10]
+  S10 --> H[horizon_inputs]
+  H -->|error| E1([END])
+  H --> F[author_floor S7 det]
+  F --> L[author_llm S7]
+  L --> M[merge_and_gate]
+  M -->|no specs / error| E2([END])
+  M --> R[run_scenarios dispose]
+  R --> P[pathways per AI]
+  P --> A[assemble report]
+  A --> E3([END])
+```
+
+Source: `agents/breda_scenario/graph.py`. Stub mode for CI; live dispose
+calls `poc-breda` engines via ``python -m agents.breda_scenario.run --live
+--baseline … --what-if``. Each AI proposal keeps its own year-sweep
+(`llmScenarioPathways`) — never a merged AI pathway. The what-if map shows
+the graph with **Play pipeline** simulation.
 
 ## Opportunity-map flow (PoC plane A)
 

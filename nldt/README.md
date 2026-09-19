@@ -31,6 +31,7 @@ Generic reference implementation of a **Dutch Local Digital Twin (nLDT)** for ag
 | [16-eid-wallet-identity.md](16-eid-wallet-identity.md) | **Plan:** EU Digital Identity Wallet identity layer (BK-3 re-scope) |
 | [17-source-monitor.md](17-source-monitor.md) | **MVP:** open-data continuity probes + human-merge patches |
 | [18-donl-harvest.md](18-donl-harvest.md) | **Implemented:** data.overheid.nl CKAN harvest → lake + Data Space |
+| [19-s10-deep-research.md](19-s10-deep-research.md) | **S10:** Deep Research seam — gebruik, CLI, stub vs Deep Agents |
 
 ## Code
 
@@ -48,6 +49,8 @@ nldt/
 │   ├── marketplace_publish.py
 │   └── mcp_servers/      catalog, process, data MCP servers
 ├── agents/orchestrator/  LangGraph orchestrator
+├── agents/breda_scenario/ Breda what-if LangGraph (+ S10)
+├── agents/seams/         GenAI seams (S10 deep research)
 └── recipes/              Reference recipes
 └── simulation/           Mock demo visualisation (HTML)
 ```

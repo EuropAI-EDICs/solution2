@@ -39,6 +39,19 @@
   "proposedBy": {
    "type": "string",
    "description": "identiteitsstempel door de naad (file|auto|llm-proposal#model) — nooit een zelfclaim van het model"
+  },
+  "lakeSeriesHints": {
+   "type": "array",
+   "description": "Optional lake time-series ids cited by the author (propose-only; engine does not execute them)",
+   "items": {
+    "type": "object",
+    "required": ["seriesId"],
+    "additionalProperties": true,
+    "properties": {
+     "seriesId": {"type": "string", "minLength": 3},
+     "variable": {"type": "string"}
+    }
+   }
   }
  },
  "$defs": {

@@ -205,6 +205,7 @@ Condensed reference; full detail in the code and this file's git history
 | S7 | scenario authoring (file/auto/llm/**hybrid**; det-floor + LLM-explorer; ledger; control reproduction) | 1 · **4** | **implemented** — hybrid product default in nLDT `utrecht-scenario-author`; PoC `poc/pipeline/scenario_author.py` (`HybridScenarioAuthor`); golden-set via `poc/scenarios/compare_authors.py` (`floorIntact`); Breda parallel in `poc-breda/breda/scenarios.py` (indicator-weight variants) |
 | S8 | scenario narration (numeric grounding gate) | 1 | **implemented**; live qwen3.8 run published |
 | S9 | policy-document narration in an external front door (grounded-artifact contract; deterministic run annex, schema `run-annex.schema.json`) | — (beleidskompas BK-3) | **generator implemented** (`nldt/services/run_annex.py` + CLI `build-run-annex`); Word/PDF attachment + number-grounding on the foreign platform's text still open (needs beleidskompas app code) |
+| S10 | deep research harness (optional LangChain Deep Agents) → `ResearchBrief` only | nldt · **4** | **seam + usage guide** — `nldt/agents/seams/deep_research.py` + schema `research-brief.schema.json`; feeds S7 hints; never executes scans/mutations; live harness behind `NLDT_DEEP_RESEARCH=1` + optional `deepagents`; **how-to:** [`nldt/19-s10-deep-research.md`](../nldt/19-s10-deep-research.md) |
 | SM | source monitor (ArcGIS REST + DONL CKAN continuity probes; human-merge patch) | all | **MVP done** (`services/source_monitor/`, recipe `source-monitor-run`; DONL: `donl_probe.py`, watchlist `donl-pilot`) |
 | L6 | lake publish (medallion URI → ODRL offer → EDC connector; Critic V0/V2/V4) | nldt | **done** (`lake-publish-dataset`, recipe `lake-publish-offer`; `services/lake/publish.py`, `dataspace_connector.py`) |
 | DONL | national CKAN harvest (data.overheid.nl → bronze + DCAT catalog; download vs DataService split) | nldt | **done** (`services/donl_harvest/`, recipes `donl-harvest-run` / `donl-harvest-publish`) |
@@ -245,12 +246,14 @@ zones & Communication protocol.
 **Key code** — `poc/pipeline/scenarios.py` · `scenario_author.py` (authors,
 identity stamping, rejection ledger) · `poc-breda/breda/qa.py` (asker,
 runner, number-gate, seam normalization) · `poc-breda/schemas/scan-query.schema.json` ·
+`nldt/agents/breda_scenario/` (LangGraph Breda what-if plane) ·
+`nldt/agents/seams/deep_research.py` (S10) · `nldt/schemas/research-brief.schema.json` ·
 `nldt/services/source_monitor/` · `nldt/services/donl_harvest/` ·
 `nldt/services/lake/publish.py` · `nldt/services/adapters/dataspace_connector.py` ·
 S1/S2: `poc/pipeline/norm_llm.py` + shared transport `poc/pipeline/llm_transport.py`
 + golden-set `poc/llm/compare_norm_llm.py` ·
 tests: `poc/tests/test_scenario*.py`, `poc-breda/tests/test_qa.py`,
-`poc/tests/test_norm_llm.py`,
+`poc/tests/test_norm_llm.py`, `nldt/tests/test_breda_scenario_graph.py`,
 `nldt/tests/test_donl_harvest.py`, `nldt/tests/test_phase6_dataspace.py`,
 `nldt/tests/test_source_monitor.py`.
 
