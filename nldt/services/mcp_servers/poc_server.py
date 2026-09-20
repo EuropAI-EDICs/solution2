@@ -1,4 +1,8 @@
-"""PoC MCP aliases — thin façade over process-mcp for scenario + QA tools."""
+"""PoC MCP aliases — thin façade over process-mcp for scenario + QA tools.
+
+Also serves Agent Skills (SEP-2640) as skill:// resources — see
+``services.mcp_servers.skills_resources`` and ``nldt/20-poc-mcp-skills.md``.
+"""
 
 from __future__ import annotations
 
@@ -12,8 +16,18 @@ from mcp.server.mcpserver import MCPServer
 from services.mcp_servers.client import PROCESS_URL
 from services.mcp_servers.headers import mcp_auth_headers
 from services.mcp_servers.poc_tools import POC_TOOLS
+from services.mcp_servers.skills_resources import (
+    POC_SKILLS_INSTRUCTIONS,
+    SkillsExtension,
+    register_poc_skills,
+)
 
-mcp = MCPServer("nldt-poc-mcp")
+mcp = MCPServer(
+    "nldt-poc-mcp",
+    instructions=POC_SKILLS_INSTRUCTIONS,
+    extensions=[SkillsExtension()],
+)
+register_poc_skills(mcp)
 
 
 async def _execute_remote(process_id: str, inputs: dict[str, Any]) -> dict[str, Any]:

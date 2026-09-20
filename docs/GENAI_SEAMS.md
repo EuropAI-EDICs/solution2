@@ -165,6 +165,7 @@ promises.
 | Breda what-if (S7 on PoC-4) | Value-politics variants, rank-stability | this doc §B4 |
 | Source monitor | ArcGIS + DONL probes, human-merge patches | [`nldt/17-source-monitor.md`](../nldt/17-source-monitor.md) |
 | Governed agent layer (Phase 5) | One nLDT/MCP front door over all PoCs | [`nldt/12-governed-agent-layer.md`](../nldt/12-governed-agent-layer.md) |
+| PoC MCP Skills (SEP-2640) | Progressive playbooks as `skill://` resources next to PoC tools | [`nldt/20-poc-mcp-skills.md`](../nldt/20-poc-mcp-skills.md) |
 | Data lake + Data Space (Phase 6) | Medallion lake, `lake-publish-offer`, EDC connector | [`nldt/13-data-lake-and-space.md`](../nldt/13-data-lake-and-space.md) |
 | DONL harvest | data.overheid.nl CKAN → DCAT lake + pilot publish | [`nldt/18-donl-harvest.md`](../nldt/18-donl-harvest.md) |
 
@@ -248,6 +249,7 @@ identity stamping, rejection ledger) · `poc-breda/breda/qa.py` (asker,
 runner, number-gate, seam normalization) · `poc-breda/schemas/scan-query.schema.json` ·
 `nldt/agents/breda_scenario/` (LangGraph Breda what-if plane) ·
 `nldt/agents/seams/deep_research.py` (S10) · `nldt/schemas/research-brief.schema.json` ·
+`nldt/skills/poc/` + `nldt/services/mcp_servers/skills_resources.py` (SEP-2640 PoC skills) ·
 `nldt/services/source_monitor/` · `nldt/services/donl_harvest/` ·
 `nldt/services/lake/publish.py` · `nldt/services/adapters/dataspace_connector.py` ·
 S1/S2: `poc/pipeline/norm_llm.py` + shared transport `poc/pipeline/llm_transport.py`

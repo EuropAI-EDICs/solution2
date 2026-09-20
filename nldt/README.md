@@ -32,6 +32,7 @@ Generic reference implementation of a **Dutch Local Digital Twin (nLDT)** for ag
 | [17-source-monitor.md](17-source-monitor.md) | **MVP:** open-data continuity probes + human-merge patches |
 | [18-donl-harvest.md](18-donl-harvest.md) | **Implemented:** data.overheid.nl CKAN harvest → lake + Data Space |
 | [19-s10-deep-research.md](19-s10-deep-research.md) | **S10:** Deep Research seam — gebruik, CLI, stub vs Deep Agents |
+| [20-poc-mcp-skills.md](20-poc-mcp-skills.md) | **Skeleton:** PoC playbooks as Agent Skills over MCP (`skill://`, SEP-2640) |
 
 ## Code
 
@@ -51,6 +52,7 @@ nldt/
 ├── agents/orchestrator/  LangGraph orchestrator
 ├── agents/breda_scenario/ Breda what-if LangGraph (+ S10)
 ├── agents/seams/         GenAI seams (S10 deep research)
+├── skills/poc/           Agent Skills for PoC MCP tools (SEP-2640)
 └── recipes/              Reference recipes
 └── simulation/           Mock demo visualisation (HTML)
 ```

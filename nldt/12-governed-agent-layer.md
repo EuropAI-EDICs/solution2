@@ -73,6 +73,9 @@ Tests: `tests/test_poc_processes.py`, `tests/test_phase5_governed.py`.
 - `list_poc_capabilities` on catalog MCP (`find_poc_capabilities` in seed)
 - Tools: `run_opportunity_map`, `propose_scenarios`, `run_scenario_sweep`,
   `ask_scan`, `run_value_scan`, `run_crosstrack`, `run_peil_*`, `run_bp2op_transform`
+- **Skills (SEP-2640 skeleton):** companion Agent Skills co-located on `nldt-poc-mcp`
+  as `skill://` resources + `skill://index.json` — see
+  [20-poc-mcp-skills.md](20-poc-mcp-skills.md) and [`skills/poc/`](skills/poc/)
 
 ### 5.4 — Critic + HITL uniform ✅
 
