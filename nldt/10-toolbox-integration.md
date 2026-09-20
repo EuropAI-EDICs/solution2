@@ -109,8 +109,14 @@ MARKETPLACE_AGENT_URL=https://marketplace-int.ldttoolbox.app
 MARKETPLACE_MOCK=false
 ```
 
+## CitiVERSE live path (EuropAI WP4)
+
+Mock defaults are intentional on a laptop. To consume Toolbox int/prod instead
+of rebuilding it, follow [edic/citiverse-live-path.md](edic/citiverse-live-path.md)
+and run `PYTHONPATH=. python -m scripts.edic_live_readiness`.
+
 ## Verification
 
 ```bash
-PYTHONPATH=. pytest tests/test_phase2_adapters.py -q
+PYTHONPATH=. pytest tests/test_phase2_adapters.py tests/test_edic_handover.py -q
 ```

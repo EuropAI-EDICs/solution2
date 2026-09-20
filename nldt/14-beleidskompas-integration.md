@@ -9,7 +9,8 @@ capabilities through the governed seams.
 |---|---|
 | Status | Decided 2026-09-14 (§10, decisions 1–10) · **BK-0, BK-1, BK-2 done; BK-3 re-scoped to the eID-wallet track — [16](16-eid-wallet-identity.md) W1/W3/W5 done (mock), W2/W6 open** · runbook: govchat/README.md |
 | Source app | [beleidskompas.md (GovChat-NL)](https://github.com/jeannotdamoiseaux/GovChat-NL/blob/main/docs/app-launcher/beleidskompas/beleidskompas.md) |
-| Related | [04](04-recipes-and-processes.md) · [05](05-agentic-ai-layer.md) · [07](07-trust-and-governance.md) · [09](09-federation-and-observability.md) · [10](10-toolbox-integration.md) · [12](12-governed-agent-layer.md) · [`../docs/GENAI_SEAMS.md`](../docs/GENAI_SEAMS.md) |
+| Related | [04](04-recipes-and-processes.md) · [05](05-agentic-ai-layer.md) · [07](07-trust-and-governance.md) · [09](09-federation-and-observability.md) · [10](10-toolbox-integration.md) · [12](12-governed-agent-layer.md) · [21](21-europai-edic-handover.md) · [`../docs/GENAI_SEAMS.md`](../docs/GENAI_SEAMS.md) |
+| EuropAI EDIC home | **Digital Commons EDIC** (code stewardship), not CitiVERSE — [edic/fit-commons.md](edic/fit-commons.md) |
 | Strategic frame | NLDT App Store 2028 — *modular apps exchanged in existing front doors* ([Q3 2026 report](../NLDT%20Q3%202026%20Quarterly%20Report%20%E2%80%93%20Summary%20in%20English%20%28App%20Store%20Focus%29.md)) |
 
 ---
@@ -243,13 +244,20 @@ numbers and its annex re-runs offline, bit-identically.
 
 ### BK-4 — Federation & Data Space (later; aligns with Phase 6 / EDIC)
 
+GovChat-NL as a **product** is a Digital Commons asset
+([edic/fit-commons.md](edic/fit-commons.md)). Marketplace publication of
+*spatial recipes* that beleidskompas consumes is CitiVERSE/IMPACTS
+([21-europai-edic-handover.md](21-europai-edic-handover.md)).
+
 - A2A skill `beleidskompas-policy-support` on the
   [`services/a2a/app.py`](services/a2a/app.py) agent card (next to
   `execute-recipe`, `export-3d-context`) so other front doors can federate.
 - Provincial data (e.g. Limburg base layers) via the Data Space connector /
   `lake-publish-dataset` ([`schemas/dataspace-offer.schema.json`](schemas/dataspace-offer.schema.json)).
 - Evaluate EU Toolbox Marketplace publication (Q4 2026 EDIC cross-border
-  marketplace goal).
+  marketplace goal) using
+  [`services/marketplace_publish.py`](services/marketplace_publish.py)
+  (ValidationReport + PROV on the payload).
 
 ## 9. Risks
 

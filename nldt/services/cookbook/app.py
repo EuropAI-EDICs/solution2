@@ -6,7 +6,7 @@ from typing import Any
 from fastapi import Depends, FastAPI, HTTPException
 
 from services.common.auth import require_bearer
-from services.common.schema import load_recipe
+from services.common.schema import list_recipe_ids, load_recipe
 
 app = FastAPI(title="nLDT Cookbook", version="1.0.0", dependencies=[Depends(require_bearer)])
 
@@ -24,12 +24,6 @@ def landing() -> dict[str, Any]:
 
 @app.get("/recipes")
 def list_recipes() -> dict[str, Any]:
-    from pathlib import Path
-
-    from services.common.schema import NLDT_ROOT
-
-    recipes_dir = NLDT_ROOT / "recipes"
-    ids = [p.stem for p in recipes_dir.glob("*.json")]
     return {
         "recipes": [
             {
@@ -37,7 +31,7 @@ def list_recipes() -> dict[str, Any]:
                 "href": f"/recipes/{rid}",
                 "cookbookUri": f"{COOKBOOK_BASE}/recipes/{rid}",
             }
-            for rid in sorted(ids)
+            for rid in list_recipe_ids()
         ]
     }
 

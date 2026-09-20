@@ -28,6 +28,7 @@ Do **not** skip Critic/HITL. Do **not** write zones or lake silver/gold outside 
 | 2 Lake | Ingest, convert, publish | [phase-2-lake.md](references/phase-2-lake.md) |
 | 3 Scenarios | Use cases & what-if | [phase-3-scenarios.md](references/phase-3-scenarios.md) |
 | 4 Demo site | Interactive explainer | [phase-4-demo.md](references/phase-4-demo.md) |
+| EDIC city onboarding | CitiVERSE capacity module | [edic-city-onboarding.md](references/edic-city-onboarding.md) |
 
 ## Workflow checklist
 

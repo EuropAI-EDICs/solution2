@@ -323,6 +323,11 @@ Dataset records in catalog_adapter contain at least:
    V2 access gate, V4 HITL for restricted). Orchestrator reuses the same
    report shape as PoC recipes.
 
+SIMPL-Open is not yet an adapter backend. WP4 (“exchange through SIMPL”) is
+met today only as an EDC-shaped bridge plus an explicit debt log:
+[edic/l2-infrastructure.md](edic/l2-infrastructure.md). Do not stand up a
+second connector stack in this repo.
+
 ```bash
 # Open offer (orchestrator, offline)
 NLDT_OFFLINE=1 PYTHONPATH=. python -m agents.orchestrator.run \

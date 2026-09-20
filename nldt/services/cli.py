@@ -55,6 +55,16 @@ def cmd_run_local_process(args: argparse.Namespace) -> int:
     return 0
 
 
+def _load_optional_json(path: str | None) -> dict | None:
+    if not path:
+        return None
+    with Path(path).open(encoding="utf-8") as f:
+        data = json.load(f)
+    if not isinstance(data, dict):
+        raise ValueError(f"{path} must contain a JSON object")
+    return data
+
+
 def cmd_publish_recipe(args: argparse.Namespace) -> int:
     from services.common.schema import load_recipe
     from services.marketplace_publish import publish_recipe
@@ -64,6 +74,8 @@ def cmd_publish_recipe(args: argparse.Namespace) -> int:
         recipe,
         categories=args.category or ["urn:ngsi-ld:category:processes"],
         licence=args.licence,
+        validation_report=_load_optional_json(args.validation_report),
+        provenance=_load_optional_json(args.provenance),
     )
     print(json.dumps(result, indent=2))
     return 0
@@ -121,6 +133,14 @@ def main(argv: list[str] | None = None) -> int:
     p_pub.add_argument("recipe_id")
     p_pub.add_argument("--category", action="append")
     p_pub.add_argument("--licence", default="EUPL-1.2")
+    p_pub.add_argument(
+        "--validation-report",
+        help="JSON ValidationReport to attach to the Marketplace payload",
+    )
+    p_pub.add_argument(
+        "--provenance",
+        help="JSON PROV bundle to attach to the Marketplace payload",
+    )
     p_pub.set_defaults(func=cmd_publish_recipe)
 
     p_ctx = sub.add_parser("export-context", help="Export Web3DContext from execution JSON")

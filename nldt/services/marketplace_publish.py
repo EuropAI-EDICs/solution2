@@ -6,17 +6,42 @@ from typing import Any
 
 import httpx
 
+from services.common.schema import edic_entry_for_recipe
+
 MARKETPLACE_URL = os.environ.get("MARKETPLACE_AGENT_URL", "").rstrip("/")
 MARKETPLACE_TOKEN = os.environ.get("MARKETPLACE_TOKEN", "")
 MARKETPLACE_BASE = os.environ.get("MARKETPLACE_BASE_URL", "https://marketplace.ldttoolbox.app")
 MOCK = os.environ.get("MARKETPLACE_MOCK", "true").lower() in ("1", "true", "yes")
 
 
-def _headers() -> dict[str, str]:
+def _headers() -> dict[str, Any]:
     h: dict[str, str] = {}
     if MARKETPLACE_TOKEN:
         h["Authorization"] = f"Bearer {MARKETPLACE_TOKEN}"
     return h
+
+
+def marketplace_asset_payload(
+    recipe: dict[str, Any],
+    *,
+    validation_report: dict[str, Any] | None = None,
+    provenance: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Recipe plus trust artefacts for EDIC / Marketplace acceptance."""
+    recipe_id = recipe["id"]
+    entry = edic_entry_for_recipe(recipe_id) or {}
+    payload: dict[str, Any] = {
+        "recipe": recipe,
+        "validationReport": validation_report,
+        "provenance": provenance,
+        "edic": {
+            "destination": entry.get("edic", "ldt-citiverse"),
+            "assetClass": entry.get("assetClass", "spatial-blueprint"),
+            "readiness": entry.get("readiness", "mock"),
+            "owner": entry.get("owner", "ICTU"),
+        },
+    }
+    return payload
 
 
 def upload_asset(payload: dict[str, Any], file_name: str) -> dict[str, Any]:
@@ -69,10 +94,17 @@ def publish_recipe(
     *,
     categories: list[str] | None = None,
     licence: str = "EUPL-1.2",
+    validation_report: dict[str, Any] | None = None,
+    provenance: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     recipe_id = recipe["id"]
     file_name = f"recipe-{recipe_id}-v{recipe.get('version', '1.0.0')}.json"
-    upload = upload_asset(recipe, file_name)
+    payload = marketplace_asset_payload(
+        recipe,
+        validation_report=validation_report,
+        provenance=provenance,
+    )
+    upload = upload_asset(payload, file_name)
     asset_id = upload["id"]
     pub = publish_asset(
         asset_id,
@@ -88,5 +120,6 @@ def publish_recipe(
         "offeringId": offering_id,
         "marketplaceLink": link,
         "publishResponse": pub,
+        "payload": payload,
         "mock": pub.get("mock", False),
     }

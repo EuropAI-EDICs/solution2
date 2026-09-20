@@ -33,6 +33,7 @@ Generic reference implementation of a **Dutch Local Digital Twin (nLDT)** for ag
 | [18-donl-harvest.md](18-donl-harvest.md) | **Implemented:** data.overheid.nl CKAN harvest → lake + Data Space |
 | [19-s10-deep-research.md](19-s10-deep-research.md) | **S10:** Deep Research seam — gebruik, CLI, stub vs Deep Agents |
 | [20-poc-mcp-skills.md](20-poc-mcp-skills.md) | **Skeleton:** PoC playbooks as Agent Skills over MCP (`skill://`, SEP-2640) |
+| [21-europai-edic-handover.md](21-europai-edic-handover.md) | **EuropAI WP4:** asset-push map, EDIC fit statements, CitiVERSE live path |
 
 ## Code
 
@@ -53,7 +54,8 @@ nldt/
 ├── agents/breda_scenario/ Breda what-if LangGraph (+ S10)
 ├── agents/seams/         GenAI seams (S10 deep research)
 ├── skills/poc/           Agent Skills for PoC MCP tools (SEP-2640)
-└── recipes/              Reference recipes
+├── recipes/              Reference recipes + edic-asset-map.json
+├── edic/                 EuropAI WP4 EDIC fit statements and declarations
 └── simulation/           Mock demo visualisation (HTML)
 ```
 
@@ -64,6 +66,7 @@ nldt/
 - [LDT CitiVERSE EDIC RA](https://github.com/Geonovum/ldt-citiverse-edic-ra)
 - [nldt-testbed2026-phase2-invitation-to-tender.pdf](nldt-testbed2026-phase2-invitation-to-tender.pdf)
 - [EU LDT Toolbox Solutions Catalogue](https://interoperable-europe.ec.europa.eu/collection/ldttoolbox/solutions-catalogue)
+- [EuropAI WP4 EDIC handover](21-europai-edic-handover.md)
 
 Related in this repo: [`../MULTI_AGENT_PLAN.md`](../MULTI_AGENT_PLAN.md), [`../docs/GENAI_SEAMS.md`](../docs/GENAI_SEAMS.md), [`../ldtsolutions/`](../ldtsolutions/).
 

@@ -69,8 +69,15 @@ export MARKETPLACE_AGENT_URL=https://marketplace-agent.example
 export MARKETPLACE_TOKEN=...
 export MARKETPLACE_MOCK=false
 PYTHONPATH=. python -m services.cli publish-recipe spatial-overlay-analysis \
-  --category urn:ngsi-ld:category:processes
+  --category urn:ngsi-ld:category:processes \
+  --validation-report path/to/validation-report.json \
+  --provenance path/to/provenance.json
 ```
+
+The uploaded JSON is the recipe plus `validationReport`, `provenance` and
+`edic` destination from [`recipes/edic-asset-map.json`](recipes/edic-asset-map.json)
+(WP4 CitiVERSE/IMPACTS acceptance). Live path:
+[edic/citiverse-live-path.md](edic/citiverse-live-path.md).
 
 ## OpenTelemetry
 

@@ -12,6 +12,10 @@
 | OGC API Records | https://ogcapi.ogc.org/records/ |
 | Model Context Protocol | https://modelcontextprotocol.io/ |
 | EU LDT Toolbox Catalogue | https://interoperable-europe.ec.europa.eu/collection/ldttoolbox/solutions-catalogue |
+| LDT CitiVERSE EDIC | https://ldtcitiverse-edic.eu/ |
+| EuropAI (Digital Europe) | https://digital-strategy.ec.europa.eu/en/news/europai-reusable-european-generative-ai-solutions-public-administrations |
+| OASC Minimal Interoperability Mechanisms | https://oascities.org/minimal-interoperability-mechanisms/ |
+| Simpl programme | https://simpl-programme.ec.europa.eu/ |
 | W3C PROV-O | https://www.w3.org/TR/prov-o/ |
 | DCAT-AP | https://joinup.ec.europa.eu/collection/semantic-interoperability-community-semic/solution/dcat-application-profile-data-portals-europe |
 

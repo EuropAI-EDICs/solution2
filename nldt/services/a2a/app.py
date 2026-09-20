@@ -15,12 +15,19 @@ AGENT_URL = os.environ.get("NLDT_A2A_URL", "http://localhost:8085/a2a")
 
 
 def agent_card() -> dict[str, Any]:
+    keycloak = os.environ.get("KEYCLOAK_URL", "").rstrip("/")
+    identity_provider = keycloak or "https://im-int.ldttoolbox.app"
+    production = bool(keycloak) and "localhost" not in identity_provider
     return {
         "name": "nldt-orchestrator",
         "description": "Generic nLDT digital twin orchestrator — recipe discovery and execution",
         "url": AGENT_URL,
         "version": "1.0.0",
         "protocolVersion": "1.0.0",
+        "provider": {
+            "organization": "nLDT / EuropAI",
+            "edic": "ldt-citiverse",
+        },
         "capabilities": {
             "streaming": False,
             "pushNotifications": False,
@@ -41,7 +48,10 @@ def agent_card() -> dict[str, Any]:
         ],
         "authentication": {
             "schemes": ["bearer"],
-            "note": "EU LDT Identity Management (Keycloak) in production",
+            "identityManagement": "eu-ldt-toolbox-im",
+            "identityProvider": identity_provider,
+            "productionIdentity": production,
+            "note": "Bearer tokens via EU LDT Identity Management (Keycloak). Localhost is not a production identity.",
         },
     }
 

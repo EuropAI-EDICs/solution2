@@ -7,7 +7,7 @@ docs; this file wires them together.
 
 | | |
 |---|---|
-| Status | Living overview · aligned with Phase 5–6 + beleidskompas/eID-wallet tracks (2026-09-14) |
+| Status | Living overview · aligned with Phase 5–6 + beleidskompas/eID-wallet + EuropAI WP4 EDIC handover (2026-09-20) |
 | Companion (Utrecht pilot SoA) | [`../docs/SOLUTIONS_ARCHITECTURE.md`](../docs/SOLUTIONS_ARCHITECTURE.md) |
 | GenAI seams | [`../docs/GENAI_SEAMS.md`](../docs/GENAI_SEAMS.md) |
 | Multi-agent plan | [`../MULTI_AGENT_PLAN.md`](../MULTI_AGENT_PLAN.md) |
@@ -37,6 +37,7 @@ docs; this file wires them together.
 | Data lake + Iceberg/dbt + Data Space | [13-data-lake-and-space.md](13-data-lake-and-space.md) |
 | GovChat-NL beleidskompas integration (plan) | [14-beleidskompas-integration.md](14-beleidskompas-integration.md) |
 | eID Wallet identity layer (plan) | [16-eid-wallet-identity.md](16-eid-wallet-identity.md) |
+| EuropAI WP4 EDIC handover | [21-europai-edic-handover.md](21-europai-edic-handover.md) |
 | Bibliography | [references/bibliography.md](references/bibliography.md) |
 | Quick start / ports | [README.md](README.md) |
 
@@ -396,4 +397,5 @@ ldttoolbox/
 ---
 
 *Maintained with the nLDT numbered docs. Prefer linking here from README and
-onboarding; keep deep design in 01–13 and the Utrecht SoA.*
+onboarding; keep deep design in 01–13, the Utrecht SoA, and the EuropAI EDIC
+handover ([21](21-europai-edic-handover.md)).*
