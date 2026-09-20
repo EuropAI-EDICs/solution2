@@ -5,6 +5,9 @@
 > incubation [modelcontextprotocol/ext-skills](https://github.com/modelcontextprotocol/ext-skills).  
 > Runtime: [`services/mcp_servers/poc_server.py`](services/mcp_servers/poc_server.py) (`nldt-poc-mcp`) +
 > [`skills/poc/`](skills/poc/).
+>
+> **Interactive tour (EN):** open [`simulation/poc-mcp-skills.html`](simulation/poc-mcp-skills.html)
+> in a browser (layers + PoC walkthroughs: Router, Breda, Utrecht, Rijnland).
 
 ## Problem
 
@@ -69,6 +72,7 @@ that installs the server discovers companion playbooks with the tools.
 
 | Skill `name` | MCP tools | Process id(s) | Recipe id(s) |
 |--------------|-----------|---------------|--------------|
+| `nldt-poc-lifecycle` | Universal: discover → lake → scenarios → demo | catalog + process recipes | — |
 | `nldt-poc-router` | (catalog) `list_poc_capabilities` | — | — |
 | `breda-scan` | `run_value_scan`, `ask_scan` | `breda-scan-run`, `breda-scan-query` | `breda-five-value-scan`, `breda-scan-qa` |
 | `utrecht-scenario` | `propose_scenarios`, `run_scenario_sweep` | `scenario-author-propose`, `scenario-sweep` | `utrecht-scenario-author`, `utrecht-scenario-sweep` |
@@ -78,16 +82,20 @@ that installs the server discovers companion playbooks with the tools.
 | `eindhoven-bp2op` | `run_bp2op_transform` | `bp2op-transform` | `eindhoven-bp2op` |
 | `breda-whatif` | *(later)* | LangGraph / process TBD | — |
 
-Skeleton ships **router + breda-scan + utrecht-scenario**; other rows are reserved names.
+Skeleton ships **router + lifecycle + breda-scan + utrecht-scenario + rijnland-peilen**; other rows are reserved names.
 
 ## On-disk layout
 
 ```
 nldt/skills/poc/
+  nldt-poc-lifecycle/SKILL.md
+  nldt-poc-lifecycle/references/phase-*.md
   nldt-poc-router/SKILL.md
   breda-scan/SKILL.md
   breda-scan/references/inputs.md
   breda-scan/references/artifacts.md
+  rijnland-peilen/SKILL.md
+  rijnland-peilen/references/…
   utrecht-scenario/SKILL.md
   utrecht-scenario/references/inputs.md
   utrecht-scenario/references/artifacts.md

@@ -249,7 +249,7 @@ identity stamping, rejection ledger) · `poc-breda/breda/qa.py` (asker,
 runner, number-gate, seam normalization) · `poc-breda/schemas/scan-query.schema.json` ·
 `nldt/agents/breda_scenario/` (LangGraph Breda what-if plane) ·
 `nldt/agents/seams/deep_research.py` (S10) · `nldt/schemas/research-brief.schema.json` ·
-`nldt/skills/poc/` + `nldt/services/mcp_servers/skills_resources.py` (SEP-2640 PoC skills) ·
+`nldt/skills/poc/` + `nldt/services/mcp_servers/skills_resources.py` (SEP-2640 PoC skills; entry `nldt-poc-lifecycle`) ·
 `nldt/services/source_monitor/` · `nldt/services/donl_harvest/` ·
 `nldt/services/lake/publish.py` · `nldt/services/adapters/dataspace_connector.py` ·
 S1/S2: `poc/pipeline/norm_llm.py` + shared transport `poc/pipeline/llm_transport.py`

@@ -17,11 +17,12 @@ Doctrine: **AI proposes · pipeline disposes · human decides.** Read a companio
 
 | Need | Skill URI |
 |------|-----------|
+| **New PoC / full lifecycle** (discover → lake → scenarios → demo) | `skill://nldt/poc/nldt-poc-lifecycle/SKILL.md` |
 | Breda five-value scan / S4 Q&A | `skill://nldt/poc/breda-scan/SKILL.md` |
 | Utrecht scenario author + sweep (S7/S8) | `skill://nldt/poc/utrecht-scenario/SKILL.md` |
+| Rijnland water levels (peil conflict / archive / what-if) | `skill://nldt/poc/rijnland-peilen/SKILL.md` |
 | Utrecht opportunity map (Plane A) | `skill://nldt/poc/utrecht-opportunity-map/SKILL.md` *(reserved — fill later)* |
 | Utrecht crosstrack (Plane C) | `skill://nldt/poc/utrecht-crosstrack/SKILL.md` *(reserved)* |
-| Rijnland peilen | `skill://nldt/poc/rijnland-peilen/SKILL.md` *(reserved)* |
 | Eindhoven bp2op | `skill://nldt/poc/eindhoven-bp2op/SKILL.md` *(reserved)* |
 
 Index: `skill://index.json`.

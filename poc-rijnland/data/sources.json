@@ -1,87 +1,137 @@
 {
-  "registryVersion": "1.0",
-  "generatedBy": "PoC-3 Rijnland probe 2026-09-10",
-  "generatedAt": "2026-09-10T13:20:00Z",
+  "registryVersion": "1.1",
+  "generatedBy": "PoC-3 Rijnland registry (EN)",
+  "generatedAt": "2026-09-20T08:00:00Z",
   "galleryUrl": "https://rijnland.maps.arcgis.com/apps/instant/filtergallery/index.html?appid=cc74a510ca1644d78dfb914e09cb1b5a",
-  "crsNote": "Rijnland MapServers are EPSG:28992 native and accept f=geojson + outSR=28992.",
+  "crsNote": "Rijnland MapServers are EPSG:28992 native and accept f=geojson + outSR=28992. AGOL live peil layers return WGS84 coordinates.",
   "sources": [
     {
       "id": "rijnland-peilgebied-vigerend",
-      "title": "Peilgebied (vigerend besluit)",
+      "title": "Formal peil area (vigerend besluit)",
+      "titleNL": "Peilgebied (vigerend besluit)",
+      "variable": "water_level_target",
+      "unit": null,
       "serviceUrl": "https://rijnland.enl-mcs.nl/arcgis/rest/services/Peilgebied_vigerend_besluit/MapServer",
       "layerId": 0,
       "layerName": "PeilgebiedVigerend",
       "geometryType": "esriGeometryPolygon",
-      "crs": {
-        "wkid": 28992
-      },
-      "fields": [
-        {
-          "name": "OBJECTID2",
-          "type": "esriFieldTypeOID"
-        }
-      ],
+      "crs": {"wkid": 28992},
+      "fields": [{"name": "OBJECTID2", "type": "esriFieldTypeOID"}],
       "featureCount": 792,
       "maxRecordCount": 1000,
       "queryTemplate": "{serviceUrl}/{layerId}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true&orderByFields=OBJECTID2",
-      "queryTemplateParams": {
-        "where": "1=1"
-      },
+      "queryTemplateParams": {"where": "1=1"},
       "role": "reference",
+      "kind": "water_level_geometry",
       "authoritative": true,
       "geojsonFormatSupported": true,
       "supportsPagination": true,
       "lastChecked": "2026-09-10T13:20:00Z",
-      "notes": "Formal peil areas under a vigerend besluit; OID OBJECTID2."
+      "notes": "Formal peil polygons under a current board decision; OID OBJECTID2. Used as legal target in peil-conflict."
     },
     {
       "id": "rijnland-peilafwijking-praktijk",
-      "title": "Peilafwijking (praktijk)",
+      "title": "Practice peil deviation",
+      "titleNL": "Peilafwijking (praktijk)",
+      "variable": "water_level_deviation",
+      "unit": null,
       "serviceUrl": "https://rijnland.enl-mcs.nl/arcgis/rest/services/Peilafwijking_praktijk/MapServer",
       "layerId": 0,
       "layerName": "PeilafwijkingGebied",
       "geometryType": "esriGeometryPolygon",
-      "crs": {
-        "wkid": 28992
-      },
-      "fields": [
-        {
-          "name": "OBJECTID2",
-          "type": "esriFieldTypeOID"
-        }
-      ],
+      "crs": {"wkid": 28992},
+      "fields": [{"name": "OBJECTID2", "type": "esriFieldTypeOID"}],
       "featureCount": 2035,
       "maxRecordCount": 1000,
       "queryTemplate": "{serviceUrl}/{layerId}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true&orderByFields=OBJECTID2",
-      "queryTemplateParams": {
-        "where": "1=1"
-      },
+      "queryTemplateParams": {"where": "1=1"},
       "role": "conflict",
+      "kind": "water_level_geometry",
       "authoritative": true,
       "geojsonFormatSupported": true,
       "supportsPagination": true,
       "lastChecked": "2026-09-10T13:20:00Z",
-      "notes": "Practice peil deviations; conflict layer vs vigerend peilgebied."
+      "notes": "Operational peil deviations; conflict layer versus formal peilgebied."
+    },
+    {
+      "id": "rijnland-peilen-agol-polders",
+      "title": "Live polder water-level stations (mNAP)",
+      "titleNL": "Actuele peilen polders",
+      "variable": "water_level",
+      "unit": "mNAP",
+      "serviceUrl": "https://services1.arcgis.com/KXsJqtRt2xEqyDWx/arcgis/rest/services/eb7225ec-7287-4ad8-8d8a-b0ed6163e136/FeatureServer",
+      "layerId": 0,
+      "geometryType": "esriGeometryPoint",
+      "crs": {"wkid": 4326},
+      "role": "measured",
+      "kind": "water_level_timeseries",
+      "authoritative": true,
+      "localArchive": "data/peilen/peilen.json",
+      "fetchScript": "scripts/fetch_peilen.py",
+      "notes": "Current station value + chartUrl to HydroNET ~12-day series. Snapshot via fetch_peilen.py."
+    },
+    {
+      "id": "rijnland-peilen-agol-boezem",
+      "title": "Live boezem water-level stations (mNAP)",
+      "titleNL": "Actuele peilen boezem",
+      "variable": "water_level",
+      "unit": "mNAP",
+      "serviceUrl": "https://services1.arcgis.com/KXsJqtRt2xEqyDWx/arcgis/rest/services/953f7293-123f-4c5c-a277-47fd7ed84bec/FeatureServer",
+      "layerId": 0,
+      "geometryType": "esriGeometryPoint",
+      "crs": {"wkid": 4326},
+      "role": "measured",
+      "kind": "water_level_timeseries",
+      "authoritative": true,
+      "localArchive": "data/peilen/peilen.json",
+      "fetchScript": "scripts/fetch_peilen.py",
+      "notes": "Boezem (main drainage) stations; same snapshot pipeline as polders."
+    },
+    {
+      "id": "rijnland-peilen-archive",
+      "title": "Local growing peil archive (daily medians)",
+      "titleNL": "Lokaal peilen-archief",
+      "variable": "water_level",
+      "unit": "mNAP",
+      "path": "data/peilen/peilen.json",
+      "role": "archive",
+      "kind": "water_level_timeseries",
+      "authoritative": false,
+      "lakeSourceId": "rijnland-peilen",
+      "ingestRecipe": "timeseries-open-ingest",
+      "notes": "Merged daily stats from AGOL + HydroNET charts. Re-run fetch_peilen.py to extend. Feeds lake silver via normalize_rijnland_peilen."
+    },
+    {
+      "id": "rijnland-peilen-lake-silver",
+      "title": "Lake silver peil observations + CDC what-if",
+      "titleNL": "Lake silver peilen + CDC what-if",
+      "variable": "water_level",
+      "unit": "mNAP",
+      "role": "lake",
+      "kind": "water_level_timeseries",
+      "poc": "rijnland",
+      "accessClass": "restricted",
+      "discover": {
+        "tool": "search_lake_elasticsearch",
+        "args": {"poc": "rijnland", "kind": "timeseries_series"}
+      },
+      "processes": ["rijnland-peil-whatif", "timeseries-ingest-run"],
+      "notes": "Silver observations from ingest; CDC pipeline applies scenario deltas for what-if maps."
     },
     {
       "id": "rijnland-meetpunt-waterkwaliteit-routine",
-      "title": "Meetlocaties waterkwaliteit (routine meetnet)",
+      "title": "Routine water-quality monitoring points",
+      "titleNL": "Meetlocaties waterkwaliteit (routine meetnet)",
+      "variable": "water_quality_site",
+      "unit": null,
       "serviceUrl": "https://rijnland.enl-mcs.nl/arcgis/rest/services/Meetlocatie_waterkwaltiteit/MapServer",
       "layerId": 0,
       "layerName": "MeetLocatie_Waterkwaliteit",
       "geometryType": "esriGeometryPoint",
-      "crs": {
-        "wkid": 28992
-      },
+      "crs": {"wkid": 28992},
       "fields": [
-        {
-          "name": "OBJECTID",
-          "type": "esriFieldTypeOID"
-        },
-        {
-          "name": "WS_TYPEMETING",
-          "type": "esriFieldTypeString"
-        }
+        {"name": "OBJECTID", "type": "esriFieldTypeOID"},
+        {"name": "WS_TYPEMETING", "type": "esriFieldTypeString"}
       ],
       "featureCount": 29050,
       "maxRecordCount": 1000,
@@ -90,11 +140,12 @@
         "where": "WS_TYPEMETING = 'routine meetnet waterkwaliteit'"
       },
       "role": "context",
+      "kind": "water_quality_geometry",
       "authoritative": true,
       "geojsonFormatSupported": true,
       "supportsPagination": true,
       "lastChecked": "2026-09-10T16:40:00Z",
-      "notes": "Routine waterkwaliteits-meetnet (WS_TYPEMETING filter); KRW-status waterlichamen lagen (KRW/1-3) zijn leeg in deze service — meetwaarden zelf worden niet via ArcGIS ontsloten."
+      "notes": "Not water levels. Routine quality network for KRW blind-spot analysis vs peil conflict. KRW status layers 1–3 are empty in this service."
     }
   ]
 }

@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>nLDT — PoC MCP Skills</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper: #e8e2d6;
+      --paper-deep: #ddd5c5;
+      --ink: #1a2428;
+      --ink-soft: #3d4a50;
+      --muted: #6a757a;
+      --teal: #0d6e6e;
+      --teal-bright: #149494;
+      --teal-wash: rgba(13, 110, 110, 0.12);
+      --sand: #c4b8a0;
+      --band: rgba(13, 110, 110, 0.08);
+      --focus: #c45c26;
+      --focus-wash: rgba(196, 92, 38, 0.15);
+      --line: rgba(26, 36, 40, 0.18);
+      --panel: #f4efe6;
+      --radius: 4px;
+      --font-ui: "DM Sans", system-ui, sans-serif;
+      --font-display: "Fraunces", Georgia, serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-ui);
+      color: var(--ink);
+      background-color: var(--paper);
+      background-image:
+        linear-gradient(rgba(26, 36, 40, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(26, 36, 40, 0.03) 1px, transparent 1px),
+        radial-gradient(ellipse 120% 80% at 10% -20%, rgba(13, 110, 110, 0.14), transparent 50%),
+        radial-gradient(ellipse 80% 60% at 100% 100%, rgba(196, 92, 38, 0.08), transparent 45%);
+      background-size: 28px 28px, 28px 28px, 100% 100%, 100% 100%;
+      min-height: 100vh;
+      line-height: 1.45;
+    }
+
+    a { color: var(--teal); }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 1.25rem 1.25rem 3rem;
+    }
+
+    .hero {
+      display: grid;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      animation: fade-in 0.55s ease both;
+    }
+
+    .brand {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 2.85rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      color: var(--ink);
+    }
+
+    .brand span { color: var(--teal); }
+
+    .doctrine {
+      font-size: 1.05rem;
+      color: var(--ink-soft);
+      max-width: 38rem;
+    }
+
+    .doctrine em {
+      font-style: italic;
+      color: var(--teal);
+      font-family: var(--font-display);
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      align-items: center;
+      margin-top: 0.35rem;
+    }
+
+    button {
+      font-family: var(--font-ui);
+      font-size: 0.88rem;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius);
+      padding: 0.55rem 1.1rem;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    button:active { transform: scale(0.98); }
+
+    button.primary {
+      background: var(--teal);
+      color: #f7f3eb;
+    }
+    button.primary:hover { background: var(--teal-bright); }
+
+    button.ghost {
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+    button.ghost:hover { border-color: var(--teal); color: var(--teal); }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .meta-link {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-left: 0.25rem;
+    }
+
+    .stage {
+      display: grid;
+      grid-template-columns: 1fr minmax(280px, 340px);
+      gap: 1rem;
+      align-items: start;
+      min-height: min(72vh, 640px);
+    }
+
+    @media (max-width: 860px) {
+      .stage { grid-template-columns: 1fr; }
+    }
+
+    .canvas-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 1rem 1rem 1.15rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(26, 36, 40, 0.06);
+    }
+
+    .canvas-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(165deg, transparent 40%, rgba(13, 110, 110, 0.04) 100%);
+      pointer-events: none;
+    }
+
+    .canvas-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 0.85rem;
+      position: relative;
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      position: relative;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    .connector {
+      width: 2px;
+      height: 18px;
+      margin: 0 auto;
+      background: var(--line);
+      position: relative;
+      transition: background 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    .connector.lit {
+      background: var(--teal-bright);
+      box-shadow: 0 0 12px rgba(20, 148, 148, 0.55);
+      animation: pulse-line 1.2s ease infinite;
+    }
+
+    @keyframes pulse-line {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.45; }
+    }
+
+    .mcp-band {
+      border: 1.5px dashed var(--teal);
+      border-radius: 8px;
+      padding: 0.65rem 0.65rem 0.75rem;
+      background: var(--band);
+      margin: 0.15rem 0;
+      position: relative;
+    }
+
+    .mcp-band-tag {
+      position: absolute;
+      top: -0.55rem;
+      left: 0.75rem;
+      background: var(--panel);
+      padding: 0 0.4rem;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--teal);
+      text-transform: uppercase;
+    }
+
+    .node {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: #fffdf8;
+      border: 1.5px solid var(--line);
+      border-radius: var(--radius);
+      padding: 0.7rem 0.85rem;
+      color: var(--ink);
+      font-weight: 500;
+      position: relative;
+      transition: border-color 0.25s ease, box-shadow 0.3s ease, background 0.25s ease, opacity 0.3s ease;
+      opacity: 0.72;
+    }
+
+    .node:hover {
+      border-color: var(--teal);
+      opacity: 1;
+    }
+
+    .node.active {
+      border-color: var(--focus);
+      background: var(--focus-wash);
+      box-shadow: 0 0 0 3px var(--focus-wash);
+      opacity: 1;
+    }
+
+    .node.on-path {
+      opacity: 1;
+      border-color: var(--teal);
+    }
+
+    .node .nid {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 0.15rem;
+    }
+
+    .node .ntitle {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+
+    .node .nsub {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.15rem;
+    }
+
+    .index-chip {
+      margin-top: 0.45rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.28rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid var(--teal);
+      background: transparent;
+      color: var(--teal);
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .index-chip:hover,
+    .index-chip.active {
+      background: var(--teal);
+      color: #f7f3eb;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 1rem 1.1rem 1.2rem;
+      min-height: 280px;
+      box-shadow: 0 12px 40px rgba(26, 36, 40, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .panel.fade { animation: panel-fade 0.35s ease; }
+
+    @keyframes panel-fade {
+      from { opacity: 0.35; transform: translateY(6px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .panel-kicker {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    .panel h2 {
+      font-family: var(--font-display);
+      font-size: 1.45rem;
+      font-weight: 600;
+      line-height: 1.15;
+    }
+
+    .panel p {
+      font-size: 0.9rem;
+      color: var(--ink-soft);
+    }
+
+    .trust {
+      font-size: 0.8rem;
+      padding: 0.55rem 0.65rem;
+      background: var(--teal-wash);
+      border-left: 3px solid var(--teal);
+      color: var(--ink-soft);
+    }
+
+    .paths {
+      list-style: none;
+      font-size: 0.78rem;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      color: var(--ink-soft);
+    }
+
+    .paths li {
+      padding: 0.2rem 0;
+      border-bottom: 1px solid var(--line);
+      word-break: break-all;
+    }
+
+    .uri {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 0.75rem;
+      color: var(--teal);
+      background: rgba(13, 110, 110, 0.08);
+      padding: 0.35rem 0.5rem;
+      border-radius: 3px;
+      word-break: break-all;
+    }
+
+    .poc-bar {
+      margin-top: 1.25rem;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0.9rem 1rem 1.1rem;
+      animation: fade-in 0.7s ease 0.1s both;
+    }
+
+    .poc-bar h3 {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.55rem;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .tab {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--ink-soft);
+      font-weight: 500;
+      padding: 0.4rem 0.85rem;
+    }
+
+    .tab.active {
+      background: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink);
+    }
+
+    .tour-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      align-items: center;
+      margin-bottom: 0.65rem;
+    }
+
+    .tour-status {
+      font-size: 0.82rem;
+      color: var(--muted);
+      flex: 1;
+      min-width: 12rem;
+    }
+
+    .tour-status strong { color: var(--ink); }
+
+    .step-rail {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+
+    .step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--sand);
+      transition: background 0.25s ease, transform 0.25s ease;
+    }
+
+    .step-dot.done { background: var(--teal); }
+    .step-dot.now {
+      background: var(--focus);
+      transform: scale(1.35);
+    }
+
+    .skills {
+      margin-top: 1rem;
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .skill-row {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.65rem;
+      align-items: start;
+      text-align: left;
+      width: 100%;
+      background: #fffdf8;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 0.65rem 0.8rem;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+      font-weight: 400;
+      color: inherit;
+    }
+
+    .skill-row:hover { border-color: var(--teal); }
+
+    .skill-row .sname {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--teal);
+      white-space: nowrap;
+    }
+
+    .skill-row .sdesc {
+      font-size: 0.8rem;
+      color: var(--ink-soft);
+    }
+
+    .foot {
+      margin-top: 1.5rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    /* —— Tool pick schematic —— */
+    .tool-palette {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.55rem;
+      padding-top: 0.45rem;
+      border-top: 1px dashed var(--line);
+    }
+
+    .tool-chip {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 0.28rem 0.5rem;
+      border-radius: 3px;
+      border: 1px solid var(--line);
+      background: #fffdf8;
+      color: var(--muted);
+      opacity: 0.55;
+      transition: opacity 0.25s ease, border-color 0.25s ease, background 0.25s ease,
+        color 0.25s ease, box-shadow 0.3s ease, transform 0.25s ease;
+    }
+
+    .tool-chip.candidate {
+      opacity: 0.85;
+      color: var(--ink-soft);
+      border-color: var(--sand);
+    }
+
+    .tool-chip.picked {
+      opacity: 1;
+      color: #f7f3eb;
+      background: var(--focus);
+      border-color: var(--focus);
+      box-shadow: 0 0 0 3px var(--focus-wash);
+      transform: scale(1.04);
+      animation: pick-pulse 0.9s ease;
+    }
+
+    .tool-chip.resource {
+      border-style: dashed;
+    }
+
+    .tool-chip.resource.picked {
+      background: var(--teal);
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px var(--teal-wash);
+    }
+
+    @keyframes pick-pulse {
+      0% { transform: scale(0.92); }
+      60% { transform: scale(1.08); }
+      100% { transform: scale(1.04); }
+    }
+
+    .schematic {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fffdf8;
+      padding: 0.55rem 0.65rem 0.65rem;
+    }
+
+    .sch-label {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 0.45rem;
+    }
+
+    .sch-flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.25rem 0.2rem;
+    }
+
+    .sch-node {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 0.68rem;
+      padding: 0.28rem 0.45rem;
+      border-radius: 3px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink-soft);
+      max-width: 100%;
+      word-break: break-all;
+    }
+
+    .sch-node.dim { opacity: 0.4; }
+    .sch-node.hot {
+      border-color: var(--focus);
+      background: var(--focus-wash);
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .sch-node.kind-tool.hot {
+      background: var(--focus);
+      color: #f7f3eb;
+      border-color: var(--focus);
+    }
+
+    .sch-node.kind-resource.hot {
+      background: var(--teal);
+      color: #f7f3eb;
+      border-color: var(--teal);
+    }
+
+    .sch-arrow {
+      color: var(--sand);
+      font-size: 0.75rem;
+      padding: 0 0.1rem;
+      user-select: none;
+    }
+
+    .sch-arrow.lit { color: var(--teal-bright); }
+
+    .sch-meta {
+      margin-top: 0.45rem;
+      font-size: 0.72rem;
+      color: var(--ink-soft);
+      font-family: ui-monospace, Menlo, monospace;
+      line-height: 1.4;
+    }
+
+    .sch-meta span {
+      display: block;
+    }
+
+    .sch-meta .k {
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <p class="brand">nLDT <span>PoC Skills</span></p>
+      <p class="doctrine">
+        Interactive architecture: universal PoC lifecycle + Agent Skills over MCP.
+        <em>AI proposes · pipeline disposes · human decides.</em>
+      </p>
+      <div class="cta-row">
+        <button type="button" class="primary" id="btnStartTour">Start tour</button>
+        <button type="button" class="ghost" id="btnFocusPoc">Pick a PoC</button>
+        <a class="meta-link" href="../20-poc-mcp-skills.md">Architecture doc 20 →</a>
+      </div>
+    </header>
+
+    <div class="stage">
+      <div class="canvas-card" aria-label="Architecture canvas">
+        <div class="canvas-label">Layers — click a component</div>
+        <div class="stack" id="stack">
+          <button type="button" class="node" data-id="host" id="node-host">
+            <div class="nid">Layer 1</div>
+            <div class="ntitle">MCP Host</div>
+            <div class="nsub">Cursor, coding agent, …</div>
+          </button>
+          <div class="connector" data-from="host" data-to="skill"></div>
+
+          <div class="mcp-band">
+            <span class="mcp-band-tag">nldt-poc-mcp</span>
+            <button type="button" class="node" data-id="skill" id="node-skill">
+              <div class="nid">Layer 2 · Resources</div>
+              <div class="ntitle">Agent Skill</div>
+              <div class="nsub">skill://…/SKILL.md — instructions</div>
+            </button>
+            <div style="height:0.45rem"></div>
+            <button type="button" class="index-chip" data-id="index" id="node-index">
+              skill://index.json
+            </button>
+            <div class="connector" data-from="skill" data-to="tool" style="margin:0.5rem auto 0.45rem"></div>
+            <button type="button" class="node" data-id="tool" id="node-tool">
+              <div class="nid">Layer 3 · Tools</div>
+              <div class="ntitle">MCP Tool</div>
+              <div class="nsub" id="toolNodeSub">Thin alias → process</div>
+            </button>
+            <div class="tool-palette" id="toolPalette" aria-label="Tool pick schematic" hidden></div>
+          </div>
+
+          <div class="connector" data-from="tool" data-to="process"></div>
+          <button type="button" class="node" data-id="process" id="node-process">
+            <div class="nid">Layer 4</div>
+            <div class="ntitle">Process / Recipe</div>
+            <div class="nsub">Critic · HITL · PROV</div>
+          </button>
+          <div class="connector" data-from="process" data-to="engine"></div>
+          <button type="button" class="node" data-id="engine" id="node-engine">
+            <div class="nid">Layer 5</div>
+            <div class="ntitle">PoC engine</div>
+            <div class="nsub">poc / poc-breda / …</div>
+          </button>
+        </div>
+      </div>
+
+      <aside class="panel" id="panel" aria-live="polite">
+        <div class="panel-kicker" id="panelKicker">Overview</div>
+        <h2 id="panelTitle">PoCs via MCP + Skills</h2>
+        <p id="panelBody">
+          Skills teach the agent <strong>how</strong> and <strong>when</strong>;
+          tools only perform governed dispose. Click a layer or start a PoC tour.
+        </p>
+        <div class="trust" id="panelTrust">
+          Skills are untrusted model input. Reading ≠ executing. Skills must never write zones.
+        </div>
+        <div class="schematic" id="schematic" hidden aria-label="Call schematic">
+          <div class="sch-label">Call schematic</div>
+          <div class="sch-flow" id="schematicFlow"></div>
+        </div>
+        <ul class="paths" id="panelPaths"></ul>
+        <div class="uri" id="panelUri" hidden></div>
+      </aside>
+    </div>
+
+    <section class="poc-bar" id="pocBar">
+      <h3>PoC examples</h3>
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab active" data-poc="lifecycle" role="tab">Lifecycle</button>
+        <button type="button" class="tab" data-poc="router" role="tab">Router</button>
+        <button type="button" class="tab" data-poc="breda" role="tab">Breda scan</button>
+        <button type="button" class="tab" data-poc="utrecht" role="tab">Utrecht scenario</button>
+        <button type="button" class="tab" data-poc="rijnland" role="tab">Rijnland water levels</button>
+      </div>
+      <div class="tour-controls">
+        <button type="button" class="primary" id="btnPlay">Play</button>
+        <button type="button" class="ghost" id="btnNext">Next</button>
+        <button type="button" class="ghost" id="btnReset">Reset</button>
+        <p class="tour-status" id="tourStatus">Pick a PoC and press Play.</p>
+      </div>
+      <div class="step-rail" id="stepRail" aria-hidden="true"></div>
+      <div class="skills" id="skillList" aria-label="Skill catalogue"></div>
+    </section>
+
+    <p class="foot">
+      SEP-2640 · co-located on <code>nldt-poc-mcp</code> · no live MCP calls on this page ·
+      A2A <code>skillId</code> is not the same as Agent Skills.
+    </p>
+  </div>
+
+  <script>
+(function () {
+  "use strict";
+
+  const LAYERS = {
+    host: {
+      kicker: "Layer 1",
+      title: "MCP Host",
+      body: "The host (e.g. Cursor) connects to nldt-poc-mcp, reads skills via resources/read, and calls tools. Without skill hydration, server instructions still point to skill://nldt/poc/nldt-poc-router/SKILL.md.",
+      trust: "The host stages skill text into model context. That is instruction, not authorisation to dispose.",
+      paths: ["MCP initialize → extensions.io.modelcontextprotocol/skills", "resources/read · tools/call"],
+      uri: null,
+    },
+    skill: {
+      kicker: "Layer 2 · Agent Skill",
+      title: "Workflow instructions",
+      body: "A skill is a directory with SKILL.md (YAML name + description) plus optional references. Format = Agent Skills spec; transport = SEP-2640 skill:// resources. Skills do not nest; name equals the final path segment.",
+      trust: "Untrusted model input. Must not bypass Critic/HITL and must not write zones or corpora.",
+      paths: ["nldt/skills/poc/<name>/SKILL.md", "services/mcp_servers/skills_resources.py"],
+      uri: "skill://nldt/poc/<name>/SKILL.md",
+    },
+    index: {
+      kicker: "Discovery",
+      title: "skill://index.json",
+      body: "Well-known index with type skill-md entries. Hosts discover the catalogue without a separate filesystem-skill install.",
+      trust: "Enumeration only. Loading a skill is still resources/read on the SKILL.md URI.",
+      paths: ["build_skill_index()", "SEP-2640 discovery"],
+      uri: "skill://index.json",
+    },
+    tool: {
+      kicker: "Layer 3 · MCP Tool",
+      title: "Thin PoC alias",
+      body: "Tools in poc_server.py map 1:1 to process ids. No business logic here — only forwarding to the process adapter (local or remote).",
+      trust: "Every call creates a job. No second execution path outside the process adapter.",
+      paths: ["nldt/services/mcp_servers/poc_server.py", "nldt/services/mcp_servers/poc_tools.py"],
+      uri: null,
+    },
+    process: {
+      kicker: "Layer 4 · Dispose",
+      title: "Process / Recipe",
+      body: "OGC Processes + recipes: Critic V0–V4, HITL when riskLevel is high, PROV bundles. This is the Phase 5 governed dispose layer.",
+      trust: "Humans decide on high risk. Reject ledgers are retained.",
+      paths: ["poc_handlers.py", "nldt/data/runs/<runId>/validation-report.json"],
+      uri: null,
+    },
+    engine: {
+      kicker: "Layer 5 · Engine",
+      title: "PoC CLI engine",
+      body: "Domain code stays in poc/, poc-breda/, poc-rijnland/, poc-bp2op/. nLDT is the front door; the engine is the kitchen.",
+      trust: "Engines mutate only through their own contracts — never via skill text.",
+      paths: ["poc-breda/", "poc/", "poc-rijnland/", "poc-bp2op/"],
+      uri: null,
+    },
+  };
+
+  const SKILLS = [
+    {
+      name: "nldt-poc-lifecycle",
+      description: "Universal PoC workflow: discover datasets → lake ingest/convert → scenarios/use cases → interactive demo site.",
+      url: "skill://nldt/poc/nldt-poc-lifecycle/SKILL.md",
+    },
+    {
+      name: "nldt-poc-router",
+      description: "Routes agents to the right PoC skill and MCP tools (Breda, Utrecht, Rijnland, Eindhoven).",
+      url: "skill://nldt/poc/nldt-poc-router/SKILL.md",
+    },
+    {
+      name: "breda-scan",
+      description: "Breda five-value scan and cite-or-abstain Q&A via run_value_scan / ask_scan.",
+      url: "skill://nldt/poc/breda-scan/SKILL.md",
+    },
+    {
+      name: "utrecht-scenario",
+      description: "Utrecht S7 hybrid propose + scenario sweep via propose_scenarios / run_scenario_sweep.",
+      url: "skill://nldt/poc/utrecht-scenario/SKILL.md",
+    },
+    {
+      name: "rijnland-peilen",
+      description: "Rijnland water levels (mNAP): formal vs practice conflict, AGOL/HydroNET station archive, lake/CDC ingest, what-if maps.",
+      url: "skill://nldt/poc/rijnland-peilen/SKILL.md",
+    },
+  ];
+
+  const POC_TOOLS = {
+    lifecycle: [
+      { id: "search_lake_elasticsearch", kind: "tool", server: "nldt-catalog-mcp" },
+      { id: "search_lake_datasets", kind: "tool", server: "nldt-catalog-mcp" },
+      { id: "list_poc_capabilities", kind: "tool", server: "nldt-catalog-mcp" },
+      { id: "donl-harvest-run", kind: "tool", server: "nldt-process-mcp", process: "donl-harvest-run", recipe: "donl-harvest-run" },
+      { id: "timeseries-ingest-run", kind: "tool", server: "nldt-process-mcp", process: "timeseries-ingest-run", recipe: "timeseries-open-ingest" },
+      { id: "lake-publish-dataset", kind: "tool", server: "nldt-process-mcp", process: "lake-publish-dataset", recipe: "lake-publish-offer" },
+      { id: "propose_scenarios", kind: "tool", server: "nldt-poc-mcp", process: "scenario-author-propose", recipe: "utrecht-scenario-author" },
+      { id: "run_value_scan", kind: "tool", server: "nldt-poc-mcp", process: "breda-scan-run", recipe: "breda-five-value-scan" },
+      { id: "run_peil_whatif", kind: "tool", server: "nldt-poc-mcp", process: "rijnland-peil-whatif", recipe: "rijnland-peil-whatif" },
+    ],
+    router: [
+      { id: "resources/read", kind: "resource", server: "nldt-poc-mcp" },
+      { id: "list_poc_capabilities", kind: "tool", server: "nldt-catalog-mcp" },
+    ],
+    breda: [
+      { id: "resources/read", kind: "resource", server: "nldt-poc-mcp" },
+      { id: "run_value_scan", kind: "tool", server: "nldt-poc-mcp", process: "breda-scan-run", recipe: "breda-five-value-scan" },
+      { id: "ask_scan", kind: "tool", server: "nldt-poc-mcp", process: "breda-scan-query", recipe: "breda-scan-qa" },
+    ],
+    utrecht: [
+      { id: "resources/read", kind: "resource", server: "nldt-poc-mcp" },
+      { id: "propose_scenarios", kind: "tool", server: "nldt-poc-mcp", process: "scenario-author-propose", recipe: "utrecht-scenario-author" },
+      { id: "run_scenario_sweep", kind: "tool", server: "nldt-poc-mcp", process: "scenario-sweep", recipe: "utrecht-scenario-sweep" },
+    ],
+    rijnland: [
+      { id: "resources/read", kind: "resource", server: "nldt-poc-mcp" },
+      { id: "search_lake_elasticsearch", kind: "tool", server: "nldt-catalog-mcp" },
+      { id: "timeseries-ingest-run", kind: "tool", server: "nldt-process-mcp", process: "timeseries-ingest-run", recipe: "timeseries-open-ingest" },
+      { id: "run_peil_conflict", kind: "tool", server: "nldt-poc-mcp", process: "rijnland-peil-conflict", recipe: "rijnland-peil-conflict" },
+      { id: "run_peil_conflict_live", kind: "tool", server: "nldt-poc-mcp", process: "rijnland-peil-conflict", recipe: "rijnland-peil-conflict" },
+      { id: "run_peil_whatif", kind: "tool", server: "nldt-poc-mcp", process: "rijnland-peil-whatif", recipe: "rijnland-peil-whatif" },
+    ],
+  };
+
+  const TOURS = {
+    lifecycle: {
+      label: "Lifecycle",
+      steps: [
+        {
+          layer: "host",
+          status: "Start a new PoC: discover → lake → scenarios → demo site.",
+          pick: null,
+        },
+        {
+          layer: "skill",
+          status: "Read nldt-poc-lifecycle — four-phase universal workflow.",
+          skill: "nldt-poc-lifecycle",
+          pick: {
+            method: "resources/read",
+            kind: "resource",
+            target: "skill://nldt/poc/nldt-poc-lifecycle/SKILL.md",
+            server: "nldt-poc-mcp",
+          },
+        },
+        {
+          layer: "tool",
+          status: "Phase 1 — research: search_lake_elasticsearch + list_poc_capabilities.",
+          pick: {
+            method: "tools/call",
+            kind: "tool",
+            tool: "search_lake_elasticsearch",
+            server: "nldt-catalog-mcp",
+            args: '{ q, poc, kind: "dataset|timeseries_series" }',
+          },
+          detail: {
+            title: "Picked: search_lake_elasticsearch",
+            body: "Catalog discovery over lake/ES. Also use search_lake_datasets and list_poc_capabilities. Optional source-monitor-run for URL continuity.",
+          },
+        },
+        {
+          layer: "tool",
+          status: "Phase 2 — ingest: timeseries-open-ingest or donl-harvest-run.",
+          pick: {
+            method: "tools/call",
+            kind: "tool",
+            tool: "timeseries-ingest-run",
+            server: "nldt-process-mcp",
+            args: "recipe timeseries-open-ingest",
+            process: "timeseries-ingest-run",
+            recipe: "timeseries-open-ingest",
+          },
+          detail: {
+            title: "Picked: timeseries-ingest-run",
+            body: "Bronze→silver lake ingest (cross-twin). Alternatives: donl-harvest-run, then lake-publish-dataset (HITL if restricted).",
+          },
+        },
+        {
+          layer: "process",
+          status: "Lake dispose + Critic/PROV — silver tagged with poc=…",
+          pick: {
+            method: "tools/call",
+            kind: "tool",
+            tool: "timeseries-ingest-run",
+            server: "nldt-process-mcp",
+            process: "timeseries-ingest-run",
+            recipe: "timeseries-open-ingest",
+            highlight: "process",
+          },
+          detail: {
+            title: "Process timeseries-ingest-run",
+            body: "Medallion convert. Re-index ES after success. Restricted publish stops for HITL.",
+          },
+        },
+        {
+          layer: "tool",
+          status: "Phase 3 — scenarios: hand off to domain tool (e.g. run_value_scan / propose_scenarios / run_peil_whatif).",
+          pick: {
+            method: "tools/call",
+            kind: "tool",
+            tool: "run_value_scan",
+            server: "nldt-poc-mcp",
+            args: '{ mode: "replay" }',
+            process: "breda-scan-run",
+            recipe: "breda-five-value-scan",
+          },
+          detail: {
+            title: "Example pick: run_value_scan",
+            body: "After lake evidence exists, open a domain skill and call its tools. Example shows Breda; Utrecht uses propose_scenarios; Rijnland uses run_peil_*.",
+          },
+        },
+        {
+          layer: "engine",
+          status: "Domain PoC engine computes artefacts (poc-breda / poc / poc-rijnland / …).",
+          pick: {
+            method: "tools/call",
+            kind: "tool",
+            tool: "run_value_scan",
+            server: "nldt-poc-mcp",
+            process: "breda-scan-run",
+            engine: "poc-*/",
+            highlight: "engine",
+          },
+          detail: {
+            title: "PoC engines",
+            body: "Engines stay in poc packages. Lifecycle skill never replaces them — it only sequences discovery → lake → domain dispose → demo.",
+          },
+        },
+        {
+          layer: "host",
+          status: "Phase 4 — ship interactive demo under nldt/simulation/ (static HTML).",
+          pick: null,
+          detail: {
+            title: "Demo website",
+            body: "Extend poc-mcp-skills.html pattern: layers, Play tours, tool schematics. Link from simulation/index.html. No secrets in the page.",
+          },
+        },
+      ],
+    },
+    router: {
+      label: "Router",
+      steps: [
+        { layer: "host", status: "Host asks: which PoC fits this question?", pick: null },
+        {
+          layer: "index",
+          status: "Read skill://index.json — three skills available.",
+          pick: { method: "resources/read", kind: "resource", target: "skill://index.json", server: "nldt-poc-mcp" },
+        },
+        {
+          layer: "skill",
+          status: "Open nldt-poc-router — pick a path to Breda or Utrecht.",
+          skill: "nldt-poc-router",
+          pick: { method: "resources/read", kind: "resource", target: "skill://nldt/poc/nldt-poc-router/SKILL.md", server: "nldt-poc-mcp" },
+        },
+        {
+          layer: "tool",
+          status: "Pick catalog tool list_poc_capabilities for process/recipe ids.",
+          pick: { method: "tools/call", kind: "tool", tool: "list_poc_capabilities", server: "nldt-catalog-mcp", args: "{}" },
+          detail: {
+            title: "Picked: list_poc_capabilities",
+            body: "Catalog MCP tool (not on poc-mcp). Returns poc-* processes and recipes so the router can point at the right skill next.",
+          },
+        },
+        {
+          layer: "skill",
+          status: "Continue with a PoC skill (breda-scan, utrecht-scenario, or rijnland-peilen).",
+          skill: "rijnland-peilen",
+          pick: { method: "resources/read", kind: "resource", target: "skill://nldt/poc/rijnland-peilen/SKILL.md", server: "nldt-poc-mcp" },
+        },
+      ],
+    },
+    breda: {
+      label: "Breda scan",
+      steps: [
+        { layer: "host", status: "User: “Run the Breda five-value scan.”", pick: null },
+        {
+          layer: "skill",
+          status: "Read breda-scan skill — checklist names the tools to call.",
+          skill: "breda-scan",
+          pick: { method: "resources/read", kind: "resource", target: "skill://nldt/poc/breda-scan/SKILL.md", server: "nldt-poc-mcp" },
+        },
+        {
+          layer: "tool",
+          status: "Pick tool run_value_scan (mode=replay).",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "run_value_scan", server: "nldt-poc-mcp",
+            args: '{ mode: "replay" }', process: "breda-scan-run", recipe: "breda-five-value-scan",
+          },
+          detail: { title: "Picked: run_value_scan", body: "Thin alias → process breda-scan-run. Offline: NLDT_OFFLINE=1 → local job." },
+        },
+        {
+          layer: "process",
+          status: "Dispose via breda-scan-run · recipe breda-five-value-scan.",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "run_value_scan", server: "nldt-poc-mcp",
+            process: "breda-scan-run", recipe: "breda-five-value-scan", highlight: "process",
+          },
+          detail: { title: "Process breda-scan-run", body: "Governed dispose from the picked tool. Outputs + prov in the job; orchestrator writes validation-report." },
+        },
+        {
+          layer: "engine",
+          status: "poc-breda engine computes indicators / maps.",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "run_value_scan", server: "nldt-poc-mcp",
+            process: "breda-scan-run", engine: "poc-breda/", highlight: "engine",
+          },
+          detail: { title: "Engine poc-breda", body: "CLI engine under poc-breda/. Invoked only through the process — never by the skill text." },
+        },
+        {
+          layer: "tool",
+          status: "Pick tool ask_scan (S4 cite-or-abstain).",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "ask_scan", server: "nldt-poc-mcp",
+            args: '{ question, runDir, asker: "auto" }', process: "breda-scan-query", recipe: "breda-scan-qa",
+          },
+          detail: { title: "Picked: ask_scan", body: "Alias → breda-scan-query. Answers must cite artefact numbers or abstain." },
+        },
+        {
+          layer: "process",
+          status: "Artefacts + ValidationReport — humans decide on HITL.",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "ask_scan", server: "nldt-poc-mcp",
+            process: "breda-scan-query", recipe: "breda-scan-qa", highlight: "process",
+          },
+          detail: { title: "Process breda-scan-query", body: "jobId, outputs, prov; under orchestration also validation-report.json in nldt/data/runs/." },
+        },
+      ],
+    },
+    utrecht: {
+      label: "Utrecht scenario",
+      steps: [
+        { layer: "host", status: "User: “Propose Utrecht scenarios (hybrid) and sweep.”", pick: null },
+        {
+          layer: "skill",
+          status: "Read utrecht-scenario — S7 floor + explorer tools listed.",
+          skill: "utrecht-scenario",
+          pick: { method: "resources/read", kind: "resource", target: "skill://nldt/poc/utrecht-scenario/SKILL.md", server: "nldt-poc-mcp" },
+        },
+        {
+          layer: "tool",
+          status: "Pick tool propose_scenarios (author=hybrid).",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "propose_scenarios", server: "nldt-poc-mcp",
+            args: '{ baselineRunDir, author: "hybrid" }', process: "scenario-author-propose", recipe: "utrecht-scenario-author",
+          },
+          detail: { title: "Picked: propose_scenarios", body: "Alias → scenario-author-propose. Deterministic proposals are the floor; LLM may only add novel keys." },
+        },
+        {
+          layer: "process",
+          status: "Dispose propose — keep reject ledger.",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "propose_scenarios", server: "nldt-poc-mcp",
+            process: "scenario-author-propose", recipe: "utrecht-scenario-author", highlight: "process",
+          },
+          detail: { title: "Process scenario-author-propose", body: "Recipe utrecht-scenario-author. Identity stamp proposedBy by the seam." },
+        },
+        {
+          layer: "tool",
+          status: "Pick tool run_scenario_sweep.",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "run_scenario_sweep", server: "nldt-poc-mcp",
+            args: "{ useCase, baselineRunDir, noH3: true }", process: "scenario-sweep", recipe: "utrecht-scenario-sweep",
+          },
+          detail: { title: "Picked: run_scenario_sweep", body: "Alias → scenario-sweep · recipe utrecht-scenario-sweep." },
+        },
+        {
+          layer: "engine",
+          status: "poc/ scenario engine computes Δ vs baseline.",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "run_scenario_sweep", server: "nldt-poc-mcp",
+            process: "scenario-sweep", engine: "poc/", highlight: "engine",
+          },
+          detail: { title: "Engine poc/", body: "Plane B stays in the Utrecht PoC package; nLDT is only the front door." },
+        },
+        {
+          layer: "process",
+          status: "Critic + PROV — cite only artefact numbers.",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "run_scenario_sweep", server: "nldt-poc-mcp",
+            process: "scenario-sweep", recipe: "utrecht-scenario-sweep", highlight: "process",
+          },
+          detail: { title: "Wrap-up", body: "ValidationReport + prov.json. Hybrid floorIntact in compare tooling." },
+        },
+      ],
+    },
+    rijnland: {
+      label: "Rijnland water levels",
+      steps: [
+        { layer: "host", status: "User: “Use available Rijnland water-level datasets — conflict and +0.1 m what-if.”", pick: null },
+        {
+          layer: "skill",
+          status: "Read rijnland-peilen — datasets (AGOL, HydroNET archive, lake/CDC) + tools.",
+          skill: "rijnland-peilen",
+          pick: { method: "resources/read", kind: "resource", target: "skill://nldt/poc/rijnland-peilen/SKILL.md", server: "nldt-poc-mcp" },
+        },
+        {
+          layer: "tool",
+          status: "Discover lake peil series: search_lake_elasticsearch (poc=rijnland).",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "search_lake_elasticsearch", server: "nldt-catalog-mcp",
+            args: '{ q: "peil", poc: "rijnland", kind: "timeseries_series" }',
+          },
+          detail: {
+            title: "Picked: search_lake_elasticsearch",
+            body: "Lists available water-level series in the lake. Geometry sources live in poc-rijnland/data/sources.json (formal peilgebied, practice deviation, AGOL stations).",
+          },
+        },
+        {
+          layer: "tool",
+          status: "Optional ingest: timeseries-open-ingest from data/peilen/peilen.json.",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "timeseries-ingest-run", server: "nldt-process-mcp",
+            args: "recipe timeseries-open-ingest", process: "timeseries-ingest-run", recipe: "timeseries-open-ingest",
+          },
+          detail: {
+            title: "Picked: timeseries-ingest-run",
+            body: "normalize_rijnland_peilen → lake silver (restricted). Refresh archive first with scripts/fetch_peilen.py (AGOL + HydroNET ~12-day charts).",
+          },
+        },
+        {
+          layer: "tool",
+          status: "Pick tool run_peil_conflict (mode=replay).",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "run_peil_conflict", server: "nldt-poc-mcp",
+            args: '{ mode: "replay" }', process: "rijnland-peil-conflict", recipe: "rijnland-peil-conflict",
+          },
+          detail: { title: "Picked: run_peil_conflict", body: "Thin alias → process rijnland-peil-conflict. Use run_peil_conflict_live when the CDC lake snapshot path is required." },
+        },
+        {
+          layer: "process",
+          status: "Dispose via rijnland-peil-conflict · Critic/PROV.",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "run_peil_conflict", server: "nldt-poc-mcp",
+            process: "rijnland-peil-conflict", recipe: "rijnland-peil-conflict", highlight: "process",
+          },
+          detail: { title: "Process rijnland-peil-conflict", body: "Governed peil conflict analysis. Outputs + prov in the job response." },
+        },
+        {
+          layer: "engine",
+          status: "poc-rijnland engine evaluates peilen / conflict overlays.",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "run_peil_conflict", server: "nldt-poc-mcp",
+            process: "rijnland-peil-conflict", engine: "poc-rijnland/", highlight: "engine",
+          },
+          detail: { title: "Engine poc-rijnland", body: "CLI engine under poc-rijnland/. Invoked only through the process — never by the skill text." },
+        },
+        {
+          layer: "tool",
+          status: "Pick tool run_peil_whatif (delta_m=+0.1).",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "run_peil_whatif", server: "nldt-poc-mcp",
+            args: '{ delta_m: 0.1, layer: "boezem", scenarioId: "whatif" }',
+            process: "rijnland-peil-whatif", recipe: "rijnland-peil-whatif",
+          },
+          detail: { title: "Picked: run_peil_whatif", body: "Alias → rijnland-peil-whatif. Builds a multi-scenario Leaflet map from the CDC lake path when enabled." },
+        },
+        {
+          layer: "process",
+          status: "Dispose what-if · recipe rijnland-peil-whatif · HITL if required.",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "run_peil_whatif", server: "nldt-poc-mcp",
+            process: "rijnland-peil-whatif", recipe: "rijnland-peil-whatif", highlight: "process",
+          },
+          detail: { title: "Process rijnland-peil-whatif", body: "jobId, map outputs, prov. Cite only levels/deltas present in artefacts." },
+        },
+      ],
+    },
+  };
+
+  let activePoc = "lifecycle";
+  let stepIndex = -1;
+  let playing = false;
+  let playTimer = null;
+
+  const panel = document.getElementById("panel");
+  const panelKicker = document.getElementById("panelKicker");
+  const panelTitle = document.getElementById("panelTitle");
+  const panelBody = document.getElementById("panelBody");
+  const panelTrust = document.getElementById("panelTrust");
+  const panelPaths = document.getElementById("panelPaths");
+  const panelUri = document.getElementById("panelUri");
+  const schematic = document.getElementById("schematic");
+  const schematicFlow = document.getElementById("schematicFlow");
+  const toolPalette = document.getElementById("toolPalette");
+  const toolNodeSub = document.getElementById("toolNodeSub");
+  const tourStatus = document.getElementById("tourStatus");
+  const stepRail = document.getElementById("stepRail");
+
+  function showPanel(data) {
+    panel.classList.remove("fade");
+    void panel.offsetWidth;
+    panel.classList.add("fade");
+    panelKicker.textContent = data.kicker || "";
+    panelTitle.textContent = data.title || "";
+    panelBody.innerHTML = data.body || "";
+    panelTrust.textContent = data.trust || "";
+    panelPaths.innerHTML = "";
+    (data.paths || []).forEach(function (p) {
+      const li = document.createElement("li");
+      li.textContent = p;
+      panelPaths.appendChild(li);
+    });
+    if (data.uri) {
+      panelUri.hidden = false;
+      panelUri.textContent = data.uri;
+    } else {
+      panelUri.hidden = true;
+      panelUri.textContent = "";
+    }
+  }
+
+  function clearSchematicMeta() {
+    schematic.querySelectorAll(".sch-meta").forEach(function (m) {
+      m.remove();
+    });
+  }
+
+  function schNode(text, opts) {
+    opts = opts || {};
+    const span = document.createElement("span");
+    span.className = "sch-node";
+    if (opts.kind) span.classList.add("kind-" + opts.kind);
+    if (opts.hot) span.classList.add("hot");
+    if (opts.dim) span.classList.add("dim");
+    span.textContent = text;
+    return span;
+  }
+
+  function schArrow(lit) {
+    const span = document.createElement("span");
+    span.className = "sch-arrow" + (lit ? " lit" : "");
+    span.textContent = "→";
+    return span;
+  }
+
+  function appendMeta(pick) {
+    clearSchematicMeta();
+    const meta = document.createElement("div");
+    meta.className = "sch-meta";
+    let html = '<span><span class="k">server </span>' + (pick.server || "nldt-poc-mcp") + "</span>";
+    html += '<span><span class="k">method </span>' + (pick.method || (pick.kind === "tool" ? "tools/call" : "resources/read")) + "</span>";
+    if (pick.tool) html += '<span><span class="k">tool </span>' + pick.tool + "</span>";
+    if (pick.args) html += '<span><span class="k">args </span>' + pick.args + "</span>";
+    if (pick.target) html += '<span><span class="k">uri </span>' + pick.target + "</span>";
+    if (pick.process) html += '<span><span class="k">process </span>' + pick.process + "</span>";
+    if (pick.recipe) html += '<span><span class="k">recipe </span>' + pick.recipe + "</span>";
+    if (pick.engine) html += '<span><span class="k">engine </span>' + pick.engine + "</span>";
+    meta.innerHTML = html;
+    schematic.appendChild(meta);
+  }
+
+  function renderSchematic(pick) {
+    if (!pick) {
+      schematic.hidden = true;
+      schematicFlow.innerHTML = "";
+      clearSchematicMeta();
+      return;
+    }
+    schematic.hidden = false;
+    schematicFlow.innerHTML = "";
+    clearSchematicMeta();
+
+    const hot = pick.highlight || (pick.kind === "tool" ? "tool" : "resource");
+
+    if (pick.kind === "tool" || pick.tool) {
+      schematicFlow.appendChild(schNode("Host"));
+      schematicFlow.appendChild(schArrow(true));
+      schematicFlow.appendChild(schNode("tools/call", { kind: "tool", hot: hot === "tool" }));
+      schematicFlow.appendChild(schArrow(true));
+      schematicFlow.appendChild(schNode(pick.tool || "?", { kind: "tool", hot: hot === "tool" }));
+      if (pick.process) {
+        schematicFlow.appendChild(schArrow(true));
+        schematicFlow.appendChild(schNode(pick.process, { hot: hot === "process" }));
+      }
+      if (pick.recipe) {
+        schematicFlow.appendChild(schArrow(false));
+        schematicFlow.appendChild(schNode(pick.recipe, { dim: hot !== "process" }));
+      }
+      if (pick.engine || hot === "engine") {
+        schematicFlow.appendChild(schArrow(hot === "engine"));
+        schematicFlow.appendChild(schNode(pick.engine || "PoC engine", { hot: hot === "engine" }));
+      }
+      appendMeta(pick);
+      return;
+    }
+
+    // resource read path
+    schematicFlow.appendChild(schNode("Host"));
+    schematicFlow.appendChild(schArrow(true));
+    schematicFlow.appendChild(schNode(pick.method || "resources/read", { kind: "resource", hot: true }));
+    schematicFlow.appendChild(schArrow(true));
+    schematicFlow.appendChild(schNode(pick.target || "skill://…", { kind: "resource", hot: true }));
+    appendMeta(pick);
+  }
+
+  function renderToolPalette(pick) {
+    const tools = POC_TOOLS[activePoc] || [];
+    toolPalette.innerHTML = "";
+    if (!tools.length) {
+      toolPalette.hidden = true;
+      toolNodeSub.textContent = "Thin alias → process";
+      return;
+    }
+    toolPalette.hidden = false;
+
+    const pickedId =
+      pick && pick.kind === "tool"
+        ? pick.tool
+        : pick && pick.kind === "resource"
+          ? "resources/read"
+          : null;
+
+    tools.forEach(function (t) {
+      const chip = document.createElement("span");
+      chip.className = "tool-chip candidate";
+      if (t.kind === "resource") chip.classList.add("resource");
+      chip.textContent = t.id;
+      chip.title =
+        (t.server || "") +
+        (t.process ? " → " + t.process : "") +
+        (t.recipe ? " · " + t.recipe : "");
+      if (pickedId && t.id === pickedId) chip.classList.add("picked");
+      toolPalette.appendChild(chip);
+    });
+
+    if (pickedId && pick && pick.kind === "tool") {
+      toolNodeSub.textContent = "Picked → " + pickedId;
+    } else if (pickedId && pick && pick.kind === "resource") {
+      toolNodeSub.textContent = "Reading resource (not a tool call)";
+    } else {
+      toolNodeSub.textContent = "Candidates for this PoC";
+    }
+  }
+
+  function clearHighlights() {
+    document.querySelectorAll(".node, .index-chip").forEach(function (el) {
+      el.classList.remove("active", "on-path");
+    });
+    document.querySelectorAll(".connector").forEach(function (c) {
+      c.classList.remove("lit");
+    });
+  }
+
+  function highlightLayer(id) {
+    clearHighlights();
+    const el = document.getElementById(id === "index" ? "node-index" : "node-" + id);
+    if (el) el.classList.add("active");
+    const order = ["host", "skill", "tool", "process", "engine"];
+    const idx = order.indexOf(id === "index" ? "skill" : id);
+    order.forEach(function (pid, i) {
+      if (i < idx) {
+        const n = document.getElementById("node-" + pid);
+        if (n) n.classList.add("on-path");
+      }
+    });
+    document.querySelectorAll(".connector").forEach(function (c) {
+      const to = c.getAttribute("data-to");
+      const toIdx = order.indexOf(to);
+      if (idx >= 0 && toIdx >= 0 && toIdx <= idx) c.classList.add("lit");
+      if (id === "index" && (to === "skill" || c.getAttribute("data-from") === "host")) {
+        c.classList.add("lit");
+      }
+    });
+  }
+
+  function selectLayer(id, override) {
+    const base = LAYERS[id];
+    if (!base && !override) return;
+    const data = Object.assign({}, base || {}, override || {});
+    if (override && override.detail) {
+      data.title = override.detail.title;
+      data.body = override.detail.body;
+    }
+    showPanel(data);
+    highlightLayer(id);
+    if (!(override && "pick" in override)) {
+      renderSchematic(null);
+      renderToolPalette(null);
+    }
+  }
+
+  function selectSkill(skill) {
+    showPanel({
+      kicker: "Agent Skill",
+      title: skill.name,
+      body: skill.description,
+      trust: "Instructions only. Dispose via the tools this skill names — never via the skill itself.",
+      paths: ["nldt/skills/poc/" + skill.name + "/SKILL.md"],
+      uri: skill.url,
+    });
+    highlightLayer("skill");
+    const pick = {
+      method: "resources/read",
+      kind: "resource",
+      target: skill.url,
+      server: "nldt-poc-mcp",
+    };
+    renderSchematic(pick);
+    renderToolPalette(pick);
+  }
+
+  function renderSkills() {
+    const list = document.getElementById("skillList");
+    list.innerHTML = "";
+    SKILLS.forEach(function (s) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "skill-row";
+      btn.innerHTML =
+        '<span class="sname">' +
+        s.name +
+        '</span><span class="sdesc">' +
+        s.description +
+        "</span>";
+      btn.addEventListener("click", function () {
+        selectSkill(s);
+      });
+      list.appendChild(btn);
+    });
+  }
+
+  function renderStepRail() {
+    const steps = TOURS[activePoc].steps;
+    stepRail.innerHTML = "";
+    steps.forEach(function (_, i) {
+      const d = document.createElement("span");
+      d.className = "step-dot";
+      if (i < stepIndex) d.classList.add("done");
+      if (i === stepIndex) d.classList.add("now");
+      stepRail.appendChild(d);
+    });
+  }
+
+  function applyStep(i) {
+    const tour = TOURS[activePoc];
+    if (i < 0 || i >= tour.steps.length) return;
+    stepIndex = i;
+    const step = tour.steps[i];
+    const override = { pick: step.pick };
+    if (step.detail) override.detail = step.detail;
+    if (step.skill) {
+      const sk = SKILLS.find(function (s) {
+        return s.name === step.skill;
+      });
+      if (sk) {
+        override.uri = sk.url;
+        override.paths = (LAYERS.skill.paths || []).concat([
+          "nldt/skills/poc/" + sk.name + "/SKILL.md",
+        ]);
+        if (!step.detail) {
+          override.title = sk.name;
+          override.body = step.status + " — " + sk.description;
+        }
+      }
+    }
+    if (step.pick && step.pick.tool) {
+      override.paths = [
+        "tools/call " + step.pick.tool,
+        step.pick.process ? "process " + step.pick.process : null,
+        step.pick.recipe ? "recipe " + step.pick.recipe : null,
+        "server " + (step.pick.server || "nldt-poc-mcp"),
+      ].filter(Boolean);
+    }
+    selectLayer(step.layer, override);
+    renderSchematic(step.pick);
+    renderToolPalette(step.pick);
+
+    const pickLabel =
+      step.pick && step.pick.tool
+        ? ' · tool <code>' + step.pick.tool + "</code>"
+        : step.pick && step.pick.kind === "resource"
+          ? " · <code>" + (step.pick.method || "resources/read") + "</code>"
+          : "";
+    tourStatus.innerHTML =
+      "<strong>" +
+      tour.label +
+      "</strong> · step " +
+      (i + 1) +
+      "/" +
+      tour.steps.length +
+      pickLabel +
+      " — " +
+      step.status;
+    renderStepRail();
+  }
+
+  function stopPlay() {
+    playing = false;
+    if (playTimer) {
+      clearInterval(playTimer);
+      playTimer = null;
+    }
+    document.getElementById("btnPlay").textContent = "Play";
+  }
+
+  function resetTour() {
+    stopPlay();
+    stepIndex = -1;
+    clearHighlights();
+    showPanel({
+      kicker: "PoC · " + TOURS[activePoc].label,
+      title: TOURS[activePoc].label,
+      body: "Press Play to follow Host → Skill → Tool pick → Process → Engine. The palette highlights which tool is selected each step.",
+      trust: LAYERS.host.trust,
+      paths: [],
+      uri: null,
+    });
+    renderSchematic(null);
+    renderToolPalette(null);
+    tourStatus.textContent = "Tour reset. Press Play to start.";
+    renderStepRail();
+  }
+
+  function nextStep() {
+    const tour = TOURS[activePoc];
+    if (stepIndex + 1 >= tour.steps.length) {
+      stopPlay();
+      tourStatus.innerHTML =
+        "<strong>" + tour.label + "</strong> — tour complete. Reset or pick another PoC.";
+      return;
+    }
+    applyStep(stepIndex + 1);
+  }
+
+  function startPlay() {
+    if (playing) {
+      stopPlay();
+      return;
+    }
+    if (stepIndex < 0) applyStep(0);
+    else nextStep();
+    playing = true;
+    document.getElementById("btnPlay").textContent = "Pause";
+    playTimer = setInterval(function () {
+      const tour = TOURS[activePoc];
+      if (stepIndex + 1 >= tour.steps.length) {
+        stopPlay();
+        tourStatus.innerHTML = "<strong>" + tour.label + "</strong> — tour complete.";
+        return;
+      }
+      applyStep(stepIndex + 1);
+    }, 2400);
+  }
+
+  function setPoc(id) {
+    activePoc = id;
+    document.querySelectorAll(".tab").forEach(function (t) {
+      t.classList.toggle("active", t.getAttribute("data-poc") === id);
+    });
+    resetTour();
+  }
+
+  document.querySelectorAll(".node[data-id], .index-chip[data-id]").forEach(function (el) {
+    el.addEventListener("click", function () {
+      stopPlay();
+      selectLayer(el.getAttribute("data-id"));
+      renderSchematic(null);
+      renderToolPalette(null);
+    });
+  });
+
+  document.querySelectorAll(".tab").forEach(function (t) {
+    t.addEventListener("click", function () {
+      setPoc(t.getAttribute("data-poc"));
+    });
+  });
+
+  document.getElementById("btnPlay").addEventListener("click", startPlay);
+  document.getElementById("btnNext").addEventListener("click", function () {
+    stopPlay();
+    if (stepIndex < 0) applyStep(0);
+    else nextStep();
+  });
+  document.getElementById("btnReset").addEventListener("click", resetTour);
+
+  document.getElementById("btnStartTour").addEventListener("click", function () {
+    document.getElementById("pocBar").scrollIntoView({ behavior: "smooth", block: "start" });
+    setPoc(activePoc);
+    startPlay();
+  });
+
+  document.getElementById("btnFocusPoc").addEventListener("click", function () {
+    document.getElementById("pocBar").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      stopPlay();
+      if (stepIndex < 0) applyStep(0);
+      else nextStep();
+    } else if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      stopPlay();
+      if (stepIndex > 0) applyStep(stepIndex - 1);
+    } else if (e.key === "Escape") {
+      resetTour();
+    }
+  });
+
+  renderSkills();
+  renderStepRail();
+  renderToolPalette(null);
+  selectLayer("host");
+  tourStatus.textContent = "Pick a PoC and press Play. Arrow keys · Esc = reset.";
+})();
+  </script>
+</body>
+</html>

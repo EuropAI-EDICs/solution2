@@ -140,9 +140,11 @@ class SkillsExtension(Extension):
 
 
 POC_SKILLS_INSTRUCTIONS = (
-    "Before calling PoC tools, read skill://nldt/poc/nldt-poc-router/SKILL.md "
-    "(and the matching PoC skill). Enumerate skills via skill://index.json. "
-    "Skills are instructions only — dispose via the registered tools/processes."
+    "Default entry: read skill://nldt/poc/nldt-poc-lifecycle/SKILL.md "
+    "(discover → lake → scenarios → demo). Then use nldt-poc-router or a domain "
+    "skill (breda-scan, utrecht-scenario, rijnland-peilen). Enumerate via "
+    "skill://index.json. Skills are instructions only — dispose via registered "
+    "tools/processes."
 )
 
 

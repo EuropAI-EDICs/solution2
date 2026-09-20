@@ -112,7 +112,7 @@ def main() -> int:
     records = archive.setdefault("stations", {})
     archive.update({
         "source": "Rijnland AGOL live layers + HydroNET watercontrolroom "
-                  "efsserviceprovider chart endpoint (~12-daags venster)",
+                  "efsserviceprovider chart endpoint (~12-day window)",
         "layers": LAYERS,
         "unit": "mNAP",
         "lastFetchedAt": now,
