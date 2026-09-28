@@ -104,7 +104,10 @@ fields, and the same record serves testbed governance, EDIC handover and
    `operations` / `userFeedback`, each `pass | partial | open` with an
    evidence pointer (ValidationReport artefact, DPIA reference, source
    monitor watchlist, feedback endpoint). Honest statuses only — a `legalEthical:
-   open` is a valid, useful answer.
+   open` is a valid, useful answer. Passports cite RA capability names from
+   [edic/ra-capability-map.json](edic/ra-capability-map.json) so DTAS
+   metadata and the EDIC Reference Architecture share one vocabulary
+   (see [edic/ra-conformity.md](edic/ra-conformity.md)).
 3. **Real Marketplace publication.** Concretise BK-4: publish 2–3 recipes
    via [`services/marketplace_publish.py`](services/marketplace_publish.py)
    to the actual EU LDT Toolbox Marketplace, payload = recipe +

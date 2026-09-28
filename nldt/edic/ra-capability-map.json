@@ -1,0 +1,155 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-09-28",
+  "raModel": "id-ldt-fixed-arch-003",
+  "snapshotRef": "ra-capability-snapshot.json",
+  "sourceCommit": "0e8519a8be89e4e2bb2a281c2256fdf5d248f145",
+  "purpose": "Maps nLDT components onto the LDT CitiVERSE EDIC Reference Architecture vocabulary (business services, application services, conformance profiles, standards), so the EDIC handover (nldt/21) and DTAS module passports (nldt/23) speak the EDIC's own language. Curated by hand against the extracted snapshot; a status only claims what an artifact evidences. Refresh procedure: rerun scripts/extract_edic_ra.py --commit latest, review drift, update statuses here.",
+  "statusVocabulary": ["strong", "partial", "absent"],
+  "foundation": {
+    "Standards-based APIs": {
+      "status": "strong",
+      "evidence": "OGC API Records (:8083) and OGC API Processes (:8082) are the default public interfaces — exactly the RA's design-time contract list; OGC API Features/Tiles consumed via adapters"
+    },
+    "Metadata publication and discovery": {
+      "status": "strong",
+      "evidence": "catalog_adapter (OGC API Records) with application/recipe records; DCAT-AP DONL harvest (nldt/18)"
+    },
+    "Identity and access management": {
+      "status": "strong",
+      "evidence": "Keycloak realm LDT, bearer middleware on services + MCP, agent client registry (nldt/16 W6a)"
+    },
+    "Open interoperability interfaces": {
+      "status": "strong",
+      "evidence": "MCP servers (:8090-8093) and A2A (:8085) alongside the OGC APIs; JSON Schema contracts per service"
+    },
+    "Conformance to the architectural guardrails": {
+      "status": "partial",
+      "evidence": "RA guardrails not yet published as a checkable list; nLDT validation V0-V4 covers outcomes (nldt/07)"
+    },
+    "Participation in federated discovery mechanisms": {
+      "status": "partial",
+      "evidence": "Marketplace publish exists (mock); live EU LDT Toolbox Marketplace registration is DT-1 (nldt/23)"
+    }
+  },
+  "profileClaims": {
+    "Descriptive LDT": {
+      "status": "partial",
+      "evidence": "Catalog, lake, viewers and dashboards exist; live sensor integration and event detection absent (sources arrive as files/archives)"
+    },
+    "Diagnostic LDT": {
+      "status": "partial",
+      "evidence": "Rule knowledge graph + decision tables explain *why* a zone is allowed (PoC-1); no generic Knowledge Graph Services or event processing"
+    },
+    "Predictive LDT": {
+      "status": "partial",
+      "evidence": "Time-series ingest + CDC replay enable historical analysis; no forecasting or ML models"
+    },
+    "Prospective LDT": {
+      "status": "strong",
+      "evidence": "Scenario Management, What-if Analysis and Model Composition implemented with provenance and controls: Utrecht scenario sweep, Breda indicator variants + rank-stability, Rijnland peil what-if, cross-track wind x zon x bos composition"
+    },
+    "Prescriptive LDT": {
+      "status": "absent",
+      "evidence": "No recommendation/optimisation services — deliberate: the doctrine keeps recommendation with the human (AI proposes, humans decide)"
+    },
+    "Autonomous LDT": {
+      "status": "partial",
+      "evidence": "Policy Enforcement (trustPolicy) and Human Oversight Services (HITL interrupts) match the profile's building blocks; adaptive learning and closed-loop actuation absent"
+    }
+  },
+  "mappings": [
+    {
+      "nldt": {"component": "catalog_adapter", "path": "services/catalog_adapter/"},
+      "realises": ["Data Services — metadata management, data cataloguing", "Data Exchange and Collaboration — data discovery"],
+      "standards": {"OGC API Records": "strong", "DCAT-AP": "strong"},
+      "status": "strong"
+    },
+    {
+      "nldt": {"component": "process_adapter + cookbook", "path": "services/process_adapter/ · services/cookbook/"},
+      "realises": ["Processing Services — data processing, scenario analysis, simulation", "Generate Knowledge value-stream stage"],
+      "standards": {"OGC API Processes": "strong"},
+      "status": "strong"
+    },
+    {
+      "nldt": {"component": "scenario engines", "path": "../poc/pipeline/scenarios.py · ../poc-breda/breda/scenarios.py · services/rijnland_whatif.py · ../poc/pipeline/crosstrack.py"},
+      "realises": ["Prospective LDT — Scenario Management, What-if Analysis, Model Composition", "Processing Services — computational models, scenario engines"],
+      "standards": {},
+      "status": "strong"
+    },
+    {
+      "nldt": {"component": "validation + PROV + run annex", "path": "schemas/validation-report.schema.json · services/run_annex.py"},
+      "realises": ["Data Services — provenance management", "Explainability/Reproduction capabilities (ArchiMate model terms)"],
+      "standards": {"PROV-O": "strong"},
+      "status": "strong"
+    },
+    {
+      "nldt": {"component": "context3d + simulation viewers", "path": "services/context3d/ · simulation/web3d-viewer.html"},
+      "realises": ["Digital Twin Visualisation — 3D city models, scenario visualisation", "Visualisation Services — DT viewers"],
+      "standards": {"JSON/GeoJSON (Web 3D Context schema)": "strong"},
+      "status": "strong"
+    },
+    {
+      "nldt": {"component": "time-series + CDC lake", "path": "services/timeseries/ · 15-cdc-data-lake-pipeline.md"},
+      "realises": ["Descriptive/Predictive groundwork — Time Travel (historical state)"],
+      "standards": {"Parquet (lake)": "strong"},
+      "status": "partial",
+      "note": "Historical replay yes; live ingestion and forecasting out of scope today"
+    },
+    {
+      "nldt": {"component": "source monitor + DONL harvest", "path": "services/source_monitor/ · services/donl_harvest/"},
+      "realises": ["Data Services — metadata, data quality", "Context Awareness — environmental monitoring (indirect: monitors sources, not the environment)"],
+      "standards": {"DCAT-AP": "strong"},
+      "status": "partial"
+    },
+    {
+      "nldt": {"component": "data space connector", "path": "services/lake/publish.py · services/adapters/dataspace_connector.py"},
+      "realises": ["Data Exchange and Collaboration — Data Space participation, data publication"],
+      "standards": {"Dataspace Protocol": "partial", "IDS Catalog Protocol": "partial"},
+      "status": "partial",
+      "note": "EDC manifests importable + ODRL offers; live connector management URL still open (GENAI_SEAMS 'Still open' #2)"
+    },
+    {
+      "nldt": {"component": "identity: Keycloak + eID/agent wallets", "path": "services/adapters/keycloak_auth.py · services/auth_wallet/ · services/agent_wallet/"},
+      "realises": ["Integration Services — identity federation"],
+      "standards": {"OpenID Connect": "strong", "OID4VC / Verifiable Credentials": "partial"},
+      "status": "strong",
+      "note": "OID4VC verifier is mock until ch.16 W2/W6 land"
+    },
+    {
+      "nldt": {"component": "MCP servers + A2A + orchestrator", "path": "services/mcp_servers/ · services/a2a/ · agents/orchestrator/"},
+      "realises": ["Integration Services — service federation, API management", "Autonomous LDT building blocks — Agent-based AI Services, Human Oversight Services, Policy Enforcement Services"],
+      "standards": {},
+      "status": "strong",
+      "note": "Federation/dispatch strong; autonomous *closed-loop actuation* deliberately absent"
+    },
+    {
+      "nldt": {"component": "beleidskompas front door + S11 public seam", "path": "14-beleidskompas-integration.md · 22-dual-audience-spatial-planning.md"},
+      "realises": ["Co-Creation and Participation — citizen participation, scenario evaluation, feedback collection", "Participation Services"],
+      "standards": {},
+      "status": "partial",
+      "note": "BK-1 mounted for civil servants; public seam S11 + Participate integration are DA-1/DA-3 (ch. 22)"
+    },
+    {
+      "nldt": {"component": "Play & Visualise adapter + hybrid bridge", "path": "services/adapters/play_visualise.py · services/hybrid_bridge.py"},
+      "realises": ["EU LDT Toolbox tool wiring (Play & Visualize; UCS experiments)"],
+      "standards": {},
+      "status": "strong"
+    },
+    {
+      "nldt": {"component": "observability", "path": "09-federation-and-observability.md"},
+      "realises": ["Integration Services — logging and monitoring"],
+      "standards": {"OpenTelemetry": "partial"},
+      "status": "partial",
+      "note": "OTel propagation across the GovChat bridge still open (BK-3)"
+    }
+  ],
+  "gaps": [
+    {"capability": "Sensor integration / event detection (Descriptive)", "status": "absent", "note": "No live sensor feeds; Rijnland water levels arrive as archived files"},
+    {"capability": "Forecasting / Predictive Analytics / ML (Predictive)", "status": "absent", "note": "LLM proposal seams (S1/S2/S7) are not predictive models"},
+    {"capability": "Recommendation Services / Optimisation (Prescriptive)", "status": "absent", "note": "Deliberate doctrine: recommendation stays with the human"},
+    {"capability": "Adaptive Learning / closed-loop actuation (Autonomous)", "status": "absent", "note": "Agents act on data and models, never on the physical environment"},
+    {"capability": "XR / immersive environments (Visualisation)", "status": "absent", "note": "Cesium 3D viewers only"},
+    {"capability": "Knowledge Graph Services (Diagnostic)", "status": "partial", "note": "PoC-1 rule knowledge graph + NormCards exist; no SPARQL/KG service product"}
+  ]
+}

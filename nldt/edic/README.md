@@ -17,4 +17,5 @@ Index for the M4–M6 framing dossier. Hub:
 | [l2-infrastructure.md](l2-infrastructure.md) | SIMPL / NLAIF / TEF consume-not-build |
 | [stage-gates.md](stage-gates.md) | M6–M36 continue-or-fallback |
 | [maintenance-envelope.md](maintenance-envelope.md) | Digital Commons cost envelope |
+| [ra-conformity.md](ra-conformity.md) | **RA conformity** — nLDT vs the EDIC Reference Architecture (profiles, services, standards, gaps) · data: [ra-capability-map.json](ra-capability-map.json) + [ra-capability-snapshot.json](ra-capability-snapshot.json) · extractor: [`../scripts/extract_edic_ra.py`](../scripts/extract_edic_ra.py) |
 | [declarations/](declarations/) | MIM + Digital Rulebook declarations (high-risk recipes) |
