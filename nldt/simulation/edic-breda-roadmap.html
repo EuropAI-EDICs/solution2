@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>nLDT — Schematic route map (Breda)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper: #e8e2d6; --ink: #1a2428; --ink-soft: #3d4a50; --muted: #6a757a;
+      --teal: #0d6e6e; --focus: #c45c26; --line: rgba(26, 36, 40, 0.18);
+      --card: #fffdf8; --radius: 4px;
+      --citiverse: #0d6e6e; --impacts: #5b4a8a; --commons: #3d5a3d;
+      --font-ui: "DM Sans", system-ui, sans-serif;
+      --font-display: "Fraunces", Georgia, serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-ui); color: var(--ink); background-color: var(--paper);
+      background-image:
+        linear-gradient(rgba(26, 36, 40, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(26, 36, 40, 0.03) 1px, transparent 1px),
+        radial-gradient(ellipse 120% 80% at 8% -15%, rgba(13, 110, 110, 0.14), transparent 50%),
+        radial-gradient(ellipse 70% 50% at 100% 0%, rgba(196, 92, 38, 0.07), transparent 45%);
+      background-size: 28px 28px, 28px 28px, 100% 100%, 100% 100%;
+      min-height: 100vh; line-height: 1.45;
+    }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+    a.back { font-size: 0.8rem; color: var(--teal); text-decoration: none; }
+    a.back:hover { text-decoration: underline; }
+    .brand {
+      font-family: var(--font-display);
+      font-size: clamp(1.9rem, 4.5vw, 2.7rem);
+      font-weight: 700; letter-spacing: -0.02em; line-height: 1.08;
+      margin-top: 0.7rem;
+    }
+    .brand span { color: var(--teal); }
+    .kicker { margin-top: 0.35rem; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+    .lede { margin-top: 0.55rem; font-size: 1.02rem; color: var(--ink-soft); max-width: 46rem; }
+    .doctrine { margin-top: 0.35rem; font-size: 0.88rem; color: var(--muted); font-style: italic; }
+
+    h2 {
+      font-family: var(--font-display); font-size: 1.28rem; font-weight: 600;
+      color: var(--teal); margin: 2rem 0 0.7rem;
+    }
+
+    .question {
+      margin-top: 1.35rem; background: var(--card); border: 1px solid var(--line);
+      border-left: 4px solid var(--focus); border-radius: var(--radius);
+      padding: 0.95rem 1.05rem;
+    }
+    .question .tag { font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--focus); font-weight: 600; }
+    .question h1 {
+      font-family: var(--font-display); font-size: clamp(1.2rem, 3vw, 1.55rem);
+      font-weight: 600; line-height: 1.2; margin-top: 0.2rem;
+    }
+    .values { margin-top: 0.55rem; display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .values span {
+      font-size: 0.75rem; background: rgba(196, 92, 38, 0.1); color: var(--ink);
+      border: 1px solid rgba(196, 92, 38, 0.28); padding: 0.15rem 0.45rem; border-radius: 2px;
+    }
+
+    .stack {
+      margin-top: 0.75rem; display: grid; gap: 0.4rem;
+      grid-template-columns: repeat(5, 1fr);
+    }
+    .stack .n {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 0.55rem 0.6rem; min-height: 5.2rem;
+    }
+    .stack .n b { display: block; font-size: 0.78rem; color: var(--teal); }
+    .stack .n span { display: block; margin-top: 0.2rem; font-size: 0.72rem; color: var(--ink-soft); }
+    .arrow-row {
+      text-align: center; color: var(--muted); font-size: 0.8rem; margin: 0.45rem 0 0.15rem;
+    }
+
+    .tracks {
+      display: grid; gap: 0.55rem;
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .track {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 0.8rem 0.85rem; border-top: 4px solid var(--teal);
+    }
+    .track.imp { border-top-color: var(--impacts); }
+    .track.com { border-top-color: var(--commons); }
+    .track .role { font-size: 0.7rem; letter-spacing: 0.07em; text-transform: uppercase; font-weight: 600; }
+    .track.lead .role { color: var(--citiverse); }
+    .track.imp .role { color: var(--impacts); }
+    .track.com .role { color: var(--commons); }
+    .track h3 { font-family: var(--font-display); font-size: 1.05rem; margin-top: 0.15rem; }
+    .track p { margin-top: 0.35rem; font-size: 0.8rem; color: var(--ink-soft); }
+    .track .breda {
+      margin-top: 0.55rem; font-size: 0.78rem; padding-top: 0.5rem;
+      border-top: 1px dashed var(--line);
+    }
+    .track .breda strong { color: var(--ink); }
+
+    .rule {
+      margin-top: 0.7rem; font-size: 0.82rem; color: var(--ink-soft);
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 0.6rem 0.8rem;
+    }
+
+    .gantt {
+      display: grid; gap: 0.45rem; margin-top: 0.4rem;
+    }
+    .gantt .row { display: grid; grid-template-columns: 7.2rem 1fr; gap: 0.5rem; align-items: center; }
+    .gantt .lab { font-size: 0.72rem; font-weight: 600; color: var(--ink-soft); }
+    .gantt .bar {
+      position: relative; height: 1.7rem; background: rgba(26, 36, 40, 0.05);
+      border: 1px solid var(--line); border-radius: 2px; overflow: hidden;
+    }
+    .gantt .seg {
+      position: absolute; top: 0; bottom: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; padding: 0 0.2rem; color: #fff; text-align: center; line-height: 1.15;
+    }
+    .gantt .ticks {
+      display: grid; grid-template-columns: 7.2rem 1fr; gap: 0.5rem; margin-bottom: 0.15rem;
+    }
+    .gantt .ticks ol {
+      display: grid; grid-template-columns: repeat(5, 1fr); list-style: none;
+      font-size: 0.62rem; color: var(--muted);
+    }
+
+    .order { display: grid; gap: 0.4rem; grid-template-columns: repeat(4, 1fr); margin-top: 0.4rem; }
+    .step {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 0.7rem 0.7rem 0.75rem;
+    }
+    .step.hl { border-color: var(--focus); box-shadow: inset 0 0 0 1px var(--focus); }
+    .step .num { font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+    .step.hl .num { color: var(--focus); }
+    .step h3 { font-family: var(--font-display); font-size: 0.95rem; margin-top: 0.15rem; }
+    .step p { margin-top: 0.3rem; font-size: 0.75rem; color: var(--ink-soft); }
+
+    .phases { display: grid; gap: 0.4rem; grid-template-columns: repeat(4, 1fr); }
+    .phase {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 0.7rem;
+    }
+    .phase .when { font-size: 0.68rem; color: var(--muted); font-weight: 600; }
+    .phase h3 { font-size: 0.92rem; margin-top: 0.1rem; }
+    .phase p { margin-top: 0.3rem; font-size: 0.75rem; color: var(--ink-soft); }
+
+    .demos { margin-top: 0.55rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .demos a {
+      text-decoration: none; color: inherit; background: var(--card);
+      border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 0.4rem 0.65rem; font-size: 0.8rem;
+    }
+    .demos a:hover { border-color: var(--teal); }
+    .demos a strong { color: var(--teal); }
+
+    .foot { margin-top: 2rem; font-size: 0.75rem; color: var(--muted); }
+    .foot a { color: var(--teal); }
+
+    @media (max-width: 820px) {
+      .stack, .tracks, .order, .phases { grid-template-columns: 1fr 1fr; }
+      .gantt .row, .gantt .ticks { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) {
+      .stack, .tracks, .order, .phases { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="poc-mcp-skills.html?poc=edic">← Architecture tour (?poc=edic)</a>
+    <a class="back" href="index.html" style="margin-left:0.75rem">Simulations hub</a>
+    <p class="kicker">EuropAI WP4 · M4–M6 framing · route 3</p>
+    <p class="brand">Schematic <span>route map</span></p>
+    <p class="lede">Three EDIC tracks in parallel. CitiVERSE is the first operational landing. The Breda five-value scan is the city illustration on that lead track — after the generic overlay, before high-risk PoCs.</p>
+    <p class="doctrine">LLMs propose · engines dispose · humans decide.</p>
+
+    <section class="question" aria-labelledby="q-breda">
+      <p class="tag">Illustration · Breda PoC</p>
+      <h1 id="q-breda">Where does open data + AI create value across five congress values?</h1>
+      <p class="lede" style="margin-top:0.4rem;font-size:0.9rem">Democratic, spatial, economic, social, and autonomous value. Every score cites a named public source (CBS / PDOK / data.breda.nl) or the Q&amp;A abstains. 56 neighbourhoods. Medium risk. No secrets in the demo.</p>
+      <div class="values" aria-label="Five congress values">
+        <span>Democratic</span><span>Spatial</span><span>Economic</span><span>Social</span><span>Autonomous</span>
+      </div>
+    </section>
+
+    <h2>From city question to governed stack</h2>
+    <div class="stack" role="list">
+      <div class="n" role="listitem"><b>Skill</b><span>breda-scan — untrusted instructions only</span></div>
+      <div class="n" role="listitem"><b>Recipes</b><span>breda-five-value-scan · breda-scan-qa</span></div>
+      <div class="n" role="listitem"><b>Engine</b><span>poc-breda disposes scores — LLMs never write zones</span></div>
+      <div class="n" role="listitem"><b>Trust</b><span>Critic V0–V4 · number gate · PROV</span></div>
+      <div class="n" role="listitem"><b>Identity</b><span>Toolbox IM bearer — no localhost in production</span></div>
+    </div>
+    <p class="arrow-row">↓ one run, three claims — not three products</p>
+
+    <h2>Three parallel tracks</h2>
+    <div class="tracks">
+      <article class="track lead">
+        <p class="role">Lead · first demo</p>
+        <h3>LDT CitiVERSE</h3>
+        <p>Spatial offering and city capacity module. First working asset is still the generic overlay. Toolbox UCS / Marketplace / Play &amp; Visualise / IM are consumed, not rebuilt.</p>
+        <p class="breda"><strong>Breda on this track:</strong> city recipes + skill + Discover → Lake → Scenarios → Demo. Catalogue slot after overlay live-path.</p>
+      </article>
+      <article class="track imp">
+        <p class="role">Paper · contact in M4</p>
+        <h3>IMPACTS-EDIC</h3>
+        <p>Implementation framework: orchestrator, Critic / HITL, marketplace <em>mechanism</em>, declarations. Integrated asset only after letter of intent.</p>
+        <p class="breda"><strong>Breda on this track:</strong> the same payload’s ValidationReport + PROV + <code>edic.destination</code>. Evidence of cite-or-abstain — not a second marketplace id.</p>
+      </article>
+      <article class="track com">
+        <p class="role">Stewardship · pack in M4</p>
+        <h3>Digital Commons</h3>
+        <p>Source (<code>nldt/</code>, <code>poc/</code>) and GovChat-NL front door. Not a CitiVERSE city app. Licence must not block the live path.</p>
+        <p class="breda"><strong>Breda on this track:</strong> engine <code>poc-breda/</code> under EUPL-1.2. GovChat stays Commons, never Solution 2.</p>
+      </article>
+    </div>
+    <p class="rule"><strong>Marketplace rule.</strong> CitiVERSE owns the spatial offering; IMPACTS owns the publish contract. One upload, two claims. Tracks fail independently — a red Commons gate does not pause Breda on CitiVERSE.</p>
+
+    <h2>Timeline M4–M36</h2>
+    <div class="gantt" aria-label="Route 3 timeline with Breda city illustration">
+      <div class="ticks">
+        <span></span>
+        <ol>
+          <li>M4–M6</li>
+          <li>M7–M12</li>
+          <li>M13–M18</li>
+          <li>M19–M30</li>
+          <li>M31–M36</li>
+        </ol>
+      </div>
+      <div class="row">
+        <div class="lab">CitiVERSE</div>
+        <div class="bar">
+          <span class="seg" title="Overlay demo, then Breda as the city example" style="left:0%;width:20%;background:var(--citiverse)">overlay + Breda</span>
+          <span class="seg" title="Letter of intent on spatial recipes and agents" style="left:20%;width:16%;background:#149494">LoI</span>
+          <span class="seg" title="Breda recipes on the live Toolbox path" style="left:36%;width:16%;background:#0a5858">Breda live</span>
+          <span class="seg" title="City recipe in a real setting" style="left:52%;width:24%;background:#083f3f">real setting</span>
+          <span class="seg" title="Executed handover by June 2029" style="left:76%;width:24%;background:#052828">handover</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="lab">IMPACTS</div>
+        <div class="bar">
+          <span class="seg" title="Framework spec; Breda as cite-or-abstain evidence" style="left:0%;width:20%;background:var(--impacts)">paper + evidence</span>
+          <span class="seg" title="Written intent or LoI" style="left:20%;width:16%;background:#6e5aa8">intent</span>
+          <span class="seg" title="Acceptance into the EDIC backlog" style="left:36%;width:16%;background:#4a3a72">backlog</span>
+          <span class="seg" title="Framework published, then handover" style="left:52%;width:48%;background:#2f2550">published → handover</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="lab">Commons</div>
+        <div class="bar">
+          <span class="seg" title="Stewardship pack including poc-breda source" style="left:0%;width:20%;background:var(--commons)">pack</span>
+          <span class="seg" title="Written intent or LoI on the repo" style="left:20%;width:16%;background:#4e734e">intent</span>
+          <span class="seg" title="MS19 repository rules" style="left:36%;width:16%;background:#2f4a2f">MS19</span>
+          <span class="seg" title="MS21 stewardship live, then handover" style="left:52%;width:48%;background:#1e301e">MS21 → handover</span>
+        </div>
+      </div>
+    </div>
+    <p class="rule">M12 continue-or-fallback is <strong>per track</strong>: CitiVERSE → VNG + Geonovum Cookbook; IMPACTS → Interoperable Europe / EDIH; code → OS2. Silence without a next meeting date is dormant, not a reason to wait until M30.</p>
+
+    <h2>Lead-track order — Breda is step 3</h2>
+    <div class="order">
+      <article class="step">
+        <p class="num">1 · live-path proof</p>
+        <h3>Generic overlay</h3>
+        <p><code>spatial-overlay-analysis</code> — low risk, already the Toolbox reference. Do not skip this for a city demo.</p>
+      </article>
+      <article class="step">
+        <p class="num">2 · capacity</p>
+        <h3>City module</h3>
+        <p>Discover → Lake → Scenarios → Demo. Same four phases for every municipality.</p>
+      </article>
+      <article class="step hl">
+        <p class="num">3 · city illustration</p>
+        <h3>Breda scan + Q&amp;A</h3>
+        <p>Public sources, cite-or-abstain, TEF / CitCom.AI candidate. First city asset — not the first Toolbox demo.</p>
+      </article>
+      <article class="step">
+        <p class="num">4 · later</p>
+        <h3>High-risk PoCs</h3>
+        <p>Utrecht, Rijnland, Eindhoven only after HITL is visible and IMPACTS declarations stay proposed.</p>
+      </article>
+    </div>
+
+    <h2>Ninety-day city walk — Breda filled in</h2>
+    <div class="phases">
+      <article class="phase">
+        <p class="when">Days 1–15</p>
+        <h3>Discover</h3>
+        <p>CBS 2024 neighbourhoods, PDOK, Breda open geo. Record <code>accessClass</code>. No restricted ingest.</p>
+      </article>
+      <article class="phase">
+        <p class="when">Days 16–40</p>
+        <h3>Lake</h3>
+        <p>Bronze → silver. Gold only via <code>breda-scan-run</code>. Replay for tests; lake post is optional.</p>
+      </article>
+      <article class="phase">
+        <p class="when">Days 41–70</p>
+        <h3>Scenarios</h3>
+        <p><code>run_value_scan</code> then <code>ask_scan</code>. Engine scores; LLM may only narrate cited numbers.</p>
+      </article>
+      <article class="phase">
+        <p class="when">Days 71–90</p>
+        <h3>Demo</h3>
+        <p>Static HTML below. Optional Marketplace publish with ValidationReport + PROV. Laptop mock ≠ live twin.</p>
+      </article>
+    </div>
+
+    <h2>Open in the CitiVERSE room</h2>
+    <p class="lede" style="margin-top:0;font-size:0.9rem">After the overlay demo, five minutes on Breda as the city illustration — not a second live-path claim unless readiness is hybrid or live.</p>
+    <div class="demos">
+      <a href="poc-breda.html"><strong>Story</strong> · skill → scan → Q&amp;A</a>
+      <a href="breda-flow-demo.html"><strong>Agent flow</strong> · dispose graph</a>
+      <a href="breda-report-demo.html"><strong>Report map</strong> · five values</a>
+      <a href="breda-whatif-demo.html"><strong>What-if</strong> · 2050</a>
+      <a href="poc-mcp-skills.html?poc=edic"><strong>Architecture</strong> · EDIC route</a>
+      <a href="poc-mcp-skills.html?poc=breda"><strong>Architecture</strong> · MCP stack</a>
+    </div>
+
+    <p class="foot">
+      Source of truth: <a href="../edic/breda-route-map.md">edic/breda-route-map.md</a>
+      · operating model <a href="../edic/route-citiverse-first.md">route-citiverse-first.md</a>
+      · fit <a href="../edic/fit-citiverse.md">fit-citiverse.md</a>
+      · asset map <code>recipes/edic-asset-map.json</code>
+      · static page only — no live MCP or lake credentials.
+    </p>
+  </div>
+</body>
+</html>

@@ -13,6 +13,7 @@ Generic reference implementation of a **Dutch Local Digital Twin (nLDT)** for ag
 | Doc | Topic |
 |-----|-------|
 | [**00-architecture.md**](00-architecture.md) | **Hub:** comprehensive architecture + links (start here) |
+| Interactive architecture | [`simulation/poc-mcp-skills.html`](simulation/poc-mcp-skills.html) (`?poc=…`, including `edic`) |
 | [01-vision-and-scope.md](01-vision-and-scope.md) | Vision, goals, scope |
 | [02-reference-architecture.md](02-reference-architecture.md) | Triangle + foundation; mapping NLDT ↔ EDIC ↔ EU Toolbox |
 | [03-building-blocks.md](03-building-blocks.md) | Building blocks per working group |
@@ -34,6 +35,7 @@ Generic reference implementation of a **Dutch Local Digital Twin (nLDT)** for ag
 | [19-s10-deep-research.md](19-s10-deep-research.md) | **S10:** Deep Research seam — gebruik, CLI, stub vs Deep Agents |
 | [20-poc-mcp-skills.md](20-poc-mcp-skills.md) | **Skeleton:** PoC playbooks as Agent Skills over MCP (`skill://`, SEP-2640) |
 | [21-europai-edic-handover.md](21-europai-edic-handover.md) | **EuropAI WP4:** asset-push map, EDIC fit statements, CitiVERSE live path |
+| [22-dual-audience-spatial-planning.md](22-dual-audience-spatial-planning.md) | **Plan:** one governed core, front doors for planners and the public (S11, DA-0…4) |
 
 ## Code
 
@@ -58,7 +60,6 @@ nldt/
 ├── edic/                 EuropAI WP4 EDIC fit statements and declarations
 └── simulation/           Mock demo visualisation (HTML)
 ```
-
 ## External references
 
 - [NLDT Reference Architecture](https://geonovum.github.io/NLDT-Architectuur/)
@@ -98,6 +99,30 @@ python scripts/fetch_3dbag_rijnsweerd.py
 
 # Marketplace publish (mock) + 3D context export
 PYTHONPATH=. python -m services.cli publish-recipe spatial-overlay-analysis
+```
+
+## Agent identity (W6a — real Keycloak credentials)
+
+Agents get governed, revocable identities via the testbed Keycloak (EU LDT
+Identity Management): a secret-free registry
+([`data/agent-clients.json`](data/agent-clients.json)), an idempotent
+provisioning script, per-agent `client_credentials` tokens in the virtual
+wallet (:8088) and an RFC 7662-verifying edge backend (:8087) whose
+effective capabilities are the registry ∩ granted Keycloak roles. Details:
+[`16-eid-wallet-identity.md`](16-eid-wallet-identity.md) §W6a.
+
+```bash
+# 1. Provision (Keycloak Admin API; prints the env var for each secret)
+PYTHONPATH=. python scripts/provision_agent_clients.py --dry-run
+PYTHONPATH=. python scripts/provision_agent_clients.py --rotate-secret
+
+# 2. Run the edges with real verification
+export NLDT_WALLET_VERIFIER=keycloak NLDT_AGENT_WALLET_BACKEND=keycloak
+export NLDT_AGENT_BELEIDSKOMPAS_SVC_CLIENT_SECRET=…   # from step 1
+
+# 3. Mint an nLDT token for a capability (trust gates enforce it downstream)
+curl -X POST localhost:8088/token -H 'content-type: application/json' \
+  -d '{"capability": "breda-scan-query"}'
 ```
 
 ## Licence

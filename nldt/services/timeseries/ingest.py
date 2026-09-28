@@ -60,8 +60,9 @@ def _commit_observations(observations: list[dict[str, Any]], *, title_prefix: st
 def ingest_rijnland_peilen(
     path: Path | None = None,
     *,
-    max_stations: int = 5,
+    max_stations: int | None = None,
 ) -> dict[str, Any]:
+    """Ingest peilen archive; ``max_stations=None`` keeps every station."""
     src = path or DEFAULT_PEILEN
     raw = src.read_bytes()
     bronze_uri = _write_bronze("rijnland-peilen", "peilen.json", raw)
@@ -73,6 +74,7 @@ def ingest_rijnland_peilen(
         "bronzeUri": bronze_uri,
         "series": written,
         "observationCount": len(rows),
+        "stationCap": max_stations,
     }
 
 
@@ -214,9 +216,12 @@ def ingest_open_wave(
     include_wkp: bool = True,
     include_knmi: bool = True,
     include_cbs: bool = True,
-    max_peil_stations: int = 5,
+    max_peil_stations: int | None = None,
 ) -> dict[str, Any]:
-    """Curated ingest: Rijnland + KNMI Gilze-Rijen (Breda) + CBS KWB Breda."""
+    """Curated ingest: Rijnland + KNMI Gilze-Rijen (Breda) + CBS KWB Breda.
+
+    ``max_peil_stations=None`` (default) ingests every station in peilen.json.
+    """
     parts: list[dict[str, Any]] = []
     if include_peilen and DEFAULT_PEILEN.is_file():
         parts.append(ingest_rijnland_peilen(max_stations=max_peil_stations))

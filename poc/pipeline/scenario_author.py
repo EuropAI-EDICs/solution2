@@ -597,13 +597,20 @@ class HybridScenarioAuthor:
         return accepted, rejected
 
 
-def build_llm_digest(baseline: Mapping[str, Any], max_scenarios: int) -> Dict[str, Any]:
+def build_llm_digest(
+    baseline: Mapping[str, Any],
+    max_scenarios: int,
+    lake_series_hints: Optional[List[Dict[str, Any]]] = None,
+) -> Dict[str, Any]:
     """Compact, id-complete digest of the baseline run for the LLM prompt."""
     rules = [r for r in baseline["formalrules"] if r.get("status") == "formalized"]
     cards = {str(c.get("id")): c for c in baseline["normcards"]}
     abst = _load_optional(baseline, "normcards-rejected.json", {})
     stats = {str(s.get("ruleId")): s for s in _load_optional(baseline, "rule-stats.json", [])}
-    return {
+    hints = lake_series_hints
+    if hints is None:
+        hints = list(baseline.get("lakeSeriesHints") or [])
+    digest: Dict[str, Any] = {
         "objectType": baseline["request"].get("objectType"),
         "maxScenarios": max_scenarios,
         "formalizedRules": [
@@ -633,6 +640,9 @@ def build_llm_digest(baseline: Mapping[str, Any], max_scenarios: int) -> Dict[st
             "hypothetical": "requires rationale; use ONLY for abstention topics",
         },
     }
+    if hints:
+        digest["lakeSeriesHints"] = hints
+    return digest
 
 
 # --------------------------------------------------------------------------- #

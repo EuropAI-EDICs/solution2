@@ -8,7 +8,7 @@ code exists).
 
 | | |
 |---|---|
-| Status | Plan (2026-09-14) · replaces the identity items of BK-3 in [14](14-beleidskompas-integration.md) §8 |
+| Status | Plan (2026-09-14) · replaces the identity items of BK-3 in [14](14-beleidskompas-integration.md) §8 · **W6a done (2026-09-15): real Keycloak machine credentials for agents** |
 | Legal frame | eIDAS (EU) 910/2014 + amending Regulation (EU) 2024/1183; ARF v2.x |
 | External | [EC EUDI Wallet](https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/694487738/EU+Digital+Identity+Wallet+Home) · [eu-digital-identity-wallet](https://github.com/eu-digital-identity-wallet) · [italia/eudi-wallet-it-python](https://github.com/italia/eudi-wallet-it-python) |
 | Related | [07](07-trust-and-governance.md) · [10](10-toolbox-integration.md) (Keycloak) · [`../docs/GENAI_SEAMS.md`](../docs/GENAI_SEAMS.md) (receipt trail) · [`services/common/auth.py`](services/common/auth.py) |
@@ -310,6 +310,44 @@ agent (mock credential) and a capability-revoked agent is refused.
 **Done when:** a credential issued by a testbed Keycloak instance flows
 through issuance → virtual wallet → presentation → verified nLDT token, and
 revocation blocks a subsequent presentation.
+
+### W6a — Machine-credential interim (client_credentials) ✅ (2026-09-15)
+
+**Status:** done (offline-verified). Real Keycloak machine credentials for
+agents *now*, on the same seams W6 will keep — without waiting for the EBW
+rulebook (decision 10). OID4VCI issuance remains the W6 end state and slots
+in as another `VerifierBackend`.
+
+What shipped:
+
+| Piece | Code |
+|-------|------|
+| Agent registry (secret-free; admin-maintained) | [`data/agent-clients.json`](data/agent-clients.json) (`NLDT_AGENT_CREDENTIALS_FILE`) |
+| Provisioning script (idempotent: clients, `nldt-capability.*` realm roles, service-account role assignment, attributes) | [`scripts/provision_agent_clients.py`](scripts/provision_agent_clients.py) |
+| Per-principal `client_credentials` tokens | [`services/adapters/keycloak_auth.py`](services/adapters/keycloak_auth.py) (`get_client_token`) |
+| Agent wallet keycloak mode (`NLDT_AGENT_WALLET_BACKEND=keycloak`; secret from the registry's `secretEnv`; fail-closed, no mock fallback) | [`services/agent_wallet/app.py`](services/agent_wallet/app.py) |
+| Edge verifier (`NLDT_WALLET_VERIFIER=keycloak`; RFC 7662 introspection; azp binding; effective capabilities = registry ∩ granted roles) | [`services/auth_wallet/backend.py`](services/auth_wallet/backend.py) (`KeycloakBackend`) |
+| Audit polling (read-only JSONL) | [`scripts/fetch_identity_events.py`](scripts/fetch_identity_events.py) |
+| Tests (mapping, fail-closed, drift, provisioning idempotency, e2e token→gate→PROV) | [`tests/test_w6_agent_identity.py`](tests/test_w6_agent_identity.py) etc. |
+
+Key design points: **azp must equal the presented agentId** (no presenting
+another principal's token); **capabilities are the intersection** of the
+administration registry and the roles Keycloak actually granted — the §8
+"capability drift" mitigation, enforced at the edge; the provisioning script
+uses the Keycloak Admin API directly (the Identity tool's Spring wrapper
+lacks service-account role assignment) against the same realm the tool
+manages; **revocation** = disable the client or expire the token — the edge
+fails closed (401/503), never falls back to the mock credential.
+
+Deviation recorded (per the ARF-alignment rule): client_credentials is not
+an ARF credential format — it is an interim machine-credential transport;
+the claims set, backend interface and TTL model are unchanged so the W6
+OID4VCI/EBW profiling replaces only the transport.
+
+**Done when (met):** a testbed-Keycloak-backed presentation flows through
+virtual wallet → edge → verified nLDT token whose trust-gate enforcement
+and PROV executor claims are covered by tests; a disabled client cannot
+mint a token (fail-closed test).
 
 ## 8. Risks
 

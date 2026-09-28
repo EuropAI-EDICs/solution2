@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>nLDT — Eindhoven agent flow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper: #e8e2d6; --ink: #1a2428; --ink-soft: #3d4a50; --muted: #6a757a;
+      --teal: #0d6e6e; --focus: #c45c26; --pass: #2a7a3a; --line: rgba(26,36,40,.18);
+      --panel: #f4efe6; --font-ui: "DM Sans", system-ui, sans-serif;
+      --font-display: "Fraunces", Georgia, serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-ui); color: var(--ink); background: var(--paper);
+      background-image:
+        linear-gradient(rgba(26,36,40,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(26,36,40,.03) 1px, transparent 1px),
+        radial-gradient(ellipse 120% 80% at 10% -20%, rgba(13,110,110,.12), transparent 50%);
+      background-size: 28px 28px, 28px 28px, 100% 100%;
+      min-height: 100vh; padding: 1.25rem 1.25rem 2rem;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; }
+    .back { font-size: .78rem; color: var(--muted); text-decoration: none; }
+    .back:hover { color: var(--teal); }
+    h1 { font-family: var(--font-display); font-size: 1.75rem; margin: .85rem 0 .35rem; }
+    h1 span { color: var(--teal); }
+    .lede { color: var(--ink-soft); font-size: .9rem; max-width: 40rem; margin-bottom: .85rem; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; margin-bottom: 1rem; }
+    button {
+      font-family: var(--font-ui); font-size: .82rem; font-weight: 600;
+      padding: .4rem .8rem; border-radius: 4px; border: 1px solid var(--line); cursor: pointer;
+      background: #fffdf8; color: var(--ink);
+    }
+    button.primary { background: var(--teal); color: #f7f3eb; border-color: var(--teal); }
+    .status { font-size: .8rem; color: var(--muted); flex: 1; min-width: 12rem; }
+    .layout { display: grid; grid-template-columns: 240px 1fr 260px; gap: .85rem; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+    .panel {
+      background: var(--panel); border: 1px solid var(--line); border-radius: 4px; overflow: hidden;
+    }
+    .panel-head {
+      padding: .55rem .75rem; border-bottom: 1px solid var(--line);
+      font-size: .65rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+    }
+    .panel-body { padding: .75rem; font-size: .82rem; }
+    .graph { list-style: none; }
+    .graph li {
+      margin-bottom: .4rem; padding: .5rem .55rem; border: 1px solid var(--line);
+      border-radius: 4px; background: #fffdf8; opacity: .5; transition: .25s ease;
+    }
+    .graph li.active { opacity: 1; border-color: var(--focus); box-shadow: 0 0 0 2px rgba(196,92,38,.15); }
+    .graph li.done { opacity: 1; border-color: var(--teal); }
+    .graph .nid { font-family: ui-monospace, Menlo, monospace; font-size: .68rem; color: var(--teal); }
+    .graph .agent { font-size: .7rem; color: var(--muted); }
+    .detail h3 { font-family: var(--font-display); font-size: 1.05rem; margin-bottom: .35rem; }
+    .detail p { color: var(--ink-soft); line-height: 1.45; }
+    .detail code { font-family: ui-monospace, Menlo, monospace; font-size: .72rem; color: var(--teal); }
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; }
+    .stat { background: #fffdf8; border: 1px solid var(--line); border-radius: 4px; padding: .5rem; }
+    .stat .n { font-family: var(--font-display); font-size: 1.2rem; color: var(--teal); font-weight: 600; }
+    .stat .l { font-size: .68rem; color: var(--muted); }
+    .trust {
+      margin-top: .75rem; padding: .45rem .55rem; background: rgba(196,92,38,.12);
+      border-left: 3px solid var(--focus); font-size: .75rem; color: var(--ink-soft);
+    }
+    .log { font-family: ui-monospace, Menlo, monospace; font-size: .68rem; color: var(--muted);
+      max-height: 14rem; overflow: auto; margin-top: .5rem; }
+    .log div { padding: .2rem 0; border-bottom: 1px dashed var(--line); }
+    .foot { margin-top: 1rem; font-size: .72rem; color: var(--muted); }
+    .foot a { color: var(--teal); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="index.html">← Simulations hub</a>
+    · <a class="back" href="poc-eindhoven.html">Eindhoven story</a>
+    · <a class="back" href="poc-mcp-skills.html?poc=eindhoven">Architecture tour</a>
+    <h1>nLDT <span>Eindhoven</span> — agent flow</h1>
+    <p class="lede">bp2op transform: corpus parsers → kennisbank → TF-IDF bands → coverage → Critic with V4 jurist pending.</p>
+    <div class="toolbar">
+      <button type="button" class="primary" id="btnPlay">Play</button>
+      <button type="button" id="btnNext">Next</button>
+      <button type="button" id="btnReset">Reset</button>
+      <span class="status" id="status">Press Play to run the governed dispose graph.</span>
+    </div>
+    <div class="layout">
+      <div class="panel">
+        <div class="panel-head">LangGraph / recipe steps</div>
+        <div class="panel-body"><ul class="graph" id="graph"></ul></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">Active step</div>
+        <div class="panel-body">
+          <div class="detail" id="detail">
+            <h3>Ready</h3>
+            <p>Replay of a canonical offline run — no live MCP or lake calls.</p>
+          </div>
+          <div class="trust" id="trust">V4 (jurist) always pending by design. Offline corpus-first · no network at runtime.</div>
+          <div class="log" id="log"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">Canonical numbers</div>
+        <div class="panel-body">
+          <div class="stats" id="stats"></div>
+          <p class="foot" style="margin-top:.85rem">
+            Recipe <code>eindhoven-bp2op</code><br/>
+            Engine <code>poc-bp2op/</code><br/>
+            Run <code>20260830-124515</code>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+(function () {
+  const RUN = {
+  "verdict": "pass (V4 pending)",
+  "stats": [
+    {
+      "n": "311",
+      "l": "bronregels"
+    },
+    {
+      "n": "762",
+      "l": "doelregels"
+    },
+    {
+      "n": "232",
+      "l": "voorgesteld"
+    },
+    {
+      "n": "V4",
+      "l": "pending"
+    }
+  ],
+  "graph": [
+    {
+      "id": "catalog",
+      "label": "Catalog",
+      "agent": "Catalog Navigator",
+      "detail": "list_poc_capabilities → bp2op-transform / eindhoven-bp2op.",
+      "log": "poc-eindhoven"
+    },
+    {
+      "id": "plan",
+      "label": "Plan recipe",
+      "agent": "Recipe Planner",
+      "detail": "Force eindhoven-bp2op · risk high · V4 always pending.",
+      "log": "requiresHitl: true",
+      "trust": "Humans decide on jurist checkpoint."
+    },
+    {
+      "id": "intake",
+      "label": "Intake + parse",
+      "agent": "Executor",
+      "service": "poc-bp2op parsers",
+      "detail": "CVDR omgevingsplan → 762 doel + 311 bron · kennisbank 274 pairs.",
+      "log": "MC-4 / MC-5"
+    },
+    {
+      "id": "match",
+      "label": "Suggest matches",
+      "agent": "Executor",
+      "service": "kennisbank + TF-IDF",
+      "detail": "Bands 0.90/0.70 · 232 voorgesteld · 70 needsHuman · 9 nieuweRegel.",
+      "log": "MC-5 / MC-6"
+    },
+    {
+      "id": "coverage",
+      "label": "Coverage",
+      "agent": "Analyser",
+      "detail": "Portefeuille 370 plannen · match ratio ~0.75 on bruidschat doc.",
+      "log": "MC-8"
+    },
+    {
+      "id": "critic",
+      "label": "Critic V0–V4",
+      "agent": "Critic",
+      "detail": "V0–V3 pass · V4_human pending — pipeline verdict pass with jurist gate open.",
+      "log": "V4 pending"
+    },
+    {
+      "id": "explain",
+      "label": "Explain",
+      "agent": "Explainer",
+      "detail": "report.html + omzettabel · method cards MC-1…MC-12.",
+      "log": "run_summary.json"
+    }
+  ]
+};
+  let i = -1, playing = false, timer = null;
+  const graph = document.getElementById("graph");
+  const detail = document.getElementById("detail");
+  const status = document.getElementById("status");
+  const logEl = document.getElementById("log");
+  const trust = document.getElementById("trust");
+  const stats = document.getElementById("stats");
+
+  (RUN.stats || []).forEach(function (s) {
+    const d = document.createElement("div");
+    d.className = "stat";
+    d.innerHTML = '<div class="n">' + s.n + '</div><div class="l">' + s.l + '</div>';
+    stats.appendChild(d);
+  });
+
+  RUN.graph.forEach(function (n, idx) {
+    const li = document.createElement("li");
+    li.id = "n-" + idx;
+    li.innerHTML = '<div class="nid">' + n.id + '</div><div><strong>' + n.label +
+      '</strong></div><div class="agent">' + n.agent + '</div>';
+    graph.appendChild(li);
+  });
+
+  function apply(idx) {
+    i = idx;
+    RUN.graph.forEach(function (_, j) {
+      const el = document.getElementById("n-" + j);
+      el.className = j < i ? "done" : j === i ? "active" : "";
+    });
+    const n = RUN.graph[i];
+    detail.innerHTML = "<h3>" + n.label + "</h3><p>" + n.detail +
+      (n.service ? "<br/><code>" + n.service + "</code>" : "") + "</p>";
+    if (n.trust) trust.textContent = n.trust;
+    status.innerHTML = "<strong>Step " + (i + 1) + "/" + RUN.graph.length + "</strong> — " + n.label;
+    const line = document.createElement("div");
+    line.textContent = "→ " + n.id + ": " + (n.log || n.detail);
+    logEl.prepend(line);
+  }
+
+  function stop() {
+    playing = false;
+    if (timer) { clearInterval(timer); timer = null; }
+    document.getElementById("btnPlay").textContent = "Play";
+  }
+  function reset() {
+    stop(); i = -1; logEl.innerHTML = "";
+    RUN.graph.forEach(function (_, j) { document.getElementById("n-" + j).className = ""; });
+    detail.innerHTML = "<h3>Ready</h3><p>Replay of a canonical offline run — no live MCP or lake calls.</p>";
+    trust.textContent = "V4 (jurist) always pending by design. Offline corpus-first \u00b7 no network at runtime.";
+    status.textContent = "Press Play to run the governed dispose graph.";
+  }
+  function next() {
+    if (i + 1 >= RUN.graph.length) {
+      stop();
+      status.innerHTML = "<strong>Complete</strong> — verdict " + (RUN.verdict || "pass");
+      return;
+    }
+    apply(i + 1);
+  }
+  function start() {
+    if (playing) { stop(); return; }
+    if (i < 0) apply(0); else next();
+    playing = true;
+    document.getElementById("btnPlay").textContent = "Pause";
+    timer = setInterval(function () {
+      if (i + 1 >= RUN.graph.length) { stop(); status.innerHTML = "<strong>Complete</strong>"; return; }
+      apply(i + 1);
+    }, 2200);
+  }
+  document.getElementById("btnPlay").onclick = start;
+  document.getElementById("btnNext").onclick = function () { stop(); if (i < 0) apply(0); else next(); };
+  document.getElementById("btnReset").onclick = reset;
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight") { e.preventDefault(); stop(); if (i < 0) apply(0); else next(); }
+    if (e.key === "Escape") reset();
+  });
+})();
+  </script>
+</body>
+</html>

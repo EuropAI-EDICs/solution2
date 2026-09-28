@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "lijst-binding.schema.json",
+  "title": "MiniGIM Lijst — bindings of checklist items to data services",
+  "description": "Maps every Omgevingsanalyse Lijst item to a delivery route: auto (deterministic fetch+derivation from a keyless open service), partial (fetched proxy or partial coverage, explicitly labelled), manual (documented human pointer) or out-of-scope (group/structural row). Registry completeness is enforced by test: every lijst item must have exactly one binding.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["registryVersion", "lijstVersion", "generatedAt", "probeEvidence", "bindings"],
+  "properties": {
+    "registryVersion": { "type": "string" },
+    "lijstVersion": { "type": "string" },
+    "generatedAt": { "type": "string" },
+    "probeEvidence": { "type": "array", "items": { "type": "string" } },
+    "bindings": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/binding" } }
+  },
+  "$defs": {
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lijstItemId", "status", "notes"],
+      "properties": {
+        "lijstItemId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]*$" },
+        "status": {
+          "type": "string",
+          "enum": ["auto", "partial", "manual", "out-of-scope"],
+          "description": "auto: runner levert laag+statistiek uit sleutelloze open bron; partial: runner levert expliciet gelabelde proxy/dekking; manual: gedocumenteerde menselijke route; out-of-scope: structurele rij (groepskop)."
+        },
+        "serviceRefs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "ids into poc-minigim/data/sources.json; empty for derived/input items."
+        },
+        "derivation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["op"],
+          "properties": {
+            "op": {
+              "type": "string",
+              "enum": [
+                "echo_input", "representative_point", "clip_layer", "clip_stats",
+                "count_in_aoi", "list_in_aoi", "presence", "proxy_ratio",
+                "proxy_entropy", "none"
+              ]
+            },
+            "params": { "type": "object", "additionalProperties": true }
+          }
+        },
+        "output": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "layer": { "type": "boolean" },
+            "stats": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "proxyNote": {
+          "type": ["string", "null"],
+          "description": "verplichte labeling bij status=partial: wat is de proxy/dekking en waarom."
+        },
+        "manualPointer": {
+          "type": ["string", "null"],
+          "description": "url of route voor status=manual: waar haalt een mens dit op."
+        },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

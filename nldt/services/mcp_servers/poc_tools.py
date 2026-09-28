@@ -45,4 +45,8 @@ POC_TOOLS: dict[str, dict[str, Any]] = {
         "process_id": "bp2op-transform",
         "description": "Eindhoven bp2op transform (bestemmingsplan → omgevingsplan)",
     },
+    "run_minigim_gebiedscheck": {
+        "process_id": "minigim-gebiedscheck-run",
+        "description": "MiniGIM gebiedscheck: 74-item Lijst + ILS draft (PoC-5, keyless open data)",
+    },
 }

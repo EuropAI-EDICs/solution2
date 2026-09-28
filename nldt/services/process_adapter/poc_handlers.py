@@ -19,6 +19,7 @@ POC_ROOT = WORKSPACE / "poc"
 POC_BREDA = WORKSPACE / "poc-breda"
 POC_RIJNLAND = WORKSPACE / "poc-rijnland"
 POC_BP2OP = WORKSPACE / "poc-bp2op"
+POC_MINIGIM = WORKSPACE / "poc-minigim"
 
 POC_PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
     "breda-scan-query": {
@@ -324,6 +325,39 @@ POC_PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
         },
         "outputs": {
             "summary": {"title": "bp2op run summary", "schema": {"type": "object"}},
+        },
+    },
+    "minigim-gebiedscheck-run": {
+        "id": "minigim-gebiedscheck-run",
+        "title": "MiniGIM gebiedscheck run (Lijst + ILS draft)",
+        "description": (
+            "MiniGIM omgevingsanalyse voor een plangrens: 74 Lijst-v0.91 items "
+            "auto-invullen uit keyless open data + ILS-v0.8 draft-gebiedsindeling. "
+            "mode=replay: summary van bestaande poc-minigim/runs dir. "
+            "mode=execute: invoke poc-minigim/run.py --aoi <geojson>."
+        ),
+        "version": "1.0.0",
+        "keywords": ["poc-minigim", "minigim", "gebiedsontwikkeling", "checklist", "ils"],
+        "inputs": {
+            "mode": {
+                "title": "replay|execute",
+                "schema": {"type": "string", "default": "replay"},
+            },
+            "aoiPath": {
+                "title": "Plangrens-GeoJSON (execute; default: pilot Breda-Teteringen)",
+                "schema": {"type": "string"},
+            },
+            "label": {
+                "title": "Run-label (execute)",
+                "schema": {"type": "string", "default": "gebiedscheck"},
+            },
+            "runDir": {
+                "title": "Existing minigim-gebiedscheck run dir (replay)",
+                "schema": {"type": "string"},
+            },
+        },
+        "outputs": {
+            "summary": {"title": "Gebiedscheck summary", "schema": {"type": "object"}},
         },
     },
 }
@@ -769,6 +803,64 @@ def execute_bp2op_transform(inputs: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def execute_minigim_gebiedscheck_run(inputs: dict[str, Any]) -> dict[str, Any]:
+    """PoC-5 MiniGIM: replay/execute wrapper rond poc-minigim/run.py."""
+    mode = inputs.get("mode") or "replay"
+    if mode == "replay":
+        run_dir = _resolve_dir(
+            inputs.get("runDir"),
+            default=_latest_dir(POC_MINIGIM / "runs", "*-minigim-gebiedscheck"),
+        )
+        payload: dict[str, Any] = {"mode": "replay", "runDir": str(run_dir)}
+        summary_path = run_dir / "run_summary.json"
+        if summary_path.is_file():
+            s = _load_json(summary_path)
+            inner = s.get("summary") or {}
+            payload.update({
+                "verdict": s.get("verdict"),
+                "runId": s.get("runId") or run_dir.name,
+                "items": inner.get("itemCount"),
+                "delivered": (inner.get("deliveredStatus") or {}).get("delivered"),
+            })
+        else:
+            raise FileNotFoundError(f"geen run_summary.json in {run_dir}")
+        # detail uit het checklist-artefact (samenvatting per status)
+        oa_path = run_dir / "omgevingsanalyse.json"
+        if oa_path.is_file():
+            oa = _load_json(oa_path)
+            payload["summary"] = oa.get("summary", {})
+        return {"summary": payload}
+    if mode != "execute":
+        raise ValueError("mode must be replay|execute")
+
+    aoi = _resolve_dir(
+        inputs.get("aoiPath"),
+        default=POC_MINIGIM / "examples" / "plangrens-breda-teteringen.28992.geojson",
+    )
+    cmd = [
+        sys.executable,
+        str(POC_MINIGIM / "run.py"),
+        "--aoi", str(aoi),
+        "--label", str(inputs.get("label") or "gebiedscheck"),
+    ]
+    proc = subprocess.run(cmd, cwd=str(WORKSPACE), capture_output=True, text=True)
+    run_dir = _latest_dir(POC_MINIGIM / "runs", "*-minigim-gebiedscheck")
+    summary_path = run_dir / "run_summary.json"
+    summary = _load_json(summary_path) if summary_path.is_file() else {}
+    inner = summary.get("summary") or {}
+    return {
+        "summary": {
+            "mode": "execute",
+            "exitCode": proc.returncode,
+            "runDir": str(run_dir),
+            "verdict": summary.get("verdict"),
+            "items": inner.get("itemCount"),
+            "delivered": (inner.get("deliveredStatus") or {}).get("delivered"),
+            "stderrTail": (proc.stderr or "")[-2000:],
+        }
+    }
+
+
 def execute_rijnland_peil_whatif(inputs: dict[str, Any]) -> dict[str, Any]:
     from services.rijnland_whatif import run_whatif
 
@@ -828,6 +920,7 @@ EXECUTORS = {
     "rijnland-peil-conflict": execute_rijnland_peil_conflict,
     "rijnland-peil-whatif": execute_rijnland_peil_whatif,
     "bp2op-transform": execute_bp2op_transform,
+    "minigim-gebiedscheck-run": execute_minigim_gebiedscheck_run,
 }
 
 

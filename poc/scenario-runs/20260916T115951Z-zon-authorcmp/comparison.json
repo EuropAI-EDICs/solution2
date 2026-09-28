@@ -1,0 +1,84 @@
+{
+ "useCase": "zon",
+ "baselineRun": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142439Z-zon",
+ "maxScenarios": 10,
+ "model": "qwen3.8:latest",
+ "endpoint": "http://localhost:11434",
+ "api": "ollama",
+ "deterministic": {
+  "accepted": 3,
+  "rejected": 0,
+  "rejectKinds": [],
+  "targetedRules": {
+   "FR-Z-03": [
+    "drop",
+    "set_buffer_distance_m"
+   ],
+   "FR-Z-04": [
+    "set_semantics"
+   ]
+  },
+  "basisTypes": [
+   "hypothetical",
+   "policy_variant"
+  ],
+  "scenarioIds": [
+   "SC-FR-Z-03-DROP",
+   "SC-FR-Z-03-SETBACK500",
+   "SC-FR-Z-04-HARD"
+  ],
+  "seconds": 0.005
+ },
+ "llm": {
+  "accepted": 10,
+  "rejected": 0,
+  "rejectKinds": [],
+  "targetedRules": {
+   "FR-Z-02": [
+    "set_buffer_distance_m",
+    "set_semantics"
+   ],
+   "FR-Z-03": [
+    "drop",
+    "set_buffer_distance_m",
+    "set_buffer_distance_m",
+    "set_semantics"
+   ],
+   "FR-Z-04": [
+    "drop",
+    "set_buffer_distance_m",
+    "set_buffer_distance_m",
+    "set_semantics"
+   ]
+  },
+  "basisTypes": [
+   "norm_variance",
+   "policy_variant"
+  ],
+  "scenarioIds": [
+   "SC-01-EXCLUSION-BUFFER-500",
+   "SC-02-COMPENSATION-BUFFER-200",
+   "SC-03-INCLUSION-SEMANTICS-EXCLUSION",
+   "SC-04-EXCLUSION-SEMANTICS-INCLUSION",
+   "SC-05-COMPENSATION-SEMANTICS-EXCLUSION",
+   "SC-06-DROP-COMPENSATION",
+   "SC-07-DROP-EXCLUSION",
+   "SC-08-INCLUSION-BUFFER-100",
+   "SC-09-EXCLUSION-BUFFER-1000",
+   "SC-10-COMPENSATION-BUFFER-500"
+  ],
+  "seconds": 194.453,
+  "model": "qwen3.8:latest"
+ },
+ "llmError": null,
+ "overlap": {
+  "bothTarget": [
+   "FR-Z-03",
+   "FR-Z-04"
+  ],
+  "llmOnly": [
+   "FR-Z-02"
+  ],
+  "deterministicOnly": []
+ }
+}

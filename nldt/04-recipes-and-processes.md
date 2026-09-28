@@ -76,6 +76,37 @@ See [`schemas/recipe.schema.json`](schemas/recipe.schema.json). Important fields
 - `steps[]` — ordered process invocations with template inputs (`${recipe.inputs.aoi}`)
 - `requiredProcesses[]` — preflight check in catalog
 - `riskLevel` — triggers HITL on `high` or validation fail
+- `tags` — AppStore / agent discovery (`poc-breda`, `phase-6`, `cdc`, …)
+- `inputs` / `outputs` — typed recipe contract; step inputs wire `${recipe.inputs.*}`
+
+On disk: **`nldt/recipes/<id>.json`** (20 recipes). Process vs recipe vs MCP tool vs skill:
+
+| Layer | Verb | Example |
+|-------|------|---------|
+| Agent Skill | teach | `breda-scan` |
+| MCP tool | call once | `run_value_scan` |
+| Recipe (Cookbook) | orchestrate | `breda-five-value-scan` |
+| Process (Cook) | dispose unit | `breda-scan-run` |
+
+PoC MCP tools usually alias **one** process. Prefer the **recipe** path (orchestrator /
+`run-recipe`) when you need Critic + PROV + HITL as one plan. See
+[20-poc-mcp-skills.md](20-poc-mcp-skills.md#recipes-cookbook-in-detail) and the
+interactive [Recipes panel](simulation/poc-mcp-skills.html).
+
+### PoC / lake recipe catalogue
+
+| Recipe | risk | Primary process |
+|--------|------|-----------------|
+| `source-monitor-run` | high | `source-monitor-probe` |
+| `donl-harvest-run` / `donl-harvest-publish` | medium / high | `donl-harvest-run` |
+| `timeseries-open-ingest` | medium | `timeseries-ingest-run` |
+| `lake-publish-offer` | high | `lake-publish-dataset` |
+| `breda-five-value-scan` / `breda-scan-qa` | medium | `breda-scan-run` / `breda-scan-query` |
+| `utrecht-scenario-author` / `utrecht-scenario-sweep` | high | `scenario-author-propose` / `scenario-sweep` |
+| `utrecht-opportunity-map` / `multi-track-crosstrack` | high | `opportunity-map-run` / `crosstrack-overlay` |
+| `rijnland-peil-conflict` / `-live` / `rijnland-peil-whatif` | medium / high / high | `rijnland-peil-*` |
+| `eindhoven-bp2op` | high | `bp2op-transform` |
+| `minigim-gebiedscheck` | low | `minigim-gebiedscheck-run` |
 
 ## Reference recipe: Spatial Overlay Analysis
 

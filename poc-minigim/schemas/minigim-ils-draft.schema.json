@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "minigim-ils-draft.schema.json",
+  "title": "MiniGIM ILS draft-gebiedsindeling — run artifact",
+  "description": "Deterministisch afgeleide ILS (Input Grex) classificatie van de huidige situatie binnen de plangrens. Niveau-0 is een ontwerpkeuze: draft=true, v4=pending.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ilsVersion", "draft", "v4", "niveau0Note", "features", "unassigned", "epsetNote", "geometryFile"],
+  "properties": {
+    "ilsVersion": { "type": "string" },
+    "draft": { "const": true },
+    "v4": { "const": "pending" },
+    "niveau0Note": { "type": "string", "minLength": 10 },
+    "epsetNote": { "type": "string", "minLength": 10 },
+    "geometryFile": { "type": "string" },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ilsNodeId", "nodePath", "level", "label", "ifcExportAs", "sourceLayer", "count", "areaM2"],
+        "properties": {
+          "ilsNodeId": { "type": "string", "pattern": "^n[0-3]\\.[a-z0-9-]+$" },
+          "nodePath": { "type": "string", "minLength": 3 },
+          "level": { "type": "integer", "minimum": 0, "maximum": 3 },
+          "label": { "type": "string" },
+          "ifcExportAs": { "type": ["string", "null"] },
+          "sourceLayer": { "type": "string" },
+          "count": { "type": "integer", "minimum": 0 },
+          "areaM2": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
+    "unassigned": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    }
+  }
+}

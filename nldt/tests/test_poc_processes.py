@@ -32,6 +32,7 @@ def test_poc_processes_registered():
         "rijnland-peil-conflict",
         "rijnland-peil-whatif",
         "bp2op-transform",
+        "minigim-gebiedscheck-run",
     }
     assert expected <= set(PROCESS_DEFINITIONS)
     for pid in expected:
@@ -49,6 +50,7 @@ def test_poc_recipes_schema_valid():
         "breda-five-value-scan",
         "multi-track-crosstrack",
         "eindhoven-bp2op",
+        "minigim-gebiedscheck",
     ):
         recipe = load_recipe(rid)
         validate_instance(recipe, "recipe.schema.json")
@@ -82,6 +84,17 @@ def test_breda_scan_run_replay():
     out = execute_local("breda-scan-run", {"mode": "replay"})
     assert out["summary"]["mode"] == "replay"
     assert out["summary"]["hasValueScan"] is True
+
+
+def test_minigim_gebiedscheck_replay():
+    runs_root = WORKSPACE / "poc-minigim" / "runs"
+    if not any(runs_root.glob("*-minigim-gebiedscheck/run_summary.json")):
+        pytest.skip("geen minigim-gebiedscheck run aanwezig (draai poc-minigim/run.py eerst)")
+    out = execute_local("minigim-gebiedscheck-run", {"mode": "replay"})
+    summary = out["summary"]
+    assert summary["mode"] == "replay"
+    assert summary["items"] == 74
+    assert summary["verdict"] in {"pass", "fail"}
 
 
 def test_rijnland_peil_conflict_replay():

@@ -1,0 +1,70 @@
+{
+  "id": "minigim-gebiedscheck",
+  "title": "MiniGIM gebiedscheck (Lijst + ILS draft)",
+  "description": "PoC-5 via nLDT: run the MiniGIM omgevingsanalyse for an AOI — 74 Lijst-v0.91 items auto-filled from keyless open data (PDOK BGT/BAG/BRK/CBS/NWB/RCE, gemeente Breda AGOL) plus a draft ILS-v0.8 gebiedsindeling (niveau 0-3, IfcExportAs, EPset_minigim). Deterministic, V0-V3 validated, PROV with sha256; V4 (human-in-the-loop) pending by design.",
+  "version": "1.0.0",
+  "tags": ["poc-minigim", "minigim", "gebiedsontwikkeling", "checklist", "ils"],
+  "requiredProcesses": ["minigim-gebiedscheck-run"],
+  "inputs": {
+    "aoi": {
+      "type": "geojson",
+      "description": "Plangrens (plan boundary) as GeoJSON in EPSG:28992 or WGS84 (auto-reprojected)",
+      "required": true
+    },
+    "label": {
+      "type": "string",
+      "description": "Human-readable label for the run (default 'gebiedscheck')",
+      "required": false
+    },
+    "refresh": {
+      "type": "boolean",
+      "description": "Bypass the layer cache and refetch all sources (default false)",
+      "required": false
+    }
+  },
+  "outputs": {
+    "report": {
+      "type": "uri",
+      "description": "Single-file report.html (checklist + ILS draft + map, tables readable offline)"
+    },
+    "omgevingsanalyse": {
+      "type": "json",
+      "description": "74-item MiniGIM Lijst artifact: deliveredStatus, values, riskFlags, prov per item"
+    },
+    "ilsDraft": {
+      "type": "json",
+      "description": "ILS v0.8 draft gebiedsindeling (huidige situatie; v4 pending) + feature layer"
+    },
+    "validation": {
+      "type": "json",
+      "description": "V0-V3 validator checks and verdict (exit 0 only on pass)"
+    },
+    "prov": {
+      "type": "json",
+      "description": "PROV bundle: pinned registry sha256's, per-layer fetch manifests"
+    }
+  },
+  "steps": [
+    {
+      "id": "gebiedscheck",
+      "processId": "minigim-gebiedscheck-run",
+      "title": "Run MiniGIM gebiedscheck",
+      "inputs": {
+        "aoi": "${recipe.inputs.aoi}",
+        "label": "${recipe.inputs.label}",
+        "refresh": "${recipe.inputs.refresh}"
+      },
+      "outputs": {
+        "report": "report",
+        "omgevingsanalyse": "omgevingsanalyse",
+        "ilsDraft": "ilsDraft",
+        "validation": "validation",
+        "prov": "prov"
+      },
+      "backend": "local"
+    }
+  ],
+  "visualizationHint": { "preferredFormat": "geojson", "layerTitle": "MiniGIM gebiedscheck" },
+  "riskLevel": "low",
+  "cookbookUri": "http://localhost:8081/recipes/minigim-gebiedscheck"
+}

@@ -37,7 +37,9 @@ docs; this file wires them together.
 | Data lake + Iceberg/dbt + Data Space | [13-data-lake-and-space.md](13-data-lake-and-space.md) |
 | GovChat-NL beleidskompas integration (plan) | [14-beleidskompas-integration.md](14-beleidskompas-integration.md) |
 | eID Wallet identity layer (plan) | [16-eid-wallet-identity.md](16-eid-wallet-identity.md) |
-| EuropAI WP4 EDIC handover | [21-europai-edic-handover.md](21-europai-edic-handover.md) |
+| Interactive architecture (URL routes) | [`simulation/poc-mcp-skills.html`](simulation/poc-mcp-skills.html) (`?poc=lifecycle\|router\|breda\|edic\|utrecht\|rijnland\|eindhoven`) |
+| EuropAI WP4 EDIC handover | [21-europai-edic-handover.md](21-europai-edic-handover.md) · schematic [edic/breda-route-map.md](edic/breda-route-map.md) · tour `?poc=edic` |
+| Dual-audience front doors (planners + public, plan) | [22-dual-audience-spatial-planning.md](22-dual-audience-spatial-planning.md) |
 | Bibliography | [references/bibliography.md](references/bibliography.md) |
 | Quick start / ports | [README.md](README.md) |
 
@@ -261,7 +263,10 @@ Scripts: [`build_lake_inventory.py`](scripts/build_lake_inventory.py),
 | Eindhoven BP2OP | [`../poc-bp2op/`](../poc-bp2op/) | process + recipe `eindhoven-bp2op` ([12 §5.5](12-governed-agent-layer.md)) |
 
 Governed agent layer plan: [12-governed-agent-layer.md](12-governed-agent-layer.md).  
-Simulation UX (not production agent): [`simulation/`](simulation/).
+Simulation UX (not production agent): [`simulation/`](simulation/) —
+interactive architecture with routes
+[`poc-mcp-skills.html`](simulation/poc-mcp-skills.html)
+(`?poc=breda`, `?poc=edic` for the CitiVERSE-first map with Breda as city illustration).
 
 ---
 
@@ -311,6 +316,11 @@ restricted Data Space offers require explicit approval
 
 Auth: `NLDT_AUTH_MODE=off|static|keycloak|wallet` ([`services/common/auth.py`](services/common/auth.py));
 trust gates: `NLDT_TRUST_POLICY_FILE` ([`services/common/trust_policy.py`](services/common/trust_policy.py)).
+Agent identity (W6a, real Keycloak credentials): `NLDT_WALLET_VERIFIER=mock|keycloak`
+(edge verifier), `NLDT_AGENT_WALLET_BACKEND=mock|keycloak` + per-agent
+`NLDT_AGENT_*_CLIENT_SECRET` (virtual wallet), registry
+`NLDT_AGENT_CREDENTIALS_FILE` ([`16 §W6a`](16-eid-wallet-identity.md));
+provision with [`scripts/provision_agent_clients.py`](scripts/provision_agent_clients.py).
 External (local Docker): Kestra bridge `:8086` ([`govchat/`](govchat/)), OpenWebUI `:8080`,
 MinIO (optional lake) `9000/9001` ([`docker-compose.lake.yml`](docker-compose.lake.yml)).
 
@@ -346,7 +356,7 @@ CLI: `PYTHONPATH=. python -m services.cli …`
 | **6** | Data lake + Data Space + lakehouse | [13](13-data-lake-and-space.md) ✅ |
 | **6b** | CDC pipeline in the lake (Rijnland peilen) | [15](15-cdc-data-lake-pipeline.md) |
 | **BK** | Beleidskompas front-door app (BK-0…BK-2 done; BK-3 = wallet track) | [14](14-beleidskompas-integration.md) |
-| **W** | eID Wallet identity (W1/W3/W5 done, mock; W2/W6 real backend) | [16](16-eid-wallet-identity.md) |
+| **W** | eID Wallet identity (W1/W3/W5 done, mock; **W6a done: real Keycloak agent credentials**; W2/W6 real backend) | [16](16-eid-wallet-identity.md) |
 | **SM** | Source monitor (open-data continuity) | [17](17-source-monitor.md) ✅ |
 | **DONL** | data.overheid.nl CKAN harvest → lake + Data Space | [18](18-donl-harvest.md) ✅ |
 

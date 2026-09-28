@@ -407,9 +407,14 @@ window.__DATA__ = __PAYLOAD__;
  var mode=D.defaultMode||'after';
  var actScen=D.defaultScenarioId||(D.scenarios[0]&&D.scenarios[0].id);
  var map=L.map('map',{preferCanvas:true}).setView([52.15,4.65],10);
- L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
-   maxZoom:19, subdomains:'abcd',
-   attribution:'&copy; OpenStreetMap &copy; CARTO'}).addTo(map);
+ var pdok=L.tileLayer('https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/standaard/EPSG:3857/{z}/{x}/{y}.png',{
+   maxZoom:19, attribution:'&copy; Kadaster / PDOK BRT'});
+ var pdokGrijs=L.tileLayer('https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/grijs/EPSG:3857/{z}/{x}/{y}.png',{
+   maxZoom:19, attribution:'&copy; Kadaster / PDOK BRT'});
+ var esri=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',{
+   maxZoom:16, attribution:'&copy; Esri'});
+ pdok.addTo(map);
+ L.control.layers({"PDOK BRT":pdok,"PDOK grijs":pdokGrijs,"Esri light gray":esri},null,{position:'bottomleft'}).addTo(map);
  function seqColor(t){
   var stops=['#08306b','#2171b5','#6baed6','#c6dbef','#f7fbff'];
   var i=Math.min(stops.length-2, Math.max(0, Math.floor(t*(stops.length-1))));

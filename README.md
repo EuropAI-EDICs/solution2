@@ -21,6 +21,11 @@ verbatim quote + URL per claim, schema-validated artifacts, PROV provenance).
 - [`poc-rijnland/`](poc-rijnland/README.md) — **PoC-3**: peilgebied (vigerend) ×
   peilafwijking (praktijk) for Hoogheemraadschap van Rijnland, H3 conflict
   heatmap via the PoC-1/nldt bridge (MVP; KRW clustering is phase 2).
+- [`poc-minigim/`](poc-minigim/README.md) — **PoC-5**: MiniGIM-methodiek
+  (minigim.nl) for gebiedsontwikkelaars — 74-item Omgevingsanalyse Lijst v0.91
+  auto-filled from keyless open data + draft ILS v0.8 gebiedsindeling
+  (IfcExportAs/EPset_minigim); pilot Breda-Teteringen, IFC/GREX is phase 2
+  (see [`docs/MINIGIM.md`](docs/MINIGIM.md)).
 - [`simulation/`](simulation/README.md) — animated step-through simulation of
   both PoCs, replayed from their canonical run artifacts
   (`python3 simulation/build_simulation.py`, then open `simulation.html`).

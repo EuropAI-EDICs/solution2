@@ -468,6 +468,8 @@ class NormAnalyst:
         legal_force = enrichment.get("legalForce") or _detect_legal_force(instrument)
         confidence = float(enrichment.get("confidence", _default_confidence(legal_force)))
         claim = enrichment.get("claim") or self._fallback_claim(ev)
+        notes = ev.get("notes")
+        extracted_by = self.run_ref
 
         if self.llm_hook is not None:
             proposal = self.llm_hook(ev, src) or {}
@@ -475,6 +477,20 @@ class NormAnalyst:
                 claim = str(proposal["claim"])
             if "confidence" in proposal:
                 confidence = float(proposal["confidence"])
+            # S1 seam stamps identity; the deterministic citation/legal-force/
+            # geo-binding fields above are unreachable for the hook by design.
+            stamp = getattr(self.llm_hook, "stamp", None)
+            if proposal and stamp:
+                agent, _, _version = self.run_ref.partition("#")
+                extracted_by = f"{agent}#{stamp}"
+            seam_bits = []
+            if proposal.get("notes"):
+                seam_bits.append(str(proposal["notes"]))
+            seam_bits.append(
+                "llm hook answered (claim/confidence refined)"
+                if proposal else "llm hook declined; deterministic replay used"
+            )
+            notes = ((notes.rstrip(". ") + ". ") if notes else "") + " S1 seam: " + "; ".join(seam_bits) + "."
 
         card_payload: Dict[str, Any] = {
             "id": f"NC-{ev_id}",
@@ -494,14 +510,14 @@ class NormAnalyst:
             "theme": ev.get("theme"),
             "confidence": confidence,
             "verified": True,
-            "extractedBy": self.run_ref,
+            "extractedBy": extracted_by,
             "extractedAt": RUN_DATE,
             "appliesTo": {
                 "objectType": enrichment.get("objectType", "wind_turbine"),
                 "contextTags": enrichment.get("contextTags"),
             },
             "geoBinding": enrichment.get("geoBinding"),
-            "notes": ev.get("notes"),
+            "notes": notes,
         }
         return NormCard.from_dict(card_payload)  # validates against norm-card.schema.json
 
@@ -893,9 +909,12 @@ class NormFormalizer:
 
     agent_name = "norm-formalizer"
 
-    def __init__(self, run_ref: str = FORMALIZER_RUN) -> None:
+    def __init__(self, run_ref: str = FORMALIZER_RUN,
+                 llm_hook: Optional[Callable[[Mapping[str, Any]], Optional[Mapping[str, Any]]]] = None) -> None:
         self.run_ref = run_ref
+        self.llm_hook = llm_hook
         self.last_coverage: Dict[str, int] = {}
+        self._llm_proposed = 0
 
     def formalize(
         self, normcards: Sequence[Union[NormCard, Mapping[str, Any]]]
@@ -913,14 +932,73 @@ class NormFormalizer:
             "input_cards": len(cards),
             "output_rules": len(rules),
             **counts,
+            "llm_proposed": self._llm_proposed,
+            "llm_rejected": len(self.llm_hook.rejected) if self.llm_hook is not None else 0,
         }
         return rules
 
     # -- internals ------------------------------------------------------------
 
+    def _llm_rule(self, card: NormCard, proposal: Mapping[str, Any]) -> Dict[str, Any]:
+        """Assemble a FormalRule from a *gated* S2 proposal.
+
+        The hook has already validated kind/zone grounding/quote grounding;
+        this builder remains deterministic: geometrySource/gioJoinId/caveat
+        come from the card's own geoBinding (never from the model), the
+        kind→ruleType/zoneSemantics/executableRef mapping is a fixed table,
+        and the seam stamps identity into ``formalizedBy``.
+        """
+        from pipeline.norm_llm import KIND_MAP
+
+        meta = KIND_MAP[proposal["kind"]]
+        gb_obj = getattr(card, "geoBinding", None)
+        gb: Dict[str, Any] = {}
+        if gb_obj is not None:
+            import dataclasses
+
+            gb = dataclasses.asdict(gb_obj) if dataclasses.is_dataclass(gb_obj) else dict(gb_obj)
+        zone_selector: Dict[str, Any] = {
+            "zoneIds": list(proposal["zoneIds"]),
+            "selection": meta["selection"],
+            "geometrySource": gb.get("geometrySource") or "national_source",
+        }
+        if gb.get("gioJoinId"):
+            zone_selector["gioJoinId"] = gb.get("gioJoinId")
+        if gb.get("caveat"):
+            zone_selector["caveat"] = gb.get("caveat")
+        if proposal.get("bufferDistanceM") is not None:
+            zone_selector["bufferDistanceM"] = proposal["bufferDistanceM"]
+        rule = _base_rule(
+            card,
+            status="formalized",
+            rule_type=meta["rule_type"],
+            zone_semantics=meta["zone_semantics"],
+            executable_ref=meta["executable_ref"],
+            extra_tags=("llm_proposed",),
+            rationale=(
+                str(proposal["rationale"]).rstrip(". ")
+                + ". [gated LLM proposal (S2); deterministic gates passed; human review required]"
+            ),
+            zone_selector=zone_selector,
+            conditions=list(proposal.get("conditions") or []),
+        )
+        stamp = getattr(self.llm_hook, "stamp", None)
+        if stamp:
+            agent, _, _version = self.run_ref.partition("#")
+            rule["formalizedBy"] = f"{agent}#{stamp}"
+        self._llm_proposed += 1
+        return rule
+
     def _formalize_card(self, card: NormCard) -> FormalRule:
         spec = TEMPLATE_SPECS.get(card.evidenceId)
         if spec is None:
+            # S2 seam: only template-less cards consult the hook. Curated
+            # abstentions (template kind ambiguous/reject) are never
+            # re-proposed — the model cannot override a curated reason.
+            if self.llm_hook is not None:
+                proposal = self.llm_hook(card.to_dict())
+                if proposal is not None:
+                    return FormalRule.from_dict(self._llm_rule(card, proposal))
             rule = _base_rule(
                 card,
                 status="ambiguous",

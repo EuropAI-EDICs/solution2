@@ -50,7 +50,7 @@ if str(POC_ROOT) not in sys.path:
 from shapely.geometry import box, shape  # noqa: E402
 from shapely.ops import unary_union  # noqa: E402
 
-from pipeline import agents, cartographer, contracts, critic, engine, explainer, geodata, report  # noqa: E402
+from pipeline import agents, cartographer, contracts, critic, engine, explainer, geodata, norm_llm, report  # noqa: E402
 from pipeline.contracts import OpportunityMapRequest  # noqa: E402
 
 RUN_VERSION = "poc-run/1.0"
@@ -511,6 +511,14 @@ def build_parser() -> argparse.ArgumentParser:
                          "before the zone algebra so province-scale overlays stay tractable; recorded "
                          "per layer in the engine provenance and in the run summary (0 = full resolution)")
     ap.add_argument("--timeout", type=float, default=120.0, help="per-page HTTP timeout for layer fetches")
+    ap.add_argument("--norm-analyst", choices=["deterministic", "llm"], default="deterministic",
+                    help="Norm Analyst leg (S1): deterministic replay (default, offline) or "
+                         "propose-only local open model (needs LDT_NORM_LLM_ENDPOINT; loud "
+                         "fallback to deterministic on any transport failure)")
+    ap.add_argument("--formalizer", choices=["deterministic", "llm"], default="deterministic",
+                    help="Norm Formalizer leg (S2): deterministic templates (default) or gated "
+                         "LLM proposals for template-less ambiguous cards (needs "
+                         "LDT_NORM_LLM_ENDPOINT; loud fallback on any transport failure)")
     return ap
 
 
@@ -552,10 +560,21 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if track_cfg is None:
         raise SystemExit(f"unknown use case {args.use_case!r}: no track registered (known: {sorted(TRACKS)})")
     shard_rel = track_cfg["shard"]
+
+    analyst_hook = None
+    analyst_fallback = None
+    if args.norm_analyst == "llm":
+        try:
+            analyst_hook = norm_llm.build_analyst_hook()
+        except norm_llm.NormLLMError as exc:
+            analyst_fallback = str(exc)
+            print(f"[norm-analyst] LLM leg requested but unavailable — LOUD FALLBACK to "
+                  f"deterministic replay ({analyst_fallback})")
+
     with log.stage("norm-analyst", "Norm Analyst: harvest NormCards (deterministic replay)",
                    agents.NormAnalyst.agent_name, used=[shard_rel, "corpus/sources.json"],
                    generated=["normcards.json", "normcards-rejected.json"]):
-        analyst = agents.NormAnalyst()
+        analyst = agents.NormAnalyst(llm_hook=analyst_hook)
         cards_obj = analyst.read(POC_ROOT / shard_rel)
         cards = [c.to_dict() for c in cards_obj]
         for c in cards:
@@ -564,22 +583,61 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         rejected_ledger["analystRejectedThisRun"] = analyst.rejected
         dump_json(run_dir / "normcards.json", cards, indent=1)
         dump_json(run_dir / "normcards-rejected.json", rejected_ledger, indent=1)
+        llm_note = ""
+        if analyst_hook is not None:
+            llm_note = (f"; S1 llm leg: {analyst_hook.accepted} accepted, "
+                        f"{len(analyst_hook.rejected)} rejected")
         print(f"[norm-analyst] {len(cards)} verified NormCards, "
               f"{len(rejected_ledger.get('abstentions', []))} abstentions, "
-              f"{len(analyst.rejected)} rejected evidence items")
+              f"{len(analyst.rejected)} rejected evidence items{llm_note}")
 
     # ---------------- 3. Norm Formalizer ---------------------------------- #
+    formalizer_hook = None
+    formalizer_fallback = None
+    if args.formalizer == "llm":
+        allowed_zones = set(ZONE_SOURCES)
+        for _eid, spec in agents.TEMPLATE_SPECS.items():
+            allowed_zones.update((spec.get("zone") or {}).get("zoneIds") or [])
+        try:
+            formalizer_hook = norm_llm.build_formalizer_hook(sorted(allowed_zones))
+        except norm_llm.NormLLMError as exc:
+            formalizer_fallback = str(exc)
+            print(f"[norm-formalizer] LLM leg requested but unavailable — LOUD FALLBACK to "
+                  f"deterministic templates ({formalizer_fallback})")
+
     with log.stage("norm-formalizer", "Norm Formalizer: NormCards -> FormalRules (deterministic templates)",
                    agents.NormFormalizer.agent_name, used=["normcards.json"], generated=["formalrules.json"]):
-        formalizer = agents.NormFormalizer()
+        formalizer = agents.NormFormalizer(llm_hook=formalizer_hook)
         rules_obj = formalizer.formalize(cards_obj)
         rules = [r.to_dict() for r in rules_obj]
         for r in rules:
             contracts.validate(r, "formal-rule")
         dump_json(run_dir / "formalrules.json", rules, indent=1)
         cov = formalizer.last_coverage
+        llm_note = ""
+        if formalizer_hook is not None:
+            llm_note = (f"; S2 llm leg: {cov['llm_proposed']} proposed, "
+                        f"{cov['llm_rejected']} rejected")
         print(f"[norm-formalizer] {cov['output_rules']} rules: {cov['formalized']} formalized, "
-              f"{cov['ambiguous']} ambiguous, {cov['rejected']} rejected")
+              f"{cov['ambiguous']} ambiguous, {cov['rejected']} rejected{llm_note}")
+
+    if args.norm_analyst == "llm" or args.formalizer == "llm":
+        dump_json(run_dir / "norm-llm-ledger.json", {
+            "requested": {"normAnalyst": args.norm_analyst, "formalizer": args.formalizer},
+            "analyst": {
+                "fallback": analyst_fallback,
+                "accepted": analyst_hook.accepted if analyst_hook else 0,
+                "rejected": analyst_hook.rejected if analyst_hook else [],
+                "stamp": analyst_hook.stamp if analyst_hook else None,
+            },
+            "formalizer": {
+                "fallback": formalizer_fallback,
+                "accepted": formalizer_hook.accepted if formalizer_hook else 0,
+                "rejected": formalizer_hook.rejected if formalizer_hook else [],
+                "stamp": formalizer_hook.stamp if formalizer_hook else None,
+                "coverage": formalizer.last_coverage,
+            },
+        }, indent=1)
 
     # geo bindings per zone (provenance aliases for the GIO join-ids)
     geo_bindings: Dict[str, Dict[str, Any]] = {}
@@ -795,10 +853,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             namespace=track_cfg["prov_namespace"],
             agents=[
                 ORCHESTRATOR_AGENT,
-                {"id": "legal-recon-agent", "name": "NormAnalyst", "version": agents.ANALYST_RUN,
-                 "role": "deterministic replay of the verified legal recon (agent #3)"},
-                {"id": "norm-formalizer", "name": "NormFormalizer", "version": agents.FORMALIZER_RUN,
-                 "role": "deterministic templates (agent #4)"},
+                {"id": "legal-recon-agent", "name": "NormAnalyst",
+                 "version": (f"legal-recon-agent#{analyst_hook.stamp}" if analyst_hook else agents.ANALYST_RUN),
+                 "role": "deterministic replay of the verified legal recon (agent #3)"
+                         + (" + S1 gated llm claim/confidence proposals" if analyst_hook else "")},
+                {"id": "norm-formalizer", "name": "NormFormalizer",
+                 "version": (f"norm-formalizer#{formalizer_hook.stamp}" if formalizer_hook else agents.FORMALIZER_RUN),
+                 "role": "deterministic templates (agent #4)"
+                         + (" + S2 gated llm proposals for template-less cards" if formalizer_hook else "")},
                 {"id": "geo-connector", "name": "GeoData connector", "version": geodata.USER_AGENT.split(" ")[0],
                  "role": "ArcGIS REST fetch, cache-first (agent #5 tool)"},
                 {"id": "zone-engine", "name": "FormalRule zone engine", "version": engine.ENGINE_VERSION,

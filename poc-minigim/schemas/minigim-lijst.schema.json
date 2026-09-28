@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "minigim-lijst.schema.json",
+  "title": "MiniGIM Omgevingsanalyse Lijst — pinned registry",
+  "description": "Machine-readable form of the MiniGIM Omgevingsanalyse Lijst (minigim.nl), generated from the pinned Excel source by tools/convert_minigim_xlsx.py. The Lijst is the norm for the checklist runner: every item id here is addressable from lijst-bindings.json and from omgevingsanalyse run artifacts.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "registryVersion",
+    "standard",
+    "artifact",
+    "sourceVersion",
+    "sourceUrl",
+    "sourceSha256",
+    "retrievedAt",
+    "sections",
+    "items",
+    "toelichting"
+  ],
+  "properties": {
+    "registryVersion": { "type": "string" },
+    "standard": { "const": "MiniGIM" },
+    "artifact": { "const": "omgevingsanalyse-lijst" },
+    "sourceVersion": { "type": "string" },
+    "sourceUrl": { "type": "string" },
+    "sourceSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "retrievedAt": { "type": "string" },
+    "sections": { "type": "array", "items": { "$ref": "#/$defs/section" } },
+    "items": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/item" } },
+    "toelichting": { "type": "array", "items": { "$ref": "#/$defs/toelichting" } }
+  },
+  "$defs": {
+    "section": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["thema", "sourceRow", "comment", "defaults"],
+      "properties": {
+        "thema": {
+          "type": "string",
+          "enum": ["locatie", "topografie", "ruimtelijke ordening", "statistiek", "identiteit"]
+        },
+        "sourceRow": { "type": "integer", "minimum": 1 },
+        "comment": { "type": ["string", "null"] },
+        "defaults": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": { "prioriteit": { "type": "string", "enum": ["hoog", "midden", "laag"] } }
+        }
+      }
+    },
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "sourceRow", "thema", "onderdeel", "item",
+        "bronRegistratie", "bronLeverancier", "prioriteit", "risico", "actie",
+        "datatype", "data", "bestandsformaat", "dim2", "dim3", "notes"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]*$" },
+        "sourceRow": { "type": "integer", "minimum": 1 },
+        "thema": { "type": "string" },
+        "onderdeel": { "type": ["string", "null"] },
+        "item": { "type": ["string", "null"] },
+        "bronRegistratie": { "type": ["string", "null"] },
+        "bronLeverancier": { "type": ["string", "null"] },
+        "prioriteit": { "type": ["string", "null"], "enum": ["hoog", "midden", "laag", null] },
+        "risico": { "type": "array", "items": { "type": "string" } },
+        "actie": { "type": ["string", "null"] },
+        "datatype": { "type": ["string", "null"] },
+        "data": { "type": "array", "items": { "type": "string" } },
+        "bestandsformaat": { "type": "array", "items": { "type": "string" } },
+        "dim2": { "type": "boolean" },
+        "dim3": { "type": "boolean" },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "toelichting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["opmerking", "verwerking"],
+      "properties": {
+        "opmerking": { "type": "string" },
+        "verwerking": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

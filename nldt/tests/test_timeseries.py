@@ -21,6 +21,21 @@ PEILEN = WORKSPACE / "poc-rijnland" / "data" / "peilen" / "peilen.json"
 WKP = WORKSPACE / "poc-rijnland" / "data" / "wkp" / "waterkwaliteit-monthly-2020-2026.json"
 
 
+def test_normalize_peilen_all_stations_by_default():
+    if not PEILEN.is_file():
+        pytest.skip("peilen.json missing")
+    peilen = json.loads(PEILEN.read_text(encoding="utf-8"))
+    n_stations = len(peilen.get("stations") or {})
+    assert n_stations > 5
+    capped = normalize_rijnland_peilen(peilen, max_stations=2)
+    all_rows = normalize_rijnland_peilen(peilen, max_stations=None)
+    series_capped = {r["seriesId"] for r in capped}
+    series_all = {r["seriesId"] for r in all_rows}
+    assert len(series_capped) == 2
+    assert len(series_all) == n_stations
+    assert series_capped < series_all
+
+
 def test_normalize_peilen_schema(tmp_path, monkeypatch):
     if not PEILEN.is_file():
         pytest.skip("peilen.json missing")
@@ -39,6 +54,17 @@ def test_normalize_peilen_schema(tmp_path, monkeypatch):
     result = write_series_bundle(series_rows, meta, lake=lake)
     assert result["observationCount"] == len(series_rows)
     assert lake.exists(result["seriesLakeKey"])
+
+
+def test_max_peil_stations_helper():
+    from services.process_adapter.handlers import _max_peil_stations
+
+    assert _max_peil_stations(None) is None
+    assert _max_peil_stations("") is None
+    assert _max_peil_stations(0) is None
+    assert _max_peil_stations(-1) is None
+    assert _max_peil_stations(5) == 5
+    assert _max_peil_stations("12") == 12
 
 
 def test_normalize_wkp_open():

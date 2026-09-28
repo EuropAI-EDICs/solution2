@@ -185,6 +185,9 @@ promises.
    `poc/llm/compare_norm_llm.py`; live open-model run still pending).
 5. **LLM-authored change prose** for source monitor (reuse S4 number-gate
    pattern; not in MVP).
+6. **Public seam S11** — citizen narration + contestation intake designed;
+   build starts at DA-1 once the public-exposure posture audit (DA-0)
+   passes ([`nldt/22-dual-audience-spatial-planning.md`](../nldt/22-dual-audience-spatial-planning.md)).
 
 ---
 
@@ -207,6 +210,7 @@ Condensed reference; full detail in the code and this file's git history
 | S8 | scenario narration (numeric grounding gate) | 1 | **implemented**; live qwen3.8 run published |
 | S9 | policy-document narration in an external front door (grounded-artifact contract; deterministic run annex, schema `run-annex.schema.json`) | — (beleidskompas BK-3) | **generator implemented** (`nldt/services/run_annex.py` + CLI `build-run-annex`); Word/PDF attachment + number-grounding on the foreign platform's text still open (needs beleidskompas app code) |
 | S10 | deep research harness (optional LangChain Deep Agents) → `ResearchBrief` only | nldt · **4** | **seam + usage guide** — `nldt/agents/seams/deep_research.py` + schema `research-brief.schema.json`; feeds S7 hints; never executes scans/mutations; live harness behind `NLDT_DEEP_RESEARCH=1` + optional `deepagents`; **how-to:** [`nldt/19-s10-deep-research.md`](../nldt/19-s10-deep-research.md) |
+| S11 | public narration + contestation intake (plain-language Q&A behind the number gate, inside the trust boundary; reactions → jobId-linked evidence records) | **22** | **designed** — [`nldt/22-dual-audience-spatial-planning.md`](../nldt/22-dual-audience-spatial-planning.md); unlike S9 the narration stays nLDT-side; DA-1 is the first build phase |
 | SM | source monitor (ArcGIS REST + DONL CKAN continuity probes; human-merge patch) | all | **MVP done** (`services/source_monitor/`, recipe `source-monitor-run`; DONL: `donl_probe.py`, watchlist `donl-pilot`) |
 | L6 | lake publish (medallion URI → ODRL offer → EDC connector; Critic V0/V2/V4) | nldt | **done** (`lake-publish-dataset`, recipe `lake-publish-offer`; `services/lake/publish.py`, `dataspace_connector.py`) |
 | DONL | national CKAN harvest (data.overheid.nl → bronze + DCAT catalog; download vs DataService split) | nldt | **done** (`services/donl_harvest/`, recipes `donl-harvest-run` / `donl-harvest-publish`) |

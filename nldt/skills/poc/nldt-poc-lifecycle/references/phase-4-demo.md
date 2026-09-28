@@ -4,11 +4,16 @@ Goal: ship a **static**, shareable explainer that shows architecture + PoC walkt
 
 ## Pattern in this repo
 
-- Hub: `nldt/simulation/index.html`
-- Reference implementation: `nldt/simulation/poc-mcp-skills.html`
+- Hub: `nldt/simulation/index.html` (PoC stories + platform demos)
+- Architecture tour: `nldt/simulation/poc-mcp-skills.html`
   - Clickable layers (Host → Skill → Tool → Process → Engine)
-  - PoC tabs with Play tours and tool-pick schematics
+  - PoC tabs with Play tours and tool-pick schematics (`?poc=` deep-link)
+  - Recipes catalogue
   - Embedded skill/tool metadata (mirrors `skill://index.json`)
+- PoC story pages: `poc-breda.html`, `poc-utrecht.html`, `poc-rijnland.html`, `poc-eindhoven.html`
+- Per-PoC agent-flow replays: `*-flow-demo.html` (Breda / Utrecht / Rijnland / Eindhoven)
+- Domain report demos: `breda-report-demo.html`, `breda-whatif-demo.html`, `eindhoven-report-demo.html`, `rijnland-whatif-demo.html`
+- Utrecht platform demos remain available and are linked from the Utrecht hub section
 
 ## Build steps
 
@@ -26,6 +31,7 @@ Goal: ship a **static**, shareable explainer that shows architecture + PoC walkt
 - [ ] Mobile: canvas stacks above panel
 - [ ] No API keys, tokens, or live lake credentials in the page
 - [ ] Points back to `skill://` URIs and doc 20 for agents
+- [ ] Hub lists all four PoCs (Breda, Utrecht, Rijnland, Eindhoven)
 
 ## Optional later
 

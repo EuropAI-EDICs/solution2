@@ -1,0 +1,150 @@
+{
+  "registryVersion": "1.0",
+  "generatedBy": "MiniGIM PoC-5 recon (2026-09-21), alle endpoints live & sleutelloos geverifieerd (zie data/probe_minigim.py)",
+  "crsNote": "Vectorleveringen in EPSG:28992 (RD New). PDOK OGC API's: bbox-crs/crs=EPSG/0/28992 + f=json, cursor-paginering via de server-next-link (offset/startIndex worden afgewezen). PDOK WFS: outputFormat=geojson + srsName=urn:ogc:def:crs:EPSG::28992, paginering via count/startIndex. ArcGIS: f=geojson + outSR=28992 + resultOffset.",
+  "quirks": [
+    "PDOK OGC API (api.pdok.nl): offset én startIndex onbekend als query-parameter — pagineren uitsluitend via de ondoorzichtige cursor in de next-link (recon 2026-09-21)",
+    "CBS OGC API (api.pdok.nl/cbs/wijken-en-buurten-2024): CQL-filter faalt op spatie-codering — gebruik de WFS met URL-encoded OGC-XML-filter (poc-breda mechanics)",
+    "geo.breda.nl MapServer: pagination niet ondersteund (HTTP 400 op resultOffset) — server cap ~1000 features; layerCapped-vlag in de run waarschuwt hiermee",
+    "ArcGIS hosted layers (Breda AGOL): envelope-geometry-filter gaf lege resultaten; where=1=1 + client-side clip werkt"
+  ],
+  "sources": [
+    {
+      "id": "pdok-bgt-ogc-api",
+      "title": "Basisregistratie Grootschalige Topografie (BGT) — OGC API Features",
+      "baseUrl": "https://api.pdok.nl/lv/bgt/ogc/v1",
+      "collections": ["wegdeel", "waterdeel", "begroeidterreindeel", "onbegroeidterreindeel", "overbruggingsdeel", "pand", "put", "stadsdeel", "wijk", "buurt"],
+      "protocol": "ogc-api-features",
+      "crs": "EPSG:28992",
+      "role": "minigim-lijst:topografie.materialisatie",
+      "authoritative": "Kadaster / PDOK",
+      "licenseNote": "BGT open data — bronvermelding Kadaster",
+      "lastChecked": "2026-09-21"
+    },
+    {
+      "id": "pdok-bag-wfs",
+      "title": "Basisregistratie Adressen en Gebouwen (BAG) — WFS 2.0",
+      "baseUrl": "https://service.pdok.nl/lv/bag/wfs/v2_0",
+      "typeNames": ["bag:pand", "bag:verblijfsobject"],
+      "protocol": "wfs2",
+      "crs": "EPSG:28992",
+      "role": "minigim-lijst:bebouwing/adres/statistiek/identiteit",
+      "authoritative": "Kadaster / PDOK",
+      "licenseNote": "BAG open data — bronvermelding Kadaster",
+      "lastChecked": "2026-09-21"
+    },
+    {
+      "id": "pdok-brk-kadastrale-kaart",
+      "title": "Kadastrale kaart (BRK) — OGC API Features",
+      "baseUrl": "https://api.pdok.nl/kadaster/brk-kadastrale-kaart/ogc/v1",
+      "collections": ["perceel"],
+      "protocol": "ogc-api-features",
+      "crs": "EPSG:28992",
+      "role": "minigim-lijst:ruimtelijke-ordening.kadaster.percelen + ILS-draft percelen",
+      "authoritative": "Kadaster / PDOK",
+      "licenseNote": "kadastrale kaart open data; eigendomsgegevens NIET open (zie bindingsnotitie)",
+      "lastChecked": "2026-09-21"
+    },
+    {
+      "id": "pdok-cbs-wijkenbuurten-2024",
+      "title": "CBS Wijken en Buurten 2024 — WFS",
+      "baseUrl": "https://service.pdok.nl/cbs/wijkenbuurten/2024/wfs/v1_0",
+      "typeName": "wijkenbuurten:buurten",
+      "outputFormat": "geojson",
+      "gemeenteFilter": "Breda",
+      "gemeenteCode": "GM0758",
+      "protocol": "wfs2",
+      "crs": "EPSG:28992",
+      "role": "minigim-lijst:statistiek + plangrens-voorbeeld (CBS-buurt)",
+      "authoritative": "CBS / PDOK",
+      "licenseNote": "CC-BY 4.0 (CBS) — bronvermelding CBS/PDOK",
+      "lastChecked": "2026-09-21 (mechanics overgenomen uit poc-breda, recon 2026-09-13)"
+    },
+    {
+      "id": "pdok-natura2000",
+      "title": "Natura 2000 — OGC API Features (RVO)",
+      "baseUrl": "https://api.pdok.nl/rvo/natura2000/ogc/v1",
+      "collections": ["natura2000"],
+      "protocol": "ogc-api-features",
+      "crs": "EPSG:28992",
+      "role": "minigim-lijst:ruimtelijke-ordening.natuur.natura2000",
+      "authoritative": "RVO / PDOK",
+      "licenseNote": "open data — bronvermelding RVO",
+      "lastChecked": "2026-09-21"
+    },
+    {
+      "id": "pdok-nwb-wegen",
+      "title": "Nationaal Wegenbestand (NWB) — Wegen, OGC API Features",
+      "baseUrl": "https://api.pdok.nl/rws/nationaal-wegenbestand-wegen/ogc/v1",
+      "collections": ["wegvakken"],
+      "protocol": "ogc-api-features",
+      "crs": "EPSG:28992",
+      "role": "minigim-lijst:topografie.mobiliteit.verkeerswegen",
+      "authoritative": "RWS / PDOK",
+      "licenseNote": "open data — bronvermelding RWS",
+      "lastChecked": "2026-09-21"
+    },
+    {
+      "id": "pdok-rce-cultuurhistorie",
+      "title": "Beschermde gebieden cultuurhistorie (rijksmonumenten) — OGC API Features (RCE)",
+      "baseUrl": "https://api.pdok.nl/rce/beschermde-gebieden-cultuurhistorie/ogc/v1",
+      "collections": ["rce_inspire_points", "rce_inspire_polygons"],
+      "protocol": "ogc-api-features",
+      "crs": "EPSG:28992",
+      "role": "minigim-lijst:identiteit.monumenten",
+      "authoritative": "RCE / PDOK",
+      "licenseNote": "open data — bronvermelding RCE (monumentenregister-links in ci_citation)",
+      "lastChecked": "2026-09-21"
+    },
+    {
+      "id": "breda-milieuzones",
+      "title": "Milieuzones gemeente Breda",
+      "serviceUrl": "https://services-eu1.arcgis.com/SgHNk1qzR4I13Wum/arcgis/rest/services/Milieuzones/FeatureServer",
+      "layerId": 0,
+      "protocol": "arcgis-rest",
+      "crs": "EPSG:28992",
+      "role": "minigim-lijst:bestemmingsplan.milieuzone (gemeentelijke proxy)",
+      "authoritative": "Gemeente Breda",
+      "licenseNote": "openbaar (data.breda.nl ArcGIS Hub, org gemeente-breda) — bronvermelding Gemeente Breda",
+      "lastChecked": "2026-09-21"
+    },
+    {
+      "id": "breda-geluidcontouren",
+      "title": "Geluidcontouren gemeente Breda",
+      "serviceUrl": "https://services-eu1.arcgis.com/SgHNk1qzR4I13Wum/arcgis/rest/services/Geluidcontouren/FeatureServer",
+      "layerId": 0,
+      "protocol": "arcgis-rest",
+      "crs": "EPSG:28992",
+      "role": "minigim-lijst:geluidscontouren (gemeentelijke proxy, bronweg niet gelabeld)",
+      "authoritative": "Gemeente Breda",
+      "licenseNote": "openbaar (data.breda.nl ArcGIS Hub) — bronvermelding Gemeente Breda",
+      "lastChecked": "2026-09-21"
+    },
+    {
+      "id": "breda-cultuurhistorie",
+      "title": "Cultuurhistorische waarden gemeente Breda",
+      "serviceUrl": "https://services-eu1.arcgis.com/SgHNk1qzR4I13Wum/arcgis/rest/services/Cultuurhistorische_waarden/FeatureServer",
+      "layerId": 0,
+      "protocol": "arcgis-rest",
+      "crs": "EPSG:28992",
+      "role": "minigim-lijst:identiteit.cultuurhistorie (gemeentelijke laag)",
+      "authoritative": "Gemeente Breda",
+      "licenseNote": "openbaar (data.breda.nl ArcGIS Hub) — bronvermelding Gemeente Breda",
+      "lastChecked": "2026-09-21"
+    },
+    {
+      "id": "breda-archeologie",
+      "title": "Archeologiebeleid gemeente Breda",
+      "serviceUrl": "https://geo.breda.nl/server1/rest/services/Archeologiebeleid/MapServer",
+      "layerId": 0,
+      "protocol": "arcgis-rest",
+      "crs": "EPSG:28992",
+      "paginationSupported": false,
+      "maxFeaturesWithoutPagination": 1000,
+      "role": "minigim-lijst:identiteit.archeologie (gemeentelijke verwachtingszones)",
+      "authoritative": "Gemeente Breda",
+      "licenseNote": "openbaar (geo.breda.nl) — bronvermelding Gemeente Breda",
+      "lastChecked": "2026-09-21"
+    }
+  ]
+}

@@ -32,4 +32,4 @@ Datasets: lake/CDC peilen silver (+ local archive via ingest).
 
 ## Lake ingest (process MCP / orchestrator)
 
-Recipe `timeseries-open-ingest` → process `timeseries-ingest-run` includes `rijnland-peilen` from `poc-rijnland/data/peilen/peilen.json` when present.
+Recipe `timeseries-open-ingest` → process `timeseries-ingest-run` includes **all** stations from `poc-rijnland/data/peilen/peilen.json` by default (`maxPeilStations` omit or ≤0). Pass a positive integer only to cap for smoke tests.

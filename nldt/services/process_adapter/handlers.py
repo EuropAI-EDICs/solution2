@@ -313,7 +313,10 @@ PROCESS_DEFINITIONS_CORE: dict[str, dict[str, Any]] = {
                 "title": "Include CBS KWB Breda",
                 "schema": {"type": "boolean", "default": True},
             },
-            "maxPeilStations": {"title": "Max peil stations", "schema": {"type": "integer", "default": 5}},
+            "maxPeilStations": {
+                "title": "Max peil stations (omit or ≤0 = all)",
+                "schema": {"type": "integer", "default": 0},
+            },
         },
         "outputs": {
             "summary": {"title": "Ingest summary", "schema": {"type": "object"}},
@@ -462,7 +465,18 @@ def execute_local(process_id: str, inputs: dict[str, Any]) -> dict[str, Any]:
             include_wkp=_flag("includeWkp", True),
             include_knmi=_flag("includeKnmi", True),
             include_cbs=_flag("includeCbs", True),
-            max_peil_stations=int(inputs.get("maxPeilStations") or 5),
+            max_peil_stations=_max_peil_stations(inputs.get("maxPeilStations")),
         )
         return {"summary": summary}
     raise KeyError(f"Unknown process: {process_id}")
+
+
+def _max_peil_stations(raw: Any) -> int | None:
+    """None / missing / ≤0 → ingest every peil station in the archive."""
+    if raw is None or raw == "":
+        return None
+    try:
+        n = int(raw)
+    except (TypeError, ValueError):
+        return None
+    return None if n <= 0 else n

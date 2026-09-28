@@ -405,6 +405,54 @@
       border-color: var(--ink);
     }
 
+    .edic-strip {
+      margin: 0 0 1rem;
+      background: #fffdf8;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 0.85rem 0.95rem;
+    }
+    .edic-strip[hidden] { display: none; }
+    .edic-kicker {
+      font-size: 0.7rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--focus);
+      font-weight: 600;
+    }
+    .edic-strip h3 {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      margin: 0.2rem 0 0.45rem;
+    }
+    .edic-q { font-size: 0.88rem; color: var(--ink-soft); max-width: 46rem; }
+    .edic-tracks {
+      margin-top: 0.65rem;
+      display: grid;
+      gap: 0.45rem;
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .edic-track {
+      border: 1px solid var(--line);
+      border-top: 3px solid var(--teal);
+      border-radius: var(--radius);
+      padding: 0.5rem 0.55rem;
+      font-size: 0.75rem;
+      color: var(--ink-soft);
+    }
+    .edic-track.imp { border-top-color: #5b4a8a; }
+    .edic-track.com { border-top-color: #3d5a3d; }
+    .edic-track strong { display: block; color: var(--ink); font-size: 0.8rem; margin-bottom: 0.2rem; }
+    .edic-order {
+      margin-top: 0.55rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .edic-order a { font-weight: 600; }
+    @media (max-width: 820px) {
+      .edic-tracks { grid-template-columns: 1fr; }
+    }
+
     .tour-controls {
       display: flex;
       flex-wrap: wrap;
@@ -620,6 +668,278 @@
     .sch-meta .k {
       color: var(--muted);
     }
+
+    .recipes-bar {
+      margin-top: 1.35rem;
+      padding-top: 1.1rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .recipes-bar h3 {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 0 0 0.35rem;
+    }
+
+    .recipes-intro {
+      font-size: 0.82rem;
+      color: var(--ink-soft);
+      margin: 0 0 0.75rem;
+      max-width: 52rem;
+      line-height: 1.45;
+    }
+
+    .recipe-explainer {
+      margin: 0 0 0.9rem;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fffdf8;
+      max-width: 60rem;
+    }
+
+    .recipe-explainer > summary {
+      cursor: pointer;
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--ink-soft);
+      padding: 0.5rem 0.75rem;
+      list-style: none;
+    }
+
+    .recipe-explainer > summary::before {
+      content: "▸";
+      margin-right: 0.45rem;
+      color: var(--teal);
+    }
+
+    .recipe-explainer[open] > summary::before { content: "▾"; }
+
+    .recipe-explainer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(24rem, 1fr));
+      gap: 1rem 1.4rem;
+      padding: 0.35rem 0.9rem 0.9rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .recipe-explainer h4 {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 0.86rem;
+      font-weight: 600;
+      margin: 0.55rem 0 0.35rem;
+    }
+
+    .recipe-explainer p {
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+      line-height: 1.5;
+      margin: 0 0 0.4rem;
+    }
+
+    .recipe-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.72rem;
+      margin: 0.3rem 0 0.6rem;
+    }
+
+    .recipe-table th,
+    .recipe-table td {
+      text-align: left;
+      vertical-align: top;
+      padding: 0.3rem 0.45rem;
+      border-bottom: 1px solid var(--line);
+      color: var(--ink-soft);
+      line-height: 1.4;
+    }
+
+    .recipe-table th {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 0.66rem;
+      color: var(--ink);
+    }
+
+    .recipe-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .recipe-filter {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 0.28rem 0.55rem;
+      border-radius: 3px;
+      border: 1px solid var(--line);
+      background: #fffdf8;
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+    }
+
+    .recipe-filter:hover { border-color: var(--teal); }
+    .recipe-filter.active {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #f7f3eb;
+    }
+
+    .recipe-list {
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    .recipe-row {
+      display: grid;
+      grid-template-columns: auto auto 1fr;
+      gap: 0.55rem 0.7rem;
+      align-items: start;
+      text-align: left;
+      width: 100%;
+      background: #fffdf8;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 0.6rem 0.75rem;
+      cursor: pointer;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      font-weight: 400;
+      color: inherit;
+    }
+
+    .recipe-row:hover { border-color: var(--teal); }
+    .recipe-row.active {
+      border-color: var(--focus);
+      box-shadow: 0 0 0 2px var(--focus-wash);
+    }
+
+    .risk-badge {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.18rem 0.4rem;
+      border-radius: 2px;
+      align-self: start;
+      margin-top: 0.12rem;
+    }
+
+    .risk-badge.low { background: #e8f2ea; color: #2a5a34; }
+    .risk-badge.medium { background: #f5edd8; color: #6a4e18; }
+    .risk-badge.high { background: #f3e0dc; color: #8a2e22; }
+
+    .recipe-row .rname {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--teal);
+      white-space: nowrap;
+    }
+
+    .recipe-row .rmeta {
+      grid-column: 2 / -1;
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+      line-height: 1.4;
+    }
+
+    .recipe-row .rtitle {
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .recipe-detail {
+      margin-top: 0.85rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fffdf8;
+      padding: 0.75rem 0.85rem;
+      display: none;
+    }
+
+    .recipe-detail.open { display: block; animation: panel-fade 0.3s ease; }
+
+    .recipe-detail h4 {
+      margin: 0 0 0.35rem;
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .recipe-detail .rd-desc {
+      font-size: 0.82rem;
+      color: var(--ink-soft);
+      margin: 0 0 0.7rem;
+      line-height: 1.45;
+    }
+
+    .recipe-detail .rd-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+      gap: 0.65rem;
+      font-size: 0.75rem;
+    }
+
+    .recipe-detail .rd-block {
+      border-top: 1px dashed var(--line);
+      padding-top: 0.45rem;
+    }
+
+    .recipe-detail .rd-label {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.25rem;
+    }
+
+    .recipe-detail code {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 0.72rem;
+      color: var(--teal);
+    }
+
+    .recipe-steps {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      align-items: center;
+    }
+
+    .recipe-steps li {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.4rem;
+      background: var(--teal-wash, rgba(45, 106, 94, 0.12));
+      border-radius: 2px;
+      color: var(--teal);
+    }
+
+    .recipe-steps .arrow {
+      color: var(--sand);
+      padding: 0;
+      background: transparent;
+    }
+
+    .tag-pill {
+      display: inline-block;
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 0.65rem;
+      padding: 0.12rem 0.35rem;
+      margin: 0.1rem 0.15rem 0.1rem 0;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      color: var(--muted);
+    }
+
   </style>
 </head>
 <body>
@@ -633,7 +953,9 @@
       <div class="cta-row">
         <button type="button" class="primary" id="btnStartTour">Start tour</button>
         <button type="button" class="ghost" id="btnFocusPoc">Pick a PoC</button>
+        <a class="meta-link" href="?poc=edic">EDIC route · Breda →</a>
         <a class="meta-link" href="../20-poc-mcp-skills.md">Architecture doc 20 →</a>
+        <a class="meta-link" href="../00-architecture.md">Architecture hub →</a>
       </div>
     </header>
 
@@ -708,9 +1030,35 @@
         <button type="button" class="tab active" data-poc="lifecycle" role="tab">Lifecycle</button>
         <button type="button" class="tab" data-poc="router" role="tab">Router</button>
         <button type="button" class="tab" data-poc="breda" role="tab">Breda scan</button>
+        <button type="button" class="tab" data-poc="edic" role="tab">EDIC route</button>
         <button type="button" class="tab" data-poc="utrecht" role="tab">Utrecht scenario</button>
         <button type="button" class="tab" data-poc="rijnland" role="tab">Rijnland water levels</button>
+        <button type="button" class="tab" data-poc="eindhoven" role="tab">Eindhoven bp2op</button>
+        <button type="button" class="tab" data-poc="minigim" role="tab">MiniGIM gebiedscheck</button>
       </div>
+      <aside class="edic-strip" id="edicStrip" hidden aria-label="EDIC route map with Breda illustration">
+        <p class="edic-kicker">EuropAI WP4 · route 3 · shareable as ?poc=edic</p>
+        <h3>CitiVERSE-first — Breda as the city illustration</h3>
+        <p class="edic-q">Where does open data + AI create value across five congress values? One Breda run, three EDIC claims — not three products. Overlay stays the first Toolbox demo; Breda is step 3 on the lead track.</p>
+        <div class="edic-tracks">
+          <div class="edic-track">
+            <strong>LDT CitiVERSE · lead</strong>
+            Spatial offering: recipes <code>breda-five-value-scan</code> / <code>breda-scan-qa</code> after <code>spatial-overlay-analysis</code>.
+          </div>
+          <div class="edic-track imp">
+            <strong>IMPACTS · paper</strong>
+            Same payload’s Critic V0–V4, number gate, PROV, <code>edic.destination</code>. No second marketplace id.
+          </div>
+          <div class="edic-track com">
+            <strong>Digital Commons · stewardship</strong>
+            Engine <code>poc-breda/</code> under EUPL. GovChat is not Solution 2.
+          </div>
+        </div>
+        <p class="edic-order">Lead order: overlay → city module → <strong>Breda</strong> → high-risk PoCs.
+          Full schematic: <a href="edic-breda-roadmap.html">edic-breda-roadmap.html</a>
+          · source <a href="../edic/breda-route-map.md">edic/breda-route-map.md</a>
+          · story <a href="poc-breda.html">poc-breda.html</a></p>
+      </aside>
       <div class="tour-controls">
         <button type="button" class="primary" id="btnPlay">Play</button>
         <button type="button" class="ghost" id="btnNext">Next</button>
@@ -719,6 +1067,72 @@
       </div>
       <div class="step-rail" id="stepRail" aria-hidden="true"></div>
       <div class="skills" id="skillList" aria-label="Skill catalogue"></div>
+    </section>
+
+
+    <section class="recipes-bar" id="recipesBar" aria-label="Recipe catalogue">
+      <h3>Recipes (Cookbook)</h3>
+      <p class="recipes-intro">
+        A recipe is the governed playbook: ordered steps bound to process ids, with typed
+        inputs and a <code>riskLevel</code>. Skills teach when; MCP tools alias one process;
+        recipes run end-to-end via Cook / orchestrator (Critic · HITL · PROV).
+        Click a recipe to see steps, inputs, and the linked skill.
+      </p>
+      <details class="recipe-explainer">
+        <summary>The term “recipe” — provenance in nLDT and the workflows it serves</summary>
+        <div class="recipe-explainer-grid">
+          <div>
+            <h4>Herkomst van de term</h4>
+            <p>
+              “Recipe” is geen metafoor die we zelf verzonnen: de term komt uit het
+              <strong>nLDT Testbed 2026 tender, phase 2</strong>
+              (<code>nldt-testbed2026-phase2-invitation-to-tender.pdf</code>), dat de driehoek
+              <strong>AppStore → Cookbook → Cook</strong> voorschrijft. nLDT implementeert die
+              letterlijk: <em>AppStore</em> = <code>catalog_adapter</code> (OGC API Records),
+              <em>Cookbook</em> = <code>services/cookbook</code> (serveert
+              <code>nldt/recipes/&lt;id&gt;.json</code> via <code>cookbookUri</code>),
+              <em>Cook</em> = <code>process_adapter</code> (OGC API Processes).
+            </p>
+            <h4>Semantiek in vijf lagen</h4>
+            <table class="recipe-table">
+              <thead><tr><th>Laag</th><th>Werkwoord</th><th>Voorbeeld</th></tr></thead>
+              <tbody>
+                <tr><td>Agent Skill</td><td>teach <em>when</em></td><td><code>breda-scan</code></td></tr>
+                <tr><td>MCP tool</td><td>call once</td><td><code>run_value_scan</code></td></tr>
+                <tr><td>Recipe (Cookbook)</td><td>orchestrate</td><td><code>breda-five-value-scan</code></td></tr>
+                <tr><td>Process (Cook)</td><td>dispose unit</td><td><code>breda-scan-run</code></td></tr>
+                <tr><td>PoC engine</td><td>domain code</td><td><code>poc-breda/</code></td></tr>
+              </tbody>
+            </table>
+            <p>
+              Anatomie (<code>schemas/recipe.schema.json</code>): <code>steps[]</code> met
+              <code>${recipe.inputs.*}</code>-wiring, <code>requiredProcesses[]</code> als
+              preflight, <code>inputs/outputs</code> als typed contract, en
+              <code>riskLevel</code> — <strong>high</strong> → HITL tenzij auto-approved.
+              Via de recipe-runner krijgt elke run uniform Critic V0–V4 + PROV + HITL;
+              een PoC-MCP-tool omzeilt die niet, maar aliast meestal één proces.
+            </p>
+          </div>
+          <div>
+            <h4>Concrete werkstromen per PoC</h4>
+            <table class="recipe-table">
+              <thead><tr><th>PoC</th><th>Recipe(s)</th><th>Werkstroom</th></tr></thead>
+              <tbody>
+                <tr><td>Lifecycle</td><td><code>source-monitor-run</code> · <code>donl-harvest-*</code> · <code>timeseries-open-ingest</code> · <code>lake-publish-offer</code></td><td>continuïteitsprobes (V4 past registry nooit automatisch toe) · DONL → bronze + DCAT · Rijnland/WKP/KNMI/CBS → silver · ODRL Data Space offer</td></tr>
+                <tr><td>Breda</td><td><code>breda-five-value-scan</code> · <code>breda-scan-qa</code></td><td>vijf-waardenscan per buurt (replay/execute; gold → lake bij <code>NLDT_LAKE_POST_RUN=1</code>) · grounded Q&amp;A cite-or-abstain</td></tr>
+                <tr><td>Utrecht</td><td><code>utrecht-opportunity-map</code> · <code>utrecht-scenario-author/sweep</code> · <code>multi-track-crosstrack</code></td><td>Plane A kanskaart wind/zon/bos · Plane B voorstel + sweep · Plane C cross-track overlay</td></tr>
+                <tr><td>Rijnland</td><td><code>rijnland-peil-conflict</code> / <code>-live</code> · <code>rijnland-peil-whatif</code></td><td>peilgebied (vigerend) × peilafwijking (praktijk) als H3-conflict · what-if → CDC bronze/silver + scenario-kaart</td></tr>
+                <tr><td>Eindhoven</td><td><code>eindhoven-bp2op</code></td><td>bestemmingsplan → omgevingsplan via method cards MC-1…12; V4 (jurist) pending</td></tr>
+                <tr><td>MiniGIM <em>(PoC-5)</em></td><td><code>minigim-gebiedscheck</code></td><td>74-item Omgevingsanalyse Lijst v0.91 + ILS v0.8 draft uit sleutelloze open data; V0–V3 + PROV sha256, V4 pending; riskLevel low</td></tr>
+                <tr><td>Referentie</td><td><code>spatial-overlay-analysis</code> · <code>hex-overlay-analysis</code> · <code>beleidskompas-omgevingsanalyse</code></td><td>generieke overlay/H3-analyticsbouwstenen · beleidskompas policy-step</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </details>
+      <div class="recipe-filters" id="recipeFilters" role="tablist"></div>
+      <div class="recipe-list" id="recipeList"></div>
+      <div class="recipe-detail" id="recipeDetail" hidden></div>
     </section>
 
     <p class="foot">
@@ -767,9 +1181,9 @@
     process: {
       kicker: "Layer 4 · Dispose",
       title: "Process / Recipe",
-      body: "OGC Processes + recipes: Critic V0–V4, HITL when riskLevel is high, PROV bundles. This is the Phase 5 governed dispose layer.",
-      trust: "Humans decide on high risk. Reject ledgers are retained.",
-      paths: ["poc_handlers.py", "nldt/data/runs/<runId>/validation-report.json"],
+      body: "Two dispose contracts share this layer. A process is one OGC job (POST /processes/{id}/execution). A recipe (Cookbook JSON under nldt/recipes/) is an ordered list of process steps with typed inputs/outputs and riskLevel — Cook + Critic + HITL + PROV as one plan. PoC MCP tools usually alias a single process; prefer the recipe when you need the full governed plan. Browse the Recipes panel below.",
+      trust: "riskLevel=high → HITL unless auto-approved. Restricted Data Space offers refuse without forceHitlApproved. Reject ledgers are retained.",
+      paths: ["nldt/recipes/*.json", "poc_handlers.py", "nldt/data/runs/<runId>/validation-report.json", "schemas/recipe.schema.json"],
       uri: null,
     },
     engine: {
@@ -810,6 +1224,715 @@
     },
   ];
 
+  const RECIPES = [
+  {
+    "id": "beleidskompas-omgevingsanalyse",
+    "title": "Beleidskompas omgevingsanalyse (overlay)",
+    "description": "GENAI-safe omgevingsanalyse for the beleidskompas policy step: fetch two layers, intersect, compute area statistics. Wraps the generic overlay processes; area-agnostic (AOI + layer URIs as inputs).",
+    "riskLevel": "low",
+    "tags": [
+      "beleidskompas",
+      "policy-step:omgevingsanalyse",
+      "spatial",
+      "overlay"
+    ],
+    "requiredProcesses": [
+      "fetch-features",
+      "spatial-intersection",
+      "compute-area-statistics"
+    ],
+    "steps": [
+      {
+        "id": "fetch-layer-a",
+        "processId": "fetch-features"
+      },
+      {
+        "id": "fetch-layer-b",
+        "processId": "fetch-features"
+      },
+      {
+        "id": "intersect",
+        "processId": "spatial-intersection"
+      },
+      {
+        "id": "stats",
+        "processId": "compute-area-statistics"
+      }
+    ],
+    "inputKeys": [
+      "aoi",
+      "layerAUri",
+      "layerBUri"
+    ],
+    "outputKeys": [
+      "intersection",
+      "statistics"
+    ],
+    "group": "spatial",
+    "skill": null,
+    "tool": null,
+    "path": "nldt/recipes/beleidskompas-omgevingsanalyse.json"
+  },
+  {
+    "id": "breda-five-value-scan",
+    "title": "Breda five-value scan run",
+    "description": "Plane A via nLDT: replay or execute Breda five-value scan; gold artifacts sync to lake when NLDT_LAKE_POST_RUN=1.",
+    "riskLevel": "medium",
+    "tags": [
+      "poc-breda",
+      "scan",
+      "plane-a"
+    ],
+    "requiredProcesses": [
+      "breda-scan-run"
+    ],
+    "steps": [
+      {
+        "id": "scan",
+        "processId": "breda-scan-run"
+      }
+    ],
+    "inputKeys": [
+      "mode",
+      "runDir"
+    ],
+    "outputKeys": [
+      "summary"
+    ],
+    "group": "breda",
+    "skill": "breda-scan",
+    "tool": "run_value_scan",
+    "path": "nldt/recipes/breda-five-value-scan.json"
+  },
+  {
+    "id": "breda-scan-qa",
+    "title": "Breda five-value scan Q&A",
+    "description": "GENAI seam S4 via nLDT: grounded Q&A over a canonical Breda value-scan run (cite-or-abstain + number gate).",
+    "riskLevel": "medium",
+    "tags": [
+      "poc-breda",
+      "qa",
+      "s4",
+      "scan",
+      "legal",
+      "beleidskompas"
+    ],
+    "requiredProcesses": [
+      "breda-scan-query"
+    ],
+    "steps": [
+      {
+        "id": "ask",
+        "processId": "breda-scan-query"
+      }
+    ],
+    "inputKeys": [
+      "runDir",
+      "question"
+    ],
+    "outputKeys": [
+      "result"
+    ],
+    "group": "breda",
+    "skill": "breda-scan",
+    "tool": "ask_scan",
+    "path": "nldt/recipes/breda-scan-qa.json"
+  },
+  {
+    "id": "donl-harvest-publish",
+    "title": "Harvest DONL dataset and publish Data Space offer",
+    "description": "End-to-end: harvest one DONL package → DCAT catalog record → Data Space offer (EDC-manifest). Pilot path for open government data.",
+    "riskLevel": "high",
+    "tags": [
+      "donl",
+      "harvest",
+      "dataspace",
+      "publish",
+      "edc",
+      "phase-6"
+    ],
+    "requiredProcesses": [
+      "donl-harvest-run"
+    ],
+    "steps": [
+      {
+        "id": "harvest-publish",
+        "processId": "donl-harvest-run"
+      }
+    ],
+    "inputKeys": [
+      "packageId",
+      "metadataOnly",
+      "accessClass"
+    ],
+    "outputKeys": [
+      "summary",
+      "publish"
+    ],
+    "group": "lifecycle",
+    "skill": "nldt-poc-lifecycle",
+    "tool": "donl-harvest-run",
+    "path": "nldt/recipes/donl-harvest-publish.json"
+  },
+  {
+    "id": "donl-harvest-run",
+    "title": "Harvest data.overheid.nl into nLDT data lake",
+    "description": "CKAN harvest from DONL watchlist → bronze + catalog/dcat (DCAT-AP-NL). File downloads optional; WFS/WMS registered as DataService manifests in silver.",
+    "riskLevel": "medium",
+    "tags": [
+      "donl",
+      "ckan",
+      "harvest",
+      "data-lake",
+      "dcat",
+      "phase-6"
+    ],
+    "requiredProcesses": [
+      "donl-harvest-run"
+    ],
+    "steps": [
+      {
+        "id": "harvest",
+        "processId": "donl-harvest-run"
+      }
+    ],
+    "inputKeys": [
+      "watchlistPath",
+      "packageId",
+      "metadataOnly"
+    ],
+    "outputKeys": [
+      "summary"
+    ],
+    "group": "lifecycle",
+    "skill": "nldt-poc-lifecycle",
+    "tool": "donl-harvest-run",
+    "path": "nldt/recipes/donl-harvest-run.json"
+  },
+  {
+    "id": "eindhoven-bp2op",
+    "title": "Eindhoven bp2op transform",
+    "description": "Bestemmingsplan → omgevingsplan conversion for Eindhoven (poc-bp2op). V4 HITL always pending.",
+    "riskLevel": "high",
+    "tags": [
+      "poc-eindhoven",
+      "bp2op",
+      "legal"
+    ],
+    "requiredProcesses": [
+      "bp2op-transform"
+    ],
+    "steps": [
+      {
+        "id": "transform",
+        "processId": "bp2op-transform"
+      }
+    ],
+    "inputKeys": [
+      "mode",
+      "useCase",
+      "runDir",
+      "outDir"
+    ],
+    "outputKeys": [
+      "summary"
+    ],
+    "group": "eindhoven",
+    "skill": null,
+    "tool": null,
+    "path": "nldt/recipes/eindhoven-bp2op.json"
+  },
+  {
+    "id": "minigim-gebiedscheck",
+    "title": "MiniGIM gebiedscheck (Lijst + ILS draft)",
+    "description": "PoC-5 via nLDT: run the MiniGIM omgevingsanalyse for an AOI — 74 Lijst-v0.91 items auto-filled from keyless open data (PDOK BGT/BAG/BRK/CBS/NWB/RCE, gemeente Breda AGOL) plus a draft ILS-v0.8 gebiedsindeling (niveau 0-3, IfcExportAs, EPset_minigim). Deterministic, V0-V3 validated, PROV with sha256; V4 (human-in-the-loop) pending by design.",
+    "riskLevel": "low",
+    "tags": [
+      "poc-minigim",
+      "minigim",
+      "gebiedsontwikkeling",
+      "checklist",
+      "ils"
+    ],
+    "requiredProcesses": [
+      "minigim-gebiedscheck-run"
+    ],
+    "steps": [
+      {
+        "id": "gebiedscheck",
+        "processId": "minigim-gebiedscheck-run"
+      }
+    ],
+    "inputKeys": [
+      "aoi",
+      "label",
+      "refresh"
+    ],
+    "outputKeys": [
+      "report",
+      "omgevingsanalyse",
+      "ilsDraft",
+      "validation",
+      "prov"
+    ],
+    "group": "minigim",
+    "skill": null,
+    "tool": "run_minigim_gebiedscheck",
+    "path": "nldt/recipes/minigim-gebiedscheck.json"
+  },
+  {
+    "id": "hex-overlay-analysis",
+    "title": "Hex Overlay Analysis (H3)",
+    "description": "nLDT reference recipe: discretise a zone layer into H3 cells, join point data per cell, and measure spatial autocorrelation — the h3-py urban-analytics pattern on Dutch data (spec 2026-09-09-h3-integration, example 7.6). All geojson inputs must be EPSG:4326 (RFC 7946).",
+    "riskLevel": "low",
+    "tags": [
+      "spatial",
+      "h3",
+      "hex",
+      "aggregation",
+      "autocorrelation"
+    ],
+    "requiredProcesses": [
+      "fetch-features",
+      "h3-polygon-to-cells",
+      "h3-spatial-join-points",
+      "h3-morans-i"
+    ],
+    "steps": [
+      {
+        "id": "fetch-zone",
+        "processId": "fetch-features"
+      },
+      {
+        "id": "fetch-points",
+        "processId": "fetch-features"
+      },
+      {
+        "id": "cells",
+        "processId": "h3-polygon-to-cells"
+      },
+      {
+        "id": "join",
+        "processId": "h3-spatial-join-points"
+      },
+      {
+        "id": "autocorrelation",
+        "processId": "h3-morans-i"
+      }
+    ],
+    "inputKeys": [
+      "aoi",
+      "zoneUri",
+      "pointsUri",
+      "resolution"
+    ],
+    "outputKeys": [
+      "coverage",
+      "join",
+      "autocorrelation"
+    ],
+    "group": "spatial",
+    "skill": null,
+    "tool": null,
+    "path": "nldt/recipes/hex-overlay-analysis.json"
+  },
+  {
+    "id": "lake-publish-offer",
+    "title": "Publish lake dataset as Data Space offer",
+    "description": "Phase 6: create an ODRL-stub Data Space offer over a lake:// URI. accessClass=restricted requires forceHitlApproved and Critic V4.",
+    "riskLevel": "high",
+    "tags": [
+      "lake",
+      "dataspace",
+      "publish",
+      "odrl",
+      "phase-6"
+    ],
+    "requiredProcesses": [
+      "lake-publish-dataset"
+    ],
+    "steps": [
+      {
+        "id": "publish",
+        "processId": "lake-publish-dataset"
+      }
+    ],
+    "inputKeys": [
+      "lakeUri",
+      "accessClass",
+      "datasetId",
+      "license",
+      "forceHitlApproved"
+    ],
+    "outputKeys": [
+      "result"
+    ],
+    "group": "lifecycle",
+    "skill": "nldt-poc-lifecycle",
+    "tool": "lake-publish-dataset",
+    "path": "nldt/recipes/lake-publish-offer.json"
+  },
+  {
+    "id": "multi-track-crosstrack",
+    "title": "Utrecht multi-track crosstrack",
+    "description": "Plane C via nLDT: crosstrack overlay across wind×solar×forest baseline runs.",
+    "riskLevel": "high",
+    "tags": [
+      "poc-utrecht",
+      "crosstrack",
+      "plane-c",
+      "legal"
+    ],
+    "requiredProcesses": [
+      "crosstrack-overlay"
+    ],
+    "steps": [
+      {
+        "id": "crosstrack",
+        "processId": "crosstrack-overlay"
+      }
+    ],
+    "inputKeys": [
+      "mode",
+      "runDir",
+      "outDir"
+    ],
+    "outputKeys": [
+      "summary"
+    ],
+    "group": "utrecht",
+    "skill": null,
+    "tool": null,
+    "path": "nldt/recipes/multi-track-crosstrack.json"
+  },
+  {
+    "id": "rijnland-peil-conflict-live",
+    "title": "Rijnland peil conflict (CDC lake snapshot)",
+    "description": "Hybrid: freshness gate on CDC-applied peilen silver, then replay/execute rijnland-peil-conflict. Stream table is lake-only (no RisingWave).",
+    "riskLevel": "high",
+    "tags": [
+      "poc-rijnland",
+      "peil",
+      "cdc",
+      "live",
+      "hybrid"
+    ],
+    "requiredProcesses": [
+      "rijnland-peil-conflict"
+    ],
+    "steps": [
+      {
+        "id": "peil",
+        "processId": "rijnland-peil-conflict"
+      }
+    ],
+    "inputKeys": [
+      "mode",
+      "runDir",
+      "streamSnapshotUri",
+      "maxFreshnessSeconds"
+    ],
+    "outputKeys": [
+      "summary"
+    ],
+    "group": "rijnland",
+    "skill": "rijnland-peilen",
+    "tool": "run_peil_conflict_live",
+    "path": "nldt/recipes/rijnland-peil-conflict-live.json"
+  },
+  {
+    "id": "rijnland-peil-conflict",
+    "title": "Rijnland peil conflict",
+    "description": "PoC-3: peilgebied (vigerend) × peilafwijking (praktijk) via OGC process rijnland-peil-conflict (replay of canonical run).",
+    "riskLevel": "medium",
+    "tags": [
+      "poc-rijnland",
+      "peil",
+      "h3",
+      "conflict"
+    ],
+    "requiredProcesses": [
+      "rijnland-peil-conflict"
+    ],
+    "steps": [
+      {
+        "id": "peil",
+        "processId": "rijnland-peil-conflict"
+      }
+    ],
+    "inputKeys": [
+      "mode",
+      "runDir"
+    ],
+    "outputKeys": [
+      "summary"
+    ],
+    "group": "rijnland",
+    "skill": "rijnland-peilen",
+    "tool": "run_peil_conflict",
+    "path": "nldt/recipes/rijnland-peil-conflict.json"
+  },
+  {
+    "id": "rijnland-peil-whatif",
+    "title": "Rijnland peilen what-if (CDC)",
+    "description": "What-if peilen delta → CDC bronze/silver → whatif-report + multi-scenario whatif-map.html (demo pack map-only) + optional conflict replay. Lake-only for the active scenario.",
+    "riskLevel": "high",
+    "tags": [
+      "poc-rijnland",
+      "peil",
+      "whatif",
+      "cdc",
+      "scenario",
+      "simulation"
+    ],
+    "requiredProcesses": [
+      "rijnland-peil-whatif"
+    ],
+    "steps": [
+      {
+        "id": "whatif",
+        "processId": "rijnland-peil-whatif"
+      }
+    ],
+    "inputKeys": [
+      "delta_m",
+      "layer",
+      "limit",
+      "scenarioId",
+      "scenarioPath",
+      "applyToLake"
+    ],
+    "outputKeys": [
+      "summary"
+    ],
+    "group": "rijnland",
+    "skill": "rijnland-peilen",
+    "tool": "run_peil_whatif",
+    "path": "nldt/recipes/rijnland-peil-whatif.json"
+  },
+  {
+    "id": "source-monitor-run",
+    "title": "Source monitor (open-data continuity)",
+    "description": "Deterministic ArcGIS REST probes vs sources.json; machine diff + change report + registry patch proposal. Never auto-applies — human merges (V4).",
+    "riskLevel": "high",
+    "tags": [
+      "source-monitor",
+      "continuity",
+      "phase-sm",
+      "dataspace"
+    ],
+    "requiredProcesses": [
+      "source-monitor-probe"
+    ],
+    "steps": [
+      {
+        "id": "probe",
+        "processId": "source-monitor-probe"
+      }
+    ],
+    "inputKeys": [
+      "mode",
+      "watchlistPath",
+      "fixtureDir",
+      "outDir"
+    ],
+    "outputKeys": [
+      "summary"
+    ],
+    "group": "lifecycle",
+    "skill": "nldt-poc-lifecycle",
+    "tool": null,
+    "path": "nldt/recipes/source-monitor-run.json"
+  },
+  {
+    "id": "spatial-overlay-analysis",
+    "title": "Spatial Overlay Analysis",
+    "description": "Generic nLDT reference recipe: fetch two layers, intersect, compute area statistics. Use-case agnostic.",
+    "riskLevel": "low",
+    "tags": [
+      "spatial",
+      "overlay",
+      "analysis",
+      "generic"
+    ],
+    "requiredProcesses": [
+      "fetch-features",
+      "spatial-intersection",
+      "compute-area-statistics"
+    ],
+    "steps": [
+      {
+        "id": "fetch-layer-a",
+        "processId": "fetch-features"
+      },
+      {
+        "id": "fetch-layer-b",
+        "processId": "fetch-features"
+      },
+      {
+        "id": "intersect",
+        "processId": "spatial-intersection"
+      },
+      {
+        "id": "stats",
+        "processId": "compute-area-statistics"
+      }
+    ],
+    "inputKeys": [
+      "aoi",
+      "layerAUri",
+      "layerBUri"
+    ],
+    "outputKeys": [
+      "intersection",
+      "statistics"
+    ],
+    "group": "spatial",
+    "skill": null,
+    "tool": null,
+    "path": "nldt/recipes/spatial-overlay-analysis.json"
+  },
+  {
+    "id": "timeseries-open-ingest",
+    "title": "Open time-series ingest (silver)",
+    "description": "Curated TS ingest: Rijnland peilen/WKP + KNMI Gilze-Rijen (350) + CBS KWB Breda → bronze + silver/timeseries. Cross-twin lake layer for Elasticsearch discovery.",
+    "riskLevel": "medium",
+    "tags": [
+      "timeseries",
+      "lake",
+      "open-data",
+      "knmi",
+      "cbs",
+      "breda"
+    ],
+    "requiredProcesses": [
+      "timeseries-ingest-run"
+    ],
+    "steps": [
+      {
+        "id": "ingest",
+        "processId": "timeseries-ingest-run"
+      }
+    ],
+    "inputKeys": [
+      "includePeilen",
+      "includeWkp",
+      "includeKnmi",
+      "includeCbs",
+      "maxPeilStations"
+    ],
+    "outputKeys": [
+      "summary"
+    ],
+    "group": "lifecycle",
+    "skill": "nldt-poc-lifecycle",
+    "tool": "timeseries-ingest-run",
+    "path": "nldt/recipes/timeseries-open-ingest.json"
+  },
+  {
+    "id": "utrecht-opportunity-map",
+    "title": "Utrecht opportunity-map (replay)",
+    "description": "Plane A via nLDT: replay summary of a canonical poc/runs opportunity-map (execute mode available on the process).",
+    "riskLevel": "high",
+    "tags": [
+      "poc-utrecht",
+      "opportunity-map",
+      "plane-a",
+      "legal"
+    ],
+    "requiredProcesses": [
+      "opportunity-map-run"
+    ],
+    "steps": [
+      {
+        "id": "replay",
+        "processId": "opportunity-map-run"
+      }
+    ],
+    "inputKeys": [
+      "useCase",
+      "runDir"
+    ],
+    "outputKeys": [
+      "summary"
+    ],
+    "group": "utrecht",
+    "skill": null,
+    "tool": null,
+    "path": "nldt/recipes/utrecht-opportunity-map.json"
+  },
+  {
+    "id": "utrecht-scenario-author",
+    "title": "Utrecht scenario author (S7 proposals)",
+    "description": "GENAI seam S7 via nLDT: hybrid (det floor + LLM explorer) scenario proposals from a baseline run (reject ledger; no zone writes). Override author=auto|llm|hybrid via process inputs.",
+    "riskLevel": "high",
+    "tags": [
+      "poc-utrecht",
+      "scenario",
+      "s7",
+      "proposals",
+      "hybrid"
+    ],
+    "requiredProcesses": [
+      "scenario-author-propose"
+    ],
+    "steps": [
+      {
+        "id": "propose",
+        "processId": "scenario-author-propose"
+      }
+    ],
+    "inputKeys": [
+      "useCase",
+      "baselineRunDir",
+      "maxScenarios",
+      "author"
+    ],
+    "outputKeys": [
+      "proposals"
+    ],
+    "group": "utrecht",
+    "skill": "utrecht-scenario",
+    "tool": "propose_scenarios",
+    "path": "nldt/recipes/utrecht-scenario-author.json"
+  },
+  {
+    "id": "utrecht-scenario-sweep",
+    "title": "Utrecht scenario sweep",
+    "description": "Plane B via nLDT: offline scenario sweep against a baseline opportunity-map run (file or auto author, control reproduction).",
+    "riskLevel": "high",
+    "tags": [
+      "poc-utrecht",
+      "scenario",
+      "s7",
+      "plane-b",
+      "legal"
+    ],
+    "requiredProcesses": [
+      "scenario-sweep"
+    ],
+    "steps": [
+      {
+        "id": "sweep",
+        "processId": "scenario-sweep"
+      }
+    ],
+    "inputKeys": [
+      "useCase",
+      "baselineRunDir",
+      "author",
+      "outDir"
+    ],
+    "outputKeys": [
+      "summary"
+    ],
+    "group": "utrecht",
+    "skill": "utrecht-scenario",
+    "tool": "run_scenario_sweep",
+    "path": "nldt/recipes/utrecht-scenario-sweep.json"
+  }
+];
+
   const POC_TOOLS = {
     lifecycle: [
       { id: "search_lake_elasticsearch", kind: "tool", server: "nldt-catalog-mcp" },
@@ -831,6 +1954,11 @@
       { id: "run_value_scan", kind: "tool", server: "nldt-poc-mcp", process: "breda-scan-run", recipe: "breda-five-value-scan" },
       { id: "ask_scan", kind: "tool", server: "nldt-poc-mcp", process: "breda-scan-query", recipe: "breda-scan-qa" },
     ],
+    edic: [
+      { id: "resources/read", kind: "resource", server: "nldt-poc-mcp" },
+      { id: "run_value_scan", kind: "tool", server: "nldt-poc-mcp", process: "breda-scan-run", recipe: "breda-five-value-scan" },
+      { id: "ask_scan", kind: "tool", server: "nldt-poc-mcp", process: "breda-scan-query", recipe: "breda-scan-qa" },
+    ],
     utrecht: [
       { id: "resources/read", kind: "resource", server: "nldt-poc-mcp" },
       { id: "propose_scenarios", kind: "tool", server: "nldt-poc-mcp", process: "scenario-author-propose", recipe: "utrecht-scenario-author" },
@@ -843,6 +1971,16 @@
       { id: "run_peil_conflict", kind: "tool", server: "nldt-poc-mcp", process: "rijnland-peil-conflict", recipe: "rijnland-peil-conflict" },
       { id: "run_peil_conflict_live", kind: "tool", server: "nldt-poc-mcp", process: "rijnland-peil-conflict", recipe: "rijnland-peil-conflict" },
       { id: "run_peil_whatif", kind: "tool", server: "nldt-poc-mcp", process: "rijnland-peil-whatif", recipe: "rijnland-peil-whatif" },
+    ],
+    eindhoven: [
+      { id: "resources/read", kind: "resource", server: "nldt-poc-mcp" },
+      { id: "list_poc_capabilities", kind: "tool", server: "nldt-catalog-mcp" },
+      { id: "run_bp2op_transform", kind: "tool", server: "nldt-poc-mcp", process: "bp2op-transform", recipe: "eindhoven-bp2op" },
+    ],
+    minigim: [
+      { id: "resources/read", kind: "resource", server: "nldt-poc-mcp" },
+      { id: "list_poc_capabilities", kind: "tool", server: "nldt-catalog-mcp" },
+      { id: "run_minigim_gebiedscheck", kind: "tool", server: "nldt-poc-mcp", process: "minigim-gebiedscheck-run", recipe: "minigim-gebiedscheck" },
     ],
   };
 
@@ -955,7 +2093,7 @@
           pick: null,
           detail: {
             title: "Demo website",
-            body: "Extend poc-mcp-skills.html pattern: layers, Play tours, tool schematics. Link from simulation/index.html. No secrets in the page.",
+            body: "Extend simulation/: PoC story pages (breda/utrecht/rijnland/eindhoven) + poc-mcp-skills.html tours. Link from simulation/index.html. No secrets in the page.",
           },
         },
       ],
@@ -986,7 +2124,7 @@
         },
         {
           layer: "skill",
-          status: "Continue with a PoC skill (breda-scan, utrecht-scenario, or rijnland-peilen).",
+          status: "Continue with a PoC skill (breda-scan, utrecht-scenario, rijnland-peilen) or Eindhoven via run_bp2op_transform.",
           skill: "rijnland-peilen",
           pick: { method: "resources/read", kind: "resource", target: "skill://nldt/poc/rijnland-peilen/SKILL.md", server: "nldt-poc-mcp" },
         },
@@ -1046,6 +2184,101 @@
             process: "breda-scan-query", recipe: "breda-scan-qa", highlight: "process",
           },
           detail: { title: "Process breda-scan-query", body: "jobId, outputs, prov; under orchestration also validation-report.json in nldt/data/runs/." },
+        },
+      ],
+    },
+    edic: {
+      label: "EDIC route",
+      steps: [
+        {
+          layer: "host",
+          status: "Route 3: three EDICs in parallel. CitiVERSE is the first operational landing.",
+          pick: null,
+          detail: {
+            title: "WP4 CitiVERSE-first",
+            body: "Do not wait for IMPACTS or Commons to finish. Contact all three in M4. Breda is the city illustration on the lead track — not the first Toolbox demo.",
+          },
+        },
+        {
+          layer: "process",
+          status: "Step 1 — live-path proof: recipe spatial-overlay-analysis (low risk, generic).",
+          pick: {
+            method: "tools/call",
+            kind: "recipe",
+            recipe: "spatial-overlay-analysis",
+            process: "spatial-intersection",
+            server: "nldt-process-mcp",
+            highlight: "process",
+          },
+          detail: {
+            title: "Reference recipe",
+            body: "First working asset on Toolbox UCS / Marketplace / P&amp;V / IM. Laptop mock is expected until edic_live_readiness is hybrid or live.",
+          },
+        },
+        {
+          layer: "skill",
+          status: "Step 2 — city module: Discover → Lake → Scenarios → Demo (nldt-poc-lifecycle).",
+          skill: "nldt-poc-lifecycle",
+          pick: {
+            method: "resources/read",
+            kind: "resource",
+            target: "skill://nldt/poc/nldt-poc-lifecycle/SKILL.md",
+            server: "nldt-poc-mcp",
+          },
+        },
+        {
+          layer: "skill",
+          status: "Step 3 — Breda as city illustration: read breda-scan (public sources, cite-or-abstain).",
+          skill: "breda-scan",
+          pick: {
+            method: "resources/read",
+            kind: "resource",
+            target: "skill://nldt/poc/breda-scan/SKILL.md",
+            server: "nldt-poc-mcp",
+          },
+        },
+        {
+          layer: "tool",
+          status: "Breda dispose: run_value_scan then ask_scan. Engine scores; LLM only narrates cited numbers.",
+          pick: {
+            method: "tools/call",
+            kind: "tool",
+            tool: "run_value_scan",
+            server: "nldt-poc-mcp",
+            args: '{ mode: "replay" }',
+            process: "breda-scan-run",
+            recipe: "breda-five-value-scan",
+          },
+          detail: {
+            title: "City asset, not the overlay demo",
+            body: "CitiVERSE owns the spatial offering. IMPACTS owns the publish contract (ValidationReport + PROV + edic.destination). Commons owns poc-breda source. One upload, two claims.",
+          },
+        },
+        {
+          layer: "process",
+          status: "Marketplace: one payload, two EDIC claims. Tracks fail independently at M12.",
+          pick: {
+            method: "tools/call",
+            kind: "tool",
+            tool: "ask_scan",
+            server: "nldt-poc-mcp",
+            process: "breda-scan-query",
+            recipe: "breda-scan-qa",
+            highlight: "process",
+          },
+          detail: {
+            title: "Fallbacks per track",
+            body: "CitiVERSE → VNG + Geonovum Cookbook; IMPACTS → Interoperable Europe / EDIH; code → OS2. Full schematic: simulation/edic-breda-roadmap.html · ?poc=edic",
+          },
+        },
+        {
+          layer: "host",
+          status: "Open the meeting page and Breda story. Do not claim live Toolbox unless readiness is hybrid or live.",
+          pick: null,
+          detail: {
+            title: "Open in the CitiVERSE room",
+            body: "edic-breda-roadmap.html (schematic) · poc-breda.html (story) · breda-report-demo.html (five values). Overlay demo first; five minutes on Breda as the city follow-up.",
+          },
         },
       ],
     },
@@ -1188,6 +2421,134 @@
         },
       ],
     },
+    eindhoven: {
+      label: "Eindhoven bp2op",
+      steps: [
+        { layer: "host", status: "User: “Convert Eindhoven bestemmingsplan rules toward omgevingsplan.”", pick: null },
+        {
+          layer: "skill",
+          status: "Read nldt-poc-router — Eindhoven skill is reserved; route to run_bp2op_transform.",
+          skill: "nldt-poc-router",
+          pick: {
+            method: "resources/read", kind: "resource",
+            target: "skill://nldt/poc/nldt-poc-router/SKILL.md", server: "nldt-poc-mcp",
+          },
+        },
+        {
+          layer: "tool",
+          status: "Confirm process/recipe via list_poc_capabilities.",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "list_poc_capabilities",
+            server: "nldt-catalog-mcp", args: "{}",
+          },
+          detail: {
+            title: "Picked: list_poc_capabilities",
+            body: "Finds poc-eindhoven / bp2op-transform / eindhoven-bp2op so the host picks the right tool.",
+          },
+        },
+        {
+          layer: "tool",
+          status: "Pick tool run_bp2op_transform (useCase=eindhoven).",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "run_bp2op_transform", server: "nldt-poc-mcp",
+            args: '{ useCase: "eindhoven", mode: "replay" }',
+            process: "bp2op-transform", recipe: "eindhoven-bp2op",
+          },
+          detail: {
+            title: "Picked: run_bp2op_transform",
+            body: "Thin alias → process bp2op-transform. Offline corpus-first under poc-bp2op/.",
+          },
+        },
+        {
+          layer: "process",
+          status: "Dispose via bp2op-transform · recipe eindhoven-bp2op · V4 HITL pending.",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "run_bp2op_transform", server: "nldt-poc-mcp",
+            process: "bp2op-transform", recipe: "eindhoven-bp2op", highlight: "process",
+          },
+          detail: {
+            title: "Process bp2op-transform",
+            body: "Kennisbank + TF-IDF bands, coverage, Critic V0–V3. V4 (jurist) always pending by design. riskLevel high.",
+          },
+        },
+        {
+          layer: "engine",
+          status: "poc-bp2op engine writes report + omzettabel.",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "run_bp2op_transform", server: "nldt-poc-mcp",
+            process: "bp2op-transform", engine: "poc-bp2op/", highlight: "engine",
+          },
+          detail: {
+            title: "Engine poc-bp2op",
+            body: "Method cards MC-1…MC-12. Invoked only through the process — never by skill text.",
+          },
+        },
+      ],
+    },
+    minigim: {
+      label: "MiniGIM gebiedscheck",
+      steps: [
+        { layer: "host", status: "User: “Vul de MiniGIM-omgevingsanalyse (Lijst + ILS) voor plangrens Teteringen, Breda.”", pick: null },
+        {
+          layer: "skill",
+          status: "Read nldt-poc-router — MiniGIM is PoC-5; route to run_minigim_gebiedscheck.",
+          skill: "nldt-poc-router",
+          pick: {
+            method: "resources/read", kind: "resource",
+            target: "skill://nldt/poc/nldt-poc-router/SKILL.md", server: "nldt-poc-mcp",
+          },
+        },
+        {
+          layer: "tool",
+          status: "Confirm process/recipe via list_poc_capabilities.",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "list_poc_capabilities",
+            server: "nldt-catalog-mcp", args: "{}",
+          },
+          detail: {
+            title: "Picked: list_poc_capabilities",
+            body: "Finds poc-minigim / minigim-gebiedscheck-run / minigim-gebiedscheck so the host picks the right tool.",
+          },
+        },
+        {
+          layer: "tool",
+          status: "Pick tool run_minigim_gebiedscheck (mode=replay, pilot AOI Breda-Teteringen).",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "run_minigim_gebiedscheck", server: "nldt-poc-mcp",
+            args: '{ mode: "replay" }',
+            process: "minigim-gebiedscheck-run", recipe: "minigim-gebiedscheck",
+          },
+          detail: {
+            title: "Picked: run_minigim_gebiedscheck",
+            body: "Thin alias → process minigim-gebiedscheck-run (replay/execute). Engine under poc-minigim/; keyless open data only.",
+          },
+        },
+        {
+          layer: "process",
+          status: "Dispose via minigim-gebiedscheck-run · recipe minigim-gebiedscheck · V0–V3.",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "run_minigim_gebiedscheck", server: "nldt-poc-mcp",
+            process: "minigim-gebiedscheck-run", recipe: "minigim-gebiedscheck", highlight: "process",
+          },
+          detail: {
+            title: "Process minigim-gebiedscheck-run",
+            body: "74 Lijst-v0.91 items: 29 delivered / 45 manual-action / 0 failed (pilot 21-9-2026, verdict pass). PROV met sha256; V4 (analist) pending by design. riskLevel low.",
+          },
+        },
+        {
+          layer: "engine",
+          status: "poc-minigim engine schrijft report.html + ILS draft.",
+          pick: {
+            method: "tools/call", kind: "tool", tool: "run_minigim_gebiedscheck", server: "nldt-poc-mcp",
+            process: "minigim-gebiedscheck-run", engine: "poc-minigim/", highlight: "engine",
+          },
+          detail: {
+            title: "Engine poc-minigim",
+            body: "PDOK cursor-paginering, BGT-historie gefilterd, ILS-draft met IfcExportAs/EPset_minigim. Demo: poc-minigim/runs/<laatste>-minigim-gebiedscheck/report.html · methodiek: docs/MINIGIM.md.",
+          },
+        },
+      ],
+    },
   };
 
   let activePoc = "lifecycle";
@@ -1283,7 +2644,21 @@
     schematicFlow.innerHTML = "";
     clearSchematicMeta();
 
-    const hot = pick.highlight || (pick.kind === "tool" ? "tool" : "resource");
+    const hot = pick.highlight || (pick.kind === "tool" ? "tool" : pick.kind === "recipe" ? "process" : "resource");
+
+    if (pick.kind === "recipe" && !pick.tool) {
+      schematicFlow.appendChild(schNode("Host"));
+      schematicFlow.appendChild(schArrow(true));
+      schematicFlow.appendChild(schNode("orchestrator", { hot: true }));
+      schematicFlow.appendChild(schArrow(true));
+      schematicFlow.appendChild(schNode("--recipe " + (pick.recipe || "?"), { hot: hot === "process" }));
+      if (pick.process) {
+        schematicFlow.appendChild(schArrow(true));
+        schematicFlow.appendChild(schNode(pick.process, { hot: hot === "process" }));
+      }
+      appendMeta(pick);
+      return;
+    }
 
     if (pick.kind === "tool" || pick.tool) {
       schematicFlow.appendChild(schNode("Host"));
@@ -1421,6 +2796,206 @@
     renderSchematic(pick);
     renderToolPalette(pick);
   }
+
+
+  let recipeFilter = "all";
+  let selectedRecipeId = null;
+
+  const RECIPE_FILTERS = [
+    { id: "all", label: "All" },
+    { id: "lifecycle", label: "Lifecycle" },
+    { id: "breda", label: "Breda" },
+    { id: "utrecht", label: "Utrecht" },
+    { id: "rijnland", label: "Rijnland" },
+    { id: "eindhoven", label: "Eindhoven" },
+    { id: "minigim", label: "MiniGIM" },
+    { id: "spatial", label: "Spatial" },
+    { id: "high", label: "High risk" },
+  ];
+
+  function selectRecipe(r) {
+    selectedRecipeId = r.id;
+    document.querySelectorAll(".recipe-row").forEach(function (el) {
+      el.classList.toggle("active", el.getAttribute("data-id") === r.id);
+    });
+    const stepLabels = r.steps
+      .map(function (s) {
+        return s.processId || s.id;
+      })
+      .join(" → ");
+    const paths = [r.path];
+    if (r.skill) paths.push("skill " + r.skill);
+    if (r.tool) paths.push("tool " + r.tool);
+    r.requiredProcesses.forEach(function (p) {
+      paths.push("process " + p);
+    });
+    showPanel({
+      kicker: "Recipe · risk " + r.riskLevel,
+      title: r.id,
+      body:
+        "<strong>" +
+        r.title +
+        "</strong> — " +
+        r.description +
+        (stepLabels ? " Steps: " + stepLabels + "." : ""),
+      trust:
+        r.riskLevel === "high"
+          ? "High risk: plan HITL unless auto-approved. Prefer orchestrator --recipe " +
+            r.id +
+            "."
+          : "Medium/low risk still goes through Critic + PROV when run as a recipe.",
+      paths: paths,
+      uri: null,
+    });
+    highlightLayer("process");
+    const pick = {
+      method: "recipe",
+      kind: "recipe",
+      recipe: r.id,
+      process: (r.steps[0] && r.steps[0].processId) || (r.requiredProcesses[0] || null),
+      tool: r.tool || null,
+      server: (
+        r.tool === "timeseries-ingest-run" ||
+        r.tool === "donl-harvest-run" ||
+        r.tool === "lake-publish-dataset"
+      )
+        ? "nldt-process-mcp"
+        : "nldt-poc-mcp",
+      highlight: "process",
+    };
+    if (!r.tool) {
+      pick.kind = "recipe";
+      pick.method = "orchestrator --recipe";
+    }
+    renderSchematic(pick);
+    renderToolPalette(pick);
+    renderRecipeDetail(r);
+  }
+
+  function renderRecipeDetail(r) {
+    const el = document.getElementById("recipeDetail");
+    if (!r) {
+      el.hidden = true;
+      el.classList.remove("open");
+      el.innerHTML = "";
+      return;
+    }
+    const stepsHtml = r.steps
+      .map(function (s, i) {
+        const arrow = i ? '<li class="arrow" aria-hidden="true">→</li>' : "";
+        return (
+          arrow +
+          "<li>" +
+          (s.id || "step") +
+          ": <code>" +
+          (s.processId || "?") +
+          "</code></li>"
+        );
+      })
+      .join("");
+    const tags = (r.tags || [])
+      .map(function (t) {
+        return '<span class="tag-pill">' + t + "</span>";
+      })
+      .join("");
+    const inputs = (r.inputKeys || [])
+      .map(function (k) {
+        return "<code>" + k + "</code>";
+      })
+      .join(" · ") || "—";
+    const outputs = (r.outputKeys || [])
+      .map(function (k) {
+        return "<code>" + k + "</code>";
+      })
+      .join(" · ") || "—";
+    el.hidden = false;
+    el.classList.add("open");
+    el.innerHTML =
+      "<h4>" +
+      r.title +
+      ' <span class="risk-badge ' +
+      r.riskLevel +
+      '">' +
+      r.riskLevel +
+      "</span></h4>" +
+      '<p class="rd-desc">' +
+      r.description +
+      "</p>" +
+      '<div class="rd-grid">' +
+      '<div class="rd-block"><div class="rd-label">Steps</div><ul class="recipe-steps">' +
+      stepsHtml +
+      "</ul></div>" +
+      '<div class="rd-block"><div class="rd-label">Inputs</div>' +
+      inputs +
+      "</div>" +
+      '<div class="rd-block"><div class="rd-label">Outputs</div>' +
+      outputs +
+      "</div>" +
+      '<div class="rd-block"><div class="rd-label">Skill / tool</div>' +
+      (r.skill ? "<code>" + r.skill + "</code>" : "—") +
+      (r.tool ? " · tool <code>" + r.tool + "</code>" : "") +
+      "</div>" +
+      '<div class="rd-block"><div class="rd-label">Tags</div>' +
+      (tags || "—") +
+      "</div>" +
+      '<div class="rd-block"><div class="rd-label">File</div><code>' +
+      r.path +
+      "</code></div>" +
+      "</div>";
+  }
+
+  function recipeMatchesFilter(r) {
+    if (recipeFilter === "all") return true;
+    if (recipeFilter === "high") return r.riskLevel === "high";
+    return r.group === recipeFilter;
+  }
+
+  function renderRecipeFilters() {
+    const box = document.getElementById("recipeFilters");
+    box.innerHTML = "";
+    RECIPE_FILTERS.forEach(function (f) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "recipe-filter" + (f.id === recipeFilter ? " active" : "");
+      b.textContent = f.label;
+      b.setAttribute("role", "tab");
+      b.addEventListener("click", function () {
+        recipeFilter = f.id;
+        renderRecipeFilters();
+        renderRecipes();
+      });
+      box.appendChild(b);
+    });
+  }
+
+  function renderRecipes() {
+    const list = document.getElementById("recipeList");
+    list.innerHTML = "";
+    RECIPES.filter(recipeMatchesFilter).forEach(function (r) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "recipe-row" + (selectedRecipeId === r.id ? " active" : "");
+      btn.setAttribute("data-id", r.id);
+      btn.innerHTML =
+        '<span class="risk-badge ' +
+        r.riskLevel +
+        '">' +
+        r.riskLevel +
+        '</span><span class="rname">' +
+        r.id +
+        '</span><span class="rmeta"><span class="rtitle">' +
+        r.title +
+        "</span> — " +
+        r.description.slice(0, 140) +
+        (r.description.length > 140 ? "…" : "") +
+        "</span>";
+      btn.addEventListener("click", function () {
+        selectRecipe(r);
+      });
+      list.appendChild(btn);
+    });
+  }
+
 
   function renderSkills() {
     const list = document.getElementById("skillList");
@@ -1565,26 +3140,59 @@
     }, 2400);
   }
 
-  function setPoc(id) {
+  function syncRoute(id, mode) {
+    try {
+      const url = new URL(window.location.href);
+      if (url.searchParams.get("poc") === id && mode !== "push") return;
+      url.searchParams.set("poc", id);
+      if (mode === "push") history.pushState({ poc: id }, "", url);
+      else history.replaceState({ poc: id }, "", url);
+    } catch (e) { /* ignore */ }
+  }
+
+  function showEdicStrip(id) {
+    const strip = document.getElementById("edicStrip");
+    if (strip) strip.hidden = id !== "edic";
+  }
+
+  function setPoc(id, opts) {
+    if (!TOURS[id]) return;
     activePoc = id;
     document.querySelectorAll(".tab").forEach(function (t) {
       t.classList.toggle("active", t.getAttribute("data-poc") === id);
     });
+    showEdicStrip(id);
+    if (id === "edic" || id === "breda") {
+      recipeFilter = "breda";
+      renderRecipeFilters();
+      renderRecipes();
+    }
+    syncRoute(id, opts && opts.push ? "push" : "replace");
     resetTour();
   }
 
   document.querySelectorAll(".node[data-id], .index-chip[data-id]").forEach(function (el) {
     el.addEventListener("click", function () {
       stopPlay();
-      selectLayer(el.getAttribute("data-id"));
+      const id = el.getAttribute("data-id");
+      selectLayer(id);
       renderSchematic(null);
       renderToolPalette(null);
+      if (id === "process") {
+        recipeFilter = "all";
+        selectedRecipeId = null;
+        renderRecipeFilters();
+        renderRecipes();
+        renderRecipeDetail(null);
+        const bar = document.getElementById("recipesBar");
+        if (bar) bar.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
     });
   });
 
   document.querySelectorAll(".tab").forEach(function (t) {
     t.addEventListener("click", function () {
-      setPoc(t.getAttribute("data-poc"));
+      setPoc(t.getAttribute("data-poc"), { push: true });
     });
   });
 
@@ -1622,10 +3230,29 @@
   });
 
   renderSkills();
+  renderRecipeFilters();
+  renderRecipes();
   renderStepRail();
   renderToolPalette(null);
-  selectLayer("host");
-  tourStatus.textContent = "Pick a PoC and press Play. Arrow keys · Esc = reset.";
+
+  (function initFromQuery() {
+    try {
+      const q = new URLSearchParams(window.location.search).get("poc");
+      if (q && TOURS[q]) {
+        activePoc = q;
+        setPoc(q);
+        return;
+      }
+    } catch (e) { /* ignore */ }
+    selectLayer("host");
+    showEdicStrip(activePoc);
+    tourStatus.textContent = "Pick a PoC and press Play. Arrow keys · Esc = reset. Routes: ?poc=lifecycle|router|breda|edic|utrecht|rijnland|eindhoven|minigim.";
+  })();
+
+  window.addEventListener("popstate", function () {
+    const q = new URLSearchParams(window.location.search).get("poc") || "lifecycle";
+    if (TOURS[q] && q !== activePoc) setPoc(q);
+  });
 })();
   </script>
 </body>

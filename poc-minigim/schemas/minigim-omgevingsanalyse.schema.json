@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "minigim-omgevingsanalyse.schema.json",
+  "title": "MiniGIM Omgevingsanalyse — run artifact",
+  "description": "Resultaat van één gebiedscheck-run: per Lijst-item een leveringsrecord met status, waarden, prov en risicovlaggen. V0-gevalideerd bij elke run.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["runId", "generatedAt", "miniGimVersions", "aoi", "items", "summary"],
+  "properties": {
+    "runId": { "type": "string" },
+    "generatedAt": { "type": "string" },
+    "miniGimVersions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lijst", "ils"],
+      "properties": {
+        "lijst": { "type": "string" },
+        "ils": { "type": "string" }
+      }
+    },
+    "aoi": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "btoM2", "bbox28992"],
+      "properties": {
+        "file": { "type": ["string", "null"] },
+        "btoM2": { "type": "number", "exclusiveMinimum": 0 },
+        "bbox28992": {
+          "type": "array", "minItems": 4, "maxItems": 4,
+          "items": { "type": "number" }
+        }
+      }
+    },
+    "items": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["lijstItemId", "thema", "onderdeel", "item", "prioriteit",
+                     "bindingStatus", "deliveredStatus", "values", "layerRef",
+                     "prov", "proxyNote", "manualPointer", "riskFlags", "notes"],
+        "properties": {
+          "lijstItemId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]*$" },
+          "thema": { "type": "string" },
+          "onderdeel": { "type": ["string", "null"] },
+          "item": { "type": ["string", "null"] },
+          "prioriteit": { "type": ["string", "null"], "enum": ["hoog", "midden", "laag", null] },
+          "bindingStatus": { "type": "string", "enum": ["auto", "partial", "manual", "out-of-scope"] },
+          "deliveredStatus": {
+            "type": "string",
+            "enum": ["delivered", "not-delivered", "manual-action", "nvt"]
+          },
+          "values": { "type": "object", "additionalProperties": true },
+          "layerRef": { "type": ["string", "null"] },
+          "prov": {
+            "type": ["object", "null"],
+            "additionalProperties": false,
+            "required": ["bronRegistratie", "bronLeverancier", "fetchedAt", "sha256", "protocol", "urls"],
+            "properties": {
+              "bronRegistratie": { "type": ["string", "null"] },
+              "bronLeverancier": { "type": ["string", "null"] },
+              "fetchedAt": { "type": ["string", "null"] },
+              "sha256": {
+                "type": ["null", "array"],
+                "items": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+              },
+              "protocol": { "type": "string" },
+              "urls": { "type": "array", "items": { "type": "string" } }
+            }
+          },
+          "proxyNote": { "type": ["string", "null"] },
+          "manualPointer": { "type": ["string", "null"] },
+          "riskFlags": { "type": "array", "items": { "type": "string" } },
+          "notes": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["itemCount", "bindingStatus", "deliveredStatus", "autoCoverageOfHoog", "hoogPrioriteitNotDelivered"],
+      "properties": {
+        "itemCount": { "type": "integer", "minimum": 1 },
+        "bindingStatus": { "type": "object", "additionalProperties": { "type": "integer" } },
+        "deliveredStatus": { "type": "object", "additionalProperties": { "type": "integer" } },
+        "autoCoverageOfHoog": {
+          "type": "object", "additionalProperties": false,
+          "required": ["hoog", "delivered", "pct"],
+          "properties": {
+            "hoog": { "type": "integer" },
+            "delivered": { "type": "integer" },
+            "pct": { "type": ["number", "null"] }
+          }
+        },
+        "hoogPrioriteitNotDelivered": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

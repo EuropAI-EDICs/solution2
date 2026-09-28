@@ -6,6 +6,7 @@ Index for the M4–M6 framing dossier. Hub:
 | File | Audience |
 |------|----------|
 | [route-citiverse-first.md](route-citiverse-first.md) | **Operating model** — route 3 (parallel EDICs, CitiVERSE lead) |
+| [breda-route-map.md](breda-route-map.md) | **Schematic route map** (EN) — Breda as the city illustration · tour [`?poc=edic`](../simulation/poc-mcp-skills.html?poc=edic) |
 | [fit-citiverse.md](fit-citiverse.md) | LDT CitiVERSE framing meeting (lead track) |
 | [fit-impacts.md](fit-impacts.md) | IMPACTS-EDIC framing meeting |
 | [fit-commons.md](fit-commons.md) | Digital Commons EDIC framing meeting |

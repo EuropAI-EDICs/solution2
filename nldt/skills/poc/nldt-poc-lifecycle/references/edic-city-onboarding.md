@@ -27,6 +27,8 @@ ninety-day sequence.
    in the page. Optional: publish the recipe to the Toolbox Marketplace
    with ValidationReport + PROV
    ([edic/citiverse-live-path.md](../../../../edic/citiverse-live-path.md)).
+   Worked example (Breda on route 3):
+   [edic/breda-route-map.md](../../../../edic/breda-route-map.md).
 
 ## Hard rules
 

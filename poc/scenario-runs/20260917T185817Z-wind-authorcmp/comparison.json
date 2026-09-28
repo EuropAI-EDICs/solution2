@@ -1,0 +1,94 @@
+{
+ "useCase": "wind",
+ "baselineRun": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T113234Z-wind",
+ "maxScenarios": 5,
+ "model": null,
+ "endpoint": null,
+ "api": null,
+ "deterministic": {
+  "accepted": 5,
+  "rejected": 5,
+  "rejectKinds": [
+   "budget-cut"
+  ],
+  "targetedRules": {
+   "FR-W-08": [
+    "drop",
+    "set_buffer_distance_m"
+   ],
+   "FR-W-10": [
+    "set_buffer_distance_m",
+    "set_buffer_distance_m",
+    "set_semantics",
+    "set_semantics",
+    "set_semantics"
+   ]
+  },
+  "basisTypes": [
+   "hypothetical",
+   "norm_variance",
+   "policy_variant"
+  ],
+  "scenarioIds": [
+   "SC-FR-W-08-DROP",
+   "SC-FR-W-08-SETBACK500",
+   "SC-FR-W-10-HARD",
+   "SC-FR-W-10-HARD-HALF",
+   "SC-FR-W-10-HARD-DOUBLE"
+  ],
+  "seconds": 0.005
+ },
+ "llm": null,
+ "llmError": "LDT_SCENARIO_LLM_ENDPOINT not set — LLM leg skipped",
+ "hybrid": {
+  "accepted": 5,
+  "rejected": 6,
+  "rejectKinds": [
+   "budget-cut",
+   "llm-unavailable"
+  ],
+  "targetedRules": {
+   "FR-W-08": [
+    "drop",
+    "set_buffer_distance_m"
+   ],
+   "FR-W-10": [
+    "set_buffer_distance_m",
+    "set_buffer_distance_m",
+    "set_semantics",
+    "set_semantics",
+    "set_semantics"
+   ]
+  },
+  "basisTypes": [
+   "hypothetical",
+   "norm_variance",
+   "policy_variant"
+  ],
+  "scenarioIds": [
+   "SC-FR-W-08-DROP",
+   "SC-FR-W-08-SETBACK500",
+   "SC-FR-W-10-HARD",
+   "SC-FR-W-10-HARD-HALF",
+   "SC-FR-W-10-HARD-DOUBLE"
+  ],
+  "seconds": 0.001,
+  "model": "open-model-local"
+ },
+ "overlap": {
+  "bothTarget": [],
+  "llmOnly": [],
+  "deterministicOnly": [
+   "FR-W-08",
+   "FR-W-10"
+  ],
+  "hybridAccepted": [
+   "SC-FR-W-08-DROP",
+   "SC-FR-W-08-SETBACK500",
+   "SC-FR-W-10-HARD",
+   "SC-FR-W-10-HARD-HALF",
+   "SC-FR-W-10-HARD-DOUBLE"
+  ],
+  "floorIntact": true
+ }
+}

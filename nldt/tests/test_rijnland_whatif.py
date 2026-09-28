@@ -146,7 +146,8 @@ def test_build_whatif_map_html_has_data_and_modes(tmp_path):
     html = dest.read_text(encoding="utf-8")
     assert "window.__DATA__" in html
     assert "leaflet@1.9.4" in html
-    assert "basemaps.cartocdn.com" in html
+    assert "service.pdok.nl/brt/achtergrondkaart" in html
+    assert "basemaps.cartocdn.com" not in html
     assert '"defaultMode": "after"' in html or '"defaultMode":"after"' in html
     assert "before" in html and "after" in html and "delta" in html
     assert "Boezempeilen +5 cm" in html

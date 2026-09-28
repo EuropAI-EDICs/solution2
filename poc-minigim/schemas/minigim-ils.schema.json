@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "minigim-ils.schema.json",
+  "title": "MiniGIM ILS (Informatie Leverings Specificatie) — pinned registry",
+  "description": "Machine-readable form of the MiniGIM ILS 'Input Grex' hierarchy (minigim.nl): Niveau 0-3 gebiedsindeling nodes with IfcExportAs mapping and EPset_minigim property set. Generated from the pinned Excel source by tools/convert_minigim_xlsx.py. The ILS is the norm for the draft gebiedsindeling derivation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "registryVersion",
+    "standard",
+    "artifact",
+    "name",
+    "purpose",
+    "sourceVersion",
+    "sourceUrl",
+    "sourceSha256",
+    "retrievedAt",
+    "levels",
+    "nodes",
+    "epset",
+    "notes",
+    "openIssues",
+    "changeLog"
+  ],
+  "properties": {
+    "registryVersion": { "type": "string" },
+    "standard": { "const": "MiniGIM" },
+    "artifact": { "const": "ils" },
+    "name": { "type": "string" },
+    "purpose": { "type": "string" },
+    "sourceVersion": { "type": "string" },
+    "sourceUrl": { "type": "string" },
+    "sourceSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "retrievedAt": { "type": "string" },
+    "levels": {
+      "type": "array",
+      "const": ["Niveau 0", "Niveau 1", "Niveau 2", "Niveau 3"]
+    },
+    "nodes": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/node" } },
+    "epset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "properties"],
+      "properties": {
+        "id": { "const": "EPset_minigim" },
+        "properties": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "mapsTo", "sourceRow"],
+            "properties": {
+              "name": { "type": "string" },
+              "mapsTo": { "type": ["string", "null"] },
+              "sourceRow": { "type": "integer", "minimum": 1 }
+            }
+          }
+        }
+      }
+    },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "openIssues": { "type": "array", "items": { "type": "string" } },
+    "changeLog": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["datum", "door", "opmerking"],
+        "properties": {
+          "datum": { "type": "string" },
+          "door": { "type": "string" },
+          "opmerking": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "level", "label", "ifcExportAs", "parent", "sourceRow", "notes"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^n[0-3]\\.[a-z0-9-]+$" },
+        "level": { "type": "integer", "minimum": 0, "maximum": 3 },
+        "label": { "type": "string", "minLength": 1 },
+        "ifcExportAs": { "type": ["string", "null"] },
+        "parent": { "type": ["string", "null"] },
+        "sourceRow": { "type": "integer", "minimum": 1 },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

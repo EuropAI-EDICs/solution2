@@ -51,6 +51,7 @@ def seed_records() -> list[dict[str, Any]]:
         ("rijnland-peil-conflict", "Rijnland peil conflict (H3)"),
         ("rijnland-peil-whatif", "Rijnland peilen what-if (CDC)"),
         ("bp2op-transform", "Eindhoven bp2op transform"),
+        ("minigim-gebiedscheck-run", "MiniGIM gebiedscheck (Lijst + ILS draft)"),
         ("lake-publish-dataset", "Publish lake dataset to Data Space (ODRL stub)"),
         ("validate-artifact", "Validate artifact against nLDT/PoC JSON Schema"),
         ("source-monitor-probe", "Source monitor probe (open-data continuity)"),

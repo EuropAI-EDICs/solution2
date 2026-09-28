@@ -1,0 +1,75 @@
+{
+ "useCase": "zon",
+ "baselineRun": "/Users/marc/Projecten/ldttoolbox/poc/runs/20260830T142439Z-zon",
+ "maxScenarios": 10,
+ "model": "glm-5.3",
+ "endpoint": "https://api.z.ai/api/coding/paas/v4",
+ "api": "openai",
+ "deterministic": {
+  "accepted": 3,
+  "rejected": 0,
+  "rejectKinds": [],
+  "targetedRules": {
+   "FR-Z-03": [
+    "drop",
+    "set_buffer_distance_m"
+   ],
+   "FR-Z-04": [
+    "set_semantics"
+   ]
+  },
+  "basisTypes": [
+   "hypothetical",
+   "policy_variant"
+  ],
+  "scenarioIds": [
+   "SC-FR-Z-03-DROP",
+   "SC-FR-Z-03-SETBACK500",
+   "SC-FR-Z-04-HARD"
+  ],
+  "seconds": 0.005
+ },
+ "llm": {
+  "accepted": 7,
+  "rejected": 0,
+  "rejectKinds": [],
+  "targetedRules": {
+   "FR-Z-03": [
+    "drop",
+    "set_buffer_distance_m",
+    "set_buffer_distance_m",
+    "set_buffer_distance_m",
+    "set_semantics"
+   ],
+   "FR-Z-04": [
+    "drop",
+    "set_semantics"
+   ]
+  },
+  "basisTypes": [
+   "hypothetical",
+   "norm_variance",
+   "policy_variant"
+  ],
+  "scenarioIds": [
+   "SC-Z-EXCL-BUFFER-300",
+   "SC-Z-EXCL-BUFFER-500",
+   "SC-Z-COMP-AS-EXCL",
+   "SC-Z-EXCL-AS-COMP",
+   "SC-Z-DROP-EXCL",
+   "SC-Z-DROP-COMP",
+   "SC-Z-NITROGEN-HYP"
+  ],
+  "seconds": 17.704,
+  "model": "glm-5.3"
+ },
+ "llmError": null,
+ "overlap": {
+  "bothTarget": [
+   "FR-Z-03",
+   "FR-Z-04"
+  ],
+  "llmOnly": [],
+  "deterministicOnly": []
+ }
+}

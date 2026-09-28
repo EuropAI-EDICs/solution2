@@ -21,7 +21,8 @@ Tools: `run_peil_conflict`, `run_peil_conflict_live`.
 | `rijnland-peilen-archive` | mNAP | Local `data/peilen/peilen.json` (daily medians) |
 
 Fetch/merge: `poc-rijnland/scripts/fetch_peilen.py`.  
-Render: `poc-rijnland/run_peilen.py` → time page + `hexmap-peilen-tijd.html`.
+Render: `poc-rijnland/run_peilen.py` → time page + `hexmap-peilen-tijd.html`.  
+Lake ingest (`timeseries-open-ingest`) defaults to **all** stations in the archive (`maxPeilStations` omit/≤0); set a positive integer only to cap for smoke tests.
 
 ## Lake / CDC
 

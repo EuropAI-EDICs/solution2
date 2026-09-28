@@ -12,6 +12,7 @@ month 3; Grant Agreement 101298736) on **this workspace**.
 | Fit statements | [`edic/fit-citiverse.md`](edic/fit-citiverse.md) · [`edic/fit-impacts.md`](edic/fit-impacts.md) · [`edic/fit-commons.md`](edic/fit-commons.md) |
 | Live Toolbox path | [`edic/citiverse-live-path.md`](edic/citiverse-live-path.md) |
 | Route 3 operating model | [`edic/route-citiverse-first.md`](edic/route-citiverse-first.md) |
+| Schematic route map (Breda) | [`edic/breda-route-map.md`](edic/breda-route-map.md) · [`simulation/edic-breda-roadmap.html`](simulation/edic-breda-roadmap.html) |
 | IMPACTS framework | [`edic/impacts-framework.md`](edic/impacts-framework.md) |
 | L2 consume checklist | [`edic/l2-infrastructure.md`](edic/l2-infrastructure.md) |
 | Stage gates | [`edic/stage-gates.md`](edic/stage-gates.md) |

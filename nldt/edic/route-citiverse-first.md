@@ -147,6 +147,8 @@ live asset.
    [skills/poc/nldt-poc-lifecycle/references/edic-city-onboarding.md](../skills/poc/nldt-poc-lifecycle/references/edic-city-onboarding.md).
 3. **`breda-scan-qa` or `breda-five-value-scan`** — public sources, no
    secrets, cite-or-abstain. Candidate for CitCom.AI/sandbox (M9–M24).
+   Schematic (English, Breda as the city illustration):
+   [breda-route-map.md](breda-route-map.md).
 4. **Utrecht scenario-sweep / Rijnland what-if / Eindhoven bp2op** — only
    after IMPACTS declarations are at least `proposed` (already on disk)
    and HITL is visible in the demo.

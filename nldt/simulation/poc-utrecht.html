@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>nLDT — Utrecht opportunity & scenarios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper: #e8e2d6;
+      --paper-deep: #ddd5c5;
+      --ink: #1a2428;
+      --ink-soft: #3d4a50;
+      --muted: #6a757a;
+      --teal: #0d6e6e;
+      --teal-bright: #149494;
+      --teal-wash: rgba(13, 110, 110, 0.12);
+      --sand: #c4b8a0;
+      --focus: #c45c26;
+      --focus-wash: rgba(196, 92, 38, 0.15);
+      --line: rgba(26, 36, 40, 0.18);
+      --panel: #f4efe6;
+      --radius: 4px;
+      --font-ui: "DM Sans", system-ui, sans-serif;
+      --font-display: "Fraunces", Georgia, serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-ui);
+      color: var(--ink);
+      background-color: var(--paper);
+      background-image:
+        linear-gradient(rgba(26, 36, 40, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(26, 36, 40, 0.03) 1px, transparent 1px),
+        radial-gradient(ellipse 120% 80% at 10% -20%, rgba(13, 110, 110, 0.14), transparent 50%),
+        radial-gradient(ellipse 80% 60% at 100% 0%, rgba(196, 92, 38, 0.08), transparent 45%);
+      background-size: 28px 28px, 28px 28px, 100% 100%, 100% 100%;
+      min-height: 100vh;
+      line-height: 1.45;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 1.5rem 1.25rem 2.5rem; }
+    .back { font-size: 0.78rem; color: var(--muted); text-decoration: none; }
+    .back:hover { color: var(--teal); }
+    .hero { margin: 1.25rem 0 1.5rem; }
+    .brand {
+      font-family: var(--font-display);
+      font-size: clamp(2.1rem, 5vw, 3rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      color: var(--ink);
+    }
+    .brand span { color: var(--teal); }
+    .headline {
+      margin-top: 0.65rem;
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: var(--ink-soft);
+      max-width: 36rem;
+    }
+    .lede { margin-top: 0.45rem; font-size: 0.92rem; color: var(--muted); max-width: 38rem; }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; align-items: center; }
+    button, .btn {
+      font-family: var(--font-ui);
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 0.45rem 0.85rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    button.primary, .btn.primary {
+      background: var(--teal);
+      color: #f7f3eb;
+      border-color: var(--teal);
+    }
+    button.ghost, .btn.ghost { background: transparent; color: var(--ink-soft); }
+    button.ghost:hover, .btn.ghost:hover { border-color: var(--teal); color: var(--teal); }
+    .stage {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    @media (min-width: 800px) {
+      .stage { grid-template-columns: 1fr 1.1fr; align-items: start; }
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 0.9rem 1rem;
+      min-height: 12rem;
+    }
+    .panel-kicker {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .panel h2 {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 0.25rem 0 0.45rem;
+    }
+    .panel .body { font-size: 0.88rem; color: var(--ink-soft); }
+    .trust {
+      margin-top: 0.7rem;
+      padding: 0.45rem 0.55rem;
+      background: var(--focus-wash);
+      border-left: 3px solid var(--focus);
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+    }
+    .paths { margin-top: 0.65rem; list-style: none; font-family: ui-monospace, Menlo, monospace; font-size: 0.72rem; color: var(--teal); }
+    .paths li { margin: 0.15rem 0; }
+    .tour-box {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fffdf8;
+      padding: 0.85rem 0.95rem;
+    }
+    .tour-box h3 {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .tour-controls { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin-bottom: 0.55rem; }
+    .tour-status { font-size: 0.78rem; color: var(--ink-soft); width: 100%; margin-top: 0.25rem; }
+    .step-rail { display: flex; gap: 0.35rem; margin: 0.5rem 0 0.75rem; flex-wrap: wrap; }
+    .step-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--sand);
+    }
+    .step-dot.done { background: var(--teal); }
+    .step-dot.now { background: var(--focus); transform: scale(1.35); }
+    .stats {
+      margin-top: 1.25rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+      gap: 0.55rem;
+    }
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fffdf8;
+      padding: 0.65rem 0.75rem;
+    }
+    .stat .n {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--teal);
+      line-height: 1.1;
+    }
+    .stat .l { font-size: 0.72rem; color: var(--muted); margin-top: 0.2rem; }
+    .foot {
+      margin-top: 1.75rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .foot a { color: var(--teal); }
+    .foot code { font-family: ui-monospace, Menlo, monospace; font-size: 0.7rem; }
+
+
+    .demos-bar {
+      margin-top: 1.35rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+    }
+    .demos-bar h3 {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      margin-bottom: 0.55rem;
+    }
+    .demo-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .demo-links a {
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      color: var(--teal);
+      border: 1px solid var(--line);
+      background: #fffdf8;
+      padding: 0.35rem 0.6rem;
+      border-radius: var(--radius);
+    }
+    .demo-links a:hover { border-color: var(--teal); }
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="index.html">← Simulations hub</a>
+    <header class="hero">
+      <p class="brand">nLDT <span>Utrecht</span></p>
+      <p class="headline">Where can wind, solar, or forest stand under the provincial ordinance?</p>
+      <p class="lede">Three tracks on one instrument pipeline. S7 hybrid proposes scenarios; the sweep disposes offline against a baseline opportunity-map.</p>
+      <div class="cta-row">
+        <button type="button" class="primary" id="btnPlay">Play story</button>
+        <button type="button" class="ghost" id="btnNext">Next</button>
+        <button type="button" class="ghost" id="btnReset">Reset</button>
+        <a class="btn ghost" href="poc-mcp-skills.html?poc=utrecht">Architecture tour →</a>
+      </div>
+    </header>
+
+    <div class="stage">
+      <div class="tour-box">
+        <h3>Story steps</h3>
+        <div class="tour-controls">
+          <p class="tour-status" id="tourStatus">Press Play to walk skill → tool → process → engine.</p>
+        </div>
+        <div class="step-rail" id="stepRail"></div>
+        <ul class="paths" id="stepList" style="color:var(--ink-soft)"></ul>
+      </div>
+      <aside class="panel" id="panel">
+        <div class="panel-kicker" id="panelKicker">Overview</div>
+        <h2 id="panelTitle">Utrecht opportunity & scenarios</h2>
+        <p class="body" id="panelBody">Three tracks on one instrument pipeline. S7 hybrid proposes scenarios; the sweep disposes offline against a baseline opportunity-map.</p>
+        <div class="trust" id="panelTrust">AI proposes · pipeline disposes · human decides. Reject ledgers retained. High risk on author/sweep recipes.</div>
+        <ul class="paths" id="panelPaths"></ul>
+      </aside>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="n">3</div><div class="l">tracks (wind · zon · bos)</div></div>
+      <div class="stat"><div class="n">S7</div><div class="l">hybrid author</div></div>
+      <div class="stat"><div class="n">A/B/C</div><div class="l">planes</div></div>
+      <div class="stat"><div class="n">high</div><div class="l">recipe riskLevel</div></div>
+    </div>
+
+
+    <section class="demos-bar" aria-label="Utrecht demos">
+      <h3>Demos</h3>
+      <div class="demo-links">
+        <a href="utrecht-flow-demo.html">Agent flow</a>
+        <a href="building-agent-demo.html">Building + zoning</a>
+        <a href="agent-3d-demo.html">Agent + 3D BAG</a>
+        <a href="agent-flow-demo.html">GIS overlay flow</a>
+        <a href="mock-overlay-demo.html">Overlay mock</a>
+        <a href="web3d-viewer.html">3D BAG viewer</a>
+        <a href="poc-mcp-skills.html?poc=utrecht">Architecture tour</a>
+      </div>
+    </section>
+
+    <p class="foot">
+      Engine <code>poc/</code> · recipe <code>utrecht-scenario-author</code> ·
+      skill <code>skill://nldt/poc/utrecht-scenario/SKILL.md</code> ·
+      <a href="../20-poc-mcp-skills.md">Architecture doc 20</a>
+    </p>
+  </div>
+  <script>
+(function () {
+  "use strict";
+  const STEPS = [
+  {
+    "label": "Read utrecht-scenario skill",
+    "kicker": "Agent Skill",
+    "title": "utrecht-scenario",
+    "body": "Names propose_scenarios and run_scenario_sweep. Points at Plane A opportunity-map when needed.",
+    "trust": "Skills never write zones.",
+    "paths": [
+      "skill://nldt/poc/utrecht-scenario/SKILL.md"
+    ]
+  },
+  {
+    "label": "Propose scenarios (S7)",
+    "kicker": "MCP Tool",
+    "title": "propose_scenarios",
+    "body": "Hybrid floor + LLM explorer proposals from a baseline run. Override author=auto|llm|hybrid.",
+    "trust": "Reject ledger · no zone writes.",
+    "paths": [
+      "tools/call propose_scenarios",
+      "process scenario-author-propose",
+      "recipe utrecht-scenario-author"
+    ]
+  },
+  {
+    "label": "Sweep scenarios",
+    "kicker": "MCP Tool",
+    "title": "run_scenario_sweep",
+    "body": "Offline sweep against a baseline opportunity-map (Plane B).",
+    "trust": "riskLevel high → HITL unless auto-approved.",
+    "paths": [
+      "tools/call run_scenario_sweep",
+      "process scenario-sweep",
+      "recipe utrecht-scenario-sweep"
+    ]
+  },
+  {
+    "label": "Engine poc/",
+    "kicker": "PoC engine",
+    "title": "poc/",
+    "body": "Opportunity-map, crosstrack, scenario-runs under poc/. Cite only norms present in artefacts.",
+    "trust": "Critic V0–V4 shared with other PoCs.",
+    "paths": [
+      "poc/runs/",
+      "poc/scenario-runs/"
+    ]
+  }
+];
+  let i = -1;
+  let playing = false;
+  let timer = null;
+
+  const tourStatus = document.getElementById("tourStatus");
+  const stepRail = document.getElementById("stepRail");
+  const stepList = document.getElementById("stepList");
+  const panelKicker = document.getElementById("panelKicker");
+  const panelTitle = document.getElementById("panelTitle");
+  const panelBody = document.getElementById("panelBody");
+  const panelTrust = document.getElementById("panelTrust");
+  const panelPaths = document.getElementById("panelPaths");
+
+  function renderRail() {
+    stepRail.innerHTML = "";
+    STEPS.forEach(function (_, idx) {
+      const d = document.createElement("span");
+      d.className = "step-dot";
+      if (idx < i) d.classList.add("done");
+      if (idx === i) d.classList.add("now");
+      stepRail.appendChild(d);
+    });
+    stepList.innerHTML = "";
+    STEPS.forEach(function (s, idx) {
+      const li = document.createElement("li");
+      li.textContent = (idx + 1) + ". " + s.label;
+      if (idx === i) li.style.color = "var(--focus)";
+      else if (idx < i) li.style.color = "var(--teal)";
+      stepList.appendChild(li);
+    });
+  }
+
+  function apply(idx) {
+    if (idx < 0 || idx >= STEPS.length) return;
+    i = idx;
+    const s = STEPS[i];
+    panelKicker.textContent = s.kicker;
+    panelTitle.textContent = s.title;
+    panelBody.innerHTML = s.body;
+    panelTrust.textContent = s.trust;
+    panelPaths.innerHTML = "";
+    (s.paths || []).forEach(function (p) {
+      const li = document.createElement("li");
+      li.textContent = p;
+      panelPaths.appendChild(li);
+    });
+    tourStatus.innerHTML = "<strong>Step " + (i + 1) + "/" + STEPS.length + "</strong> — " + s.label;
+    renderRail();
+  }
+
+  function stop() {
+    playing = false;
+    if (timer) { clearInterval(timer); timer = null; }
+    document.getElementById("btnPlay").textContent = "Play story";
+  }
+
+  function reset() {
+    stop();
+    i = -1;
+    panelKicker.textContent = "Overview";
+    panelTitle.textContent = "Utrecht opportunity & scenarios";
+    panelBody.textContent = "Three tracks on one instrument pipeline. S7 hybrid proposes scenarios; the sweep disposes offline against a baseline opportunity-map.";
+    panelTrust.textContent = "AI proposes \u00b7 pipeline disposes \u00b7 human decides. Reject ledgers retained. High risk on author/sweep recipes.";
+    panelPaths.innerHTML = "";
+    tourStatus.textContent = "Press Play to walk skill → tool → process → engine.";
+    renderRail();
+  }
+
+  function next() {
+    if (i + 1 >= STEPS.length) {
+      stop();
+      tourStatus.innerHTML = "<strong>Story complete.</strong> Open the architecture tour for the full MCP stack.";
+      return;
+    }
+    apply(i + 1);
+  }
+
+  function start() {
+    if (playing) { stop(); return; }
+    if (i < 0) apply(0);
+    else next();
+    playing = true;
+    document.getElementById("btnPlay").textContent = "Pause";
+    timer = setInterval(function () {
+      if (i + 1 >= STEPS.length) {
+        stop();
+        tourStatus.innerHTML = "<strong>Story complete.</strong>";
+        return;
+      }
+      apply(i + 1);
+    }, 2600);
+  }
+
+  document.getElementById("btnPlay").addEventListener("click", start);
+  document.getElementById("btnNext").addEventListener("click", function () { stop(); if (i < 0) apply(0); else next(); });
+  document.getElementById("btnReset").addEventListener("click", reset);
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight") { e.preventDefault(); stop(); if (i < 0) apply(0); else next(); }
+    if (e.key === "ArrowLeft") { e.preventDefault(); stop(); if (i > 0) apply(i - 1); }
+    if (e.key === "Escape") reset();
+  });
+  renderRail();
+})();
+  </script>
+</body>
+</html>

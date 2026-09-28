@@ -7,7 +7,11 @@
 > [`skills/poc/`](skills/poc/).
 >
 > **Interactive tour (EN):** open [`simulation/poc-mcp-skills.html`](simulation/poc-mcp-skills.html)
-> in a browser (layers + PoC walkthroughs: Router, Breda, Utrecht, Rijnland).
+> (`?poc=lifecycle|router|breda|edic|utrecht|rijnland|eindhoven`).
+> EDIC schematic with Breda as city illustration: `?poc=edic` and
+> [`simulation/edic-breda-roadmap.html`](simulation/edic-breda-roadmap.html).
+> Hub with **all** PoC demos:
+> [`simulation/index.html`](simulation/index.html) (stories, agent flows, Rijnland map, Utrecht 3D/GIS).
 
 ## Problem
 
@@ -83,6 +87,90 @@ that installs the server discovers companion playbooks with the tools.
 | `breda-whatif` | *(later)* | LangGraph / process TBD | — |
 
 Skeleton ships **router + lifecycle + breda-scan + utrecht-scenario + rijnland-peilen**; other rows are reserved names.
+
+## Recipes (Cookbook) in detail
+
+A **recipe** is the governed playbook the Cook executes: ordered steps, each bound to a
+**processId**, with typed inputs/outputs and a `riskLevel`. Skills teach *when* to run;
+tools alias *one* process execution; recipes are what the orchestrator / cookbook run
+end-to-end (HITL, Critic, PROV). See also [04-recipes-and-processes.md](04-recipes-and-processes.md).
+
+```mermaid
+flowchart LR
+  Skill[Agent_Skill]
+  Tool[MCP_Tool]
+  Recipe[Recipe_Cookbook]
+  Process[OGC_Process]
+  Engine[PoC_engine]
+  Skill -->|"names tools"| Tool
+  Tool -->|"POST execution"| Process
+  Recipe -->|"steps bind"| Process
+  Process --> Engine
+```
+
+### Anatomy (`nldt/recipes/<id>.json`)
+
+| Field | Meaning |
+|-------|---------|
+| `id` / `title` / `description` | Catalog identity |
+| `requiredProcesses` | Process ids that must exist |
+| `inputs` / `outputs` | Typed recipe contract (`${recipe.inputs.*}` wired into steps) |
+| `steps[]` | Ordered Cook steps: `processId`, step `inputs`, `backend` |
+| `riskLevel` | `low` \| `medium` \| `high` — **high** → plan HITL unless auto-approved |
+| `tags` | Discovery (`poc-breda`, `cdc`, `phase-6`, …) |
+| `cookbookUri` | Cookbook service URL |
+
+PoC MCP tools usually skip the multi-step recipe runner and call **one** process directly;
+running the **recipe** (orchestrator / cookbook) still applies uniform Critic + PROV + HITL.
+
+### Lifecycle recipes (discover → lake → scenarios)
+
+| Recipe id | risk | Process step(s) | Role |
+|-----------|------|-----------------|------|
+| `source-monitor-run` | **high** | `source-monitor-probe` | Continuity probes; never auto-applies registry (V4) |
+| `donl-harvest-run` | medium | `donl-harvest-run` | data.overheid.nl → bronze + DCAT |
+| `donl-harvest-publish` | **high** | `donl-harvest-run` (+ publish) | Harvest + Data Space offer |
+| `timeseries-open-ingest` | medium | `timeseries-ingest-run` | Rijnland peilen (**all stations** by default) + WKP + KNMI + CBS → silver |
+| `lake-publish-offer` | **high** | `lake-publish-dataset` | ODRL / EDC offer (HITL if restricted) |
+
+### Domain PoC recipes
+
+| Recipe id | risk | Process | Skill / tools |
+|-----------|------|---------|---------------|
+| `breda-five-value-scan` | medium | `breda-scan-run` | `breda-scan` / `run_value_scan` |
+| `breda-scan-qa` | medium | `breda-scan-query` | `breda-scan` / `ask_scan` |
+| `utrecht-scenario-author` | **high** | `scenario-author-propose` | `utrecht-scenario` / `propose_scenarios` |
+| `utrecht-scenario-sweep` | **high** | `scenario-sweep` | `utrecht-scenario` / `run_scenario_sweep` |
+| `utrecht-opportunity-map` | **high** | `opportunity-map-run` | reserved skill / `run_opportunity_map` |
+| `multi-track-crosstrack` | **high** | `crosstrack-overlay` | reserved / `run_crosstrack` |
+| `rijnland-peil-conflict` | medium | `rijnland-peil-conflict` | `rijnland-peilen` / `run_peil_conflict` |
+| `rijnland-peil-conflict-live` | **high** | `rijnland-peil-conflict` | CDC lake snapshot path |
+| `rijnland-peil-whatif` | **high** | `rijnland-peil-whatif` | `run_peil_whatif` (CDC + map) |
+| `eindhoven-bp2op` | **high** | `bp2op-transform` | reserved / `run_bp2op_transform` |
+
+### Spatial reference recipes
+
+| Recipe id | risk | Steps (processes) |
+|-----------|------|-------------------|
+| `spatial-overlay-analysis` | low | fetch ×2 → intersect → area stats |
+| `beleidskompas-omgevingsanalyse` | low | same overlay pattern, Beleidskompas tags |
+| `hex-overlay-analysis` | low | fetch ×2 → H3 cells → join → Moran's I |
+
+### How to run
+
+```bash
+# Recipe via orchestrator (Critic + PROV + HITL)
+cd nldt
+PYTHONPATH=. NLDT_OFFLINE=1 python -m agents.orchestrator.run \
+  --recipe timeseries-open-ingest --auto-approve-hitl
+
+# Single process via PoC MCP tool (thin alias)
+# tools/call run_peil_whatif { "delta_m": 0.05, "layer": "boezem" }
+```
+
+Interactive explorer: [`simulation/poc-mcp-skills.html`](simulation/poc-mcp-skills.html) → **Recipes** panel
+(risk, steps, inputs, linked skill). Lifecycle skill detail:
+[`skills/poc/nldt-poc-lifecycle/references/recipes.md`](skills/poc/nldt-poc-lifecycle/references/recipes.md).
 
 ## On-disk layout
 

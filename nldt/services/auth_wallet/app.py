@@ -9,12 +9,21 @@ from typing import Any
 from fastapi import FastAPI, Form, HTTPException
 from pydantic import BaseModel
 
-from services.auth_wallet.backend import MockBackend, VerifierBackend
+from services.auth_wallet.backend import VerifierBackend, select_backend
 from services.common.schema import validate_instance
 
 app = FastAPI(title="nLDT Wallet Auth Edge", version="0.1.0")
 
-_BACKEND: VerifierBackend = MockBackend()
+# Verifier selection (W6a): NLDT_WALLET_VERIFIER=mock|keycloak, resolved
+# lazily per request (same re-read pattern as the trust policy) so flipping
+# the env needs no restart. Tests assign a backend directly; None = env.
+_BACKEND: VerifierBackend | None = None
+
+
+def _backend() -> VerifierBackend:
+    if _BACKEND is not None:
+        return _BACKEND
+    return select_backend()
 # SHA-256(token) -> (expires_at, claims)
 _TOKENS: dict[str, tuple[float, dict[str, Any]]] = {}
 
@@ -30,9 +39,13 @@ def _ttl() -> int:
 @app.post("/present")
 async def present(body: PresentRequest) -> dict[str, Any]:
     try:
-        claims = await _BACKEND.verify(body.presentation)
+        claims = await _backend().verify(body.presentation)
     except ValueError as exc:
         raise HTTPException(status_code=401, detail=str(exc)) from exc
+    except (RuntimeError, OSError) as exc:
+        # Unavailable verifier/registry/config: fail closed but distinguish
+        # infrastructure errors from rejected presentations (503, not 401).
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
     claims["exp"] = time.time() + _ttl()
     validate_instance(claims, "wallet-claims.schema.json")
     token = secrets.token_hex(16)
