@@ -41,6 +41,7 @@ docs; this file wires them together.
 | EuropAI WP4 EDIC handover | [21-europai-edic-handover.md](21-europai-edic-handover.md) · schematic [edic/breda-route-map.md](edic/breda-route-map.md) · tour `?poc=edic` |
 | Dual-audience front doors (planners + public, plan) | [22-dual-audience-spatial-planning.md](22-dual-audience-spatial-planning.md) |
 | DTAS alignment (Digital Twin App Store vision, plan) | [23-dtas-alignment.md](23-dtas-alignment.md) |
+| Zicht op Nederland national vision alignment (plan) | [24-zichtopnl-alignment.md](24-zichtopnl-alignment.md) |
 | Bibliography | [references/bibliography.md](references/bibliography.md) |
 | Quick start / ports | [README.md](README.md) |
 

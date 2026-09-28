@@ -37,6 +37,7 @@ Generic reference implementation of a **Dutch Local Digital Twin (nLDT)** for ag
 | [21-europai-edic-handover.md](21-europai-edic-handover.md) | **EuropAI WP4:** asset-push map, EDIC fit statements, CitiVERSE live path |
 | [22-dual-audience-spatial-planning.md](22-dual-audience-spatial-planning.md) | **Plan:** one governed core, front doors for planners and the public (S11, DA-0…4) |
 | [23-dtas-alignment.md](23-dtas-alignment.md) | **Plan:** DTAS alignment — recipes as DTAS modules, module passport, Marketplace (DT-0…4) |
+| [24-zichtopnl-alignment.md](24-zichtopnl-alignment.md) | **Plan:** Zicht op Nederland meerjarenvisie as the national frame (datawaardeketen, DTFL doctrine) |
 
 ## Code
 
