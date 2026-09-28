@@ -40,6 +40,7 @@ docs; this file wires them together.
 | Interactive architecture (URL routes) | [`simulation/poc-mcp-skills.html`](simulation/poc-mcp-skills.html) (`?poc=lifecycle\|router\|breda\|edic\|utrecht\|rijnland\|eindhoven`) |
 | EuropAI WP4 EDIC handover | [21-europai-edic-handover.md](21-europai-edic-handover.md) · schematic [edic/breda-route-map.md](edic/breda-route-map.md) · tour `?poc=edic` |
 | Dual-audience front doors (planners + public, plan) | [22-dual-audience-spatial-planning.md](22-dual-audience-spatial-planning.md) |
+| DTAS alignment (Digital Twin App Store vision, plan) | [23-dtas-alignment.md](23-dtas-alignment.md) |
 | Bibliography | [references/bibliography.md](references/bibliography.md) |
 | Quick start / ports | [README.md](README.md) |
 

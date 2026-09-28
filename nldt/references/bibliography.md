@@ -18,5 +18,6 @@
 | Simpl programme | https://simpl-programme.ec.europa.eu/ |
 | W3C PROV-O | https://www.w3.org/TR/prov-o/ |
 | DCAT-AP | https://joinup.ec.europa.eu/collection/semantic-interoperability-community-semic/solution/dcat-application-profile-data-portals-europe |
+| Dutch Vision on a European Digital Twin App Store (DTAS) | https://www.zichtopnl.nl/documenten/handlerdownloadfiles.ashx?idnv=3167953 |
 
 Local: [nldt-testbed2026-phase2-invitation-to-tender.pdf](../nldt-testbed2026-phase2-invitation-to-tender.pdf)
