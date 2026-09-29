@@ -16,6 +16,21 @@ Open via `file://` or `python3 -m http.server` from this directory.
 | **Rijnland** | [`poc-rijnland.html`](poc-rijnland.html) | [`rijnland-flow-demo.html`](rijnland-flow-demo.html) | [`rijnland-whatif-demo.html`](rijnland-whatif-demo.html) (Leaflet) + `?poc=rijnland` |
 | **Eindhoven** | [`poc-eindhoven.html`](poc-eindhoven.html) | [`eindhoven-flow-demo.html`](eindhoven-flow-demo.html) | [`eindhoven-report-demo.html`](eindhoven-report-demo.html) · tour `?poc=eindhoven` |
 
+## RegelRecht-demo (Utrecht & Eindhoven)
+
+[`regelrecht-demo.html`](regelrecht-demo.html) — de keten artikel → YAML → schema →
+executie → trace, live rekenend op de echte voorbeeld-YAML's en run-artefacten,
+met engine-selftest (16/16), onthoudingen-paneel en de altijd openstaande
+jurittoets. Herbouwen:
+
+```bash
+nldt/.venv/bin/python nldt/simulation/regelrecht/build_runs.py --stamp <ISO-timestamp>
+```
+
+gegenereerde onderdelen: `regelrecht/runs/*.json`, `regelrecht/engine/engine-cases.json`,
+de single-file pagina zelf. Contract: `regelrecht/simulation-run.schema.json`;
+ontwerp: `docs/superpowers/specs/2026-09-29-simulation-regelrecht-design.md`.
+
 ## Architecture tour
 
 [`poc-mcp-skills.html`](poc-mcp-skills.html) — layers, Play tours (lifecycle, router, all four PoCs), Recipes catalogue.  

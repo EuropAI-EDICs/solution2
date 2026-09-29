@@ -1,0 +1,270 @@
+{
+ "schemaVersion": "1",
+ "runId": "cd0f875c",
+ "generatedAt": "2026-09-29T00:00:00Z",
+ "poc": "eindhoven",
+ "instrument": {
+  "title": "Omgevingsplan gemeente Eindhoven",
+  "cvdr": "CVDR696400_4",
+  "regulatoryLayer": "GEMEENTELIJKE_VERORDENING",
+  "article": "10.2"
+ },
+ "sourceArtifacts": [
+  {
+   "path": "docs/examples/regelrecht/omgevingsplan-eindhoven-art22.1-en-10.2.yaml",
+   "role": "example-yaml",
+   "sha256": "0554c3c4138add1aed6a527785eccb2597adff109e21b15282bb1fe65108021b"
+  },
+  {
+   "path": "poc-bp2op/runs/20260830-124515-eindhoven/bronregels.json",
+   "role": "bronregel",
+   "sha256": "7019828d234a7e28180f8a55cde089ba3f7a8add15a2998eff4714cf72bb6987"
+  },
+  {
+   "path": "poc-bp2op/runs/20260830-124515-eindhoven/doelregels.json",
+   "role": "doelregel",
+   "sha256": "22a0f32e2ad19682c04f769a4a433b14a2bba05cfdf66bb663565514ea5c4cc8"
+  },
+  {
+   "path": "poc-bp2op/runs/20260830-124515-eindhoven/omzettabel.json",
+   "role": "omzettabel",
+   "sha256": "2057acb4fd93264a0ba5a2f2763ac889a59508aa183cf13ba7d3df11772858a7"
+  },
+  {
+   "path": "poc-bp2op/runs/20260830-124515-eindhoven/kennisbank.json",
+   "role": "kennisbank",
+   "sha256": "a1c01c78b0bac6a9737b6640baa347b25e888a3267d655626117840efbc743fa"
+  }
+ ],
+ "machineReadable": {
+  "endpoint": "voorrangsbepaling_milieubelastende_activiteiten",
+  "competent_authority": {
+   "name": "College van burgemeester en wethouders van de gemeente Eindhoven",
+   "type": "INSTANCE"
+  },
+  "execution": {
+   "produces": {
+    "legal_character": "TOETS"
+   },
+   "parameters": [
+    {
+     "name": "voorschriften_verbonden_voor_iwt",
+     "type": "boolean",
+     "description": "Of aan de milieubelastende activiteit voorschriften zijn verbonden aan een omgevingsvergunning die vóór de inwerkingtreding (IWT) van de Omgevingswet onherroepelijk was, of vóór IWT was aangevraagd en daarna onherroepelijk werd (lid 2, onder a en b)."
+    }
+   ],
+   "input": [
+    {
+     "name": "strijd_met_tijdelijk_deel",
+     "type": "boolean",
+     "description": "Of de desbetreffende regel van dit hoofdstuk ter plaatse strijdig is met een nog in werking zijnde regel uit het tijdelijke deel (hoofdstukken 22/23).",
+     "source": {
+      "description": "Buiten de wet-YAML op te lossen: de regel-conversieketen van poc-bp2op (kennisbank \"komt in de plaats van\"-relaties + omzettabel) levert dit feit per bron-/doelregelpaar; het werkingsgebied zelf is een geo-feit (werkingsgebiedRef, MC-11)."
+     }
+    }
+   ],
+   "output": [
+    {
+     "name": "regels_hoofdstuk_van_toepassing",
+     "type": "boolean",
+     "description": "Of de regels van het hoofdstuk (art. 10.2, eerste lid) van toepassing zijn."
+    }
+   ],
+   "actions": [
+    {
+     "output": "regels_hoofdstuk_van_toepassing",
+     "value": {
+      "operation": "IF",
+      "cases": [
+       {
+        "when": {
+         "operation": "EQUALS",
+         "subject": "$strijd_met_tijdelijk_deel",
+         "value": true
+        },
+        "then": false
+       },
+       {
+        "when": {
+         "operation": "EQUALS",
+         "subject": "$voorschriften_verbonden_voor_iwt",
+         "value": true
+        },
+        "then": false
+       }
+      ],
+      "default": true
+     }
+    }
+   ]
+  }
+ },
+ "articleQuote": "1. De regels in afdeling 22.2 , met uitzondering van paragraaf 22.2.7.3, en afdeling 22.3 zijn niet van toepassing voor zover die regels in strijd zijn met regels in het tijdelijke deel van dit omgevingsplan, bedoeld in artikel 22.1, onder a, van de Omgevingswet. 2. De regels in afdeling 22.3 zijn niet van toepassing op een milieubelastende activiteit die als vergunningplichtig is aangewezen in hoofdstuk 3 van het Besluit activiteiten leefomgeving, voor zover voorschriften zijn verbonden aan: a. een voor de inwerkingtreding van de Omgevingswet onherroepelijke omgevingsvergunning voor een milieubelastende activiteit; b. een omgevingsvergunning voor een milieubelastende activiteit die is aangevraagd voor de inwerkingtreding van de Omgevingswet en na de inwerkingtreding van die wet onherroepelijk wordt.",
+ "demoCases": [
+  {
+   "id": "eindhoven-s1-i1",
+   "inputs": {
+    "strijd_met_tijdelijk_deel": true,
+    "voorschriften_verbonden_voor_iwt": true
+   },
+   "expectedOutputs": {
+    "regels_hoofdstuk_van_toepassing": false
+   },
+   "trace": [
+    {
+     "action": "regels_hoofdstuk_van_toepassing",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$strijd_met_tijdelijk_deel",
+      "value": true
+     },
+     "result": true
+    },
+    {
+     "action": "regels_hoofdstuk_van_toepassing",
+     "operation": "IF",
+     "operands": {
+      "cases": 2,
+      "default": true,
+      "firedCase": 1
+     },
+     "result": false
+    }
+   ]
+  },
+  {
+   "id": "eindhoven-s1-i0",
+   "inputs": {
+    "strijd_met_tijdelijk_deel": true,
+    "voorschriften_verbonden_voor_iwt": false
+   },
+   "expectedOutputs": {
+    "regels_hoofdstuk_van_toepassing": false
+   },
+   "trace": [
+    {
+     "action": "regels_hoofdstuk_van_toepassing",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$strijd_met_tijdelijk_deel",
+      "value": true
+     },
+     "result": true
+    },
+    {
+     "action": "regels_hoofdstuk_van_toepassing",
+     "operation": "IF",
+     "operands": {
+      "cases": 2,
+      "default": true,
+      "firedCase": 1
+     },
+     "result": false
+    }
+   ]
+  },
+  {
+   "id": "eindhoven-s0-i1",
+   "inputs": {
+    "strijd_met_tijdelijk_deel": false,
+    "voorschriften_verbonden_voor_iwt": true
+   },
+   "expectedOutputs": {
+    "regels_hoofdstuk_van_toepassing": false
+   },
+   "trace": [
+    {
+     "action": "regels_hoofdstuk_van_toepassing",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$strijd_met_tijdelijk_deel",
+      "value": true
+     },
+     "result": false
+    },
+    {
+     "action": "regels_hoofdstuk_van_toepassing",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$voorschriften_verbonden_voor_iwt",
+      "value": true
+     },
+     "result": true
+    },
+    {
+     "action": "regels_hoofdstuk_van_toepassing",
+     "operation": "IF",
+     "operands": {
+      "cases": 2,
+      "default": true,
+      "firedCase": 2
+     },
+     "result": false
+    }
+   ]
+  },
+  {
+   "id": "eindhoven-s0-i0",
+   "inputs": {
+    "strijd_met_tijdelijk_deel": false,
+    "voorschriften_verbonden_voor_iwt": false
+   },
+   "expectedOutputs": {
+    "regels_hoofdstuk_van_toepassing": true
+   },
+   "trace": [
+    {
+     "action": "regels_hoofdstuk_van_toepassing",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$strijd_met_tijdelijk_deel",
+      "value": true
+     },
+     "result": false
+    },
+    {
+     "action": "regels_hoofdstuk_van_toepassing",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$voorschriften_verbonden_voor_iwt",
+      "value": true
+     },
+     "result": false
+    },
+    {
+     "action": "regels_hoofdstuk_van_toepassing",
+     "operation": "IF",
+     "operands": {
+      "cases": 2,
+      "default": true,
+      "firedCase": 0
+     },
+     "result": true
+    }
+   ]
+  }
+ ],
+ "abstentions": {
+  "count": 70,
+  "label": "omzettabel-rijen needs_human (jurist)",
+  "source": "poc-bp2op/runs/20260830-124515-eindhoven/omzettabel.json"
+ },
+ "humanOnTheButtons": "v4_pending",
+ "validations": [
+  {
+   "level": "V0",
+   "verdict": "pass",
+   "evidence": "voorbeeld-YAML gevalideerd tegen regelrecht-schema v0.7.1"
+  },
+  {
+   "level": "V2",
+   "verdict": "pass",
+   "evidence": "articleQuote letterlijk uit BR-001 (bronregels.json canonieke run)"
+  },
+  {
+   "level": "V4",
+   "verdict": "pending",
+   "evidence": "jurittoets staat structureel open (MC-6)"
+  }
+ ]
+}

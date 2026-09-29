@@ -1,0 +1,69 @@
+# Voorbeeldexport (fase 1 van de RegelRecht-integratie, docs/POC_REGELRECHT_INTEGRATION.md).
+# Bron: PoC-1 (poc/), NormCard NC-W-03 / FormalRule FR-W-03 — Omgevingsverordening
+# provincie Utrecht, art. 5.3 eerste lid (kleine windturbine, bestaand bouwperceel).
+# Schema: regelrecht v0.7.1. NB: cvdr_id stond in v0.5.2 en is in v0.7.1 komen te
+# vervallen (additionalProperties staat open, dus validatie slaagt; het law-model
+# leest het veld niet meer) — upstream herinvoeren voor lokale regelgeving.
+$schema: https://raw.githubusercontent.com/MinBZK/regelrecht/refs/heads/main/schema/v0.7.1/schema.json
+$id: omgevingsverordening_provincie_utrecht
+name: Omgevingsverordening provincie Utrecht
+regulatory_layer: PROVINCIALE_VERORDENING
+publication_date: '2025-10-13'   # geldend-van-datum van CVDR704250 versie 8; exacte publicatiedatum uit de CVDR-metadata halen
+valid_from: '2025-10-13'
+cvdr_id: CVDR704250
+provincie_code: PV26
+officiele_titel: Omgevingsverordening provincie Utrecht
+organisation: Provincie Utrecht
+url: https://lokaleregelgeving.overheid.nl/cvdr704250
+articles:
+  - number: '5.3'
+    text: |-
+      Een omgevingsplan dat betrekking heeft op locaties binnen het Gebied kleine
+      windturbine kan regels bevatten die de realisatie van een windturbine tot een
+      ashoogte van 20 meter toestaat onder de voorwaarde dat de windturbine wordt
+      geplaatst op of in aansluiting op bestaand bouwperceel.
+    url: https://lokaleregelgeving.overheid.nl/cvdr704250
+    machine_readable:
+      endpoint: kleine_windturbine_bestaand_bouwperceel
+      competent_authority:
+        name: Bevoegd gezag omgevingsplan (gemeente binnen het Gebied kleine windturbine)
+        type: CATEGORY
+      execution:
+        produces:
+          legal_character: TOETS
+        parameters:
+          - name: ashoogte_m
+            type: number
+            description: As van de voorgestelde windturbine, in meters.
+          - name: op_of_in_aansluiting_op_bestaand_bouwperceel
+            type: boolean
+            description: Of de turbine op of in aansluiting op een bestaand bouwperceel wordt geplaatst.
+        input:
+          - name: in_gebied_kleine_windturbine
+            type: boolean
+            description: "Geo-feit: of de locatie binnen het Gebied kleine windturbine ligt."
+            source:
+              description: >-
+                Buiten de wet-YAML op te lossen (register/GIO): punt-in-polygoon tegen de
+                GIO "Gebied kleine windturbine" uit Bijlage II van CVDR704250 (join-id
+                /join/id/regdata/pv26/2025/gio73f71441-6b83-4be5-9fef-293714578255/nld@2025-10-10;822).
+                In de LDT-toolbox levert de zone-engine van PoC-1 dit feit (agrest IMOW-laag
+                van de vigerende verordening als GIO-alias).
+        output:
+          - name: toegestaan_kleine_windturbine
+            type: boolean
+            description: Of een omgevingsplan hier regels kan bevatten die de turbine toestaan.
+        actions:
+          - output: toegestaan_kleine_windturbine
+            value:
+              operation: AND
+              conditions:
+                - operation: LESS_THAN_OR_EQUAL
+                  subject: $ashoogte_m
+                  value: 20
+                - operation: EQUALS
+                  subject: $op_of_in_aansluiting_op_bestaand_bouwperceel
+                  value: true
+                - operation: EQUALS
+                  subject: $in_gebied_kleine_windturbine
+                  value: true

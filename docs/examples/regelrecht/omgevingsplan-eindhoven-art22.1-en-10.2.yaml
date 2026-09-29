@@ -1,0 +1,102 @@
+# Voorbeeldexport (fase 1 van de RegelRecht-integratie, docs/POC_REGELRECHT_INTEGRATION.md).
+# Bron: PoC-2 (poc-bp2op/), canonieke run 20260830-124515-eindhoven, omzettabelrij
+# OT-001: bronregel BR-001 (art. 22.1, tijdelijk deel/bruidschat) is kennisbank-gedreven
+# (KB-031, score 1.0) gekoppeld aan doelregel DR-478 (art. 10.2). Beide artikelen
+# letterlijk overgenomen inclusief dieptelinks; zie ook docs/POC_RULE_GRAPH_EINDHOVEN.md.
+# Schema: regelrecht v0.7.1. NB: cvdr_id stond in v0.5.2 en is in v0.7.1 komen te
+# vervallen (additionalProperties staat open, dus validatie slaagt; het law-model
+# leest het veld niet meer) — upstream herinvoeren voor lokale regelgeving.
+$schema: https://raw.githubusercontent.com/MinBZK/regelrecht/refs/heads/main/schema/v0.7.1/schema.json
+$id: omgevingsplan_gemeente_eindhoven
+name: Omgevingsplan gemeente Eindhoven
+regulatory_layer: GEMEENTELIJKE_VERORDENING
+publication_date: '2026-06-29'   # geldend-van-datum van CVDR696400/4; exacte publicatiedatum uit de CVDR-metadata halen
+valid_from: '2026-06-29'
+cvdr_id: CVDR696400_4
+gemeente_code: GM0855
+officiele_titel: Omgevingsplan gemeente Eindhoven
+organisation: Gemeente Eindhoven
+url: https://lokaleregelgeving.overheid.nl/CVDR696400/4
+articles:
+  - number: '22.1'
+    text: |-
+      1. De regels in afdeling 22.2 , met uitzondering van paragraaf 22.2.7.3, en afdeling 22.3
+      zijn niet van toepassing voor zover die regels in strijd zijn met regels in het tijdelijke
+      deel van dit omgevingsplan, bedoeld in artikel 22.1, onder a, van de Omgevingswet.
+      2. De regels in afdeling 22.3 zijn niet van toepassing op een milieubelastende activiteit
+      die als vergunningplichtig is aangewezen in hoofdstuk 3 van het Besluit activiteiten
+      leefomgeving, voor zover voorschriften zijn verbonden aan:
+      a. een voor de inwerkingtreding van de Omgevingswet onherroepelijke omgevingsvergunning
+      voor een milieubelastende activiteit;
+      b. een omgevingsvergunning voor een milieubelastende activiteit die is aangevraagd voor
+      de inwerkingtreding van de Omgevingswet en na de inwerkingtreding van die wet
+      onherroepelijk wordt.
+    url: https://lokaleregelgeving.overheid.nl/CVDR696400/4#chp_22__subchp_22.1__art_22.1
+    references:
+      - id: ref_ow_22_1
+        bwb_id: BWBR0037885
+        artikel: '22.1'
+        onderdeel: 'a'
+  - number: '10.2'
+    text: |-
+      1. Ter plaatse van ruimtelijke regels tijdelijk deel nog in werking zijn de regels in dit
+      hoofdstuk niet van toepassing voor zover die regels in strijd zijn met regels in het
+      ruimtelijk plan tijdelijk deel omgevingsplan .
+      2. Tenzij elders in dit omgevingsplan anders bepaald, zijn de regels in dit hoofdstuk
+      niet van toepassing op een milieubelastende activiteit die als vergunningplichtig is
+      aangewezen in hoofdstuk 3 van het Besluit activiteiten leefomgeving , voor zover
+      voorschriften verbonden zijn aan:
+      a. een voor de inwerkingtreding van de Omgevingswet onherroepelijke omgevingsvergunning
+      voor een milieubelastende activiteit;
+      b. een omgevingsvergunning voor een milieubelastende activiteit die is aangevraagd voor
+      de inwerkingtreding van de Omgevingswet en na de inwerkingtreding van die wet
+      onherroepelijk wordt.
+    url: https://lokaleregelgeving.overheid.nl/CVDR696400/4#chp_10__subchp_10.1__art_10.2
+    machine_readable:
+      endpoint: voorrangsbepaling_milieubelastende_activiteiten
+      competent_authority:
+        name: College van burgemeester en wethouders van de gemeente Eindhoven
+        type: INSTANCE
+      execution:
+        produces:
+          legal_character: TOETS
+        parameters:
+          - name: voorschriften_verbonden_voor_iwt
+            type: boolean
+            description: >-
+              Of aan de milieubelastende activiteit voorschriften zijn verbonden aan een
+              omgevingsvergunning die vóór de inwerkingtreding (IWT) van de Omgevingswet
+              onherroepelijk was, of vóór IWT was aangevraagd en daarna onherroepelijk werd
+              (lid 2, onder a en b).
+        input:
+          - name: strijd_met_tijdelijk_deel
+            type: boolean
+            description: >-
+              Of de desbetreffende regel van dit hoofdstuk ter plaatse strijdig is met een
+              nog in werking zijnde regel uit het tijdelijke deel (hoofdstukken 22/23).
+            source:
+              description: >-
+                Buiten de wet-YAML op te lossen: de regel-conversieketen van poc-bp2op
+                (kennisbank "komt in de plaats van"-relaties + omzettabel) levert dit feit
+                per bron-/doelregelpaar; het werkingsgebied zelf is een geo-feit
+                (werkingsgebiedRef, MC-11).
+        output:
+          - name: regels_hoofdstuk_van_toepassing
+            type: boolean
+            description: Of de regels van het hoofdstuk (art. 10.2, eerste lid) van toepassing zijn.
+        actions:
+          - output: regels_hoofdstuk_van_toepassing
+            value:
+              operation: IF
+              cases:
+                - when:
+                    operation: EQUALS
+                    subject: $strijd_met_tijdelijk_deel
+                    value: true
+                  then: false
+                - when:
+                    operation: EQUALS
+                    subject: $voorschriften_verbonden_voor_iwt
+                    value: true
+                  then: false
+              default: true

@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldttoolbox.local/simulation-run/v1",
+  "title": "RegelRecht simulation run",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "runId", "generatedAt", "poc", "instrument", "sourceArtifacts", "machineReadable", "articleQuote", "demoCases", "abstentions", "humanOnTheButtons", "validations"],
+  "properties": {
+    "schemaVersion": {"const": "1"},
+    "runId": {"type": "string", "pattern": "^[0-9a-f]{8}$"},
+    "generatedAt": {"type": "string", "format": "date-time"},
+    "poc": {"enum": ["utrecht", "eindhoven"]},
+    "instrument": {
+      "type": "object", "additionalProperties": false,
+      "required": ["title", "cvdr", "regulatoryLayer", "article"],
+      "properties": {
+        "title": {"type": "string"},
+        "cvdr": {"type": "string"},
+        "regulatoryLayer": {"type": "string"},
+        "article": {"type": "string"}
+      }
+    },
+    "sourceArtifacts": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["path", "role", "sha256"],
+        "properties": {
+          "path": {"type": "string"},
+          "role": {"type": "string"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    },
+    "machineReadable": {"type": "object"},
+    "articleQuote": {"type": "string", "minLength": 20},
+    "demoCases": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "inputs", "expectedOutputs", "trace"],
+        "properties": {
+          "id": {"type": "string"},
+          "inputs": {"type": "object"},
+          "expectedOutputs": {"type": "object"},
+          "trace": {
+            "type": "array",
+            "items": {
+              "type": "object", "additionalProperties": false,
+              "required": ["action", "operation", "operands", "result"],
+              "properties": {
+                "action": {"type": "string"},
+                "operation": {"type": "string"},
+                "operands": {},
+                "result": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "abstentions": {
+      "type": "object", "additionalProperties": false,
+      "required": ["count", "label", "source"],
+      "properties": {"count": {"type": "integer", "minimum": 0}, "label": {"type": "string"}, "source": {"type": "string"}}
+    },
+    "humanOnTheButtons": {"const": "v4_pending"},
+    "validations": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["level", "verdict", "evidence"],
+        "properties": {
+          "level": {"enum": ["V0", "V1", "V2", "V3", "V4"]},
+          "verdict": {"type": "string"},
+          "evidence": {"type": "string"}
+        }
+      }
+    }
+  }
+}

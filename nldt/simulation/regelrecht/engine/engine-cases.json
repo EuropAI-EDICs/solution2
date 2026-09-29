@@ -1,0 +1,1844 @@
+[
+ {
+  "id": "utrecht-h19-p1-z1",
+  "execution": {
+   "produces": {
+    "legal_character": "TOETS"
+   },
+   "parameters": [
+    {
+     "name": "ashoogte_m",
+     "type": "number",
+     "description": "As van de voorgestelde windturbine, in meters."
+    },
+    {
+     "name": "op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "type": "boolean",
+     "description": "Of de turbine op of in aansluiting op een bestaand bouwperceel wordt geplaatst."
+    }
+   ],
+   "input": [
+    {
+     "name": "in_gebied_kleine_windturbine",
+     "type": "boolean",
+     "description": "Geo-feit: of de locatie binnen het Gebied kleine windturbine ligt.",
+     "source": {
+      "description": "Buiten de wet-YAML op te lossen (register/GIO): punt-in-polygoon tegen de GIO \"Gebied kleine windturbine\" uit Bijlage II van CVDR704250 (join-id /join/id/regdata/pv26/2025/gio73f71441-6b83-4be5-9fef-293714578255/nld@2025-10-10;822). In de LDT-toolbox levert de zone-engine van PoC-1 dit feit (agrest IMOW-laag van de vigerende verordening als GIO-alias)."
+     }
+    }
+   ],
+   "output": [
+    {
+     "name": "toegestaan_kleine_windturbine",
+     "type": "boolean",
+     "description": "Of een omgevingsplan hier regels kan bevatten die de turbine toestaan."
+    }
+   ],
+   "actions": [
+    {
+     "output": "toegestaan_kleine_windturbine",
+     "value": {
+      "operation": "AND",
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "inputs": {
+   "ashoogte_m": 19,
+   "op_of_in_aansluiting_op_bestaand_bouwperceel": true,
+   "in_gebied_kleine_windturbine": true
+  },
+  "expectedOutputs": {
+   "toegestaan_kleine_windturbine": true
+  },
+  "trace": [
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "LESS_THAN_OR_EQUAL",
+    "operands": {
+     "subject": "$ashoogte_m",
+     "value": 20
+    },
+    "result": true
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "value": true
+    },
+    "result": true
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$in_gebied_kleine_windturbine",
+     "value": true
+    },
+    "result": true
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "AND",
+    "operands": {
+     "conditions": [
+      {
+       "operation": "LESS_THAN_OR_EQUAL",
+       "subject": "$ashoogte_m",
+       "value": 20
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+       "value": true
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$in_gebied_kleine_windturbine",
+       "value": true
+      }
+     ]
+    },
+    "result": true
+   }
+  ]
+ },
+ {
+  "id": "utrecht-h19-p1-z0",
+  "execution": {
+   "produces": {
+    "legal_character": "TOETS"
+   },
+   "parameters": [
+    {
+     "name": "ashoogte_m",
+     "type": "number",
+     "description": "As van de voorgestelde windturbine, in meters."
+    },
+    {
+     "name": "op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "type": "boolean",
+     "description": "Of de turbine op of in aansluiting op een bestaand bouwperceel wordt geplaatst."
+    }
+   ],
+   "input": [
+    {
+     "name": "in_gebied_kleine_windturbine",
+     "type": "boolean",
+     "description": "Geo-feit: of de locatie binnen het Gebied kleine windturbine ligt.",
+     "source": {
+      "description": "Buiten de wet-YAML op te lossen (register/GIO): punt-in-polygoon tegen de GIO \"Gebied kleine windturbine\" uit Bijlage II van CVDR704250 (join-id /join/id/regdata/pv26/2025/gio73f71441-6b83-4be5-9fef-293714578255/nld@2025-10-10;822). In de LDT-toolbox levert de zone-engine van PoC-1 dit feit (agrest IMOW-laag van de vigerende verordening als GIO-alias)."
+     }
+    }
+   ],
+   "output": [
+    {
+     "name": "toegestaan_kleine_windturbine",
+     "type": "boolean",
+     "description": "Of een omgevingsplan hier regels kan bevatten die de turbine toestaan."
+    }
+   ],
+   "actions": [
+    {
+     "output": "toegestaan_kleine_windturbine",
+     "value": {
+      "operation": "AND",
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "inputs": {
+   "ashoogte_m": 19,
+   "op_of_in_aansluiting_op_bestaand_bouwperceel": true,
+   "in_gebied_kleine_windturbine": false
+  },
+  "expectedOutputs": {
+   "toegestaan_kleine_windturbine": false
+  },
+  "trace": [
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "LESS_THAN_OR_EQUAL",
+    "operands": {
+     "subject": "$ashoogte_m",
+     "value": 20
+    },
+    "result": true
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "value": true
+    },
+    "result": true
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$in_gebied_kleine_windturbine",
+     "value": true
+    },
+    "result": false
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "AND",
+    "operands": {
+     "conditions": [
+      {
+       "operation": "LESS_THAN_OR_EQUAL",
+       "subject": "$ashoogte_m",
+       "value": 20
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+       "value": true
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$in_gebied_kleine_windturbine",
+       "value": true
+      }
+     ]
+    },
+    "result": false
+   }
+  ]
+ },
+ {
+  "id": "utrecht-h19-p0-z1",
+  "execution": {
+   "produces": {
+    "legal_character": "TOETS"
+   },
+   "parameters": [
+    {
+     "name": "ashoogte_m",
+     "type": "number",
+     "description": "As van de voorgestelde windturbine, in meters."
+    },
+    {
+     "name": "op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "type": "boolean",
+     "description": "Of de turbine op of in aansluiting op een bestaand bouwperceel wordt geplaatst."
+    }
+   ],
+   "input": [
+    {
+     "name": "in_gebied_kleine_windturbine",
+     "type": "boolean",
+     "description": "Geo-feit: of de locatie binnen het Gebied kleine windturbine ligt.",
+     "source": {
+      "description": "Buiten de wet-YAML op te lossen (register/GIO): punt-in-polygoon tegen de GIO \"Gebied kleine windturbine\" uit Bijlage II van CVDR704250 (join-id /join/id/regdata/pv26/2025/gio73f71441-6b83-4be5-9fef-293714578255/nld@2025-10-10;822). In de LDT-toolbox levert de zone-engine van PoC-1 dit feit (agrest IMOW-laag van de vigerende verordening als GIO-alias)."
+     }
+    }
+   ],
+   "output": [
+    {
+     "name": "toegestaan_kleine_windturbine",
+     "type": "boolean",
+     "description": "Of een omgevingsplan hier regels kan bevatten die de turbine toestaan."
+    }
+   ],
+   "actions": [
+    {
+     "output": "toegestaan_kleine_windturbine",
+     "value": {
+      "operation": "AND",
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "inputs": {
+   "ashoogte_m": 19,
+   "op_of_in_aansluiting_op_bestaand_bouwperceel": false,
+   "in_gebied_kleine_windturbine": true
+  },
+  "expectedOutputs": {
+   "toegestaan_kleine_windturbine": false
+  },
+  "trace": [
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "LESS_THAN_OR_EQUAL",
+    "operands": {
+     "subject": "$ashoogte_m",
+     "value": 20
+    },
+    "result": true
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "value": true
+    },
+    "result": false
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$in_gebied_kleine_windturbine",
+     "value": true
+    },
+    "result": true
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "AND",
+    "operands": {
+     "conditions": [
+      {
+       "operation": "LESS_THAN_OR_EQUAL",
+       "subject": "$ashoogte_m",
+       "value": 20
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+       "value": true
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$in_gebied_kleine_windturbine",
+       "value": true
+      }
+     ]
+    },
+    "result": false
+   }
+  ]
+ },
+ {
+  "id": "utrecht-h19-p0-z0",
+  "execution": {
+   "produces": {
+    "legal_character": "TOETS"
+   },
+   "parameters": [
+    {
+     "name": "ashoogte_m",
+     "type": "number",
+     "description": "As van de voorgestelde windturbine, in meters."
+    },
+    {
+     "name": "op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "type": "boolean",
+     "description": "Of de turbine op of in aansluiting op een bestaand bouwperceel wordt geplaatst."
+    }
+   ],
+   "input": [
+    {
+     "name": "in_gebied_kleine_windturbine",
+     "type": "boolean",
+     "description": "Geo-feit: of de locatie binnen het Gebied kleine windturbine ligt.",
+     "source": {
+      "description": "Buiten de wet-YAML op te lossen (register/GIO): punt-in-polygoon tegen de GIO \"Gebied kleine windturbine\" uit Bijlage II van CVDR704250 (join-id /join/id/regdata/pv26/2025/gio73f71441-6b83-4be5-9fef-293714578255/nld@2025-10-10;822). In de LDT-toolbox levert de zone-engine van PoC-1 dit feit (agrest IMOW-laag van de vigerende verordening als GIO-alias)."
+     }
+    }
+   ],
+   "output": [
+    {
+     "name": "toegestaan_kleine_windturbine",
+     "type": "boolean",
+     "description": "Of een omgevingsplan hier regels kan bevatten die de turbine toestaan."
+    }
+   ],
+   "actions": [
+    {
+     "output": "toegestaan_kleine_windturbine",
+     "value": {
+      "operation": "AND",
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "inputs": {
+   "ashoogte_m": 19,
+   "op_of_in_aansluiting_op_bestaand_bouwperceel": false,
+   "in_gebied_kleine_windturbine": false
+  },
+  "expectedOutputs": {
+   "toegestaan_kleine_windturbine": false
+  },
+  "trace": [
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "LESS_THAN_OR_EQUAL",
+    "operands": {
+     "subject": "$ashoogte_m",
+     "value": 20
+    },
+    "result": true
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "value": true
+    },
+    "result": false
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$in_gebied_kleine_windturbine",
+     "value": true
+    },
+    "result": false
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "AND",
+    "operands": {
+     "conditions": [
+      {
+       "operation": "LESS_THAN_OR_EQUAL",
+       "subject": "$ashoogte_m",
+       "value": 20
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+       "value": true
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$in_gebied_kleine_windturbine",
+       "value": true
+      }
+     ]
+    },
+    "result": false
+   }
+  ]
+ },
+ {
+  "id": "utrecht-h20-p1-z1",
+  "execution": {
+   "produces": {
+    "legal_character": "TOETS"
+   },
+   "parameters": [
+    {
+     "name": "ashoogte_m",
+     "type": "number",
+     "description": "As van de voorgestelde windturbine, in meters."
+    },
+    {
+     "name": "op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "type": "boolean",
+     "description": "Of de turbine op of in aansluiting op een bestaand bouwperceel wordt geplaatst."
+    }
+   ],
+   "input": [
+    {
+     "name": "in_gebied_kleine_windturbine",
+     "type": "boolean",
+     "description": "Geo-feit: of de locatie binnen het Gebied kleine windturbine ligt.",
+     "source": {
+      "description": "Buiten de wet-YAML op te lossen (register/GIO): punt-in-polygoon tegen de GIO \"Gebied kleine windturbine\" uit Bijlage II van CVDR704250 (join-id /join/id/regdata/pv26/2025/gio73f71441-6b83-4be5-9fef-293714578255/nld@2025-10-10;822). In de LDT-toolbox levert de zone-engine van PoC-1 dit feit (agrest IMOW-laag van de vigerende verordening als GIO-alias)."
+     }
+    }
+   ],
+   "output": [
+    {
+     "name": "toegestaan_kleine_windturbine",
+     "type": "boolean",
+     "description": "Of een omgevingsplan hier regels kan bevatten die de turbine toestaan."
+    }
+   ],
+   "actions": [
+    {
+     "output": "toegestaan_kleine_windturbine",
+     "value": {
+      "operation": "AND",
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "inputs": {
+   "ashoogte_m": 20,
+   "op_of_in_aansluiting_op_bestaand_bouwperceel": true,
+   "in_gebied_kleine_windturbine": true
+  },
+  "expectedOutputs": {
+   "toegestaan_kleine_windturbine": true
+  },
+  "trace": [
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "LESS_THAN_OR_EQUAL",
+    "operands": {
+     "subject": "$ashoogte_m",
+     "value": 20
+    },
+    "result": true
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "value": true
+    },
+    "result": true
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$in_gebied_kleine_windturbine",
+     "value": true
+    },
+    "result": true
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "AND",
+    "operands": {
+     "conditions": [
+      {
+       "operation": "LESS_THAN_OR_EQUAL",
+       "subject": "$ashoogte_m",
+       "value": 20
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+       "value": true
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$in_gebied_kleine_windturbine",
+       "value": true
+      }
+     ]
+    },
+    "result": true
+   }
+  ]
+ },
+ {
+  "id": "utrecht-h20-p1-z0",
+  "execution": {
+   "produces": {
+    "legal_character": "TOETS"
+   },
+   "parameters": [
+    {
+     "name": "ashoogte_m",
+     "type": "number",
+     "description": "As van de voorgestelde windturbine, in meters."
+    },
+    {
+     "name": "op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "type": "boolean",
+     "description": "Of de turbine op of in aansluiting op een bestaand bouwperceel wordt geplaatst."
+    }
+   ],
+   "input": [
+    {
+     "name": "in_gebied_kleine_windturbine",
+     "type": "boolean",
+     "description": "Geo-feit: of de locatie binnen het Gebied kleine windturbine ligt.",
+     "source": {
+      "description": "Buiten de wet-YAML op te lossen (register/GIO): punt-in-polygoon tegen de GIO \"Gebied kleine windturbine\" uit Bijlage II van CVDR704250 (join-id /join/id/regdata/pv26/2025/gio73f71441-6b83-4be5-9fef-293714578255/nld@2025-10-10;822). In de LDT-toolbox levert de zone-engine van PoC-1 dit feit (agrest IMOW-laag van de vigerende verordening als GIO-alias)."
+     }
+    }
+   ],
+   "output": [
+    {
+     "name": "toegestaan_kleine_windturbine",
+     "type": "boolean",
+     "description": "Of een omgevingsplan hier regels kan bevatten die de turbine toestaan."
+    }
+   ],
+   "actions": [
+    {
+     "output": "toegestaan_kleine_windturbine",
+     "value": {
+      "operation": "AND",
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "inputs": {
+   "ashoogte_m": 20,
+   "op_of_in_aansluiting_op_bestaand_bouwperceel": true,
+   "in_gebied_kleine_windturbine": false
+  },
+  "expectedOutputs": {
+   "toegestaan_kleine_windturbine": false
+  },
+  "trace": [
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "LESS_THAN_OR_EQUAL",
+    "operands": {
+     "subject": "$ashoogte_m",
+     "value": 20
+    },
+    "result": true
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "value": true
+    },
+    "result": true
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$in_gebied_kleine_windturbine",
+     "value": true
+    },
+    "result": false
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "AND",
+    "operands": {
+     "conditions": [
+      {
+       "operation": "LESS_THAN_OR_EQUAL",
+       "subject": "$ashoogte_m",
+       "value": 20
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+       "value": true
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$in_gebied_kleine_windturbine",
+       "value": true
+      }
+     ]
+    },
+    "result": false
+   }
+  ]
+ },
+ {
+  "id": "utrecht-h20-p0-z1",
+  "execution": {
+   "produces": {
+    "legal_character": "TOETS"
+   },
+   "parameters": [
+    {
+     "name": "ashoogte_m",
+     "type": "number",
+     "description": "As van de voorgestelde windturbine, in meters."
+    },
+    {
+     "name": "op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "type": "boolean",
+     "description": "Of de turbine op of in aansluiting op een bestaand bouwperceel wordt geplaatst."
+    }
+   ],
+   "input": [
+    {
+     "name": "in_gebied_kleine_windturbine",
+     "type": "boolean",
+     "description": "Geo-feit: of de locatie binnen het Gebied kleine windturbine ligt.",
+     "source": {
+      "description": "Buiten de wet-YAML op te lossen (register/GIO): punt-in-polygoon tegen de GIO \"Gebied kleine windturbine\" uit Bijlage II van CVDR704250 (join-id /join/id/regdata/pv26/2025/gio73f71441-6b83-4be5-9fef-293714578255/nld@2025-10-10;822). In de LDT-toolbox levert de zone-engine van PoC-1 dit feit (agrest IMOW-laag van de vigerende verordening als GIO-alias)."
+     }
+    }
+   ],
+   "output": [
+    {
+     "name": "toegestaan_kleine_windturbine",
+     "type": "boolean",
+     "description": "Of een omgevingsplan hier regels kan bevatten die de turbine toestaan."
+    }
+   ],
+   "actions": [
+    {
+     "output": "toegestaan_kleine_windturbine",
+     "value": {
+      "operation": "AND",
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "inputs": {
+   "ashoogte_m": 20,
+   "op_of_in_aansluiting_op_bestaand_bouwperceel": false,
+   "in_gebied_kleine_windturbine": true
+  },
+  "expectedOutputs": {
+   "toegestaan_kleine_windturbine": false
+  },
+  "trace": [
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "LESS_THAN_OR_EQUAL",
+    "operands": {
+     "subject": "$ashoogte_m",
+     "value": 20
+    },
+    "result": true
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "value": true
+    },
+    "result": false
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$in_gebied_kleine_windturbine",
+     "value": true
+    },
+    "result": true
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "AND",
+    "operands": {
+     "conditions": [
+      {
+       "operation": "LESS_THAN_OR_EQUAL",
+       "subject": "$ashoogte_m",
+       "value": 20
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+       "value": true
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$in_gebied_kleine_windturbine",
+       "value": true
+      }
+     ]
+    },
+    "result": false
+   }
+  ]
+ },
+ {
+  "id": "utrecht-h20-p0-z0",
+  "execution": {
+   "produces": {
+    "legal_character": "TOETS"
+   },
+   "parameters": [
+    {
+     "name": "ashoogte_m",
+     "type": "number",
+     "description": "As van de voorgestelde windturbine, in meters."
+    },
+    {
+     "name": "op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "type": "boolean",
+     "description": "Of de turbine op of in aansluiting op een bestaand bouwperceel wordt geplaatst."
+    }
+   ],
+   "input": [
+    {
+     "name": "in_gebied_kleine_windturbine",
+     "type": "boolean",
+     "description": "Geo-feit: of de locatie binnen het Gebied kleine windturbine ligt.",
+     "source": {
+      "description": "Buiten de wet-YAML op te lossen (register/GIO): punt-in-polygoon tegen de GIO \"Gebied kleine windturbine\" uit Bijlage II van CVDR704250 (join-id /join/id/regdata/pv26/2025/gio73f71441-6b83-4be5-9fef-293714578255/nld@2025-10-10;822). In de LDT-toolbox levert de zone-engine van PoC-1 dit feit (agrest IMOW-laag van de vigerende verordening als GIO-alias)."
+     }
+    }
+   ],
+   "output": [
+    {
+     "name": "toegestaan_kleine_windturbine",
+     "type": "boolean",
+     "description": "Of een omgevingsplan hier regels kan bevatten die de turbine toestaan."
+    }
+   ],
+   "actions": [
+    {
+     "output": "toegestaan_kleine_windturbine",
+     "value": {
+      "operation": "AND",
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "inputs": {
+   "ashoogte_m": 20,
+   "op_of_in_aansluiting_op_bestaand_bouwperceel": false,
+   "in_gebied_kleine_windturbine": false
+  },
+  "expectedOutputs": {
+   "toegestaan_kleine_windturbine": false
+  },
+  "trace": [
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "LESS_THAN_OR_EQUAL",
+    "operands": {
+     "subject": "$ashoogte_m",
+     "value": 20
+    },
+    "result": true
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "value": true
+    },
+    "result": false
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$in_gebied_kleine_windturbine",
+     "value": true
+    },
+    "result": false
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "AND",
+    "operands": {
+     "conditions": [
+      {
+       "operation": "LESS_THAN_OR_EQUAL",
+       "subject": "$ashoogte_m",
+       "value": 20
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+       "value": true
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$in_gebied_kleine_windturbine",
+       "value": true
+      }
+     ]
+    },
+    "result": false
+   }
+  ]
+ },
+ {
+  "id": "utrecht-h21-p1-z1",
+  "execution": {
+   "produces": {
+    "legal_character": "TOETS"
+   },
+   "parameters": [
+    {
+     "name": "ashoogte_m",
+     "type": "number",
+     "description": "As van de voorgestelde windturbine, in meters."
+    },
+    {
+     "name": "op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "type": "boolean",
+     "description": "Of de turbine op of in aansluiting op een bestaand bouwperceel wordt geplaatst."
+    }
+   ],
+   "input": [
+    {
+     "name": "in_gebied_kleine_windturbine",
+     "type": "boolean",
+     "description": "Geo-feit: of de locatie binnen het Gebied kleine windturbine ligt.",
+     "source": {
+      "description": "Buiten de wet-YAML op te lossen (register/GIO): punt-in-polygoon tegen de GIO \"Gebied kleine windturbine\" uit Bijlage II van CVDR704250 (join-id /join/id/regdata/pv26/2025/gio73f71441-6b83-4be5-9fef-293714578255/nld@2025-10-10;822). In de LDT-toolbox levert de zone-engine van PoC-1 dit feit (agrest IMOW-laag van de vigerende verordening als GIO-alias)."
+     }
+    }
+   ],
+   "output": [
+    {
+     "name": "toegestaan_kleine_windturbine",
+     "type": "boolean",
+     "description": "Of een omgevingsplan hier regels kan bevatten die de turbine toestaan."
+    }
+   ],
+   "actions": [
+    {
+     "output": "toegestaan_kleine_windturbine",
+     "value": {
+      "operation": "AND",
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "inputs": {
+   "ashoogte_m": 21,
+   "op_of_in_aansluiting_op_bestaand_bouwperceel": true,
+   "in_gebied_kleine_windturbine": true
+  },
+  "expectedOutputs": {
+   "toegestaan_kleine_windturbine": false
+  },
+  "trace": [
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "LESS_THAN_OR_EQUAL",
+    "operands": {
+     "subject": "$ashoogte_m",
+     "value": 20
+    },
+    "result": false
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "value": true
+    },
+    "result": true
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$in_gebied_kleine_windturbine",
+     "value": true
+    },
+    "result": true
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "AND",
+    "operands": {
+     "conditions": [
+      {
+       "operation": "LESS_THAN_OR_EQUAL",
+       "subject": "$ashoogte_m",
+       "value": 20
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+       "value": true
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$in_gebied_kleine_windturbine",
+       "value": true
+      }
+     ]
+    },
+    "result": false
+   }
+  ]
+ },
+ {
+  "id": "utrecht-h21-p1-z0",
+  "execution": {
+   "produces": {
+    "legal_character": "TOETS"
+   },
+   "parameters": [
+    {
+     "name": "ashoogte_m",
+     "type": "number",
+     "description": "As van de voorgestelde windturbine, in meters."
+    },
+    {
+     "name": "op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "type": "boolean",
+     "description": "Of de turbine op of in aansluiting op een bestaand bouwperceel wordt geplaatst."
+    }
+   ],
+   "input": [
+    {
+     "name": "in_gebied_kleine_windturbine",
+     "type": "boolean",
+     "description": "Geo-feit: of de locatie binnen het Gebied kleine windturbine ligt.",
+     "source": {
+      "description": "Buiten de wet-YAML op te lossen (register/GIO): punt-in-polygoon tegen de GIO \"Gebied kleine windturbine\" uit Bijlage II van CVDR704250 (join-id /join/id/regdata/pv26/2025/gio73f71441-6b83-4be5-9fef-293714578255/nld@2025-10-10;822). In de LDT-toolbox levert de zone-engine van PoC-1 dit feit (agrest IMOW-laag van de vigerende verordening als GIO-alias)."
+     }
+    }
+   ],
+   "output": [
+    {
+     "name": "toegestaan_kleine_windturbine",
+     "type": "boolean",
+     "description": "Of een omgevingsplan hier regels kan bevatten die de turbine toestaan."
+    }
+   ],
+   "actions": [
+    {
+     "output": "toegestaan_kleine_windturbine",
+     "value": {
+      "operation": "AND",
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "inputs": {
+   "ashoogte_m": 21,
+   "op_of_in_aansluiting_op_bestaand_bouwperceel": true,
+   "in_gebied_kleine_windturbine": false
+  },
+  "expectedOutputs": {
+   "toegestaan_kleine_windturbine": false
+  },
+  "trace": [
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "LESS_THAN_OR_EQUAL",
+    "operands": {
+     "subject": "$ashoogte_m",
+     "value": 20
+    },
+    "result": false
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "value": true
+    },
+    "result": true
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$in_gebied_kleine_windturbine",
+     "value": true
+    },
+    "result": false
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "AND",
+    "operands": {
+     "conditions": [
+      {
+       "operation": "LESS_THAN_OR_EQUAL",
+       "subject": "$ashoogte_m",
+       "value": 20
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+       "value": true
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$in_gebied_kleine_windturbine",
+       "value": true
+      }
+     ]
+    },
+    "result": false
+   }
+  ]
+ },
+ {
+  "id": "utrecht-h21-p0-z1",
+  "execution": {
+   "produces": {
+    "legal_character": "TOETS"
+   },
+   "parameters": [
+    {
+     "name": "ashoogte_m",
+     "type": "number",
+     "description": "As van de voorgestelde windturbine, in meters."
+    },
+    {
+     "name": "op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "type": "boolean",
+     "description": "Of de turbine op of in aansluiting op een bestaand bouwperceel wordt geplaatst."
+    }
+   ],
+   "input": [
+    {
+     "name": "in_gebied_kleine_windturbine",
+     "type": "boolean",
+     "description": "Geo-feit: of de locatie binnen het Gebied kleine windturbine ligt.",
+     "source": {
+      "description": "Buiten de wet-YAML op te lossen (register/GIO): punt-in-polygoon tegen de GIO \"Gebied kleine windturbine\" uit Bijlage II van CVDR704250 (join-id /join/id/regdata/pv26/2025/gio73f71441-6b83-4be5-9fef-293714578255/nld@2025-10-10;822). In de LDT-toolbox levert de zone-engine van PoC-1 dit feit (agrest IMOW-laag van de vigerende verordening als GIO-alias)."
+     }
+    }
+   ],
+   "output": [
+    {
+     "name": "toegestaan_kleine_windturbine",
+     "type": "boolean",
+     "description": "Of een omgevingsplan hier regels kan bevatten die de turbine toestaan."
+    }
+   ],
+   "actions": [
+    {
+     "output": "toegestaan_kleine_windturbine",
+     "value": {
+      "operation": "AND",
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "inputs": {
+   "ashoogte_m": 21,
+   "op_of_in_aansluiting_op_bestaand_bouwperceel": false,
+   "in_gebied_kleine_windturbine": true
+  },
+  "expectedOutputs": {
+   "toegestaan_kleine_windturbine": false
+  },
+  "trace": [
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "LESS_THAN_OR_EQUAL",
+    "operands": {
+     "subject": "$ashoogte_m",
+     "value": 20
+    },
+    "result": false
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "value": true
+    },
+    "result": false
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$in_gebied_kleine_windturbine",
+     "value": true
+    },
+    "result": true
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "AND",
+    "operands": {
+     "conditions": [
+      {
+       "operation": "LESS_THAN_OR_EQUAL",
+       "subject": "$ashoogte_m",
+       "value": 20
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+       "value": true
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$in_gebied_kleine_windturbine",
+       "value": true
+      }
+     ]
+    },
+    "result": false
+   }
+  ]
+ },
+ {
+  "id": "utrecht-h21-p0-z0",
+  "execution": {
+   "produces": {
+    "legal_character": "TOETS"
+   },
+   "parameters": [
+    {
+     "name": "ashoogte_m",
+     "type": "number",
+     "description": "As van de voorgestelde windturbine, in meters."
+    },
+    {
+     "name": "op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "type": "boolean",
+     "description": "Of de turbine op of in aansluiting op een bestaand bouwperceel wordt geplaatst."
+    }
+   ],
+   "input": [
+    {
+     "name": "in_gebied_kleine_windturbine",
+     "type": "boolean",
+     "description": "Geo-feit: of de locatie binnen het Gebied kleine windturbine ligt.",
+     "source": {
+      "description": "Buiten de wet-YAML op te lossen (register/GIO): punt-in-polygoon tegen de GIO \"Gebied kleine windturbine\" uit Bijlage II van CVDR704250 (join-id /join/id/regdata/pv26/2025/gio73f71441-6b83-4be5-9fef-293714578255/nld@2025-10-10;822). In de LDT-toolbox levert de zone-engine van PoC-1 dit feit (agrest IMOW-laag van de vigerende verordening als GIO-alias)."
+     }
+    }
+   ],
+   "output": [
+    {
+     "name": "toegestaan_kleine_windturbine",
+     "type": "boolean",
+     "description": "Of een omgevingsplan hier regels kan bevatten die de turbine toestaan."
+    }
+   ],
+   "actions": [
+    {
+     "output": "toegestaan_kleine_windturbine",
+     "value": {
+      "operation": "AND",
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "inputs": {
+   "ashoogte_m": 21,
+   "op_of_in_aansluiting_op_bestaand_bouwperceel": false,
+   "in_gebied_kleine_windturbine": false
+  },
+  "expectedOutputs": {
+   "toegestaan_kleine_windturbine": false
+  },
+  "trace": [
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "LESS_THAN_OR_EQUAL",
+    "operands": {
+     "subject": "$ashoogte_m",
+     "value": 20
+    },
+    "result": false
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "value": true
+    },
+    "result": false
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$in_gebied_kleine_windturbine",
+     "value": true
+    },
+    "result": false
+   },
+   {
+    "action": "toegestaan_kleine_windturbine",
+    "operation": "AND",
+    "operands": {
+     "conditions": [
+      {
+       "operation": "LESS_THAN_OR_EQUAL",
+       "subject": "$ashoogte_m",
+       "value": 20
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+       "value": true
+      },
+      {
+       "operation": "EQUALS",
+       "subject": "$in_gebied_kleine_windturbine",
+       "value": true
+      }
+     ]
+    },
+    "result": false
+   }
+  ]
+ },
+ {
+  "id": "eindhoven-s1-i1",
+  "execution": {
+   "produces": {
+    "legal_character": "TOETS"
+   },
+   "parameters": [
+    {
+     "name": "voorschriften_verbonden_voor_iwt",
+     "type": "boolean",
+     "description": "Of aan de milieubelastende activiteit voorschriften zijn verbonden aan een omgevingsvergunning die vóór de inwerkingtreding (IWT) van de Omgevingswet onherroepelijk was, of vóór IWT was aangevraagd en daarna onherroepelijk werd (lid 2, onder a en b)."
+    }
+   ],
+   "input": [
+    {
+     "name": "strijd_met_tijdelijk_deel",
+     "type": "boolean",
+     "description": "Of de desbetreffende regel van dit hoofdstuk ter plaatse strijdig is met een nog in werking zijnde regel uit het tijdelijke deel (hoofdstukken 22/23).",
+     "source": {
+      "description": "Buiten de wet-YAML op te lossen: de regel-conversieketen van poc-bp2op (kennisbank \"komt in de plaats van\"-relaties + omzettabel) levert dit feit per bron-/doelregelpaar; het werkingsgebied zelf is een geo-feit (werkingsgebiedRef, MC-11)."
+     }
+    }
+   ],
+   "output": [
+    {
+     "name": "regels_hoofdstuk_van_toepassing",
+     "type": "boolean",
+     "description": "Of de regels van het hoofdstuk (art. 10.2, eerste lid) van toepassing zijn."
+    }
+   ],
+   "actions": [
+    {
+     "output": "regels_hoofdstuk_van_toepassing",
+     "value": {
+      "operation": "IF",
+      "cases": [
+       {
+        "when": {
+         "operation": "EQUALS",
+         "subject": "$strijd_met_tijdelijk_deel",
+         "value": true
+        },
+        "then": false
+       },
+       {
+        "when": {
+         "operation": "EQUALS",
+         "subject": "$voorschriften_verbonden_voor_iwt",
+         "value": true
+        },
+        "then": false
+       }
+      ],
+      "default": true
+     }
+    }
+   ]
+  },
+  "inputs": {
+   "strijd_met_tijdelijk_deel": true,
+   "voorschriften_verbonden_voor_iwt": true
+  },
+  "expectedOutputs": {
+   "regels_hoofdstuk_van_toepassing": false
+  },
+  "trace": [
+   {
+    "action": "regels_hoofdstuk_van_toepassing",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$strijd_met_tijdelijk_deel",
+     "value": true
+    },
+    "result": true
+   },
+   {
+    "action": "regels_hoofdstuk_van_toepassing",
+    "operation": "IF",
+    "operands": {
+     "cases": 2,
+     "default": true,
+     "firedCase": 1
+    },
+    "result": false
+   }
+  ]
+ },
+ {
+  "id": "eindhoven-s1-i0",
+  "execution": {
+   "produces": {
+    "legal_character": "TOETS"
+   },
+   "parameters": [
+    {
+     "name": "voorschriften_verbonden_voor_iwt",
+     "type": "boolean",
+     "description": "Of aan de milieubelastende activiteit voorschriften zijn verbonden aan een omgevingsvergunning die vóór de inwerkingtreding (IWT) van de Omgevingswet onherroepelijk was, of vóór IWT was aangevraagd en daarna onherroepelijk werd (lid 2, onder a en b)."
+    }
+   ],
+   "input": [
+    {
+     "name": "strijd_met_tijdelijk_deel",
+     "type": "boolean",
+     "description": "Of de desbetreffende regel van dit hoofdstuk ter plaatse strijdig is met een nog in werking zijnde regel uit het tijdelijke deel (hoofdstukken 22/23).",
+     "source": {
+      "description": "Buiten de wet-YAML op te lossen: de regel-conversieketen van poc-bp2op (kennisbank \"komt in de plaats van\"-relaties + omzettabel) levert dit feit per bron-/doelregelpaar; het werkingsgebied zelf is een geo-feit (werkingsgebiedRef, MC-11)."
+     }
+    }
+   ],
+   "output": [
+    {
+     "name": "regels_hoofdstuk_van_toepassing",
+     "type": "boolean",
+     "description": "Of de regels van het hoofdstuk (art. 10.2, eerste lid) van toepassing zijn."
+    }
+   ],
+   "actions": [
+    {
+     "output": "regels_hoofdstuk_van_toepassing",
+     "value": {
+      "operation": "IF",
+      "cases": [
+       {
+        "when": {
+         "operation": "EQUALS",
+         "subject": "$strijd_met_tijdelijk_deel",
+         "value": true
+        },
+        "then": false
+       },
+       {
+        "when": {
+         "operation": "EQUALS",
+         "subject": "$voorschriften_verbonden_voor_iwt",
+         "value": true
+        },
+        "then": false
+       }
+      ],
+      "default": true
+     }
+    }
+   ]
+  },
+  "inputs": {
+   "strijd_met_tijdelijk_deel": true,
+   "voorschriften_verbonden_voor_iwt": false
+  },
+  "expectedOutputs": {
+   "regels_hoofdstuk_van_toepassing": false
+  },
+  "trace": [
+   {
+    "action": "regels_hoofdstuk_van_toepassing",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$strijd_met_tijdelijk_deel",
+     "value": true
+    },
+    "result": true
+   },
+   {
+    "action": "regels_hoofdstuk_van_toepassing",
+    "operation": "IF",
+    "operands": {
+     "cases": 2,
+     "default": true,
+     "firedCase": 1
+    },
+    "result": false
+   }
+  ]
+ },
+ {
+  "id": "eindhoven-s0-i1",
+  "execution": {
+   "produces": {
+    "legal_character": "TOETS"
+   },
+   "parameters": [
+    {
+     "name": "voorschriften_verbonden_voor_iwt",
+     "type": "boolean",
+     "description": "Of aan de milieubelastende activiteit voorschriften zijn verbonden aan een omgevingsvergunning die vóór de inwerkingtreding (IWT) van de Omgevingswet onherroepelijk was, of vóór IWT was aangevraagd en daarna onherroepelijk werd (lid 2, onder a en b)."
+    }
+   ],
+   "input": [
+    {
+     "name": "strijd_met_tijdelijk_deel",
+     "type": "boolean",
+     "description": "Of de desbetreffende regel van dit hoofdstuk ter plaatse strijdig is met een nog in werking zijnde regel uit het tijdelijke deel (hoofdstukken 22/23).",
+     "source": {
+      "description": "Buiten de wet-YAML op te lossen: de regel-conversieketen van poc-bp2op (kennisbank \"komt in de plaats van\"-relaties + omzettabel) levert dit feit per bron-/doelregelpaar; het werkingsgebied zelf is een geo-feit (werkingsgebiedRef, MC-11)."
+     }
+    }
+   ],
+   "output": [
+    {
+     "name": "regels_hoofdstuk_van_toepassing",
+     "type": "boolean",
+     "description": "Of de regels van het hoofdstuk (art. 10.2, eerste lid) van toepassing zijn."
+    }
+   ],
+   "actions": [
+    {
+     "output": "regels_hoofdstuk_van_toepassing",
+     "value": {
+      "operation": "IF",
+      "cases": [
+       {
+        "when": {
+         "operation": "EQUALS",
+         "subject": "$strijd_met_tijdelijk_deel",
+         "value": true
+        },
+        "then": false
+       },
+       {
+        "when": {
+         "operation": "EQUALS",
+         "subject": "$voorschriften_verbonden_voor_iwt",
+         "value": true
+        },
+        "then": false
+       }
+      ],
+      "default": true
+     }
+    }
+   ]
+  },
+  "inputs": {
+   "strijd_met_tijdelijk_deel": false,
+   "voorschriften_verbonden_voor_iwt": true
+  },
+  "expectedOutputs": {
+   "regels_hoofdstuk_van_toepassing": false
+  },
+  "trace": [
+   {
+    "action": "regels_hoofdstuk_van_toepassing",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$strijd_met_tijdelijk_deel",
+     "value": true
+    },
+    "result": false
+   },
+   {
+    "action": "regels_hoofdstuk_van_toepassing",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$voorschriften_verbonden_voor_iwt",
+     "value": true
+    },
+    "result": true
+   },
+   {
+    "action": "regels_hoofdstuk_van_toepassing",
+    "operation": "IF",
+    "operands": {
+     "cases": 2,
+     "default": true,
+     "firedCase": 2
+    },
+    "result": false
+   }
+  ]
+ },
+ {
+  "id": "eindhoven-s0-i0",
+  "execution": {
+   "produces": {
+    "legal_character": "TOETS"
+   },
+   "parameters": [
+    {
+     "name": "voorschriften_verbonden_voor_iwt",
+     "type": "boolean",
+     "description": "Of aan de milieubelastende activiteit voorschriften zijn verbonden aan een omgevingsvergunning die vóór de inwerkingtreding (IWT) van de Omgevingswet onherroepelijk was, of vóór IWT was aangevraagd en daarna onherroepelijk werd (lid 2, onder a en b)."
+    }
+   ],
+   "input": [
+    {
+     "name": "strijd_met_tijdelijk_deel",
+     "type": "boolean",
+     "description": "Of de desbetreffende regel van dit hoofdstuk ter plaatse strijdig is met een nog in werking zijnde regel uit het tijdelijke deel (hoofdstukken 22/23).",
+     "source": {
+      "description": "Buiten de wet-YAML op te lossen: de regel-conversieketen van poc-bp2op (kennisbank \"komt in de plaats van\"-relaties + omzettabel) levert dit feit per bron-/doelregelpaar; het werkingsgebied zelf is een geo-feit (werkingsgebiedRef, MC-11)."
+     }
+    }
+   ],
+   "output": [
+    {
+     "name": "regels_hoofdstuk_van_toepassing",
+     "type": "boolean",
+     "description": "Of de regels van het hoofdstuk (art. 10.2, eerste lid) van toepassing zijn."
+    }
+   ],
+   "actions": [
+    {
+     "output": "regels_hoofdstuk_van_toepassing",
+     "value": {
+      "operation": "IF",
+      "cases": [
+       {
+        "when": {
+         "operation": "EQUALS",
+         "subject": "$strijd_met_tijdelijk_deel",
+         "value": true
+        },
+        "then": false
+       },
+       {
+        "when": {
+         "operation": "EQUALS",
+         "subject": "$voorschriften_verbonden_voor_iwt",
+         "value": true
+        },
+        "then": false
+       }
+      ],
+      "default": true
+     }
+    }
+   ]
+  },
+  "inputs": {
+   "strijd_met_tijdelijk_deel": false,
+   "voorschriften_verbonden_voor_iwt": false
+  },
+  "expectedOutputs": {
+   "regels_hoofdstuk_van_toepassing": true
+  },
+  "trace": [
+   {
+    "action": "regels_hoofdstuk_van_toepassing",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$strijd_met_tijdelijk_deel",
+     "value": true
+    },
+    "result": false
+   },
+   {
+    "action": "regels_hoofdstuk_van_toepassing",
+    "operation": "EQUALS",
+    "operands": {
+     "subject": "$voorschriften_verbonden_voor_iwt",
+     "value": true
+    },
+    "result": false
+   },
+   {
+    "action": "regels_hoofdstuk_van_toepassing",
+    "operation": "IF",
+    "operands": {
+     "cases": 2,
+     "default": true,
+     "firedCase": 0
+    },
+    "result": true
+   }
+  ]
+ }
+]
