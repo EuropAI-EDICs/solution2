@@ -294,5 +294,24 @@ class TestDemoPage(unittest.TestCase):
         self.assertIn("tijdelijke deel", text)
 
 
+SIM_DIR = ROOT / "nldt" / "simulation"
+
+
+class TestSimulationLinks(unittest.TestCase):
+    def test_story_pages_link_demo(self):
+        for page, poc in (("poc-utrecht.html", "utrecht"), ("poc-eindhoven.html", "eindhoven")):
+            text = (SIM_DIR / page).read_text()
+            self.assertIn(f"regelrecht-demo.html?poc={poc}", text)
+
+    def test_hub_links_demo(self):
+        text = (SIM_DIR / "index.html").read_text()
+        self.assertIn("regelrecht-demo.html", text)
+
+    def test_readme_documents_build(self):
+        text = (SIM_DIR / "README.md").read_text()
+        self.assertIn("regelrecht-demo.html", text)
+        self.assertIn("build_runs.py", text)
+
+
 if __name__ == "__main__":
     unittest.main()
