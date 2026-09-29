@@ -1,0 +1,139 @@
+{
+ "processId": "us-stiltegebied-noise-eval",
+ "fingerprint": "79396223de30abcf39f37d3d52b7e8de5ddff413a0bd72f9a68aed3046be0446",
+ "outputs": {
+  "evaluation": {
+   "thresholds": {
+    "stilleKernDb": 40.0,
+    "bufferzoneDb": 45.0,
+    "legalBasis": "Omgevingsverordening provincie Utrecht art. 9.26 (CVDR704250)"
+   },
+   "counts": {
+    "receptorsTotal": 5,
+    "inStilleKern": 2,
+    "inBufferzone": 2,
+    "outside": 1,
+    "exceedancesStilleKern": 1,
+    "exceedancesBufferzone": 1,
+    "exceedancesTotal": 2
+   },
+   "perZone": {
+    "stille_kern": {
+     "count": 2,
+     "max": 42.5,
+     "p95": 42.285
+    },
+    "bufferzone": {
+     "count": 2,
+     "max": 47.1,
+     "p95": 46.895
+    },
+    "outside": {
+     "count": 1,
+     "max": 55.0,
+     "p95": 55.0
+    }
+   },
+   "receptors": [
+    {
+     "id": "r-buf-hi",
+     "lAeq": 47.1,
+     "zone": "bufferzone",
+     "thresholdDb": 45.0,
+     "exceeds": true,
+     "iLden": 49.0
+    },
+    {
+     "id": "r-buf-ok",
+     "lAeq": 43.0,
+     "zone": "bufferzone",
+     "thresholdDb": 45.0,
+     "exceeds": false,
+     "iLden": 45.0
+    },
+    {
+     "id": "r-kern-hi",
+     "lAeq": 42.5,
+     "zone": "stille_kern",
+     "thresholdDb": 40.0,
+     "exceeds": true,
+     "iLden": 44.0
+    },
+    {
+     "id": "r-kern-ok",
+     "lAeq": 38.2,
+     "zone": "stille_kern",
+     "thresholdDb": 40.0,
+     "exceeds": false,
+     "iLden": 40.0
+    },
+    {
+     "id": "r-out",
+     "lAeq": 55.0,
+     "zone": "outside",
+     "thresholdDb": null,
+     "exceeds": false,
+     "iLden": 58.0
+    }
+   ],
+   "exceedances": {
+    "type": "FeatureCollection",
+    "features": [
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "r-buf-hi",
+       "lAeq": 47.1,
+       "zone": "bufferzone",
+       "thresholdDb": 45.0,
+       "exceeds": true
+      },
+      "geometry": {
+       "type": "Point",
+       "coordinates": [
+        5.138,
+        52.098
+       ]
+      }
+     },
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "r-kern-hi",
+       "lAeq": 42.5,
+       "zone": "stille_kern",
+       "thresholdDb": 40.0,
+       "exceeds": true
+      },
+      "geometry": {
+       "type": "Point",
+       "coordinates": [
+        5.125,
+        52.098
+       ]
+      }
+     }
+    ]
+   },
+   "crs": "geometry-EPSG:4326-pip-EPSG:28992",
+   "normCardId": "NC-W-11",
+   "formalRuleId": "FR-W-11",
+   "caveats": [
+    "SRM-2 traffic/industry noise field via Urban Strategy; not turbine-source specific",
+    "Decision-support annex only — does not rewrite FR-W-11 / FormalRule status"
+   ]
+  }
+ },
+ "prov": {
+  "activity": "nldt:ProcessExecution/us-stiltegebied-noise-eval",
+  "agent": "nldt:ProcessAdapter/local",
+  "generated": "nldt:JobResult/aa4cd950-1d22-40a4-88ad-45df5a0d6347",
+  "used": [
+   "nldt:Input/bufferzone",
+   "nldt:Input/receptors",
+   "nldt:Input/stilleKern"
+  ],
+  "startedAtTime": "2026-09-29T18:02:43Z",
+  "endedAtTime": "2026-09-29T18:02:43Z"
+ }
+}

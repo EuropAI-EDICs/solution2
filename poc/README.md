@@ -4,7 +4,10 @@ This is the working proof-of-concept of the multi-agent architecture specified i
 [`MULTI_AGENT_PLAN.md`](../MULTI_AGENT_PLAN.md) and elaborated in
 [`docs/SOLUTIONS_ARCHITECTURE.md`](../docs/SOLUTIONS_ARCHITECTURE.md) (read that
 document first: module boundaries, contract catalogue, validation levels,
-technology and roadmap). It answers, for the province of Utrecht (NL) at the
+technology and roadmap). Urban Strategy (Scenexus) stiltegebied noise
+screening for the Utrecht wind track — decision-support annex for
+art. 9.26 / FR-W-11 — is documented in
+[`docs/POC_URBANSTRATEGY_INTEGRATION.md`](../docs/POC_URBANSTRATEGY_INTEGRATION.md). It answers, for the province of Utrecht (NL) at the
 **programming** policy stage, the same traceable question for **three object
 types** (tracks), all on the same instrument and pipeline:
 
@@ -298,6 +301,23 @@ Zone truth stays polygon-based; H3 is a reporting layer computed by the
   cell deltas (`control.h3`, scenario-row `h3`); `--no-h3` skips the hex
   overlays (omit `--buildings` too for a fully hex-free crosstrack run)
 - fixtures: `POC_H3_OFFLINE= ../nldt/.venv/bin/python tests/make_h3_fixtures.py` (in `poc/`)
+
+## Urban Strategy stiltegebied screen (wind)
+
+Art. 9.26 LAeq thresholds (40/45 dB) stay legally ambiguous as FR-W-11; the
+wind track adds a **decision-support** receptor exceedance screen via nldt
+`us-*` processes and `pipeline/usstep.py` (cache-first under
+`poc/data/cache/us/`, offline via `POC_US_OFFLINE=1`).
+
+```bash
+python3 poc/run.py --use-case wind          # writes urbanstrategy-stiltegebied.json
+python3 poc/run.py --use-case wind --skip-us
+POC_US_OFFLINE= ../nldt/.venv/bin/python tests/make_us_fixtures.py   # in poc/
+```
+
+Live RestAPI (opt-in): `US_LIVE=1` plus `US_BASE_URL`, `US_TOKEN` (or
+email/password), `US_BIN`. See
+[`docs/POC_URBANSTRATEGY_INTEGRATION.md`](../docs/POC_URBANSTRATEGY_INTEGRATION.md).
 
 ## Adding use cases
 

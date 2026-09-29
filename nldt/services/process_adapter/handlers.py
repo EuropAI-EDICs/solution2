@@ -9,6 +9,8 @@ from urllib.parse import urlparse
 import httpx
 
 from services.common import h3kit
+from services.common import urbanstrategy_client as us_client
+from services.common import us_stiltegebied as us_stilte
 from services.common.geo import (
     area_statistics,
     intersect_feature_collections,
@@ -293,6 +295,54 @@ PROCESS_DEFINITIONS_CORE: dict[str, dict[str, Any]] = {
             "publish": {"title": "Optional publish result", "schema": {"type": "object"}},
         },
     },
+    "us-fetch-noise-receptors": {
+        "id": "us-fetch-noise-receptors",
+        "title": "Urban Strategy fetch noise receptors",
+        "description": (
+            "Load normalized noise receptors (lAeq/iLden) from a fixture:// "
+            "path or, when US_LIVE=1, from the Urban Strategy RestAPI bin store"
+        ),
+        "version": "1.0.0",
+        "inputs": {
+            "source": {"title": "fixture://… or file path (preferred offline)",
+                       "schema": {"type": "string"}},
+            "baseUrl": {"title": "Urban Strategy base URL",
+                        "schema": {"type": "string"}},
+            "bin": {"title": "US bin / project id",
+                    "schema": {"type": "string"}},
+            "collection": {"title": "Optional collection name filter",
+                           "schema": {"type": "string"}},
+        },
+        "outputs": {
+            "receptors": {"title": "Receptor FeatureCollection",
+                          "schema": {"type": "object"}},
+        },
+    },
+    "us-stiltegebied-noise-eval": {
+        "id": "us-stiltegebied-noise-eval",
+        "title": "Stiltegebied noise exceedance screen",
+        "description": (
+            "Classify Urban Strategy receptors against stiltegebied polygons "
+            "and art. 9.26 LAeq thresholds (40/45 dB); decision-support only"
+        ),
+        "version": "1.0.0",
+        "inputs": {
+            "receptors": {"title": "Receptor FeatureCollection (EPSG:4326)",
+                          "schema": {"type": ["object", "string"]}},
+            "stilleKern": {"title": "Gebied stille kern polygons",
+                           "schema": {"type": ["object", "string"]}},
+            "bufferzone": {"title": "Bufferzone stiltegebied polygons",
+                           "schema": {"type": ["object", "string"]}},
+            "stilleKernDb": {"title": "Threshold dB for stille kern (default 40)",
+                             "schema": {"type": "number"}},
+            "bufferzoneDb": {"title": "Threshold dB for bufferzone (default 45)",
+                             "schema": {"type": "number"}},
+        },
+        "outputs": {
+            "evaluation": {"title": "UsStiltegebiedEval",
+                           "schema": {"type": "object"}},
+        },
+    },
     "timeseries-ingest-run": {
         "id": "timeseries-ingest-run",
         "title": "Ingest open time-series into lake silver",
@@ -468,6 +518,30 @@ def execute_local(process_id: str, inputs: dict[str, Any]) -> dict[str, Any]:
             max_peil_stations=_max_peil_stations(inputs.get("maxPeilStations")),
         )
         return {"summary": summary}
+    if process_id == "us-fetch-noise-receptors":
+        source = inputs.get("source") or ""
+        fc = us_client.fetch_noise_receptors(
+            source=source or None,
+            base_url=inputs.get("baseUrl"),
+            bin_id=inputs.get("bin"),
+            collection=inputs.get("collection"),
+        )
+        return {"receptors": fc}
+    if process_id == "us-stiltegebied-noise-eval":
+        receptors = parse_geojson_input(inputs["receptors"])
+        stille = None
+        if inputs.get("stilleKern") not in (None, ""):
+            stille = parse_geojson_input(inputs["stilleKern"])
+        bufferzone = None
+        if inputs.get("bufferzone") not in (None, ""):
+            bufferzone = parse_geojson_input(inputs["bufferzone"])
+        kwargs: dict[str, Any] = {}
+        if inputs.get("stilleKernDb") not in (None, ""):
+            kwargs["stille_kern_db"] = float(inputs["stilleKernDb"])
+        if inputs.get("bufferzoneDb") not in (None, ""):
+            kwargs["bufferzone_db"] = float(inputs["bufferzoneDb"])
+        return {"evaluation": us_stilte.evaluate(
+            receptors, stille, bufferzone, **kwargs)}
     raise KeyError(f"Unknown process: {process_id}")
 
 

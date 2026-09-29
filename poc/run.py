@@ -519,6 +519,10 @@ def build_parser() -> argparse.ArgumentParser:
                     help="Norm Formalizer leg (S2): deterministic templates (default) or gated "
                          "LLM proposals for template-less ambiguous cards (needs "
                          "LDT_NORM_LLM_ENDPOINT; loud fallback on any transport failure)")
+    ap.add_argument("--skip-us", action="store_true",
+                    help="skip Urban Strategy stiltegebied noise screening (wind track)")
+    ap.add_argument("--refresh-us", action="store_true",
+                    help="ignore poc/data/cache/us and re-invoke nldt us-* processes")
     return ap
 
 
@@ -754,6 +758,49 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         )
         dump_json(run_dir / "report_input.json", report_input, indent=1)
 
+    # ---------------- 6b. Urban Strategy stiltegebied screen (wind) ---------- #
+    us_eval: Optional[Dict[str, Any]] = None
+    if args.use_case == "wind" and not args.skip_us:
+        with log.stage(
+            "urbanstrategy-stiltegebied",
+            "Urban Strategy: art. 9.26 stiltegebied noise exceedance screen (decision-support)",
+            "usstep",
+            used=["layers.json"],
+            generated=["urbanstrategy-stiltegebied.json"],
+        ):
+            try:
+                from pipeline import usstep
+
+                stilte_4326 = None
+                twin = geodata.DEFAULT_CACHE_DIR / "agrest-ov-stiltegebied.4326.geojson"
+                if twin.exists():
+                    stilte_4326 = json.loads(twin.read_text(encoding="utf-8"))
+                elif "stiltegebied" in layers:
+                    stilte_4326 = geodata.feature_collection_to_wgs84(layers["stiltegebied"])
+                if stilte_4326 is None:
+                    degradations.append({
+                        "kind": "urbanstrategy-skipped",
+                        "error": "stiltegebied layer unavailable for US screen",
+                    })
+                    print("[us] skipped: stiltegebied layer unavailable")
+                else:
+                    us_eval = usstep.stiltegebied_noise_screen(
+                        stilte_4326, refresh=args.refresh_us,
+                    )
+                    dump_json(run_dir / "urbanstrategy-stiltegebied.json", us_eval, indent=1)
+                    c = us_eval["counts"]
+                    print(
+                        f"[us] stiltegebied screen: {c['receptorsTotal']} receptors; "
+                        f"{c['exceedancesTotal']} exceedance(s) "
+                        f"(kern={c['exceedancesStilleKern']}, buf={c['exceedancesBufferzone']})"
+                    )
+            except Exception as exc:  # noqa: BLE001 — degrade, never flip verdict
+                degradations.append({
+                    "kind": "urbanstrategy-error",
+                    "error": str(exc)[:500],
+                })
+                print(f"[us] degraded: {exc}")
+
     # ---------------- 7. Critic ---------------------------------------------- #
     with log.stage("critic", "Critic/Validator: V0-V3 deterministic + V4 pending",
                    critic.Critic.agent_name,
@@ -839,6 +886,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             explainer.entity_for(run_dir / "decision-table.md", "DecisionTable (markdown)"),
             explainer.entity_for(run_dir / "validation.json", "ValidationReport[]"),
         ]
+        us_path = run_dir / "urbanstrategy-stiltegebied.json"
+        if us_path.exists():
+            ent.append(explainer.entity_for(
+                us_path,
+                "Urban Strategy stiltegebied noise screen (NC-W-11 annex)",
+            ))
         if gml["ok"]:
             ent.append(explainer.entity_for(Path(gml["path"]), "zones GML 3.2"))
         for zone, sid in sorted(source_of_zone.items()):
@@ -1081,10 +1134,22 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             "geometryRepairs": total_repairs,
             "normCards": len(cards),
             "abstentions": len(rejected_ledger.get("abstentions", [])),
+            "usStiltegebiedExceedances": (
+                us_eval["counts"]["exceedancesTotal"] if us_eval else None
+            ),
         },
         "perRule": rule_stats,
         "degradations": degradations,
         "tunings": tunings,
+        "urbanstrategyStiltegebied": (
+            {
+                "exceedancesTotal": us_eval["counts"]["exceedancesTotal"],
+                "inStilleKern": us_eval["counts"]["inStilleKern"],
+                "normCardId": us_eval.get("normCardId"),
+            }
+            if us_eval
+            else None
+        ),
         "v3": next(
             (c["detail"] for vr in reports_l for lvl in vr["levels"].values()
              for c in lvl.get("checks", []) if c["id"] == "v3-reexecution-agreement"),
