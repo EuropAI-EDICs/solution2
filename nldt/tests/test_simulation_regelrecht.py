@@ -2,6 +2,7 @@
 """Tests voor de RegelRecht-simulaties (spec 2026-09-29-simulation-regelrecht-design)."""
 import json
 import pathlib
+import subprocess  # noqa: E402
 import sys
 import unittest
 
@@ -252,6 +253,26 @@ class TestGeneratorEindhoven(unittest.TestCase):
 
     def test_run_schema_valid(self):
         _schema().validate(self.run_data)
+
+
+ENGINE_DIR = REGELRECHT_DIR / "engine"
+
+
+class TestGoldenSetAndJsEngine(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.proc = subprocess.run(
+            ["node", str(ENGINE_DIR / "selftest.mjs")],
+            capture_output=True, text=True, cwd=str(ROOT),
+        )
+
+    def test_engine_cases_exist_and_sixteen(self):
+        data = json.loads((ENGINE_DIR / "engine-cases.json").read_text())
+        self.assertEqual(len(data), 16)
+
+    def test_node_selftest_passes(self):
+        self.assertEqual(self.proc.returncode, 0, msg=self.proc.stdout + self.proc.stderr)
+        self.assertIn("16/16", self.proc.stdout)
 
 
 if __name__ == "__main__":

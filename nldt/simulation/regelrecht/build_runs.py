@@ -245,6 +245,25 @@ def main(argv=None) -> int:
         json.dumps(run, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"
     )
     print(f"OK eindhoven runId={run['runId']} cases={len(run['demoCases'])}")
+
+    cases = []
+    for poc in ("utrecht", "eindhoven"):
+        run = json.loads((runs_dir / POC_CONFIGS[poc]["run_file"]).read_text())
+        execution = run["machineReadable"]["execution"]
+        for case in run["demoCases"]:
+            cases.append({
+                "id": case["id"],
+                "execution": execution,
+                "inputs": case["inputs"],
+                "expectedOutputs": case["expectedOutputs"],
+                "trace": case["trace"],
+            })
+    engine_dir = outdir / "engine"
+    engine_dir.mkdir(parents=True, exist_ok=True)
+    (engine_dir / "engine-cases.json").write_text(
+        json.dumps(cases, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"
+    )
+    print(f"OK golden set cases={len(cases)}")
     return 0
 
 
