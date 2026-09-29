@@ -255,6 +255,41 @@ class TestGeneratorEindhoven(unittest.TestCase):
         _schema().validate(self.run_data)
 
 
+import tempfile  # noqa: E402
+
+# Venv staat in de hoofdwerkmap (werkmap van deze tests kan een worktree zijn
+# zonder eigen .venv); daarom het absolute pad naar de interpreter.
+VENV_PYTHON = "/Users/marc/Projecten/ldttoolbox/nldt/.venv/bin/python"
+
+
+class TestIdempotency(unittest.TestCase):
+    def test_rebuild_is_byte_identical(self):
+        with tempfile.TemporaryDirectory() as td:
+            outs = []
+            for _ in range(2):
+                rc = subprocess.run(
+                    [VENV_PYTHON,
+                     "nldt/simulation/regelrecht/build_runs.py",
+                     "--stamp", "2026-09-29T00:00:00Z", "--outdir", td],
+                    capture_output=True, text=True, cwd=str(ROOT),
+                )
+                self.assertEqual(rc.returncode, 0, msg=rc.stderr)
+                outs.append({p.name: p.read_text() for p in pathlib.Path(td).rglob("*.*")})
+            self.assertEqual(outs[0], outs[1])
+
+
+class TestDemoCasesReproduceInReference(unittest.TestCase):
+    def test_all_cases_match_reference_engine(self):
+        for poc in ("utrecht", "eindhoven"):
+            run = build_runs.build_utrecht_run(build_runs.load_artifacts("utrecht"), STAMP) \
+                if poc == "utrecht" else build_runs.build_eindhoven_run(build_runs.load_artifacts("eindhoven"), STAMP)
+            execution = run["machineReadable"]["execution"]
+            for case in run["demoCases"]:
+                r = evaluate(execution, case["inputs"])
+                self.assertEqual(r["outputs"], case["expectedOutputs"], msg=case["id"])
+                self.assertEqual(r["trace"], case["trace"], msg=case["id"])
+
+
 ENGINE_DIR = REGELRECHT_DIR / "engine"
 
 
