@@ -40,6 +40,7 @@ SCHEMA_NAMES = (
     "scenario-report",
     "crosstrack-report",
     "h3coverage",
+    "world-scene-spec",
 )
 
 #: domains where these contracts are deliberately strict (see schema files)

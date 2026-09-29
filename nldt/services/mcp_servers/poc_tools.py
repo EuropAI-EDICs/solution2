@@ -17,6 +17,10 @@ POC_TOOLS: dict[str, dict[str, Any]] = {
         "process_id": "scenario-sweep",
         "description": "Utrecht scenario sweep (Plane B)",
     },
+    "build_world_scene": {
+        "process_id": "world-scene-build",
+        "description": "Build world-scene-specs.json for scenario-copilot (Renderer contract)",
+    },
     "ask_scan": {
         "process_id": "breda-scan-query",
         "description": "Breda scan Q&A S4 (cite-or-abstain)",

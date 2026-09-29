@@ -78,6 +78,34 @@ POC_PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
             "proposals": {"title": "Accepted ScenarioSpecs", "schema": {"type": "object"}},
         },
     },
+    "world-scene-build": {
+        "id": "world-scene-build",
+        "title": "World scene specs (Utrecht scenario-copilot)",
+        "description": (
+            "Build world-scene-specs.json from a scenario-run directory "
+            "(Renderer view contract; engine geometry only). Optional Marble "
+            "explore URLs for hypothetical scenarios when hitlApproved."
+        ),
+        "version": "1.0.0",
+        "keywords": ["poc-utrecht", "scenario", "plane-b", "world-model"],
+        "inputs": {
+            "scenarioRunDir": {
+                "title": "poc/scenario-runs/<id> directory",
+                "schema": {"type": "string"},
+            },
+            "hitlApproved": {
+                "title": "Allow Marble explore URL for hypothetical scenarios",
+                "schema": {"type": "boolean", "default": False},
+            },
+            "marbleApiBase": {
+                "title": "Optional Marble base URL override",
+                "schema": {"type": "string"},
+            },
+        },
+        "outputs": {
+            "bundle": {"title": "World scene bundle summary", "schema": {"type": "object"}},
+        },
+    },
     "scenario-sweep": {
         "id": "scenario-sweep",
         "title": "Scenario sweep (Plane B)",
@@ -502,6 +530,32 @@ def execute_scenario_author_propose(inputs: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def execute_world_scene_build(inputs: dict[str, Any]) -> dict[str, Any]:
+    _ensure_poc_on_path()
+    from pipeline import world_scene  # type: ignore
+
+    run_dir = _resolve_dir(
+        inputs.get("scenarioRunDir"),
+        default=_latest_dir(POC_ROOT / "scenario-runs", "*-scen"),
+    )
+    hitl = bool(inputs.get("hitlApproved", False))
+    marble_base = inputs.get("marbleApiBase")
+    out_path = world_scene.write_world_scene_bundle(
+        run_dir,
+        hitl_approved=hitl,
+        marble_base_url=str(marble_base) if marble_base else None,
+    )
+    bundle = _load_json(out_path)
+    return {
+        "bundle": {
+            "path": str(out_path),
+            "scenarioRunId": bundle.get("scenarioRunId"),
+            "specCount": bundle.get("specCount"),
+            "generatedBy": bundle.get("generatedBy"),
+        }
+    }
+
+
 def execute_scenario_sweep(inputs: dict[str, Any]) -> dict[str, Any]:
     _ensure_poc_on_path()
     from scenarios import run as scen_run  # type: ignore
@@ -913,6 +967,7 @@ def execute_rijnland_peil_whatif(inputs: dict[str, Any]) -> dict[str, Any]:
 EXECUTORS = {
     "breda-scan-query": execute_breda_scan_query,
     "scenario-author-propose": execute_scenario_author_propose,
+    "world-scene-build": execute_world_scene_build,
     "scenario-sweep": execute_scenario_sweep,
     "opportunity-map-run": execute_opportunity_map_run,
     "crosstrack-overlay": execute_crosstrack_overlay,

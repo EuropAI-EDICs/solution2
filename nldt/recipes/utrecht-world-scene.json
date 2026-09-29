@@ -1,0 +1,41 @@
+{
+  "id": "utrecht-world-scene",
+  "title": "Utrecht world scene build",
+  "description": "Plane B copilot: build world-scene-specs.json from a scenario-run (engine GeoJSON refs + gated Marble prompts).",
+  "version": "1.0.0",
+  "tags": ["poc-utrecht", "scenario", "plane-b", "world-model"],
+  "requiredProcesses": ["world-scene-build"],
+  "inputs": {
+    "scenarioRunDir": {
+      "type": "string",
+      "description": "poc/scenario-runs/<id> directory",
+      "required": true
+    },
+    "hitlApproved": {
+      "type": "boolean",
+      "description": "Enable Marble explore URL for hypothetical scenarios",
+      "required": false
+    }
+  },
+  "outputs": {
+    "bundle": {
+      "type": "json",
+      "description": "Path and spec count for world-scene-specs.json"
+    }
+  },
+  "steps": [
+    {
+      "id": "scene",
+      "processId": "world-scene-build",
+      "title": "Build world scene specs",
+      "inputs": {
+        "scenarioRunDir": "${recipe.inputs.scenarioRunDir}",
+        "hitlApproved": "${recipe.inputs.hitlApproved}"
+      },
+      "outputs": { "bundle": "bundle" },
+      "backend": "local"
+    }
+  ],
+  "riskLevel": "medium",
+  "cookbookUri": "http://localhost:8081/recipes/utrecht-world-scene"
+}

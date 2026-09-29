@@ -45,6 +45,7 @@ def seed_records() -> list[dict[str, Any]]:
         ("breda-scan-query", "Breda five-value scan Q&A (S4)"),
         ("scenario-author-propose", "Scenario author proposals (S7)"),
         ("scenario-sweep", "Utrecht scenario sweep (Plane B)"),
+        ("world-scene-build", "Utrecht world scene specs (scenario-copilot)"),
         ("opportunity-map-run", "Utrecht opportunity-map (Plane A)"),
         ("crosstrack-overlay", "Crosstrack overlay (Plane C)"),
         ("breda-scan-run", "Breda five-value scan run"),
@@ -121,6 +122,11 @@ def seed_records() -> list[dict[str, Any]]:
             "utrecht-scenario-sweep",
             "Utrecht scenario sweep",
             ["poc-utrecht", "scenario", "s7", "plane-b"],
+        ),
+        (
+            "utrecht-world-scene",
+            "Utrecht world scene build",
+            ["poc-utrecht", "scenario", "plane-b", "world-model"],
         ),
         (
             "utrecht-opportunity-map",

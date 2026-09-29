@@ -21,7 +21,14 @@ Dispose only through MCP tools → `scenario-author-propose` / `scenario-sweep`.
    - Required: `useCase` (e.g. wind / zon / bos)
    - Optional: `baselineRunDir`, `author`, `scenarioSetPath`, `outDir`, `noH3`
 
-3. Keep reject ledgers; do not resurrect rejected `(ruleId, mutation)` pairs without human approval.
+3. Optional — scenario-copilot (world model Renderer contract):
+
+   - Tool: `build_world_scene`
+   - Required: `scenarioRunDir` (output of sweep)
+   - Optional: `hitlApproved` (Marble explore URL for **hypothetical** scenarios only)
+   - Demo: `nldt/simulation/utrecht-whatif-demo.html` · doc: `docs/POC_WORLD_MODEL_UTRECHT.md`
+
+4. Keep reject ledgers; do not resurrect rejected `(ruleId, mutation)` pairs without human approval.
 
 ## Workflow checklist
 

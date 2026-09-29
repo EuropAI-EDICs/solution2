@@ -12,7 +12,7 @@ Open via `file://` or `python3 -m http.server` from this directory.
 | PoC | Story | Agent flow | Extra demos |
 |-----|-------|------------|-------------|
 | **Breda** | [`poc-breda.html`](poc-breda.html) | [`breda-flow-demo.html`](breda-flow-demo.html) | [`breda-report-demo.html`](breda-report-demo.html) (Leaflet scan) · [`breda-whatif-demo.html`](breda-whatif-demo.html) · tour `?poc=breda` |
-| **Utrecht** | [`poc-utrecht.html`](poc-utrecht.html) | [`utrecht-flow-demo.html`](utrecht-flow-demo.html) | Building/3D/GIS overlay/mock/web3d + `?poc=utrecht` |
+| **Utrecht** | [`poc-utrecht.html`](poc-utrecht.html) | [`utrecht-flow-demo.html`](utrecht-flow-demo.html) | [`utrecht-whatif-demo.html`](utrecht-whatif-demo.html) (Plane B copilot) · Building/3D/GIS overlay/mock/web3d + `?poc=utrecht` |
 | **Rijnland** | [`poc-rijnland.html`](poc-rijnland.html) | [`rijnland-flow-demo.html`](rijnland-flow-demo.html) | [`rijnland-whatif-demo.html`](rijnland-whatif-demo.html) (Leaflet) + `?poc=rijnland` |
 | **Eindhoven** | [`poc-eindhoven.html`](poc-eindhoven.html) | [`eindhoven-flow-demo.html`](eindhoven-flow-demo.html) | [`eindhoven-report-demo.html`](eindhoven-report-demo.html) · tour `?poc=eindhoven` |
 

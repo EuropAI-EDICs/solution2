@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>What if…? — Utrecht scenario copilot (Plane B)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    body { margin: 0; font-family: -apple-system, "Segoe UI", Roboto, sans-serif; color: #1a2428;
+      background: #e8e2d6; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    header { flex: 0 0 auto; background: #0d6e6e; color: #f4efe6; padding: 12px 20px; }
+    header h1 { margin: 0; font-size: 1.15rem; font-weight: 600; }
+    header p { margin: 4px 0 0; font-size: 0.82rem; opacity: 0.9; }
+    #main { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: 1fr; }
+    @media (min-width: 900px) { #main { grid-template-columns: 1.2fr 0.8fr; } }
+    #map { min-height: 200px; background: #ddd5c5; }
+    #side { overflow-y: auto; padding: 12px 16px 20px; background: #f4efe6; border-top: 1px solid rgba(26,36,40,0.15); }
+    @media (min-width: 900px) { #side { border-top: none; border-left: 1px solid rgba(26,36,40,0.15); } }
+    label { font-size: 0.75rem; color: #6a757a; text-transform: uppercase; letter-spacing: 0.04em; }
+    select, button { font-size: 0.88rem; padding: 6px 10px; border-radius: 4px; border: 1px solid rgba(26,36,40,0.2); }
+    button { background: #0d6e6e; color: #fff; cursor: pointer; border-color: #0d6e6e; }
+    button.ghost { background: transparent; color: #0d6e6e; }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+    .metric { background: #fff; border: 1px solid rgba(26,36,40,0.12); padding: 8px 10px; border-radius: 4px; }
+    .metric .v { font-size: 1.05rem; font-weight: 600; color: #0d6e6e; }
+    .metric .l { font-size: 0.72rem; color: #6a757a; }
+    .stamp { margin: 10px 0; padding: 8px 10px; font-size: 0.78rem; border-left: 3px solid #c45c26;
+      background: rgba(196,92,38,0.12); color: #3d4a50; }
+    .stamp.ok { border-color: #0d6e6e; background: rgba(13,110,110,0.1); }
+    .marble-box { margin-top: 12px; padding: 10px; background: #fff; border: 1px dashed #c45c26; border-radius: 4px;
+      font-size: 0.82rem; }
+    .marble-box code { font-size: 0.75rem; word-break: break-all; }
+    .back { display: inline-block; margin-bottom: 6px; color: rgba(244,239,230,0.85); font-size: 0.78rem; text-decoration: none; }
+    .back:hover { text-decoration: underline; }
+    .legend { font-size: 0.78rem; margin-top: 8px; color: #3d4a50; }
+    .legend span { display: inline-block; width: 12px; height: 12px; margin-right: 4px; vertical-align: middle; border-radius: 2px; }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="back" href="poc-utrecht.html">← Utrecht hub</a>
+    <h1>Utrecht — scenario copilot (world model Renderer + engine)</h1>
+    <p>Leaflet toont deterministische final zones; Marble alleen exploratief (hypothetical + HITL).</p>
+  </header>
+  <div id="main">
+    <div id="map"></div>
+    <div id="side">
+      <label for="scenSel">Scenario</label>
+      <select id="scenSel"></select>
+      <div class="metrics" id="metrics"></div>
+      <div id="stamp" class="stamp ok"></div>
+      <p class="legend">
+        <span style="background:#149494"></span> control (engine)
+        <span style="background:#c45c26;margin-left:10px"></span> variant (engine)
+      </p>
+      <div class="marble-box" id="marbleBox">
+        <strong>World Labs Marble (Renderer)</strong>
+        <p id="marbleHint">Selecteer een scenario.</p>
+        <button type="button" id="btnMarble" disabled>Verken in Marble</button>
+        <p id="marbleUrl" hidden><code></code></p>
+      </div>
+      <p style="font-size:0.72rem;color:#6a757a;margin-top:14px">
+        Bron: <code id="reportRef"></code> · fixture <code>_fixture-zon-scen</code>
+      </p>
+    </div>
+  </div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+(function () {
+  "use strict";
+  var D = null;
+  var map = L.map("map", { zoomControl: true });
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 18,
+    attribution: "© OpenStreetMap"
+  }).addTo(map);
+  var layerControl = null;
+  var layerScenario = null;
+  var layerVariant = null;
+
+  function fmtKm2(v) {
+    return (v >= 0 ? "+" : "") + Number(v).toFixed(3) + " km²";
+  }
+  function pct(v) {
+    if (v == null) return "—";
+    return (v >= 0 ? "+" : "") + Number(v).toFixed(2) + "%";
+  }
+  function specFor(id) {
+    return (D.worldSceneSpecs || []).find(function (s) { return s.scenarioId === id; });
+  }
+  function renderMetrics(sc) {
+    var el = document.getElementById("metrics");
+    el.innerHTML =
+      "<div class=\"metric\"><div class=\"v\">" + fmtKm2(sc.deltaKm2) + "</div><div class=\"l\">Δ vs control</div></div>" +
+      "<div class=\"metric\"><div class=\"v\">" + pct(sc.deltaPct) + "</div><div class=\"l\">relatief</div></div>" +
+      "<div class=\"metric\"><div class=\"v\">" + Number(sc.finalAreaKm2).toFixed(3) + "</div><div class=\"l\">variant km²</div></div>" +
+      "<div class=\"metric\"><div class=\"v\">" + Number(sc.iou).toFixed(4) + "</div><div class=\"l\">IoU vs control</div></div>";
+  }
+  function renderStamp(sc, sp) {
+    var st = document.getElementById("stamp");
+    if (sc.basisType === "hypothetical") {
+      st.className = "stamp";
+      st.textContent = "NOT legally grounded — hypothetisch scenario. Engine-cijfers wel reproduceerbaar; Marble is exploratief.";
+    } else {
+      st.className = "stamp ok";
+      st.textContent = "Engine-only (" + sc.basisType + "). Geen generatieve Renderer voor juridische claims.";
+    }
+    if (sp && sp.groundingStamp) {
+      st.textContent += " Stamp: " + sp.groundingStamp + ".";
+    }
+  }
+  function renderMarble(sp) {
+    var btn = document.getElementById("btnMarble");
+    var hint = document.getElementById("marbleHint");
+    var urlP = document.getElementById("marbleUrl");
+    if (!sp) {
+      btn.disabled = true;
+      hint.textContent = "Geen world-scene-spec.";
+      urlP.hidden = true;
+      return;
+    }
+    hint.textContent = sp.mutationSummary || "";
+    if (sp.allowGenerativeRenderer && sp.marble && sp.marble.exploreUrl) {
+      btn.disabled = false;
+      btn.onclick = function () {
+        window.open(sp.marble.exploreUrl, "_blank", "noopener,noreferrer");
+      };
+      urlP.hidden = false;
+      urlP.querySelector("code").textContent = sp.marble.exploreUrl;
+    } else if (sp.allowGenerativeRenderer) {
+      btn.disabled = true;
+      hint.textContent = "Hypothetisch — Marble vereist HITL (MARBLE_HITL_APPROVED=1 bij build).";
+      urlP.hidden = true;
+    } else {
+      btn.disabled = true;
+      hint.textContent = "Marble alleen voor hypothetical scenarios; dit scenario is engine-only.";
+      urlP.hidden = true;
+    }
+  }
+  function showScenario(id) {
+    var sc = D.scenarios.find(function (s) { return s.scenarioId === id; });
+    if (!sc) return;
+    var sp = specFor(id);
+    renderMetrics(sc);
+    renderStamp(sc, sp);
+    renderMarble(sp);
+    if (layerVariant) map.removeLayer(layerVariant);
+    var fc = D.layers[id];
+    if (fc) {
+      layerVariant = L.geoJSON(fc, {
+        style: { color: "#c45c26", weight: 2, fillColor: "#c45c26", fillOpacity: 0.25 }
+      }).addTo(map);
+      try {
+        map.fitBounds(layerVariant.getBounds().pad(0.05));
+      } catch (e) { /* ignore */ }
+    }
+  }
+  function init() {
+    document.getElementById("reportRef").textContent = D.reportId;
+    layerControl = L.geoJSON(D.layers.control, {
+      style: { color: "#149494", weight: 2, fillColor: "#149494", fillOpacity: 0.15 }
+    }).addTo(map);
+    try { map.fitBounds(layerControl.getBounds().pad(0.05)); } catch (e) { map.setView([52.09, 5.12], 9); }
+    var sel = document.getElementById("scenSel");
+    D.scenarios.forEach(function (sc) {
+      var o = document.createElement("option");
+      o.value = sc.scenarioId;
+      o.textContent = sc.name + " (" + sc.basisType + ")";
+      sel.appendChild(o);
+    });
+    sel.onchange = function () { showScenario(sel.value); };
+    sel.value = D.scenarios[0].scenarioId;
+    showScenario(sel.value);
+  }
+  fetch("fixtures/utrecht-whatif-data.json")
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (data) { D = data; init(); })
+    .catch(function (err) {
+      document.getElementById("stamp").className = "stamp";
+      document.getElementById("stamp").textContent =
+        "Kon fixture niet laden (" + err + "). Start: cd nldt/simulation && python3 -m http.server 8090";
+    });
+})();
+  </script>
+</body>
+</html>

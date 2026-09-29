@@ -2,12 +2,12 @@
 
 | | |
 |---|---|
-| Document | `docs/SOLUTIONS_ARCHITECTURE.md` · v1.3 · **2026-09-15** |
+| Document | `docs/SOLUTIONS_ARCHITECTURE.md` · v1.4 · **2026-09-29** |
 | Specializes | `MULTI_AGENT_PLAN.md` v1.2 (§3–§8). That plan is the general spec; this document specializes it for the Utrecht pilot **and fixes the concrete module/data/contract layout** any such pilot follows. It does not repeat the plan — section numbers below link back to it. GenAI seam catalogue (which model roles exist and their gates): `docs/GENAI_SEAMS.md`. Platform layer that now wraps this pilot (and sibling PoCs): `nldt/00-architecture.md`. |
 | Pilot instance | Three tracks on one instrument (Omgevingsverordening provincie Utrecht, CVDR704250): **wind** (turbines ≥3 MW and ≤20 m hub paths), **zon** (zonnevelden / solar fields), **bos** (nieuwe natuur / forest planting), province Utrecht (NL) |
 | Grounding inputs | Legal recon: `docs/research/legal-facts.md` + `poc/corpus/*.json` (23 sources, 34 cite-verified evidence records: wind 24 · zon 5 · bos 5) · Geo recon: `docs/research/geo-catalog.md` + `poc/data/sources.json` (78 schema-validated service entries) |
 | Papers served | A = `extracted/geoai_cop.md` (emergency-management COP) · B = `extracted/udt_genai.md` (GenAI opportunity finding in UDTs; its future-work section explicitly requests this Utrecht pilot) |
-| Platform status (v1.3) | **nLDT Phase 5–6 done**: governed agent layer (`nldt/12`), medallion data lake + Data Space publish (`nldt/13`), source monitor (`nldt/17`), DONL CKAN harvest (`nldt/18`). Utrecht engines remain SoT under `poc/`. |
+| Platform status (v1.4) | **nLDT Phase 5–6 done**: governed agent layer (`nldt/12`), medallion data lake + Data Space publish (`nldt/13`), source monitor (`nldt/17`), DONL CKAN harvest (`nldt/18`). Utrecht engines remain SoT under `poc/`. **Scenario-copilot (world model Renderer layer)** ships for Plane B: `world-scene-spec` contract, `world-scene-build` process, demo [`nldt/simulation/utrecht-whatif-demo.html`](../nldt/simulation/utrecht-whatif-demo.html) — design [`docs/POC_WORLD_MODEL_UTRECHT.md`](POC_WORLD_MODEL_UTRECHT.md). |
 
 ---
 
@@ -23,7 +23,7 @@
 
 **Relation to the EU LDT Toolbox — wrap, don't rebuild.** As plan §3.4 states, domain models stay deterministic services that agents call; the multi-agent layer adds legal interpretation, orchestration and validation (catalogue: https://interoperable-europe.ec.europa.eu/collection/ldttoolbox/solutions-catalogue). This pilot applies the same principle one level down: the **province's existing authoritative services are wrapped, never re-derived** — the vigerende Omgevingsverordening geometry is consumed from the province's own IMOW-referenced FeatureServer, the consolidated legal text from the CVDR, and the planMER constraint layers from the province's ArcGIS Hub. The PoC adds only what those sources lack: formalized rules, zone algebra, validation and provenance.
 
-**Relation to nLDT (v1.3).** Since September 2026 the Utrecht pipeline is one **engine** behind the nLDT front door: OGC API Records / Processes / Recipes, LangGraph orchestrator, MCP tools, Critic/HITL/PROV, and a medallion data lake with European Data Space offers (`nldt/`). Sibling engines (Breda five-value scan, Rijnland peilen, Eindhoven bp2op) share the same gates. This document remains the **Utrecht solutions architecture**; the platform hub is [`nldt/00-architecture.md`](../nldt/00-architecture.md). Doctrine is unchanged: *AI proposes · pipeline disposes · human decides* ([`docs/GENAI_SEAMS.md`](GENAI_SEAMS.md)).
+**Relation to nLDT (v1.4).** Since September 2026 the Utrecht pipeline is one **engine** behind the nLDT front door: OGC API Records / Processes / Recipes, LangGraph orchestrator, MCP tools, Critic/HITL/PROV, and a medallion data lake with European Data Space offers (`nldt/`). Sibling engines (Breda five-value scan, Rijnland peilen, Eindhoven bp2op) share the same gates. This document remains the **Utrecht solutions architecture**; the platform hub is [`nldt/00-architecture.md`](../nldt/00-architecture.md). Doctrine is unchanged: *AI proposes · pipeline disposes · human decides* ([`docs/GENAI_SEAMS.md`](GENAI_SEAMS.md)).
 
 ---
 
@@ -39,7 +39,7 @@
 
 | Stakeholder | What they get | Stage |
 |---|---|---|
-| Provincial policy officer (omgevingsbeleid) | Opportunity map + decision table per track (wind constraints vs. zonneveld designation vs. nature zoekgebied); monitoring drift alerts on re-publication | design → monitoring |
+| Provincial policy officer (omgevingsbeleid) | Opportunity map + decision table per track; **scenario copilot** (engine map + Δ km²/IoU after sweep; optional World Labs Marble explore for *hypothetical* variants only, HITL-gated); monitoring drift alerts on re-publication | design → monitoring |
 | Municipal planner (omgevingsplan) | Which instructieregels (art. 5.3/5.4, 6.x, 7.x, 9.x) bind a location; what an omgevingsplan must motivate | programming → permission |
 | RES / regional energy coordinator | Provincial-scale siting envelope minus hard/complex constraints | design |
 | Developer / energy cooperative | Screening map + the exact article quotes behind every excluded area | permission |
@@ -51,6 +51,7 @@
 **Scenario & cross-track use cases (v1.2).** On top of the three baseline tracks, the scenario plane serves two deliberation questions at the **programming** stage, deterministically:
 
 - *"What if?"* — scenario sweeps mutate the formalized rule set (drop a rule, flip its zoneSemantics, vary a cited buffer distance) under a provenance contract (`baseline | norm_variance | policy_variant | hypothetical`; hypotheticals are stamped **NOT legally grounded**), re-execute the full zone algebra per variant against cached layers, and report deltas/IoU vs. a re-executed control. Scenario authors: deterministic (offline golden set), optional LLM, and **hybrid** (det floor + LLM explorer; nLDT recipe default) — proposals pass the same schema + grounding gates before anything executes (seam S7, `docs/GENAI_SEAMS.md`). Canonical LLM-authored run: `poc/scenario-runs/20260831T175842Z-zon-scen/` (10/10 proposals grounded; the model's narration passed every gate).
+- *"Show me the scenario"* (v1.4 **scenario-copilot**) — after a sweep, a **Renderer-facing** `WorldSceneSpec` bundle (`world-scene-specs.json`) references engine GeoJSON (`scenarios/CONTROL.geojson` + per-scenario finals) for Leaflet/Cesium views; structured Marble prompts are derived from `ScenarioReport` rows only (no LLM zone geometry, REQ-05). Generative **World Labs Marble** (Stanford HAI Renderer category; see [`docs/POC_WORLD_MODEL_UTRECHT.md`](POC_WORLD_MODEL_UTRECHT.md)) is enabled **only** for `hypothetical` basis types and only after operator HITL (`hitlApproved` / `MARBLE_HITL_APPROVED`). km², IoU and legal claims never pass through Marble.
 - *"Where do the tracks collide?"* — the cross-track overlay re-executes each track's unmutated control and quantifies pairwise conflicts plus claims on shared instrument zones. Canonical finding (`poc/crosstrack-runs/20260831T094204Z-wzb-xtrack/`): **94.7% of the zoekgebied nieuwe natuur is simultaneously open to zonnevelden** — the art.-6.5a-lid-3 compensation duty is the only legal buffer between the two provincial ambitions; wind × zon compete on 845.4 km².
 
 **Policy-cycle stages (plan §4).** Design: ambition/scenario maps (visie-level, non-binding — flagged as such). Programming: opportunity maps from the verordening (this PoC). Permission: per-location rule dossier + V4 signature (HITL / wallet track open). Monitoring: source monitor + re-run V1/V3 on instrument or service refresh — critical because a major verordening amendment is pending (PS 18-11-2026, in werking 01-01-2027, https://zoek.officielebekendmakingen.nl/prb-2026-12.html); ArcGIS + DONL continuity probes ship as `source-monitor-run` ([`nldt/17-source-monitor.md`](../nldt/17-source-monitor.md)).
@@ -110,7 +111,7 @@ Legal sources are consumed **read-only and version-pinned** (snapshot under `doc
 The PoC still collapses MCP into in-process modules with the **same boundaries**
 (`pipeline/geodata.py` ↔ registry+cache). Migration path is **done for the
 front door**: recipes `utrecht-opportunity-map`, `utrecht-scenario-sweep`,
-`utrecht-crosstrack` call the engine via OGC Processes; silver/gold sync into
+`utrecht-world-scene`, `utrecht-crosstrack` call the engine via OGC Processes; silver/gold sync into
 the lake; publish is gated (`accessClass` + HITL). Detail:
 [`nldt/12-governed-agent-layer.md`](../nldt/12-governed-agent-layer.md),
 [`nldt/13-data-lake-and-space.md`](../nldt/13-data-lake-and-space.md).
@@ -183,6 +184,13 @@ validation levels and artifacts are unchanged.
          │  every SC-/FR-/NC- id exists, verdict assertions must agree with
          │  the report; rejection → loud deterministic fallback + ledger
          ▼                         scenario-narrative.md (+ narrative-rejected.md)
+  [WorldSceneBuild] (v1.4, optional) `poc/pipeline/world_scene.py` + process
+         │  `world-scene-build` — Renderer view contract only; reads ScenarioReport
+         │  + per-scenario GeoJSON paths; emits world-scene-specs.json (+ PROV entity)
+         │  Marble explore URL: hypothetical + HITL only; engine stamp otherwise
+         ▼                         WorldSceneSpec[] (world-scene-spec.schema.json)
+  [ScenarioCopilot UI] `nldt/simulation/utrecht-whatif-demo.html` — Leaflet engine
+         │  view (control vs variant, Δ from report); Marble button when gated
   [CrossTrack] (poc/pipeline/crosstrack.py) re-executes every track's control
          │  and overlays finals: pairwise conflicts + shared-zone claims
          ▼                         crosstrack-report.schema.json
@@ -212,9 +220,10 @@ Actual layout of the implemented PoC (paths below exist under `poc/`); the schem
 | 8 | Explainer | `poc/pipeline/explainer.py` | decision table, PROV-O-flavoured JSON bundle, entity hashing | NL justification |
 | 8b | Scenario Author (seam S7) | `poc/pipeline/scenario_author.py` | `DeterministicScenarioAuthor` + `LLMScenarioAuthor` + **`HybridScenarioAuthor`** (det floor + LLM explorer; nLDT default); alias normalization; schema-gated | — (this *is* the LLM leg; propose-only) |
 | 8c | Scenario Sweep + Narrator (seam S8) | `poc/pipeline/scenarios.py` | re-executes control + variants through the same engine; `check_narrative_grounding` gates prose on numbers (sign-fold), ids and verdict assertions; deterministic narrator grounded by construction; `run_scenario_set` narrates only after the final verdict exists | narration via local open model, same gate, loud fallback (`narrative-rejected.md`) |
-| 8d | Cross-Track Orchestrator | `poc/pipeline/crosstrack.py` | control re-execution per track (V3 reproduction gate), pairwise conflict + shared-zone overlay, markdown report; V2 not-applicable by design (no legal claim mutated); canonical finding: zon × bos 94.7% of the zoekgebied | — (deterministic by design; no seam) |
-| — | (view tier) | `poc/pipeline/report.py` + `pipeline/report_template.html`; `simulation/` (workspace level) | single-file HTML report per run (Leaflet map + fallback tables) embedded in the run dir; the simulation replays all three canonical tracks + PoC-2 step-by-step for communication/teaching | — |
-| — | (contracts) | `poc/pipeline/contracts.py` + `poc/schemas/*.schema.json` | the six agent-boundary schemas of §6 plus the four scenario-plane schemas (scenario-spec / scenario-set / scenario-report / crosstrack-report), validated at every hop | — |
+| 8d | World scene / scenario-copilot (Renderer) | `poc/pipeline/world_scene.py`; nldt `marble_client.py`; MCP `build_world_scene` | deterministic `ScenarioReport` → `WorldSceneSpec[]`; geoLayerRefs point at engine GeoJSON only; Marble URL spike (explore link, not zone algebra); **does not** import into `engine.py` / `critic.py` | — (Marble is optional human-triggered explore; not an agent seam) |
+| 8e | Cross-Track Orchestrator | `poc/pipeline/crosstrack.py` | control re-execution per track (V3 reproduction gate), pairwise conflict + shared-zone overlay, markdown report; V2 not-applicable by design (no legal claim mutated); canonical finding: zon × bos 94.7% of the zoekgebied | — (deterministic by design; no seam) |
+| — | (view tier) | `poc/pipeline/report.py` + `pipeline/report_template.html`; `nldt/simulation/` | single-file HTML report per run (Leaflet map + fallback tables) embedded in the run dir; **Utrecht what-if demo** for Plane B copilot; simulation hub replays all PoCs for communication/teaching | — |
+| — | (contracts) | `poc/pipeline/contracts.py` + `poc/schemas/*.schema.json` | the six agent-boundary schemas of §6 plus scenario-plane schemas (scenario-spec / scenario-set / scenario-report / crosstrack-report / **world-scene-spec**), validated at every hop | — |
 
 The `llm_hook` of plan §3.2 is implemented as an optional callable parameter (`NormAnalyst(llm_hook=...)` in `poc/pipeline/agents.py`), **no-op default** (the core track pipeline stays fully offline); every agent records whether a hook answered. Since v1.2 the *scenario plane* has a live-model leg behind its own gated seams (S7/S8): a local open model (Ollama `qwen3.8:latest`, temperature 0, `think:false` via the native API, bounded `num_predict`) proposes scenarios and narrates reports — propose-only, schema- and grounding-gated before anything executes or is published. Golden-set regression between the deterministic and LLM authors: `poc/scenarios/compare_authors.py`. Since 2026-09-15 the *norm plane* has its own legs (S1/S2): `poc/run.py --norm-analyst llm --formalizer llm` activates them behind `LDT_NORM_LLM_*` (same transport semantics, extracted into `poc/pipeline/llm_transport.py`); S1 refines only claim/confidence (citations untouchable by construction, `extractedBy` seam-stamped), S2 proposes formalizations only for template-less ambiguous cards with zone-grounding and quote-numeral-grounding gates (`poc/pipeline/norm_llm.py`); any transport failure falls back loudly to the deterministic output, ledgered in `norm-llm-ledger.json`; golden-set regression: `poc/llm/compare_norm_llm.py`.
 
@@ -256,7 +265,7 @@ poc/data/cache/<source-id>.28992.geojson   # normalized EPSG:28992 twin (metric 
 poc/data/cache/<source-id>.4326.geojson    # WGS84 / RFC 7946 twin (output serialization)
 ```
 
-Per-fetch provenance (exact query URL+params, `fetchedAt`, featureCount, sha256 of the response, HTTP status) is recorded per layer in each run's `layers.json` manifest (plus the geo-source registry `poc/data/sources.json`); the cache is re-used only when the instrument version pin and the registry entry are unchanged. Scenario-plane artifacts live beside them: `poc/scenario-runs/<id>/` (report+markdown, per-scenario GeoJSON incl. `CONTROL`, proposal + rejection ledgers, narrative + rejection ledger, validation, PROV) and `poc/crosstrack-runs/<id>/` (conflicts, shared-zone claims, controls, validation, PROV) — all replayable offline from the cache.
+Per-fetch provenance (exact query URL+params, `fetchedAt`, featureCount, sha256 of the response, HTTP status) is recorded per layer in each run's `layers.json` manifest (plus the geo-source registry `poc/data/sources.json`); the cache is re-used only when the instrument version pin and the registry entry are unchanged. Scenario-plane artifacts live beside them: `poc/scenario-runs/<id>/` (report+markdown, per-scenario GeoJSON incl. `CONTROL`, optional **`world-scene-specs.json`** for copilot, proposal + rejection ledgers, narrative + rejection ledger, validation, PROV) and `poc/crosstrack-runs/<id>/` (conflicts, shared-zone claims, controls, validation, PROV) — all replayable offline from the cache. Static demo fixture: `poc/scenario-runs/_fixture-zon-scen/` + embedded slice in `nldt/simulation/fixtures/utrecht-whatif-data.json`.
 
 ### 5.4 Medallion data lake & Data Space (v1.3)
 
@@ -298,6 +307,7 @@ All agent boundaries emit JSON validated against JSON Schema (jsonschema 4.25.1)
 | ScenarioSet | `scenario-set.schema.json` | scenarios[], control semantics, optional degradations | authored sets in `poc/scenarios/{wind,zon,bos}.json`; auto/llm-authored sets serialized alongside their ledgers |
 | ScenarioReport | `scenario-report.schema.json` | per-scenario outcome rows (finalAreaKm2, delta vs control, IoU, status), control reproduction block, verdict | control re-executed from the baseline run's cached layers + recorded tunings; deltas measured against that control, never the baseline summary |
 | CrossTrackReport | `crosstrack-report.schema.json` | tracks[], conflicts[] (pair, areaKm2, shareOfTrackFinal, geometryFile), sharedZones[] (per-track claims), verdict | V2 not-applicable by design (no legal claim mutated); V3 reproduction gate per track control |
+| WorldSceneSpec | `world-scene-spec.schema.json` | per-scenario Renderer contract: provenanceBasis, headline Δ km², mutationSummary, geoLayerRefs (control + scenario paths), optional marblePrompt / exploreUrl; groundingStamp `engine-only` \| `marble-explore-not-legal` | built only from ScenarioReport rows; Marble enabled when `basis.type=hypothetical` **and** HITL; never feeds V2/V3 |
 
 **Determinism rules (plan §5).** No LLM output mutates rules or the corpus; the deterministic engine is the source of truth; the `llm_hook` interface and, since v1.2, the scenario seams (S7/S8) are the only places where a model may *propose* — never *decide*. Every scenario proposal passes the schema and grounding gates before execution; every narration passes the numeric/id/verdict grounding gates before publication, with a loud deterministic fallback otherwise.
 
@@ -335,7 +345,7 @@ The pluggable judge: the `llm_hook` callable (optional parameter, no-op default 
 |---|---|
 | **Phase 0** foundations | Largely done: legal corpus pinned + snapshotted (23 sources, 34 evidence records across three tracks); geo services catalogued + schema-validated registry (78); golden-set material identified (planMER resterende ruimte, province focus-group analog); missing: tri-modal bindings, GS-1 formal freeze |
 | **Phase 1** single-agent baseline + V0–V3 harness | **Done, ×3 tracks**: full deterministic pipeline (Intake→Explainer) with V0–V3 checks and independent re-execution for wind, zon and bos (all verdict pass; canonical runs 2026-08-30); planMER `Resterende ruimte` identified as benchmark material but not yet wired in |
-| **Phase 1b** scenario plane + GenAI seams | **Done**: deterministic scenario sweeps with provenance-basis contracts (`poc/pipeline/scenarios.py`); seam catalogue S1–S9 / SM / L6 / DONL (`docs/GENAI_SEAMS.md`); S7 author + S8 narrator seams verified against a live local open model (B2: qwen3.8); cross-track conflict overlay |
+| **Phase 1b** scenario plane + GenAI seams | **Done**: deterministic scenario sweeps with provenance-basis contracts (`poc/pipeline/scenarios.py`); seam catalogue S1–S9 / SM / L6 / DONL (`docs/GENAI_SEAMS.md`); S7 author + S8 narrator seams verified against a live local open model (B2: qwen3.8); cross-track conflict overlay; **scenario-copilot (v1.4)**: world-scene-spec + `utrecht-world-scene` recipe + what-if demo |
 | **Phase 2** multi-agent orchestration (plan) | **Superseded by nLDT Phase 5 (done 2026-09-15)**: one governed agent layer — Processes + Recipes + MCP + Critic/HITL/PROV for Utrecht/Breda/Rijnland/Eindhoven ([`nldt/12`](../nldt/12-governed-agent-layer.md)). Still open inside seams: S1–S3 on PoC-1 text, S9 Word/PDF on beleidskompas |
 | **Phase 3** KG/BNK/VA operational plane | not started (KG/pgvector remain future MCP stores) |
 | **Phase 4** 3D / federation (plan) | **Partial**: Web 3D Context + A2A stubs in nLDT ([`nldt/09`](../nldt/09-federation-and-observability.md)); full CityJSON/3D measures still open |
@@ -354,6 +364,7 @@ The pluggable judge: the `llm_hook` callable (optional parameter, no-op default 
 | Data staleness / silent service updates | fetch manifests with sha256 + timestamps; cache invalidated only by explicit re-fetch; `lastChecked` surfaced in ZoneResult provenance; **source monitor** diffs ArcGIS feature counts / `maxRecordCount` / fields and DONL `metadata_modified` + resource URLs — human merges registry patches (V4), never auto-applied (`nldt/17`) |
 | ArcGIS service churn (deleted `Natura2000_gebieden_buffers_1__3__5_km`, duplicate republishes, truncated names — all observed) | registry-driven fetching with role metadata; duplicates flagged in geo-catalog §2.3 and never registered twice; probes re-runnable (`poc/data/probe_services.py`); watchlist-driven `source-monitor-probe` |
 | Norm hallucination | cite-or-abstain at V2 (quote containment vs. snapshot); abstention register; `derivation` labels separating legal-text, planMER and assumption parameters. **Empirically exercised (v1.2)**: the scenario gates caught a real model drift set — hallucinated scenario id, truncated/mismatched numbers, a fabricated verdict claim and a quoted placeholder verdict — each rejection ledgered with deterministic fallback (`docs/GENAI_SEAMS.md` §5); the gates, not the model's good behaviour, are the mitigation |
+| Generative world model *visual plausibility trap* (Stanford HAI 2026) | Renderer output (World Labs Marble) is **never** a zone source: engine GeoJSON + ScenarioReport metrics are the only map truth; Marble gated to hypothetical + HITL; `groundingStamp` and demo watermarks; see [`docs/POC_WORLD_MODEL_UTRECHT.md`](POC_WORLD_MODEL_UTRECHT.md). Physical dynamics annex (SRM-2) remains a separate explicit Simulator path via Urban Strategy ([`docs/POC_URBANSTRATEGY_INTEGRATION.md`](POC_URBANSTRATEGY_INTEGRATION.md)) |
 | GIO geometry indirection (DSO API 401) | agrest IMOW mirror as proxy with recorded caveat; apply for DSO key as roadmap item; JOIN-id remains the canonical zone key either way |
 | Designation-envelope misreading (1166.5 km² polygon) | envelope semantics enforced in FormalRules (intersect `Landelijk gebied`, subtract constraints); flagged in geo-catalog and legal-facts hand-over |
 | Geometry defects as served | `make_valid` mandatory, V1 gate, ring-orientation-adaptive conversion for agrest esri-JSON |
@@ -385,6 +396,7 @@ Extends plan §8 with the PoC column.
 | B5 explainability/contestability | decision tables, PROV, citations | `explainer.py`; every row → NormCard; abstention register |
 | B pilot (Utrecht, wind/bos/zon) | — | this pilot: wind, zon and bos end-to-end on one pipeline (canonical runs 2026-08-30, all pass) |
 | B1+ "what if the rules change?" | scenario planning behind gated seams | scenario plane (§3.4): deterministic sweeps + provenance-basis contracts; open-model author/narrator (S7/S8) propose-only, schema+grounding gated, verified live on qwen3.8 |
+| B1++ "help me see the scenario" | spatial intelligence / world model (Renderer) | scenario-copilot (v1.4): `WorldSceneSpec` + Leaflet demo + optional Marble explore; Simulator stays `engine.py`; governance per HAI brief ([`docs/POC_WORLD_MODEL_UTRECHT.md`](POC_WORLD_MODEL_UTRECHT.md)) |
 | B1+ "where do ambitions collide?" | deterministic overlay over re-executed controls | cross-track conflict engine (`poc/pipeline/crosstrack.py`): pairwise + shared-zone claims; canonical finding zon × bos 94.7% |
 | B congestion use case | EnergyCast as MCP tool | art. 5.10/5.11 energietoets formalized as non-spatial condition; grid model Phase 4/5 |
 | A4 FAIR cross-org sharing | data space + identities | **Done (nLDT Phase 6)** — medallion lake + Data Space participant (`nldt/13`); ODRL offers + pluggable EDC connector (`mock`/`edc-manifest`/`http`); live EDC management API out of band; DONL as national discovery (`nldt/18`) |
@@ -393,4 +405,4 @@ Extends plan §8 with the PoC column.
 
 ---
 
-*Maintained alongside `MULTI_AGENT_PLAN.md`, `docs/GENAI_SEAMS.md` and `nldt/00-architecture.md`. Facts current as of **2026-09-15** (v1.3: nLDT Phase 5–6, lake, DONL, source monitor). The instrument pin (CVDR704250 geldend 13-10-2025) must be re-verified before 18-11-2026.*
+*Maintained alongside `MULTI_AGENT_PLAN.md`, `docs/GENAI_SEAMS.md`, `docs/POC_WORLD_MODEL_UTRECHT.md` and `nldt/00-architecture.md`. Facts current as of **2026-09-29** (v1.4: scenario-copilot / world-scene layer on Plane B). The instrument pin (CVDR704250 geldend 13-10-2025) must be re-verified before 18-11-2026.*
