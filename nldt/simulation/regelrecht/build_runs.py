@@ -175,6 +175,54 @@ def build_utrecht_run(artifacts: dict, stamp: str) -> dict:
     }
 
 
+def eindhoven_cases(execution: dict) -> list[dict]:
+    cases = []
+    for strijd in (True, False):
+        for iwt in (True, False):
+            inputs = {"strijd_met_tijdelijk_deel": strijd, "voorschriften_verbonden_voor_iwt": iwt}
+            r = reference_engine.evaluate(execution, inputs)
+            cases.append({
+                "id": f"eindhoven-s{int(strijd)}-i{int(iwt)}",
+                "inputs": inputs,
+                "expectedOutputs": r["outputs"],
+                "trace": r["trace"],
+            })
+    return cases
+
+
+def build_eindhoven_run(artifacts: dict, stamp: str) -> dict:
+    cfg = POC_CONFIGS["eindhoven"]
+    _, article = _example_article(artifacts, cfg["article_number"])
+    bronregels = artifacts["bronregel"]["data"]
+    quote = next(b for b in bronregels if b["id"] == "BR-001")["tekst"]
+    tabel = artifacts["omzettabel"]["data"]
+    needs_human = sum(1 for r in tabel if r["status"] == "needs_human")
+    source_artifacts = [
+        {"path": v["path"], "role": role, "sha256": v["sha256"]}
+        for role, v in artifacts.items()
+    ]
+    return {
+        "schemaVersion": "1",
+        "runId": _run_id(source_artifacts),
+        "generatedAt": stamp,
+        "poc": "eindhoven",
+        "instrument": cfg["instrument"],
+        "sourceArtifacts": source_artifacts,
+        "machineReadable": article["machine_readable"],
+        "articleQuote": quote,
+        "demoCases": eindhoven_cases(_execution_of(article)),
+        "abstentions": {"count": needs_human, **cfg["abstentions"]},
+        "humanOnTheButtons": "v4_pending",
+        "validations": [
+            {"level": "V0", "verdict": "pass",
+             "evidence": "voorbeeld-YAML gevalideerd tegen regelrecht-schema v0.7.1"},
+            {"level": "V2", "verdict": "pass",
+             "evidence": "articleQuote letterlijk uit BR-001 (bronregels.json canonieke run)"},
+            {"level": "V4", "verdict": "pending", "evidence": "jurittoets staat structureel open (MC-6)"},
+        ],
+    }
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--stamp", required=True, help="ISO-timestamp voor generatedAt (herhaalbaar maken)")
@@ -190,6 +238,13 @@ def main(argv=None) -> int:
         json.dumps(run, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"
     )
     print(f"OK utrecht runId={run['runId']} cases={len(run['demoCases'])}")
+
+    run = build_eindhoven_run(load_artifacts("eindhoven"), args.stamp)
+    Draft202012Validator(json.loads(RUN_SCHEMA_PATH.read_text())).validate(run)
+    (runs_dir / POC_CONFIGS["eindhoven"]["run_file"]).write_text(
+        json.dumps(run, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"
+    )
+    print(f"OK eindhoven runId={run['runId']} cases={len(run['demoCases'])}")
     return 0
 
 

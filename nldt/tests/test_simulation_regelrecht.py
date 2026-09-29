@@ -221,5 +221,38 @@ class TestGeneratorUtrecht(unittest.TestCase):
         self.assertTrue(any("v0.7.1" in v["evidence"] for v in v0))
 
 
+class TestGeneratorEindhoven(unittest.TestCase):
+    # NB: attribuut heet run_data (niet run) — `run` shadowed unittest.TestCase.run.
+    @classmethod
+    def setUpClass(cls):
+        cls.run_data = build_runs.build_eindhoven_run(build_runs.load_artifacts("eindhoven"), STAMP)
+
+    def test_instrument_fields(self):
+        self.assertEqual(self.run_data["instrument"]["cvdr"], "CVDR696400_4")
+        self.assertEqual(self.run_data["instrument"]["article"], "10.2")
+
+    def test_four_cases(self):
+        self.assertEqual(len(self.run_data["demoCases"]), 4)
+
+    def test_case_outputs(self):
+        by_id = {c["id"]: c for c in self.run_data["demoCases"]}
+        self.assertIs(by_id["eindhoven-s1-i1"]["expectedOutputs"]["regels_hoofdstuk_van_toepassing"], False)
+        self.assertIs(by_id["eindhoven-s0-i1"]["expectedOutputs"]["regels_hoofdstuk_van_toepassing"], False)
+        self.assertIs(by_id["eindhoven-s0-i0"]["expectedOutputs"]["regels_hoofdstuk_van_toepassing"], True)
+
+    def test_quote_is_verbatim_bronregel(self):
+        bronregels = json.loads((ROOT / "poc-bp2op/runs/20260830-124515-eindhoven/bronregels.json").read_text())
+        tekst = next(b for b in bronregels if b["id"] == "BR-001")["tekst"]
+        self.assertEqual(" ".join(self.run_data["articleQuote"].split()), " ".join(tekst.split()))
+
+    def test_abstentions_seventy_needs_human(self):
+        tabel = json.loads((ROOT / "poc-bp2op/runs/20260830-124515-eindhoven/omzettabel.json").read_text())
+        self.assertEqual(self.run_data["abstentions"]["count"], sum(1 for r in tabel if r["status"] == "needs_human"))
+        self.assertEqual(self.run_data["abstentions"]["count"], 70)
+
+    def test_run_schema_valid(self):
+        _schema().validate(self.run_data)
+
+
 if __name__ == "__main__":
     unittest.main()
