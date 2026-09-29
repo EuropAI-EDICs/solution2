@@ -172,5 +172,54 @@ class TestReferenceEngine(unittest.TestCase):
         self.assertEqual(r["outputs"]["afgeleide"], 7)
 
 
+import build_runs  # noqa: E402
+
+STAMP = "2026-09-29T00:00:00Z"
+
+
+class TestGeneratorUtrecht(unittest.TestCase):
+    # NB: attribuut heet run_data (niet run) — `run` shadowed unittest.TestCase.run.
+    @classmethod
+    def setUpClass(cls):
+        cls.run_data = build_runs.build_utrecht_run(build_runs.load_artifacts("utrecht"), STAMP)
+
+    def test_instrument_fields(self):
+        self.assertEqual(self.run_data["instrument"]["cvdr"], "CVDR704250")
+        self.assertEqual(self.run_data["instrument"]["article"], "5.3")
+        self.assertEqual(self.run_data["poc"], "utrecht")
+
+    def test_quote_is_verbatim_from_normcard(self):
+        cards = json.loads((ROOT / "poc/corpus/normcards-wind.json").read_text())
+        quote = next(c for c in cards if c["id"] == "NC-W-03")["source"]["quote"]
+        self.assertEqual(" ".join(self.run_data["articleQuote"].split()), " ".join(quote.split()))
+
+    def test_twelve_cases(self):
+        self.assertEqual(len(self.run_data["demoCases"]), 12)
+        ids = [c["id"] for c in self.run_data["demoCases"]]
+        self.assertEqual(len(set(ids)), 12)
+
+    def test_boundary_case_outputs(self):
+        by_id = {c["id"]: c for c in self.run_data["demoCases"]}
+        self.assertIs(by_id["utrecht-h19-p1-z1"]["expectedOutputs"]["toegestaan_kleine_windturbine"], True)
+        self.assertIs(by_id["utrecht-h21-p1-z1"]["expectedOutputs"]["toegestaan_kleine_windturbine"], False)
+        self.assertIs(by_id["utrecht-h20-p0-z1"]["expectedOutputs"]["toegestaan_kleine_windturbine"], False)
+
+    def test_abstentions_thirteen_ambiguous(self):
+        rules = json.loads((ROOT / "poc/corpus/formalrules-wind.json").read_text())
+        self.assertEqual(self.run_data["abstentions"]["count"], sum(1 for r in rules if r["status"] == "ambiguous"))
+        self.assertEqual(self.run_data["abstentions"]["count"], 13)
+
+    def test_run_schema_valid(self):
+        _schema().validate(self.run_data)
+
+    def test_artifact_shas_match_disk(self):
+        for a in self.run_data["sourceArtifacts"]:
+            self.assertEqual(a["sha256"], build_runs.sha256_of(ROOT / a["path"]))
+
+    def test_yaml_revalidation_evidence(self):
+        v0 = [v for v in self.run_data["validations"] if v["level"] == "V0"]
+        self.assertTrue(any("v0.7.1" in v["evidence"] for v in v0))
+
+
 if __name__ == "__main__":
     unittest.main()

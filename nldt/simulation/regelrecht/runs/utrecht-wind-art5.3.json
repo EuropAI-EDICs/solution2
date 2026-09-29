@@ -1,0 +1,894 @@
+{
+ "schemaVersion": "1",
+ "runId": "29a223c5",
+ "generatedAt": "2026-09-29T00:00:00Z",
+ "poc": "utrecht",
+ "instrument": {
+  "title": "Omgevingsverordening provincie Utrecht",
+  "cvdr": "CVDR704250",
+  "regulatoryLayer": "PROVINCIALE_VERORDENING",
+  "article": "5.3"
+ },
+ "sourceArtifacts": [
+  {
+   "path": "docs/examples/regelrecht/omgevingsverordening-utrecht-art5.3.yaml",
+   "role": "example-yaml",
+   "sha256": "bd1f407d07dc08649673ae7348c6b58ca9670992da36db279024aec0a317103d"
+  },
+  {
+   "path": "poc/corpus/normcards-wind.json",
+   "role": "normcard",
+   "sha256": "5c6641b4d12cece69a1b06f412d6c68177c5014b74aaa78436fe40bfdb44a0fe"
+  },
+  {
+   "path": "poc/corpus/formalrules-wind.json",
+   "role": "formalrule",
+   "sha256": "de76a619867fca97b632034ac928d8361025fec445d66528867e6b4be84612e5"
+  },
+  {
+   "path": "poc/runs/20260830T113234Z-wind/run_summary.json",
+   "role": "run-summary",
+   "sha256": "70400624ea0a869b93e5ce65964de5b45d442bd5553904e3a6cc6c38634dafbf"
+  }
+ ],
+ "machineReadable": {
+  "endpoint": "kleine_windturbine_bestaand_bouwperceel",
+  "competent_authority": {
+   "name": "Bevoegd gezag omgevingsplan (gemeente binnen het Gebied kleine windturbine)",
+   "type": "CATEGORY"
+  },
+  "execution": {
+   "produces": {
+    "legal_character": "TOETS"
+   },
+   "parameters": [
+    {
+     "name": "ashoogte_m",
+     "type": "number",
+     "description": "As van de voorgestelde windturbine, in meters."
+    },
+    {
+     "name": "op_of_in_aansluiting_op_bestaand_bouwperceel",
+     "type": "boolean",
+     "description": "Of de turbine op of in aansluiting op een bestaand bouwperceel wordt geplaatst."
+    }
+   ],
+   "input": [
+    {
+     "name": "in_gebied_kleine_windturbine",
+     "type": "boolean",
+     "description": "Geo-feit: of de locatie binnen het Gebied kleine windturbine ligt.",
+     "source": {
+      "description": "Buiten de wet-YAML op te lossen (register/GIO): punt-in-polygoon tegen de GIO \"Gebied kleine windturbine\" uit Bijlage II van CVDR704250 (join-id /join/id/regdata/pv26/2025/gio73f71441-6b83-4be5-9fef-293714578255/nld@2025-10-10;822). In de LDT-toolbox levert de zone-engine van PoC-1 dit feit (agrest IMOW-laag van de vigerende verordening als GIO-alias)."
+     }
+    }
+   ],
+   "output": [
+    {
+     "name": "toegestaan_kleine_windturbine",
+     "type": "boolean",
+     "description": "Of een omgevingsplan hier regels kan bevatten die de turbine toestaan."
+    }
+   ],
+   "actions": [
+    {
+     "output": "toegestaan_kleine_windturbine",
+     "value": {
+      "operation": "AND",
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     }
+    }
+   ]
+  }
+ },
+ "articleQuote": "Een omgevingsplan dat betrekking heeft op locaties binnen het Gebied kleine windturbine kan regels bevatten die de realisatie van een windturbine tot een ashoogte van 20 meter toestaat onder de voorwaarde dat de windturbine wordt geplaatst op of in aansluiting op bestaand bouwperceel.",
+ "demoCases": [
+  {
+   "id": "utrecht-h19-p1-z1",
+   "inputs": {
+    "ashoogte_m": 19,
+    "op_of_in_aansluiting_op_bestaand_bouwperceel": true,
+    "in_gebied_kleine_windturbine": true
+   },
+   "expectedOutputs": {
+    "toegestaan_kleine_windturbine": true
+   },
+   "trace": [
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "LESS_THAN_OR_EQUAL",
+     "operands": {
+      "subject": "$ashoogte_m",
+      "value": 20
+     },
+     "result": true
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+      "value": true
+     },
+     "result": true
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$in_gebied_kleine_windturbine",
+      "value": true
+     },
+     "result": true
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "AND",
+     "operands": {
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     },
+     "result": true
+    }
+   ]
+  },
+  {
+   "id": "utrecht-h19-p1-z0",
+   "inputs": {
+    "ashoogte_m": 19,
+    "op_of_in_aansluiting_op_bestaand_bouwperceel": true,
+    "in_gebied_kleine_windturbine": false
+   },
+   "expectedOutputs": {
+    "toegestaan_kleine_windturbine": false
+   },
+   "trace": [
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "LESS_THAN_OR_EQUAL",
+     "operands": {
+      "subject": "$ashoogte_m",
+      "value": 20
+     },
+     "result": true
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+      "value": true
+     },
+     "result": true
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$in_gebied_kleine_windturbine",
+      "value": true
+     },
+     "result": false
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "AND",
+     "operands": {
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     },
+     "result": false
+    }
+   ]
+  },
+  {
+   "id": "utrecht-h19-p0-z1",
+   "inputs": {
+    "ashoogte_m": 19,
+    "op_of_in_aansluiting_op_bestaand_bouwperceel": false,
+    "in_gebied_kleine_windturbine": true
+   },
+   "expectedOutputs": {
+    "toegestaan_kleine_windturbine": false
+   },
+   "trace": [
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "LESS_THAN_OR_EQUAL",
+     "operands": {
+      "subject": "$ashoogte_m",
+      "value": 20
+     },
+     "result": true
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+      "value": true
+     },
+     "result": false
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$in_gebied_kleine_windturbine",
+      "value": true
+     },
+     "result": true
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "AND",
+     "operands": {
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     },
+     "result": false
+    }
+   ]
+  },
+  {
+   "id": "utrecht-h19-p0-z0",
+   "inputs": {
+    "ashoogte_m": 19,
+    "op_of_in_aansluiting_op_bestaand_bouwperceel": false,
+    "in_gebied_kleine_windturbine": false
+   },
+   "expectedOutputs": {
+    "toegestaan_kleine_windturbine": false
+   },
+   "trace": [
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "LESS_THAN_OR_EQUAL",
+     "operands": {
+      "subject": "$ashoogte_m",
+      "value": 20
+     },
+     "result": true
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+      "value": true
+     },
+     "result": false
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$in_gebied_kleine_windturbine",
+      "value": true
+     },
+     "result": false
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "AND",
+     "operands": {
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     },
+     "result": false
+    }
+   ]
+  },
+  {
+   "id": "utrecht-h20-p1-z1",
+   "inputs": {
+    "ashoogte_m": 20,
+    "op_of_in_aansluiting_op_bestaand_bouwperceel": true,
+    "in_gebied_kleine_windturbine": true
+   },
+   "expectedOutputs": {
+    "toegestaan_kleine_windturbine": true
+   },
+   "trace": [
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "LESS_THAN_OR_EQUAL",
+     "operands": {
+      "subject": "$ashoogte_m",
+      "value": 20
+     },
+     "result": true
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+      "value": true
+     },
+     "result": true
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$in_gebied_kleine_windturbine",
+      "value": true
+     },
+     "result": true
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "AND",
+     "operands": {
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     },
+     "result": true
+    }
+   ]
+  },
+  {
+   "id": "utrecht-h20-p1-z0",
+   "inputs": {
+    "ashoogte_m": 20,
+    "op_of_in_aansluiting_op_bestaand_bouwperceel": true,
+    "in_gebied_kleine_windturbine": false
+   },
+   "expectedOutputs": {
+    "toegestaan_kleine_windturbine": false
+   },
+   "trace": [
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "LESS_THAN_OR_EQUAL",
+     "operands": {
+      "subject": "$ashoogte_m",
+      "value": 20
+     },
+     "result": true
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+      "value": true
+     },
+     "result": true
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$in_gebied_kleine_windturbine",
+      "value": true
+     },
+     "result": false
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "AND",
+     "operands": {
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     },
+     "result": false
+    }
+   ]
+  },
+  {
+   "id": "utrecht-h20-p0-z1",
+   "inputs": {
+    "ashoogte_m": 20,
+    "op_of_in_aansluiting_op_bestaand_bouwperceel": false,
+    "in_gebied_kleine_windturbine": true
+   },
+   "expectedOutputs": {
+    "toegestaan_kleine_windturbine": false
+   },
+   "trace": [
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "LESS_THAN_OR_EQUAL",
+     "operands": {
+      "subject": "$ashoogte_m",
+      "value": 20
+     },
+     "result": true
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+      "value": true
+     },
+     "result": false
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$in_gebied_kleine_windturbine",
+      "value": true
+     },
+     "result": true
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "AND",
+     "operands": {
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     },
+     "result": false
+    }
+   ]
+  },
+  {
+   "id": "utrecht-h20-p0-z0",
+   "inputs": {
+    "ashoogte_m": 20,
+    "op_of_in_aansluiting_op_bestaand_bouwperceel": false,
+    "in_gebied_kleine_windturbine": false
+   },
+   "expectedOutputs": {
+    "toegestaan_kleine_windturbine": false
+   },
+   "trace": [
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "LESS_THAN_OR_EQUAL",
+     "operands": {
+      "subject": "$ashoogte_m",
+      "value": 20
+     },
+     "result": true
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+      "value": true
+     },
+     "result": false
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$in_gebied_kleine_windturbine",
+      "value": true
+     },
+     "result": false
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "AND",
+     "operands": {
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     },
+     "result": false
+    }
+   ]
+  },
+  {
+   "id": "utrecht-h21-p1-z1",
+   "inputs": {
+    "ashoogte_m": 21,
+    "op_of_in_aansluiting_op_bestaand_bouwperceel": true,
+    "in_gebied_kleine_windturbine": true
+   },
+   "expectedOutputs": {
+    "toegestaan_kleine_windturbine": false
+   },
+   "trace": [
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "LESS_THAN_OR_EQUAL",
+     "operands": {
+      "subject": "$ashoogte_m",
+      "value": 20
+     },
+     "result": false
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+      "value": true
+     },
+     "result": true
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$in_gebied_kleine_windturbine",
+      "value": true
+     },
+     "result": true
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "AND",
+     "operands": {
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     },
+     "result": false
+    }
+   ]
+  },
+  {
+   "id": "utrecht-h21-p1-z0",
+   "inputs": {
+    "ashoogte_m": 21,
+    "op_of_in_aansluiting_op_bestaand_bouwperceel": true,
+    "in_gebied_kleine_windturbine": false
+   },
+   "expectedOutputs": {
+    "toegestaan_kleine_windturbine": false
+   },
+   "trace": [
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "LESS_THAN_OR_EQUAL",
+     "operands": {
+      "subject": "$ashoogte_m",
+      "value": 20
+     },
+     "result": false
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+      "value": true
+     },
+     "result": true
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$in_gebied_kleine_windturbine",
+      "value": true
+     },
+     "result": false
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "AND",
+     "operands": {
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     },
+     "result": false
+    }
+   ]
+  },
+  {
+   "id": "utrecht-h21-p0-z1",
+   "inputs": {
+    "ashoogte_m": 21,
+    "op_of_in_aansluiting_op_bestaand_bouwperceel": false,
+    "in_gebied_kleine_windturbine": true
+   },
+   "expectedOutputs": {
+    "toegestaan_kleine_windturbine": false
+   },
+   "trace": [
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "LESS_THAN_OR_EQUAL",
+     "operands": {
+      "subject": "$ashoogte_m",
+      "value": 20
+     },
+     "result": false
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+      "value": true
+     },
+     "result": false
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$in_gebied_kleine_windturbine",
+      "value": true
+     },
+     "result": true
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "AND",
+     "operands": {
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     },
+     "result": false
+    }
+   ]
+  },
+  {
+   "id": "utrecht-h21-p0-z0",
+   "inputs": {
+    "ashoogte_m": 21,
+    "op_of_in_aansluiting_op_bestaand_bouwperceel": false,
+    "in_gebied_kleine_windturbine": false
+   },
+   "expectedOutputs": {
+    "toegestaan_kleine_windturbine": false
+   },
+   "trace": [
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "LESS_THAN_OR_EQUAL",
+     "operands": {
+      "subject": "$ashoogte_m",
+      "value": 20
+     },
+     "result": false
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+      "value": true
+     },
+     "result": false
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "EQUALS",
+     "operands": {
+      "subject": "$in_gebied_kleine_windturbine",
+      "value": true
+     },
+     "result": false
+    },
+    {
+     "action": "toegestaan_kleine_windturbine",
+     "operation": "AND",
+     "operands": {
+      "conditions": [
+       {
+        "operation": "LESS_THAN_OR_EQUAL",
+        "subject": "$ashoogte_m",
+        "value": 20
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+        "value": true
+       },
+       {
+        "operation": "EQUALS",
+        "subject": "$in_gebied_kleine_windturbine",
+        "value": true
+       }
+      ]
+     },
+     "result": false
+    }
+   ]
+  }
+ ],
+ "abstentions": {
+  "count": 13,
+  "label": "ambigue FormalRules (open normen → jurist)",
+  "source": "poc/corpus/formalrules-wind.json"
+ },
+ "humanOnTheButtons": "v4_pending",
+ "validations": [
+  {
+   "level": "V0",
+   "verdict": "pass",
+   "evidence": "voorbeeld-YAML gevalideerd tegen regelrecht-schema v0.7.1"
+  },
+  {
+   "level": "V2",
+   "verdict": "pass",
+   "evidence": "articleQuote letterlijk uit NC-W-03 (poc/corpus/normcards-wind.json)"
+  },
+  {
+   "level": "V4",
+   "verdict": "pending",
+   "evidence": "jurittoets staat structureel open (MC-6)"
+  }
+ ]
+}
