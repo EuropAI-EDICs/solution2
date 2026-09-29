@@ -154,6 +154,23 @@ class TestReferenceEngine(unittest.TestCase):
         with self.assertRaises(EngineError):
             evaluate(UTRECHT_EXECUTION, {"ashoogte_m": 19})
 
+    def test_literal_action_value_becomes_output(self):
+        execution = {
+            "output": [{"name": "max_hoogte"}],
+            "actions": [{"output": "max_hoogte", "value": 20}],
+        }
+        r = evaluate(execution, {})
+        self.assertEqual(r["outputs"]["max_hoogte"], 20)
+        self.assertEqual(r["trace"], [])
+
+    def test_reference_action_value_resolves(self):
+        execution = {
+            "output": [{"name": "afgeleide"}],
+            "actions": [{"output": "afgeleide", "value": "$bron"}],
+        }
+        r = evaluate(execution, {"bron": 7})
+        self.assertEqual(r["outputs"]["afgeleide"], 7)
+
 
 if __name__ == "__main__":
     unittest.main()

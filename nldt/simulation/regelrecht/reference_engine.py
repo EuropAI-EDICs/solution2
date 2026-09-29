@@ -19,8 +19,7 @@ def evaluate(execution: dict, inputs: dict) -> dict:
     scope = dict(inputs)
     trace: list = []
     for action in execution.get("actions", []):
-        _resolve(action["value"], scope, trace, action["output"])
-        # de actie-output staat na _resolve als laatste scope-sleutel; zie _apply
+        scope[action["output"]] = _resolve(action["value"], scope, trace, action["output"])
     outputs = {o["name"]: scope.get(o["name"]) for o in execution.get("output", [])}
     return {"outputs": outputs, "trace": trace}
 
@@ -33,9 +32,7 @@ def _resolve(node, scope, trace, label):
     if isinstance(node, (bool, int, float)):
         return node
     if isinstance(node, dict) and "operation" in node:
-        result = _apply(node, scope, trace, label)
-        scope[label] = result  # actie-output (top-level aanroep)
-        return result
+        return _apply(node, scope, trace, label)  # opslag in scope doet evaluate (top-level)
     if isinstance(node, str):
         return node
     raise EngineError(f"niet-ondersteunde operand: {node!r}")
