@@ -20,5 +20,8 @@
 | DCAT-AP | https://joinup.ec.europa.eu/collection/semantic-interoperability-community-semic/solution/dcat-application-profile-data-portals-europe |
 | Dutch Vision on a European Digital Twin App Store (DTAS) | https://www.zichtopnl.nl/documenten/handlerdownloadfiles.ashx?idnv=3167953 |
 | Meerjarenvisie Zicht op Nederland (GI-beraad) | https://www.zichtopnl.nl/documenten/handlerdownloadfiles.ashx?idnv=2781424 |
+| Urban Strategy — Data exchange system (IMB) | https://doc.urbanstrategy.nl/system/ |
+| Lohman et al. (2023) Inter Model Broker (FGCS) | https://doi.org/10.1016/j.future.2023.06.024 |
+| Urban Model Platform (OGC API Processes) | https://github.com/Urban-Model-Platform/urban-model-platform |
 
 Local: [nldt-testbed2026-phase2-invitation-to-tender.pdf](../nldt-testbed2026-phase2-invitation-to-tender.pdf)

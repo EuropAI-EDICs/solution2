@@ -13,6 +13,7 @@ Generic reference implementation of a **Dutch Local Digital Twin (nLDT)** for ag
 | Doc | Topic |
 |-----|-------|
 | [**00-architecture.md**](00-architecture.md) | **Hub:** comprehensive architecture + links (start here) |
+| [bestuurlijke-samenvatting.md](bestuurlijke-samenvatting.md) | **NL, bestuurders:** samenvatting van hoofdstukken 22–24 + RA-conformiteit |
 | Interactive architecture | [`simulation/poc-mcp-skills.html`](simulation/poc-mcp-skills.html) (`?poc=…`, including `edic`) |
 | [01-vision-and-scope.md](01-vision-and-scope.md) | Vision, goals, scope |
 | [02-reference-architecture.md](02-reference-architecture.md) | Triangle + foundation; mapping NLDT ↔ EDIC ↔ EU Toolbox |
@@ -38,6 +39,7 @@ Generic reference implementation of a **Dutch Local Digital Twin (nLDT)** for ag
 | [22-dual-audience-spatial-planning.md](22-dual-audience-spatial-planning.md) | **Plan:** one governed core, front doors for planners and the public (S11, DA-0…4) |
 | [23-dtas-alignment.md](23-dtas-alignment.md) | **Plan:** DTAS alignment — recipes as DTAS modules, module passport, Marketplace (DT-0…4) |
 | [24-zichtopnl-alignment.md](24-zichtopnl-alignment.md) | **Plan:** Zicht op Nederland meerjarenvisie as the national frame (datawaardeketen, DTFL doctrine) |
+| [25-imb-alignment.md](25-imb-alignment.md) | **Note:** IMB (Lohman et al. / Urban Strategy) roles mapped onto nLDT — docs only |
 
 ## Code
 

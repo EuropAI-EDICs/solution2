@@ -42,6 +42,7 @@ docs; this file wires them together.
 | Dual-audience front doors (planners + public, plan) | [22-dual-audience-spatial-planning.md](22-dual-audience-spatial-planning.md) |
 | DTAS alignment (Digital Twin App Store vision, plan) | [23-dtas-alignment.md](23-dtas-alignment.md) |
 | Zicht op Nederland national vision alignment (plan) | [24-zichtopnl-alignment.md](24-zichtopnl-alignment.md) |
+| IMB (Inter Model Broker) role mapping | [25-imb-alignment.md](25-imb-alignment.md) |
 | Bibliography | [references/bibliography.md](references/bibliography.md) |
 | Quick start / ports | [README.md](README.md) |
 
