@@ -264,6 +264,21 @@ def main(argv=None) -> int:
         json.dumps(cases, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"
     )
     print(f"OK golden set cases={len(cases)}")
+
+    template = (DIR / "regelrecht-demo.template.html").read_text(encoding="utf-8")
+    engine_js = (DIR / "engine" / "mini-engine.js").read_text(encoding="utf-8")
+    golden = (engine_dir / "engine-cases.json").read_text(encoding="utf-8")
+    page = (
+        template
+        .replace("__RUN_UTRECHT__", (runs_dir / POC_CONFIGS["utrecht"]["run_file"]).read_text())
+        .replace("__RUN_EINDHOVEN__", (runs_dir / POC_CONFIGS["eindhoven"]["run_file"]).read_text())
+        .replace("__GOLDEN__", golden)
+        .replace("__ENGINE_JS__", engine_js)
+        .replace("__BUILD_STAMP__", args.stamp)
+    )
+    out_html = outdir.parent / "regelrecht-demo.html" if outdir == DIR else outdir / "regelrecht-demo.html"
+    out_html.write_text(page, encoding="utf-8")
+    print(f"OK demo-page {out_html}")
     return 0
 
 

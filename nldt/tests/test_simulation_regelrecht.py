@@ -275,5 +275,24 @@ class TestGoldenSetAndJsEngine(unittest.TestCase):
         self.assertIn("16/16", self.proc.stdout)
 
 
+DEMO_HTML = ROOT / "nldt" / "simulation" / "regelrecht-demo.html"
+
+
+class TestDemoPage(unittest.TestCase):
+    def test_page_exists_and_contains_inline_data(self):
+        text = DEMO_HTML.read_text()
+        for marker in ('id="run-utrecht"', 'id="run-eindhoven"', 'id="golden-cases"',
+                       "window.RegelRechtEngine", "__RUN_UTRECHT__"):
+            if marker.startswith("__"):
+                self.assertNotIn(marker, text)  # placeholder moet gevuld zijn
+            else:
+                self.assertIn(marker, text)
+
+    def test_page_quotes_articles(self):
+        text = DEMO_HTML.read_text()
+        self.assertIn("Gebied kleine windturbine", text)
+        self.assertIn("tijdelijke deel", text)
+
+
 if __name__ == "__main__":
     unittest.main()
