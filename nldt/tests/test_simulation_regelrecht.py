@@ -72,5 +72,88 @@ class TestRunContract(unittest.TestCase):
             _schema().validate(run)
 
 
+from reference_engine import EngineError, evaluate  # noqa: E402
+
+UTRECHT_EXECUTION = {
+    "parameters": [
+        {"name": "ashoogte_m", "type": "number"},
+        {"name": "op_of_in_aansluiting_op_bestaand_bouwperceel", "type": "boolean"},
+    ],
+    "input": [{"name": "in_gebied_kleine_windturbine", "type": "boolean"}],
+    "output": [{"name": "toegestaan_kleine_windturbine", "type": "boolean"}],
+    "actions": [
+        {
+            "output": "toegestaan_kleine_windturbine",
+            "value": {
+                "operation": "AND",
+                "conditions": [
+                    {"operation": "LESS_THAN_OR_EQUAL", "subject": "$ashoogte_m", "value": 20},
+                    {"operation": "EQUALS", "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel", "value": True},
+                    {"operation": "EQUALS", "subject": "$in_gebied_kleine_windturbine", "value": True},
+                ],
+            },
+        }
+    ],
+}
+
+EINDHOVEN_EXECUTION = {
+    "parameters": [{"name": "voorschriften_verbonden_voor_iwt", "type": "boolean"}],
+    "input": [{"name": "strijd_met_tijdelijk_deel", "type": "boolean"}],
+    "output": [{"name": "regels_hoofdstuk_van_toepassing", "type": "boolean"}],
+    "actions": [
+        {
+            "output": "regels_hoofdstuk_van_toepassing",
+            "value": {
+                "operation": "IF",
+                "cases": [
+                    {"when": {"operation": "EQUALS", "subject": "$strijd_met_tijdelijk_deel", "value": True}, "then": False},
+                    {"when": {"operation": "EQUALS", "subject": "$voorschriften_verbonden_voor_iwt", "value": True}, "then": False},
+                ],
+                "default": True,
+            },
+        }
+    ],
+}
+
+
+class TestReferenceEngine(unittest.TestCase):
+    def test_utrecht_and_all_true(self):
+        r = evaluate(UTRECHT_EXECUTION, {"ashoogte_m": 19, "op_of_in_aansluiting_op_bestaand_bouwperceel": True, "in_gebied_kleine_windturbine": True})
+        self.assertIs(r["outputs"]["toegestaan_kleine_windturbine"], True)
+        self.assertEqual(len(r["trace"]), 4)  # 3 condities + 1 AND
+
+    def test_utrecht_boundary_exactly_20_passes(self):
+        r = evaluate(UTRECHT_EXECUTION, {"ashoogte_m": 20, "op_of_in_aansluiting_op_bestaand_bouwperceel": True, "in_gebied_kleine_windturbine": True})
+        self.assertIs(r["outputs"]["toegestaan_kleine_windturbine"], True)
+
+    def test_utrecht_21_fails(self):
+        r = evaluate(UTRECHT_EXECUTION, {"ashoogte_m": 21, "op_of_in_aansluiting_op_bestaand_bouwperceel": True, "in_gebied_kleine_windturbine": True})
+        self.assertIs(r["outputs"]["toegestaan_kleine_windturbine"], False)
+
+    def test_trace_entry_shape(self):
+        r = evaluate(UTRECHT_EXECUTION, {"ashoogte_m": 19, "op_of_in_aansluiting_op_bestaand_bouwperceel": False, "in_gebied_kleine_windturbine": True})
+        entry = r["trace"][-1]
+        self.assertEqual(entry["action"], "toegestaan_kleine_windturbine")
+        self.assertEqual(entry["operation"], "AND")
+        self.assertIs(entry["result"], False)
+        self.assertEqual(entry["operands"]["conditions"][0]["subject"], "$ashoogte_m")
+
+    def test_eindhoven_if_first_case_wins(self):
+        r = evaluate(EINDHOVEN_EXECUTION, {"strijd_met_tijdelijk_deel": True, "voorschriften_verbonden_voor_iwt": True})
+        self.assertIs(r["outputs"]["regels_hoofdstuk_van_toepassing"], False)
+
+    def test_eindhoven_default(self):
+        r = evaluate(EINDHOVEN_EXECUTION, {"strijd_met_tijdelijk_deel": False, "voorschriften_verbonden_voor_iwt": False})
+        self.assertIs(r["outputs"]["regels_hoofdstuk_van_toepassing"], True)
+
+    def test_unknown_operation_raises(self):
+        with self.assertRaises(EngineError):
+            evaluate({"output": [{"name": "x"}], "actions": [{"output": "x", "value": {"operation": "XOR", "conditions": []}}]}, {})
+
+    def test_unknown_reference_raises(self):
+        with self.assertRaises(EngineError):
+            evaluate(UTRECHT_EXECUTION, {"ashoogte_m": 19})
+
+
 if __name__ == "__main__":
     unittest.main()
