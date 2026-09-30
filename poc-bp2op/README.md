@@ -13,6 +13,14 @@ jurist checkpoint.
 Every pipeline feature cites the method card that motivated it: **MC-1 … MC-12** in
 [`corpus/METHOD-CARDS.md`](corpus/METHOD-CARDS.md), each card with transcript
 timestamps, distilled from the [archived video transcript](corpus/vng-netwerksessie-19jun2026-transcript.txt).
+The core chain — bronregel → kennisbank → omzettabel-rij → coverage, with full
+traceability — is explained (in Dutch) in
+[`docs/POC_RULE_GRAPH_EINDHOVEN.md`](../docs/POC_RULE_GRAPH_EINDHOVEN.md); the
+RegelRecht (MinBZK) integration of this PoC and PoC-1 — including a schema-validated
+example YAML export of artikelen 22.1/10.2 — in
+[`docs/POC_REGELRECHT_INTEGRATION.md`](../docs/POC_REGELRECHT_INTEGRATION.md);
+a management-level summary of both PoCs and legislation reuse in
+[`docs/POC_BESTUURLIJKE_SAMENVATTING.md`](../docs/POC_BESTUURLIJKE_SAMENVATTING.md).
 
 ## Run it (offline, corpus-first)
 
