@@ -1,0 +1,115 @@
+# Deep Agents — recipe drivers for the nLDT POCs
+
+LangChain [Deep Agents](https://docs.langchain.com/oss/python/deepagents/quickstart)
+hosted here drive the nLDT **recipes** for the POCs, fully on **local Ollama
+models** — no cloud provider keys. Recipes are the declarative playbooks in
+[`../nldt/recipes/`](../nldt/recipes) (`rijnland-peil-conflict`,
+`utrecht-world-scene`, `eindhoven-bp2op`, `minigim-gebiedscheck`, …), each
+with steps, inputs/outputs and `requiredProcesses` backed by the POC
+workspaces (`../poc`, `../poc-breda`, `../poc-rijnland`, `../poc-minigim`,
+`../poc-bp2op`).
+
+## Orchestration
+
+An orchestrator agent routes requests to per-POC specialist subagents and
+functional specialists from the multi-agent plan ([MULTI_AGENT_PLAN.md](../MULTI_AGENT_PLAN.md))
+via the `task` tool (SubAgentMiddleware — todo planning is included automatically):
+
+```
+orchestrator (gemma4:31b-mlx)
+  ├─ breda         five-value scan, scan QA (seam S4)                    ┐
+  ├─ rijnland      peil conflict, what-if, live                          │ POC specialists
+  ├─ utrecht       opportunity map, world-scene, scenario author/sweep   │ (prompts/poc/)
+  ├─ crosstrack    Plane C wind × solar × forest overlay                 │
+  ├─ minigim       gebiedscheck (74-item Lijst-v0.91)                    │
+  ├─ eindhoven     bp2op conversion (V4 HITL always pending)             ┘
+  ├─ geospecialist layer areas (km²), bboxes, control-vs-scenario deltas ┐
+  ├─ normspecialist norm-card corpus search (NC-*, source article)       │
+  ├─ critic        deterministic validation gate after every build       │ functional specialists
+  ├─ explainer     provenance: spec → scenario → norm card → article     │ (prompts/roles/)
+  ├─ intake        vague brief → schema-valid OpportunityMapRequest      │
+  └─ formalizer    NormCard (NC-*) → executable FormalRule (FR-*)        ┘
+      specialists: gemma4:12b-mlx
+```
+
+Build ordering matters: utrecht builds first, then geospecialist + critic fan
+out in parallel over the fresh artifacts.
+
+## Layout
+
+```
+deep-agents/
+  agent.py               # orchestrator entry point (build + run)
+  live.py                # streaming runner → runs/live/steps.jsonl
+  live_server.py         # simulation dashboard server (http://127.0.0.1:8765)
+  dashboard.html         # the dashboard: dropdowns + live steps + map
+  journal.py             # run journal (steps.jsonl) shared by runner + tools
+  models.py              # Ollama model factory (base_url, num_ctx, fail-fast check)
+  pocs.py                # per-POC subagent registry
+  vizassets.py           # local Leaflet copies (no CDN/API key needed)
+  tools/recipes.py       # list_recipes / get_recipe tools
+  tools/utrecht.py       # world-scene execution + demo render (Utrecht Plane B)
+  tools/geo.py           # geospecialist: layer inspection + comparison (km², deltas)
+  tools/norms.py         # normspecialist: norm-card corpus search
+  tools/validate.py      # critic: schema + sanity gate over built bundles
+  tools/explain.py       # explainer: provenance lookup
+  tools/intake.py        # intake: request template + OpportunityMapRequest schema gate
+  tools/formalize.py     # formalizer: formal-rule corpus + FormalRule schema gate
+  prompts/               # recipe_driver.md (orchestrator) + poc/*.md (specialists)
+  runs/                  # agent-written artifacts per session (gitignored)
+```
+
+## Setup
+
+```bash
+cd deep-agents
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env      # optional: override models / Ollama URL / num_ctx
+ollama serve              # if not already running
+ollama pull gemma4:31b-mlx && ollama pull gemma4:12b-mlx
+```
+
+Models are env-driven and match `ollama list`: `DEEP_AGENT_MODEL`
+(orchestrator, default `gemma4:31b-mlx`) and `DEEP_AGENT_SUBMODEL`
+(specialists, default `gemma4:12b-mlx`). Any local tool-calling model works —
+e.g. `qwen3.6:27b-mlx` as a heavier orchestrator or `gemma4:12b` (non-MLX).
+
+## Run
+
+One-shot from the CLI:
+
+```bash
+python agent.py "Welk recipe hoort bij de Rijnland peil conflict POC en welke inputs nodig?"
+python live.py "Bouw de world scene voor scenario run 20260831T074521Z-wind-scen"   # streamed to the journal
+```
+
+Or the **simulation dashboard** (dropdowns for scenario run, prompting mode
+and Ollama models; live step timeline; the world-scene map renders as soon
+as the agents build it — no basemap, no API keys, fully local):
+
+```bash
+.venv/bin/python live_server.py     # → http://127.0.0.1:8765/
+```
+
+Modes: *Uitvoeren + visual demo*, *Alleen run plan*, *Kritische toets,
+daarna uitvoeren*, *Control vs scenario vergelijking*, *Geo-analyse +
+critic-validatie*, *Normketen* (intake → normspecialist → formalizer), and
+*Volledige keten* — the whole planning plane in order: intake → norm cards →
+formal rule → world-scene build → geo + critic → explainer crosscheck.
+
+**Artifact gates (volledige keten):** intake, normspecialist and formalizer
+must SUBMIT their artifacts (`submit_request`, `submit_norm_cards`,
+`submit_formal_rule`) — validated, persisted to `runs/live/artifacts/` and
+journaled with PASS/FAIL. In keten mode the world-scene build HARD-REFUSES
+(`NLDT_REQUIRE_INTAKE=1`) without a submitted, schema-valid request, and the
+explainer's `crosscheck_formal_rule` reports whether the engine actually
+executed the submitted rule. One simulation at a time; each run journals
+every step to `runs/live/steps.jsonl`.
+
+## Next steps
+
+- Wire a `run_recipe` tool to the Cookbook + OGC process backends (per POC).
+- Add HITL interrupts (`interrupt_on`) once execution lands — mandatory for
+  `eindhoven-bp2op` (V4 is always pending).
+- Consider a store/checkpointer for multi-turn sessions with shared POC memory.

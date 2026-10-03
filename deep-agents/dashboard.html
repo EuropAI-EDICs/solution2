@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>nLDT deep-agent simulatie</title>
+<link rel="stylesheet" href="/assets/leaflet.css"/>
+<style>
+  :root { --blue:#2563eb; --bg:#f4f6fa; --line:#e2e6ee; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system,"Segoe UI",sans-serif; margin:0; background:var(--bg); color:#1a2233; }
+  header { background:#0f1b33; color:#fff; padding:10px 18px; display:flex; align-items:center; gap:14px; }
+  header h1 { font-size:16px; margin:0; font-weight:600; }
+  header .models { margin-left:auto; font-size:11px; opacity:.75; }
+  #agents { display:flex; flex-wrap:wrap; gap:4px; padding:4px 18px 8px; background:#0f1b33; }
+  .chip { font-size:10.5px; border-radius:10px; padding:2px 8px; background:#26365a; color:#cfe0ff; }
+  .chip.role { background:#3d2a68; color:#e6d9ff; }
+  #status { font-size:12px; padding:3px 10px; border-radius:12px; background:#334166; }
+  #status.running { background:#b45309; } #status.done { background:#15803d; }
+  #status.error { background:#7f1d1d; }
+  .step.error { border-left-color:#b91c1c; background:#fdeaea; } .step.error .badge { background:#f5c9c9; }
+  #controls { display:flex; gap:10px; padding:10px 18px; background:#fff; border-bottom:1px solid var(--line); flex-wrap:wrap; align-items:flex-end; }
+  label { font-size:11px; display:block; color:#556; margin-bottom:3px; }
+  select { font-size:13px; padding:6px 8px; border:1px solid var(--line); border-radius:6px; background:#fff; min-width:180px; max-width:340px; }
+  #start { background:var(--blue); color:#fff; border:0; border-radius:6px; padding:9px 18px; font-size:13px; font-weight:600; cursor:pointer; }
+  #start:disabled { background:#93a4c8; cursor:wait; }
+  #stop { background:#b91c1c; color:#fff; border:0; border-radius:6px; padding:9px 14px; font-size:13px; font-weight:600; cursor:pointer; display:none; }
+  #main { display:flex; gap:0; height:calc(100vh - 96px); }
+  #timeline { width:430px; overflow-y:auto; border-right:1px solid var(--line); background:#fff; padding:12px; }
+  #tl-title { font-size:12px; font-weight:600; color:#667; margin-bottom:8px; }
+  .step { display:flex; gap:8px; padding:7px 8px; border-left:3px solid transparent; margin-bottom:6px; background:var(--bg); border-radius:6px; font-size:12.5px; }
+  .step .t { color:#8895ad; font-size:10.5px; min-width:52px; padding-top:2px; }
+  .step .badge { font-size:10px; border-radius:8px; padding:1px 7px; height:fit-content; white-space:nowrap; }
+  .step.start { border-left-color:var(--blue); } .step.start .badge { background:#dbe7ff; }
+  .step.delegate { border-left-color:#7c3aed; background:#f3eefe; } .step.delegate .badge { background:#e6d9ff; }
+  .step.tool_call { border-left-color:#64748b; } .step.tool_call .badge { background:#e2e8f0; }
+  .step.tool_result { border-left-color:#15803d; } .step.tool_result .badge { background:#d9f0e1; }
+  .step.assistant { border-left-color:#0ea5e9; background:#eff8ff; } .step.assistant .badge { background:#d6ecff; }
+  .step.done { border-left-color:#15803d; background:#e7f6ec; } .step.done .badge { background:#bbf0cd; }
+  .step .sum { flex:1; } .step .sum small { display:block; color:#667; font-size:11px; margin-top:2px; }
+  #viz { flex:1; display:flex; flex-direction:column; }
+  #viz-header { padding:8px 16px; font-size:12px; color:#667; background:#fff; border-bottom:1px solid var(--line); }
+  #viz-body { display:flex; flex:1; min-height:0; }
+  #cards { width:330px; overflow-y:auto; padding:12px; background:#fff; border-right:1px solid var(--line); }
+  .card { border:1px solid var(--line); border-radius:8px; padding:10px; margin-bottom:10px; cursor:pointer; background:#fff; }
+  .card.active { border-color:var(--blue); box-shadow:0 0 0 2px rgba(37,99,235,.2); }
+  .delta { font-size:19px; font-weight:600; margin:4px 0; } .neg { color:#b91c1c; } .pos { color:#15803d; }
+  .note { font-size:11.5px; color:#556; }
+  details { margin-top:5px; } summary { font-size:11.5px; color:var(--blue); cursor:pointer; }
+  #map { flex:1; background:#e8edf3; }
+  .legend { display:inline-flex; align-items:center; gap:4px; margin-right:12px; font-size:11.5px; color:#556; }
+  .sw { width:12px; height:12px; border-radius:3px; display:inline-block; }
+  .placeholder { display:flex; align-items:center; justify-content:center; height:100%; color:#8895ad; font-size:14px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>nLDT deep-agent simulatie — Utrecht Plane B</h1>
+  <span id="status">idle</span>
+  <span class="models" id="models"></span>
+</header>
+<div id="agents"></div>
+<div id="controls">
+  <div><label>Scenario run</label><select id="scenario"></select></div>
+  <div><label>Prompting / modus</label><select id="mode"></select></div>
+  <div><label>Orchestrator model</label><select id="model"></select></div>
+  <div><label>Specialist model</label><select id="submodel"></select></div>
+  <button id="start">▶ Start simulatie</button>
+  <button id="stop">■ Stop</button>
+</div>
+<div id="main">
+  <div id="timeline"><div id="tl-title">Agent-stappen (live)</div><div id="steps"><div class="placeholder">Nog geen run — druk op “Start simulatie”.</div></div></div>
+  <div id="viz">
+    <div id="viz-header">
+      <span class="legend"><span class="sw" style="background:#2563eb;opacity:.45"></span>control</span>
+      <span class="legend"><span class="sw" style="background:#dc2626;opacity:.45"></span>scenario</span>
+      <span id="viz-note">geen basemap nodig — overlays zijn engine-grounded</span>
+    </div>
+    <div id="viz-body">
+      <div id="cards"><div class="placeholder">Visualisatie verschijnt zodra de agents de world scene bouwen.</div></div>
+      <div id="map"></div>
+    </div>
+  </div>
+</div>
+<script src="/assets/leaflet.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let poll = null, vizRunId = null, map = null, controlLayer = null, scenarioLayer = null;
+let lastRunId = null;
+
+function fullReset() {
+  vizRunId = null;
+  $('steps').innerHTML = '<div class="placeholder">Simulatie gestart — eerste stappen volgen…</div>';
+  $('cards').innerHTML = '<div class="placeholder">Visualisatie verschijnt zodra de agents de world scene bouwen.</div>';
+  if (map && controlLayer && scenarioLayer) { controlLayer.clearLayers(); scenarioLayer.clearLayers(); }
+}
+
+async function initControls() {
+  const [scen, modes, models, agents] = await Promise.all([
+    fetch('/api/scenarios').then(r => r.json()),
+    fetch('/api/modes').then(r => r.json()),
+    fetch('/api/models').then(r => r.json()),
+    fetch('/api/agents').then(r => r.json()),
+  ]);
+  $('agents').innerHTML = agents.map(a =>
+    `<span class="chip ${a.kind === 'role' ? 'role' : ''}" title="${escapeHtml(a.description)}">${a.name}</span>`).join('');
+  $('scenario').innerHTML = scen.map(s => `<option value="${s}">${s}</option>`).join('');
+  const saved = localStorage.getItem('sim-scenario');
+  if (saved && scen.includes(saved)) $('scenario').value = saved;
+  $('mode').innerHTML = modes.map(m => `<option value="${m.id}">${m.label}</option>`).join('');
+  $('model').innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join('');
+  $('submodel').innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join('');
+  const pick = (key, fallback) => {
+    const saved = localStorage.getItem(key);
+    if (saved && models.includes(saved)) return saved;   // only valid local models
+    localStorage.setItem(key, fallback);
+    return fallback;
+  };
+  $('model').value = pick('sim-model', models.find(m => m.includes('31b-mlx')) || models[0] || '');
+  $('submodel').value = pick('sim-submodel', models.find(m => m.includes('12b-mlx')) || models.find(m => m.includes('12b')) || models[0] || '');
+  $('models').textContent = `${$('model').value} + ${$('submodel').value}`;
+}
+
+$('start').addEventListener('click', async () => {
+  const body = {
+    scenario: $('scenario').value,
+    mode: $('mode').value,
+    model: $('model').value,
+    submodel: $('submodel').value,
+  };
+  localStorage.setItem('sim-scenario', body.scenario);
+  localStorage.setItem('sim-model', body.model);
+  localStorage.setItem('sim-submodel', body.submodel);
+  fullReset();
+  $('start').disabled = true; $('status').textContent = 'running'; $('status').className = 'running';
+  $('stop').style.display = 'inline-block';
+  const res = await fetch('/api/run', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) });
+  if (!res.ok) {
+    const detail = (await res.json().catch(() => ({}))).detail || 'run geweigerd';
+    $('steps').innerHTML = `<div class="placeholder">${escapeHtml(String(detail))}</div>`;
+    $('start').disabled = false; $('stop').style.display = 'none';
+    $('status').textContent = 'fout'; $('status').className = 'error';
+    return;
+  }
+  const r = await res.json();
+  lastRunId = r.run_id;
+});
+
+$('stop').addEventListener('click', async () => {
+  await fetch('/api/stop', { method: 'POST' });
+});
+
+function renderSteps(entries) {
+  if (!entries.length) return;
+  const box = $('steps');
+  const stick = box.scrollTop + box.clientHeight >= box.scrollHeight - 30;
+  box.innerHTML = entries.map(e => `
+    <div class="step ${e.kind}">
+      <span class="t">${e.ts || ''}</span>
+      <span class="badge">${e.kind}</span>
+      <span class="sum">${escapeHtml(e.summary || '')}${e.detail ? `<small>${escapeHtml(String(e.detail).slice(0,140))}</small>` : ''}</span>
+    </div>`).join('');
+  if (stick) box.scrollTop = box.scrollHeight;
+}
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function ensureMap() {
+  if (map) return;
+  map = L.map('map');
+  controlLayer = L.featureGroup().addTo(map);
+  scenarioLayer = L.featureGroup().addTo(map);
+}
+async function showViz(runId) {
+  if (runId === vizRunId) return;
+  const base = `/${runId}-worldscene`;
+  let bundle;
+  try { bundle = await fetch(`${base}/world-scene-specs.json`).then(r => r.json()); }
+  catch { return; }
+  vizRunId = runId;
+  ensureMap();
+  const control = await fetch(`${base}/scenarios/CONTROL.geojson`).then(r => r.json());
+  $('cards').innerHTML = bundle.specs.map(s => `
+    <div class="card" data-scen="${s.scenarioId}">
+      <div class="note"><b>${s.id}</b></div>
+      <div class="delta ${s.headlineDeltaKm2 < 0 ? 'neg' : 'pos'}">${s.headlineDeltaKm2 > 0 ? '+' : ''}${s.headlineDeltaKm2.toFixed(2)} km² (${s.headlineDeltaPct > 0 ? '+' : ''}${s.headlineDeltaPct.toFixed(2)}%)</div>
+      <div class="note">${escapeHtml(s.mutationSummary)} · ${s.provenanceBasis.type} · ${s.groundingStamp}</div>
+      <details><summary>Marble prompt (gated)</summary><div class="note">${escapeHtml(s.marblePrompt)}</div></details>
+    </div>`).join('');
+  document.querySelectorAll('.card').forEach(el => el.addEventListener('click', () => drawScen(base, control, el.dataset.scen, el)));
+  drawScen(base, control, bundle.specs[0].scenarioId, document.querySelector('.card'));
+}
+async function drawScen(base, control, scenId, el) {
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  controlLayer.clearLayers(); scenarioLayer.clearLayers();
+  L.geoJSON(control, {style:{color:'#2563eb',weight:1,fillColor:'#2563eb',fillOpacity:.25}}).addTo(controlLayer);
+  let scen = control;
+  try { scen = await fetch(`${base}/scenarios/${scenId}.geojson`).then(r => r.json()); } catch {}
+  L.geoJSON(scen, {style:{color:'#dc2626',weight:1,fillColor:'#dc2626',fillOpacity:.3}}).addTo(scenarioLayer);
+  map.fitBounds(controlLayer.getBounds().pad(0.05));
+}
+
+async function tick() {
+  let entries = [];
+  try { entries = (await fetch('/api/steps?_=' + Date.now()).then(r => r.text())).trim().split('\n').filter(Boolean).map(l => JSON.parse(l)); } catch {}
+  let st = null;
+  try { st = await fetch('/api/status').then(r => r.json()); } catch {}
+  if (st && st.run_id !== undefined) {
+    if (lastRunId !== null && st.run_id !== lastRunId) fullReset();
+    lastRunId = st.run_id;
+  }
+  renderSteps(entries);
+  const vizEntry = [...entries].reverse().find(e => e.viz && e.viz.kind === 'worldscene');
+  if (vizEntry) showViz(vizEntry.viz.runId);
+  if (st) {
+    if (st.running) { $('status').textContent = 'running'; $('status').className = 'running'; $('start').disabled = true; $('stop').style.display = 'inline-block'; }
+    else if (st.ever_ran && st.rc === 0) { $('status').textContent = 'done'; $('status').className = 'done'; $('start').disabled = false; $('stop').style.display = 'none'; }
+    else if (st.ever_ran && st.rc !== null && st.rc !== 0) { $('status').textContent = `fout (rc=${st.rc})`; $('status').className = 'error'; $('start').disabled = false; $('stop').style.display = 'none'; }
+    else { $('status').textContent = 'idle'; $('status').className = ''; $('start').disabled = false; $('stop').style.display = 'none'; }
+  }
+}
+initControls();
+poll = setInterval(tick, 1200);
+tick();
+</script>
+</body>
+</html>
