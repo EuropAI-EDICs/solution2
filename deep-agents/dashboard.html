@@ -99,8 +99,9 @@
   </div>
   <div id="viz">
     <div id="viz-header">
-      <span class="legend"><span class="sw" style="background:#fff;border:2px solid #2563eb"></span>control (vigerend)</span>
-      <span class="legend"><span class="sw" style="background:#dc2626;opacity:.75"></span>focus-scenario</span>
+      <span class="legend"><span class="sw" style="background:#fff;border:2px solid #2563eb"></span>control-grens</span>
+      <span class="legend"><span class="sw" style="background:#dc2626"></span>verloren gebied</span>
+      <span class="legend"><span class="sw" style="background:#16a34a"></span>gewonnen gebied</span>
       <span class="legend"><span class="sw" style="background:#ea580c;opacity:.55"></span>gepind</span>
       <span id="viz-note">de kaart bouwt mee met de agentstappen</span>
       <button id="autobtn" class="on" title="kaart volgt automatisch de geo-stappen van de agents">▶ auto-volgen</button>
@@ -112,6 +113,7 @@
   </div>
 </div>
 <script src="/assets/leaflet.js"></script>
+<script src="/assets/turf.min.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 let vizRunId = null, map = null, controlLayer = null, scenarioLayer = null, controlDrawn = false;
@@ -238,6 +240,42 @@ function humanize(e) {
 }
 const KIND_LABEL = { start: 'brief', delegate: 'handover', tool_call: 'working', tool_result: 'result', assistant: 'report', done: 'finished', error: 'problem' };
 
+// --- layman helpers: turn WSS/FR codes into sentences a civilian can read
+function plainTitle(scenId, reportName) {
+  if (reportName && !/^SC-|^WSS-/.test(reportName)) return reportName;
+  const id = scenId.replace(/^SC-[WZB]-/, '').replace(/^WSS-SC-[WZB]-/, '');
+  const map = [
+    [/stilte/i, 'Stiltegebieden worden hard uitgesloten'],
+    [/aandacht-?3000/i, 'Aandachtsgebied met 3.000 m afstandseis'],
+    [/aandacht-?1500/i, 'Aandachtsgebied met 1.500 m afstandseis'],
+    [/aandacht-?500/i, 'Aandachtsgebied met 500 m afstandseis'],
+    [/nnn-exception/i, 'NNN-uitzondering (regel vervalt)'],
+    [/natura-?setback/i, 'Extra afstand tot Natura 2000'],
+    [/groene-?contour/i, 'Groene contour als harde grens'],
+    [/geen-?natura-?carve/i, 'Geen Natura-uitzondering meer'],
+    [/oude-?bos/i, 'Oud bos hard beschermd'],
+    [/expand-?1?km/i, 'Uitbreiding met 1 km zone'],
+  ];
+  for (const [re, phrase] of map) if (re.test(id)) return phrase;
+  return id.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+function plainMutation(mutationSummary, deltaKm2) {
+  const richting = deltaKm2 < -0.05
+    ? `→ ${(Math.abs(deltaKm2)).toFixed(1)} km² minder ruimte`
+    : deltaKm2 > 0.05
+      ? `→ +${deltaKm2.toFixed(1)} km² extra ruimte`
+      : '→ gebied blijft vrijwel gelijk';
+  const s = mutationSummary || '';
+  let act = 'Het beleid voor dit gebied verandert';
+  let m;
+  if ((m = s.match(/semantics\s*→\s*exclusion/i))) act = 'Dit gebied wordt uitgesloten voor nieuwe ontwikkeling';
+  else if ((m = s.match(/semantics\s*→\s*(\w+)/i))) act = `Het regime van dit gebied wordt "${m[1]}"`;
+  else if ((m = s.match(/drop\s+(FR-[\w-]+)/i))) act = `Regel ${m[1]} vervalt: het gebied opent voor ontwikkeling`;
+  else if ((m = s.match(/buffer\s*→\s*([\d.]+)\s*m/i))) act = `De afstandseis wordt ${Number(m[1]).toFixed(0)} meter`;
+  else if ((m = s.match(/(FR-[\w-]+)\s*→\s*exclusion/i))) act = `Regel ${m[1]} wordt een uitsluiting`;
+  return `${act} ${richting}`;
+}
+
 function fullReset() {
   vizRunId = null;
   mapEvents = []; mapPlayed = 0; lastMapPlay = 0;
@@ -348,17 +386,79 @@ function fadeTo(layerGroup, newLayer, targetOpacity) {
   requestAnimationFrame(step);
 }
 
+// real geometry difference: red = area lost vs control, green = area gained.
+// Fast path: features whose geometry is identical in both layers cancel out —
+// only the mutated ones (drops, buffers) go through turf.difference.
+const diffCache = new Map();
+function geomHash(f) {
+  const g = f.geometry || (f && f.coordinates ? f : null);
+  return g ? JSON.stringify(g.coordinates) : JSON.stringify(f);
+}
+async function computeDiff(base, scenId) {
+  const key = `${base}|${scenId}`;
+  if (diffCache.has(key)) return diffCache.get(key);
+  const control = await fetch(`${base}/scenarios/CONTROL.geojson`).then(r => r.json());
+  const scen = await fetch(`${base}/scenarios/${scenId}.geojson`).then(r => r.json()).catch(() => null);
+  let result = null;
+  if (scen && window.turf) {
+    try {
+      const feats = g => (g.type === 'FeatureCollection' ? g.features
+        : g.type === 'Feature' ? [g]
+        : [{ type: 'Feature', properties: {}, geometry: g }]);
+      const ctrlF = feats(control), scenF = feats(scen);
+      const scenH = new Set(scenF.map(geomHash));
+      const ctrlH = new Set(ctrlF.map(geomHash));
+      const ctrlChanged = ctrlF.filter(f => !scenH.has(geomHash(f)));
+      const scenChanged = scenF.filter(f => !ctrlH.has(geomHash(f)));
+      const lost = [], gained = [];
+      for (const c of ctrlChanged) {
+        let d = c;
+        for (const s of scenChanged) { if (!d) break; d = turf.difference(turf.featureCollection([d, s])); }
+        if (d) lost.push(d);
+      }
+      for (const s of scenChanged) {
+        let d = s;
+        for (const c of ctrlChanged) { if (!d) break; d = turf.difference(turf.featureCollection([d, c])); }
+        if (d) gained.push(d);
+      }
+      result = {
+        lost: { type: 'FeatureCollection', features: lost },
+        gained: { type: 'FeatureCollection', features: gained },
+        lostKm2: lost.reduce((a, f) => a + turf.area(f), 0) / 1e6,
+        gainedKm2: gained.reduce((a, f) => a + turf.area(f), 0) / 1e6,
+        unchanged: ctrlF.length - ctrlChanged.length,
+      };
+    } catch (e) { result = { error: String(e) }; }
+  } else {
+    result = { error: 'no turf or no scenario layer' };
+  }
+  diffCache.set(key, result);
+  return result;
+}
+
 async function focusScen(base, control, scenId, el) {
   document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
   if (el) el.classList.add('active');
   ensureMap();
   if (!controlDrawn) {
-    fadeTo(controlLayer, L.geoJSON(control, {style:{color:'#2563eb',weight:1,fillColor:'#2563eb',fillOpacity:.18}}), .18);
+    fadeTo(controlLayer, L.geoJSON(control, { style: { color: '#2563eb', weight: 2, fill: false } }), 1);
     controlDrawn = true;
   }
-  let scen = control;
-  try { scen = await fetch(`${base}/scenarios/${scenId}.geojson`).then(r => r.json()); } catch {}
-  fadeTo(scenarioLayer, L.geoJSON(scen, {style:{color:'#dc2626',weight:2,fillColor:'#dc2626',fillOpacity:.32}}), .32);
+  const diff = await computeDiff(base, scenId);
+  let newLayer;
+  if (diff.lost) {
+    newLayer = L.featureGroup();
+    L.geoJSON(diff.lost, { style: { color: '#7f1d1d', weight: .6, fillColor: '#dc2626', fillOpacity: 1 } }).addTo(newLayer);
+    L.geoJSON(diff.gained, { style: { color: '#14532d', weight: .6, fillColor: '#16a34a', fillOpacity: 1 } }).addTo(newLayer);
+    $('viz-note').textContent =
+      `${scenId}: ${diff.lostKm2.toFixed(2)} km² verloren (rood) · ${diff.gainedKm2.toFixed(2)} km² gewonnen (groen)`;
+  } else {
+    let scen = control;
+    try { scen = await fetch(`${base}/scenarios/${scenId}.geojson`).then(r => r.json()); } catch {}
+    newLayer = L.geoJSON(scen, { style: { color: '#dc2626', weight: 2, fillColor: '#dc2626', fillOpacity: .32 } });
+    $('viz-note').textContent = `${scenId} — difference view unavailable (${diff.error || 'no geometry'})`;
+  }
+  fadeTo(scenarioLayer, newLayer, 1);
   try { map.fitBounds(controlLayer.getBounds().pad(0.05)); } catch {}
 }
 
@@ -420,13 +520,22 @@ async function showViz(runId) {
   vizRunId = runId;
   ensureMap();
   const control = await fetch(`${base}/scenarios/CONTROL.geojson`).then(r => r.json());
-  $('cards').innerHTML = `<div class="hint">Klik een kaart = dat gebied op de kaart · 👁 = laag aan/uit zetten</div>` + bundle.specs.map(s => `
+  let reportNames = {};
+  try {
+    const report = await fetch(`${base}/scenario-report.json`).then(r => r.json());
+    for (const sc of report.scenarios || []) reportNames[sc.scenarioId] = sc.name;
+  } catch {}
+  $('cards').innerHTML = `<div class="hint">Klik een kaart = het verschil op de kaart · 👁 = extra laag aan/uit</div>` + bundle.specs.map(s => `
     <div class="card" data-scen="${s.scenarioId}">
       <button class="pin" data-scen="${s.scenarioId}">👁 laag</button>
-      <div class="note"><b>${s.id}</b></div>
+      <div class="ctitle">${escapeHtml(plainTitle(s.scenarioId, reportNames[s.scenarioId]))}</div>
       <div class="delta ${s.headlineDeltaKm2 < 0 ? 'neg' : 'pos'}">${s.headlineDeltaKm2 > 0 ? '+' : ''}${s.headlineDeltaKm2.toFixed(2)} km² (${s.headlineDeltaPct > 0 ? '+' : ''}${s.headlineDeltaPct.toFixed(2)}%)</div>
-      <div class="note">${escapeHtml(s.mutationSummary)} · ${s.provenanceBasis.type} · ${s.groundingStamp}</div>
-      <details><summary>Marble prompt (gated)</summary><div class="note">${escapeHtml(s.marblePrompt)}</div></details>
+      <div class="what">${escapeHtml(plainMutation(s.mutationSummary, s.headlineDeltaKm2))}</div>
+      <details><summary>Wat betekent dit? (normkaart ${s.provenanceBasis.normCardId || '?'} · ${s.provenanceBasis.type})</summary>
+        <div class="note">${escapeHtml(s.provenanceBasis.provenanceNote || s.mutationSummary || '')}</div>
+        <div class="note">Mutatie: ${escapeHtml(s.mutationSummary || '')} · grounding: ${s.groundingStamp}</div>
+      </details>
+      <details><summary>Render-prompt (afgeschermd)</summary><div class="note">${escapeHtml(s.marblePrompt)}</div></details>
     </div>`).join('');
   document.querySelectorAll('.card').forEach(el => el.addEventListener('click', () => {
     focusScen(base, control, el.dataset.scen, el).then(() => {
@@ -466,7 +575,7 @@ async function tick() {
       lastMapPlay = Date.now();
       if (ev.type === 'control') {
         ensureMap();
-        fadeTo(controlLayer, L.geoJSON(control, { style: { color: '#2563eb', weight: 2, fillColor: '#2563eb', fillOpacity: .08 } }), .08);
+        fadeTo(controlLayer, L.geoJSON(control, { style: { color: '#2563eb', weight: 2, fill: false } }), 1);
         controlDrawn = true;
         mapPlayed++;
       } else {

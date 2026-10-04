@@ -15,6 +15,7 @@ ASSETS_DIR = HERE / "runs" / "assets"
 _SOURCES = {
     "leaflet.js": "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
     "leaflet.css": "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "turf.min.js": "https://cdn.jsdelivr.net/npm/@turf/turf@7.2.0/turf.min.js",
 }
 _CDN_TAGS = (
     '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">',
@@ -38,9 +39,11 @@ def leaflet_tags(prefix: str = "../assets") -> tuple[str, str]:
     missing = [n for n in _SOURCES if not ASSETS_DIR.joinpath(n).is_file()]
     for name in missing:
         _download(name, _SOURCES[name])
-    if all(ASSETS_DIR.joinpath(n).is_file() for n in _SOURCES):
+    have = all(ASSETS_DIR.joinpath(n).is_file() for n in _SOURCES)
+    turf_tag = f'<script src="{prefix}/turf.min.js"></script>' if ASSETS_DIR.joinpath("turf.min.js").is_file() else ""
+    if have:
         return (
             f'<link rel="stylesheet" href="{prefix}/leaflet.css">',
-            f'<script src="{prefix}/leaflet.js"></script>',
+            f'<script src="{prefix}/leaflet.js"></script>{turf_tag}',
         )
     return _CDN_TAGS  # last resort; map still renders overlays if CDN reachable
