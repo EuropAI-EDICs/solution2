@@ -219,7 +219,10 @@ def build_eubd_batch(dsn: str, limit: int = 2000) -> list[dict]:
         "ORDER BY quadkey LIMIT %s"
     )
     with psycopg.connect(dsn) as conn, conn.cursor() as cur:
-        cur.execute("SELECT doi, name FROM exposure.sources ORDER BY id LIMIT 1")
+        # Brief zei sources.doi, maar de autoritatieve DDL
+        # (sql/00001_create_initial_structure_exposure.sql) heeft uri; daarin
+        # staat de release-DOI (https://doi.org/10.5880/GFZ.2.6.2023.011).
+        cur.execute("SELECT uri, name FROM exposure.sources ORDER BY id LIMIT 1")
         src = cur.fetchone() or ("", "")
         cur.execute(sql, (limit,))
         rows = cur.fetchall()
