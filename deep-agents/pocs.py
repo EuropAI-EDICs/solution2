@@ -162,3 +162,42 @@ def roster() -> list[dict[str, str]]:
     return [{"name": s["name"], "description": s["description"], "kind": "poc"} for s in POC_AGENTS] + [
         {"name": s["name"], "description": s["description"], "kind": "role"} for s in ROLE_AGENTS
     ]
+
+
+def build_standalone_poc_agent(poc_name: str):
+    """Single PoC Deep Agent (no orchestrator) — for A2A AgentExecutor backends."""
+    from deepagents import create_deep_agent
+
+    spec = next((s for s in POC_AGENTS if s["name"] == poc_name), None)
+    if spec is None:
+        raise KeyError(f"unknown PoC agent: {poc_name}")
+
+    submodel = ollama_model(subagent_model_name())
+    extra_tools = {
+        "utrecht": [run_world_scene, render_world_scene_demo],
+    }
+    tools = [list_recipes, get_recipe] + extra_tools.get(poc_name, [])
+    system_prompt = (PROMPTS_DIR / f"{poc_name}.md").read_text(encoding="utf-8")
+    return create_deep_agent(
+        model=submodel,
+        tools=tools,
+        system_prompt=system_prompt,
+    )
+
+
+def run_standalone_poc_agent(poc_name: str, user_message: str, thread_id: str) -> dict[str, Any]:
+    """Invoke one PoC deep agent; returns assistant text and a compact tool trace."""
+    agent = build_standalone_poc_agent(poc_name)
+    result = agent.invoke(
+        {"messages": [{"role": "user", "content": user_message}]},
+        config={"configurable": {"thread_id": thread_id}},
+    )
+    trace: list[str] = []
+    for msg in result["messages"]:
+        for call in getattr(msg, "tool_calls", None) or []:
+            args = call.get("args", {})
+            target = args.get("recipe_id", args.get("subagent_type", ""))
+            trace.append(f"{call['name']}({target})" if target else call["name"])
+    last = result["messages"][-1]
+    content = last.content if isinstance(last.content, str) else str(last.content)
+    return {"answer": content, "toolTrace": trace, "pocId": poc_name, "mode": "deep-agents"}

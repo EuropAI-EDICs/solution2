@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>A2A-simulation — architectuur</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&family=Fraunces:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --paper:#e8e2d6; --ink:#1a2428; --soft:#3d4a50; --teal:#0d6e6e; --line:rgba(26,36,40,.18); }
+    body { font-family:"DM Sans",system-ui,sans-serif; background:var(--paper); color:var(--ink); margin:0; line-height:1.5; }
+    .wrap { max-width:920px; margin:0 auto; padding:2rem 1.25rem 3rem; }
+    h1 { font-family:Fraunces,Georgia,serif; color:var(--teal); font-size:1.85rem; }
+    .lede { color:var(--soft); max-width:44rem; }
+    .layers { display:grid; gap:.75rem; margin-top:1.25rem; }
+    .box { background:#fffdf8; border:1px solid var(--line); padding:1rem; border-radius:4px; }
+    .box h2 { margin:0 0 .35rem; font-size:1rem; color:var(--teal); }
+    code { font-size:.8rem; background:rgba(13,110,110,.08); padding:.1rem .3rem; }
+    pre { background:#1a2428; color:#e8e2d6; padding:.75rem; font-size:.75rem; overflow:auto; border-radius:4px; }
+    a { color:var(--teal); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>LLM → A2A rekenblok → LLM</h1>
+    <p class="lede">
+      Implementatie van
+      <a href="../architectuur-llm-gedreven-deepagents-met-deterministische-rekentools.md">architectuur-llm-gedreven-deepagents-met-deterministische-rekentools.md</a>.
+      Principe: <strong>LLM specificeert → tool rekent → LLM interpreteert</strong> — getallen alleen uit artifacts.
+    </p>
+    <div class="layers">
+      <div class="box">
+        <h2>Deepagents-laag (LLM)</h2>
+        <p><code>orchestrator/agent.py</code> + subagents <code>scenario_analist</code>, <code>interpretatie</code>.
+           Rekenwerk via tool <code>delegate_to_poc_agent</code>.</p>
+      </div>
+      <div class="box">
+        <h2>Deterministische laag (A2A)</h2>
+        <p>PoC-servers <code>:9181–9186</code> — <code>A2A_SIM_MODE=simulate|nldt</code>, geen LLM op de mesh.</p>
+      </div>
+      <div class="box">
+        <h2>Deterministische laag (MCP, nLDT)</h2>
+        <p>Eigen vertrouwensdomein: <a href="../../nldt/simulation/poc-mcp-skills.html">nldt MCP / recipes</a>.</p>
+      </div>
+    </div>
+    <pre>./scripts/run_mesh.sh
+export A2A_SIM_AUTH=static NLDT_STATIC_TOKENS=sim-toolbox-token
+python -m federator.client send rijnland "rijnland-peil-conflict demo"
+../deep-agents/.venv/bin/python -m orchestrator.agent "volledige run"</pre>
+  </div>
+</body>
+</html>

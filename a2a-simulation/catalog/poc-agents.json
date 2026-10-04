@@ -1,0 +1,91 @@
+{
+  "$schema": "../schemas/poc-agent-catalog.schema.json",
+  "protocolVersion": "1.0.0",
+  "a2aProtocolVersion": "1.0.0",
+  "architectureDoc": "architectuur-llm-gedreven-deepagents-met-deterministische-rekentools.md",
+  "architectureLayer": "deterministic-a2a",
+  "toolboxIdentity": {
+    "identityManagement": "eu-ldt-toolbox-im",
+    "note": "Production: Bearer via Keycloak LDT realm; mesh runs open for local JSON-RPC demos",
+    "documentation": "https://a2a-protocol.org/latest/specification/"
+  },
+  "agents": [
+    {
+      "id": "breda",
+      "name": "breda-value-twin",
+      "organization": "Gemeente Breda (PoC)",
+      "port": 9181,
+      "edic": "ldt-citiverse",
+      "defaultRecipeId": "breda-five-value-scan",
+      "recipes": ["breda-five-value-scan", "breda-scan-qa"],
+      "agentSkills": "one AgentSkill per recipe id (A2A 1.x Agent Card)",
+      "enginePath": "poc-breda/",
+      "question": "Waar levert open data + AI waarde over vijf congreswaarden?"
+    },
+    {
+      "id": "utrecht",
+      "name": "utrecht-opportunity-twin",
+      "organization": "Provincie Utrecht (PoC)",
+      "port": 9182,
+      "edic": "ldt-citiverse",
+      "defaultRecipeId": "utrecht-opportunity-map",
+      "recipes": [
+        "utrecht-opportunity-map",
+        "utrecht-scenario-author",
+        "utrecht-scenario-sweep",
+        "utrecht-world-scene"
+      ],
+      "agentSkills": "one AgentSkill per recipe id (A2A 1.x Agent Card)",
+      "enginePath": "poc/",
+      "question": "Waar passen wind, zon en bos onder de provinciale verordening?"
+    },
+    {
+      "id": "rijnland",
+      "name": "rijnland-water-twin",
+      "organization": "Hoogheemraadschap Rijnland (PoC)",
+      "port": 9183,
+      "edic": "ldt-citiverse",
+      "defaultRecipeId": "rijnland-peil-conflict",
+      "recipes": ["rijnland-peil-conflict", "rijnland-peil-conflict-live", "rijnland-peil-whatif"],
+      "agentSkills": "one AgentSkill per recipe id (A2A 1.x Agent Card)",
+      "enginePath": "poc-rijnland/",
+      "question": "Waar wijkt praktijk af van formeel peil — en wat-if?"
+    },
+    {
+      "id": "eindhoven",
+      "name": "eindhoven-bp2op-twin",
+      "organization": "Gemeente Eindhoven (PoC)",
+      "port": 9184,
+      "edic": "ldt-citiverse",
+      "defaultRecipeId": "eindhoven-bp2op",
+      "recipes": ["eindhoven-bp2op"],
+      "agentSkills": "one AgentSkill per recipe id (A2A 1.x Agent Card)",
+      "enginePath": "poc-bp2op/",
+      "question": "Bestemmingsplan → omgevingsplan met jurist-HITL (V4 pending)."
+    },
+    {
+      "id": "crosstrack",
+      "name": "utrecht-crosstrack-twin",
+      "organization": "Provincie Utrecht · Plane C (PoC)",
+      "port": 9185,
+      "edic": "ldt-citiverse",
+      "defaultRecipeId": "multi-track-crosstrack",
+      "recipes": ["multi-track-crosstrack"],
+      "agentSkills": "one AgentSkill per recipe id (A2A 1.x Agent Card)",
+      "enginePath": "poc/",
+      "question": "Cross-track overlay wind × zon × bos."
+    },
+    {
+      "id": "minigim",
+      "name": "minigim-gebiedscheck-twin",
+      "organization": "MiniGIM PoC-5",
+      "port": 9186,
+      "edic": "ldt-citiverse",
+      "defaultRecipeId": "minigim-gebiedscheck",
+      "recipes": ["minigim-gebiedscheck"],
+      "agentSkills": "one AgentSkill per recipe id (A2A 1.x Agent Card)",
+      "enginePath": "poc-minigim/",
+      "question": "74-item omgevingsanalyse uit sleutelloze open data."
+    }
+  ]
+}

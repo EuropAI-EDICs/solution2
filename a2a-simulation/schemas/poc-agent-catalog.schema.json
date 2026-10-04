@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "A2A PoC agent catalog",
+  "type": "object",
+  "required": ["agents"],
+  "properties": {
+    "protocolVersion": { "type": "string" },
+    "toolboxIdentity": { "type": "object" },
+    "agents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "port", "defaultRecipeId", "recipes", "a2aSkills"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "organization": { "type": "string" },
+          "port": { "type": "integer" },
+          "edic": { "type": "string" },
+          "defaultRecipeId": { "type": "string" },
+          "recipes": { "type": "array", "items": { "type": "string" } },
+          "a2aSkills": { "type": "array", "items": { "type": "string" } },
+          "enginePath": { "type": "string" },
+          "question": { "type": "string" }
+        }
+      }
+    }
+  }
+}
