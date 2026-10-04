@@ -121,6 +121,14 @@ ZONE_SOURCES: Dict[str, Dict[str, Any]] = {
         "sourceId": "agrest-ov-vrijwaringszone-regionale-waterkering",
         "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Vrijwaringszone regionale waterkering' (art. 2.14 instructieregel, WA-01)",
     },
+    "grondwater_beschermingszone": {
+        "sourceId": "agrest-ov-grondwaterbeschermingszone",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Grondwaterbeschermingszone' (bodem-instructieregels BO-01/BO-03/BO-04: umbrella-werkingsgebied, live geverifieerd exact gelijk aan de vereniging van de zeven letterlijke aanwijzingsgebieden van art. 3.7/3.9/3.10)",
+    },
+    "gesloten_stortplaats": {
+        "sourceId": "agrest-ov-gebied-gesloten-stortplaats",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied gesloten stortplaats' (art. 3.108 aanwijzingsregel, BO-05: omgevingsplanactiviteit van provinciaal belang)",
+    },
 }
 
 INSTRUMENT = "Omgevingsverordening provincie Utrecht, CVDR704250 geldend 13-10-2025 t/m heden"
