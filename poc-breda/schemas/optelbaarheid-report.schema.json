@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldttoolbox.local/poc-breda/schemas/optelbaarheid-report.schema.json",
+  "title": "ZN-2 optelbaarheid-report",
+  "description": "Bewijs dat dezelfde indicatordefinities over ≥2 gebieden draaien en tot een gewogen gecombineerd beeld optellen.",
+  "type": "object",
+  "required": [
+    "reportId",
+    "generatedAt",
+    "znTrack",
+    "definitions",
+    "areas",
+    "combined",
+    "validation"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "reportId": {"type": "string"},
+    "generatedAt": {"type": "string"},
+    "znTrack": {"const": "ZN-2"},
+    "definitions": {
+      "type": "object",
+      "required": [
+        "identical",
+        "formulaFingerprint",
+        "paramsFingerprint",
+        "scoreScale",
+        "values"
+      ],
+      "properties": {
+        "identical": {"type": "boolean"},
+        "formulaFingerprint": {"type": "string"},
+        "paramsFingerprint": {"type": "string"},
+        "scoreScale": {"type": "string"},
+        "values": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "areas": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": [
+          "areaId",
+          "gemeente",
+          "gemeenteCode",
+          "nLandBuurten",
+          "means"
+        ],
+        "properties": {
+          "areaId": {"type": "string"},
+          "gemeente": {"type": "string"},
+          "gemeenteCode": {"type": "string"},
+          "nLandBuurten": {"type": "integer", "minimum": 0},
+          "means": {
+            "type": "object",
+            "required": ["democratic", "spatial", "economic", "social"],
+            "properties": {
+              "democratic": {"type": ["number", "null"]},
+              "spatial": {"type": ["number", "null"]},
+              "economic": {"type": ["number", "null"]},
+              "social": {"type": ["number", "null"]}
+            }
+          },
+          "absoluteMeans": {
+            "type": "object",
+            "description": "Ruwe deelindicatoren — over gebieden vergelijkbaar",
+            "additionalProperties": {"type": ["number", "null"]}
+          },
+          "weights": {
+            "type": "object",
+            "description": "n scored land-buurten per value (gewicht voor combined)",
+            "additionalProperties": {"type": "integer"}
+          }
+        }
+      }
+    },
+    "combined": {
+      "type": "object",
+      "required": ["method", "means", "nAreas"],
+      "properties": {
+        "method": {
+          "const": "weighted_mean_by_scored_land_buurten"
+        },
+        "nAreas": {"type": "integer", "minimum": 2},
+        "means": {
+          "type": "object",
+          "required": ["democratic", "spatial", "economic", "social"],
+          "properties": {
+            "democratic": {"type": ["number", "null"]},
+            "spatial": {"type": ["number", "null"]},
+            "economic": {"type": ["number", "null"]},
+            "social": {"type": ["number", "null"]}
+          }
+        },
+        "absoluteMeans": {
+          "type": "object",
+          "additionalProperties": {"type": ["number", "null"]}
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": ["verdict", "checks"],
+      "properties": {
+        "verdict": {"enum": ["pass", "fail"]},
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "ok", "detail"],
+            "properties": {
+              "id": {"type": "string"},
+              "ok": {"type": "boolean"},
+              "detail": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  }
+}

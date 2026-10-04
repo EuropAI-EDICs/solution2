@@ -105,6 +105,17 @@ door de schema-gate gevangen, eerlijke onthouding gerespecteerd, en een
 Nederlandse narratie met duizendtallen/komma-decimalen geaccepteerd — de
 rejection-paden zijn gedemonstreerd én offline getest (73 tests).
 
+## ZN-2 — Optelbaarheid (twee gebieden)
+
+Zelfde indicatorformules + params over twee synthetische gemeenten;
+gewogen combined means. Geen live tweede stad in MVP.
+
+```bash
+nldt/.venv/bin/python poc-breda/optelbaarheid_run.py --offline-fixtures
+```
+
+Design: [`docs/superpowers/specs/2026-10-04-zn2-optelbaarheid-design.md`](../docs/superpowers/specs/2026-10-04-zn2-optelbaarheid-design.md).
+
 ## Plane D — Integrale gebiedsafweging
 
 Ruimtelijke **claims** (woningverdichting / dak-PV-maximalisatie) op
