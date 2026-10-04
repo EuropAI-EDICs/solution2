@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """CLI orchestrator for the opportunity-map PoC (plan section 3.2, agent #1).
 
-Tracks: ``wind`` (wind turbines), ``zon`` (zonnevelden / solar fields) and
-``bos`` (new nature / forest planting) — same instrument (Omgevingsverordening
-provincie Utrecht, CVDR704250), same agent architecture, per-track evidence
-shards and cite-or-abstain ledgers.
+Tracks: ``wind`` (wind turbines), ``zon`` (zonnevelden / solar fields),
+``bos`` (new nature / forest planting) and ``water`` (riparian development
+bounded by the watersysteem instructieregels) — same instrument
+(Omgevingsverordening provincie Utrecht, CVDR704250), same agent architecture,
+per-track evidence shards and cite-or-abstain ledgers.
 
 Wires the planning plane end-to-end:
 
@@ -22,6 +23,7 @@ Usage (no install, from the workspace root):
     python3 poc/run.py                     # wind use case, cache-first
     python3 poc/run.py --use-case zon      # solar fields (zonnevelden)
     python3 poc/run.py --use-case bos      # new nature / forest planting
+    python3 poc/run.py --use-case water    # riparian development (watersysteem rule bounds)
     python3 poc/run.py --refresh           # re-download live layers
     python3 poc/run.py --bbox 130000,440000,160000,470000   # EPSG:28992 clip
     python3 poc/run.py --out poc/runs/demo
@@ -225,6 +227,31 @@ TRACKS: Dict[str, Dict[str, Any]] = {
             "Abstained topics (no verified provincial citation): stikstof, the NNN-addition procedure, land "
             "acquisition / area-process financing, nature-type selection (Natuurbeheerplan maatgevend), GIO "
             "download access, the pending 1-1-2027 amendment.",
+        ],
+    },
+    "water": {
+        "shard": "corpus/evidence-water.json",
+        "ledger": "corpus/normcards-rejected-water.json",
+        "report_title": "Where is riparian development bounded by the watersysteem rules in province Utrecht?",
+        "decision_table_id": "DT-water-utrecht-poc1",
+        "decision_table_title": "Watersysteem rule bounds for riparian development "
+                                "Decision table (programming stage)",
+        "prov_namespace": "ldttoolbox:poc:water:",
+        "headline_note": (
+            "Semantics: instructieregels art. 2.14 (vrijwaringszone regionale waterkering), 2.15 "
+            "(waterbergingsgebied) and 2.16 (overstroombaar gebied) bound development in and around "
+            "the watersysteem; zones are the provincial designations clipped to the province "
+            "boundary. Omgevingswaarden (monitoring norms) are deliberately abstained. "
+            "Programming-stage screening artifact; per-location permission assessment remains required."
+        ),
+        "limitations": lambda cov, abst: [
+            "Waterkering-omgevingswaarden (art. 2.2-2.11) are monitoring norms for water boards, "
+            "not zone rules: abstained under cite-or-abstain.",
+            (
+                f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms, "
+                "procedural rules): routed to the V4 human-expert checkpoint."
+            ),
+            "Peilbesluit/legger/waterschaarste articles are procedural for water boards: abstained.",
         ],
     },
 }
@@ -511,7 +538,7 @@ def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--use-case", default="wind",
                     help="use case id (default: wind; wind=wind turbines, zon=solar fields, "
-                         "bos=new nature/forest planting)")
+                         "bos=new nature/forest planting, water=riparian development)")
     ap.add_argument("--refresh", action="store_true", help="ignore the layer cache and re-download live layers")
     ap.add_argument("--bbox", default=None,
                     help="optional clip xmin,ymin,xmax,ymax in EPSG:28992 applied to the AOI")
