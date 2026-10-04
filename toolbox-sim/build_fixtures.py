@@ -114,6 +114,86 @@ def build_utrecht_batch(run_dir: Path) -> list[dict]:
     return entities
 
 
+def build_eindhoven_batch(run_dir: Path) -> list[dict]:
+    omzettabel = _load(run_dir, "omzettabel.json")
+    bronregels = _load(run_dir, "bronregels.json")
+    doelregels = _load(run_dir, "doelregels.json")
+    kennisbank = _load(run_dir, "kennisbank.json")
+    summary = _load(run_dir, "run_summary.json")
+    instrument = "http://lokaleregelgeving.overheid.nl/CVDR696400/4"
+    run_uri = f"urn:ldt:eindhoven:run:{summary['runId']}"
+    entities: list[dict] = [
+        {
+            "id": run_uri,
+            "type": "ldt:PipelineRun",
+            "runId": prop(summary["runId"]),
+            "useCase": prop(summary["useCase"]),
+            "verdict": prop(summary["verdict"]),
+            # Brief zei summary["generatedAt"], maar het canonieke bp2op-artefact
+            # heeft die sleutel niet (anders dan Utrecht); bindinge test vraagt
+            # het niet, dus optioneel met default.
+            "generatedAt": prop(summary.get("generatedAt", "")),
+            "counts": prop(summary["counts"]),
+        }
+    ]
+    for kb in kennisbank:
+        entities.append(
+            {
+                "id": f"urn:ldt:eindhoven:kennisbank:{kb['id']}",
+                "type": "ldt:KennisbankRelatie",
+                "relationType": prop(kb.get("relatie", "")),
+                "source": prop(kb.get("url", "")),
+                "bronDocId": prop(kb.get("bronDocId", "")),
+            }
+        )
+    for br in bronregels:
+        entities.append(
+            {
+                "id": f"urn:ldt:eindhoven:bronregel:{br['id']}",
+                "type": "ldt:BronRegel",
+                "locator": prop(br.get("locator", {})),
+                "permalink": prop(br.get("url", "")),
+                "statusInBron": prop(br.get("statusInBron", "")),
+                "partOfInstrument": rel(instrument),
+            }
+        )
+    for dr in doelregels:
+        entities.append(
+            {
+                "id": f"urn:ldt:eindhoven:doelregel:{dr['id']}",
+                "type": "ldt:DoelRegel",
+                "locator": prop(dr.get("locator", {})),
+                "permalink": prop(dr.get("url", "")),
+                "partOfInstrument": rel(instrument),
+            }
+        )
+    for row in omzettabel:
+        suggesties = row.get("suggesties") or []
+        best = suggesties[0] if suggesties else None
+        entity = {
+            "id": f"urn:ldt:eindhoven:row:{row['id']}",
+            "type": "ldt:ConversionRow",
+            "status": prop(row["status"]),
+            "needsHumanReden": prop(row.get("needsHumanReden")),
+            "suggestions": prop(suggesties),
+            "hasBronRegel": rel(f"urn:ldt:eindhoven:bronregel:{row['bronRegelId']}"),
+            "generatedBy": rel(run_uri),
+        }
+        if best:
+            entity["suggestsDoelRegel"] = {
+                "type": "Relationship",
+                "object": f"urn:ldt:eindhoven:doelregel:{best['doelRegelId']}",
+                "ldt:score": prop(best["score"]),
+            }
+        if best and best.get("kennisbankHitId"):
+            entity["basedOnKennisbank"] = rel(
+                f"urn:ldt:eindhoven:kennisbank:{best['kennisbankHitId']}"
+            )
+        entities.append(entity)
+    entities.sort(key=lambda e: e["id"])
+    return entities
+
+
 def write_batch(path: Path, entities: list[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     body = json.dumps(entities, sort_keys=True, separators=(",", ":")) + "\n"
@@ -169,18 +249,23 @@ def main(argv: list[str] | None = None) -> int:
     for key, run_dir in CANONICAL_RUNS.items():
         if not run_dir.is_dir():
             raise SystemExit(f"canonieke run ontbreekt: {run_dir}")
-        batch = build_utrecht_batch(run_dir) if key.startswith("utrecht") else None
-        if batch is not None:
-            out = FIXTURES / "ngsi-ld" / f"{key}.jsonld"
-            write_batch(out, batch)
-            manifest["batches"][key] = {
-                "file": str(out.relative_to(FIXTURES.parent)),
-                "counts": {t: sum(1 for e in batch if e["type"] == t) for t in sorted({e["type"] for e in batch})},
-                "sources": {
-                    name: _sha(run_dir / name)
-                    for name in ("zones.json", "formalrules.json", "normcards.json", "run_summary.json")
-                },
-            }
+        batch = (
+            build_utrecht_batch(run_dir) if key.startswith("utrecht") else build_eindhoven_batch(run_dir)
+        )
+        out = FIXTURES / "ngsi-ld" / f"{key}.jsonld"
+        write_batch(out, batch)
+        manifest["batches"][key] = {
+            "file": str(out.relative_to(FIXTURES.parent)),
+            "counts": {t: sum(1 for e in batch if e["type"] == t) for t in sorted({e["type"] for e in batch})},
+            "sources": {
+                name: _sha(run_dir / name)
+                for name in (
+                    ("zones.json", "formalrules.json", "normcards.json", "run_summary.json")
+                    if key.startswith("utrecht")
+                    else ("omzettabel.json", "bronregels.json", "doelregels.json", "kennisbank.json", "run_summary.json")
+                )
+            },
+        }
     if args.eubd:
         batch = build_eubd_batch(args.eubd, limit=args.eubd_limit)
         out = FIXTURES / "ngsi-ld" / "eubd-buildings.jsonld"
