@@ -5,10 +5,10 @@ Modi:
   --offline-fixtures   twee synthetische gemeenten (CI, geen netwerk)
   --live A,B           live CBS PDOK voor genoemde gemeenten (parity: CBS-only)
 
-Voorbeeld live tweede gemeente (Tilburg naast Breda):
+Voorbeeld live (Breda + Tilburg + Eindhoven):
 
-    nldt/.venv/bin/python poc-breda/optelbaarheid_run.py --live Breda,Tilburg
-    nldt/.venv/bin/python poc-breda/optelbaarheid_run.py --live Breda,Tilburg --refresh
+    nldt/.venv/bin/python poc-breda/optelbaarheid_run.py --live
+    nldt/.venv/bin/python poc-breda/optelbaarheid_run.py --live Breda,Tilburg,Eindhoven --refresh
 
 Exit 0 bij verdict pass.
 """
@@ -32,7 +32,7 @@ from breda import fetch, optelbaarheid  # noqa: E402
 
 # Bekende spellings (CBS 2024 gemeentenaam). Onbekende namen worden 1:1
 # doorgestuurd naar de WFS-filter — typfout → FetchError met 0 features.
-DEFAULT_LIVE = "Breda,Tilburg"
+DEFAULT_LIVE = "Breda,Tilburg,Eindhoven"
 
 
 def _now_iso() -> str:

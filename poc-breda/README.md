@@ -115,9 +115,9 @@ ArcGIS-lagen de vergelijking niet scheeftrekken.
 # Offline (CI)
 nldt/.venv/bin/python poc-breda/optelbaarheid_run.py --offline-fixtures
 
-# Live tweede gemeente (default: Breda + Tilburg)
-nldt/.venv/bin/python poc-breda/optelbaarheid_run.py --live Breda,Tilburg
-nldt/.venv/bin/python poc-breda/optelbaarheid_run.py --live Breda,Eindhoven --refresh
+# Live (default: Breda + Tilburg + Eindhoven)
+nldt/.venv/bin/python poc-breda/optelbaarheid_run.py --live
+nldt/.venv/bin/python poc-breda/optelbaarheid_run.py --live Breda,Tilburg,Eindhoven --refresh
 ```
 
 Design: [`docs/superpowers/specs/2026-10-04-zn2-optelbaarheid-design.md`](../docs/superpowers/specs/2026-10-04-zn2-optelbaarheid-design.md).
