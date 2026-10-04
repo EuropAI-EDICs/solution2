@@ -107,6 +107,18 @@ ZONE_SOURCES: Dict[str, Dict[str, Any]] = {
         "sourceId": "agrest-ov-oude-bosgroeiplaatsen",
         "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Waardevolle Houtopstanden - oude bosgroeiplaatsen' (art. 6.13)",
     },
+    "waterbergingsgebied": {
+        "sourceId": "agrest-ov-waterbergingsgebied",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Waterbergingsgebied' (art. 2.15 instructieregel, WA-02)",
+    },
+    "overstroombaar_gebied": {
+        "sourceId": "agrest-ov-overstroombaar-gebied",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Overstroombaar gebied' (art. 2.16 instructieregel, WA-03)",
+    },
+    "vrijwaringszone_waterkering": {
+        "sourceId": "agrest-ov-vrijwaringszone-regionale-waterkering",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Vrijwaringszone regionale waterkering' (art. 2.14 instructieregel, WA-01)",
+    },
 }
 
 INSTRUMENT = "Omgevingsverordening provincie Utrecht, CVDR704250 geldend 13-10-2025 t/m heden"
