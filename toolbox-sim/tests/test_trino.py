@@ -18,28 +18,39 @@ app = create_broker_app(
 client = TestClient(app)
 
 
+def _fetch_rows(post_response):
+    """Wiregedrag zoals de nldt-trino-adapter: rijen volgen pas op de nextUri-pagina."""
+    body = post_response.json()
+    assert body["nextUri"]
+    page = client.get(body["nextUri"], headers=AUTH)
+    assert page.status_code == 200
+    final = page.json()
+    assert final["nextUri"] is None  # adapter-stopping while-lus
+    return body, final["data"]
+
+
 def test_show_schemas():
     r = client.post("/v1/statement", content="SHOW SCHEMAS FROM timescaledb", headers=AUTH)
     assert r.status_code == 200
-    body = r.json()
+    body, data = _fetch_rows(r)
     assert [c["name"] for c in body["columns"]] == ["Schema"]
-    assert body["data"] == [[s] for s in TABLES["catalogs"]["timescaledb"]]
-    assert body["nextUri"] is None  # adapter-stopping while-lus
+    assert data == [[s] for s in sorted(TABLES["catalogs"]["timescaledb"])]
 
 
 def test_show_tables():
     r = client.post("/v1/statement", content="show tables from timescaledb.public", headers=AUTH)
     assert r.status_code == 200
-    assert [row[0] for row in r.json()["data"]] == ["runs"]
+    _, data = _fetch_rows(r)
+    assert [row[0] for row in data] == ["runs"]
 
 
 def test_select_star_with_limit():
     r = client.post("/v1/statement", content="SELECT * FROM timescaledb.public.runs LIMIT 2", headers={**AUTH, "X-Trino-User": "nldt-agent"})
     assert r.status_code == 200
-    body = r.json()
+    body, data = _fetch_rows(r)
     assert [c["name"] for c in body["columns"]] == ["run_id", "verdict"]
-    assert len(body["data"]) == 2
-    assert all(row[1] == "pass" for row in body["data"])  # echte canonieke verdicts
+    assert len(data) == 2
+    assert all(row[1] == "pass" for row in data)  # echte canonieke verdicts
 
 
 def test_write_forbidden_403():
