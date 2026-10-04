@@ -143,6 +143,7 @@ Aansluitend op `nldt/08` (Phase 6 done) en het DSR-faserenpatroon uit `MULTI_AGE
 | HITL-interrupts | `deep-agents/agent.py` / live-runner (`interrupt_on`) |
 | Architectuurdocument | `nldt/26-function-first-layer.md` (nummer aan te passen aan stand) |
 | Plan-document | dit document (`docs/AGENTIC_STATE_PLAN.md`) |
+| Bestuurlijke demo | [`nldt/simulation/agentic-state-demo.html`](../nldt/simulation/agentic-state-demo.html) — tien scènes (NL) met gesimuleerde run door de referentieketen en de PoC's als instanties |
 
 ## 7. Risico's & mitigaties
 

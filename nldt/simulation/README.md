@@ -7,6 +7,16 @@ Open via `file://` or `python3 -m http.server` from this directory.
 
 [`index.html`](index.html) — per-PoC sections with story, agent flow, and related demos.
 
+## Agentic State — executive demo
+
+[`agentic-state-demo-en.html`](agentic-state-demo-en.html) (EN) ·
+[`agentic-state-demo.html`](agentic-state-demo.html) (NL) — ten scenes: the Sitra diagnosis
+(organisation-first vs function-first), the function as the shared level, a **simulated run through
+the reference chain** (intake → norm specialist → formaliser → world-scene → geo → critic →
+explainer; replay of the canonical Utrecht wind run `20260830T113234Z-wind`), the six PoCs as
+concrete instances, the five gates, reuse, the learning loop, the phasing, and the ask to the board.
+Design: [`docs/AGENTIC_STATE_PLAN.md`](../../docs/AGENTIC_STATE_PLAN.md).
+
 ## Per PoC
 
 | PoC | Story | Agent flow | Extra demos |

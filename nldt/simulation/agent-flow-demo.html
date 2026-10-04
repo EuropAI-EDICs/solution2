@@ -133,14 +133,14 @@
 
   <header>
     <h1>nLDT Agent Flow — LangGraph Orchestrator</h1>
-    <p>Live run-data van orchestrator <code>agents/orchestrator/run.py</code> · LLMs propose, engines dispose</p>
+    <p>Live run data from orchestrator <code>agents/orchestrator/run.py</code> · LLMs propose, engines dispose</p>
     <div class="meta" id="runMeta">runId: — · recipe: —</div>
   </header>
 
   <div class="toolbar">
     <button id="btnPlay">▶ Start agent flow</button>
     <button id="btnReset" class="secondary">Reset</button>
-    <div class="status" id="statusLabel">Klaar — 7 LangGraph nodes</div>
+    <div class="status" id="statusLabel">Ready — 7 LangGraph nodes</div>
   </div>
 
   <div class="layout">
@@ -152,16 +152,16 @@
     </div>
 
     <div class="panel">
-      <div class="panel-head">Node detail + executie</div>
+      <div class="panel-head">Node detail + execution</div>
       <div class="panel-body">
         <div class="detail-box" id="detailBox">
-          <h3>Wacht op start</h3>
-          <p>Klik <strong>Start agent flow</strong> om door de 7 orchestrator-nodes te stappen.</p>
+          <h3>Waiting to start</h3>
+          <p>Click <strong>Start agent flow</strong> to step through the 7 orchestrator nodes.</p>
         </div>
         <div class="map-wrap">
           <svg viewBox="0 0 520 320" xmlns="http://www.w3.org/2000/svg">
             <rect width="520" height="320" fill="#121820"/>
-            <text x="16" y="24" fill="#8b9cb3" font-size="11">RD New — intersectie uit echte run</text>
+            <text x="16" y="24" fill="#8b9cb3" font-size="11">RD New — intersection from a real run</text>
             <polygon id="layerA" class="hidden" points="80,60 280,60 280,200 80,200" fill="#3d8bfd" fill-opacity="0.35" stroke="#3d8bfd" stroke-width="2"/>
             <polygon id="layerB" class="hidden" points="220,120 420,120 420,260 220,260" fill="#3fb950" fill-opacity="0.35" stroke="#3fb950" stroke-width="2"/>
             <polygon id="intersect" class="hidden" points="220,120 280,120 280,200 220,200" fill="#f0883e" fill-opacity="0.75" stroke="#f0883e" stroke-width="2"/>
@@ -182,7 +182,7 @@
           <div class="stat"><div class="lbl">HITL</div><div class="val" id="statHitl">—</div></div>
         </div>
         <div class="levels" id="levels"></div>
-        <div class="verdict" id="verdict">Wacht op simulatie…</div>
+        <div class="verdict" id="verdict">Waiting for simulation…</div>
         <div class="log" id="log"></div>
         <div class="nav-links">
           <a href="mock-overlay-demo.html">← Overlay simulatie</a>
@@ -199,7 +199,7 @@
       "graph": [
         { "id": "catalog_search", "label": "Catalog Search", "agent": "Catalog Navigator", "service": "OGC API Records :8083", "detail": "Recipe spatial-overlay-analysis gevonden in catalog" },
         { "id": "plan_recipe", "label": "Plan Recipe", "agent": "Recipe Planner", "service": "Cookbook :8081", "detail": "4 stappen: fetch-layer-a → fetch-layer-b → intersect → stats · llmUsed: false" },
-        { "id": "validate_plan", "label": "Validate Plan", "agent": "Critic", "service": "V0 schema", "detail": "agent-plan.schema.json → pass · risk: low · geen HITL" },
+        { "id": "validate_plan", "label": "Validate Plan", "agent": "Critic", "service": "V0 schema", "detail": "agent-plan.schema.json → pass · risk: low · no HITL" },
         { "id": "execute_steps", "label": "Execute Steps", "agent": "Executor", "service": "OGC API Processes :8082", "detail": "4 process jobs · PROV per stap · totalAreaM2: 250000" },
         { "id": "validate_outputs", "label": "Validate Outputs", "agent": "Critic", "service": "V0 + V1 geo", "detail": "output-intersection + geo-intersection → pass" },
         { "id": "register_hybrid", "label": "Register Hybrid", "agent": "Hybrid Bridge", "service": "Web3D :8084 · P&V mock", "detail": "context-7b19e922 · mock-dl-aa17b4fc" },
@@ -324,7 +324,7 @@
         els.btnPlay.textContent = '↻ Opnieuw';
         els.verdict.textContent = '✓ Validatie PASS — agent flow compleet';
         els.verdict.className = 'verdict pass';
-        els.statusLabel.innerHTML = '<strong>Klaar</strong> — 7/7 nodes · run ' + data.runId;
+        els.statusLabel.innerHTML = '<strong>Ready</strong> — 7/7 nodes · run ' + data.runId;
         return;
       }
       const node = data.graph[idx];
@@ -343,9 +343,9 @@
       setGraphActive(-1);
       els.graph.querySelectorAll('li').forEach(li => li.classList.add('pending'));
       setMap(0);
-      els.detailBox.innerHTML = '<h3>Wacht op start</h3><p>Klik <strong>Start agent flow</strong>.</p>';
-      els.statusLabel.textContent = 'Klaar — 7 LangGraph nodes';
-      els.verdict.textContent = 'Wacht op simulatie…';
+      els.detailBox.innerHTML = '<h3>Waiting to start</h3><p>Click <strong>Start agent flow</strong>.</p>';
+      els.statusLabel.textContent = 'Ready — 7 LangGraph nodes';
+      els.verdict.textContent = 'Waiting for simulation…';
       els.verdict.className = 'verdict';
       els.statArea.textContent = '—';
       els.log.innerHTML = '';

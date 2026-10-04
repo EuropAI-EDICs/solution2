@@ -41,7 +41,7 @@
   <header>
     <a class="back" href="poc-utrecht.html">← Utrecht hub</a>
     <h1>Utrecht — scenario copilot (world model Renderer + engine)</h1>
-    <p>Leaflet toont deterministische final zones; Marble alleen exploratief (hypothetical + HITL).</p>
+    <p>Leaflet shows deterministic final zones; Marble only explorative (hypothetical + HITL).</p>
   </header>
   <div id="main">
     <div id="map"></div>
@@ -56,8 +56,8 @@
       </p>
       <div class="marble-box" id="marbleBox">
         <strong>World Labs Marble (Renderer)</strong>
-        <p id="marbleHint">Selecteer een scenario.</p>
-        <button type="button" id="btnMarble" disabled>Verken in Marble</button>
+        <p id="marbleHint">Select a scenario.</p>
+        <button type="button" id="btnMarble" disabled>Explore in Marble</button>
         <p id="marbleUrl" hidden><code></code></p>
       </div>
       <p style="font-size:0.72rem;color:#6a757a;margin-top:14px">
@@ -104,7 +104,7 @@
       st.textContent = "NOT legally grounded — hypothetisch scenario. Engine-cijfers wel reproduceerbaar; Marble is exploratief.";
     } else {
       st.className = "stamp ok";
-      st.textContent = "Engine-only (" + sc.basisType + "). Geen generatieve Renderer voor juridische claims.";
+      st.textContent = "Engine-only (" + sc.basisType + "). No generative Renderer for legal claims.";
     }
     if (sp && sp.groundingStamp) {
       st.textContent += " Stamp: " + sp.groundingStamp + ".";
@@ -116,7 +116,7 @@
     var urlP = document.getElementById("marbleUrl");
     if (!sp) {
       btn.disabled = true;
-      hint.textContent = "Geen world-scene-spec.";
+      hint.textContent = "No world-scene-spec.";
       urlP.hidden = true;
       return;
     }
@@ -134,7 +134,7 @@
       urlP.hidden = true;
     } else {
       btn.disabled = true;
-      hint.textContent = "Marble alleen voor hypothetical scenarios; dit scenario is engine-only.";
+      hint.textContent = "Marble only for hypothetical scenarios; this scenario is engine-only.";
       urlP.hidden = true;
     }
   }
@@ -179,7 +179,7 @@
     .catch(function (err) {
       document.getElementById("stamp").className = "stamp";
       document.getElementById("stamp").textContent =
-        "Kon fixture niet laden (" + err + "). Start: cd nldt/simulation && python3 -m http.server 8090";
+        "Could not load fixture (" + err + "). Start: cd nldt/simulation && python3 -m http.server 8090";
     });
 })();
   </script>

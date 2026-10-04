@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -72,7 +72,7 @@
     <header>
       <div>
         <h1>Pand-analyse + bestemmingsplan — Daltonlaan 100</h1>
-        <p id="hdrSub">Echt 3D BAG pand · agent scenario verbouwing in 3D</p>
+        <p id="hdrSub">Real 3D BAG building · agent renovation scenario in 3D</p>
       </div>
       <div class="toolbar">
         <button id="btnZoomIn" class="secondary">＋</button>
@@ -89,7 +89,7 @@
           <div class="panel-body log" id="log">
             <div class="log-entry" style="opacity:0.65">
               <div class="log-meta"><span class="log-agent">Systeem</span><span>—</span></div>
-              <div class="log-msg">Wacht op start — agents loggen hier elke stap</div>
+              <div class="log-msg">Waiting to start — agents log every step here</div>
             </div>
           </div>
         </div>
@@ -105,7 +105,7 @@
           <div id="normcards" style="display:none"></div>
           <h3 style="font-size:0.72rem;text-transform:uppercase;color:var(--muted);margin:0.75rem 0 0.4rem">Decision table</h3>
           <div id="decisionTable" style="display:none"></div>
-          <h3 style="font-size:0.72rem;text-transform:uppercase;color:var(--muted);margin:0.75rem 0 0.4rem">Scenario verbouwing</h3>
+          <h3 style="font-size:0.72rem;text-transform:uppercase;color:var(--muted);margin:0.75rem 0 0.4rem">Renovation scenario</h3>
           <div id="scenarios"></div>
         </div>
       </div>
@@ -115,8 +115,8 @@
   <script>
     const GRAPH = [
       { id: 'catalog_search', label: 'Catalog', agent: 'Catalog Navigator', log: 'Recipe building-renovation-check gevonden', detail: 'GET /collections/records?q=building-renovation → match' },
-      { id: 'fetch_building', label: 'Fetch Building', agent: 'Data Agent', log: '3D BAG pand opgehaald', detail: 'LoD2.2 attributen + footprint geladen', show: ['building'] },
-      { id: 'plan_recipe', label: 'Plan', agent: 'Recipe Planner', log: 'Uitvoeringsplan opgesteld', detail: '3D BAG → normcards BP Rijnsweerd → verbouwingsscenario' },
+      { id: 'fetch_building', label: 'Fetch Building', agent: 'Data Agent', log: '3D BAG building fetched', detail: 'LoD2.2 attributes + footprint loaded', show: ['building'] },
+      { id: 'plan_recipe', label: 'Plan', agent: 'Recipe Planner', log: 'Execution plan drafted', detail: '3D BAG → norm cards BP Rijnsweerd → renovation scenario' },
       { id: 'validate_plan', label: 'Validate Plan', agent: 'Critic', log: 'Plan validatie: pass', detail: 'V0 schema · 6 normcards geciteerd · cite-or-abstain OK' },
       { id: 'execute', label: 'Execute', agent: 'Executor', sub: [
         { id: 'analyze', log: 'Pand eigenschappen geanalyseerd', detail: 'bouwhoogte vs. aanduiding verbeelding (22 m)', show: ['building'] },
@@ -124,7 +124,7 @@
         { id: 'scenarios', log: 'Verbouwingsscenario\'s berekend', detail: 'bijgebouw toegestaan · uitbouw afgewezen (NC-BP-03) — rood gestippeld in 3D', show: ['building', 'uitbouw', 'bijgebouw'], focus: 'all' },
       ]},
       { id: 'validate_outputs', label: 'Validate', agent: 'Critic', log: 'Output validatie: pass', detail: 'scenario-geojson + 3D volumes consistent' },
-      { id: 'explain', label: 'Explain', agent: 'Explainer', log: 'Adviesrapport gegenereerd', detail: 'samenvatting voor eigenaar / vergunningcheck' },
+      { id: 'explain', label: 'Explain', agent: 'Explainer', log: 'Advice report generated', detail: 'summary for owner / permit check' },
     ];
 
     let B = null, viewer, tileset, buildingMesh, entities = {}, playing = false, step = 0, sub = 0;
@@ -236,7 +236,7 @@
         detail = `toegestaan: ${ok.join(', ') || '—'} · afgewezen: ${no.join(', ')} · uitbouw = rood gestippeld`;
       }
       if (node.id === 'explain' && B) {
-        detail = `Advies: uitbouw achter + bijgebouw mogelijk · dakopbouw niet · zie 3D visualisatie`;
+        detail = `Advice: rear extension + outbuilding possible · roof structure not · see 3D visualisation`;
       }
 
       logAgent(agent, stepId, message, detail);
@@ -375,8 +375,8 @@
 
     function clearPanel() {
       document.getElementById('bagId').textContent = B?.bagId || '—';
-      document.getElementById('props').innerHTML = '<dd style="color:var(--muted);font-size:0.72rem">Wacht op Data Agent…</dd>';
-      document.getElementById('zoning').innerHTML = '<dd style="color:var(--muted);font-size:0.72rem">Wacht op Norm Analyst…</dd>';
+      document.getElementById('props').innerHTML = '<dd style="color:var(--muted);font-size:0.72rem">Waiting for Data Agent…</dd>';
+      document.getElementById('zoning').innerHTML = '<dd style="color:var(--muted);font-size:0.72rem">Waiting for Norm Analyst…</dd>';
       document.getElementById('normcards').style.display = 'none';
       document.getElementById('decisionTable').style.display = 'none';
       document.getElementById('scenarios').innerHTML = '<p style="color:var(--muted);font-size:0.72rem;margin:0">Scenario\'s verschijnen na Executor-stap</p>';
@@ -465,11 +465,11 @@
       clearPanel();
       setShow(['building']);
       clearLog();
-      logAgent('Systeem', 'reset', 'Demo gereset', 'klik ▶ Start agents om opnieuw te beginnen');
+      logAgent('System', 'reset', 'Demo reset', 'click ▶ Start agents to begin again');
       document.getElementById('btnPlay').disabled = false;
       document.getElementById('btnPlay').textContent = '▶ Start agents';
       flyToBuilding(140, 1.0);
-      setHint('Daltonlaan 100 · Start agents voor pand-analyse');
+      setHint('Daltonlaan 100 · Start agents for building analysis');
     }
 
     function run() {
@@ -481,7 +481,7 @@
           el.classList.remove('active');
           el.classList.add('done');
         });
-        logAgent('Orchestrator', 'complete', 'Run afgerond', 'alle agents klaar · scenario zichtbaar in 3D');
+        logAgent('Orchestrator', 'complete', 'Run completed', 'all agents done · scenario visible in 3D');
         document.getElementById('hint').textContent = 'Scenario compleet — paars = bijgebouw (toegestaan) · rood gestippeld = uitbouw afgewezen (BVO-plafond)';
         return;
       }
@@ -547,14 +547,14 @@
         viewer.scene.primitives.add(tileset);
         await tileset.readyPromise;
       } catch (e) {
-        console.warn('3D Tiles omgeving niet geladen', e);
+        console.warn('3D Tiles environment not loaded', e);
       }
 
       buildVolumes();
       clearPanel();
       setShow(['building']);
       flyToBuilding(130, 0);
-      setHint('Daltonlaan 100 · 3D BAG pand + Start agents voor verbouwing');
+      setHint('Daltonlaan 100 · 3D BAG building + Start agents for renovation');
 
       document.getElementById('btnPlay').onclick = () => {
         if (step >= GRAPH.length) {

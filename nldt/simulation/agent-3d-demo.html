@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -108,14 +108,14 @@
       </div>
 
       <div id="cesiumWrap">
-        <div class="hint" id="mapHint">OSM + 3D BAG laden… · overlay kleurt <strong>gebouwen</strong> in de analysezones</div>
+        <div class="hint" id="mapHint">Loading OSM + 3D BAG… · overlay colours <strong>buildings</strong> in the analysis zones</div>
       </div>
 
       <div class="panel">
         <div class="panel-head">Agent output</div>
         <div class="panel-body">
           <div class="request-box" id="requestBox">—</div>
-          <div class="detail" id="detailBox"><h3>Wacht op start</h3><p>OSM + 3D BAG direct zichtbaar. Overlay kleurt panden per zone.</p></div>
+          <div class="detail" id="detailBox"><h3>Waiting to start</h3><p>OSM + 3D BAG visible immediately. Overlay colours buildings per zone.</p></div>
           <div class="legend" id="legend">
             <div><span class="sw classify" style="background:#3d8bfd"></span> Zone A — panden blauw</div>
             <div><span class="sw classify" style="background:#3fb950"></span> Zone B — panden groen</div>
@@ -129,7 +129,7 @@
           </div>
           <div class="levels" id="levels"></div>
           <ul class="jobs" id="jobs"></ul>
-          <div class="verdict" id="verdict">Wacht op agents…</div>
+          <div class="verdict" id="verdict">Waiting for agents…</div>
           <div class="log" id="log"></div>
         </div>
       </div>
@@ -138,7 +138,7 @@
 
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
   <script>
-    const RUN = {"runId":"6d4839a2","request":"Analyseer de overlap van zone A en B in Rijnsweerd Utrecht","recipeId":"spatial-overlay-analysis","area":"Rijnsweerd, Utrecht","buildingCount":64,"tiles_lod22":"https://data.3dbag.nl/v20250903/cesium3dtiles/lod22/tileset.json","center_wgs84":{"lon":5.154611,"lat":52.089389},"totalAreaM2":10000,"verdict":"pass","validation":{"V0":"pass","V1":"pass","V2":"pass","V3":"not_applicable","V4":"not_applicable"},"graph":[{"id":"catalog_search","label":"Catalog Search","agent":"Catalog Navigator","detail":"Recipe spatial-overlay-analysis gevonden in catalog","log":"GET /records → recipe match"},{"id":"plan_recipe","label":"Plan Recipe","agent":"Recipe Planner","detail":"4 stappen: fetch A/B → intersect → stats","log":"agentPlan · llmUsed: false"},{"id":"validate_plan","label":"Validate Plan","agent":"Critic","detail":"Schema V0 pass · risk: low","log":"critic#plan-validation → pass"},{"id":"execute_steps","label":"Execute","agent":"Executor","detail":"Processes op Rijnsweerd lagen","subSteps":[{"stepId":"fetch-layer-a","processId":"fetch-features","jobId":"bbeb6c12…","show3d":["layerA"]},{"stepId":"fetch-layer-b","processId":"fetch-features","jobId":"6ba78eff…","show3d":["layerA","layerB"]},{"stepId":"intersect","processId":"spatial-intersection","jobId":"f891a322…","show3d":["layerA","layerB","intersect"]},{"stepId":"stats","processId":"compute-area-statistics","jobId":"289a88f8…","show3d":["layerA","layerB","intersect"]}]},{"id":"validate_outputs","label":"Validate Outputs","agent":"Critic","detail":"Geo + output checks pass","log":"V0+V1 → pass · 10.000 m²"},{"id":"register_hybrid","label":"Hybrid 3D","agent":"Hybrid Bridge","detail":"Web3D Context export naar viewer","log":"Web3DContext + BAG scene actief"},{"id":"explain","label":"Explain","agent":"Explainer","detail":"Samenvatting voor eindgebruiker","log":"verdict: pass"}]};
+    const RUN = {"runId":"6d4839a2","request":"Analyse the overlap of zone A and B in Rijnsweerd Utrecht","recipeId":"spatial-overlay-analysis","area":"Rijnsweerd, Utrecht","buildingCount":64,"tiles_lod22":"https://data.3dbag.nl/v20250903/cesium3dtiles/lod22/tileset.json","center_wgs84":{"lon":5.154611,"lat":52.089389},"totalAreaM2":10000,"verdict":"pass","validation":{"V0":"pass","V1":"pass","V2":"pass","V3":"not_applicable","V4":"not_applicable"},"graph":[{"id":"catalog_search","label":"Catalog Search","agent":"Catalog Navigator","detail":"Recipe spatial-overlay-analysis found in catalogue","log":"GET /records → recipe match"},{"id":"plan_recipe","label":"Plan Recipe","agent":"Recipe Planner","detail":"4 steps: fetch A/B → intersect → stats","log":"agentPlan · llmUsed: false"},{"id":"validate_plan","label":"Validate Plan","agent":"Critic","detail":"Schema V0 pass · risk: low","log":"critic#plan-validation → pass"},{"id":"execute_steps","label":"Execute","agent":"Executor","detail":"Processes on Rijnsweerd layers","subSteps":[{"stepId":"fetch-layer-a","processId":"fetch-features","jobId":"bbeb6c12…","show3d":["layerA"]},{"stepId":"fetch-layer-b","processId":"fetch-features","jobId":"6ba78eff…","show3d":["layerA","layerB"]},{"stepId":"intersect","processId":"spatial-intersection","jobId":"f891a322…","show3d":["layerA","layerB","intersect"]},{"stepId":"stats","processId":"compute-area-statistics","jobId":"289a88f8…","show3d":["layerA","layerB","intersect"]}]},{"id":"validate_outputs","label":"Validate Outputs","agent":"Critic","detail":"Geo + output checks pass","log":"V0+V1 → pass · 10.000 m²"},{"id":"register_hybrid","label":"Hybrid 3D","agent":"Hybrid Bridge","detail":"Web3D Context export naar viewer","log":"Web3DContext + BAG scene actief"},{"id":"explain","label":"Explain","agent":"Explainer","detail":"Summary for end user","log":"verdict: pass"}]};
 
     const STYLE = {
       layerA: { color: Cesium.Color.fromCssColorString('#3d8bfd'), alpha: 0.72, h: 75, line: 3 },
@@ -360,7 +360,7 @@
       viewer.scene.skyAtmosphere.show = true;
       if (location.protocol === 'file:') {
         document.getElementById('mapHint').innerHTML =
-          '<strong>Tip:</strong> open via <a href="http://127.0.0.1:8090/agent-3d-demo.html" style="color:#7eb6ff">http://127.0.0.1:8090/agent-3d-demo.html</a> voor kaarttegels';
+          '<strong>Tip:</strong> open via <a href="http://127.0.0.1:8090/agent-3d-demo.html" style="color:#7eb6ff">http://127.0.0.1:8090/agent-3d-demo.html</a> for map tiles';
       }
     }
 
@@ -400,7 +400,7 @@
           const sub = node.subSteps[subIdx];
           const hasIntersect = sub.show3d.includes('intersect');
           setDetail(node, `Process: <code>${sub.processId}</code> · ${sub.stepId}` +
-            (hasIntersect ? '<p class="effect-note">Panden in de overlap worden oranje gekleurd op het 3D BAG-model.</p>' : ''));
+            (hasIntersect ? '<p class="effect-note">Buildings in the overlap are coloured orange on the 3D BAG model.</p>' : ''));
           set3dLayers(sub.show3d, hasIntersect ? 'intersect' : 'normal');
           log(`POST /processes/${sub.processId}/execution → ${sub.jobId}`);
           const li = document.createElement('li');
@@ -433,11 +433,11 @@
       set3dLayers([]);
       setGraph(-1);
       els.graph.querySelectorAll('li').forEach(li => li.classList.remove('active','done'));
-      els.detail.innerHTML = '<h3>Wacht op start</h3><p>OSM + 3D BAG direct zichtbaar. Overlay kleurt panden per zone.</p>';
+      els.detail.innerHTML = '<h3>Waiting to start</h3><p>OSM + 3D BAG visible immediately. Overlay colours buildings per zone.</p>';
       els.log.innerHTML = '';
       els.jobs.innerHTML = '';
       els.levels.innerHTML = '';
-      els.verdict.textContent = 'Wacht op agents…';
+      els.verdict.textContent = 'Waiting for agents…';
       els.verdict.className = 'verdict';
       els.sArea.textContent = '—';
       els.status.textContent = 'Klaar';
@@ -496,7 +496,7 @@
       document.getElementById('btnFocus').addEventListener('click', () => flyToStudyArea(180));
       document.getElementById('btnShowZones').addEventListener('click', () => {
         set3dLayers(['layerA', 'layerB', 'intersect'], 'normal');
-        log('Overlay zones zichtbaar op kaart');
+        log('Overlay zones visible on map');
       });
     }
 

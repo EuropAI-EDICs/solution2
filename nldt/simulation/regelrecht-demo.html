@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>nLDT — RegelRecht: van artikel naar uitvoerbare regel</title>
+  <title>nLDT — RegelRecht: from article to executable rule</title>
   <style>
     :root {
       --paper: #e8e2d6; --ink: #1a2428; --ink-soft: #3d4a50; --muted: #6a757a;
@@ -47,33 +47,33 @@
 <body>
   <div class="wrap">
     <div class="top">
-      <nav class="switch" aria-label="PoC-keuze">
+      <nav class="switch" aria-label="PoC selection">
         <a href="?poc=utrecht" id="sw-utrecht">Utrecht · art. 5.3</a>
         <a href="?poc=eindhoven" id="sw-eindhoven">Eindhoven · art. 10.2</a>
       </nav>
-      <span id="badge">selftest…</span>
+      <span id="badge">engine self-test…</span>
     </div>
-    <h1>Van artikel naar uitvoerbare regel</h1>
+    <h1>From article to executable rule</h1>
     <p class="sub" id="subtitle"></p>
 
     <section>
-      <h2>De keten</h2>
+      <h2>The chain</h2>
       <div class="chain" id="chain"></div>
       <div id="chain-detail"></div>
     </section>
 
     <section class="lab">
-      <h2>Interactielab — reken zelf</h2>
+      <h2>Interaction lab — compute it yourself</h2>
       <div class="lab-controls" id="lab-controls"></div>
       <div id="verdict"></div>
       <ol id="trace"></ol>
     </section>
 
     <section>
-      <h2>Eerlijkheidspaneel</h2>
+      <h2>Honesty panel</h2>
       <p id="abstentions" style="font-size:.88rem"></p>
-      <p style="font-size:.88rem">Jurittoets (V4): <span class="pill">altijd pending — de mens op de knoppen</span></p>
-      <table id="artifacts"><thead><tr><th>pad</th><th>rol</th><th>sha256</th></tr></thead><tbody></tbody></table>
+      <p style="font-size:.88rem">Jurist review (V4): <span class="pill">always pending — the human is on the buttons</span></p>
+      <table id="artifacts"><thead><tr><th>path</th><th>role</th><th>sha256</th></tr></thead><tbody></tbody></table>
       <p class="meta" id="runmeta"></p>
     </section>
   </div>
@@ -3175,8 +3175,8 @@ if (typeof window !== "undefined") window.RegelRechtEngine = Engine;
     const GOLDEN = JSON.parse($("#golden-cases").textContent);
     const ENGINE = window.RegelRechtEngine;
     const OUT_LABEL = {
-      toegestaan_kleine_windturbine: ["TOEGESTAAN", "NIET TOEGESTAAN"],
-      regels_hoofdstuk_van_toepassing: ["VAN TOEPASSING", "NIET VAN TOEPASSING"],
+      toegestaan_kleine_windturbine: ["PERMITTED", "NOT PERMITTED"],
+      regels_hoofdstuk_van_toepassing: ["APPLIES", "DOES NOT APPLY"],
     };
 
     // 1) selftest — golden set door de engine; bij afwijking interactie blokkeren.
@@ -3197,14 +3197,14 @@ if (typeof window !== "undefined") window.RegelRechtEngine = Engine;
         badge.textContent = "engine-selftest " + GOLDEN.length + "/" + GOLDEN.length;
         badge.classList.add("ok");
       } else {
-        badge.textContent = "SELFTEST GEFAALD (" + failed + ") — interactie geblokkeerd";
+        badge.textContent = "ENGINE SELF-TEST FAILED (" + failed + ") — interaction blocked";
         badge.classList.add("fail");
         selftestFailed = true;
       }
     })();
 
     // 2) keten
-    const CHAIN_STEPS = ["artikel", "bron", "machine_readable", "schema", "executie", "trace & uitkomst"];
+    const CHAIN_STEPS = ["article", "source", "machine_readable", "schema", "execution", "trace & outcome"];
     function renderChain(run) {
       const chain = $("#chain");
       chain.innerHTML = "";
@@ -3220,17 +3220,17 @@ if (typeof window !== "undefined") window.RegelRechtEngine = Engine;
       document.querySelectorAll("#chain button").forEach((b, j) => b.classList.toggle("active", j === i));
       const ex = run.machineReadable.execution;
       const details = [
-        "<strong>Artikel " + run.instrument.article + " — " + run.instrument.title + "</strong><pre>" +
+        "<strong>Article " + run.instrument.article + " — " + run.instrument.title + "</strong><pre>" +
           run.articleQuote.replace(/</g, "&lt;") + "</pre>",
-        "<strong>Gronding</strong><pre>" + run.sourceArtifacts.map((a) => a.role + " · " + a.path + "\n  sha256 " + a.sha256).join("\n") + "</pre>",
+        "<strong>Provenance</strong><pre>" + run.sourceArtifacts.map((a) => a.role + " · " + a.path + "\n  sha256 " + a.sha256).join("\n") + "</pre>",
         "<strong>machine_readable.execution</strong><pre>" +
           JSON.stringify(ex, null, 1).replace(/</g, "&lt;") + "</pre>",
-        "<strong>Schema</strong><p>VALID — regelrecht-schema v0.7.1 (her-valideerd in de build)</p>",
-        "<strong>Executie-declaratie</strong><pre>parameters: " +
-          JSON.stringify((ex.parameters || []).map((p) => p.name)) + "\ninput (extern): " +
+        "<strong>Schema</strong><p>VALID — regelrecht-schema v0.7.1 (re-validated in the build)</p>",
+        "<strong>Execution declaration</strong><pre>parameters: " +
+          JSON.stringify((ex.parameters || []).map((p) => p.name)) + "\ninput (external): " +
           JSON.stringify((ex.input || []).map((p) => p.name)) + "\noutput: " +
           JSON.stringify((ex.output || []).map((p) => p.name)) + "</pre>",
-        "<strong>Trace &amp; uitkomst</strong><p>Beweeg de controls in het interactielab hieronder — elke stap toont haar tussenstappen.</p>",
+        "<strong>Trace &amp; outcome</strong><p>Move the controls in the interaction lab below — every step shows its intermediate results.</p>",
       ];
       $("#chain-detail").innerHTML = details[i];
     }
@@ -3252,16 +3252,16 @@ if (typeof window !== "undefined") window.RegelRechtEngine = Engine;
       }
       if (poc === "utrecht") {
         const label = document.createElement("label");
-        label.innerHTML = 'ashoogte <output id="ash-out">19</output> m <input type="range" min="0" max="40" step="1" value="19" id="ash">';
+        label.innerHTML = 'hub height (ashoogte) <output id="ash-out">19</output> m <input type="range" min="0" max="40" step="1" value="19" id="ash">';
         controls.appendChild(label);
         const slider = label.querySelector("#ash");
         slider.addEventListener("input", () => { label.querySelector("#ash-out").textContent = slider.value; inputs.ashoogte_m = Number(slider.value); recompute(); });
         inputs.ashoogte_m = 19;
-        addCheckbox("op_of_in_aansluiting_op_bestaand_bouwperceel", "op/in aansluiting op bestaand bouwperceel", true);
-        addCheckbox("in_gebied_kleine_windturbine", "binnen het Gebied kleine windturbine", true);
+        addCheckbox("op_of_in_aansluiting_op_bestaand_bouwperceel", "on or attached to an existing building plot (bestaand bouwperceel)", true);
+        addCheckbox("in_gebied_kleine_windturbine", "inside the Gebied kleine windturbine (small wind turbine zone)", true);
       } else {
-        addCheckbox("strijd_met_tijdelijk_deel", "strijd met tijdelijk deel (hfd 22/23)", false);
-        addCheckbox("voorschriften_verbonden_voor_iwt", "voorschriften verbonden vóór IWT-vergunning", false);
+        addCheckbox("strijd_met_tijdelijk_deel", "conflicts with the temporary part (ch. 22/23)", false);
+        addCheckbox("voorschriften_verbonden_voor_iwt", "conditions attached to a permit before IWT (Omgevingswet entry into force)", false);
       }
       function recompute() {
         const execution = run.machineReadable.execution;
@@ -3288,8 +3288,8 @@ if (typeof window !== "undefined") window.RegelRechtEngine = Engine;
 
     // 4) eerlijkheidspaneel + PoC-switch
     function renderHonesty(run) {
-      $("#abstentions").innerHTML = "Onthoudingen: <strong>" + run.abstentions.count + "</strong> (" +
-        run.abstentions.label.replace(/</g, "&lt;") + ") — bron: <code>" + run.abstentions.source + "</code>";
+      $("#abstentions").innerHTML = "Abstentions: <strong>" + run.abstentions.count + "</strong> (" +
+        run.abstentions.label.replace(/</g, "&lt;") + ") — source: <code>" + run.abstentions.source + "</code>";
       const tbody = $("#artifacts tbody");
       tbody.innerHTML = "";
       for (const a of run.sourceArtifacts) {
@@ -3297,7 +3297,7 @@ if (typeof window !== "undefined") window.RegelRechtEngine = Engine;
         tr.innerHTML = "<td>" + a.path + "</td><td>" + a.role + "</td><td>" + a.sha256.slice(0, 12) + "…</td>";
         tbody.appendChild(tr);
       }
-      $("#runmeta").textContent = "runId " + run.runId + " · gegenereerd " + run.generatedAt + " · build " + "2026-09-29T00:00:00Z";
+      $("#runmeta").textContent = "runId " + run.runId + " · generated " + run.generatedAt + " · build " + "2026-09-29T00:00:00Z";
     }
     function activate(poc) {
       const run = RUNS[poc] || RUNS.utrecht;
@@ -3305,7 +3305,7 @@ if (typeof window !== "undefined") window.RegelRechtEngine = Engine;
       $("#sw-utrecht").classList.toggle("active", poc === "utrecht");
       $("#sw-eindhoven").classList.toggle("active", poc === "eindhoven");
       $("#subtitle").textContent = run.instrument.title + " (" + run.instrument.cvdr + ") — " +
-        run.instrument.regulatoryLayer.toLowerCase().replace(/_/g, " ") + ", artikel " + run.instrument.article;
+        run.instrument.regulatoryLayer.toLowerCase().replace(/_/g, " ") + ", article " + run.instrument.article;
       renderChain(run);
       renderLab(run);
       renderHonesty(run);

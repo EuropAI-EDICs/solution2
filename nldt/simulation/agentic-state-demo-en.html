@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agentic State — executive demo · LDT toolbox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper: #e8e2d6; --ink: #1a2428; --ink-soft: #3d4a50; --muted: #6a757a;
+      --teal: #0d6e6e; --focus: #c45c26; --pass: #2a7a3a; --line: rgba(26,36,40,.18);
+      --panel: #f4efe6; --card: #fffdf8;
+      --font-ui: "DM Sans", system-ui, sans-serif;
+      --font-display: "Fraunces", Georgia, serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: var(--font-ui); color: var(--ink); background: var(--paper);
+      background-image:
+        linear-gradient(rgba(26,36,40,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(26,36,40,.03) 1px, transparent 1px),
+        radial-gradient(ellipse 120% 80% at 10% -20%, rgba(13,110,110,.10), transparent 50%),
+        radial-gradient(ellipse 70% 50% at 100% 0%, rgba(196,92,38,.06), transparent 45%);
+      background-size: 28px 28px, 28px 28px, 100% 100%, 100% 100%;
+      display: flex; flex-direction: column; min-height: 100vh; line-height: 1.5;
+    }
+    /* ---------- header ---------- */
+    header {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      padding: .7rem 1.25rem; border-bottom: 1px solid var(--line);
+      background: rgba(232,226,214,.85); backdrop-filter: blur(4px);
+      position: sticky; top: 0; z-index: 5;
+    }
+    .brand { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; letter-spacing: -.01em; }
+    .brand span { color: var(--teal); }
+    .doctrine { font-size: .74rem; color: var(--muted); font-style: italic; }
+    .dots { margin-left: auto; display: flex; gap: .38rem; align-items: center; }
+    .dots button {
+      width: 11px; height: 11px; border-radius: 50%; border: 1px solid var(--muted);
+      background: transparent; cursor: pointer; padding: 0; transition: .2s;
+    }
+    .dots button.on { background: var(--teal); border-color: var(--teal); }
+    .dots button:hover { border-color: var(--teal); }
+    /* ---------- stage ---------- */
+    main { flex: 1; display: flex; align-items: stretch; }
+    .scene {
+      display: none; width: 100%; max-width: 1080px; margin: 0 auto;
+      padding: 1.6rem 1.5rem 1.2rem; animation: rise .35s ease;
+    }
+    .scene.on { display: block; }
+    @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .kicker {
+      font-size: .68rem; text-transform: uppercase; letter-spacing: .09em;
+      color: var(--focus); font-weight: 700; margin-bottom: .45rem;
+    }
+    h1 { font-family: var(--font-display); font-size: clamp(1.7rem, 4vw, 2.5rem); font-weight: 700; line-height: 1.12; letter-spacing: -.015em; }
+    h1 span { color: var(--teal); }
+    h2 { font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; margin-bottom: .5rem; }
+    h2 span { color: var(--teal); }
+    .lede { margin: .55rem 0 0; color: var(--ink-soft); font-size: .95rem; max-width: 46rem; }
+    .src { margin-top: .9rem; font-size: .72rem; color: var(--muted); max-width: 52rem; }
+    .src b { color: var(--ink-soft); }
+    /* ---------- generic cards ---------- */
+    .cards { margin-top: 1rem; display: grid; gap: .7rem; }
+    .cards.c3 { grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+    .cards.c2 { grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); }
+    .card {
+      background: var(--card); border: 1px solid var(--line); border-radius: 4px;
+      padding: .8rem .9rem; font-size: .84rem;
+    }
+    .card h3 { font-family: var(--font-display); font-size: .98rem; font-weight: 600; margin-bottom: .3rem; }
+    .card .big { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--teal); }
+    .card p { color: var(--ink-soft); }
+    .card a { color: var(--teal); font-size: .76rem; text-decoration: none; }
+    .card a:hover { text-decoration: underline; }
+    .chip {
+      display: inline-block; font-size: .64rem; font-weight: 700; letter-spacing: .04em;
+      border-radius: 3px; padding: .12rem .4rem; margin-top: .45rem;
+      background: rgba(13,110,110,.1); color: var(--teal);
+    }
+    .chip.new { background: rgba(196,92,38,.12); color: var(--focus); }
+    .note { margin-top: .8rem; background: var(--panel); border-left: 3px solid var(--teal); padding: .6rem .8rem; font-size: .83rem; color: var(--ink-soft); max-width: 46rem; }
+    .note strong { color: var(--ink); }
+    .note.warn { border-left-color: var(--focus); }
+    /* ---------- scene 1: org vs function ---------- */
+    .vs { margin-top: 1rem; display: grid; gap: .8rem; grid-template-columns: 1fr 1fr; }
+    @media (max-width: 860px) { .vs { grid-template-columns: 1fr; } }
+    .vs .card h3 .neg { color: var(--focus); }
+    .orgbox { display: flex; gap: .5rem; margin: .55rem 0; }
+    .orgbox div {
+      flex: 1; text-align: center; font-size: .7rem; color: var(--ink-soft);
+      border: 1px dashed var(--line); border-radius: 4px; padding: .45rem .3rem; background: var(--panel);
+    }
+    .orgbox div b { display: block; font-size: .74rem; color: var(--ink); margin-bottom: .2rem; }
+    .fnstrip { display: flex; gap: .35rem; margin: .55rem 0; }
+    .fnstrip span {
+      flex: 1; text-align: center; font-size: .68rem; font-weight: 600; color: var(--teal);
+      background: rgba(13,110,110,.08); border: 1px solid rgba(13,110,110,.25); border-radius: 3px; padding: .34rem .2rem;
+    }
+    .vs .foot { font-size: .72rem; color: var(--muted); margin-top: .3rem; }
+    /* ---------- scene 2: levels ---------- */
+    .levels { margin-top: 1rem; max-width: 46rem; }
+    .lvl {
+      display: grid; grid-template-columns: 4.2rem 1fr; gap: .8rem; align-items: center;
+      border: 1px solid var(--line); border-radius: 4px; background: var(--card);
+      padding: .55rem .8rem; margin-bottom: .45rem; transition: .2s;
+    }
+    .lvl .n { font-family: ui-monospace, Menlo, monospace; font-size: .8rem; color: var(--muted); }
+    .lvl .t b { font-size: .88rem; }
+    .lvl .t span { font-size: .76rem; color: var(--ink-soft); display: block; }
+    .lvl.zero { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(13,110,110,.12); background: #f2f7f5; }
+    .lvl.zero .n, .lvl.zero .t b { color: var(--teal); }
+    /* ---------- scene 3: simulation ---------- */
+    .simbar { margin-top: 1rem; display: flex; gap: .45rem; align-items: center; flex-wrap: wrap; }
+    button.act {
+      font-family: var(--font-ui); font-size: .8rem; font-weight: 700;
+      padding: .42rem .85rem; border-radius: 4px; border: 1px solid var(--line);
+      cursor: pointer; background: var(--card); color: var(--ink);
+    }
+    button.act.primary { background: var(--teal); color: #f7f3eb; border-color: var(--teal); }
+    button.act:hover { border-color: var(--teal); }
+    button.act.primary:hover { border-color: #0a5757; }
+    .simstat { font-size: .78rem; color: var(--muted); }
+    .simlayout { margin-top: .8rem; display: grid; grid-template-columns: 250px 1fr 285px; gap: .8rem; }
+    @media (max-width: 980px) { .simlayout { grid-template-columns: 1fr; } }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+    .panel-head {
+      padding: .5rem .75rem; border-bottom: 1px solid var(--line);
+      font-size: .63rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted);
+      display: flex; justify-content: space-between; gap: .5rem;
+    }
+    .panel-body { padding: .7rem .75rem; font-size: .8rem; }
+    ol.chain { list-style: none; }
+    ol.chain li {
+      display: grid; grid-template-columns: 1.4rem 1fr; gap: .5rem; align-items: center;
+      margin-bottom: .38rem; padding: .48rem .55rem; border: 1px solid var(--line);
+      border-radius: 4px; background: var(--card); opacity: .45; transition: .25s ease; cursor: pointer;
+    }
+    ol.chain li .num { font-family: ui-monospace, Menlo, monospace; font-size: .68rem; color: var(--muted); }
+    ol.chain li .nm { font-size: .8rem; font-weight: 600; }
+    ol.chain li .ag { font-size: .66rem; color: var(--muted); display: block; }
+    ol.chain li.active { opacity: 1; border-color: var(--focus); box-shadow: 0 0 0 2px rgba(196,92,38,.16); }
+    ol.chain li.done { opacity: 1; border-color: var(--teal); }
+    ol.chain li.done .num { color: var(--teal); }
+    .artifact h3 { font-family: var(--font-display); font-size: 1.02rem; margin-bottom: .3rem; }
+    .artifact p { color: var(--ink-soft); margin-bottom: .4rem; }
+    .kv { font-size: .74rem; border: 1px solid var(--line); border-radius: 4px; background: var(--card); padding: .5rem .6rem; margin-bottom: .45rem; }
+    .kv div { display: flex; gap: .5rem; padding: .1rem 0; }
+    .kv b { min-width: 7.5rem; color: var(--muted); font-weight: 600; }
+    .kv span { font-family: ui-monospace, Menlo, monospace; font-size: .72rem; }
+    .gate {
+      display: inline-flex; align-items: center; gap: .35rem; margin-top: .3rem;
+      font-size: .72rem; font-weight: 700; color: var(--pass);
+      border: 1px solid rgba(42,122,58,.4); background: rgba(42,122,58,.08);
+      border-radius: 3px; padding: .22rem .55rem;
+    }
+    .gate.human { color: var(--focus); border-color: rgba(196,92,38,.45); background: rgba(196,92,38,.08); }
+    .km { font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; color: var(--teal); }
+    .vlist { list-style: none; }
+    .vlist li {
+      display: flex; gap: .5rem; align-items: baseline; padding: .3rem 0;
+      border-bottom: 1px dashed var(--line); font-size: .76rem;
+    }
+    .vlist li:last-child { border-bottom: none; }
+    .vlist .vid { font-family: ui-monospace, Menlo, monospace; font-size: .68rem; color: var(--teal); min-width: 2.1rem; }
+    .vlist .ok { color: var(--pass); font-weight: 700; }
+    .vlist .open { color: var(--focus); font-weight: 700; }
+    .dtable { font-size: .74rem; border-collapse: collapse; width: 100%; }
+    .dtable th, .dtable td { text-align: left; padding: .28rem .4rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .dtable th { font-size: .66rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+    .dtable td.mono { font-family: ui-monospace, Menlo, monospace; font-size: .68rem; }
+    /* svg map */
+    .mapwrap { border: 1px solid var(--line); border-radius: 4px; background: #fdfbf6; overflow: hidden; }
+    svg text { font-family: var(--font-ui); }
+    .zone { opacity: 0; transition: opacity .6s ease; }
+    .zone.show { opacity: 1; }
+    .excl { opacity: 0; transition: opacity .6s ease; }
+    .excl.show { opacity: 1; }
+    .resultglow { opacity: 0; transition: opacity .8s ease; }
+    .resultglow.show { opacity: 1; }
+    /* ---------- scene 5 gates ---------- */
+    .gates { margin-top: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(11.5rem, 1fr)); gap: .6rem; }
+    .gatecard { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: .7rem .75rem; font-size: .78rem; }
+    .gatecard .gn { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--focus); }
+    .gatecard h3 { font-family: var(--font-display); font-size: .92rem; margin: .15rem 0 .3rem; }
+    .gatecard p { color: var(--ink-soft); font-size: .74rem; }
+    .gatecard .map { margin-top: .45rem; font-size: .7rem; color: var(--teal); font-weight: 600; }
+    /* ---------- scene 6 layers ---------- */
+    .stack { margin-top: 1rem; max-width: 50rem; display: flex; flex-direction: column; gap: .45rem; }
+    .layer { border: 1px solid var(--line); border-radius: 4px; background: var(--card); padding: .6rem .85rem; }
+    .layer h3 { font-family: var(--font-display); font-size: .92rem; margin-bottom: .2rem; }
+    .layer p { font-size: .78rem; color: var(--ink-soft); }
+    .layer.core { border-color: var(--teal); background: #f2f7f5; box-shadow: 0 0 0 3px rgba(13,110,110,.1); }
+    .layer.core h3 { color: var(--teal); }
+    /* ---------- scene 8 timeline ---------- */
+    .tl { margin-top: 1.1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: .6rem; }
+    .ph { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: .65rem .7rem; font-size: .76rem; }
+    .ph .pm { font-family: ui-monospace, Menlo, monospace; font-size: .64rem; color: var(--focus); }
+    .ph h3 { font-family: var(--font-display); font-size: .9rem; margin: .15rem 0 .3rem; color: var(--teal); }
+    .ph p { color: var(--ink-soft); }
+    .ph .exit { margin-top: .4rem; font-size: .68rem; color: var(--muted); border-top: 1px dashed var(--line); padding-top: .3rem; }
+    /* ---------- scene 9 asks ---------- */
+    ol.asks { margin-top: 1rem; max-width: 46rem; list-style: none; counter-reset: ask; }
+    ol.asks li {
+      counter-increment: ask; position: relative; padding: .7rem .9rem .7rem 3rem;
+      background: var(--card); border: 1px solid var(--line); border-radius: 4px; margin-bottom: .55rem; font-size: .86rem;
+    }
+    ol.asks li::before {
+      content: counter(ask); position: absolute; left: .8rem; top: .68rem;
+      font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; color: var(--teal);
+    }
+    ol.asks b { display: block; margin-bottom: .15rem; }
+    ol.asks p { color: var(--ink-soft); font-size: .8rem; }
+    .closing { margin-top: 1.2rem; font-family: var(--font-display); font-size: 1.2rem; font-weight: 600; color: var(--teal); }
+    /* ---------- footer ---------- */
+    footer {
+      display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+      padding: .65rem 1.25rem; border-top: 1px solid var(--line);
+      background: rgba(232,226,214,.85);
+    }
+    footer .where { font-size: .76rem; color: var(--muted); margin-right: auto; }
+    footer button {
+      font-family: var(--font-ui); font-size: .8rem; font-weight: 700;
+      padding: .4rem .9rem; border-radius: 4px; border: 1px solid var(--line);
+      cursor: pointer; background: var(--card); color: var(--ink);
+    }
+    footer button:hover { border-color: var(--teal); color: var(--teal); }
+    footer button:disabled { opacity: .4; cursor: default; }
+    .keyhint { font-size: .68rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">Agentic State <span>· executive demo</span></div>
+  <div class="doctrine">AI proposes · the pipeline disposes · humans decide</div>
+  <nav class="dots" id="dots" aria-label="Scenes"></nav>
+</header>
+
+<main>
+
+  <!-- ============ 0 TITLE ============ -->
+  <section class="scene" data-title="Title">
+    <p class="kicker">Executive demo · LDT toolbox · October 2026</p>
+    <h1>From pilots to renewal:<br /><span>the function as the shared level</span></h1>
+    <p class="lede">
+      A demonstration of the reference implementation for urban planning, built on the Finnish
+      research into the <em>Agentic State</em> (Sitra, September 2026) — and on six already working
+      proof-of-concepts from the LDT toolbox that show the approach is possible today.
+    </p>
+    <div class="cards c3">
+      <div class="card">
+        <h3>The insight</h3>
+        <p>More AI pilots is not yet renewal. The question is not <em>which tool</em>, but
+        <em>at what level</em> you understand, compare and redesign public work: the <strong>function</strong>.</p>
+      </div>
+      <div class="card">
+        <h3>The reference implementation</h3>
+        <p>One shared function — <strong>preparing a spatial assessment</strong> — running from question
+        to a legally grounded dossier, with validation gates and a learning loop.</p>
+      </div>
+      <div class="card">
+        <h3>The evidence</h3>
+        <p>Six PoCs (Utrecht, Breda, Eindhoven, Rijnland, crosstrack, MiniGIM) are already instances
+        of that function — with real, traceable numbers.</p>
+      </div>
+    </div>
+    <p class="note"><strong>No invented numbers.</strong> Every figure in this demo comes from the toolbox's canonical
+    runs and documents (incl. run <span style="font-family:ui-monospace,Menlo,monospace;font-size:.76rem">20260830T113234Z-wind</span>,
+    province of Utrecht) and is traceable to verbatim article citations. <a href="agentic-state-demo.html" style="color:var(--teal)">Nederlandse versie</a></p>
+    <p class="src"><b>Sources:</b> Sitra — <em>The Next Right Questions on the Path to the Agentic State</em> (2026) ·
+    <em>docs/AGENTIC_STATE_PLAN.md</em> · <em>docs/POC_BESTUURLIJKE_SAMENVATTING.md</em>. Navigate with <b>→ / ←</b>.</p>
+  </section>
+
+  <!-- ============ 1 DIAGNOSIS ============ -->
+  <section class="scene" data-title="Diagnosis">
+    <p class="kicker">1 · The diagnosis</p>
+    <h2>More pilots is not yet <span>renewal</span></h2>
+    <p class="lede">
+      Finland's Sitra produced the world's first nationwide readiness mapping of <strong>70 recurring
+      government functions</strong> across <strong>109 organisations</strong> for agentic AI. The finding:
+      organisations automate isolated tasks inside their own silos — while often redesigning
+      <em>the same work</em> separately.
+    </p>
+    <div class="vs">
+      <div class="card">
+        <h3 class="neg">Organisation-first</h3>
+        <div class="orgbox">
+          <div><b>Municipality</b>own intake process</div>
+          <div><b>Province</b>own intake process</div>
+          <div><b>Water board</b>own intake process</div>
+        </div>
+        <p class="foot">The same work designed and procured three times over; information requested
+        repeatedly; total potential invisible.</p>
+      </div>
+      <div class="card">
+        <h3>Function-first</h3>
+        <div class="fnstrip">
+          <span>Receive</span><span>Check</span><span>Prepare</span><span>Notify</span><span>Pay</span>
+        </div>
+        <p class="foot">Recurring work becomes visible across organisations: what is shared,
+        what stays organisation-specific, what do we build together?</p>
+      </div>
+    </div>
+    <p class="note"><strong>Agentic AI makes this urgent.</strong> Agents can carry out bounded, multi-step work
+    across system and organisational boundaries — which makes redesigning the <em>whole</em> function
+    (rather than speeding up one task) suddenly feasible. <em>(Sitra, 2026)</em></p>
+    <p class="src"><b>Source:</b> Sitra working paper §1 · First Moves assessment (70 functions × 109 organisations).</p>
+  </section>
+
+  <!-- ============ 2 FUNCTION / LEVELS ============ -->
+  <section class="scene" data-title="The function">
+    <p class="kicker">2 · The answer</p>
+    <h2>One function, five levels — <span>and the PoCs already hang on it</span></h2>
+    <p class="lede">
+      The function sits between policy and task: concrete enough to connect to real work,
+      broad enough to reveal recurring work across organisations.
+    </p>
+    <div class="levels">
+      <div class="lvl"><div class="n">+2</div><div class="t"><b>Public purpose</b><span>Why does this work exist? — spatial vision, energy targets, nature task</span></div></div>
+      <div class="lvl"><div class="n">+1</div><div class="t"><b>Portfolio</b><span>Which functions to govern and invest in together? — ordinance programme, regional energy strategy, area agenda</span></div></div>
+      <div class="lvl zero"><div class="n">0</div><div class="t"><b>FUNCTION — preparing a spatial assessment</b><span>Which rules apply where, and what does that mean for this area? Recurs in évery municipality, province and water board. → the reference implementation in this demo</span></div></div>
+      <div class="lvl"><div class="n">−1</div><div class="t"><b>Workflow</b><span>How is the result produced? — intake → norms → rules → zones → validation → dossier; the human–agent boundary is drawn here</span></div></div>
+      <div class="lvl"><div class="n">−2</div><div class="t"><b>Task</b><span>Which action? — read an article, merge a zone, cite a claim; this is where agents automate</span></div></div>
+    </div>
+    <p class="note"><strong>Six instances already exist.</strong> The toolbox runs six PoCs, each an organisation-specific
+    execution of this function (next scenes). Function-thinking makes their shared core visible —
+    and reusable.</p>
+    <p class="src"><b>Source:</b> Sitra §2 (five levels) · <em>docs/AGENTIC_STATE_PLAN.md</em> §3–4.</p>
+  </section>
+
+  <!-- ============ 3 SIMULATION ============ -->
+  <section class="scene" data-title="Simulation">
+    <p class="kicker">3 · The simulation</p>
+    <h2>One run through the <span>reference chain</span></h2>
+    <p class="lede">
+      Practice question: <em>"Where in the province of Utrecht can wind turbines (≥ 3 MW) stand?"</em> —
+      under the Provincial Spatial Ordinance (Omgevingsverordening, CVDR704250). A replay of the
+      canonical run; every step an agent, every transition a gate. <strong>The agent prepares;
+      the decision stays with the competent authority.</strong>
+    </p>
+    <div class="simbar">
+      <button class="act primary" id="runBtn">▶ Play run</button>
+      <button class="act" id="stepBtn">Step forward →</button>
+      <button class="act" id="resetBtn">↺ Reset</button>
+      <span class="simstat" id="simStat">Click "Play run" or use the step button.</span>
+    </div>
+    <div class="simlayout">
+      <div class="panel">
+        <div class="panel-head"><span>Chain</span><span>7 agents</span></div>
+        <div class="panel-body">
+          <ol class="chain" id="chain"></ol>
+        </div>
+      </div>
+      <div class="panel artifact">
+        <div class="panel-head"><span>Artifact</span><span id="artStep">step 0/7</span></div>
+        <div class="panel-body" id="artifact"><p style="color:var(--muted)">The run starts at intake: an executive question becomes a schema-valid request.</p></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span>Area (schematic)</span><span id="kmRead">0 km²</span></div>
+        <div class="panel-body mapwrap" id="mapPanel"></div>
+      </div>
+    </div>
+    <p class="src"><b>Traceable:</b> run <span style="font-family:ui-monospace,Menlo,monospace;font-size:.74rem">20260830T113234Z-wind</span> ·
+    24 norm cards · 34 citation-verified source records · independent re-execution (IoU ≥ 0.9997) ·
+    <em>docs/SOLUTIONS_ARCHITECTURE.md</em> §2.</p>
+  </section>
+
+  <!-- ============ 4 POCS ============ -->
+  <section class="scene" data-title="PoCs">
+    <p class="kicker">4 · Concrete implementation examples</p>
+    <h2>Six instances of <span>the same function</span></h2>
+    <p class="lede">
+      Each PoC answers its own practice question for its own organisation — on the same reusable core.
+      Click through to the existing demos for each PoC's full story.
+    </p>
+    <div class="cards c3">
+      <div class="card">
+        <h3>Utrecht — "where can what?"</h3>
+        <p class="big">859.5 km²</p>
+        <p>for wind turbines after eliminations (of 1,259.8 km²); plus 1,167.9 km² for solar fields and
+        23.9 km² search area for new nature — every zone traceable to an article citation.</p>
+        <span class="chip">instance of F1</span><br />
+        <a href="poc-utrecht.html">→ PoC story &amp; demos</a>
+      </div>
+      <div class="card">
+        <h3>Crosstrack — energy × nature</h3>
+        <p class="big">94.7%</p>
+        <p>of the new-nature search area is simultaneously open to solar fields; the compensation duty
+        (art. 6.5a lid 3) is the only legal buffer. Wind and solar compete on 845.4 km².</p>
+        <span class="chip">instance of F1</span><br />
+        <a href="poc-utrecht.html">→ Utrecht scenes</a>
+      </div>
+      <div class="card">
+        <h3>Eindhoven — zoning-plan conversion</h3>
+        <p class="big">311 → 762</p>
+        <p>old rules linked to new environment-plan rules; 220 links reuse previously adopted conversions.
+        70 rows go to the jurist, honestly marked (V4 always open).</p>
+        <span class="chip">instance of F1</span><br />
+        <a href="poc-eindhoven.html">→ PoC story &amp; report</a>
+      </div>
+      <div class="card">
+        <h3>Breda — five-value scan</h3>
+        <p class="big">5 values</p>
+        <p>open data + AI along the five congress values (democratic, spatial, economic, social,
+        autonomous); plus area trade-off (Plane D) and solar additivity (ZN-2) for CBS areas.</p>
+        <span class="chip">instance of F1</span><br />
+        <a href="poc-breda.html">→ PoC story &amp; scan report</a>
+      </div>
+      <div class="card">
+        <h3>Rijnland — water-level conflict</h3>
+        <p class="big">H3 heatmap</p>
+        <p>statutory water-level areas × measured deviations in practice: where does water management
+        diverge from the law — and what happens under scenario steps?</p>
+        <span class="chip">instance of F1</span><br />
+        <a href="poc-rijnland.html">→ PoC story &amp; what-if</a>
+      </div>
+      <div class="card">
+        <h3>MiniGIM — area check</h3>
+        <p class="big">74 items</p>
+        <p>environment-analysis checklist v0.91 auto-filled from keyless open data for area developers;
+        pilot Breda-Teteringen (IFC/GREX phase 2).</p>
+        <span class="chip">instance of F1</span><br />
+        <a href="../recipes/minigim-gebiedscheck.json">→ recipe (JSON)</a>
+      </div>
+    </div>
+    <p class="note"><strong>What the function lens adds:</strong> these six investments are not six separate
+    pilots but six proofs of one reusable core — together the evidence for choosing the
+    demonstrator function (phase A of the plan).</p>
+  </section>
+
+  <!-- ============ 5 GATES ============ -->
+  <section class="scene" data-title="Five gates">
+    <p class="kicker">5 · The executive investment gate</p>
+    <h2>Five gates before technology becomes a <span>productivity investment</span></h2>
+    <p class="lede">
+      Sitra's hard precondition: redesign the work first, procure later. The toolbox already has three
+      gates in place as technical validation (V0–V4); two gates are new and become first-class artifacts.
+    </p>
+    <div class="gates">
+      <div class="gatecard">
+        <div class="gn">1</div>
+        <h3>Outcome &amp; work removed</h3>
+        <p>Baseline of cost, lead time, errors — and: which work disappears?</p>
+        <div class="map"><span class="chip new">new: function-baseline.json</span></div>
+      </div>
+      <div class="gatecard">
+        <div class="gn">2</div>
+        <h3>Shared meaning</h3>
+        <p>Authoritative source + owner per concept; a shared vocabulary across organisations.</p>
+        <div class="map">≈ V2 grounding · norm cards with citation ✓</div>
+      </div>
+      <div class="gatecard">
+        <div class="gn">3</div>
+        <h3>Legal &amp; human boundary</h3>
+        <p>What may the agent do, when does it escalate, who stays responsible, how does a human correct?</p>
+        <div class="map">≈ V2/V4 · cite-or-abstain + HITL ✓</div>
+      </div>
+      <div class="gatecard">
+        <div class="gn">4</div>
+        <h3>Replaceable architecture</h3>
+        <p>Stable interfaces around durable concepts; models and suppliers stay replaceable.</p>
+        <div class="map">✓ open source, local models, contracts</div>
+      </div>
+      <div class="gatecard">
+        <div class="gn">5</div>
+        <h3>Evidence &amp; stop conditions</h3>
+        <p>Agreed in advance: which evidence triggers continue, change, pause or stop?</p>
+        <div class="map"><span class="chip new">new: stop conditions in run reporting</span></div>
+      </div>
+    </div>
+    <p class="note"><strong>The doctrine in one sentence:</strong> no citation, no rule; no human, no decision.
+    A technology demonstration that cannot answer the five gates is a trial, not yet a
+    productivity demonstrator. <em>(Sitra §4.5)</em></p>
+  </section>
+
+  <!-- ============ 6 REUSE ============ -->
+  <section class="scene" data-title="Reuse">
+    <p class="kicker">6 · Reuse &amp; scale</p>
+    <h2>Different services, <span>one reusable core</span></h2>
+    <div class="stack">
+      <div class="layer">
+        <h3>Distinct services — stay separate</h3>
+        <p>permit preparation Utrecht · zoning-plan conversion Eindhoven · area scan Breda · water-level check Rijnland · area check MiniGIM — each with its own legal track and its own user.</p>
+      </div>
+      <div class="layer core">
+        <h3>Reusable core — what is genuinely common</h3>
+        <p>intake normalisation · norm harvesting with citation · formalisation into executable rules · zone algebra ·
+        independent validation · provenance (PROV) · decision table &amp; explanation. Standardise what is shared,
+        make variation explicit.</p>
+      </div>
+      <div class="layer">
+        <h3>Multiple interoperable applications &amp; suppliers</h3>
+        <p>an open specification (recipes / schemas / MCP tools) lets multiple suppliers serve the same core — without one dominant vendor or system.</p>
+      </div>
+      <div class="layer">
+        <h3>Shared public infrastructure</h3>
+        <p>BAG · BGT · DSO/CVDR · EU LDT Toolbox (Data Platform, Identity, Data Space) — foundations beneath all functions.</p>
+      </div>
+    </div>
+    <div class="cards c2" style="margin-top:.9rem">
+      <div class="card">
+        <h3>RegelRecht: the first local contributor</h3>
+        <p>The national corpus holds ~22,000 machine-readable statutes — <strong>not yet a single</strong> municipal
+        or provincial ordinance. The Eindhoven and Utrecht exports are technically validated against the
+        national schema: the first contribution is ready.</p>
+      </div>
+      <div class="card">
+        <h3>Inside your own organisation</h3>
+        <p>Eindhoven is building a knowledge bank of <strong>274 official conversions</strong>: every subsequent
+        plan amendment faster and more consistent. Utrecht reuses one computation chain for three policy tracks.</p>
+      </div>
+    </div>
+    <p class="src"><b>Source:</b> Sitra §6 (capability core, four layers) · <em>docs/POC_BESTUURLIJKE_SAMENVATTING.md</em>.</p>
+  </section>
+
+  <!-- ============ 7 LEARNING LOOP ============ -->
+  <section class="scene" data-title="Learning loop">
+    <p class="kicker">7 · The learning state</p>
+    <h2>From signal to <span>decision</span> — the loop pilots lack</h2>
+    <p class="lede">
+      A successful run is the beginning. The question is whether evidence from the human–agent
+      interplay also changes the work, the roles and the rules — in your own organisation and in
+      others performing the same function.
+    </p>
+    <div class="cards c3">
+      <div class="card">
+        <h3>Capture signals</h3>
+        <p>overrides, exceptions, delays, correction requests, unequal outcomes — past runs and PROV
+        are the raw feed; the journal already exists.</p>
+      </div>
+      <div class="card">
+        <h3>Decision trail (new)</h3>
+        <p>what happened → why → what should change → who decides → did it help?
+        Five questions, mandatorily recorded for every material signal.</p>
+      </div>
+      <div class="card">
+        <h3>Three learning levels</h3>
+        <p><strong>operational</strong> (step/prompt) · <strong>organisational</strong> (role/workflow) ·
+        <strong>institutional</strong> (standard/funding/regulation) — with an explicit escalation route.</p>
+      </div>
+    </div>
+    <p class="note warn"><strong>Opposite risks</strong> (Sitra): experimentation without shared learning leaves
+    evidence trapped in projects; governance without learning freezes rules around processes that
+    themselves need to change. Hence: the learning loop is a phase-exit, not an after-the-fact report.</p>
+    <p class="src"><b>Source:</b> Sitra §5 · <em>docs/AGENTIC_STATE_PLAN.md</em> B10.</p>
+  </section>
+
+  <!-- ============ 8 PATH ============ -->
+  <section class="scene" data-title="The path">
+    <p class="kicker">8 · The path</p>
+    <h2>Eighteen months as a <span>bounded learning period</span></h2>
+    <p class="lede">
+      Not a race to a national platform, but one demonstrator that tests the proposition — with
+      decision points agreed in advance: continue, change, pause or stop.
+    </p>
+    <div class="tl">
+      <div class="ph">
+        <div class="pm">mo 0–3</div>
+        <h3>A · Catalogue &amp; readiness map</h3>
+        <p>10–20 spatial-planning functions with scores and source quotes; instance inventory (incl. the Omgevingschat platform); demonstrator function chosen.</p>
+        <div class="exit">exit: choice with rationale</div>
+      </div>
+      <div class="ph">
+        <div class="pm">mo 2–5</div>
+        <h3>B · Baseline &amp; vocabulary</h3>
+        <p>function baseline per organisation; governed vocabulary (Location Item ↔ NormCard); steward + participation agreement.</p>
+        <div class="exit">exit: gates 1 + 2 passed</div>
+      </div>
+      <div class="ph">
+        <div class="pm">mo 4–8</div>
+        <h3>C · Redesign &amp; boundary</h3>
+        <p>workflows before technology; human–agent boundary per step; HITL interrupts (bp2op first); gates 3 + 4 in the critic.</p>
+        <div class="exit">exit: five gates open</div>
+      </div>
+      <div class="ph">
+        <div class="pm">mo 6–12</div>
+        <h3>D · Demonstrator ≥ 3 organisations</h3>
+        <p>runs with gates &amp; PROV; evidence: overrides, delay, completeness; golden sets; evidence reviews at decision points.</p>
+        <div class="exit">exit: continue/stop on evidence</div>
+      </div>
+      <div class="ph">
+        <div class="pm">mo 10–18</div>
+        <h3>E · Learn &amp; package</h3>
+        <p>decision trail; reusable core as open specification (recipes/skills/MCP); stewardship proposal and the 2030 questions.</p>
+        <div class="exit">exit: reference implementation documented</div>
+      </div>
+    </div>
+    <p class="src"><b>Source:</b> <em>docs/AGENTIC_STATE_PLAN.md</em> §5 · Sitra §7–8.</p>
+  </section>
+
+  <!-- ============ 9 ASK ============ -->
+  <section class="scene" data-title="The ask">
+    <p class="kicker">9 · What we ask of the board</p>
+    <h2>What we <span>ask</span></h2>
+    <ol class="asks">
+      <li>
+        <b>Adopt the working method as the standard</b>
+        <p>for AI assistance on law and regulation: no citation, no rule; no human, no decision.</p>
+      </li>
+      <li>
+        <b>Co-decide: one function, three organisations</b>
+        <p>confirm "preparing a spatial assessment" as the demonstrator function and join as a
+        participating organisational context (Utrecht · Breda · Eindhoven · Rijnland are already in the toolbox).</p>
+      </li>
+      <li>
+        <b>Give the learning period a mandate</b>
+        <p>18 months bounded, with a function steward, baseline before technology, and stop conditions
+        agreed in advance — progress judged on evidence, not promise.</p>
+      </li>
+      <li>
+        <b>Contribute the instruments publicly</b>
+        <p>Eindhoven's environment plan and Utrecht's ordinance as the first municipal and provincial
+        contributions to the national RegelRecht corpus.</p>
+      </li>
+    </ol>
+    <p class="closing">One function. One reusable core. One eighteen-month learning period.</p>
+    <p class="src"><b>Status — honestly:</b> all six PoCs run fully offline and repeatably with independent
+    validation per run. Still open: the full instrument export, the live RegelRecht connection,
+    HITL interrupts in the orchestrator, and the function catalogue itself (phase A). Deliberately not: AI that decides.<br />
+    <b>Documents:</b> <em>docs/AGENTIC_STATE_PLAN.md</em> (plan) · <em>docs/POC_BESTUURLIJKE_SAMENVATTING.md</em> (PoCs) ·
+    Sitra working paper (2026).</p>
+  </section>
+
+</main>
+
+<footer>
+  <span class="where" id="where">Scene 1 of 10 · Title</span>
+  <span class="keyhint">→ / ← or click a dot</span>
+  <button id="prevBtn">← Previous</button>
+  <button id="nextBtn" class="primary" style="background:var(--teal);color:#f7f3eb;border-color:var(--teal)">Next →</button>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- scene navigation ---------- */
+  var scenes = Array.prototype.slice.call(document.querySelectorAll(".scene"));
+  var dotsEl = document.getElementById("dots");
+  var whereEl = document.getElementById("where");
+  var prevBtn = document.getElementById("prevBtn");
+  var nextBtn = document.getElementById("nextBtn");
+  var current = 0;
+
+  scenes.forEach(function (s, i) {
+    var b = document.createElement("button");
+    b.title = (i + 1) + " · " + (s.dataset.title || "");
+    b.addEventListener("click", function () { go(i); });
+    dotsEl.appendChild(b);
+  });
+
+  function go(i) {
+    if (i < 0) i = 0;
+    if (i > scenes.length - 1) i = scenes.length - 1;
+    current = i;
+    scenes.forEach(function (s, j) { s.classList.toggle("on", j === i); });
+    Array.prototype.forEach.call(dotsEl.children, function (d, j) {
+      d.classList.toggle("on", j === i);
+    });
+    whereEl.textContent = "Scene " + (i + 1) + " of " + scenes.length + " · " + (scenes[i].dataset.title || "");
+    prevBtn.disabled = i === 0;
+    nextBtn.disabled = i === scenes.length - 1;
+    if (history.replaceState) history.replaceState(null, "", "#scene-" + (i + 1));
+    window.scrollTo(0, 0);
+  }
+
+  prevBtn.addEventListener("click", function () { go(current - 1); });
+  nextBtn.addEventListener("click", function () { go(current + 1); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight" || e.key === "PageDown") { go(current + 1); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { go(current - 1); }
+    else if (e.key === "Home") { go(0); }
+    else if (e.key === "End") { go(scenes.length - 1); }
+  });
+
+  var m = location.hash.match(/^#scene-(\d+)$/);
+  go(m ? Math.min(Math.max(parseInt(m[1], 10) - 1, 0), scenes.length - 1) : 0);
+
+  /* small public hook for deep linking and automated checks */
+  window.agenticStateDemo = {
+    go: function (n) { go(n - 1); },
+    sceneCount: scenes.length,
+    chainStep: function (n) { showStep(n - 1); }
+  };
+
+  /* ---------- scene 3: chain simulation ---------- */
+  var STEPS = [
+    {
+      name: "Intake", ag: "question → request",
+      art: "<h3>Vague question → schema-valid request</h3>" +
+        "<p>The executive question is normalised into an <em>OpportunityMapRequest</em> (typed contract).</p>" +
+        "<div class='kv'><div><b>objectType</b><span>wind_turbine (≥ 3 MW)</span></div>" +
+        "<div><b>policy stage</b><span>programming</span></div>" +
+        "<div><b>instrument</b><span>Omgevingsverordening CVDR704250</span></div>" +
+        "<div><b>area</b><span>province of Utrecht · EPSG:28992</span></div></div>" +
+        "<span class='gate'>✓ gate: schema PASS — persisted &amp; signed</span>",
+      map: 0, km: 0
+    },
+    {
+      name: "Norm specialist", ag: "corpus → norm cards",
+      art: "<h3>Ordinance → 24 norm cards</h3>" +
+        "<p>One card per article, with a verbatim quote, version and URL. No verified source, no card — abstentions land in a public register.</p>" +
+        "<div class='kv'><div><b>NC-W-01</b><span>art. 5.4 — wind-energy search area…</span></div>" +
+        "<div><b>NC-W-07</b><span>expl. art. 5.4 — goose-roost area (exclusion)</span></div>" +
+        "<div><b>NC-W-11</b><span>art. 6.3 — National Nature Network</span></div>" +
+        "<div><b>register</b><span>3 articles not formalisable → jurist</span></div></div>" +
+        "<span class='gate'>✓ gate: cite-or-abstain PASS</span>",
+      map: 1, km: 0
+    },
+    {
+      name: "Formaliser", ag: "card → executable rule",
+      art: "<h3>Norm card → executable rule</h3>" +
+        "<p>Only formalisable rules become computation rules; the rest goes to the jurist.</p>" +
+        "<div class='kv'><div><b>FR-W-03</b><span>dist_to_dwellings ≥ 300 m · exclusion</span></div>" +
+        "<div><b>FR-W-08</b><span>zone semantics: search area · inclusion</span></div>" +
+        "<div><b>FR-W-11</b><span>quiet area → attention 1500 m · complex</span></div>" +
+        "<div><b>jurist</b><span>FR-W-11 ambiguous → human review (V4)</span></div></div>" +
+        "<span class='gate'>✓ gate: schema PASS — ambiguity always goes to the jurist</span>",
+      map: 1, km: 0
+    },
+    {
+      name: "World-scene", ag: "rules × geo sources",
+      art: "<h3>Zones from official sources</h3>" +
+        "<p>Province suppliers are consumed as they are (IMOW FeatureServer, ArcGIS Hub) — <em>wrap, don't rebuild</em>. The map builds up.</p>" +
+        "<div class='kv'><div><b>inclusion</b><span>3 formalised zones (art. 5.4)</span></div>" +
+        "<div><b>exclusion</b><span>Natura 2000 · goose roosts · NNN</span></div>" +
+        "<div><b>provenance</b><span>province of Utrecht, version date per layer</span></div></div>",
+      map: 2, km: 0
+    },
+    {
+      name: "Geo analysis", ag: "zone algebra",
+      art: "<h3>Zone algebra: union − exclusions</h3>" +
+        "<p>Deterministic: union of inclusion zones ∩ area (1,259.8 km²), minus Natura 2000, goose roosts and the National Nature Network.</p>" +
+        "<p class='km' id='kmBig'>0 km²</p>" +
+        "<span class='gate'>✓ all geometries ST_IsValid</span>",
+      map: 3, km: 859.5, kmFrom: 1259.8
+    },
+    {
+      name: "Critic", ag: "independent check",
+      art: "<h3>V0–V4: the independent check</h3>" +
+        "<ul class='vlist'>" +
+        "<li><span class='vid'>V0</span> schema validity <span class='ok'>✓ pass</span></li>" +
+        "<li><span class='vid'>V1</span> geometry, topology, CRS <span class='ok'>✓ pass</span></li>" +
+        "<li><span class='vid'>V2</span> legal grounding: every citation verified <span class='ok'>✓ pass</span></li>" +
+        "<li><span class='vid'>V3</span> independent re-execution — IoU ≥ 0.9997 <span class='ok'>✓ pass</span></li>" +
+        "<li><span class='vid'>V4</span> human review (jurist/board) <span class='open'>◐ open — by design</span></li>" +
+        "</ul>" +
+        "<span class='gate human'>no artifact leaves the system without a report</span>",
+      map: 4, km: 859.5
+    },
+    {
+      name: "Explainer", ag: "dossier &amp; provenance",
+      art: "<h3>Decision table — the executive dossier</h3>" +
+        "<table class='dtable'><tr><th>zone effect</th><th>norm</th><th>source</th></tr>" +
+        "<tr><td>excluded: Natura 2000</td><td class='mono'>NC-W-09</td><td class='mono'>art. 5.4 + explanation</td></tr>" +
+        "<tr><td>wind search area</td><td class='mono'>NC-W-01</td><td class='mono'>art. 5.4 par. 1</td></tr>" +
+        "<tr><td>Green contour compensation</td><td class='mono'>NC-W-14</td><td class='mono'>art. 6.5 par. 2</td></tr></table>" +
+        "<p style='margin-top:.45rem;font-size:.74rem;color:var(--muted)'>PROV: question → run → zone → rule → article → source URL.</p>" +
+        "<span class='gate'>✓ crosscheck: the engine really executed the submitted rule</span>",
+      map: 4, km: 859.5
+    }
+  ];
+
+  var chainEl = document.getElementById("chain");
+  var artEl = document.getElementById("artifact");
+  var artStep = document.getElementById("artStep");
+  var simStat = document.getElementById("simStat");
+  var kmRead = document.getElementById("kmRead");
+  var runBtn = document.getElementById("runBtn");
+  var stepBtn = document.getElementById("stepBtn");
+  var resetBtn = document.getElementById("resetBtn");
+  var timers = [];
+
+  STEPS.forEach(function (s, i) {
+    var li = document.createElement("li");
+    li.innerHTML = "<span class='num'>" + (i + 1) + "</span><span><span class='nm'>" + s.name + "</span><span class='ag'>" + s.ag + "</span></span>";
+    li.addEventListener("click", function () { showStep(i); });
+    chainEl.appendChild(li);
+  });
+
+  /* schematic SVG map */
+  document.getElementById("mapPanel").innerHTML =
+    '<svg viewBox="0 0 360 250" role="img" aria-label="Schematic zone map">' +
+    '<rect x="0" y="0" width="360" height="250" fill="#fdfbf6"/>' +
+    '<path id="aoi" d="M30 40 L200 22 L322 60 L338 150 L240 228 L70 216 L22 130 Z" fill="none" stroke="#6a757a" stroke-width="1.4" stroke-dasharray="5 4"/>' +
+    '<text x="36" y="34" font-size="9" fill="#6a757a">area (AOI) 1,259.8 km²</text>' +
+    '<g class="zone" id="z1">' +
+    '<path d="M60 60 L220 45 L300 80 L305 150 L210 200 L90 190 L50 120 Z" fill="rgba(13,110,110,.18)" stroke="#0d6e6e" stroke-width="1.2"/>' +
+    '<text x="66" y="176" font-size="9" fill="#0d6e6e">wind search area (art. 5.4)</text></g>' +
+    '<g class="excl" id="x1"><ellipse cx="120" cy="90" rx="36" ry="22" fill="rgba(196,92,38,.22)" stroke="#c45c26" stroke-width="1.2" stroke-dasharray="4 3"/>' +
+    '<text x="120" y="93" font-size="9.5" fill="#c45c26" text-anchor="middle">Natura 2000</text></g>' +
+    '<g class="excl" id="x2"><ellipse cx="228" cy="120" rx="31" ry="17" fill="rgba(196,92,38,.22)" stroke="#c45c26" stroke-width="1.2" stroke-dasharray="4 3"/>' +
+    '<text x="228" y="123" font-size="9.5" fill="#c45c26" text-anchor="middle">goose roosts</text></g>' +
+    '<g class="excl" id="x3"><ellipse cx="170" cy="168" rx="30" ry="14" fill="rgba(42,122,58,.16)" stroke="#2a7a3a" stroke-width="1.2" stroke-dasharray="4 3"/>' +
+    '<text x="170" y="150" font-size="9.5" fill="#2a7a3a" text-anchor="middle">NNN (art. 6.3)</text></g>' +
+    '<g class="resultglow" id="rg"><path d="M60 60 L220 45 L300 80 L305 150 L210 200 L90 190 L50 120 Z" fill="none" stroke="#0d6e6e" stroke-width="3"/>' +
+    '<text x="118" y="120" font-size="13" font-weight="700" fill="#0d6e6e">859.5 km²</text></g>' +
+    '</svg>';
+
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+  function setMap(state) {
+    var z1 = document.getElementById("z1");
+    var xs = ["x1", "x2", "x3"].map(function (id) { return document.getElementById(id); });
+    var rg = document.getElementById("rg");
+    z1.classList.toggle("show", state >= 2);
+    xs.forEach(function (x, i) { x.classList.toggle("show", state >= 3); });
+    rg.classList.toggle("show", state >= 4);
+  }
+  function fmt(v) { return v.toFixed(1); }
+  function setKm(v) { kmRead.textContent = fmt(v) + " km²"; }
+  function countKm(from, to) {
+    var big = document.getElementById("kmBig");
+    var t0 = null, dur = 1100;
+    function frame(ts) {
+      if (!t0) t0 = ts;
+      var p = Math.min((ts - t0) / dur, 1);
+      var v = from + (to - from) * p;
+      setKm(v);
+      if (big) big.textContent = fmt(v) + " km²";
+      if (p < 1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+  function showStep(i) {
+    clearTimers();
+    var s = STEPS[i];
+    Array.prototype.forEach.call(chainEl.children, function (li, j) {
+      li.classList.toggle("active", j === i);
+      li.classList.toggle("done", j < i);
+    });
+    artEl.innerHTML = s.art;
+    artStep.textContent = "step " + (i + 1) + "/7 · " + s.name.toLowerCase();
+    simStat.textContent = i < 6 ? "Agent \"" + s.name + "\" done — next: " + STEPS[i + 1].name.toLowerCase() + "." : "Run complete: dossier ready for human review (V4).";
+    setMap(s.map);
+    if (s.kmFrom !== undefined) { countKm(s.kmFrom, s.km); }
+    else if (s.km) { setKm(s.km); var big = document.getElementById("kmBig"); if (big) big.textContent = "859.5 km²"; }
+    else { setKm(0); }
+    simStep = i;
+  }
+  var simStep = -1;
+  function nextStep() { if (simStep < STEPS.length - 1) showStep(simStep + 1); }
+  stepBtn.addEventListener("click", nextStep);
+  resetBtn.addEventListener("click", function () {
+    clearTimers(); simStep = -1;
+    Array.prototype.forEach.call(chainEl.children, function (li) { li.classList.remove("active", "done"); });
+    artEl.innerHTML = "<p style='color:var(--muted)'>The run starts at intake: an executive question becomes a schema-valid request.</p>";
+    artStep.textContent = "step 0/7"; setMap(0); setKm(0);
+    simStat.textContent = "Click \"Play run\" or use the step button.";
+  });
+  runBtn.addEventListener("click", function () {
+    resetBtn.click();
+    var idx = 0;
+    function tick() {
+      showStep(idx);
+      idx += 1;
+      timers.push(setTimeout(function () {
+        if (idx < STEPS.length) { tick(); }
+        else {
+          simStat.textContent = "Run complete: dossier ready for human review (V4). ✓ 7/7 agents · all gates PASS.";
+        }
+      }, 1500));
+    }
+    timers.push(setTimeout(tick, 300));
+  });
+})();
+</script>
+</body>
+</html>
