@@ -1,4 +1,4 @@
-# LDT Toolbox PoC — "Where can I do what?" in province Utrecht (wind · zon · bos)
+# LDT Toolbox PoC — "Where can I do what?" in province Utrecht (wind · zon · bos · water · bodem)
 
 This is the working proof-of-concept of the multi-agent architecture specified in
 [`MULTI_AGENT_PLAN.md`](../MULTI_AGENT_PLAN.md) and elaborated in
@@ -8,7 +8,7 @@ technology and roadmap). Urban Strategy (Scenexus) stiltegebied noise
 screening for the Utrecht wind track — decision-support annex for
 art. 9.26 / FR-W-11 — is documented in
 [`docs/POC_URBANSTRATEGY_INTEGRATION.md`](../docs/POC_URBANSTRATEGY_INTEGRATION.md). It answers, for the province of Utrecht (NL) at the
-**programming** policy stage, the same traceable question for **three object
+**programming** policy stage, the same traceable question for **five object
 types** (tracks), all on the same instrument and pipeline:
 
 > Within which zone of the province could an omgevingsplan allow **X**, and
@@ -21,6 +21,8 @@ types** (tracks), all on the same instrument and pipeline:
 | `wind` | wind turbines | where can turbines ≥3 MW / ≤20 m hub stand? | `runs/20260830T113234Z-wind` — 859.463 km² |
 | `zon` | solar fields (zonnevelden) | where can ground/water-mounted solar fields stand? | `runs/20260830T142439Z-zon` — 1167.936 km² |
 | `bos` | new nature / forest planting | where is the zoekgebied for new nature? | `runs/20260830T142446Z-bos` — 23.924 km² |
+| `water` | riparian development (watersysteem activities) | where can riparian development stand under the watersysteem instructieregels? | `runs/20261004T161429Z-water` — 1554.906 km² |
+| `bodem` | soil activity (ondergrond en bodem) | where is soil activity bounded by the groundwater-protection rules? | `runs/20261004T170624Z-bodem` — 1560.054 km² |
 
 Grounding: the **Omgevingsverordening provincie Utrecht** (CVDR704250, geldend
 13-10-2025) and the **Omgevingsvisie 2021**, plus the province's open geo data
@@ -38,6 +40,8 @@ Requirements already on this machine: `python3` (3.13) with `shapely`,
 python3 poc/run.py                     # wind use case, cache-first
 python3 poc/run.py --use-case zon      # solar fields (zonnevelden, art. 5.5)
 python3 poc/run.py --use-case bos      # new nature / forest planting (art. 6.4)
+python3 poc/run.py --use-case water    # riparian development (arts. 2.14–2.16)
+python3 poc/run.py --use-case bodem    # soil activity (grondwaterzone, art. 3.7 e.a.)
 python3 poc/run.py --refresh           # force live re-download of every layer
 python3 poc/run.py --bbox 130000,440000,160000,470000   # optional EPSG:28992 clip
 python3 -m unittest discover -s poc/tests               # offline test suite (167 tests)
@@ -154,11 +158,36 @@ gate, enforced again independently by the Critic.
   Houtopstanden - oude bosgroeiplaatsen` (art. 6.13) a **conditional** overlay;
   the deterministic art.-6.15 velling-exemption thresholds govern forest
   management, not siting, and stay routed to V4.
+- **water** — the final zone is the province boundary minus the single hard
+  exclusion `waterbergingsgebied` (art. 2.15 — new development is ruled out
+  there, bestaande uitbreidingsrechten excepted; 5.148 km² carved). The
+  `vrijwaringszone regionale waterkering` (art. 2.14, 28.011 km² in-AOI) and
+  `overstroombaar gebied` (art. 2.16, 1207.173 km² in-AOI) are
+  **conditional** markers — the omgevingsplan must protect the waterkering's
+  function and differentiate binnendijks/buitendijks objects, but the markers
+  never eliminate area. Waterkering-omgevingswaarden (arts. 2.2–2.11) are
+  monitoring norms for water boards and are deliberately abstained.
+- **bodem** — no rule carves area. The three grondwaterbeschermingszone
+  instructieregels (arts. 3.7, 3.9, 3.10) are formalized as **conditional
+  markers on the shared umbrella zone** (the full grondwaterbeschermingszone
+  designation, 701.126 km² in-AOI), and the `gesloten stortplaats`
+  (art. 3.108, 0.373 km²) as a **context marker** of provincial jurisdiction.
+  The umbrella deliberately runs as a marker only: a known pre-existing
+  engine-V3 seeding bug (fix planned in the eindreview-fixwave) blocks
+  executing it as a begrenzing — until that fix lands, the markers document
+  where the groundwater rules apply; they do not bound the zone. Art. 3.8
+  (waterwingebied Bethunepolder, parkeren) has no registered zone alias and
+  stays ambiguous → V4.
 
-Reference numbers (canonical runs of 2026-08-30): wind AOI 1560.054 km² →
+Reference numbers (canonical runs of 2026-08-30 for wind/zon/bos,
+2026-10-04 for water/bodem): wind AOI 1560.054 km² →
 inclusion ∩ AOI 1259.841 km² → final 859.463 km² (V3 IoU 0.99994); zon →
 Gebied zonneveld ∩ AOI 1167.948 km² → final 1167.936 km² (IoU 0.99998);
-bos → Groene contour ∩ AOI 23.924 km² = final (no exclusions; IoU 0.9997).
+bos → Groene contour ∩ AOI 23.924 km² = final (no exclusions; IoU 0.9997);
+water → AOI 1560.054 km² − waterbergingsgebied 5.148 km² = final
+1554.906 km² (IoU 0.996697); bodem → final 1560.054 km², no executed
+exclusion — the grondwater umbrella runs as a conditional marker
+(IoU 0.999997).
 
 ## Limitations (short list — full list in every report)
 
@@ -330,6 +359,7 @@ keyed by evidence id — cards without a template are flagged ambiguous, never
 guessed), (d) a cite-or-abstain ledger `poc/corpus/normcards-rejected-<track>.json`,
 and (e) zone aliases in `run.py::ZONE_SOURCES` for any new zone layer plus a
 registry entry in `poc/data/sources.json`. The `objectType` enum in
-`schemas/opportunity-map-request.schema.json` already covers solar fields and
-forest planting. `python3 -m pipeline.agents` regenerates the deterministic
+`schemas/opportunity-map-request.schema.json` already covers solar fields,
+forest planting, riparian development and soil activity. `python3 -m
+pipeline.agents` regenerates the deterministic
 per-track corpora (`normcards-<track>.json` / `formalrules-<track>.json`).

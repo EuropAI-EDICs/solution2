@@ -31,11 +31,13 @@
 
 **Primary question (planning plane).** *"Where in province Utrecht can activity X be realised, under which provincial rules, and why?"* — answered per track as a deterministic, fully-cited zone computation, not a generative guess.
 
-| Track | objectType | Core zone semantics (canonical run, 2026-08-30) |
+| Track | objectType | Core zone semantics (canonical runs 2026-08-30; water/bodem 2026-10-04) |
 |---|---|---|
 | wind | `wind_turbine` | union of the three formalized inclusion zones ∩ AOI 1259.8 km², minus Natura 2000 + ganzenrust (toelichting art. 5.4) and Natuurnetwerk Nederland (art. 6.3) → **859.5 km²**; stiltegebied/NNN conditional, 1500 m attention, Groene contour compensation markers |
 | zon | `solar_field` | `Gebied zonneveld` (art. 5.5) ∩ AOI 1167.9 km², minus Natura 2000 + ganzenrust (toelichting art. 5.5) → **1167.9 km²**; Groene contour compensation marker with the ≤25-jaar deadline of art. 6.5a lid 3 |
 | bos | `forest_planting` | the Groene contour **zoekgebied nieuwe natuur** (art. 6.4) ∩ AOI = **23.9 km²**, no exclusions (a search area); ≥1:1 compensation ratio (art. 6.5 lid 2 onder d) and oude bosgroeiplaatsen (art. 6.13) as marker/conditional overlays |
+| water | `riparian_development` | provincie minus waterbergingsgebied (art. 2.15, 5.148 km²) → **1554.906 km²** (AOI 1560.054 km²); vrijwaringszone waterkering (art. 2.14, 28.011 km²) and overstroombaar gebied (art. 2.16, 1207.173 km²) as conditional markers (V3 IoU 0.996697) |
+| bodem | `soil_activity` | grondwaterbeschermingszone umbrella (art. 3.7 e.a., 701.126 km² in-AOI) currently a **conditional marker** pending the open engine-V3 seeding fix (eindreview-fixwave); gesloten stortplaats (art. 3.108, 0.373 km²) as context marker; art. 3.8 ambiguous → V4; no executed carve → final **1560.054 km²** (V3 IoU 0.999997) |
 
 | Stakeholder | What they get | Stage |
 |---|---|---|
@@ -46,7 +48,7 @@
 | GIS analyst | Schema-validated GeoJSON/GML + reproducible cache | all |
 | Citizen (future, V4/Participate) | Contestable, traceable justification per zone | design (HITL / wallet track) |
 
-**Use cases.** Wind, zon and bos — all three implemented end-to-end (canonical runs `poc/runs/20260830T113234Z-wind`, `…T142439Z-zon`, `…T142446Z-bos`, all verdict **pass** with V3 IoU ≥ 0.9997); power-net congestion — art. 5.10/5.11 energietoets + grid data — is the next track candidate (plan §3.4 EnergyCast role). The operational plane (paper A's VA, plan §3.1 right column) is **future scope** (Phase 3).
+**Use cases.** Wind, zon, bos, water and bodem — all five implemented end-to-end (canonical runs `poc/runs/20260830T113234Z-wind`, `…T142439Z-zon`, `…T142446Z-bos` (2026-08-30) and `poc/runs/20261004T161429Z-water`, `…T170624Z-bodem` (2026-10-04), all verdict **pass**; V3 IoU 0.99994 / 0.99998 / 0.9997 / 0.996697 / 0.999997 respectively); power-net congestion — art. 5.10/5.11 energietoets + grid data — is the next track candidate (plan §3.4 EnergyCast role). The operational plane (paper A's VA, plan §3.1 right column) is **future scope** (Phase 3).
 
 **Scenario & cross-track use cases (v1.2).** On top of the three baseline tracks, the scenario plane serves two deliberation questions at the **programming** stage, deterministically:
 
@@ -222,6 +224,8 @@ Actual layout of the implemented PoC (paths below exist under `poc/`); the schem
 | 8c | Scenario Sweep + Narrator (seam S8) | `poc/pipeline/scenarios.py` | re-executes control + variants through the same engine; `check_narrative_grounding` gates prose on numbers (sign-fold), ids and verdict assertions; deterministic narrator grounded by construction; `run_scenario_set` narrates only after the final verdict exists | narration via local open model, same gate, loud fallback (`narrative-rejected.md`) |
 | 8d | World scene / scenario-copilot (Renderer) | `poc/pipeline/world_scene.py`; nldt `marble_client.py`; MCP `build_world_scene` | deterministic `ScenarioReport` → `WorldSceneSpec[]`; geoLayerRefs point at engine GeoJSON only; Marble URL spike (explore link, not zone algebra); **does not** import into `engine.py` / `critic.py` | — (Marble is optional human-triggered explore; not an agent seam) |
 | 8e | Cross-Track Orchestrator | `poc/pipeline/crosstrack.py` | control re-execution per track (V3 reproduction gate), pairwise conflict + shared-zone overlay, markdown report; V2 not-applicable by design (no legal claim mutated); canonical finding: zon × bos 94.7% of the zoekgebied | — (deterministic by design; no seam) |
+| 8f | Water track (verordening-uitbreiding fase 1) | `poc/pipeline/agents.py` (WA-01…03 enrichment + formalizer templates) · `run.py::TRACKS["water"]` · `poc/corpus/evidence-water.json` | arts. 2.14–2.16 instructieregels formalized (3/3 rules executed): `waterbergingsgebied` hard exclusion (art. 2.15), vrijwaringszone waterkering (2.14) and overstroombaar gebied (2.16) conditional markers; omgevingswaarden (arts. 2.2–2.11) abstained as monitoring norms; canonical run `poc/runs/20261004T161429Z-water` (pass, V3 IoU 0.996697) | — (deterministic track configuration; no seam) |
+| 8g | Bodem track (verordening-uitbreiding fase 1) | `poc/pipeline/agents.py` (BO-01…05 enrichment + formalizer templates) · `run.py::TRACKS["bodem"]` · `poc/corpus/evidence-bodem.json` | arts. 3.7/3.9/3.10 as conditional markers on the shared grondwaterbeschermingszone umbrella (701.126 km² in-AOI) — marker status deliberate pending the open engine-V3 seeding fix (eindreview-fixwave): the umbrella is documented, not yet executed as a begrenzing; gesloten stortplaats (art. 3.108) context marker; art. 3.8 ambiguous → V4 (4/5 rules executed); canonical run `poc/runs/20261004T170624Z-bodem` (pass, V3 IoU 0.999997) | — (deterministic track configuration; no seam) |
 | — | (view tier) | `poc/pipeline/report.py` + `pipeline/report_template.html`; `nldt/simulation/` | single-file HTML report per run (Leaflet map + fallback tables) embedded in the run dir; **Utrecht what-if demo** for Plane B copilot; simulation hub replays all PoCs for communication/teaching | — |
 | — | (contracts) | `poc/pipeline/contracts.py` + `poc/schemas/*.schema.json` | the six agent-boundary schemas of §6 plus scenario-plane schemas (scenario-spec / scenario-set / scenario-report / crosstrack-report / **world-scene-spec**), validated at every hop | — |
 
