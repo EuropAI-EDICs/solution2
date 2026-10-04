@@ -803,9 +803,17 @@ def reexecute_independent(rules, layers, aoi=None):
             continue
         zone = u if zone is None else shapely.union(zone, u)
 
+    # Seed the zone from the AOI BEFORE applying exclusions, mirroring
+    # execute_rules' aoi_seed branch: a ruleset without inclusion rules still
+    # starts from the AOI, so exclusions clip it (previously they were
+    # skipped entirely — inclusion-less tracks verified nothing).
+    if zone is None:
+        if aoi is not None:
+            zone = aoi if hasattr(aoi, "geom_type") else shape(aoi)
+        else:
+            raise RuleError("reexecute_independent: no inclusion rules and no AOI")
+
     for sem, rid, dist, lids, r in [c for c in core if c[0] == "exclusion"]:
-        if zone is None:
-            continue
         excl_parts = []
         for lid in lids:
             excl_parts.append(_apply_distance(_gdf_of(lid), dist))
@@ -828,11 +836,6 @@ def reexecute_independent(rules, layers, aoi=None):
         # compensation/attention/conditional rules are markers; the
         # independent path skips them, exactly like the markers the primary
         # engine reports without altering the zone
-    if zone is None:
-        if aoi is not None:
-            zone = aoi if hasattr(aoi, "geom_type") else shape(aoi)
-        else:
-            raise RuleError("reexecute_independent: no inclusion rules and no AOI")
     if aoi is not None and any(rule_semantics(r) == "inclusion" for r in rules):
         aoi_geom = aoi if hasattr(aoi, "geom_type") else shape(aoi)
         zone = shapely.intersection(zone, aoi_geom)
