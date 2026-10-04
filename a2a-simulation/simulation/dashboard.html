@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>A2A-simulation — live demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&family=Fraunces:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper:#e8e2d6; --ink:#1a2428; --soft:#3d4a50; --teal:#0d6e6e;
+      --line:rgba(26,36,40,.15); --llm:#7c3aed; --a2a:#0d6e6e; --ok:#15803d; --warn:#b45309;
+    }
+    * { box-sizing:border-box; }
+    body { font-family:"DM Sans",system-ui,sans-serif; background:var(--paper); color:var(--ink); margin:0; }
+    header { display:flex; align-items:center; gap:12px; padding:12px 18px; background:#fffdf8; border-bottom:1px solid var(--line); }
+    header h1 { font-family:Fraunces,Georgia,serif; font-size:1.35rem; color:var(--teal); margin:0; }
+    header a { margin-left:auto; font-size:12px; color:var(--teal); }
+    #status { font-size:11px; padding:3px 10px; border-radius:12px; background:#334166; color:#fff; }
+    #status.running { background:var(--warn); } #status.done { background:var(--ok); } #status.error { background:#7f1d1d; }
+    #controls { display:flex; flex-wrap:wrap; gap:10px 16px; padding:10px 18px; background:#f5f0e8; border-bottom:1px solid var(--line); font-size:12px; }
+    #controls label { display:block; font-size:10px; color:var(--soft); margin-bottom:2px; }
+    select, button { font:inherit; font-size:12px; }
+    button { background:var(--teal); color:#fff; border:none; border-radius:6px; padding:6px 14px; cursor:pointer; }
+    button:disabled { opacity:.5; }
+    button.secondary { background:#fff; color:var(--ink); border:1px solid var(--line); }
+    #main { display:grid; grid-template-columns:minmax(280px,1fr) minmax(320px,1.1fr); min-height:calc(100vh - 120px); }
+    @media (max-width:900px) { #main { grid-template-columns:1fr; } }
+    #viz { padding:14px 18px; border-right:1px solid var(--line); }
+    #viz h2 { font-size:13px; margin:0 0 8px; color:var(--soft); font-weight:600; }
+    #mesh-svg { width:100%; max-width:520px; height:auto; display:block; background:#fffdf8; border:1px solid var(--line); border-radius:8px; }
+    .mesh-node circle { fill:#fff; stroke:#94a3b8; stroke-width:2; transition: fill .25s, stroke .25s; }
+    .mesh-node.llm circle { stroke:var(--llm); }
+    .mesh-node.poc circle { stroke:var(--a2a); }
+    .mesh-node.up circle { fill:#ccfbf1; stroke:var(--ok); }
+    .mesh-node.down circle { fill:#fee2e2; stroke:#b91c1c; }
+    .mesh-node.active circle { fill:#fef3c7; stroke:var(--warn); animation: pulse 1s ease-in-out infinite; }
+    .mesh-node text { font-size:9px; fill:var(--ink); text-anchor:middle; pointer-events:none; }
+    .mesh-edge { stroke:#cbd5e1; stroke-width:1.2; fill:none; }
+    .mesh-edge.lit { stroke:var(--teal); stroke-width:2.5; stroke-dasharray:6 4; animation: dash 0.6s linear infinite; }
+    @keyframes pulse { 50% { stroke-width:4; } }
+    @keyframes dash { to { stroke-dashoffset:-20; } }
+    .legend { display:flex; flex-wrap:wrap; gap:8px 14px; margin-top:10px; font-size:11px; color:var(--soft); }
+    .sw { width:10px; height:10px; border-radius:2px; display:inline-block; margin-right:4px; }
+    #metrics { margin-top:12px; padding:10px; background:#fff; border:1px solid var(--line); border-radius:8px; font-size:12px; }
+    #metrics dl { display:grid; grid-template-columns:auto 1fr; gap:4px 12px; margin:0; }
+    #metrics dt { color:var(--soft); } #metrics dd { margin:0; font-family:ui-monospace,Menlo,monospace; }
+    #timeline { padding:14px 18px; overflow:auto; }
+    #steps { display:flex; flex-direction:column; gap:6px; }
+    .step { font-size:12px; padding:8px 10px; background:#fff; border-left:3px solid #94a3b8; border-radius:4px; }
+    .step .meta { font-size:10px; color:var(--soft); margin-bottom:2px; }
+    .step.a2a_send { border-left-color:var(--teal); background:#ecfdf5; }
+    .step.a2a_result { border-left-color:var(--ok); background:#f0fdf4; }
+    .step.delegate { border-left-color:var(--llm); background:#f5f3ff; }
+    .step.graph_node { border-left-color:#6366f1; }
+    .step.done { border-left-color:var(--ok); font-weight:600; }
+    .step.error { border-left-color:#b91c1c; background:#fef2f2; }
+    .placeholder { color:#8895ad; font-size:13px; padding:20px 0; }
+    .flow-note { font-size:11px; color:var(--soft); max-width:520px; line-height:1.45; margin-bottom:10px; }
+    #seq-panel { margin:12px 0; padding:10px; background:#fffdf8; border:1px solid var(--line); border-radius:8px; max-width:520px; }
+    #seq-phase { font-size:11px; color:var(--teal); font-weight:600; margin-bottom:6px; min-height:1.2em; }
+    #seq-diagram { overflow-x:auto; font-size:11px; }
+    #seq-diagram svg { max-width:100%; height:auto; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+</head>
+<body>
+<header>
+  <h1>A2A live demo</h1>
+  <span id="status">idle</span>
+  <a href="/info.html">Architectuur (static)</a>
+</header>
+<div id="controls">
+  <div><label>Scenario</label><select id="preset"></select></div>
+  <div><label>Rekenblok</label><select id="meshMode"><option value="simulate">simulate (fixtures)</option><option value="nldt">nldt (proxy :8085)</option></select></div>
+  <div><label>LLM (Ollama)</label><select id="model"></select></div>
+  <div><label>Subagent</label><select id="submodel"></select></div>
+  <div style="align-self:flex-end"><label><input type="checkbox" id="startMesh" checked /> Start PoC-mesh</label></div>
+  <div style="align-self:flex-end"><button id="start">Start</button><button id="stop" class="secondary" style="display:none;margin-left:6px">Stop</button></div>
+</div>
+<div id="main">
+  <div id="viz">
+    <p class="flow-note"><strong>LLM specificeert → A2A rekent → LLM interpreteert.</strong> Paarse pijl = Deep Agent <code>task</code> (in-process). Teal = A2A <code>message/send</code> naar PoC :9181–9186. Getallen alleen uit artifacts.</p>
+    <div id="seq-panel">
+      <h2 style="margin-top:0">Sequence (live)</h2>
+      <div id="seq-phase">Idle — kies een preset</div>
+      <div id="seq-diagram" class="mermaid"></div>
+    </div>
+    <h2>Federatie (Agent Cards)</h2>
+    <svg id="mesh-svg" viewBox="0 0 480 320"></svg>
+    <div class="legend">
+      <span><span class="sw" style="background:var(--llm)"></span>LLM-laag</span>
+      <span><span class="sw" style="background:var(--teal)"></span>A2A deterministisch</span>
+      <span><span class="sw" style="background:var(--ok)"></span>bereikbaar</span>
+    </div>
+    <div id="metrics"><div class="placeholder">Metrics verschijnen na de eerste A2A-artifact.</div></div>
+  </div>
+  <div id="timeline">
+    <h2 style="font-size:13px;margin:0 0 8px;color:var(--soft)">Trace</h2>
+    <div id="steps"><div class="placeholder">Kies een scenario en druk op Start. Zonder LLM: preset “Alleen A2A”.</div></div>
+  </div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const POC_LAYOUT = [
+  ['breda', 80, 200], ['utrecht', 160, 260], ['rijnland', 240, 260],
+  ['eindhoven', 320, 200], ['crosstrack', 400, 130], ['minigim', 80, 130],
+];
+let presets = [], activePoc = null, lastSeqKey = '', mermaidReady = false;
+
+mermaid.initialize({ startOnLoad: false, theme: 'neutral', sequence: { actorMargin: 40, messageMargin: 28 } });
+
+function currentPreset() {
+  const id = $('preset').value;
+  return presets.find(p => p.id === id) || { kind: 'llm' };
+}
+
+function detectPhase(entries, running) {
+  if (!entries.length) return running ? 'start' : 'idle';
+  const last = entries[entries.length - 1];
+  if (last.kind === 'done') return 'done';
+  if (last.kind === 'error') return 'error';
+  const hasA2a = entries.some(e => e.kind === 'a2a_send');
+  const hasResult = entries.some(e => e.kind === 'a2a_result');
+  const lastA2a = [...entries].reverse().find(e => e.kind === 'a2a_send');
+  if (lastA2a && !entries.slice(entries.indexOf(lastA2a)).some(e => e.kind === 'a2a_result')) return 'a2a';
+  if (hasA2a && hasResult) {
+    const afterLastResult = entries.filter(e => e.kind === 'delegate' || e.summary?.includes('interpretatie'));
+    if (afterLastResult.length || entries.some(e => (e.summary || '').includes('interpretatie'))) return 'interpret';
+    if (currentPreset().kind === 'a2a-only') return hasResult ? 'done' : 'a2a';
+  }
+  if (entries.some(e => e.kind === 'delegate' || e.agent === 'scenario_analist')) return 'spec';
+  if (hasA2a) return 'a2a';
+  return running ? 'spec' : 'idle';
+}
+
+function sequenceSource(phase, pocId) {
+  const poc = pocId || activePoc || 'rijnland';
+  const highlight = (note) => (phase === note ? `\n  rect rgb(236, 253, 245)\n` : '');
+  const endRect = (note) => (phase === note ? `  end\n` : '');
+  if (currentPreset().kind === 'a2a-only') {
+    return `sequenceDiagram
+  autonumber
+  actor U as Gebruiker
+  participant D as Demo runner
+  participant P as PoC ${poc} (A2A)
+  U->>D: Start (alleen A2A)
+${highlight('a2a')}  D->>P: message/send JSON-RPC
+  P-->>D: artifact + provenance
+${endRect('a2a')}${phase === 'done' ? '  D-->>U: metrics in dashboard' : ''}`;
+  }
+  return `sequenceDiagram
+  autonumber
+  actor U as Gebruiker
+  participant O as Orchestrator LLM
+  participant S as scenario_analist
+  participant P as PoC ${poc} A2A
+  participant I as interpretatie
+  U->>O: preset / vraag
+${highlight('spec')}  O->>S: task run plan
+  S-->>O: recipe spec (JSON)
+${endRect('spec')}${highlight('a2a')}  O->>P: delegate_to_poc_agent
+  P-->>O: artifact (getallen)
+${endRect('a2a')}${highlight('interpret')}  O->>I: task vergelijk artifacts
+  I-->>O: interpretatie (geen rekenen)
+${endRect('interpret')}${phase === 'done' ? '  O-->>U: eindrapport' : ''}`;
+}
+
+const PHASE_LABEL = {
+  idle: 'Idle — kies een preset',
+  start: 'Run gestart…',
+  spec: 'Fase: LLM specificeert (scenario_analist / recipes)',
+  a2a: 'Fase: deterministisch A2A rekenblok',
+  interpret: 'Fase: LLM interpreteert artifact-getallen',
+  done: 'Klaar — trace compleet',
+  error: 'Fout — zie trace',
+};
+
+async function updateSequence(entries, running) {
+  const phase = detectPhase(entries, running);
+  const poc = [...entries].reverse().find(e => e.poc_id)?.poc_id || activePoc;
+  const key = `${currentPreset().kind}:${phase}:${poc}`;
+  if (key === lastSeqKey && mermaidReady) return;
+  lastSeqKey = key;
+  $('seq-phase').textContent = PHASE_LABEL[phase] || phase;
+  const el = $('seq-diagram');
+  el.removeAttribute('data-processed');
+  el.textContent = sequenceSource(phase, poc);
+  try {
+    await mermaid.run({ nodes: [el] });
+    mermaidReady = true;
+  } catch (e) {
+    $('seq-phase').textContent = 'Sequence diagram (mermaid laden…)';
+  }
+}
+
+function buildMeshSvg() {
+  const orch = { x: 240, y: 52 };
+  let s = '';
+  for (const [id, x, y] of POC_LAYOUT) {
+    s += `<line class="mesh-edge" id="edge-${id}" x1="${orch.x}" y1="${orch.y}" x2="${x}" y2="${y}"></line>`;
+  }
+  s += `<g class="mesh-node llm" id="node-orchestrator"><circle cx="${orch.x}" cy="${orch.y}" r="22"></circle><text x="${orch.x}" y="${orch.y+4}" font-weight="600">orchestrator</text><text x="${orch.x}" y="${orch.y+38}" font-size="8" fill="#64748b">Deep Agents</text></g>`;
+  for (const [id, x, y] of POC_LAYOUT) {
+    s += `<g class="mesh-node poc" id="node-${id}"><circle cx="${x}" cy="${y}" r="16"></circle><text x="${x}" y="${y+3}">${id}</text></g>`;
+  }
+  $('mesh-svg').innerHTML = s;
+}
+
+function setMeshHealth(agents) {
+  const up = new Set((agents || []).filter(a => a.reachable).map(a => a.id));
+  for (const [id] of POC_LAYOUT) {
+    const n = $('node-' + id);
+    if (!n) continue;
+    n.classList.remove('up', 'down');
+    n.classList.add(up.has(id) ? 'up' : 'down');
+  }
+}
+
+function highlightA2a(entries) {
+  document.querySelectorAll('.mesh-edge').forEach(e => e.classList.remove('lit'));
+  document.querySelectorAll('.mesh-node.poc').forEach(n => n.classList.remove('active'));
+  let lastMetrics = null;
+  for (const e of entries) {
+    if (e.kind === 'a2a_send' && e.poc_id) {
+      activePoc = e.poc_id;
+      $('edge-' + e.poc_id)?.classList.add('lit');
+      $('node-' + e.poc_id)?.classList.add('active');
+    }
+    if (e.kind === 'a2a_result' && e.metrics) lastMetrics = e.metrics;
+  }
+  if (lastMetrics) renderMetrics(lastMetrics);
+}
+
+function renderMetrics(m) {
+  const keys = Object.keys(m).filter(k => !['responsePreview'].includes(k));
+  if (!keys.length) { $('metrics').innerHTML = '<div class="placeholder">Geen parseerbare metrics in artifact.</div>'; return; }
+  $('metrics').innerHTML = '<strong>Laatste A2A-artifact</strong><dl>' +
+    keys.map(k => `<dt>${k}</dt><dd>${escapeHtml(String(m[k]))}</dd>`).join('') + '</dl>' +
+    (m.responsePreview ? `<pre style="font-size:10px;margin:8px 0 0;white-space:pre-wrap;max-height:120px;overflow:auto">${escapeHtml(m.responsePreview)}</pre>` : '');
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function humanStep(e) {
+  if (e.kind === 'a2a_send') return `📡 A2A Send → ${e.poc_id}${e.port ? ' :' + e.port : ''}`;
+  if (e.kind === 'a2a_result') return `📦 Artifact ← ${e.poc_id}`;
+  if (e.kind === 'delegate') return `👉 ${e.summary}`;
+  if (e.kind === 'graph_node') return `⚙ ${e.summary}`;
+  return e.summary || e.kind;
+}
+
+function renderSteps(entries) {
+  if (!entries.length) return;
+  $('steps').innerHTML = entries.map(e =>
+    `<div class="step ${e.kind}"><div class="meta">${e.ts} · ${e.agent} · ${e.kind}</div>${escapeHtml(humanStep(e))}</div>`
+  ).join('');
+  $('steps').scrollTop = $('steps').scrollHeight;
+}
+
+async function loadPresets() {
+  presets = await fetch('/api/presets').then(r => r.json());
+  $('preset').innerHTML = presets.map(p => `<option value="${p.id}">${p.label}</option>`).join('');
+}
+
+async function loadModels() {
+  const models = await fetch('/api/models').then(r => r.json()).catch(() => []);
+  const fill = (sel, list) => {
+    sel.innerHTML = (list.length ? list : ['(geen Ollama — LLM-presets falen)']).map(m => `<option>${m}</option>`).join('');
+  };
+  fill($('model'), models);
+  fill($('submodel'), models);
+}
+
+async function refreshMesh() {
+  try {
+    const agents = await fetch('/api/mesh').then(r => r.json());
+    setMeshHealth(agents);
+  } catch {}
+}
+
+async function tick() {
+  const st = await fetch('/api/status').then(r => r.json()).catch(() => null);
+  const raw = await fetch('/api/steps').then(r => r.text()).catch(() => '');
+  const entries = raw.trim() ? raw.trim().split('\n').map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean) : [];
+  if (entries.length) { renderSteps(entries); highlightA2a(entries); }
+  await updateSequence(entries, st?.running);
+  if (st) {
+    if (st.running) { $('status').textContent = 'running'; $('status').className = 'running'; $('start').disabled = true; $('stop').style.display = 'inline-block'; }
+    else if (st.ever_ran && st.rc === 0) { $('status').textContent = 'done'; $('status').className = 'done'; $('start').disabled = false; $('stop').style.display = 'none'; }
+    else if (st.ever_ran) { $('status').textContent = 'error'; $('status').className = 'error'; $('start').disabled = false; $('stop').style.display = 'none'; }
+    else { $('status').textContent = 'idle'; $('status').className = ''; $('start').disabled = false; }
+  }
+}
+
+$('start').addEventListener('click', async () => {
+  const body = {
+    preset_id: $('preset').value,
+    mesh_mode: $('meshMode').value,
+    start_mesh: $('startMesh').checked,
+    model: $('model').value.startsWith('(') ? '' : $('model').value,
+    submodel: $('submodel').value.startsWith('(') ? '' : $('submodel').value,
+  };
+  $('steps').innerHTML = '<div class="placeholder">Run gestart…</div>';
+  await fetch('/api/run', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  setTimeout(refreshMesh, 2500);
+});
+
+$('stop').addEventListener('click', () => fetch('/api/stop', { method:'POST' }));
+
+buildMeshSvg();
+loadPresets().then(() => updateSequence([], false));
+loadModels();
+refreshMesh();
+setInterval(tick, 800);
+setInterval(refreshMesh, 5000);
+tick();
+</script>
+</body>
+</html>

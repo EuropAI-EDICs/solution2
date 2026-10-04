@@ -104,9 +104,16 @@ Belangrijk: **`start_nldt_stack.sh` gebruikt `PYTHONPATH=.` in `nldt/`** — zet
 - Mesh: `A2A_SIM_AUTH=static`, token `NLDT_STATIC_TOKENS` (default `sim-toolbox-token`)
 - Federator-cli: **zelfde env** meegeven
 
-## UI
+## UI — live A2A-demo
 
-[`simulation/index.html`](simulation/index.html) — `python3 -m http.server 9190` in `simulation/`.
+```bash
+./scripts/run_a2a_demo.sh
+# → http://127.0.0.1:9190  (mesh-topologie, A2A-trace, artifact-metrics)
+```
+
+Presets: volledige LLM→A2A→LLM-run (Rijnland+Utrecht) of **alleen A2A** (geen Ollama). Optioneel `A2A_DEMO_PORT=9190`.
+
+Static architectuurtekst: [`simulation/index.html`](simulation/index.html) via `/info.html` op de demo-server.
 
 ## Tests
 
