@@ -159,6 +159,11 @@ def seed_records() -> list[dict[str, Any]]:
             ["poc-breda", "scan", "plane-a"],
         ),
         (
+            "breda-gebiedsafweging",
+            "Breda Plane D gebiedsafweging",
+            ["poc-breda", "plane-d", "gebiedsafweging", "trade-off"],
+        ),
+        (
             "multi-track-crosstrack",
             "Utrecht multi-track crosstrack",
             ["poc-utrecht", "crosstrack", "plane-c"],

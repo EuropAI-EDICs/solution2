@@ -105,6 +105,28 @@ door de schema-gate gevangen, eerlijke onthouding gerespecteerd, en een
 Nederlandse narratie met duizendtallen/komma-decimalen geaccepteerd — de
 rejection-paden zijn gedemonstreerd én offline getest (73 tests).
 
+## Plane D — Integrale gebiedsafweging
+
+Ruimtelijke **claims** (woningverdichting / dak-PV-maximalisatie) op
+geselecteerde buurten, afgezet tegen de vijf waarden. Deterministische
+Δ’s, control-replay (V3), **geen geautomatiseerde winnaar** (V4 =
+mens). Design:
+[`docs/superpowers/specs/2026-10-04-breda-gebiedsafweging-plane-d-design.md`](../docs/superpowers/specs/2026-10-04-breda-gebiedsafweging-plane-d-design.md).
+
+```bash
+# Offline (fixtures + demo-claims) — CI / smoke
+nldt/.venv/bin/python poc-breda/afweging_run.py --offline-fixtures
+
+# Op een bestaande scan-run (echte CBS-buurtcodes in claims-bestand)
+nldt/.venv/bin/python poc-breda/afweging_run.py \
+  --run poc-breda/runs/<ts>-breda-scan \
+  --claims poc-breda/claims/demo-breda.json
+```
+
+Uitgang `poc-breda/afweging-runs/<ts>-breda-afw/`:
+`gebiedsafweging-report.json` / `.md` / `gebiedsafweging.html`,
+`run_summary.json`. Recipe/process: `breda-gebiedsafweging`.
+
 ## What-if-naad (scenario's over de samenstelling, S7-analoog)
 
 `scenario_run.py` herhaalt eerst een **ongemuteerde control** die de

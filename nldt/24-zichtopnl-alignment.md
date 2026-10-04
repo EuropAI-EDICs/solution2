@@ -83,6 +83,7 @@ bron) — plus structural financing as the decisive condition.
 | Publieke waarden by design | Trust gates + HITL ([07](07-trust-and-governance.md)); wallet identity with selective disclosure ([16](16-eid-wallet-identity.md)); DPIA obligations in [22](22-dual-audience-spatial-planning.md)/[23](23-dtas-alignment.md) |
 | FAIR | OGC Records + DCAT-AP metadata, DONL registration, schema-validated contracts |
 | Vraagsturing | PoC-first: every recipe answers a named policy question (Utrecht/Breda/Rijnland/Eindhoven), not a data push |
+| Integrale gebiedsafweging (multi-value trade-offs in one area) | **Plane D** (Breda): spatial claims on the five-value scan → `gebiedsafweging-report`; human decides (V4). Design: [`docs/superpowers/specs/2026-10-04-breda-gebiedsafweging-plane-d-design.md`](../docs/superpowers/specs/2026-10-04-breda-gebiedsafweging-plane-d-design.md); recipe `breda-gebiedsafweging` |
 
 ---
 

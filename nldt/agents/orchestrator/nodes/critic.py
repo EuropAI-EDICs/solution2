@@ -10,6 +10,7 @@ from services.common.schema import validate_instance
 POC_RECIPES = {
     "breda-scan-qa",
     "breda-five-value-scan",
+    "breda-gebiedsafweging",
     "utrecht-opportunity-map",
     "utrecht-scenario-sweep",
     "utrecht-scenario-author",
@@ -67,6 +68,19 @@ def _validate_poc_outputs(recipe_id: str, outputs: dict[str, Any]) -> tuple[list
             checks_v2.append({"id": "breda-scan-run", "status": "pass"})
         else:
             checks_v2.append({"id": "breda-scan-run", "status": "fail", "detail": "missing summary"})
+            verdict = "fail"
+
+    elif recipe_id == "breda-gebiedsafweging":
+        summary = outputs.get("summary") or {}
+        verdict_s = summary.get("verdict")
+        if summary.get("outDir") and verdict_s in ("pass", "needs_human"):
+            checks_v2.append({"id": "plane-d-afweging", "status": "pass", "detail": str(verdict_s)})
+            # Plane D never auto-picks a winner — always human arbitration
+            verdict = "needs_human"
+        else:
+            checks_v2.append(
+                {"id": "plane-d-afweging", "status": "fail", "detail": str(summary)[:200]}
+            )
             verdict = "fail"
 
     elif recipe_id in ("utrecht-scenario-sweep", "utrecht-scenario-author"):

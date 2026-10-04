@@ -102,6 +102,7 @@ interactive [Recipes panel](simulation/poc-mcp-skills.html).
 | `timeseries-open-ingest` | medium | `timeseries-ingest-run` |
 | `lake-publish-offer` | high | `lake-publish-dataset` |
 | `breda-five-value-scan` / `breda-scan-qa` | medium | `breda-scan-run` / `breda-scan-query` |
+| `breda-gebiedsafweging` | medium | `breda-gebiedsafweging` (Plane D) |
 | `utrecht-scenario-author` / `utrecht-scenario-sweep` | high | `scenario-author-propose` / `scenario-sweep` |
 | `utrecht-opportunity-map` / `multi-track-crosstrack` | high | `opportunity-map-run` / `crosstrack-overlay` |
 | `rijnland-peil-conflict` / `-live` / `rijnland-peil-whatif` | medium / high / high | `rijnland-peil-*` |

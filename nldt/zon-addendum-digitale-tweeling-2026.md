@@ -55,6 +55,8 @@ Dit addendum stelt voor om de **werkagenda** en de taal van programma **ZoN Digi
 
 **Voorstel 2026.** Concretiseren als: **één deterministische rekenkern, meerdere toegangen** (planoloog / beleidsambtenaar / burger) — geen apart “burgermodel”. Ambtelijke voordeur (beleidskompas) eerst; publieke lens daarna, met DPIA vóór pilot.
 
+**Integrale gebiedsafweging (piloot).** Plane D op Breda: ruimtelijke claim (woningverdichting / dak-PV) tegen de vijf waarden → trade-offrapport zonder geautomatiseerde winnaar. Recipe `breda-gebiedsafweging`; design in `docs/superpowers/specs/2026-10-04-breda-gebiedsafweging-plane-d-design.md`.
+
 ### 2.5 Europese kaders: DTAS / Toolbox / EDIC toevoegen
 
 **Visie 2024.** Dataspaces, INSPIRE, Federatief Datastelsel, AI Act, algoritmeregister.

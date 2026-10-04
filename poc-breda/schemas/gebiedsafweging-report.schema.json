@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldttoolbox.local/poc-breda/schemas/gebiedsafweging-report.schema.json",
+  "title": "Breda Plane D — gebiedsafweging-report",
+  "description": "Trade-off rapport: baseline vs claims per buurt. Geen single winner-score als besluit; V4 blijft pending.",
+  "type": "object",
+  "required": [
+    "reportId",
+    "generatedAt",
+    "plane",
+    "baseline",
+    "checks",
+    "claims",
+    "validation",
+    "decision"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "reportId": {"type": "string", "minLength": 3},
+    "generatedAt": {"type": "string"},
+    "plane": {"const": "D"},
+    "baseline": {
+      "type": "object",
+      "required": ["source", "nBuurten"],
+      "properties": {
+        "source": {"type": "string"},
+        "nBuurten": {"type": "integer", "minimum": 0},
+        "scanId": {"type": ["string", "null"]}
+      }
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "ok", "detail"],
+        "properties": {
+          "id": {"type": "string"},
+          "ok": {"type": "boolean"},
+          "detail": {"type": "string"}
+        }
+      }
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "claimId",
+          "name",
+          "kind",
+          "magnitude",
+          "basis",
+          "rulesApplied",
+          "buurten",
+          "tradeOffFlags"
+        ],
+        "properties": {
+          "claimId": {"type": "string"},
+          "name": {"type": "string"},
+          "kind": {"enum": ["woningverdichting", "dak_pv_maximalisatie"]},
+          "magnitude": {"type": "integer"},
+          "basis": {"type": "object"},
+          "rulesApplied": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["ruleId", "description"],
+              "properties": {
+                "ruleId": {"type": "string"},
+                "description": {"type": "string"}
+              }
+            }
+          },
+          "buurten": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "buurtcode",
+                "buurtnaam",
+                "baseline",
+                "scenario",
+                "delta",
+                "flags"
+              ],
+              "properties": {
+                "buurtcode": {"type": "string"},
+                "buurtnaam": {"type": ["string", "null"]},
+                "capacityPressure": {"type": ["number", "null"]},
+                "baseline": {"$ref": "#/$defs/scoreMap"},
+                "scenario": {"$ref": "#/$defs/scoreMap"},
+                "delta": {"$ref": "#/$defs/scoreMap"},
+                "flags": {
+                  "type": "array",
+                  "items": {"type": "string"}
+                }
+              }
+            }
+          },
+          "tradeOffFlags": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "rejected": {"type": "boolean"},
+          "rejectReason": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": ["verdict", "levels"],
+      "properties": {
+        "verdict": {"enum": ["pass", "fail", "needs_human"]},
+        "levels": {
+          "type": "object",
+          "required": ["V0", "V2", "V3", "V4"],
+          "properties": {
+            "V0": {"type": "string"},
+            "V2": {"type": "string"},
+            "V3": {"type": "string"},
+            "V4": {"type": "string"}
+          }
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "required": ["mode", "winnerClaimId", "note"],
+      "properties": {
+        "mode": {"const": "human"},
+        "winnerClaimId": {"type": "null"},
+        "note": {"type": "string"}
+      }
+    }
+  },
+  "$defs": {
+    "scoreMap": {
+      "type": "object",
+      "required": ["democratic", "spatial", "economic", "social", "autonomous"],
+      "additionalProperties": false,
+      "properties": {
+        "democratic": {"type": ["number", "null"]},
+        "spatial": {"type": ["number", "null"]},
+        "economic": {"type": ["number", "null"]},
+        "social": {"type": ["number", "null"]},
+        "autonomous": {"type": ["number", "null"]}
+      }
+    }
+  }
+}

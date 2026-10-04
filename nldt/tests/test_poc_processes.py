@@ -29,6 +29,7 @@ def test_poc_processes_registered():
         "opportunity-map-run",
         "crosstrack-overlay",
         "breda-scan-run",
+        "breda-gebiedsafweging",
         "rijnland-peil-conflict",
         "rijnland-peil-whatif",
         "bp2op-transform",
@@ -48,6 +49,7 @@ def test_poc_recipes_schema_valid():
         "rijnland-peil-conflict",
         "rijnland-peil-whatif",
         "breda-five-value-scan",
+        "breda-gebiedsafweging",
         "multi-track-crosstrack",
         "eindhoven-bp2op",
         "minigim-gebiedscheck",
@@ -84,6 +86,17 @@ def test_breda_scan_run_replay():
     out = execute_local("breda-scan-run", {"mode": "replay"})
     assert out["summary"]["mode"] == "replay"
     assert out["summary"]["hasValueScan"] is True
+
+
+def test_breda_gebiedsafweging_offline_fixtures():
+    out = execute_local("breda-gebiedsafweging", {"mode": "offline-fixtures"})
+    summary = out["summary"]
+    assert summary["mode"] == "offline-fixtures"
+    assert summary["exitCode"] == 0
+    assert summary["verdict"] == "needs_human"
+    assert summary.get("nAccepted") == 2
+    assert Path(summary["outDir"]).is_dir()
+    assert (Path(summary["outDir"]) / "gebiedsafweging.html").is_file()
 
 
 def test_minigim_gebiedscheck_replay():

@@ -1,0 +1,47 @@
+{
+  "id": "breda-gebiedsafweging",
+  "title": "Breda Plane D — integrale gebiedsafweging",
+  "description": "Compose spatial claims (woningverdichting / dak-PV) on the Breda five-value scan; trade-off report with V4 human decision. mode=offline-fixtures for CI; mode=replay uses an existing scan run + claims file.",
+  "version": "1.0.0",
+  "tags": ["poc-breda", "plane-d", "gebiedsafweging", "trade-off"],
+  "requiredProcesses": ["breda-gebiedsafweging"],
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "description": "offline-fixtures|replay",
+      "required": false
+    },
+    "runDir": {
+      "type": "string",
+      "description": "Existing poc-breda/runs dir with value-scan.json (replay)",
+      "required": false
+    },
+    "claimsFile": {
+      "type": "string",
+      "description": "Path to claims JSON set (default: poc-breda/claims/demo-breda.json)",
+      "required": false
+    }
+  },
+  "outputs": {
+    "summary": {
+      "type": "json",
+      "description": "Afweging run summary"
+    }
+  },
+  "steps": [
+    {
+      "id": "afweging",
+      "processId": "breda-gebiedsafweging",
+      "title": "Run gebiedsafweging",
+      "inputs": {
+        "mode": "${recipe.inputs.mode}",
+        "runDir": "${recipe.inputs.runDir}",
+        "claimsFile": "${recipe.inputs.claimsFile}"
+      },
+      "outputs": { "summary": "summary" },
+      "backend": "local"
+    }
+  ],
+  "riskLevel": "medium",
+  "cookbookUri": "http://localhost:8081/recipes/breda-gebiedsafweging"
+}

@@ -92,6 +92,19 @@ def test_critic_uniform_poc_recipes():
             "pass",
             False,
         ),
+        (
+            "breda-gebiedsafweging",
+            {
+                "summary": {
+                    "mode": "offline-fixtures",
+                    "outDir": "/tmp/afw",
+                    "verdict": "needs_human",
+                    "nAccepted": 2,
+                }
+            },
+            "needs_human",
+            True,
+        ),
     ]
     for recipe_id, outputs, expected_verdict, requires_hitl in cases:
         state = {

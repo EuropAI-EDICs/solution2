@@ -40,6 +40,7 @@ not recipes — they only discover.
 | Recipe | risk | Domain |
 |--------|------|--------|
 | `breda-five-value-scan` / `breda-scan-qa` | medium | Breda |
+| `breda-gebiedsafweging` | medium | Breda Plane D (claims × vijf waarden) |
 | `utrecht-scenario-author` / `utrecht-scenario-sweep` | **high** | Utrecht |
 | `utrecht-opportunity-map` | **high** | Utrecht Plane A |
 | `multi-track-crosstrack` | **high** | Utrecht Plane C |

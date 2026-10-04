@@ -219,6 +219,33 @@ POC_PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
             "summary": {"title": "Scan summary", "schema": {"type": "object"}},
         },
     },
+    "breda-gebiedsafweging": {
+        "id": "breda-gebiedsafweging",
+        "title": "Breda Plane D gebiedsafweging",
+        "description": (
+            "mode=offline-fixtures: synthetic layers + demo claims (CI). "
+            "mode=replay: existing value-scan run + claims file via afweging_run.py."
+        ),
+        "version": "1.0.0",
+        "keywords": ["poc-breda", "plane-d", "gebiedsafweging", "trade-off"],
+        "inputs": {
+            "mode": {
+                "title": "offline-fixtures|replay",
+                "schema": {"type": "string", "default": "offline-fixtures"},
+            },
+            "runDir": {
+                "title": "Existing breda-scan run dir (replay)",
+                "schema": {"type": "string"},
+            },
+            "claimsFile": {
+                "title": "Claims JSON set path",
+                "schema": {"type": "string"},
+            },
+        },
+        "outputs": {
+            "summary": {"title": "Afweging summary", "schema": {"type": "object"}},
+        },
+    },
     "rijnland-peil-conflict": {
         "id": "rijnland-peil-conflict",
         "title": "Rijnland peil conflict (H3)",
@@ -420,6 +447,7 @@ def _latest_dir(parent: Path, pattern: str) -> Path:
             or (p / "value-scan.json").is_file()
             or (p / "crosstrack-report.json").is_file()
             or (p / "peil-conflict-report.json").is_file()
+            or (p / "gebiedsafweging-report.json").is_file()
             or (p / "omzettabel.json").is_file()
         )
     )
@@ -729,6 +757,43 @@ def execute_breda_scan_run(inputs: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def execute_breda_gebiedsafweging(inputs: dict[str, Any]) -> dict[str, Any]:
+    mode = inputs.get("mode") or "offline-fixtures"
+    claims_file = inputs.get("claimsFile") or str(POC_BREDA / "claims" / "demo-breda.json")
+    cmd = [sys.executable, str(POC_BREDA / "afweging_run.py"), "--claims", str(claims_file)]
+    if mode == "offline-fixtures":
+        cmd.append("--offline-fixtures")
+    elif mode == "replay":
+        run_dir = _resolve_dir(
+            inputs.get("runDir"),
+            default=_latest_dir(POC_BREDA / "runs", "*-breda-scan"),
+        )
+        cmd.extend(["--run", str(run_dir)])
+    else:
+        raise ValueError("mode must be offline-fixtures|replay")
+
+    env = os.environ.copy()
+    env["PYTHONPATH"] = (
+        str(POC_BREDA) + os.pathsep + str(POC_ROOT) + os.pathsep + env.get("PYTHONPATH", "")
+    )
+    proc = subprocess.run(cmd, cwd=str(WORKSPACE), env=env, capture_output=True, text=True)
+    out_dir = _latest_dir(POC_BREDA / "afweging-runs", "*-breda-afw")
+    summary_path = out_dir / "run_summary.json" if out_dir else None
+    payload: dict[str, Any] = {
+        "mode": mode,
+        "exitCode": proc.returncode,
+        "outDir": str(out_dir) if out_dir else None,
+        "stderrTail": (proc.stderr or "")[-2000:],
+    }
+    if summary_path and summary_path.is_file():
+        s = _load_json(summary_path)
+        payload["verdict"] = s.get("verdict")
+        payload["runId"] = s.get("runId")
+        payload["nClaims"] = s.get("nClaims")
+        payload["nAccepted"] = s.get("nAccepted")
+    return {"summary": payload}
+
+
 def execute_rijnland_peil_conflict(inputs: dict[str, Any]) -> dict[str, Any]:
     mode = inputs.get("mode") or "replay"
     if mode == "replay":
@@ -972,6 +1037,7 @@ EXECUTORS = {
     "opportunity-map-run": execute_opportunity_map_run,
     "crosstrack-overlay": execute_crosstrack_overlay,
     "breda-scan-run": execute_breda_scan_run,
+    "breda-gebiedsafweging": execute_breda_gebiedsafweging,
     "rijnland-peil-conflict": execute_rijnland_peil_conflict,
     "rijnland-peil-whatif": execute_rijnland_peil_whatif,
     "bp2op-transform": execute_bp2op_transform,

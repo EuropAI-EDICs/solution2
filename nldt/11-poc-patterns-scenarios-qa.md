@@ -12,17 +12,19 @@ Leading principle (immutable):
 
 ---
 
-## Three agentic planes
+## Four agentic planes
 
 | Plane | Question | Orchestrator | Output |
 |-------|----------|--------------|--------|
 | **A. Opportunity-map** | Where is X allowed under the ordinance? | `poc/run.py` | `poc/runs/<ts>-<track>/` |
 | **B. Scenario-sweep** | What if we change a rule/policy? | `poc/scenarios/run.py` | `poc/scenario-runs/` |
 | **C. Crosstrack** | Where do tracks conflict (wind×solar×forest)? | `poc/crosstrack/run.py` | `poc/crosstrack-runs/` |
+| **D. Gebiedsafweging** | What if we place a spatial claim (housing / dak-PV) against multiple values in one area? | `poc-breda/afweging_run.py` | `poc-breda/afweging-runs/` |
 
 The nLDT generic stack (`agents/orchestrator`) today mainly covers **GIS recipes**.
-Planes A–C are the **legal-spatial agentic pattern** that nLDT adopts
-as architectural language (and later as a shared library/processes).
+Planes A–C are the **legal-spatial agentic pattern**; Plane D is the
+**integral area trade-off** pattern (Breda five-value scan + spatial claims)
+that answers the ZoN demand for gebiedsafweging without a black-box optimizer.
 
 ```mermaid
 flowchart LR
@@ -41,11 +43,17 @@ flowchart LR
     CT[Pairwise Overlay]
     CC[Crosstrack Critic]
   end
+  subgraph planeD [Plane D Gebiedsafweging]
+    CL[SpatialClaimSpec]
+    IM[Claim impact]
+    AR[Afweging report]
+  end
   planeA -->|baseline zones| planeB
   planeA -->|controls per track| planeC
   SA -->|proposals only| SW
   SW --> SC
   CT --> CC
+  CL --> IM --> AR
 ```
 
 ---
@@ -118,6 +126,18 @@ Control row is mandatory: unmutated re-run of the baseline.
 
 ---
 
+## Pattern 4b — Plane D gebiedsafweging (Breda)
+
+- Baseline: five-value scan (`poc-breda`); control recompute must match (V3)
+- Claims: `woningverdichting` | `dak_pv_maximalisatie` on selected buurten
+  (`schemas/spatial-claim.schema.json`)
+- Deterministic Δ per value; `capacityPressure` for housing; no LLM in numbers
+- Output: `gebiedsafweging-report` + HTML; **no winnerClaimId** (V4 pending)
+- Design: [`docs/superpowers/specs/2026-10-04-breda-gebiedsafweging-plane-d-design.md`](../docs/superpowers/specs/2026-10-04-breda-gebiedsafweging-plane-d-design.md)
+- Recipe: `breda-gebiedsafweging`
+
+---
+
 ## Pattern 5 — QA Critic V0–V4 (shared vocabulary)
 
 | Level | Name | Opportunity-map (PoC) | Scenario-sweep | nLDT recipes |
@@ -183,6 +203,9 @@ The patterns above are **documentation**. Runtime unification across
 poc/run.py                          Plane A
 poc/scenarios/run.py                Plane B
 poc/crosstrack/run.py               Plane C
+poc-breda/afweging_run.py           Plane D
+poc-breda/breda/claims.py
+poc-breda/schemas/{spatial-claim,gebiedsafweging-report}.schema.json
 poc/pipeline/{agents,critic,engine,scenarios,scenario_author,crosstrack}.py
 poc/schemas/{norm-card,formal-rule,decision-table,scenario-*,validation-report}.schema.json
 docs/GENAI_SEAMS.md
