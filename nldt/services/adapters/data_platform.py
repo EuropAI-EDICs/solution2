@@ -173,7 +173,7 @@ def list_scopes(*, token: str | None = None) -> list[dict[str, str]]:
             {"scope": "timescaledb", "role": "User", "plane": "data-query"},
         ]
     tok = token
-    if not tok and is_configured():
+    if not tok and keycloak_configured():
         from services.adapters.keycloak_auth import get_service_token
 
         tok = get_service_token()
