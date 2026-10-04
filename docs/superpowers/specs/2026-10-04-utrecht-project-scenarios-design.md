@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Datum** | 4 oktober 2026 |
-| **Status** | ontwerp goedgekeurd in brainstormsessie; wacht op review van dit document |
+| **Status** | ontwerp goedgekeurd in brainstormsessie; wacht op review van dit document · **Tranche B**: uitvoering ná de [regeluitbreiding-verordening (tranche A)](2026-10-04-verordening-regeluitbreiding-design.md) — de gebiedsscenario's binden dan primair aan de nieuwe tracks (`wonen`, `water`, `bodem`, …) i.p.v. alleen `zon`/`bos`; zon/bos blijven vangnet |
 | **Scope** | `poc/use-cases/areas/` + `poc/use-cases/projects/` + `poc/scenarios/projects/` (nieuw), `poc/run.py` + `poc/scenarios/run.py` (`--area`/`--set`-vlaggen), `nldt/recipes/utrecht-{opportunity-map,scenario-sweep}.json` (optionele `area`-input), `toolbox-sim/build_fixtures.py` (UCS-processen), `nldt/recipes/edic-asset-map.json` (2 dataset-entries) |
 | **Bronnen** | [Provinciepagina Projecten en gebiedsontwikkeling](https://www.provincie-utrecht.nl/onderwerpen/ruimtelijke-ontwikkeling/projecten-en-gebiedsontwikkeling) (laatst gewijzigd 3-2-2026) · [`docs/SOLUTIONS_ARCHITECTURE.md`](../../SOLUTIONS_ARCHITECTURE.md) §3.3–3.4 · [`docs/GENAI_SEAMS.md`](../../GENAI_SEAMS.md) · geo-catalog §1 (fetch-mechanica) · [toolbox-sim-ontwerp](2026-10-04-toolbox-sim-design.md) |
 | **Keuzes uit de sessie** | vorm: **gebiedsgebonden sweeps** (echte AoI + projectgebonden ScenarioSets, hergebruik van de wind/zon/bos-regelsets) · piloot: **A12-zone + Kromme Rijngebied** · alignatie: **recepten uitbreiden + UCS + EDIC** |
