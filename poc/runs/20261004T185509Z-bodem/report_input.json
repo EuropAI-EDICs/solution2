@@ -1,0 +1,158 @@
+{
+ "title": "Where is soil activity bounded by groundwater and soil rules in province Utrecht?",
+ "generatedAt": "2026-10-04T18:55:10Z",
+ "generatedBy": "poc-cartographer/0.1",
+ "crs": "EPSG:4326 (computation in EPSG:28992, areas in km²)",
+ "stats": {
+  "zoneCount": 5,
+  "finalAreaKm2": 858.927392782,
+  "finalRuleIds": [
+   "FR-BO-01",
+   "FR-BO-03"
+  ],
+  "geometryRepairsRecorded": 0
+ },
+ "layers": [
+  {
+   "id": "gesloten_stortplaats",
+   "title": "gesloten_stortplaats",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-04T16:47:00Z"
+  },
+  {
+   "id": "grondwater_beschermingszone",
+   "title": "grondwater_beschermingszone",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-04T16:47:00Z"
+  },
+  {
+   "id": "provincial_gio_unverified",
+   "title": "provincial_gio_unverified"
+  }
+ ],
+ "zones": [
+  {
+   "id": "zr-difference-bc7820530b",
+   "operation": "difference",
+   "ruleIds": [
+    "FR-BO-01"
+   ],
+   "areaKm2": 858.927392782,
+   "layers": [
+    "grondwater_beschermingszone",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=aoi_seed; area_m2=1560053846.303311; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=grondwater_beschermingszone; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=grondwater_beschermingszone(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-04T16:47:00Z; simplifiedM=2.0); features=26; make_valid_repairs=0; area_m2=701130052.668447; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=difference rule=FR-BO-01; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=difference; rule=FR-BO-01; layers=grondwater_beschermingszone,provincial_gio_unverified; buffer_m=0.0; area_before_m2=1560053846.303311; area_after_m2=858927392.782156; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=5; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-difference-6cbb98837c",
+   "operation": "difference",
+   "ruleIds": [
+    "FR-BO-03"
+   ],
+   "areaKm2": 858.927392782,
+   "layers": [
+    "grondwater_beschermingszone",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=union layer=grondwater_beschermingszone; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=grondwater_beschermingszone(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-04T16:47:00Z; simplifiedM=2.0); features=26; make_valid_repairs=0; area_m2=701130052.668447; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=difference rule=FR-BO-03; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=difference; rule=FR-BO-03; layers=grondwater_beschermingszone,provincial_gio_unverified; buffer_m=0.0; area_before_m2=858927392.782156; area_after_m2=858927392.782151; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=3; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-fafee3f28e",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-BO-04"
+   ],
+   "areaKm2": 701.130052668,
+   "layers": [
+    "grondwater_beschermingszone",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-BO-04; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=grondwater_beschermingszone; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=grondwater_beschermingszone(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-04T16:47:00Z; simplifiedM=2.0); features=26; make_valid_repairs=0; area_m2=701130052.668447; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=3; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-b35a5c37ec",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-BO-05"
+   ],
+   "areaKm2": 0.372839916,
+   "layers": [
+    "gesloten_stortplaats",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-BO-05; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gesloten_stortplaats; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gesloten_stortplaats(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-04T16:47:00Z; simplifiedM=2.0); features=1; make_valid_repairs=0; area_m2=372839.916249; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-final-8d9b51db93",
+   "operation": "final",
+   "ruleIds": [
+    "FR-BO-01",
+    "FR-BO-03"
+   ],
+   "areaKm2": 858.927392782,
+   "layers": [
+    "grondwater_beschermingszone",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=aoi_seed; area_m2=1560053846.303311; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=grondwater_beschermingszone; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=grondwater_beschermingszone(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-04T16:47:00Z; simplifiedM=2.0); features=26; make_valid_repairs=0; area_m2=701130052.668447; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=difference rule=FR-BO-01; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=difference; rule=FR-BO-01; layers=grondwater_beschermingszone,provincial_gio_unverified; buffer_m=0.0; area_before_m2=1560053846.303311; area_after_m2=858927392.782156; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=grondwater_beschermingszone; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=grondwater_beschermingszone(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-04T16:47:00Z; simplifiedM=2.0); features=26; make_valid_repairs=0; area_m2=701130052.668447; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=difference rule=FR-BO-03; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=difference; rule=FR-BO-03; layers=grondwater_beschermingszone,provincial_gio_unverified; buffer_m=0.0; area_before_m2=858927392.782156; area_after_m2=858927392.782151; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-BO-04; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=grondwater_beschermingszone; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=grondwater_beschermingszone(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-04T16:47:00Z; simplifiedM=2.0); features=26; make_valid_repairs=0; area_m2=701130052.668447; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-BO-05; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gesloten_stortplaats; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gesloten_stortplaats(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-04T16:47:00Z; simplifiedM=2.0); features=1; make_valid_repairs=0; area_m2=372839.916249; engine=poc-zone-engine/0.1"
+   ]
+  }
+ ],
+ "outputs": {
+  "geojson": "/Users/marc/Projecten/ldttoolbox-vf1/poc/runs/20261004T185509Z-bodem/zones.geojson",
+  "gml": "/Users/marc/Projecten/ldttoolbox-vf1/poc/runs/20261004T185509Z-bodem/zones.gml",
+  "gmlStatus": {
+   "ok": true,
+   "path": "/Users/marc/Projecten/ldttoolbox-vf1/poc/runs/20261004T185509Z-bodem/zones.gml",
+   "tool": "/opt/homebrew/bin/ogr2ogr",
+   "error": null,
+   "command": "/opt/homebrew/bin/ogr2ogr -f GML /Users/marc/Projecten/ldttoolbox-vf1/poc/runs/20261004T185509Z-bodem/zones.gml /Users/marc/Projecten/ldttoolbox-vf1/poc/runs/20261004T185509Z-bodem/zones.geojson"
+  }
+ },
+ "notes": [
+  "cite-or-abstain: every exclusion/inclusion references a registry layer with lastChecked provenance; see per-zone provSteps.",
+  "Areas computed in EPSG:28992 (RD New, metre); geometries validity-checked with make_valid repairs recorded in provenance."
+ ]
+}

@@ -1,0 +1,72 @@
+{
+ "id": "VR-20261004T185509Z-bodem-zones",
+ "artifactId": "zones",
+ "artifactType": "zone-result-set",
+ "levels": {
+  "V0": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v0-schema-zone-result",
+     "status": "pass",
+     "detail": "5/5 artifact(s) valid against zone-result.schema.json"
+    }
+   ]
+  },
+  "V1": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v1-output-geometry-valid",
+     "status": "pass",
+     "detail": "all 5 zone geometries valid (shapely is_valid)"
+    },
+    {
+     "id": "v1-output-crs-and-bounds",
+     "status": "pass",
+     "detail": "all payloads EPSG:4326 with coordinates inside NL bounds lon(3.0, 7.5)/lat(50.5, 54.0)"
+    },
+    {
+     "id": "v1-input-layers-crs",
+     "status": "pass",
+     "detail": "2 input layer(s) declare a recognised CRS member (EPSG:28992 computation CRS)"
+    },
+    {
+     "id": "v1-input-invalid-census",
+     "status": "pass",
+     "detail": "no invalid as-served features in any input layer",
+     "evidenceRefs": [
+      "grondwater_beschermingszone",
+      "gesloten_stortplaats"
+     ]
+    },
+    {
+     "id": "v1-final-zone-sanity",
+     "status": "pass",
+     "detail": "final zone non-empty, valid, 858.927 km2 <= AOI 1560.054 km2",
+     "evidenceRefs": [
+      "ZR-final-8d9b51db93"
+     ]
+    }
+   ]
+  },
+  "V2": {
+   "status": "not_applicable",
+   "checks": [],
+   "notes": "V2 not evaluated for this artifact"
+  },
+  "V3": {
+   "status": "not_applicable",
+   "checks": [],
+   "notes": "V3 not evaluated for this artifact"
+  },
+  "V4": {
+   "status": "pending",
+   "checks": [],
+   "notes": "V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it."
+  }
+ },
+ "verdict": "pass",
+ "evaluatorRun": "critic-validator#deterministic-v0-v3-poc1",
+ "evaluatedAt": "2026-10-04T18:55:14Z"
+}

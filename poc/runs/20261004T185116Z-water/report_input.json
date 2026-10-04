@@ -1,0 +1,138 @@
+{
+ "title": "Where is riparian development bounded by the watersysteem rules in province Utrecht?",
+ "generatedAt": "2026-10-04T18:51:17Z",
+ "generatedBy": "poc-cartographer/0.1",
+ "crs": "EPSG:4326 (computation in EPSG:28992, areas in km²)",
+ "stats": {
+  "zoneCount": 4,
+  "finalAreaKm2": 1554.906261591,
+  "finalRuleIds": [
+   "FR-WA-02"
+  ],
+  "geometryRepairsRecorded": 0
+ },
+ "layers": [
+  {
+   "id": "overstroombaar_gebied",
+   "title": "overstroombaar_gebied",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-04T16:20:00Z"
+  },
+  {
+   "id": "provincial_gio_unverified",
+   "title": "provincial_gio_unverified"
+  },
+  {
+   "id": "vrijwaringszone_waterkering",
+   "title": "vrijwaringszone_waterkering",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-04T16:20:00Z"
+  },
+  {
+   "id": "waterbergingsgebied",
+   "title": "waterbergingsgebied",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-04T16:20:00Z"
+  }
+ ],
+ "zones": [
+  {
+   "id": "zr-difference-30ec77da7d",
+   "operation": "difference",
+   "ruleIds": [
+    "FR-WA-02"
+   ],
+   "areaKm2": 1554.906261591,
+   "layers": [
+    "waterbergingsgebied",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=aoi_seed; area_m2=1560053846.303311; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=waterbergingsgebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=waterbergingsgebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-04T16:20:00Z; simplifiedM=2.0); features=18; make_valid_repairs=0; area_m2=5147601.183974; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=difference rule=FR-WA-02; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=difference; rule=FR-WA-02; layers=waterbergingsgebied,provincial_gio_unverified; buffer_m=0.0; area_before_m2=1560053846.303311; area_after_m2=1554906261.590683; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-7ec1b8efb3",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-WA-01"
+   ],
+   "areaKm2": 28.014391589,
+   "layers": [
+    "vrijwaringszone_waterkering",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-WA-01; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=vrijwaringszone_waterkering; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=vrijwaringszone_waterkering(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-04T16:20:00Z; simplifiedM=2.0); features=33; make_valid_repairs=0; area_m2=28014391.588744; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-30cd754f0c",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-WA-03"
+   ],
+   "areaKm2": 1207.174616538,
+   "layers": [
+    "overstroombaar_gebied",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-WA-03; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=overstroombaar_gebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=overstroombaar_gebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-04T16:20:00Z; simplifiedM=2.0); features=2; make_valid_repairs=0; area_m2=1207174616.537815; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-final-1fda5dda7e",
+   "operation": "final",
+   "ruleIds": [
+    "FR-WA-02"
+   ],
+   "areaKm2": 1554.906261591,
+   "layers": [
+    "provincial_gio_unverified",
+    "waterbergingsgebied"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=aoi_seed; area_m2=1560053846.303311; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=waterbergingsgebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=waterbergingsgebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-04T16:20:00Z; simplifiedM=2.0); features=18; make_valid_repairs=0; area_m2=5147601.183974; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=difference rule=FR-WA-02; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=difference; rule=FR-WA-02; layers=waterbergingsgebied,provincial_gio_unverified; buffer_m=0.0; area_before_m2=1560053846.303311; area_after_m2=1554906261.590683; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-WA-01; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=vrijwaringszone_waterkering; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=vrijwaringszone_waterkering(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-04T16:20:00Z; simplifiedM=2.0); features=33; make_valid_repairs=0; area_m2=28014391.588744; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-WA-03; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=overstroombaar_gebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=overstroombaar_gebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-04T16:20:00Z; simplifiedM=2.0); features=2; make_valid_repairs=0; area_m2=1207174616.537815; engine=poc-zone-engine/0.1"
+   ]
+  }
+ ],
+ "outputs": {
+  "geojson": "/Users/marc/Projecten/ldttoolbox-vf1/poc/runs/20261004T185116Z-water/zones.geojson",
+  "gml": "/Users/marc/Projecten/ldttoolbox-vf1/poc/runs/20261004T185116Z-water/zones.gml",
+  "gmlStatus": {
+   "ok": true,
+   "path": "/Users/marc/Projecten/ldttoolbox-vf1/poc/runs/20261004T185116Z-water/zones.gml",
+   "tool": "/opt/homebrew/bin/ogr2ogr",
+   "error": null,
+   "command": "/opt/homebrew/bin/ogr2ogr -f GML /Users/marc/Projecten/ldttoolbox-vf1/poc/runs/20261004T185116Z-water/zones.gml /Users/marc/Projecten/ldttoolbox-vf1/poc/runs/20261004T185116Z-water/zones.geojson"
+  }
+ },
+ "notes": [
+  "cite-or-abstain: every exclusion/inclusion references a registry layer with lastChecked provenance; see per-zone provSteps.",
+  "Areas computed in EPSG:28992 (RD New, metre); geometries validity-checked with make_valid repairs recorded in provenance."
+ ]
+}

@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """CLI orchestrator for the opportunity-map PoC (plan section 3.2, agent #1).
 
-Tracks: ``wind`` (wind turbines), ``zon`` (zonnevelden / solar fields) and
-``bos`` (new nature / forest planting) — same instrument (Omgevingsverordening
-provincie Utrecht, CVDR704250), same agent architecture, per-track evidence
-shards and cite-or-abstain ledgers.
+Tracks: ``wind`` (wind turbines), ``zon`` (zonnevelden / solar fields),
+``bos`` (new nature / forest planting), ``water`` (riparian development
+bounded by the watersysteem instructieregels) and ``bodem`` (soil activity
+bounded by the ondergrond-en-bodem instructieregels) — same instrument
+(Omgevingsverordening provincie Utrecht, CVDR704250), same agent architecture,
+per-track evidence shards and cite-or-abstain ledgers.
 
 Wires the planning plane end-to-end:
 
@@ -22,6 +24,8 @@ Usage (no install, from the workspace root):
     python3 poc/run.py                     # wind use case, cache-first
     python3 poc/run.py --use-case zon      # solar fields (zonnevelden)
     python3 poc/run.py --use-case bos      # new nature / forest planting
+    python3 poc/run.py --use-case water    # riparian development (watersysteem rule bounds)
+    python3 poc/run.py --use-case bodem    # soil activity (ondergrond-en-bodem rule bounds)
     python3 poc/run.py --refresh           # re-download live layers
     python3 poc/run.py --bbox 130000,440000,160000,470000   # EPSG:28992 clip
     python3 poc/run.py --out poc/runs/demo
@@ -106,6 +110,26 @@ ZONE_SOURCES: Dict[str, Dict[str, Any]] = {
     "oude_bosgroeiplaatsen": {
         "sourceId": "agrest-ov-oude-bosgroeiplaatsen",
         "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Waardevolle Houtopstanden - oude bosgroeiplaatsen' (art. 6.13)",
+    },
+    "waterbergingsgebied": {
+        "sourceId": "agrest-ov-waterbergingsgebied",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Waterbergingsgebied' (art. 2.15 instructieregel, WA-02)",
+    },
+    "overstroombaar_gebied": {
+        "sourceId": "agrest-ov-overstroombaar-gebied",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Overstroombaar gebied' (art. 2.16 instructieregel, WA-03)",
+    },
+    "vrijwaringszone_waterkering": {
+        "sourceId": "agrest-ov-vrijwaringszone-regionale-waterkering",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Vrijwaringszone regionale waterkering' (art. 2.14 instructieregel, WA-01)",
+    },
+    "grondwater_beschermingszone": {
+        "sourceId": "agrest-ov-grondwaterbeschermingszone",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Grondwaterbeschermingszone' (bodem-instructieregels BO-01/BO-03/BO-04: umbrella-werkingsgebied, live geverifieerd exact gelijk aan de vereniging van de zeven letterlijke aanwijzingsgebieden van art. 3.7/3.9/3.10)",
+    },
+    "gesloten_stortplaats": {
+        "sourceId": "agrest-ov-gebied-gesloten-stortplaats",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied gesloten stortplaats' (art. 3.108 aanwijzingsregel, BO-05: omgevingsplanactiviteit van provinciaal belang)",
     },
 }
 
@@ -213,6 +237,65 @@ TRACKS: Dict[str, Dict[str, Any]] = {
             "Abstained topics (no verified provincial citation): stikstof, the NNN-addition procedure, land "
             "acquisition / area-process financing, nature-type selection (Natuurbeheerplan maatgevend), GIO "
             "download access, the pending 1-1-2027 amendment.",
+        ],
+    },
+    "water": {
+        "shard": "corpus/evidence-water.json",
+        "ledger": "corpus/normcards-rejected-water.json",
+        "report_title": "Where is riparian development bounded by the watersysteem rules in province Utrecht?",
+        "decision_table_id": "DT-water-utrecht-poc1",
+        "decision_table_title": "Watersysteem rule bounds for riparian development "
+                                "Decision table (programming stage)",
+        "prov_namespace": "ldttoolbox:poc:water:",
+        "headline_note": (
+            "Semantics: instructieregels art. 2.14 (vrijwaringszone regionale waterkering), 2.15 "
+            "(waterbergingsgebied) and 2.16 (overstroombaar gebied) bound development in and around "
+            "the watersysteem; zones are the provincial designations clipped to the province "
+            "boundary. Omgevingswaarden (monitoring norms) are deliberately abstained. "
+            "Programming-stage screening artifact; per-location permission assessment remains required."
+        ),
+        "limitations": lambda cov, abst: [
+            "Waterkering-omgevingswaarden (art. 2.2-2.11) are monitoring norms for water boards, "
+            "not zone rules: abstained under cite-or-abstain.",
+            (
+                f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms, "
+                "procedural rules): routed to the V4 human-expert checkpoint."
+            ),
+            "Peilbesluit/legger/waterschaarste articles are procedural for water boards: abstained.",
+        ],
+    },
+    "bodem": {
+        "shard": "corpus/evidence-bodem.json",
+        "ledger": "corpus/normcards-rejected-bodem.json",
+        "report_title": "Where is soil activity bounded by groundwater and soil rules in province Utrecht?",
+        "decision_table_id": "DT-bodem-utrecht-poc1",
+        "decision_table_title": "Ondergrond-en-bodem rule bounds for soil activity "
+                                "Decision table (programming stage)",
+        "prov_namespace": "ldttoolbox:poc:bodem:",
+        "headline_note": (
+            "Semantics: the opportunity zone is the province AOI minus the "
+            "grondwaterbeschermingszone umbrella — the art. 3.7 instructieregel "
+            "('laat geen activiteiten toe die een risico vormen voor de winning') "
+            "and the art. 3.9 verbod (new burial facilities) are executed as "
+            "default exclusions on the conservative umbrella union of the "
+            "designation areas; art. 3.10 ('rekening houden met') stays a "
+            "conditional marker (weakest take-into-account variant, V4), and the "
+            "art. 3.108 gesloten stortplaats aanwijzingsregel a context marker. "
+            "Groundwater permitting frames (art. 3.1) are procedural and "
+            "deliberately abstained. Programming-stage screening artifact; "
+            "per-location permission assessment remains required."
+        ),
+        "limitations": lambda cov, abst: [
+            "Grondwaterbeheer (art. 3.1) and verontreiniging (art. 3.3) are permitting/assessment "
+            "frames: abstained under cite-or-abstain.",
+            "The art. 3.7/3.9 exclusions run on the conservative umbrella union of the designation "
+            "areas (superset per article); whether a specific activity 'een risico vormt voor de "
+            "winning' is a per-case V4 assessment, and art. 3.10 (matig kwetsbare voorraad, "
+            "'rekening houden met') is deliberately a marker, not an extra elimination.",
+            (
+                f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms): "
+                "routed to the V4 human-expert checkpoint."
+            ),
         ],
     },
 }
@@ -499,7 +582,8 @@ def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--use-case", default="wind",
                     help="use case id (default: wind; wind=wind turbines, zon=solar fields, "
-                         "bos=new nature/forest planting)")
+                         "bos=new nature/forest planting, water=riparian development, "
+                         "bodem=soil activity)")
     ap.add_argument("--refresh", action="store_true", help="ignore the layer cache and re-download live layers")
     ap.add_argument("--bbox", default=None,
                     help="optional clip xmin,ymin,xmax,ymax in EPSG:28992 applied to the AOI")
@@ -731,6 +815,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 engine_rules.remove(dropped)
                 print(f"[engine] dropped rule {dropped['id']} after RuleError: {msg[:140]}")
         final_rich = next(z for z in rich_zones if z.get("operation") == "final")
+        # Marker-only tracks (bodem: every formalized rule is a conditional/
+        # context marker, nothing is eliminated) seed the final zone from the
+        # AOI, so the engine's final carries no core rule id — but the
+        # zone-result contract requires non-empty ruleIds. Stamp the executed
+        # rules (the rules that bound the final zone) on the final only.
+        if not final_rich.get("ruleIds"):
+            final_rich["ruleIds"] = [r["id"] for r in engine_rules]
         inclusion_zone = next(
             (z for z in rich_zones if z.get("operation") == "intersection"),
             next((z for z in rich_zones if z.get("operation") == "inclusion_union"), None),

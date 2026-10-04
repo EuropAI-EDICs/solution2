@@ -1,0 +1,6110 @@
+{
+ "registryVersion": "1.0",
+ "generatedBy": "geo-data reconnaissance agent (Geo Analyst scout), session 2026-08-30",
+ "generatedAt": "2026-08-30T14:05:30Z",
+ "probeEvidence": [
+  "poc/data/probe_raw_20260830.json",
+  "poc/data/probe_agrest_20260830.json",
+  "poc/data/probe_agrest_layers_20260830.json",
+  "poc/data/probe_agrest_sizes_20260830.json",
+  "poc/data/probe_crosscheck2_20260830.json",
+  "poc/data/probe_alt_20260830.json"
+ ],
+ "crsNote": "All queryTemplate examples request outSR=28992 (RD New). Hosted AGOL services honor f=geojson + outSR=28992 and return a crs member {name: EPSG:28992}. agrest services reject f=geojson (HTTP 400) — use f=json and convert rings client-side.",
+ "sources": [
+  {
+   "id": "agrest-ov-gebied-windenergie",
+   "title": "Omgevingsverordening — Gebied windenergie",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "layerName": "Omgevingsverordening_Provincie_Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "9e750651-8e97-4bc6-b09e-fc30b5f3e83c_id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "DOCUMENT_URL",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "SYMBOOL_CODE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "TYPE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GROEP",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 44,
+   "maxRecordCount": 1000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=json&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true",
+   "queryTemplateParams": {
+    "where": "NAAM='Gebied windenergie'"
+   },
+   "role": "inclusion",
+   "authoritative": true,
+   "licenseNote": "Structured open data of provincie Utrecht on agrest.geodata-utrecht.nl; service is anonymously queryable; no license statement exposed by the endpoint itself (platform presented as open data).",
+   "lastChecked": "2026-08-30T07:45:26Z",
+   "supportsPagination": true,
+   "geojsonFormatSupported": false,
+   "geojsonNote": "f=geojson returns HTTP 400; use f=json (esri JSON) + outSR",
+   "bytesPerFeature": 1791.3,
+   "estimatedFullDownloadMB": 0.08,
+   "extent": {
+    "xmin": 114240.99700000137,
+    "ymin": 429919.006000001,
+    "xmax": 171506.37099999934,
+    "ymax": 479588.2890000008,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Vigerende omgevingsverordening as IMOW polygons. Wind subset: WHERE NAAM='Gebied windenergie' -> 44 features (43 small + 1 province-scale 1166.5 km2 polygon; union 1167.95 km2). Every feature carries LOCATIE_ID (nl.imow-pv26.gebied.*) and DOCUMENT_URL https://omgevingsbeleid.provincie-utrecht.nl/home?d=/akn/nl/act/pv26/2022/omgevingsverordening/nld@1089&o= — the cite-or-abstain legal grounding for the PoC. Geometry: 1/44 features invalid as served (run make_valid). Cross-check: 98.3% of hosted ET wind layer area lies inside this designation (IoU 0.0347 because OV area is much larger)."
+  },
+  {
+   "id": "agrest-ov-gebied-kleine-windturbine",
+   "title": "Omgevingsverordening — Gebied kleine windturbine",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "layerName": "Omgevingsverordening_Provincie_Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "9e750651-8e97-4bc6-b09e-fc30b5f3e83c_id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "DOCUMENT_URL",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "SYMBOOL_CODE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "TYPE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GROEP",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 44,
+   "maxRecordCount": 1000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=json&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true",
+   "queryTemplateParams": {
+    "where": "NAAM='Gebied kleine windturbine'"
+   },
+   "role": "inclusion",
+   "authoritative": true,
+   "licenseNote": "Structured open data of provincie Utrecht on agrest.geodata-utrecht.nl; service is anonymously queryable; no license statement exposed by the endpoint itself (platform presented as open data).",
+   "lastChecked": "2026-08-30T07:45:26Z",
+   "supportsPagination": true,
+   "geojsonFormatSupported": false,
+   "geojsonNote": "f=geojson returns HTTP 400; use f=json (esri JSON) + outSR",
+   "bytesPerFeature": 20034.0,
+   "estimatedFullDownloadMB": 0.88,
+   "extent": {
+    "xmin": 114240.99700000137,
+    "ymin": 429919.006000001,
+    "xmax": 171506.37099999934,
+    "ymax": 479588.2890000008,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Same service, WHERE NAAM='Gebied kleine windturbine' -> 44 features whose geometry is identical to 'Gebied windenergie' (IoU 1.0000) but with distinct IMOW LOCATIE_IDs (nl.imow-pv26.gebied.003...5e11*). Small-wind-turbine designation."
+  },
+  {
+   "id": "agrest-ov-alldata",
+   "title": "Omgevingsverordening Provincie Utrecht (alle gebieden)",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "layerName": "Omgevingsverordening_Provincie_Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "9e750651-8e97-4bc6-b09e-fc30b5f3e83c_id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "DOCUMENT_URL",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "SYMBOOL_CODE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "TYPE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GROEP",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 11150,
+   "maxRecordCount": 1000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=json&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true",
+   "queryTemplateParams": {
+    "where": "1=1"
+   },
+   "role": "exclusion",
+   "authoritative": true,
+   "licenseNote": "Structured open data of provincie Utrecht on agrest.geodata-utrecht.nl; service is anonymously queryable; no license statement exposed by the endpoint itself (platform presented as open data).",
+   "lastChecked": "2026-08-30T07:45:26Z",
+   "supportsPagination": true,
+   "geojsonFormatSupported": false,
+   "geojsonNote": "f=geojson returns HTTP 400; use f=json (esri JSON) + outSR",
+   "bytesPerFeature": null,
+   "estimatedFullDownloadMB": null,
+   "extent": {
+    "xmin": 114240.99700000137,
+    "ymin": 429919.006000001,
+    "xmax": 171506.37099999934,
+    "ymax": 479588.2890000008,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Complete designation set of the vigerende omgevingsverordening (11150 features). Filterable by NAAM / LOCATIEGROEP_NAAM / GROEP. Observed groups (live sample) include Natuurnetwerk Nederland, Stiltegebied, Bufferzone stiltegebied, Grondwaterbeschermingsgebied, Waterwingebied, Buffer luchtvaartterrein, Geluidcontour buiten de bebouwde kom, Kernrandzone, Landelijk gebied, UNESCO Werelderfgoed Hollandse Waterlinies, Weidevogelkerngebied, Ganzenrustgebied, Dijktraject *, etc. — all with DOCUMENT_URL citations."
+  },
+  {
+   "id": "agrest-visie-wind",
+   "title": "Omgevingsvisie — Ruimte voor windenergie en zonnevelden onder voorwaarden",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsvisie/FeatureServer",
+   "layerId": 0,
+   "layerName": "Omgevingsvisie_Provincie_Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "720a26b9-f153-4fb5-9e8a-fa4c43a9acf9_id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "SYMBOOL_CODE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "TYPE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GROEP",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "IDENTIFICATIE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 35,
+   "maxRecordCount": 1000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=json&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true",
+   "queryTemplateParams": {
+    "where": "LOCATIEGROEP_NAAM='Ruimte voor windenergie en zonnevelden onder voorwaarden'"
+   },
+   "role": "inclusion",
+   "authoritative": true,
+   "licenseNote": "Structured open data of provincie Utrecht on agrest.geodata-utrecht.nl; service is anonymously queryable; no license statement exposed by the endpoint itself (platform presented as open data).",
+   "lastChecked": "2026-08-30T07:45:27Z",
+   "supportsPagination": true,
+   "geojsonFormatSupported": false,
+   "geojsonNote": "f=geojson returns HTTP 400; use f=json (esri JSON) + outSR",
+   "bytesPerFeature": 1648.7,
+   "estimatedFullDownloadMB": 0.06,
+   "extent": {
+    "xmin": 114240.99700000137,
+    "ymin": 429919.006000001,
+    "xmax": 171506.37099999934,
+    "ymax": 479588.2890000008,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Omgevingsvisie ambition layer: WHERE LOCATIEGROEP_NAAM='Ruimte voor windenergie en zonnevelden onder voorwaarden' -> 35 features, union 1481.45 km2; contains 100.0% of the hosted ET wind progress areas (IoU 0.0278). Use as policy-ambition context; not a binding rule."
+  },
+  {
+   "id": "agrest-visie-alldata",
+   "title": "Omgevingsvisie Provincie Utrecht (alle gebieden)",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsvisie/FeatureServer",
+   "layerId": 0,
+   "layerName": "Omgevingsvisie_Provincie_Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "720a26b9-f153-4fb5-9e8a-fa4c43a9acf9_id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "SYMBOOL_CODE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "TYPE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GROEP",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "IDENTIFICATIE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 5189,
+   "maxRecordCount": 1000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=json&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true",
+   "queryTemplateParams": {
+    "where": "1=1"
+   },
+   "role": "context",
+   "authoritative": true,
+   "licenseNote": "Structured open data of provincie Utrecht on agrest.geodata-utrecht.nl; service is anonymously queryable; no license statement exposed by the endpoint itself (platform presented as open data).",
+   "lastChecked": "2026-08-30T07:45:27Z",
+   "supportsPagination": true,
+   "geojsonFormatSupported": false,
+   "geojsonNote": "f=geojson returns HTTP 400; use f=json (esri JSON) + outSR",
+   "bytesPerFeature": null,
+   "estimatedFullDownloadMB": null,
+   "extent": {
+    "xmin": 114240.99700000137,
+    "ymin": 429919.006000001,
+    "xmax": 171506.37099999934,
+    "ymax": 479588.2890000008,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Full visie designation set (5189 features, 73 LOCATIEGROEP_NAAM groups incl. Natura 2000-gebied, natuurnetwerk Nederland, landschappen, zoekgebieden drinkwaterwinning)."
+  },
+  {
+   "id": "agrest-uplg-alldata",
+   "title": "Omgevingsprogramma — UPLG (alle kaarten)",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsprogramma/FeatureServer",
+   "layerId": 0,
+   "layerName": "Utrechts_Programma_Landelijk_Gebied_UPLG",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "6ee187ad-9d21-4711-91e7-5967a9342560_id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "NAAM_UPLG",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "ONDERVERDELING",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "KAART_NUMMER",
+     "type": "esriFieldTypeString"
+    }
+   ],
+   "featureCount": 35537,
+   "maxRecordCount": 1000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=json&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true",
+   "queryTemplateParams": {
+    "where": "1=1"
+   },
+   "role": "context",
+   "authoritative": true,
+   "licenseNote": "Structured open data of provincie Utrecht on agrest.geodata-utrecht.nl; service is anonymously queryable; no license statement exposed by the endpoint itself (platform presented as open data).",
+   "lastChecked": "2026-08-30T07:45:28Z",
+   "supportsPagination": true,
+   "geojsonFormatSupported": false,
+   "geojsonNote": "f=geojson returns HTTP 400; use f=json (esri JSON) + outSR",
+   "bytesPerFeature": null,
+   "estimatedFullDownloadMB": null,
+   "extent": {
+    "xmin": 110714.7322999984,
+    "ymin": 423342.1810000017,
+    "xmax": 212096.91959999874,
+    "ymax": 511072.87469999865,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Utrechts Programma Landelijk Gebied (UPLG) map set: 35537 features, 35 NAAM_UPLG groups incl. 'Natura 2000 gebied stikstofgevoelig', 'Stikstofexclusiegebied', 'Stikstofreductiezone', 'Essentiële percelen natuur', 'Zoekgebieden waterberging'. 1000/page, needs 36 paged requests for full pull."
+  },
+  {
+   "id": "agrest-energie-gebieden-windenergie",
+   "title": "Gebieden windenergie Provincie Utrecht (agrest mirror)",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/m01_3_energie_klimaat_lucht/FeatureServer",
+   "layerId": 11,
+   "layerName": "Gebieden_windenergie_Provincie_Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "b3e7e526-9daa-43ce-92bb-29217e064f57_id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "SHAPE_LENG",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "GEMEENTE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "VOORTGANG",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "ONDERZOEKS",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 44,
+   "maxRecordCount": 1000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=json&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true",
+   "queryTemplateParams": {
+    "where": "1=1"
+   },
+   "role": "inclusion",
+   "authoritative": false,
+   "licenseNote": "Structured open data of provincie Utrecht on agrest.geodata-utrecht.nl; service is anonymously queryable; no license statement exposed by the endpoint itself (platform presented as open data).",
+   "lastChecked": "2026-08-30T07:45:28Z",
+   "supportsPagination": true,
+   "geojsonFormatSupported": false,
+   "geojsonNote": "f=geojson returns HTTP 400; use f=json (esri JSON) + outSR",
+   "bytesPerFeature": 15773.3,
+   "estimatedFullDownloadMB": 0.69,
+   "extent": {
+    "xmin": 116045.99659999833,
+    "ymin": 434572.9153999984,
+    "xmax": 171064.81159999967,
+    "ymax": 475128.9737999998,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "agrest mirror of hosted ET_wind_gebieden_windenergie/13 (same 44 features, fields GEMEENTE/VOORTGANG/ONDERZOEKS). VOORTGANG sample value 'Overige kansrijke gebieden windenergie'."
+  },
+  {
+   "id": "agrest-energie-onderzoeksgebieden",
+   "title": "Onderzoeksgebieden planMER windenergie (agrest mirror)",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/m01_3_energie_klimaat_lucht/FeatureServer",
+   "layerId": 12,
+   "layerName": "Onderzoeksgebieden_planMER_windenergie_provincie_Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "b72a7c7a-1975-46b7-b51b-04dd69cb2d6a_id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "KENMERK",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GEMEENTE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OPMERKINGE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "SHAPE_LENG",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "GEMEENTE_A",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "GEMEENTELI",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "BELEMMERIN",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "ONDERZOEKS",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "RDY_CENTRO",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "RDX_CENTRO",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 105,
+   "maxRecordCount": 1000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=json&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true",
+   "queryTemplateParams": {
+    "where": "1=1"
+   },
+   "role": "context",
+   "authoritative": false,
+   "licenseNote": "Structured open data of provincie Utrecht on agrest.geodata-utrecht.nl; service is anonymously queryable; no license statement exposed by the endpoint itself (platform presented as open data).",
+   "lastChecked": "2026-08-30T07:45:28Z",
+   "supportsPagination": true,
+   "geojsonFormatSupported": false,
+   "geojsonNote": "f=geojson returns HTTP 400; use f=json (esri JSON) + outSR",
+   "bytesPerFeature": null,
+   "estimatedFullDownloadMB": null,
+   "extent": {
+    "xmin": 114240.99700000137,
+    "ymin": 429919.006000001,
+    "xmax": 171506.37099999934,
+    "ymax": 479588.2890000008,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "agrest mirror of Onderzoekslocaties planMER windenergie (105 feats)."
+  },
+  {
+   "id": "agrest-energie-meest-kansrijke",
+   "title": "Meest kansrijke gebieden voor windenergie (agrest mirror)",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/m01_3_energie_klimaat_lucht/FeatureServer",
+   "layerId": 13,
+   "layerName": "Meest_kansrijke_gebieden_voor_windenergie_provincie_Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "26fd1f69-0a30-4738-a3b9-b74d9c7b4d53_id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "GEMEENTELIJKEVOORKEUR",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "GEMEENTE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OPMERKINGEN",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GEMEENTE_AANGEDRAGEN",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "GEMEENTELIJK_PLANMER",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "BELEMMERINGENANALYSE",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "ONDERZOEKSGEBIED",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "RDY_CENTROID",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "RDX_CENTROID",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 28,
+   "maxRecordCount": 1000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=json&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true",
+   "queryTemplateParams": {
+    "where": "1=1"
+   },
+   "role": "inclusion",
+   "authoritative": false,
+   "licenseNote": "Structured open data of provincie Utrecht on agrest.geodata-utrecht.nl; service is anonymously queryable; no license statement exposed by the endpoint itself (platform presented as open data).",
+   "lastChecked": "2026-08-30T07:45:29Z",
+   "supportsPagination": true,
+   "geojsonFormatSupported": false,
+   "geojsonNote": "f=geojson returns HTTP 400; use f=json (esri JSON) + outSR",
+   "bytesPerFeature": 23386.3,
+   "estimatedFullDownloadMB": 0.65,
+   "extent": {
+    "xmin": 116045.99659999833,
+    "ymin": 434572.9153999984,
+    "xmax": 171064.81159999967,
+    "ymax": 475128.9737999998,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "agrest mirror of Kansrijke gebieden windenergie (28 feats here vs 27 hosted — one feature added in this copy)."
+  },
+  {
+   "id": "arcgis-et-wind-gebieden",
+   "title": "Gebieden windenergie",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/ET_wind_gebieden_windenergie/FeatureServer",
+   "layerId": 13,
+   "layerName": "ET_wind_gebieden_windenergie",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "objectid",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "gemeente",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "onderzoeks",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "voortgang",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "shape_leng",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 44,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "objectid"
+   },
+   "role": "inclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo states: 'Geen gebruiksbeperkingen' (no usage restrictions).",
+   "lastChecked": "2026-08-30T07:37:31Z",
+   "itemId": "718ba17c7ee14b2d82f774a231323132",
+   "itemModified": "2026-04-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 23079.3,
+   "estimatedFullDownloadMB": 1.02,
+   "extent": {
+    "xmin": 116045.99659999833,
+    "ymin": 434572.9153999984,
+    "xmax": 171064.81159999967,
+    "ymax": 475128.9737999998,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Published 'Gebieden windenergie' layer used by the public web map 'MAP - Gebieden windenergie' (item 972aa78fc33c4dafac63f236d3b1b8bb, modified 2026-04-07). Content: voortgang/status of meest kansrijke gebieden (44 feats, union 41.20 km2). 8/44 features have invalid ring structure as served ('Nested shells') — apply make_valid in the PoC. This is the STATUS/communication layer, not the legal designation; authoritative legal source is agrest-ov-gebied-windenergie. Item created 2026-04-07."
+  },
+  {
+   "id": "arcgis-data-gebieden-windenergie",
+   "title": "DATA - Gebieden windenergie",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/ET_windenergie_meest_kansrijke_gebieden_voortgang/FeatureServer",
+   "layerId": 13,
+   "layerName": "ET_wind_gebieden_windenergie",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "objectid",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "gemeente",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "onderzoeks",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "voortgang",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "shape_leng",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 44,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "objectid"
+   },
+   "role": "inclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo states: 'Geen gebruiksbeperkingen' (no usage restrictions).",
+   "lastChecked": "2026-08-30T07:37:34Z",
+   "itemId": "fb43f62c2dcc4d43862c656b17fc29dd",
+   "itemModified": "2026-04-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 23079.3,
+   "estimatedFullDownloadMB": 1.02,
+   "extent": {
+    "xmin": 116045.99659999833,
+    "ymin": 434572.9153999984,
+    "xmax": 171064.81159999967,
+    "ymax": 475128.9737999998,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "DUPLICATE / DATA working copy of arcgis-et-wind-gebieden: item 'DATA - Gebieden windenergie' (created 2025-01-14, modified 2026-04-07), same layer id 13, same 44 features and same first coordinates/payload sizes. Do not use; prefer the published twin."
+  },
+  {
+   "id": "arcgis-meest-kansrijke-utrecht",
+   "title": "meest kansrijke gebieden voor windenergie_utrecht_",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/meest kansrijke gebieden voor windenergie_utrecht_/FeatureServer",
+   "layerId": 0,
+   "layerName": "main.meest_geschikte_gebieden_vka__onderzoeksgebieden",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 3857
+   },
+   "fields": [
+    {
+     "name": "fid",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "RDx_centro",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "RDy_centro",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Onderzoeks",
+     "type": "esriFieldTypeBigInteger"
+    },
+    {
+     "name": "Belemmerin",
+     "type": "esriFieldTypeBigInteger"
+    },
+    {
+     "name": "Gemeenteli",
+     "type": "esriFieldTypeBigInteger"
+    },
+    {
+     "name": "Gemeente_a",
+     "type": "esriFieldTypeBigInteger"
+    },
+    {
+     "name": "Opmerkinge",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Gemeente",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Gemeente_1",
+     "type": "esriFieldTypeBigInteger"
+    },
+    {
+     "name": "Shape_Leng",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Opgenomen",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 27,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "fid"
+   },
+   "role": "inclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:37:36Z",
+   "itemId": "6429323735cb418cae521cda9cc11335",
+   "itemModified": "2026-03-12",
+   "itemOwner": "Provincie.Utrecht_Maatschappij",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 27129.8,
+   "estimatedFullDownloadMB": 0.73,
+   "extent": {
+    "xmin": 536499.7597,
+    "ymin": 6781763.63993469,
+    "xmax": 625896.5874518598,
+    "ymax": 6847958.481881664,
+    "spatialReference": {
+     "wkid": 102100,
+     "latestWkid": 3857
+    }
+   },
+   "notes": "Republished copy (2026-03-12, owner Provincie.Utrecht_Maatschappij) of Kansrijke_gebieden_windenergie/0: 27 features, identical bytes/feature (27129.8 vs 27129.4) and identical first coordinate. Flagged as duplicate."
+  },
+  {
+   "id": "arcgis-kansrijke-gebieden",
+   "title": "Kansrijke gebieden windenergie",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Kansrijke_gebieden_windenergie/FeatureServer",
+   "layerId": 0,
+   "layerName": "Meest kansrijke gebieden",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "RDx_centroid",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "RDy_centroid",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Onderzoeksgebied",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "Belemmeringenanalyse",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "Gemeentelijk_planMER",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "Gemeente_aangedragen",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "Opmerkingen",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Gemeente",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GemeentelijkeVoorkeur",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 27,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "inclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:37:38Z",
+   "itemId": "3e2049dcf0184d9e880f5f40d35d6c0f",
+   "itemModified": "2024-01-29",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 27129.4,
+   "estimatedFullDownloadMB": 0.73,
+   "extent": {
+    "xmin": 116045.99659999833,
+    "ymin": 434572.9153999984,
+    "xmax": 171064.81159999967,
+    "ymax": 475128.9737999998,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER result layer 'Meest kansrijke gebieden' (27 gebieden, besluit GS 9 jan 2024 per item description of the DATA twin). Fields incl. Belemmeringenanalyse, Gemeentelijk_planMER, Gemeente_aangedragen."
+  },
+  {
+   "id": "arcgis-planmer-v2",
+   "title": "Onderzoekslocaties_planMER_windenergie_V2",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Onderzoekslocaties_planMER_windenergie_V2/FeatureServer",
+   "layerId": 59,
+   "layerName": "Onderzoekslocaties_planMER_windenergie_V2",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "RDx_centro",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "RDy_centro",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Onderzoeks",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "Belemmerin",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "Gemeenteli",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "Gemeente_a",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "Shape_Leng",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Opmerkinge",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Gemeente",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Kenmerk",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 105,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "context",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:37:40Z",
+   "itemId": "98a92a16713241e2ad281b9d528d9f1a",
+   "itemModified": "2023-09-05",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 16614.3,
+   "estimatedFullDownloadMB": 1.74,
+   "extent": {
+    "xmin": 114240.99700000137,
+    "ymin": 429919.006000001,
+    "xmax": 171506.37099999934,
+    "ymax": 479588.2890000008,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Onderzoekslocaties planMER windenergie V2 (105 feats, 2023-09-05)."
+  },
+  {
+   "id": "arcgis-planmer-onderzoeksgebieden",
+   "title": "Layers_Onderzoeksgebieden_windenergie",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Onderzoeksgebieden_windenergie/FeatureServer",
+   "layerId": 11,
+   "layerName": "productie.milieu.ET_onderzoekslocaties_planMER_windenergie",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "objectid",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "rdx_centro",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "rdy_centro",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "onderzoeks",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "belemmerin",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "gemeenteli",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "gemeente_a",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "shape_leng",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "opmerkinge",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "gemeente",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "kenmerk",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 99,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "objectid"
+   },
+   "role": "context",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo states: \"<div style='text-align:Left;'><div><div><p><span>Geen gebruiksbeperking</span></p></div></div></div>, <div style='text-a\"",
+   "lastChecked": "2026-08-30T07:37:42Z",
+   "itemId": "df1a33bb528640e4acb3fb129958c845",
+   "itemModified": "2026-01-05",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 16618.0,
+   "estimatedFullDownloadMB": 1.65,
+   "extent": {
+    "xmin": 114240.99700000137,
+    "ymin": 429919.006000001,
+    "xmax": 171506.37099999934,
+    "ymax": 479588.2890000008,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Layer 'productie.milieu.ET_onderzoekslocaties_planMER_windenergie' (99 feats, item modified 2026-01-05) — most recently updated planMER search-areas copy."
+  },
+  {
+   "id": "arcgis-planmer-v1-onderzoeksgebieden",
+   "title": "Onderzoekslocaties planMER windenergie",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Onderzoekslocaties_planMER_windenergie/FeatureServer",
+   "layerId": 0,
+   "layerName": "Onderzoeksgebieden windenergie",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "Nr_ontwerpNRD",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "Volgtuitbelemmeringenanalyse",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Gemeentelijk_MER",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Aanvullend_aangedragen_gem",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Toelichting",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Gemeente",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "RES",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Naam",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Nr_oud",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "Nr_nieuw",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "RDx",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "RDy",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 93,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "context",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:37:44Z",
+   "itemId": "96e288c7557d4ceaac7cb40fa0447f45",
+   "itemModified": "2023-02-20",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 11198.0,
+   "estimatedFullDownloadMB": 1.04,
+   "extent": {
+    "xmin": 115045.18090000004,
+    "ymin": 433130.4828431202,
+    "xmax": 171639.95144314566,
+    "ymax": 478033.32759999856,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER V1 (93 feats, item 2023-02-20). Superseded by V2/2026 copy."
+  },
+  {
+   "id": "arcgis-planmer-v1-harde-belemmeringen",
+   "title": "Onderzoekslocaties planMER windenergie",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Onderzoekslocaties_planMER_windenergie/FeatureServer",
+   "layerId": 1,
+   "layerName": "Gebieden met harde belemmeringen",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "FID_HardeB_Complex_merge",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "FID_HardeB_merge_PairwiseC_Merg",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "FID_ComplexeB_merge_Clip_Dissol",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "FID_Provincie_Utrecht_watergren",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "id",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "gid",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "code",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "provincienaam",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:37:46Z",
+   "itemId": "96e288c7557d4ceaac7cb40fa0447f45",
+   "itemModified": "2023-02-20",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 5116286.0,
+   "estimatedFullDownloadMB": 5.12,
+   "extent": {
+    "xmin": 114240.997,
+    "ymin": 429919.006,
+    "xmax": 171504.2132,
+    "ymax": 479588.289,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER 'Gebieden met harde belemmeringen' (1 multipolygon, 5.12 MB, whole-province). Golden-set candidate for the zone engine's hard-constraint result."
+  },
+  {
+   "id": "arcgis-planmer-v1-complexe-belemmeringen",
+   "title": "Onderzoekslocaties planMER windenergie",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Onderzoekslocaties_planMER_windenergie/FeatureServer",
+   "layerId": 2,
+   "layerName": "Gebieden met complexe belemmeringen",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "FID_HardeB_Complex_merge",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "FID_HardeB_merge_PairwiseC_Merg",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "FID_ComplexeB_merge_Clip_Dissol",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "FID_Provincie_Utrecht_watergren",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "id",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "gid",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "code",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "provincienaam",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:37:52Z",
+   "itemId": "96e288c7557d4ceaac7cb40fa0447f45",
+   "itemModified": "2023-02-20",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 3652356.0,
+   "estimatedFullDownloadMB": 3.65,
+   "extent": {
+    "xmin": 114496.1046,
+    "ymin": 430496.0798,
+    "xmax": 171412.1369,
+    "ymax": 477975.988,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER 'Gebieden met complexe belemmeringen' (1 multipolygon, 3.65 MB)."
+  },
+  {
+   "id": "arcgis-planmer-v1-resterende-ruimte",
+   "title": "Onderzoekslocaties planMER windenergie",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Onderzoekslocaties_planMER_windenergie/FeatureServer",
+   "layerId": 4,
+   "layerName": "Resterende ruimte",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "FID_HardeB_Complex_merge",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "FID_HardeB_merge_PairwiseC_Merg",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "FID_ComplexeB_merge_Clip_Dissol",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "FID_Provincie_Utrecht_watergren",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "id",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "gid",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "code",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "provincienaam",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "context",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:37:59Z",
+   "itemId": "96e288c7557d4ceaac7cb40fa0447f45",
+   "itemModified": "2023-02-20",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 2372571.0,
+   "estimatedFullDownloadMB": 2.37,
+   "extent": {
+    "xmin": 114779.1126,
+    "ymin": 433575.6128,
+    "xmax": 171506.371,
+    "ymax": 478930.8375,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER 'Resterende ruimte' (1 multipolygon, 2.37 MB) — the deterministically derivable remainder: ideal V3 semantic re-execution cross-check for the zone engine."
+  },
+  {
+   "id": "arcgis-windturbines-in-procedure",
+   "title": "Windturbines in procedure",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Windturbines_in_procedure/FeatureServer",
+   "layerId": 12,
+   "layerName": "Windturbines in procedure",
+   "geometryType": "esriGeometryPoint",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    }
+   ],
+   "featureCount": 11,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "context",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:38:05Z",
+   "itemId": "fe769d632b8a458d830a68c6ae2a1a1d",
+   "itemModified": "2025-01-15",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 136.0,
+   "estimatedFullDownloadMB": 0.0,
+   "extent": {
+    "xmin": 128773.86520000175,
+    "ymin": 443689.5956000015,
+    "xmax": 152585.6473999992,
+    "ymax": 465133.1964999996,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Point layer, 11 turbines in permitting procedure (item 2025-01-15). Only field OBJECTID."
+  },
+  {
+   "id": "arcgis-harde-belemmeringen-16",
+   "title": "Harde belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Harde_belemmeringen/FeatureServer",
+   "layerId": 16,
+   "layerName": "Ganzenrustgebied",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "PRIMAID",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "PRIMAKOPNR",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "FUNCTIE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OMSCHRIJVI",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "SHAPE_Leng",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 3,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:38:07Z",
+   "itemId": "a3f88add141a41b091e8203c25997fb3",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 43753.3,
+   "estimatedFullDownloadMB": 0.13,
+   "extent": {
+    "xmin": 124827.32360000163,
+    "ymin": 439503.5414999984,
+    "xmax": 170765.36609999835,
+    "ymax": 468362.0001000017,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER hard-constraint layer: Ganzenrustgebied (3 feats). Buffers are pre-baked into the polygons (81/92/241/300/400 m) — the FormalRule buffer distances used by the province in 2023."
+  },
+  {
+   "id": "arcgis-harde-belemmeringen-15",
+   "title": "Harde belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Harde_belemmeringen/FeatureServer",
+   "layerId": 15,
+   "layerName": "Buisleidingen (incl. buffer 81m)",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:38:08Z",
+   "itemId": "a3f88add141a41b091e8203c25997fb3",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 3634784.0,
+   "estimatedFullDownloadMB": 3.63,
+   "extent": {
+    "xmin": 114397.02639999986,
+    "ymin": 427879.7129999995,
+    "xmax": 173490.3348999992,
+    "ymax": 481668.26370000094,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER hard-constraint layer: Buisleidingen incl. buffer 81m. Buffers are pre-baked into the polygons (81/92/241/300/400 m) — the FormalRule buffer distances used by the province in 2023."
+  },
+  {
+   "id": "arcgis-harde-belemmeringen-13",
+   "title": "Harde belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Harde_belemmeringen/FeatureServer",
+   "layerId": 13,
+   "layerName": "Bestaandewindturbines",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:38:14Z",
+   "itemId": "a3f88add141a41b091e8203c25997fb3",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 77670.0,
+   "estimatedFullDownloadMB": 0.08,
+   "extent": {
+    "xmin": 119713,
+    "ymin": 438024.0006768955,
+    "xmax": 171008.9993520286,
+    "ymax": 479358,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER hard-constraint layer: Bestaande windturbines (tip-distance style buffer set). Buffers are pre-baked into the polygons (81/92/241/300/400 m) — the FormalRule buffer distances used by the province in 2023."
+  },
+  {
+   "id": "arcgis-harde-belemmeringen-11",
+   "title": "Harde belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Harde_belemmeringen/FeatureServer",
+   "layerId": 11,
+   "layerName": "Bebouwde kom (wegenwet) prov Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID_1",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "PROV_BLAD",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "BESLUITNR",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "STATUS",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GEMNAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "KOMNAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "VAN_DATUM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 116,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID_1"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:38:16Z",
+   "itemId": "a3f88add141a41b091e8203c25997fb3",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 21349.3,
+   "estimatedFullDownloadMB": 2.48,
+   "extent": {
+    "xmin": 115055.44350000107,
+    "ymin": 430084.98010000016,
+    "xmax": 169417.27659999963,
+    "ymax": 477233.47410000727,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER hard-constraint layer: Bebouwde kom (wegenwet) provincie Utrecht (116 feats). Buffers are pre-baked into the polygons (81/92/241/300/400 m) — the FormalRule buffer distances used by the province in 2023."
+  },
+  {
+   "id": "arcgis-harde-belemmeringen-38",
+   "title": "Harde belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Harde_belemmeringen/FeatureServer",
+   "layerId": 38,
+   "layerName": "Nieuwewoonlocaties (incl. buffer 400m) ",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:38:17Z",
+   "itemId": "a3f88add141a41b091e8203c25997fb3",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 194583.0,
+   "estimatedFullDownloadMB": 0.19,
+   "extent": {
+    "xmin": 117116.26999999955,
+    "ymin": 433429.9596000016,
+    "xmax": 168721.10460000113,
+    "ymax": 476245.8649000004,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER hard-constraint layer: Nieuwe woonlocaties incl. buffer 400m. Buffers are pre-baked into the polygons (81/92/241/300/400 m) — the FormalRule buffer distances used by the province in 2023."
+  },
+  {
+   "id": "arcgis-harde-belemmeringen-32",
+   "title": "Harde belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Harde_belemmeringen/FeatureServer",
+   "layerId": 32,
+   "layerName": "Natura2000 gebieden (incl. buffer 81m)",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "SITECODE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "SITENAME",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "RELEASE_DA",
+     "type": "esriFieldTypeDate"
+    },
+    {
+     "name": "MS",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "SITETYPE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "INSPIRE_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "BUFF_DIST",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "ORIG_FID",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 63,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:38:20Z",
+   "itemId": "a3f88add141a41b091e8203c25997fb3",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 118957.1,
+   "estimatedFullDownloadMB": 7.49,
+   "extent": {
+    "xmin": 60042.174538256746,
+    "ymin": 295064.27669219166,
+    "xmax": 284635.096552106,
+    "ymax": 522671.9592051389,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER hard-constraint layer: Natura2000 gebieden incl. buffer 81m (63 feats). Buffers are pre-baked into the polygons (81/92/241/300/400 m) — the FormalRule buffer distances used by the province in 2023."
+  },
+  {
+   "id": "arcgis-harde-belemmeringen-31",
+   "title": "Harde belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Harde_belemmeringen/FeatureServer",
+   "layerId": 31,
+   "layerName": "Luchthaven Hilversum bouwhoogtebeperkingen (incl. buffer 81m)",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:38:23Z",
+   "itemId": "a3f88add141a41b091e8203c25997fb3",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 27824.0,
+   "estimatedFullDownloadMB": 0.03,
+   "extent": {
+    "xmin": 134920,
+    "ymin": 463509.01619999856,
+    "xmax": 141938,
+    "ymax": 470600,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER hard-constraint layer: Luchthaven Hilversum bouwhoogtebeperkingen incl. buffer 81m. Buffers are pre-baked into the polygons (81/92/241/300/400 m) — the FormalRule buffer distances used by the province in 2023."
+  },
+  {
+   "id": "arcgis-harde-belemmeringen-28",
+   "title": "Harde belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Harde_belemmeringen/FeatureServer",
+   "layerId": 28,
+   "layerName": "Hoogspanningsnet (incl. buffer 241m)",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:38:25Z",
+   "itemId": "a3f88add141a41b091e8203c25997fb3",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 239117.0,
+   "estimatedFullDownloadMB": 0.24,
+   "extent": {
+    "xmin": 112678.69640000165,
+    "ymin": 430303.6297999993,
+    "xmax": 173564.6191000007,
+    "ymax": 481828.3457222318,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER hard-constraint layer: Hoogspanningsnet incl. buffer 241m. Buffers are pre-baked into the polygons (81/92/241/300/400 m) — the FormalRule buffer distances used by the province in 2023."
+  },
+  {
+   "id": "arcgis-harde-belemmeringen-25",
+   "title": "Harde belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Harde_belemmeringen/FeatureServer",
+   "layerId": 25,
+   "layerName": "Geluidsgevoeligeobjecten_binnenbebouwdekom (incl. buffer 400m)",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:38:27Z",
+   "itemId": "a3f88add141a41b091e8203c25997fb3",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 1603957.0,
+   "estimatedFullDownloadMB": 1.6,
+   "extent": {
+    "xmin": 114664.03,
+    "ymin": 429697.45900000003,
+    "xmax": 173815.653,
+    "ymax": 481487.876,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER hard-constraint layer: Geluidsgevoelige objecten binnen bebouwde kom incl. buffer 400m. Buffers are pre-baked into the polygons (81/92/241/300/400 m) — the FormalRule buffer distances used by the province in 2023."
+  },
+  {
+   "id": "arcgis-harde-belemmeringen-24",
+   "title": "Harde belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Harde_belemmeringen/FeatureServer",
+   "layerId": 24,
+   "layerName": "Geluidsgevoeligeobjecten aanvullend (incl. buffer 300m)",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:38:30Z",
+   "itemId": "a3f88add141a41b091e8203c25997fb3",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 10106.0,
+   "estimatedFullDownloadMB": 0.01,
+   "extent": {
+    "xmin": 151081.48,
+    "ymin": 460015.841,
+    "xmax": 152690.524,
+    "ymax": 461056.54099999997,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER hard-constraint layer: Geluidsgevoelige objecten aanvullend incl. buffer 300m. Buffers are pre-baked into the polygons (81/92/241/300/400 m) — the FormalRule buffer distances used by the province in 2023."
+  },
+  {
+   "id": "arcgis-harde-belemmeringen-23",
+   "title": "Harde belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Harde_belemmeringen/FeatureServer",
+   "layerId": 23,
+   "layerName": "Geluidsgevoeligeobjecten (incl. buffer 300m)",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:38:32Z",
+   "itemId": "a3f88add141a41b091e8203c25997fb3",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 5696086.0,
+   "estimatedFullDownloadMB": 5.7,
+   "extent": {
+    "xmin": 112206,
+    "ymin": 427942.276,
+    "xmax": 173717,
+    "ymax": 481585.967,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER hard-constraint layer: Geluidsgevoelige objecten incl. buffer 300m. Buffers are pre-baked into the polygons (81/92/241/300/400 m) — the FormalRule buffer distances used by the province in 2023."
+  },
+  {
+   "id": "arcgis-harde-belemmeringen-17",
+   "title": "Harde belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Harde_belemmeringen/FeatureServer",
+   "layerId": 17,
+   "layerName": "Ganzenrustgebied (incl. buffer 81m)",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:38:38Z",
+   "itemId": "a3f88add141a41b091e8203c25997fb3",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 188449.0,
+   "estimatedFullDownloadMB": 0.19,
+   "extent": {
+    "xmin": 124746.42430000007,
+    "ymin": 439422.5667000003,
+    "xmax": 170846.36609999835,
+    "ymax": 468442.9748999998,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER hard-constraint layer: Ganzenrustgebied incl. buffer 81m. Buffers are pre-baked into the polygons (81/92/241/300/400 m) — the FormalRule buffer distances used by the province in 2023."
+  },
+  {
+   "id": "arcgis-harde-belemmeringen-55",
+   "title": "Harde belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Harde_belemmeringen/FeatureServer",
+   "layerId": 55,
+   "layerName": "Waterwingebied (incl. buffer 81m)",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:38:40Z",
+   "itemId": "a3f88add141a41b091e8203c25997fb3",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 200595.0,
+   "estimatedFullDownloadMB": 0.2,
+   "extent": {
+    "xmin": 118925.09899999946,
+    "ymin": 440190.58199999854,
+    "xmax": 167079.70179999992,
+    "ymax": 475828.77809999883,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER hard-constraint layer: Waterwingebied incl. buffer 81m. Buffers are pre-baked into the polygons (81/92/241/300/400 m) — the FormalRule buffer distances used by the province in 2023."
+  },
+  {
+   "id": "arcgis-harde-belemmeringen-53",
+   "title": "Harde belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Harde_belemmeringen/FeatureServer",
+   "layerId": 53,
+   "layerName": "Vaarwegen in beheer van Rijkswaterstaat (incl. buffer 81m)",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:38:42Z",
+   "itemId": "a3f88add141a41b091e8203c25997fb3",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 813735.0,
+   "estimatedFullDownloadMB": 0.81,
+   "extent": {
+    "xmin": 117722.50549999997,
+    "ymin": 438712.96020000055,
+    "xmax": 173587.3557999991,
+    "ymax": 481657.1821999997,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER hard-constraint layer: Vaarwegen Rijkswaterstaat incl. buffer 81m. Buffers are pre-baked into the polygons (81/92/241/300/400 m) — the FormalRule buffer distances used by the province in 2023."
+  },
+  {
+   "id": "arcgis-harde-belemmeringen-49",
+   "title": "Harde belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Harde_belemmeringen/FeatureServer",
+   "layerId": 49,
+   "layerName": "Stedelijk gebied buiten de provincie Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "OMSCHR",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "L",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 34,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:38:45Z",
+   "itemId": "a3f88add141a41b091e8203c25997fb3",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 1967.0,
+   "estimatedFullDownloadMB": 0.07,
+   "extent": {
+    "xmin": 105692.10200000182,
+    "ymin": 425000,
+    "xmax": 176340.6090000011,
+    "ymax": 483561.125,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER hard-constraint layer: Stedelijk gebied buiten provincie Utrecht (34 feats). Buffers are pre-baked into the polygons (81/92/241/300/400 m) — the FormalRule buffer distances used by the province in 2023."
+  },
+  {
+   "id": "arcgis-harde-belemmeringen-48",
+   "title": "Harde belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Harde_belemmeringen/FeatureServer",
+   "layerId": 48,
+   "layerName": "Spoorwegen (incl. buffer 92m)",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:38:46Z",
+   "itemId": "a3f88add141a41b091e8203c25997fb3",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 285385.0,
+   "estimatedFullDownloadMB": 0.29,
+   "extent": {
+    "xmin": 112713.92159999907,
+    "ymin": 427893.1812000014,
+    "xmax": 171171.90790000185,
+    "ymax": 481482.4362999983,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER hard-constraint layer: Spoorwegen incl. buffer 92m. Buffers are pre-baked into the polygons (81/92/241/300/400 m) — the FormalRule buffer distances used by the province in 2023."
+  },
+  {
+   "id": "arcgis-harde-belemmeringen-46",
+   "title": "Harde belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Harde_belemmeringen/FeatureServer",
+   "layerId": 46,
+   "layerName": "Rijkswegen (incl. buffer 81m)",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:38:49Z",
+   "itemId": "a3f88add141a41b091e8203c25997fb3",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 518071.0,
+   "estimatedFullDownloadMB": 0.52,
+   "extent": {
+    "xmin": 114709.2939000018,
+    "ymin": 427854.1779999994,
+    "xmax": 171001.99419999868,
+    "ymax": 481523.4851000011,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER hard-constraint layer: Rijkswegen incl. buffer 81m. Buffers are pre-baked into the polygons (81/92/241/300/400 m) — the FormalRule buffer distances used by the province in 2023."
+  },
+  {
+   "id": "arcgis-harde-belemmeringen-44",
+   "title": "Harde belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Harde_belemmeringen/FeatureServer",
+   "layerId": 44,
+   "layerName": "Restrictievlakken luchvaart (incl. buffer 81m)",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:38:51Z",
+   "itemId": "a3f88add141a41b091e8203c25997fb3",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 816173.0,
+   "estimatedFullDownloadMB": 0.82,
+   "extent": {
+    "xmin": 35931.97430000082,
+    "ymin": 309539.49720000103,
+    "xmax": 272359.98790000007,
+    "ymax": 611197.4778000005,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER hard-constraint layer: Restrictievlakken luchtvaart incl. buffer 81m. Buffers are pre-baked into the polygons (81/92/241/300/400 m) — the FormalRule buffer distances used by the province in 2023."
+  },
+  {
+   "id": "arcgis-complexe-belemmeringen-39",
+   "title": "Complexe belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Complexe_belemmeringen/FeatureServer",
+   "layerId": 39,
+   "layerName": "Natuurnetwerk Nederland (incl. buffer 81m)",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:39:03Z",
+   "itemId": "10070425d536407fb98174c55a23ce4c",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 7662989.0,
+   "estimatedFullDownloadMB": 7.66,
+   "extent": {
+    "xmin": 114709.56569999829,
+    "ymin": 429838.0064000003,
+    "xmax": 171501.40399999917,
+    "ymax": 479661.52120000124,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER complex-constraint layer: Natuurnetwerk Nederland incl. buffer 81m (7.66 MB single feature)."
+  },
+  {
+   "id": "arcgis-complexe-belemmeringen-57",
+   "title": "Complexe belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Complexe_belemmeringen/FeatureServer",
+   "layerId": 57,
+   "layerName": "Weidevogelkerngebied (incl. buffer 81m)",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:39:11Z",
+   "itemId": "10070425d536407fb98174c55a23ce4c",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 1588347.0,
+   "estimatedFullDownloadMB": 1.59,
+   "extent": {
+    "xmin": 114415.04019999877,
+    "ymin": 430354.9021999985,
+    "xmax": 156176.1400000006,
+    "ymax": 477973.62579999864,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER complex-constraint layer: Weidevogelkerngebied incl. buffer 81m."
+  },
+  {
+   "id": "arcgis-complexe-belemmeringen-51",
+   "title": "Complexe belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Complexe_belemmeringen/FeatureServer",
+   "layerId": 51,
+   "layerName": "Stiltegebied (stille kern & bufferzone stiltegebied)",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "PRIMAID",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "PRIMAKOPNR",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "FUNCTIE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OMSCHRIJVING",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 67,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:39:14Z",
+   "itemId": "10070425d536407fb98174c55a23ce4c",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 40866.5,
+   "estimatedFullDownloadMB": 2.74,
+   "extent": {
+    "xmin": 115898.43903099,
+    "ymin": 429919.0059955865,
+    "xmax": 171501.15564678982,
+    "ymax": 478026.71000093967,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER complex-constraint layer: Stiltegebied stille kern & bufferzone (67 feats)."
+  },
+  {
+   "id": "arcgis-complexe-belemmeringen-36",
+   "title": "Complexe belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Complexe_belemmeringen/FeatureServer",
+   "layerId": 36,
+   "layerName": "NHW zonering rood (incl. buffer 81m)",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:39:16Z",
+   "itemId": "10070425d536407fb98174c55a23ce4c",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 1294073.0,
+   "estimatedFullDownloadMB": 1.29,
+   "extent": {
+    "xmin": 99384.03189999974,
+    "ymin": 420306.5758000016,
+    "xmax": 199179.10860000178,
+    "ymax": 508006.51089999825,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER complex-constraint layer: NHW zonering rood incl. buffer 81m."
+  },
+  {
+   "id": "arcgis-complexe-belemmeringen-35",
+   "title": "Complexe belemmeringen",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Complexe_belemmeringen/FeatureServer",
+   "layerId": 35,
+   "layerName": "NHW zonering oranje (incl. buffer 81m)",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "id",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "zone",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "opp_km",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "opp_m",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "opp_ha",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "Shape__Are",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Len",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "BUFF_DIST",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "ORIG_FID",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:39:20Z",
+   "itemId": "10070425d536407fb98174c55a23ce4c",
+   "itemModified": "2023-09-07",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 319190.0,
+   "estimatedFullDownloadMB": 0.32,
+   "extent": {
+    "xmin": 114892.98492923226,
+    "ymin": 423158.62891065434,
+    "xmax": 146017.6462000014,
+    "ymax": 475360.18441595376,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "planMER complex-constraint layer: NHW zonering oranje incl. buffer 81m."
+  },
+  {
+   "id": "arcgis-ov2-wijziging-wind-zon",
+   "title": "Omgevingsverordening aanpassingen 2e wijziging_WFL1",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Omgevingsverordening_aanpassingen_2e_wijziging_WFL1/FeatureServer",
+   "layerId": 59,
+   "layerName": "Gebied kleine windturbine Gebied windenergie Gebied zonneveld wijziging",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "naam",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "naam_1",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "wijziging",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 63,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "context",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:41:16Z",
+   "itemId": "617625eb5cc7425b9e78329ec6dcdb68",
+   "itemModified": "2025-12-17",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 1588.3,
+   "estimatedFullDownloadMB": 0.1,
+   "extent": {
+    "xmin": 115655.35310000181,
+    "ymin": 430229.86100000143,
+    "xmax": 167696.55799999833,
+    "ymax": 476074.07129999995,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "2e wijziging omgevingsverordening — wijzigingspolygons for 'Gebied kleine windturbine / Gebied windenergie / gebied zonneveld' (63 feats). Compare against vigerende set (agrest-ov-*) to detect pending designation changes; item modified 2025-12-17."
+  },
+  {
+   "id": "arcgis-ov2-wind-zon",
+   "title": "Omgevingsverordening aanpassingen 2e wijziging_WFL1",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Omgevingsverordening_aanpassingen_2e_wijziging_WFL1/FeatureServer",
+   "layerId": 60,
+   "layerName": "Gebied kleine windturbine Gebied windenergie gebied zonneveld",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "naam",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 40,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "context",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:41:17Z",
+   "itemId": "617625eb5cc7425b9e78329ec6dcdb68",
+   "itemModified": "2025-12-17",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 2639.6,
+   "estimatedFullDownloadMB": 0.11,
+   "extent": {
+    "xmin": 114240.99700000137,
+    "ymin": 429919.006000001,
+    "xmax": 171506.37099999934,
+    "ymax": 479588.2890000008,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "2e wijziging service — current-state polygons 'Gebied kleine windturbine Gebied windenergie gebied zonneveld' (40 feats)."
+  },
+  {
+   "id": "arcgis-uplg-natura2000",
+   "title": "Viewer kaarten ontwerp UPLG openbaar",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Viewer_kaarten_ontwerp_UPLG_openbaar/FeatureServer",
+   "layerId": 86,
+   "layerName": "Natura 2000-gebieden",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "objectid",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "naam_n2k",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "vhn_new",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "nr",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "beschermin",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "status",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "sitecode_v",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "sitecode_h",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "kadaster",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "staatscour",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "omschrijving",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 14,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "objectid"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:42:23Z",
+   "itemId": "bee6a2507efe48febb0e643f58e1b2be",
+   "itemModified": "2025-12-11",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 273829.5,
+   "estimatedFullDownloadMB": 3.83,
+   "extent": {
+    "xmin": 110714.7322999984,
+    "ymin": 423342.1810000017,
+    "xmax": 212096.91959999874,
+    "ymax": 511072.87469999865,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "UPLG viewer: Natura 2000-gebieden (14 feats)."
+  },
+  {
+   "id": "arcgis-uplg-stikstofbeperking",
+   "title": "Viewer kaarten ontwerp UPLG openbaar",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Viewer_kaarten_ontwerp_UPLG_openbaar/FeatureServer",
+   "layerId": 84,
+   "layerName": "Gebied binnen Natura2000 met stikstofbeperking",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "Naam",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 41,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:42:26Z",
+   "itemId": "bee6a2507efe48febb0e643f58e1b2be",
+   "itemModified": "2025-12-11",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 9957.8,
+   "estimatedFullDownloadMB": 0.41,
+   "extent": {
+    "xmin": 115353.04179999977,
+    "ymin": 429972.7193999998,
+    "xmax": 170961.48270000145,
+    "ymax": 475284.1878999993,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "UPLG viewer: Gebied binnen Natura2000 met stikstofbeperking (41 feats) — geometry identical to OV 'Stikstofexclusiegebied (nieuw)' L80 bytes/feat."
+  },
+  {
+   "id": "arcgis-uplg-stikstofzone",
+   "title": "Viewer kaarten ontwerp UPLG openbaar",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Viewer_kaarten_ontwerp_UPLG_openbaar/FeatureServer",
+   "layerId": 83,
+   "layerName": "Overgangsgebied stikstofzone",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "naam",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 42,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:42:28Z",
+   "itemId": "bee6a2507efe48febb0e643f58e1b2be",
+   "itemModified": "2025-12-11",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 12432.8,
+   "estimatedFullDownloadMB": 0.52,
+   "extent": {
+    "xmin": 114240.99700000137,
+    "ymin": 429919.006000001,
+    "xmax": 169122.43730000034,
+    "ymax": 475534.1629000008,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "UPLG viewer: Overgangsgebied stikstofzone (42 feats)."
+  },
+  {
+   "id": "arcgis-natura2000",
+   "title": "Natura2000 gebieden",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Natura2000_gebieden/FeatureServer",
+   "layerId": 0,
+   "layerName": "Natura2000gebieden (volledig)",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 3035
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "SITECODE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "SITENAME",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "RELEASE_DA",
+     "type": "esriFieldTypeDate"
+    },
+    {
+     "name": "MS",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "SITETYPE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "INSPIRE_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 14,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:42:33Z",
+   "itemId": "6f0f19395dd54835a410262732a1c2b6",
+   "itemModified": "2021-08-16",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 343526.4,
+   "estimatedFullDownloadMB": 4.81,
+   "extent": {
+    "xmin": 3961028.8911000006,
+    "ymin": 3197799.6944999993,
+    "xmax": 4062182.577,
+    "ymax": 3283318.5626,
+    "spatialReference": {
+     "wkid": 3035,
+     "latestWkid": 3035
+    }
+   },
+   "notes": "Official Natura 2000 areas (14 feats, source CRS EPSG:3035, ~4.8 MB geojson). Field SITECODE/SITENAME. Buffers (1/3/5 km) must be derived client-side — the old buffer service is gone (see arcgis-natura2000-buffers entry)."
+  },
+  {
+   "id": "arcgis-natura2000-ppww",
+   "title": "Natura2000_ppww_uitdraai_jun2024",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Natura2000_ppww_uitdraai_jun2024/FeatureServer",
+   "layerId": 0,
+   "layerName": "main.n2000",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 3857
+   },
+   "fields": [
+    {
+     "name": "id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "objectid",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "naam_n2k",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "vhn_new",
+     "type": "esriFieldTypeSmallInteger"
+    },
+    {
+     "name": "nr",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "beschermin",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "sitecode_v",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "sitecode_h",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "status",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "kadaster",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "staatscour",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "shape_len",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "puuid",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "fuuid",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 0,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "id"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:42:35Z",
+   "itemId": "39fb9bf822f94b4f95d86fca7ff00723",
+   "itemModified": "2026-03-12",
+   "itemOwner": "Provincie.Utrecht_Maatschappij",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": null,
+   "estimatedFullDownloadMB": null,
+   "extent": {
+    "xmin": 298546.00974243216,
+    "ymin": 6573511.364137329,
+    "xmax": 814843.4360870225,
+    "ymax": 7490499.174437045,
+    "spatialReference": {
+     "wkid": 102100,
+     "latestWkid": 3857
+    }
+   },
+   "notes": "EMPTY as served (count=0). Item modified 2026-03-12. Not usable."
+  },
+  {
+   "id": "arcgis-natura2000-buffers",
+   "title": "Natura2000 gebieden buffers 1_ 3_ 5 km",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Natura2000_gebieden_buffers_1__3__5_km/FeatureServer",
+   "layerId": null,
+   "layerName": null,
+   "geometryType": null,
+   "crs": {
+    "wkid": null
+   },
+   "fields": [],
+   "featureCount": 0,
+   "maxRecordCount": null,
+   "queryTemplate": null,
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "unknown (service gone; item metadata not retrievable layer-side)",
+   "lastChecked": "2026-08-30T07:43:28Z",
+   "itemId": "f0ffc213b20241d4975c7ee8c5ccb7e8",
+   "itemModified": "2022-07-15",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": null,
+   "geojsonFormatSupported": null,
+   "bytesPerFeature": null,
+   "estimatedFullDownloadMB": null,
+   "extent": null,
+   "notes": "UNREACHABLE: FeatureServer returns HTTP 200 with body {'error':{'code':400,'message':'Invalid URL'}} (checked 2026-08-30T07:43Z). AGOL item f0ffc213b20241d4975c7ee8c5ccb7e8 (modified 2022-07-15) still exists but the hosted service is deleted. Derive buffers from arcgis-natura2000 instead."
+  },
+  {
+   "id": "arcgis-nnn-jun2024",
+   "title": "NNN_jun2024",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/NNN_jun2024/FeatureServer",
+   "layerId": 0,
+   "layerName": "main.NNN_jun2024",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 3857
+   },
+   "fields": [
+    {
+     "name": "fid",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "identifica",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "begin_geld",
+     "type": "esriFieldTypeDateOnly"
+    },
+    {
+     "name": "eind_geldi",
+     "type": "esriFieldTypeDateOnly"
+    },
+    {
+     "name": "beleid_typ",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "beleid_ty0",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "beleid_naa",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "beleid_na0",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "beleid_na1",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "beleid_bro",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "beleid_br0",
+     "type": "esriFieldTypeDateOnly"
+    },
+    {
+     "name": "beleid_br1",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "beleid_br2",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "bronhouder",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "bronhoude0",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 10638,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "fid"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:42:37Z",
+   "itemId": "4c37b105dc6e40f290c0d0a2a26b1d95",
+   "itemModified": "2026-03-12",
+   "itemOwner": "Provincie.Utrecht_Maatschappij",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 3491.4,
+   "estimatedFullDownloadMB": 37.14,
+   "extent": {
+    "xmin": 472547.6597605997,
+    "ymin": 6732463.625527012,
+    "xmax": 677281.8088563606,
+    "ymax": 6863565.69996006,
+    "spatialReference": {
+     "wkid": 102100,
+     "latestWkid": 3857
+    }
+   },
+   "notes": "Natuurnetwerk Nederland jun2024: 10638 feats, EPSG:3857 source, ~37 MB full geojson — clip to province bbox or intersect with AOI server-side via geometry/geometryType envelope before download."
+  },
+  {
+   "id": "arcgis-stilte-stillekern",
+   "title": "stiltegebied_stillekern",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/stiltegebied_stillekern/FeatureServer",
+   "layerId": 0,
+   "layerName": "main.stiltegebied_stillekern",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 3857
+   },
+   "fields": [
+    {
+     "name": "fid",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "id",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "naam",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "groep",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "type",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "symbool_co",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "locatie_id",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "locatie_na",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "locatiegro",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "locatieg_1",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "document_u",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape_Leng",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 47,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "fid"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:42:39Z",
+   "itemId": "339ea3a0dbea41148be30eafcde9d9c4",
+   "itemModified": "2026-03-12",
+   "itemOwner": "Provincie.Utrecht_Maatschappij",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 19576.6,
+   "estimatedFullDownloadMB": 0.92,
+   "extent": {
+    "xmin": 536224.9560891591,
+    "ymin": 6774564.219002758,
+    "xmax": 626419.5040000168,
+    "ymax": 6852667.600630919,
+    "spatialReference": {
+     "wkid": 102100,
+     "latestWkid": 3857
+    }
+   },
+   "notes": "Stiltegebied stille kern (EPSG:3857 source). Field document_u carries the legal document reference per feature."
+  },
+  {
+   "id": "arcgis-stilte-bufferzone",
+   "title": "stiltegebied_bufferzone",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/stiltegebied_bufferzone/FeatureServer",
+   "layerId": 0,
+   "layerName": "main.stiltegebied_bufferzone",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 3857
+   },
+   "fields": [
+    {
+     "name": "fid",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "id",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "naam",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "groep",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "type",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "symbool_co",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "locatie_id",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "locatie_na",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "locatiegro",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "locatieg_1",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "document_u",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape_Leng",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 55,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "fid"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:42:41Z",
+   "itemId": "cb6847a9442b4946a5e3798e5b4d084f",
+   "itemModified": "2026-03-26",
+   "itemOwner": "Provincie.Utrecht_Maatschappij",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 23856.2,
+   "estimatedFullDownloadMB": 1.31,
+   "extent": {
+    "xmin": 536068.1353379382,
+    "ymin": 6774482.014883336,
+    "xmax": 626492.4107844607,
+    "ymax": 6852773.921310548,
+    "spatialReference": {
+     "wkid": 102100,
+     "latestWkid": 3857
+    }
+   },
+   "notes": "Stiltegebied bufferzone (EPSG:3857 source). Field document_u carries the legal document reference per feature."
+  },
+  {
+   "id": "arcgis-stilte-aandachtsgebied",
+   "title": "stiltegebied_aandachtsgebied",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/stiltegebied_aandachtsgebied/FeatureServer",
+   "layerId": 0,
+   "layerName": "main.stiltegebied_aandachtsgebied",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 3857
+   },
+   "fields": [
+    {
+     "name": "fid",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "id",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "naam",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "groep",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "type",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "symbool_co",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "locatie_id",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "locatie_na",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "locatiegro",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "locatieg_1",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "document_u",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape_Leng",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 10,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "fid"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:42:42Z",
+   "itemId": "d2b58602f9b946e1981639bddf980f9f",
+   "itemModified": "2026-03-12",
+   "itemOwner": "Provincie.Utrecht_Maatschappij",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 56289.7,
+   "estimatedFullDownloadMB": 0.56,
+   "extent": {
+    "xmin": 535915.8791057819,
+    "ymin": 6774213.906498779,
+    "xmax": 626619.1578175582,
+    "ymax": 6851274.16147327,
+    "spatialReference": {
+     "wkid": 102100,
+     "latestWkid": 3857
+    }
+   },
+   "notes": "Stiltegebied aandachtsgebied (EPSG:3857 source). Field document_u carries the legal document reference per feature."
+  },
+  {
+   "id": "arcgis-gpp-rws-2022",
+   "title": "Geluidsproductieplafonds",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Geluidsproductieplafonds/FeatureServer",
+   "layerId": 10,
+   "layerName": "RWS - 2022",
+   "geometryType": "esriGeometryPoint",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "Referentiepunt",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "X_coordinaat",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Y_coordinaat",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Rijksweg",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Berekende_geluidwaarde_2022",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Geluidproductieplafond_2022",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Verschil_waarde_gpp_2022",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Verwacht_jaar_volledige_benutti",
+     "type": "esriFieldTypeString"
+    }
+   ],
+   "featureCount": 3807,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:42:54Z",
+   "itemId": "29e276c1c7834b1ebcce1d2f4beda46d",
+   "itemModified": "2024-04-05",
+   "itemOwner": "Provincie.Utrecht_Maatschappij",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 365.9,
+   "estimatedFullDownloadMB": 1.39,
+   "extent": {
+    "xmin": 116613.66000000015,
+    "ymin": 434182.0700000003,
+    "xmax": 169142.05999999866,
+    "ymax": 477240.1400000006,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Geluidsproductieplafonds rijkswegen 2022 (3807 points; also 2013/2016/2019/2020 layers L1-L4 present). Point values = remaining acoustic headroom per reference point."
+  },
+  {
+   "id": "arcgis-gpp-prorail-2022",
+   "title": "Geluidsproductieplafonds",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Geluidsproductieplafonds/FeatureServer",
+   "layerId": 11,
+   "layerName": "prorail - 2022",
+   "geometryType": "esriGeometryPoint",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "Referentiepunt",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "X_coordinaat",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Y_coordinaat",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Waarde_gpp_2022",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Status_gpp_in_2022",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Reden_vrijstelling_of_ontheffin",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Ontheffing_11_24__toegestane_ov",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Geluidproductie_in_2022",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Verschil_tussen_geluidproductie",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Typering_referentiepunt_in_2022",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Ontheffing_11_24__beoordeling_t",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Indien_ruimte_kleiner_dan_05_dB",
+     "type": "esriFieldTypeString"
+    }
+   ],
+   "featureCount": 4070,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:42:55Z",
+   "itemId": "29e276c1c7834b1ebcce1d2f4beda46d",
+   "itemModified": "2024-04-05",
+   "itemOwner": "Provincie.Utrecht_Maatschappij",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 572.6,
+   "estimatedFullDownloadMB": 2.33,
+   "extent": {
+    "xmin": 114437.46999999881,
+    "ymin": 431544.3999999985,
+    "xmax": 168314.48999999836,
+    "ymax": 477679.6000000015,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Geluidsproductieplafonds spoor (ProRail) 2022 (4070 points; also 2013/2016/2019/2020 L5-L8)."
+  },
+  {
+   "id": "arcgis-cnossos-lden",
+   "title": "Geluidbelasting wegverkeer CNOSSOS 2021 Feature Layer",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/contouren_eu_2021_cnossos/FeatureServer",
+   "layerId": 0,
+   "layerName": "contouren_eu_2021_cnossos_lden",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 3857
+   },
+   "fields": [
+    {
+     "name": "FID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "LOW_VAL",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "HIGH_VAL",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1027,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "FID"
+   },
+   "role": "context",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:42:57Z",
+   "itemId": "9cdc110b30d04884951d7728c6a722cf",
+   "itemModified": "2022-11-16",
+   "itemOwner": "Provincie.Utrecht_Maatschappij",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 19855.3,
+   "estimatedFullDownloadMB": 20.39,
+   "extent": {
+    "xmin": 534846.0142572987,
+    "ymin": 6780413.063375292,
+    "xmax": 628611.8145726363,
+    "ymax": 6846248.949478055,
+    "spatialReference": {
+     "wkid": 102100,
+     "latestWkid": 3857
+    }
+   },
+   "notes": "Wegverkeer geluidbelasting Lden CNOSSOS 2021 contours (1027 feats, ~20 MB)."
+  },
+  {
+   "id": "arcgis-cnossos-night",
+   "title": "Geluidbelasting wegverkeer CNOSSOS 2021 Feature Layer",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/contouren_eu_2021_cnossos/FeatureServer",
+   "layerId": 1,
+   "layerName": "contouren_eu_2021_cnossos_night",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 3857
+   },
+   "fields": [
+    {
+     "name": "FID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "LOW_VAL",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "HIGH_VAL",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 869,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "FID"
+   },
+   "role": "context",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:42:58Z",
+   "itemId": "9cdc110b30d04884951d7728c6a722cf",
+   "itemModified": "2022-11-16",
+   "itemOwner": "Provincie.Utrecht_Maatschappij",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 23068.5,
+   "estimatedFullDownloadMB": 20.05,
+   "extent": {
+    "xmin": 534846.0142572987,
+    "ymin": 6780413.063375292,
+    "xmax": 628611.8145726363,
+    "ymax": 6846248.949478055,
+    "spatialReference": {
+     "wkid": 102100,
+     "latestWkid": 3857
+    }
+   },
+   "notes": "Wegverkeer geluidbelasting Lnight CNOSSOS 2021 contours (869 feats, ~20 MB)."
+  },
+  {
+   "id": "arcgis-zoekgebied-nieuw-bos",
+   "title": "Zoekgebied nieuw bos AGO",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Zoekgebied_nieuw_bos_AGO/FeatureServer",
+   "layerId": 0,
+   "layerName": "Zoekgebied nieuw bos",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "objectid",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "kansrijkeboslocaties",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 728,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "objectid"
+   },
+   "role": "context",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:43:00Z",
+   "itemId": "e471ad4e892e4a4c8bf8adc13baf5a74",
+   "itemModified": "2023-03-14",
+   "itemOwner": "Provincie.Utrecht_Leefomgeving",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 3891.6,
+   "estimatedFullDownloadMB": 2.83,
+   "extent": {
+    "xmin": 114325.79349999875,
+    "ymin": 431202.1132999994,
+    "xmax": 170185.66429999843,
+    "ymax": 477892.65100000054,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Zoekgebied nieuw bos AGO (728 feats) — conflicting land-use ambition (forest planting) for the multi-ambition PoC."
+  },
+  {
+   "id": "arcgis-owbwp-grondwaterbeschermingszone",
+   "title": "ow_bwp_grondwater_beschermingszone",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/ow_bwp_grondwater_beschermingszone/FeatureServer",
+   "layerId": 0,
+   "layerName": "main.ow_bwp_grondwater_beschermingszone",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 3857
+   },
+   "fields": [
+    {
+     "name": "fid",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "primaid",
+     "type": "esriFieldTypeBigInteger"
+    },
+    {
+     "name": "primakopnr",
+     "type": "esriFieldTypeBigInteger"
+    },
+    {
+     "name": "functie",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "omschrijvi",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "shape_Leng",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 84,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "fid"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:43:02Z",
+   "itemId": "4e470256004a4a60ab7971122dd48672",
+   "itemModified": "2026-03-12",
+   "itemOwner": "Provincie.Utrecht_Maatschappij",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 14831.0,
+   "estimatedFullDownloadMB": 1.25,
+   "extent": {
+    "xmin": 538606.7982866113,
+    "ymin": 6786607.971145477,
+    "xmax": 620622.0509801607,
+    "ymax": 6850170.332701161,
+    "spatialReference": {
+     "wkid": 102100,
+     "latestWkid": 3857
+    }
+   },
+   "notes": "Omgevingswet beperkingengebied (bwp): grondwaterbeschermingszone (84 feats)."
+  },
+  {
+   "id": "arcgis-owbwp-overstroombaar",
+   "title": "ow_bwp_overstroombaar_gebied",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/ow_bwp_overstroombaar_gebied/FeatureServer",
+   "layerId": 0,
+   "layerName": "main.ow_bwp_overstroombaar_gebied",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 3857
+   },
+   "fields": [
+    {
+     "name": "fid",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "primaid",
+     "type": "esriFieldTypeBigInteger"
+    },
+    {
+     "name": "primakopnr",
+     "type": "esriFieldTypeBigInteger"
+    },
+    {
+     "name": "omschrijvi",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "functie",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "shape_Leng",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 2,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "fid"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:43:04Z",
+   "itemId": "ae10c75831db446b98a42bdafcb7f251",
+   "itemModified": "2026-03-12",
+   "itemOwner": "Provincie.Utrecht_Maatschappij",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 340325.5,
+   "estimatedFullDownloadMB": 0.68,
+   "extent": {
+    "xmin": 533178.9065625062,
+    "ymin": 6774192.510462939,
+    "xmax": 626641.2031718467,
+    "ymax": 6855328.691834796,
+    "spatialReference": {
+     "wkid": 102100,
+     "latestWkid": 3857
+    }
+   },
+   "notes": "bwp overstroombaar gebied (2 very large multipolygons)."
+  },
+  {
+   "id": "arcgis-owbwp-aardkundig",
+   "title": "ow_bwp_aardkundig_waarde_monumument",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/ow_bwp_aardkundig_waarde_monumument/FeatureServer",
+   "layerId": 0,
+   "layerName": "main.ow_bwp_aardkundig_waarde_monum",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 3857
+   },
+   "fields": [
+    {
+     "name": "fid",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "primaid",
+     "type": "esriFieldTypeBigInteger"
+    },
+    {
+     "name": "primakopnr",
+     "type": "esriFieldTypeBigInteger"
+    },
+    {
+     "name": "omschrijvi",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "functie",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "naam_monum",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "nummer_mon",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "shape_Leng",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 211,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "fid"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:43:06Z",
+   "itemId": "22c22f7e8c1141299e4be7c3907f7959",
+   "itemModified": "2026-03-12",
+   "itemOwner": "Provincie.Utrecht_Maatschappij",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 4805.4,
+   "estimatedFullDownloadMB": 1.01,
+   "extent": {
+    "xmin": 538712.199554889,
+    "ymin": 6782487.9402207965,
+    "xmax": 624458.0033277727,
+    "ymax": 6850989.604441436,
+    "spatialReference": {
+     "wkid": 102100,
+     "latestWkid": 3857
+    }
+   },
+   "notes": "bwp aardkundig waarde monument (211 feats)."
+  },
+  {
+   "id": "arcgis-owbwp-kwetsbaar-gwvoorraad",
+   "title": "ow_bwp_kwetsbaar_strat_gwvoorraad",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/ow_bwp_kwetsbaar_strat_gwvoorraad/FeatureServer",
+   "layerId": 0,
+   "layerName": "main.ow_bwp_kwetsbaar_strat_gwvoorraad",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 3857
+   },
+   "fields": [
+    {
+     "name": "fid",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "primaid",
+     "type": "esriFieldTypeBigInteger"
+    },
+    {
+     "name": "primakopnr",
+     "type": "esriFieldTypeBigInteger"
+    },
+    {
+     "name": "functie",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "omschrijvi",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "shape_Leng",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 26,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "fid"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:43:07Z",
+   "itemId": "4d59f49311234464b959749a5ae2a2b9",
+   "itemModified": "2026-03-12",
+   "itemOwner": "Provincie.Utrecht_Maatschappij",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 114910.8,
+   "estimatedFullDownloadMB": 2.99,
+   "extent": {
+    "xmin": 537315.6562010829,
+    "ymin": 6774224.548357132,
+    "xmax": 617486.046460226,
+    "ymax": 6849791.028832533,
+    "spatialReference": {
+     "wkid": 102100,
+     "latestWkid": 3857
+    }
+   },
+   "notes": "bwp kwetsbare strategische grondwatervoorraad (26 feats)."
+  },
+  {
+   "id": "arcgis-owbwp-ondiepe-bodemenergie",
+   "title": "ow_bwp_ondiepe_bodemenergie",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/ow_bwp_ondiepe_bodemenergie/FeatureServer",
+   "layerId": 0,
+   "layerName": "main.ow_bwp_ondiepe_bodemenergie",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 3857
+   },
+   "fields": [
+    {
+     "name": "fid",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "omschrijvi",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "primakopnr",
+     "type": "esriFieldTypeBigInteger"
+    },
+    {
+     "name": "primaid",
+     "type": "esriFieldTypeBigInteger"
+    },
+    {
+     "name": "shape_Leng",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 79,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "fid"
+   },
+   "role": "context",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:43:09Z",
+   "itemId": "09c2b60c2a4f453d8e834a9018074630",
+   "itemModified": "2026-03-12",
+   "itemOwner": "Provincie.Utrecht_Maatschappij",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 20788.4,
+   "estimatedFullDownloadMB": 1.64,
+   "extent": {
+    "xmin": 537312.7297097391,
+    "ymin": 6774224.548357132,
+    "xmax": 620622.0509801607,
+    "ymax": 6850170.333004109,
+    "spatialReference": {
+     "wkid": 102100,
+     "latestWkid": 3857
+    }
+   },
+   "notes": "bwp ondiepe bodemenergie (79 feats)."
+  },
+  {
+   "id": "arcgis-provinciegrens",
+   "title": "Provinciegrens Utrecht",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Provinciegrens_Utrecht/FeatureServer",
+   "layerId": 0,
+   "layerName": "Provincie_Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "FID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "provincie",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "code",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape_Leng",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Oppervlak",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "km2",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "FID"
+   },
+   "role": "aoi",
+   "authoritative": true,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:43:11Z",
+   "itemId": "d166a475ea4f48c4b9204a36b4c2dbdd",
+   "itemModified": "2025-10-23",
+   "itemOwner": "Provincie.Utrecht_Maatschappij",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 723191.0,
+   "estimatedFullDownloadMB": 0.72,
+   "extent": {
+    "xmin": 114240.99700000137,
+    "ymin": 429919.006000001,
+    "xmax": 171506.37100000138,
+    "ymax": 479588.289000001,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Official province boundary (1 polygon, EPSG:28992). Item modified 2025-10-23. Used as AoI clipper. Also present: arcgis-provinciegrens-mobiliteit duplicate."
+  },
+  {
+   "id": "arcgis-provinciegrens-mobiliteit",
+   "title": "provincie utrecht grens",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/provincie_utrecht_grens/FeatureServer",
+   "layerId": 0,
+   "layerName": "provincies",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "objectid",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "provincie",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "code",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "objectid"
+   },
+   "role": "aoi",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:43:14Z",
+   "itemId": "8a0de7598d92492483fcd0449b6dee67",
+   "itemModified": "2022-05-04",
+   "itemOwner": "Provincie.Utrecht_Mobiliteit",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 722520.0,
+   "estimatedFullDownloadMB": 0.72,
+   "extent": {
+    "xmin": 114240.99700000136,
+    "ymin": 429919.006000001,
+    "xmax": 171506.37099999934,
+    "ymax": 479588.2890000008,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Duplicate boundary copy (owner _Mobiliteit, item 2022-05-04, same geometry extent). Prefer arcgis-provinciegrens."
+  },
+  {
+   "id": "arcgis-gemeenten",
+   "title": "Gemeenten provincie Utrecht",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Gemeenten_provincie_Utrecht/FeatureServer",
+   "layerId": 0,
+   "layerName": "Gemeenten",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "CODE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GEMEENTE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "PROVINCIE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 26,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "OBJECTID"
+   },
+   "role": "aoi",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:43:15Z",
+   "itemId": "f7324b2b32f741d2a5fe47ceed52c746",
+   "itemModified": "2022-01-06",
+   "itemOwner": "Provincie.Utrecht_Mobiliteit",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 95383.9,
+   "estimatedFullDownloadMB": 2.48,
+   "extent": {
+    "xmin": 10425.155999999492,
+    "ymin": 306846.1979999989,
+    "xmax": 278026.08999999985,
+    "ymax": 621876.3000000007,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "26 municipalities (item 2022-01-06) for per-gemeente drill-down."
+  },
+  {
+   "id": "arcgis-hollandse-waterlinie-property",
+   "title": "Hollandse Waterlinie",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Hollandse_Waterlinie/FeatureServer",
+   "layerId": 22,
+   "layerName": "property",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "objectid",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "ref_nr",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "naam",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "status",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "jaar",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "type",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "opperv_m2",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "opperv_ha",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "opperv_km2",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "url",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "waarde",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "objectid"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:43:17Z",
+   "itemId": "8f3ec0dc454f43efb1dd1d2f72a71ff7",
+   "itemModified": "2025-04-09",
+   "itemOwner": "Provincie.Utrecht_Maatschappij",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 601150.0,
+   "estimatedFullDownloadMB": 0.6,
+   "extent": {
+    "xmin": 114495.75699999928,
+    "ymin": 429919.006000001,
+    "xmax": 152644.38369999826,
+    "ymax": 478345.7373000011,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "UNESCO Hollandse Waterlinie property (1 feat, item 2025-04-09)."
+  },
+  {
+   "id": "arcgis-hollandse-waterlinie-buffer",
+   "title": "Hollandse Waterlinie",
+   "serviceUrl": "https://services.arcgis.com/m4kxECHTi6Dj9hfa/arcgis/rest/services/Hollandse_Waterlinie/FeatureServer",
+   "layerId": 23,
+   "layerName": "buffer",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "objectid",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "ref_nr",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "naam",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "status",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "jaar",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "type",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "opperv_m2",
+     "type": "esriFieldTypeInteger"
+    },
+    {
+     "name": "opperv_ha",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "opperv_km2",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "url",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "waarde",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "Shape__Area",
+     "type": "esriFieldTypeDouble"
+    },
+    {
+     "name": "Shape__Length",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 2000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=geojson&outSR=28992&resultRecordCount=2000&resultOffset={offset}&orderByFields={oid}",
+   "queryTemplateParams": {
+    "oid": "objectid"
+   },
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "Published as open data on the province ArcGIS Hub (geo-point.provincie-utrecht.nl/pages/open-data); item licenseInfo empty.",
+   "lastChecked": "2026-08-30T07:43:20Z",
+   "itemId": "8f3ec0dc454f43efb1dd1d2f72a71ff7",
+   "itemModified": "2025-04-09",
+   "itemOwner": "Provincie.Utrecht_Maatschappij",
+   "supportsPagination": true,
+   "geojsonFormatSupported": true,
+   "geojsonCrsMember": "EPSG:28992 (when outSR=28992)",
+   "bytesPerFeature": 688726.0,
+   "estimatedFullDownloadMB": 0.69,
+   "extent": {
+    "xmin": 114495.75699999928,
+    "ymin": 429919.006000001,
+    "xmax": 152644.38369999826,
+    "ymax": 478345.7373000011,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "UNESCO Hollandse Waterlinie buffer zone (1 feat)."
+  },
+  {
+   "id": "pdok-natura2000-wfs",
+   "title": "Nationaal Georegister Natura 2000 WFS",
+   "serviceUrl": "https://geodata.nationaalgeoregister.nl/natura2000/wfs",
+   "layerId": null,
+   "geometryType": null,
+   "crs": {
+    "wkid": null
+   },
+   "fields": [],
+   "featureCount": null,
+   "maxRecordCount": null,
+   "queryTemplate": "{serviceUrl}?service=WFS&version=2.0.0&request=GetFeature&typeNames=natura2000:natura2000&count={count}&outputFormat=json",
+   "role": "exclusion",
+   "authoritative": false,
+   "licenseNote": "unknown (endpoint unreachable this session)",
+   "lastChecked": "2026-08-30T07:44:51Z",
+   "notes": "UNREACHABLE this session: TLS connection to geodata.nationaalgeoregister.nl failed (MaxRetryError). Referenced by province AGOL item 'Natura 2000' (WFS, 471ef0f78f0143be9fa4ed9aa4388192). Use arcgis-natura2000 instead."
+  },
+  {
+   "id": "agrest-ov-ganzenrustgebied",
+   "title": "Omgevingsverordening — Ganzenrustgebied",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "layerName": "Omgevingsverordening_Provincie_Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "9e750651-8e97-4bc6-b09e-fc30b5f3e83c_id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "DOCUMENT_URL",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "SYMBOOL_CODE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "TYPE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GROEP",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 3,
+   "maxRecordCount": 1000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=json&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true",
+   "queryTemplateParams": {
+    "where": "NAAM='Ganzenrustgebied'"
+   },
+   "role": "exclusion",
+   "authoritative": true,
+   "licenseNote": "Structured open data of provincie Utrecht on agrest.geodata-utrecht.nl; service is anonymously queryable; no license statement exposed by the endpoint itself (platform presented as open data).",
+   "lastChecked": "2026-08-30T08:30:00Z",
+   "supportsPagination": true,
+   "geojsonFormatSupported": false,
+   "geojsonNote": "f=geojson returns HTTP 400; use f=json (esri JSON) + outSR",
+   "bytesPerFeature": null,
+   "estimatedFullDownloadMB": null,
+   "extent": {
+    "xmin": 114240.99700000137,
+    "ymin": 429919.006000001,
+    "xmax": 171506.37099999934,
+    "ymax": 479588.2890000008,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "WHERE NAAM='Ganzenrustgebied' on the vigerende-verordening layer (3 features, live count 2026-08-30T08:30Z). Open-data alias for the ganzenrustgebieden exclusion quoted in the art. 5.4 toelichting (NC-W-08) and the Omgevingsvisie (NC-W-22); carries IMOW LOCATIE_IDs and the verordening AKN DOCUMENT_URL."
+  },
+  {
+   "id": "agrest-ov-stiltegebied",
+   "title": "Omgevingsverordening — Stiltegebied",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "layerName": "Omgevingsverordening_Provincie_Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "9e750651-8e97-4bc6-b09e-fc30b5f3e83c_id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "DOCUMENT_URL",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "SYMBOOL_CODE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "TYPE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GROEP",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 27,
+   "maxRecordCount": 1000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=json&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true",
+   "queryTemplateParams": {
+    "where": "NAAM='Stiltegebied'"
+   },
+   "role": "exclusion",
+   "authoritative": true,
+   "licenseNote": "Structured open data of provincie Utrecht on agrest.geodata-utrecht.nl; service is anonymously queryable; no license statement exposed by the endpoint itself (platform presented as open data).",
+   "lastChecked": "2026-08-30T08:30:00Z",
+   "supportsPagination": true,
+   "geojsonFormatSupported": false,
+   "geojsonNote": "f=geojson returns HTTP 400; use f=json (esri JSON) + outSR",
+   "bytesPerFeature": null,
+   "estimatedFullDownloadMB": null,
+   "extent": {
+    "xmin": 114240.99700000137,
+    "ymin": 429919.006000001,
+    "xmax": 171506.37099999934,
+    "ymax": 479588.2890000008,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "WHERE NAAM='Stiltegebied' on the vigerende-verordening layer (27 features, live count 2026-08-30T08:30Z). Open-data alias for the Stiltegebied GIO (art. 9.25 lid 1: stille kern + bufferzone); the 1500 m Aandachtsgebied (art. 9.25 lid 2) is derived by the zone engine, not downloaded."
+  },
+  {
+   "id": "agrest-ov-natuurnetwerk",
+   "title": "Omgevingsverordening — Natuurnetwerk Nederland",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "layerName": "Omgevingsverordening_Provincie_Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "9e750651-8e97-4bc6-b09e-fc30b5f3e83c_id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "DOCUMENT_URL",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "SYMBOOL_CODE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "TYPE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GROEP",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 390,
+   "maxRecordCount": 1000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=json&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true",
+   "queryTemplateParams": {
+    "where": "NAAM='Natuurnetwerk Nederland'"
+   },
+   "role": "exclusion",
+   "authoritative": true,
+   "licenseNote": "Structured open data of provincie Utrecht on agrest.geodata-utrecht.nl; service is anonymously queryable; no license statement exposed by the endpoint itself (platform presented as open data).",
+   "lastChecked": "2026-08-30T08:30:00Z",
+   "supportsPagination": true,
+   "geojsonFormatSupported": false,
+   "geojsonNote": "f=geojson returns HTTP 400; use f=json (esri JSON) + outSR",
+   "bytesPerFeature": null,
+   "estimatedFullDownloadMB": null,
+   "extent": {
+    "xmin": 114240.99700000137,
+    "ymin": 429919.006000001,
+    "xmax": 171506.37099999934,
+    "ymax": 479588.2890000008,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "WHERE NAAM='Natuurnetwerk Nederland' on the vigerende-verordening layer (390 features, live count 2026-08-30T08:30Z). Open-data alias for the NNN GIO of Bijlage II (art. 6.2/6.3); preferred over the 10638-feature national BBN copy arcgis-nnn-jun2024 because it is the province's own designation set with IMOW ids."
+  },
+  {
+   "id": "agrest-ov-groene-contour",
+   "title": "Omgevingsverordening — Groene contour",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "layerName": "Omgevingsverordening_Provincie_Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "9e750651-8e97-4bc6-b09e-fc30b5f3e83c_id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "DOCUMENT_URL",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "SYMBOOL_CODE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "TYPE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GROEP",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 257,
+   "maxRecordCount": 1000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=json&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true",
+   "queryTemplateParams": {
+    "where": "NAAM='Groene contour'"
+   },
+   "role": "exclusion",
+   "authoritative": true,
+   "licenseNote": "Structured open data of provincie Utrecht on agrest.geodata-utrecht.nl; service is anonymously queryable; no license statement exposed by the endpoint itself (platform presented as open data).",
+   "lastChecked": "2026-08-30T08:30:00Z",
+   "supportsPagination": true,
+   "geojsonFormatSupported": false,
+   "geojsonNote": "f=geojson returns HTTP 400; use f=json (esri JSON) + outSR",
+   "bytesPerFeature": null,
+   "estimatedFullDownloadMB": null,
+   "extent": {
+    "xmin": 114240.99700000137,
+    "ymin": 429919.006000001,
+    "xmax": 171506.37099999934,
+    "ymax": 479588.2890000008,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "WHERE NAAM='Groene contour' on the vigerende-verordening layer (257 features, live count 2026-08-30T08:30Z). Open-data alias for the Groene contour GIO (art. 6.4/6.5); used as compensation marker zone (FR-W-15)."
+  },
+  {
+   "id": "agrest-ov-landelijk-gebied",
+   "title": "Omgevingsverordening — Landelijk gebied",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "layerName": "Omgevingsverordening_Provincie_Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "9e750651-8e97-4bc6-b09e-fc30b5f3e83c_id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "DOCUMENT_URL",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "SYMBOOL_CODE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "TYPE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GROEP",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 4,
+   "maxRecordCount": 1000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=json&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true",
+   "queryTemplateParams": {
+    "where": "NAAM='Landelijk gebied'"
+   },
+   "role": "inclusion",
+   "authoritative": true,
+   "licenseNote": "Structured open data of provincie Utrecht on agrest.geodata-utrecht.nl; service is anonymously queryable; no license statement exposed by the endpoint itself (platform presented as open data).",
+   "lastChecked": "2026-08-30T08:30:00Z",
+   "supportsPagination": true,
+   "geojsonFormatSupported": false,
+   "geojsonNote": "f=geojson returns HTTP 400; use f=json (esri JSON) + outSR",
+   "bytesPerFeature": null,
+   "estimatedFullDownloadMB": null,
+   "extent": {
+    "xmin": 114240.99700000137,
+    "ymin": 429919.006000001,
+    "xmax": 171506.37099999934,
+    "ymax": 479588.2890000008,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "WHERE NAAM='Landelijk gebied' on the vigerende-verordening layer (4 features, live count 2026-08-30T08:30Z). Open-data alias for the Landelijk gebied GIO (art. 9.2/9.3); the provincial wind pathway of afdeling 5.1 operates inside it (FR-W-21)."
+  },
+  {
+   "id": "agrest-ov-gebied-zonneveld",
+   "title": "Omgevingsverordening — Gebied zonneveld",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "layerName": "Omgevingsverordening_Provincie_Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "9e750651-8e97-4bc6-b09e-fc30b5f3e83c_id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "DOCUMENT_URL",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "SYMBOOL_CODE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "TYPE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GROEP",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 44,
+   "maxRecordCount": 1000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=json&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true",
+   "queryTemplateParams": {
+    "where": "NAAM='Gebied zonneveld'"
+   },
+   "role": "inclusion",
+   "authoritative": true,
+   "licenseNote": "Structured open data of provincie Utrecht on agrest.geodata-utrecht.nl; service is anonymously queryable; no license statement exposed by the endpoint itself (platform presented as open data).",
+   "lastChecked": "2026-08-30T14:05:30Z",
+   "supportsPagination": true,
+   "geojsonFormatSupported": false,
+   "geojsonNote": "f=geojson returns HTTP 400; use f=json (esri JSON) + outSR",
+   "bytesPerFeature": null,
+   "estimatedFullDownloadMB": null,
+   "extent": {
+    "xmin": 114240.99700000137,
+    "ymin": 429919.006000001,
+    "xmax": 171506.37099999934,
+    "ymax": 479588.2890000008,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Vigerende omgevingsverordening as IMOW polygons. Zon subset: WHERE NAAM='Gebied zonneveld' -> 44 features (live paged count 2026-08-30; note: this service's returnCountOnly ignores where, counts derived by paging). Open-data alias for the Gebied zonneveld GIO of art. 5.5 (/join/id/regdata/pv26/2025/gioa748cb8c-4f7f-4bbb-83d4-54becd3e0d1d/nld@2025-10-10;849, Bijlage II CVDR704250); LOCATIE_IDs nl.imow-pv26.gebied.*849e12* observed on the features."
+  },
+  {
+   "id": "agrest-ov-oude-bosgroeiplaatsen",
+   "title": "Omgevingsverordening — Waardevolle Houtopstanden - oude bosgroeiplaatsen",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "layerName": "Omgevingsverordening_Provincie_Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "9e750651-8e97-4bc6-b09e-fc30b5f3e83c_id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "DOCUMENT_URL",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "SYMBOOL_CODE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "TYPE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GROEP",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 700,
+   "maxRecordCount": 1000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=json&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true",
+   "queryTemplateParams": {
+    "where": "NAAM='Waardevolle Houtopstanden - oude bosgroeiplaatsen'"
+   },
+   "role": "conditional",
+   "authoritative": true,
+   "licenseNote": "Structured open data of provincie Utrecht on agrest.geodata-utrecht.nl; service is anonymously queryable; no license statement exposed by the endpoint itself (platform presented as open data).",
+   "lastChecked": "2026-08-30T14:05:30Z",
+   "supportsPagination": true,
+   "geojsonFormatSupported": false,
+   "geojsonNote": "f=geojson returns HTTP 400; use f=json (esri JSON) + outSR",
+   "bytesPerFeature": null,
+   "estimatedFullDownloadMB": null,
+   "extent": {
+    "xmin": 114240.99700000137,
+    "ymin": 429919.006000001,
+    "xmax": 171506.37099999934,
+    "ymax": 479588.2890000008,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Vigerende omgevingsverordening as IMOW polygons. Bos subset: WHERE NAAM='Waardevolle Houtopstanden - oude bosgroeiplaatsen' -> 700 features (live paged count 2026-08-30; returnCountOnly ignores where on this service). Open-data alias for the oude bosgroeiplaatsen GIO of art. 6.13 (/join/id/regdata/pv26/2025/gio3940cf76-bee0-4a1a-8d51-aa0d49be7153/nld@2025-10-10;842, Bijlage II CVDR704250)."
+  },
+  {
+   "id": "agrest-ov-waterbergingsgebied",
+   "title": "Omgevingsverordening — Waterbergingsgebied",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "layerName": "Omgevingsverordening_Provincie_Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "9e750651-8e97-4bc6-b09e-fc30b5f3e83c_id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "DOCUMENT_URL",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "SYMBOOL_CODE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "TYPE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GROEP",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 18,
+   "maxRecordCount": 1000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=json&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true",
+   "queryTemplateParams": {
+    "where": "NAAM='Waterbergingsgebied'"
+   },
+   "role": "exclusion",
+   "authoritative": true,
+   "licenseNote": "Structured open data of provincie Utrecht on agrest.geodata-utrecht.nl; service is anonymously queryable; no license statement exposed by the endpoint itself (platform presented as open data).",
+   "lastChecked": "2026-10-04T16:20:00Z",
+   "supportsPagination": true,
+   "geojsonFormatSupported": false,
+   "geojsonNote": "f=geojson returns HTTP 400; use f=json (esri JSON) + outSR",
+   "bytesPerFeature": null,
+   "estimatedFullDownloadMB": null,
+   "extent": {
+    "xmin": 156843.3,
+    "ymin": 443849.5,
+    "xmax": 170660.2,
+    "ymax": 464343.3,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Vigerende omgevingsverordening as IMOW polygons. Waterberging subset: WHERE NAAM='Waterbergingsgebied' -> 18 features (live paged count 2026-10-04T16:20Z; returnCountOnly ignores where on this service). Open-data alias for the Waterbergingsgebied werkingsgebied of art. 2.15 instructieregel WA-02: omgevingsplan bevat geen regels die ontwikkelingen toestaan die in strijd zijn met de waterbergingsfunctie, tenzij bestaande uitbreidingsrechten (exclusion met bestaansuitzondering). Every feature carries IMOW LOCATIE_ID (nl.imow-pv26.gebied.003*) and the verordening AKN DOCUMENT_URL. Union 5.15 km2, 0/18 features invalid as served (cached 2026-10-04)."
+  },
+  {
+   "id": "agrest-ov-overstroombaar-gebied",
+   "title": "Omgevingsverordening — Overstroombaar gebied",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "layerName": "Omgevingsverordening_Provincie_Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "9e750651-8e97-4bc6-b09e-fc30b5f3e83c_id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "DOCUMENT_URL",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "SYMBOOL_CODE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "TYPE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GROEP",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 2,
+   "maxRecordCount": 1000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=json&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true",
+   "queryTemplateParams": {
+    "where": "NAAM='Overstroombaar gebied'"
+   },
+   "role": "conditional",
+   "authoritative": true,
+   "licenseNote": "Structured open data of provincie Utrecht on agrest.geodata-utrecht.nl; service is anonymously queryable; no license statement exposed by the endpoint itself (platform presented as open data).",
+   "lastChecked": "2026-10-04T16:20:00Z",
+   "supportsPagination": true,
+   "geojsonFormatSupported": false,
+   "geojsonNote": "f=geojson returns HTTP 400; use f=json (esri JSON) + outSR",
+   "bytesPerFeature": null,
+   "estimatedFullDownloadMB": null,
+   "extent": {
+    "xmin": 114241.0,
+    "ymin": 429919.0,
+    "xmax": 171506.4,
+    "ymax": 479588.3,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Vigerende omgevingsverordening as IMOW polygons. Overstroombaar subset: WHERE NAAM='Overstroombaar gebied' -> 2 features (live paged count 2026-10-04T16:20Z; returnCountOnly ignores where on this service). Open-data alias for the Overstroombaar gebied werkingsgebied of art. 2.16 instructieregel WA-03: omgevingsplan bevat regels die rekening houden met overstromingsrisico's, binnendijks voor kwetsbare/vitale objecten en woonwijken/bedrijventerreinen, buitendijks ook individuele woningen/bedrijven (conditional, objecttype-differentiatie). The hosted AGOL mirror ow_bwp_overstroombaar_gebied (arcgis-owbwp-overstroombaar) covers the same designation but without IMOW citations; this IMOW layer is the authoritative twin. Every feature carries IMOW LOCATIE_ID (nl.imow-pv26.gebied.003*) and the verordening AKN DOCUMENT_URL. Union 1207.18 km2 (binnendijks + buitendijks), 0/2 features invalid as served (cached 2026-10-04)."
+  },
+  {
+   "id": "agrest-ov-vrijwaringszone-regionale-waterkering",
+   "title": "Omgevingsverordening — Vrijwaringszone regionale waterkering",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "layerName": "Omgevingsverordening_Provincie_Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "9e750651-8e97-4bc6-b09e-fc30b5f3e83c_id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "DOCUMENT_URL",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "SYMBOOL_CODE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "TYPE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GROEP",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 33,
+   "maxRecordCount": 1000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=json&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true",
+   "queryTemplateParams": {
+    "where": "NAAM='Vrijwaringszone regionale waterkering'"
+   },
+   "role": "conditional",
+   "authoritative": true,
+   "licenseNote": "Structured open data of provincie Utrecht on agrest.geodata-utrecht.nl; service is anonymously queryable; no license statement exposed by the endpoint itself (platform presented as open data).",
+   "lastChecked": "2026-10-04T16:20:00Z",
+   "supportsPagination": true,
+   "geojsonFormatSupported": false,
+   "geojsonNote": "f=geojson returns HTTP 400; use f=json (esri JSON) + outSR",
+   "bytesPerFeature": null,
+   "estimatedFullDownloadMB": null,
+   "extent": {
+    "xmin": 114241.0,
+    "ymin": 430057.1,
+    "xmax": 167033.8,
+    "ymax": 479588.3,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Vigerende omgevingsverordening as IMOW polygons. Vrijwaringszone subset: WHERE NAAM='Vrijwaringszone regionale waterkering' -> 33 features (live paged count 2026-10-04T16:20Z; returnCountOnly ignores where on this service). Open-data alias for the Vrijwaringszone regionale waterkering werkingsgebied of art. 2.14 instructieregel WA-01: omgevingsplan bevat regels die de waterkerende functie beschermen en voorzien in een vrijwaringszone aan weerszijden van de waterkering (conditional, beschermende instructieregel voor riparische ontwikkelingen). Every feature carries IMOW LOCATIE_ID (nl.imow-pv26.gebied.003*) and the verordening AKN DOCUMENT_URL. Union 28.06 km2 (vrijwaringsstroken aan weerszijden van regionale waterkeringen), 0/33 features invalid as served (cached 2026-10-04)."
+  },
+  {
+   "id": "agrest-ov-grondwaterbeschermingszone",
+   "title": "Omgevingsverordening — Grondwaterbeschermingszone",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "layerName": "Omgevingsverordening_Provincie_Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "9e750651-8e97-4bc6-b09e-fc30b5f3e83c_id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "DOCUMENT_URL",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "SYMBOOL_CODE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "TYPE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GROEP",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 26,
+   "maxRecordCount": 1000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=json&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true",
+   "queryTemplateParams": {
+    "where": "NAAM='Grondwaterbeschermingszone'"
+   },
+   "role": "exclusion",
+   "authoritative": true,
+   "licenseNote": "Structured open data of provincie Utrecht on agrest.geodata-utrecht.nl; service is anonymously queryable; no license statement exposed by the endpoint itself (platform presented as open data).",
+   "lastChecked": "2026-10-04T16:47:00Z",
+   "supportsPagination": true,
+   "geojsonFormatSupported": false,
+   "geojsonNote": "f=geojson returns HTTP 400; use f=json (esri JSON) + outSR",
+   "bytesPerFeature": null,
+   "estimatedFullDownloadMB": null,
+   "extent": {
+    "xmin": 116749.6,
+    "ymin": 429919.0,
+    "xmax": 167826.6,
+    "ymax": 476434.7,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Vigerende omgevingsverordening as IMOW polygons. Grondwaterbeschermingszone subset: WHERE NAAM='Grondwaterbeschermingszone' -> 26 features (live paged count 2026-10-04T16:47Z; returnCountOnly ignores where on this service). Open-data alias for the grondwaterbeschermingszone umbrella-werkingsgebied of the bodem-instructieregels: art. 3.7 (BO-01: omgevingsplan laat binnen Waterwingebied, Grondwaterbeschermingsgebied, Boringsvrije zone, Beschermingszone oppervlaktewaterwinning, 100-jaarsaandachtsgebied en Gebied kwetsbare strategische grondwatervoorraad geen activiteiten toe die een risico vormen voor de winning voor menselijke consumptie), art. 3.9 (BO-03: verbod op nieuwe (dieren)begraafplaatsen/uitstrooivelden binnen Waterwingebied/Grondwaterbeschermingsgebied) en art. 3.10 (BO-04: rekening-houden-eis binnen het Gebied matig kwetsbare strategische grondwatervoorraad). Geometrically verified 2026-10-04 (shapely, live query): the 26-feature union (701.18 km2) equals the union of those seven letterlijke aanwijzingsgebieden with a 0.0000 km2 symmetric difference — de IMOW-umbrella, geen surrogaat. Rol 'exclusion' volgt de dominante verbodsformulering van 3.7/3.9 ('laat geen activiteiten toe', 'verbiedt'), spiegel van de art.-2.15-exclusion uit taak 5; caveat voor Taak 9: de art.-3.10-subset is conditional (rekening-houden) en de umbrella is een superset van de individuele artikel-werkingsgebieden — per-rule differentiatie hoort in de track-config/geoBinding, niet in het layer-bestand. Every feature carries IMOW LOCATIE_ID (nl.imow-pv26.gebied.003*) and the verordening AKN DOCUMENT_URL. Union 701.18 km2, 0/26 features invalid as served (cached 2026-10-04). De bestaande arcgis-owbwp-grondwaterbeschermingszone-entry (AGOL-mirror ow_bwp_grondwater_beschermingszone op services.arcgis.com, 84 feats, wkid 3857, functie/omschrijvi-velden zonder IMOW LOCATIE_ID/DOCUMENT_URL) dekt niet dezelfde service+laag; deze agrest IMOW-layer is de autoritatieve bron (spiegel van de ow_bwp_overstroombaar-situatie uit taak 5, daar gedocumenteerd in de entry-notes)."
+  },
+  {
+   "id": "agrest-ov-gebied-gesloten-stortplaats",
+   "title": "Omgevingsverordening — Gebied gesloten stortplaats",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "layerName": "Omgevingsverordening_Provincie_Utrecht",
+   "geometryType": "esriGeometryPolygon",
+   "crs": {
+    "wkid": 28992
+   },
+   "fields": [
+    {
+     "name": "9e750651-8e97-4bc6-b09e-fc30b5f3e83c_id",
+     "type": "esriFieldTypeOID"
+    },
+    {
+     "name": "DOCUMENT_URL",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIEGROEP_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "LOCATIE_ID",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "SYMBOOL_CODE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "TYPE",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "GROEP",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "NAAM",
+     "type": "esriFieldTypeString"
+    },
+    {
+     "name": "OBJECTID",
+     "type": "esriFieldTypeDouble"
+    }
+   ],
+   "featureCount": 1,
+   "maxRecordCount": 1000,
+   "queryTemplate": "{serviceUrl}/query?where={where}&outFields=*&f=json&outSR=28992&resultRecordCount=1000&resultOffset={offset}&returnGeometry=true",
+   "queryTemplateParams": {
+    "where": "NAAM='Gebied gesloten stortplaats'"
+   },
+   "role": "context",
+   "authoritative": true,
+   "licenseNote": "Structured open data of provincie Utrecht on agrest.geodata-utrecht.nl; service is anonymously queryable; no license statement exposed by the endpoint itself (platform presented as open data).",
+   "lastChecked": "2026-10-04T16:47:00Z",
+   "supportsPagination": true,
+   "geojsonFormatSupported": false,
+   "geojsonNote": "f=geojson returns HTTP 400; use f=json (esri JSON) + outSR",
+   "bytesPerFeature": null,
+   "estimatedFullDownloadMB": null,
+   "extent": {
+    "xmin": 155317.3,
+    "ymin": 467928.6,
+    "xmax": 156315.2,
+    "ymax": 468568.9,
+    "spatialReference": {
+     "wkid": 28992,
+     "latestWkid": 28992
+    }
+   },
+   "notes": "Vigerende omgevingsverordening as IMOW polygons. Stortplaats subset: WHERE NAAM='Gebied gesloten stortplaats' -> 1 feature (live paged count 2026-10-04T16:47Z; returnCountOnly ignores where on this service), TYPE 'bodem', GROEP 'stortplaats (gesloten)'. Open-data alias for the werkingsgebied of art. 3.108 aanwijzingsregel (BO-05): een omgevingsplanactiviteit die plaatsvindt in het Gebied gesloten stortplaats is een omgevingsplanactiviteit van provinciaal belang (bodembescherming bij het openen van de gesloten stortplaats, per de artikelsgewijze toelichting). Rol 'context': de regel classificeert jurisdictie i.p.v. de toelaatbaarheid van activiteiten te sturen — geen exclusion/conditional-op-bodemsfeer. Every feature carries IMOW LOCATIE_ID (nl.imow-pv26.gebied.003*) and the verordening AKN DOCUMENT_URL. Union 0.37 km2, 0/1 features invalid as served (cached 2026-10-04). Geometrisch volledig buiten de Grondwaterbeschermingszone-umbrella (0.00 km2 overlap, live geverifieerd 2026-10-04)."
+  }
+ ]
+}
