@@ -17,6 +17,7 @@ load_dotenv(Path(__file__).resolve().parent / ".env")
 import journal  # noqa: E402
 from agent import build_agent  # noqa: E402
 from graph_trace import run_streamed  # noqa: E402
+from laya_router import augment_user_message  # noqa: E402
 from models import check_ollama, orchestrator_model_name, subagent_model_name  # noqa: E402
 
 DEFAULT_QUESTION = (
@@ -26,8 +27,9 @@ DEFAULT_QUESTION = (
 
 
 def main() -> None:
-    question = " ".join(sys.argv[1:]) or DEFAULT_QUESTION
-    journal.reset(question)
+    raw = " ".join(sys.argv[1:]) or DEFAULT_QUESTION
+    journal.reset(raw)
+    question = augment_user_message(raw)
     try:
         check_ollama([orchestrator_model_name(), subagent_model_name()])
     except SystemExit as exc:

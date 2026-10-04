@@ -23,7 +23,9 @@ from models import (  # noqa: E402
     subagent_model_name,
 )
 from pocs import poc_subagents  # noqa: E402
+from tools.laya import laya_advise_request  # noqa: E402
 from tools.recipes import get_recipe, list_recipes  # noqa: E402
+from laya_router import augment_user_message, laya_enabled  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 
@@ -36,9 +38,12 @@ SYSTEM_PROMPT = (HERE / "prompts" / "recipe_driver.md").read_text(encoding="utf-
 
 
 def build_agent():
+    tools = [list_recipes, get_recipe]
+    if laya_enabled():
+        tools.append(laya_advise_request)
     return create_deep_agent(
         model=ollama_model(orchestrator_model_name()),
-        tools=[list_recipes, get_recipe],
+        tools=tools,
         system_prompt=SYSTEM_PROMPT,
         subagents=poc_subagents(),
     )
@@ -46,7 +51,7 @@ def build_agent():
 
 def main() -> None:
     check_ollama([orchestrator_model_name(), subagent_model_name()])
-    question = " ".join(sys.argv[1:]) or DEFAULT_QUESTION
+    question = augment_user_message(" ".join(sys.argv[1:]) or DEFAULT_QUESTION)
     result = build_agent().invoke(
         {"messages": [{"role": "user", "content": question}]},
         config={"configurable": {"thread_id": "nldt-recipes"}},

@@ -39,6 +39,7 @@
   .step.assistant { border-left-color:#0ea5e9; background:#eff8ff; } .step.assistant .badge { background:#d6ecff; }
   .step.done { border-left-color:#15803d; background:#e7f6ec; } .step.done .badge { background:#bbf0cd; }
   .step.graph_node { border-left-color:#6366f1; background:#eef2ff; } .step.graph_node .badge { background:#c7d2fe; }
+  .step.laya { border-left-color:#0d9488; background:#ecfdf5; } .step.laya .badge { background:#99f6e4; }
   .step .sum { flex:1; } .step .sum small { display:block; color:#667; font-size:11px; margin-top:2px; }
   #agentgraph { width:100%; height:186px; display:block; background:#fff; border:1px solid var(--line); border-radius:8px; margin-bottom:10px; }
   .gedge { stroke:#d9deea; stroke-width:1.2; } .gedge.lit { stroke:var(--blue); stroke-width:2.4; }
@@ -65,6 +66,9 @@
   .card.active { border-color:var(--blue); box-shadow:0 0 0 2px rgba(37,99,235,.2); }
   .delta { font-size:19px; font-weight:600; margin:4px 0; } .neg { color:#b91c1c; } .pos { color:#15803d; }
   .note { font-size:11.5px; color:#556; }
+  .what { font-size:12px; color:#1a2233; background:#f0f6ff; border-left:3px solid #2563eb; border-radius:4px; padding:5px 7px; margin:6px 0 2px; }
+  .ctitle { font-size:13.5px; font-weight:650; margin-bottom:2px; padding-right:56px; }
+  #viz-note { font-weight:600; color:#1a2233; }
   details { margin-top:5px; } summary { font-size:11.5px; color:var(--blue); cursor:pointer; }
   .pin { float:right; font-size:10.5px; border:1px solid var(--line); background:#fff; border-radius:6px; padding:2px 8px; cursor:pointer; color:#556; margin-left:6px; }
   .pin.on { background:#ffedd5; border-color:#ea580c; color:#9a3412; font-weight:600; }
@@ -87,6 +91,7 @@
   <div><label>Prompting / modus</label><select id="mode"></select></div>
   <div><label>Orchestrator model</label><select id="model"></select></div>
   <div><label>Specialist model</label><select id="submodel"></select></div>
+  <div><label>Laya routing (MLX)</label><select id="use_laya"><option value="1">aan — lokaal advies vóór run</option><option value="0">uit</option></select></div>
   <button id="start">▶ Start simulatie</button>
   <button id="stop">■ Stop</button>
 </div>
@@ -311,6 +316,8 @@ async function initControls() {
   };
   $('model').value = pick('sim-model', models.find(m => m.includes('31b-mlx')) || models[0] || '');
   $('submodel').value = pick('sim-submodel', models.find(m => m.includes('12b-mlx')) || models.find(m => m.includes('12b')) || models[0] || '');
+  const savedLaya = localStorage.getItem('sim-laya');
+  if (savedLaya === '0') $('use_laya').value = '0';
   $('models').textContent = `${$('model').value} + ${$('submodel').value}`;
 }
 
@@ -320,10 +327,12 @@ $('start').addEventListener('click', async () => {
     mode: $('mode').value,
     model: $('model').value,
     submodel: $('submodel').value,
+    use_laya: $('use_laya').value === '1',
   };
   localStorage.setItem('sim-scenario', body.scenario);
   localStorage.setItem('sim-model', body.model);
   localStorage.setItem('sim-submodel', body.submodel);
+  localStorage.setItem('sim-laya', body.use_laya ? '1' : '0');
   fullReset();
   $('start').disabled = true; $('status').textContent = 'running'; $('status').className = 'running';
   $('stop').style.display = 'inline-block';
@@ -451,7 +460,7 @@ async function focusScen(base, control, scenId, el) {
     L.geoJSON(diff.lost, { style: { color: '#7f1d1d', weight: .6, fillColor: '#dc2626', fillOpacity: 1 } }).addTo(newLayer);
     L.geoJSON(diff.gained, { style: { color: '#14532d', weight: .6, fillColor: '#16a34a', fillOpacity: 1 } }).addTo(newLayer);
     $('viz-note').textContent =
-      `${scenId}: ${diff.lostKm2.toFixed(2)} km² verloren (rood) · ${diff.gainedKm2.toFixed(2)} km² gewonnen (groen)`;
+      `Op de kaart: ${diff.lostKm2.toFixed(1)} km² verdwijnt (rood) · ${diff.gainedKm2.toFixed(1)} km² komt erbij (groen) · ${diff.unchanged} gebieden ongewijzigd`;
   } else {
     let scen = control;
     try { scen = await fetch(`${base}/scenarios/${scenId}.geojson`).then(r => r.json()); } catch {}

@@ -125,6 +125,27 @@ De balk **LangGraph:** onder de agent-chips toont de laatste actieve node, stap
 nummer en subgraph-pad. Agent-chips krijgen een gele rand als die agent net
 actief was.
 
+### Laya (Apple Silicon MLX)
+
+[Laya](https://www.orcarouter.ai/blog/laya-on-apple-silicon-mlx) is een **typed
+decision model** (geen LLM): één MLX-forward pass, milliseconden, ~&lt;1 GiB peak.
+Het geeft **routing-advies** (POC, workflow, intake/build/critic) vóór de Ollama-
+orchestrator draait.
+
+```bash
+pip install laya-mlx   # arm64 macOS only (staat ook in requirements.txt)
+# DEEP_AGENT_LAYA=1    # default op Apple Silicon; zet 0 om uit te schakelen
+```
+
+- Start van elke `live.py`-run: journal-regel `kind: laya`; hint in de user message **alleen**
+  als `primary_poc` én `workflow` confidence ≥ `LAYA_MIN_CONFIDENCE` (default **0.55**).
+  Anders: journal “hint onderdrukt”, orchestrator routeert zonder Laya-blok.
+- Orchestrator-tool: `laya_advise_request` voor her-classificatie mid-run.
+- Dashboard: dropdown **Laya routing (MLX)**; timeline toont groene `laya`-stappen.
+
+Laya vervangt de orchestrator niet — zero-shot scores zijn beperkt; gebruik het als
+snelle lokale head naast tool-calling LLM’s.
+
 ## Next steps
 
 - Wire a `run_recipe` tool to the Cookbook + OGC process backends (per POC).

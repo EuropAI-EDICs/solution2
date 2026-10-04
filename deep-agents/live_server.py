@@ -125,6 +125,7 @@ class RunBody(BaseModel):
     mode: str
     model: str
     submodel: str
+    use_laya: bool = True
 
 
 @app.post("/api/run")
@@ -151,6 +152,7 @@ def run(body: RunBody) -> dict:
     env["DEEP_AGENT_SUBMODEL"] = body.submodel
     if body.mode == "keten":
         env["NLDT_REQUIRE_INTAKE"] = "1"  # hard gate: build refuses without a submitted request
+    env["DEEP_AGENT_LAYA"] = "1" if body.use_laya else "0"
     JOURNAL.parent.mkdir(parents=True, exist_ok=True)
     log = (RUNS / "live" / "run.log").open("w")
     _proc.update(
