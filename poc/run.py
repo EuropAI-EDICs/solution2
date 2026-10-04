@@ -273,15 +273,25 @@ TRACKS: Dict[str, Dict[str, Any]] = {
                                 "Decision table (programming stage)",
         "prov_namespace": "ldttoolbox:poc:bodem:",
         "headline_note": (
-            "Semantics: the grondwaterbeschermingszone instructieregels (art. 3.2 core) bound "
-            "soil-affecting activities (infiltration, grondverzet) inside the designated protection "
-            "zones; gesloten stortplaats and rommelterrein articles apply only where the letteral "
-            "text carries a gebiedsaanwijzing. Groundwater permitting frames (art. 3.1) are "
-            "procedural and deliberately abstained. Programming-stage screening artifact."
+            "Semantics: the opportunity zone is the province AOI minus the "
+            "grondwaterbeschermingszone umbrella — the art. 3.7 instructieregel "
+            "('laat geen activiteiten toe die een risico vormen voor de winning') "
+            "and the art. 3.9 verbod (new burial facilities) are executed as "
+            "default exclusions on the conservative umbrella union of the "
+            "designation areas; art. 3.10 ('rekening houden met') stays a "
+            "conditional marker (weakest take-into-account variant, V4), and the "
+            "art. 3.108 gesloten stortplaats aanwijzingsregel a context marker. "
+            "Groundwater permitting frames (art. 3.1) are procedural and "
+            "deliberately abstained. Programming-stage screening artifact; "
+            "per-location permission assessment remains required."
         ),
         "limitations": lambda cov, abst: [
             "Grondwaterbeheer (art. 3.1) and verontreiniging (art. 3.3) are permitting/assessment "
             "frames: abstained under cite-or-abstain.",
+            "The art. 3.7/3.9 exclusions run on the conservative umbrella union of the designation "
+            "areas (superset per article); whether a specific activity 'een risico vormt voor de "
+            "winning' is a per-case V4 assessment, and art. 3.10 (matig kwetsbare voorraad, "
+            "'rekening houden met') is deliberately a marker, not an extra elimination.",
             (
                 f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms): "
                 "routed to the V4 human-expert checkpoint."

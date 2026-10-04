@@ -1034,36 +1034,35 @@ TEMPLATE_SPECS: Dict[str, Dict[str, Any]] = {
     # NOTE on the umbrella rules (BO-01/BO-03/BO-04): art. 3.7 ('laat geen
     # activiteiten toe') and art. 3.9 ('verbiedt') are of the non-permission
     # family that FR-WA-02 formalizes as engine.zone.exclude_within, and the
-    # zone alias carries registry role 'exclusion'. They are executed as
-    # conditional markers because the umbrella (701.18 km2) as an AOI-seeded
-    # exclusion breaks the V3 independent re-execution: engine.reexecute_independent
-    # skips exclusions when no inclusion rule seeds the zone (documented
-    # pre-existing engine bug, engine.py left untouched per task brief), so a
-    # 701 km2 exclusion would flip the pipeline verdict to fail. The exclusion
-    # semantics are carried in the context tags (exclusion_family_*) and can be
-    # switched to engine.zone.exclude_within when the V3 seeding bug is fixed.
+    # zone alias carries registry role 'exclusion'. Since the V3 seeding fix
+    # (engine.reexecute_independent seeds the zone from the AOI before the
+    # exclusion loop) both are executed as actual exclusions on the umbrella
+    # alias (701.126 km2 in-AOI, conservative superset of the literal
+    # designation areas per article). BO-04 (art. 3.10 'rekening houden met') is the
+    # weakest take-into-account variant of the family — same legal form as
+    # FR-WA-03's art. 2.16 — and stays a conditional marker routed to V4.
     "BO-01": {
-        "kind": "conditional",
+        "kind": "exclusion",
         "zone": {"zoneIds": ["grondwater_beschermingszone"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_BODEM},
         "conditions": [],
-        "extra_tags": ["conditional_within_grondwater_beschermingszone", "exclusion_family_non_permission"],
-        "rationale": "CORE BODEM RULE (art. 3.7). Instructieregel directing omgevingsplannen for locations within the six literal designation areas (Waterwingebied, Grondwaterbeschermingsgebied, Boringsvrije zone, Beschermingszone oppervlaktewaterwinning, 100-jaarsaandachtsgebied, Gebied kwetsbare strategische grondwatervoorraad) to allow no activities posing a risk to abstraction for human consumption. The umbrella zone overlay is deterministic (live-verified union of the seven designation areas, conservative superset per article); whether a specific soil activity 'een risico vormt voor de winning' is a case-specific assessment marked for human review (V4) — the same reading FR-W-20 gives this article for wind — hence a conditional marker (mirroring FR-WA-01/FR-WA-03), never an elimination at PoC stage (see the BODEM track note above).",
-        "executable_ref": "engine.zone.within@poc-v1",
+        "extra_tags": ["exclusion_grondwater_beschermingszone", "risicovolle_activiteiten_geweigerd_v4_per_case"],
+        "rationale": "CORE BODEM RULE (art. 3.7). Instructieregel directing omgevingsplannen for locations within the six literal designation areas (Waterwingebied, Grondwaterbeschermingsgebied, Boringsvrije zone, Beschermingszone oppervlaktewaterwinning, 100-jaarsaandachtsgebied, Gebied kwetsbare strategische grondwatervoorraad) to allow no activities posing a risk to abstraction for human consumption. Formalized as the default zone exclusion for soil activity (the FR-WA-02 idiom: 'laat geen activiteiten toe' is the non-permission family); the umbrella zone overlay is deterministic (live-verified union of the designation areas, conservative superset per article). Whether a SPECIFIC activity 'een risico vormt voor de winning' stays a per-case V4 assessment carried in the context tags — the engine applies the protective default, exactly like FR-W-14's discretionary exceptions.",
+        "executable_ref": "engine.zone.exclude_within@poc-v1",
     },
     "BO-03": {
-        "kind": "conditional",
+        "kind": "exclusion",
         "zone": {"zoneIds": ["grondwater_beschermingszone"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_BODEM},
         "conditions": [],
-        "extra_tags": ["conditional_within_grondwater_beschermingszone", "verbod_nieuwe_begraafplaats_uitstrooiveld_dierenbegraafplaats", "exclusion_family_verbod"],
-        "rationale": "Art. 3.9 instructieregel: an omgevingsplan for locations within a Waterwingebied or Grondwaterbeschermingsgebied forbids establishing a new cemetery, scattering field or animal cemetery; the second paragraph adds rules for existing facilities. The prohibition is object-specific (new burial facilities, a soil-invasive activity class within soil_activity), not a blanket prohibition of soil activity, so for the soil_activity object type it is carried as a conditional marker inside the umbrella (conservative superset: both named designations are covered by the verified union), with the prohibited activity classes in the context tags — executed per the BODEM track note above (exclusion family, marker until the V3 seeding fix).",
-        "executable_ref": "engine.zone.within@poc-v1",
+        "extra_tags": ["exclusion_grondwater_beschermingszone", "verbod_nieuwe_begraafplaats_uitstrooiveld_dierenbegraafplaats"],
+        "rationale": "Art. 3.9 instructieregel: an omgevingsplan for locations within a Waterwingebied or Grondwaterbeschermingsgebied forbids establishing a new cemetery, scattering field or animal cemetery; the second paragraph adds rules for existing facilities. Executed as the exclusion on the umbrella alias (conservative superset: both named designations are covered by the verified union) — the literal verbod is object-specific (new burial facilities, a soil-invasive activity class within soil_activity), so the prohibited activity classes are carried in the context tags; for the track-level soil_activity screening the umbrella exclusion applies the protective default per the BODEM track note above.",
+        "executable_ref": "engine.zone.exclude_within@poc-v1",
     },
     "BO-04": {
         "kind": "conditional",
         "zone": {"zoneIds": ["grondwater_beschermingszone"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_BODEM},
         "conditions": [],
         "extra_tags": ["conditional_within_grondwater_beschermingszone", "rekening_houden_grondwaterkwaliteit"],
-        "rationale": "Art. 3.10 instructieregel, the weakest variant of the family: plans within the 'Gebied matig kwetsbare strategische grondwatervoorraad' must 'rekening houden met' groundwater-quality protection for abstraction — a take-into-account duty, exactly the art. 2.16 form that FR-WA-03 formalizes as a conditional marker routed to V4, never an elimination. The matig-kwetsbare designation is fully inside the umbrella union (verified in task 8), so the umbrella binding is a conservative superset for this marker.",
+        "rationale": "Art. 3.10 instructieregel, the weakest variant of the family: plans within the 'Gebied matig kwetsbare strategische grondwatervoorraad' must 'rekening houden met' groundwater-quality protection for abstraction — a take-into-account duty, exactly the art. 2.16 form that FR-WA-03 formalizes as a conditional marker routed to V4, never an elimination. The matig-kwetsbare designation is fully inside the umbrella union (verified in task 8) and is already carried by the BO-01/BO-03 umbrella exclusions; this marker keeps the weaker duty itself visible for the V4 checkpoint.",
         "executable_ref": "engine.zone.within@poc-v1",
     },
     "BO-05": {
