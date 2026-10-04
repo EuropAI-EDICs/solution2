@@ -60,6 +60,9 @@
   .delta { font-size:19px; font-weight:600; margin:4px 0; } .neg { color:#b91c1c; } .pos { color:#15803d; }
   .note { font-size:11.5px; color:#556; }
   details { margin-top:5px; } summary { font-size:11.5px; color:var(--blue); cursor:pointer; }
+  .pin { float:right; font-size:10.5px; border:1px solid var(--line); background:#fff; border-radius:6px; padding:2px 8px; cursor:pointer; color:#556; margin-left:6px; }
+  .pin.on { background:#ffedd5; border-color:#ea580c; color:#9a3412; font-weight:600; }
+  .hint { font-size:10.5px; color:#8895ad; margin:2px 0 8px; }
   #map { flex:1; background:#e8edf3; }
   .legend { display:inline-flex; align-items:center; gap:4px; margin-right:12px; font-size:11.5px; color:#556; }
   .sw { width:12px; height:12px; border-radius:3px; display:inline-block; }
@@ -170,7 +173,7 @@ function humanize(e) {
   const n = m => m || '';
   const rules = [
     [/^start/, m => `📋 Brief: ${m[0].replace(/^start\s*/, '')}`],
-    [/^delegate\s*→\s*specialist:\s*(\S+)/, m => `👉 Handed over to the **${m[1]}** specialist`],
+    [/^→\s*specialist:\s*(\S+)/, m => m[1] === '?' ? '👉 Handing the task to a specialist…' : `👉 Handed over to the **${m[1]}** specialist`],
     [/submit_request → PASS/, () => '✅ The normalized request passed the schema check and was submitted'],
     [/submit_request → FAIL \((\d+)/, m => `❌ The request failed the schema check (${m[1]} issue(s)) — fixing it`],
     [/validate_request.*→ PASS/, () => '✅ Schema check passed for the request'],
@@ -211,6 +214,9 @@ const KIND_LABEL = { start: 'brief', delegate: 'handover', tool_call: 'working',
 function fullReset() {
   vizRunId = null;
   followedIndex = 0;
+  for (const layer of pinned.values()) map && map.removeLayer(layer);
+  pinned.clear();
+  document.querySelectorAll('.pin.on').forEach(b => b.classList.remove('on'));
   $('steps').innerHTML = '<div class="placeholder">Simulation started — first steps will appear here…</div>';
   $('cards').innerHTML = '<div class="placeholder">The map appears as soon as the agents build the world scene.</div>';
   if (map && controlLayer && scenarioLayer) { controlLayer.clearLayers(); scenarioLayer.clearLayers(); controlDrawn = false; }
@@ -315,18 +321,48 @@ function fadeTo(layerGroup, newLayer, targetOpacity) {
   requestAnimationFrame(step);
 }
 
-async function drawScen(base, control, scenId, el, opts) {
+async function focusScen(base, control, scenId, el) {
   document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
   if (el) el.classList.add('active');
   ensureMap();
   if (!controlDrawn) {
-    fadeTo(controlLayer, L.geoJSON(control, {style:{color:'#2563eb',weight:1,fillColor:'#2563eb',fillOpacity:.25}}), .25);
+    fadeTo(controlLayer, L.geoJSON(control, {style:{color:'#2563eb',weight:1,fillColor:'#2563eb',fillOpacity:.18}}), .18);
     controlDrawn = true;
   }
   let scen = control;
   try { scen = await fetch(`${base}/scenarios/${scenId}.geojson`).then(r => r.json()); } catch {}
-  const label = document.querySelector('.card[data-scen="' + scenId + '"] .note b');
-  fadeTo(scenarioLayer, L.geoJSON(scen, {style:{color:'#dc2626',weight:1,fillColor:'#dc2626',fillOpacity:.3}}), .3);
+  fadeTo(scenarioLayer, L.geoJSON(scen, {style:{color:'#dc2626',weight:2,fillColor:'#dc2626',fillOpacity:.32}}), .32);
+  try { map.fitBounds(controlLayer.getBounds().pad(0.05)); } catch {}
+}
+
+// pinned layers: toggle individual scenario layers on/off for side-by-side comparison
+const pinned = new Map();
+async function togglePin(base, scenId, btn) {
+  ensureMap();
+  if (pinned.has(scenId)) {
+    const layer = pinned.get(scenId);
+    pinned.delete(scenId);
+    btn.classList.remove('on');
+    const t0 = performance.now(), dur = 500;
+    (function step(t) {
+      const k = Math.min((t - t0) / dur, 1);
+      layer.setStyle({ fillOpacity: .16 * (1 - k), opacity: 1 - k });
+      if (k < 1) requestAnimationFrame(step); else map.removeLayer(layer);
+    })(t0);
+    return;
+  }
+  btn.classList.add('on');
+  let scen = null;
+  try { scen = await fetch(`${base}/scenarios/${scenId}.geojson`).then(r => r.json()); } catch {}
+  if (!scen) { btn.classList.remove('on'); return; }
+  const layer = L.geoJSON(scen, {style:{color:'#ea580c',weight:1.4,fillColor:'#ea580c',fillOpacity:0}}).addTo(map);
+  pinned.set(scenId, layer);
+  const t0 = performance.now(), dur = 700;
+  (function step(t) {
+    const k = Math.min((t - t0) / dur, 1);
+    layer.setStyle({ fillOpacity: .16 * k, opacity: k });
+    if (k < 1) requestAnimationFrame(step);
+  })(t0);
   try { map.fitBounds(controlLayer.getBounds().pad(0.05)); } catch {}
 }
 
@@ -357,15 +393,17 @@ async function showViz(runId) {
   vizRunId = runId;
   ensureMap();
   const control = await fetch(`${base}/scenarios/CONTROL.geojson`).then(r => r.json());
-  $('cards').innerHTML = bundle.specs.map(s => `
+  $('cards').innerHTML = `<div class="hint">Klik een kaart = dat gebied op de kaart · 👁 = laag aan/uit zetten</div>` + bundle.specs.map(s => `
     <div class="card" data-scen="${s.scenarioId}">
+      <button class="pin" data-scen="${s.scenarioId}">👁 laag</button>
       <div class="note"><b>${s.id}</b></div>
       <div class="delta ${s.headlineDeltaKm2 < 0 ? 'neg' : 'pos'}">${s.headlineDeltaKm2 > 0 ? '+' : ''}${s.headlineDeltaKm2.toFixed(2)} km² (${s.headlineDeltaPct > 0 ? '+' : ''}${s.headlineDeltaPct.toFixed(2)}%)</div>
       <div class="note">${escapeHtml(s.mutationSummary)} · ${s.provenanceBasis.type} · ${s.groundingStamp}</div>
       <details><summary>Marble prompt (gated)</summary><div class="note">${escapeHtml(s.marblePrompt)}</div></details>
     </div>`).join('');
-  document.querySelectorAll('.card').forEach(el => el.addEventListener('click', () => drawScen(base, control, el.dataset.scen, el)));
-  drawScen(base, control, bundle.specs[0].scenarioId, document.querySelector('.card'));
+  document.querySelectorAll('.card').forEach(el => el.addEventListener('click', () => focusScen(base, control, el.dataset.scen, el)));
+  document.querySelectorAll('.pin').forEach(btn => btn.addEventListener('click', ev => { ev.stopPropagation(); togglePin(base, btn.dataset.scen, btn); }));
+  focusScen(base, control, bundle.specs[0].scenarioId, document.querySelector('.card'));
 }
 
 async function tick() {
@@ -387,7 +425,7 @@ async function tick() {
     const control = await fetch(`${base}/scenarios/CONTROL.geojson`).then(r => r.json()).catch(() => null);
     if (control) {
       const sid = gsteps[gsteps.length - 1];
-      drawScen(base, control, sid, document.querySelector(`.card[data-scen="${sid}"]`));
+      focusScen(base, control, sid, document.querySelector(`.card[data-scen="${sid}"]`));
       followedIndex = gsteps.length;
     }
   }
