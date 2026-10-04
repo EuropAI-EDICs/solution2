@@ -109,6 +109,16 @@ MARKETPLACE_AGENT_URL=https://marketplace-int.ldttoolbox.app
 MARKETPLACE_MOCK=false
 ```
 
+## Local simulation (toolbox-sim)
+
+Voor de laptop-zonder-cluster: [`toolbox-sim/`](../toolbox-sim/) simuleert de
+PoC-relevante oplossingen (IM, Data Platform/NGSI-LD, P&V, UCS, Marketplace,
+EUBD-feed) over hun echte adaptercontracten. Start met
+`toolbox-sim/run_sim.sh` en laad `toolbox-sim/.env.sim` — alle `*_MOCK`-vlaggen
+gaan uit en de adapters praten live met de sim, die canonieke run-artefacten
+replayt (`X-Sim-Provenance` op elk antwoord). Catalogusfilter met
+skipped-redenen: `toolbox-sim/catalogue.json`.
+
 ## CitiVERSE live path (EuropAI WP4)
 
 Mock defaults are intentional on a laptop. To consume Toolbox int/prod instead
