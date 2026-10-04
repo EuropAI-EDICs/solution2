@@ -45,6 +45,12 @@
   .gnode circle { fill:#fff; stroke:#94a3b8; stroke-width:2; transition: fill .3s; }
   .gnode.poc circle { stroke:#2563eb; } .gnode.role circle { stroke:#7c3aed; }
   .gnode.visited circle { fill:#dbe7ff; } .gnode.role.visited circle { fill:#e6d9ff; }
+  .gnode.done circle { fill:#dcfce7; stroke:#16a34a; }
+  .gnode.role.done circle { fill:#f3e8ff; stroke:#7c3aed; }
+  .gnode.orch.done circle { stroke:#16a34a; stroke-width:4; }
+  .gnode .gstate { font-size:8px; fill:#16a34a; font-weight:700; }
+  .gnode.active .gstate { fill:#b45309; }
+  .chip.done { background:#14532d; color:#bbf7d0; }
   .gnode.active circle { animation:gpulse 1.1s ease-in-out infinite; }
   .gnode text { font-size:8.5px; fill:#33415c; text-anchor:middle; pointer-events:none; }
   .gnode.orch circle { fill:#0f1b33; stroke:#0f1b33; }
@@ -63,7 +69,7 @@
   .pin { float:right; font-size:10.5px; border:1px solid var(--line); background:#fff; border-radius:6px; padding:2px 8px; cursor:pointer; color:#556; margin-left:6px; }
   .pin.on { background:#ffedd5; border-color:#ea580c; color:#9a3412; font-weight:600; }
   .hint { font-size:10.5px; color:#8895ad; margin:2px 0 8px; }
-  #map { flex:1; background:#e8edf3; }
+  #map { flex:1; background:#e2e8f0; }
   .legend { display:inline-flex; align-items:center; gap:4px; margin-right:12px; font-size:11.5px; color:#556; }
   .sw { width:12px; height:12px; border-radius:3px; display:inline-block; }
   .placeholder { display:flex; align-items:center; justify-content:center; height:100%; color:#8895ad; font-size:14px; }
@@ -93,9 +99,10 @@
   </div>
   <div id="viz">
     <div id="viz-header">
-      <span class="legend"><span class="sw" style="background:#2563eb;opacity:.45"></span>control</span>
-      <span class="legend"><span class="sw" style="background:#dc2626;opacity:.45"></span>scenario</span>
-      <span id="viz-note">geen basemap nodig — overlays zijn engine-grounded</span>
+      <span class="legend"><span class="sw" style="background:#fff;border:2px solid #2563eb"></span>control (vigerend)</span>
+      <span class="legend"><span class="sw" style="background:#dc2626;opacity:.75"></span>focus-scenario</span>
+      <span class="legend"><span class="sw" style="background:#ea580c;opacity:.55"></span>gepind</span>
+      <span id="viz-note">de kaart bouwt mee met de agentstappen</span>
       <button id="autobtn" class="on" title="kaart volgt automatisch de geo-stappen van de agents">▶ auto-volgen</button>
     </div>
     <div id="viz-body">
@@ -108,7 +115,8 @@
 <script>
 const $ = id => document.getElementById(id);
 let vizRunId = null, map = null, controlLayer = null, scenarioLayer = null, controlDrawn = false;
-let lastRunId = null, followedIndex = 0, autoFollow = true;
+let lastRunId = null, autoFollow = true;
+let mapEvents = [], mapPlayed = 0, lastMapPlay = 0;
 const GRAPH_AGENTS = [
   ['breda','poc'],['rijnland','poc'],['utrecht','poc'],['crosstrack','poc'],['minigim','poc'],['eindhoven','poc'],
   ['geospecialist','role'],['normspecialist','role'],['critic','role'],['explainer','role'],['intake','role'],['formalizer','role'],
@@ -126,37 +134,56 @@ function buildGraph() {
   out += `<g class="gnode orch" id="gn-orchestrator"><circle cx="${orch.x}" cy="${orch.y}" r="${orch.r}"></circle><text x="${orch.x}" y="${orch.y - 26}" font-size="10" font-weight="600" fill="#33415c">orchestrator</text></g>`;
   GRAPH_AGENTS.forEach(([name, kind], i) => {
     const y = rowY[Math.floor(i / 6)], x = colX(i % 6);
-    out += `<g class="gnode ${kind}" id="gn-${name}"><circle cx="${x}" cy="${y}" r="14"></circle><text x="${x}" y="${y + 3}">${name}</text></g>`;
+    out += `<g class="gnode ${kind}" id="gn-${name}"><circle cx="${x}" cy="${y}" r="14"></circle><text x="${x}" y="${y + 2}">${name}</text><text class="gstate" x="${x}" y="${y + 13}"></text></g>`;
   });
   svg.innerHTML = out;
 }
 
 function updateGraph(entries) {
-  const seen = new Set(), lastAgent = 'orchestrator';
-  let last = null;
-  for (const e of entries) {
-    if (e.kind === 'graph_node') continue;
-    last = e;
-    if (e.agent && e.agent !== '?') seen.add(e.agent);
-    const m = (e.summary || '').match(/specialist: (\w+)/);
-    if (m) seen.add(m[1]);
+  const visible = entries.filter(e => e.kind !== 'graph_node');
+  const state = {}, counts = {};
+  let lastDelegated = null;
+  for (const e of visible) {
+    const s = e.summary || '';
+    const dm = e.kind === 'delegate' && s.match(/specialist: (\w+)/);
+    if (dm) { lastDelegated = dm[1]; state[dm[1]] = 'active'; continue; }
+    if (/specialist klaar|specialist-rapport/.test(s)) {
+      const done = e.agent && e.agent !== '?' && e.agent !== 'specialist' ? e.agent : lastDelegated;
+      if (done) state[done] = 'done';
+      continue;
+    }
+    const a = e.agent && e.agent !== '?' ? e.agent : null;
+    if (!a) continue;
+    if (a === 'orchestrator') { counts[a] = (counts[a] || 0) + (e.kind === 'tool_call' ? 1 : 0); continue; }
+    if (GRAPH_AGENTS.some(g => g[0] === a)) {
+      // only a new tool call re-activates; the closing report keeps the done state
+      if (e.kind === 'tool_call' || state[a] !== 'done') state[a] = 'active';
+      counts[a] = (counts[a] || 0) + (e.kind === 'tool_call' ? 1 : 0);
+    }
   }
-  document.querySelectorAll('.gnode').forEach(g => g.classList.remove('active'));
+  const anyDone = visible.some(e => e.kind === 'done');
+  const apply = (name, el) => {
+    if (!el) return;
+    el.classList.remove('active', 'done');
+    const st = name === 'orchestrator' ? (anyDone ? 'done' : 'active') : (state[name] || 'pending');
+    if (st !== 'pending') el.classList.add(st);
+    let gt = el.querySelector('.gstate');
+    if (gt && name !== 'orchestrator') {
+      gt.textContent = st === 'done' ? '✓' : st === 'active' ? (counts[name] || '…') : '';
+    }
+  };
+  apply('orchestrator', $('gn-orchestrator'));
   for (const [name] of GRAPH_AGENTS) {
-    const node = $('gn-' + name);
-    if (!node) continue;
-    node.classList.toggle('visited', seen.has(name));
-    $('ge-' + name).classList.toggle('lit', seen.has(name));
+    apply(name, $('gn-' + name));
+    $('ge-' + name)?.classList.toggle('lit', state[name] === 'active' || state[name] === 'done');
+    const chip = [...document.querySelectorAll('#agents .chip')].find(c => c.textContent.trim() === name);
+    if (chip) { chip.classList.remove('active', 'done'); if (state[name]) chip.classList.add(state[name]); }
   }
-  const lastEntryAgent = last ? (last.agent || '') : '';
-  if (last && last.kind === 'delegate') {
-    const m = (last.summary || '').match(/specialist: (\w+)/);
-    if (m && $('gn-' + m[1])) $('gn-' + m[1]).classList.add('active');
-  } else if (lastEntryAgent && $('gn-' + lastEntryAgent)) {
-    $('gn-' + lastEntryAgent).classList.add('active');
-  } else if (last) {
-    $('gn-orchestrator').classList.add('active');
-  }
+  const last = visible[visible.length - 1];
+  document.querySelectorAll('#agents .chip').forEach(chip => {
+    const name = chip.textContent.trim();
+    if (last && last.agent === name && !state[name]) chip.classList.add('active');
+  });
 }
 
 // --- plain-English rendering: the raw journal stays technical, the display talks
@@ -213,12 +240,12 @@ const KIND_LABEL = { start: 'brief', delegate: 'handover', tool_call: 'working',
 
 function fullReset() {
   vizRunId = null;
-  followedIndex = 0;
+  mapEvents = []; mapPlayed = 0; lastMapPlay = 0;
   for (const layer of pinned.values()) map && map.removeLayer(layer);
   pinned.clear();
   document.querySelectorAll('.pin.on').forEach(b => b.classList.remove('on'));
   $('steps').innerHTML = '<div class="placeholder">Simulation started — first steps will appear here…</div>';
-  $('cards').innerHTML = '<div class="placeholder">The map appears as soon as the agents build the world scene.</div>';
+  $('cards').innerHTML = '<div class="placeholder">The map starts empty and builds up with each agent step.</div>';
   if (map && controlLayer && scenarioLayer) { controlLayer.clearLayers(); scenarioLayer.clearLayers(); controlDrawn = false; }
   updateGraph([]);
 }
@@ -401,9 +428,13 @@ async function showViz(runId) {
       <div class="note">${escapeHtml(s.mutationSummary)} · ${s.provenanceBasis.type} · ${s.groundingStamp}</div>
       <details><summary>Marble prompt (gated)</summary><div class="note">${escapeHtml(s.marblePrompt)}</div></details>
     </div>`).join('');
-  document.querySelectorAll('.card').forEach(el => el.addEventListener('click', () => focusScen(base, control, el.dataset.scen, el)));
+  document.querySelectorAll('.card').forEach(el => el.addEventListener('click', () => {
+    focusScen(base, control, el.dataset.scen, el).then(() => {
+      const i = mapEvents.findIndex(ev => ev.type === 'focus' && ev.scen === el.dataset.scen);
+      mapPlayed = Math.max(mapPlayed, i >= 0 ? i + 1 : mapEvents.length);
+    });
+  }));
   document.querySelectorAll('.pin').forEach(btn => btn.addEventListener('click', ev => { ev.stopPropagation(); togglePin(base, btn.dataset.scen, btn); }));
-  focusScen(base, control, bundle.specs[0].scenarioId, document.querySelector('.card'));
 }
 
 async function tick() {
@@ -418,15 +449,30 @@ async function tick() {
   renderSteps(entries);
   const vizEntry = [...entries].reverse().find(e => e.viz && e.viz.kind === 'worldscene');
   if (vizEntry) showViz(vizEntry.viz.runId);
-  // progressive map: follow the geospecialist's steps as they land
-  const gsteps = geoSteps(entries);
-  if (autoFollow && vizRunId && gsteps.length > followedIndex) {
+  // the map is built up step by step: control after the build, one crossfade per geo-step
+  mapEvents = [];
+  if (vizEntry) mapEvents.push({ type: 'control' });
+  for (const s of geoSteps(entries)) mapEvents.push({ type: 'focus', scen: s });
+  const demoDone = entries.some(e => /demo.html rendered/.test(e.summary || ''));
+  if (demoDone && mapEvents.length === 1) {
+    const firstCard = document.querySelector('.card[data-scen]');
+    if (firstCard) mapEvents.push({ type: 'focus', scen: firstCard.dataset.scen });
+  }
+  if (vizRunId && autoFollow && mapEvents.length > mapPlayed && Date.now() - lastMapPlay > 1200) {
+    const ev = mapEvents[mapPlayed];
     const base = `/${vizRunId}-worldscene`;
     const control = await fetch(`${base}/scenarios/CONTROL.geojson`).then(r => r.json()).catch(() => null);
     if (control) {
-      const sid = gsteps[gsteps.length - 1];
-      focusScen(base, control, sid, document.querySelector(`.card[data-scen="${sid}"]`));
-      followedIndex = gsteps.length;
+      lastMapPlay = Date.now();
+      if (ev.type === 'control') {
+        ensureMap();
+        fadeTo(controlLayer, L.geoJSON(control, { style: { color: '#2563eb', weight: 2, fillColor: '#2563eb', fillOpacity: .08 } }), .08);
+        controlDrawn = true;
+        mapPlayed++;
+      } else {
+        await focusScen(base, control, ev.scen, document.querySelector(`.card[data-scen="${ev.scen}"]`));
+        mapPlayed++;
+      }
     }
   }
   if (st) {

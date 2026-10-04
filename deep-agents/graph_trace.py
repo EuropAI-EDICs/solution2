@@ -98,6 +98,10 @@ def _handle_complete_message(msg: Any, namespace: tuple[Any, ...], meta: dict[st
             args = call.get("args") or {}
             if name == "task":
                 who = args.get("subagent_type", "?")
+                if who == "?":
+                    # streamed chunk with empty args — the complete AIMessage with
+                    # the real name follows and journals the delegate properly
+                    return
                 _active_specialist = str(who)
                 detail = (args.get("description") or "")[:240]
                 journal.append(
