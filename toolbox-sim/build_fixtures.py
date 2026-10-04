@@ -247,6 +247,24 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--eubd", metavar="DSN", help="PostgreSQL DSN van de exposure-database")
     parser.add_argument("--eubd-limit", type=int, default=2000)
     args = parser.parse_args(argv)
+    if args.eubd is not None and not args.eubd.strip():
+        raise SystemExit(
+            "--eubd: lege DSN — de EUBD-batch wordt niet stil overgeslagen; "
+            "geef een echte PostgreSQL-DSN op of laat de vlag weg"
+        )
+
+    # Bestaand manifest lezen vóór herschrijven: een eubd-buildings-entry die niet
+    # herbouwd wordt (geen --eubd) moet bewaard blijven zolang de fixture op schijf staat.
+    manifest_path = FIXTURES / "manifest.json"
+    previous_eubd: dict[str, Any] | None = None
+    if manifest_path.exists():
+        try:
+            previous = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except ValueError:
+            previous = {}
+        entry = previous.get("batches", {}).get("eubd-buildings")
+        if isinstance(entry, dict):
+            previous_eubd = entry
 
     manifest: dict[str, Any] = {"batches": {}}
     for key, run_dir in CANONICAL_RUNS.items():
@@ -269,15 +287,19 @@ def main(argv: list[str] | None = None) -> int:
                 )
             },
         }
+    eubd_out = FIXTURES / "ngsi-ld" / "eubd-buildings.jsonld"
     if args.eubd:
         batch = build_eubd_batch(args.eubd, limit=args.eubd_limit)
-        out = FIXTURES / "ngsi-ld" / "eubd-buildings.jsonld"
-        write_batch(out, batch)
+        write_batch(eubd_out, batch)
         manifest["batches"]["eubd-buildings"] = {
-            "file": str(out.relative_to(FIXTURES.parent)),
+            "file": str(eubd_out.relative_to(FIXTURES.parent)),
             "counts": {"ldt:Building": len(batch)},
             "sources": {"query": "exposure.entities category=0 iso_3166=NLD ORDER BY quadkey"},
         }
+    elif previous_eubd is not None and eubd_out.exists():
+        # Geen --eubd deze run, maar de fixture staat nog op schijf: entry bewaren
+        # in plaats van hem stilletjes uit het manifest te laten verdwijnen.
+        manifest["batches"]["eubd-buildings"] = previous_eubd
     ucs = {
         pid: {
             "track": track,
@@ -306,7 +328,7 @@ def main(argv: list[str] | None = None) -> int:
         + "\n",
         encoding="utf-8",
     )
-    (FIXTURES / "manifest.json").write_text(
+    manifest_path.write_text(
         json.dumps(manifest, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8"
     )
     print(f"fixtures herschreven: {len(manifest['batches'])} batches, ucs-processes, trino/tables.json")

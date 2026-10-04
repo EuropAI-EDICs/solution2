@@ -49,7 +49,11 @@ def verify_token(token: str) -> dict[str, Any]:
         raise InvalidToken("malformed token")
     header, body, sig = parts
     expected = hmac.new(SIGNING_SECRET.encode(), f"{header}.{body}".encode(), hashlib.sha256).digest()
-    if not hmac.compare_digest(_b64(expected), sig):
+    try:
+        sig_bytes = _unb64(sig)
+    except ValueError as exc:  # non-ASCII/ongeldige base64 in de signature — 401, geen 500
+        raise InvalidToken("bad signature") from exc
+    if not hmac.compare_digest(sig_bytes, expected):
         raise InvalidToken("bad signature")
     try:
         payload = json.loads(_unb64(body))

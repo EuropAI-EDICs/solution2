@@ -31,3 +31,9 @@ def test_tampered_token_rejected():
 def test_garbage_token_rejected():
     with pytest.raises(InvalidToken):
         verify_token("not-a-token")
+
+
+def test_non_ascii_signature_rejected():
+    # str-vs-str compare_digest gaf TypeError (→500 via guards); moet InvalidToken (→401) zijn.
+    with pytest.raises(InvalidToken):
+        verify_token("a.b.cé")
