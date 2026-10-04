@@ -8,6 +8,7 @@ uit de snapshot zelf, niet handgetypt.
 """
 import json
 import re
+import sys
 from pathlib import Path
 
 import pytest
@@ -60,7 +61,40 @@ def test_track_conformance(track_id):
         assert m, f"article-veld zonder artikelnummer: {rec['article']}"
         covered.add(m.group(1))
     considered = {a.split()[-1] for a in ledger.get("articlesConsidered", [])}
-    expected = {a.split()[-1] for a in chapter_articles(entry["chapters"][0])}
+    expected = set().union(*({a.split()[-1] for a in chapter_articles(c)} for c in entry["chapters"]))
     missing = expected - covered - considered
     assert not missing, f"artikelen zonder thuis in {track_id}: {sorted(missing)}"
     assert set(entry["formalizableArticles"]) <= covered, "manifest belooft formaliseerbaar wat niet geciteerd is"
+
+
+def test_multichapter_track_dekt_alle_hoofdstukken(monkeypatch, tmp_path):
+    """Verplichte carry-forward (fase-1-review): een manifestentry met meerdere
+    hoofdstukken moet dekking eisen over álle chapter-artikellijsten, niet
+    alleen chapters[0]. Fixture: de bestaande fase-1 water+bodem-bestanden
+    samengevoegd tot één mini-entry chapters ["2","3"], geïnjecteerd via
+    monkeypatch op load_manifest.
+    """
+    tracks = load_manifest()
+    shard = json.loads((POC / tracks["water"]["shard"]).read_text()) + json.loads((POC / tracks["bodem"]["shard"]).read_text())
+    considered = (json.loads((POC / tracks["water"]["ledger"]).read_text()).get("articlesConsidered", [])
+                  + json.loads((POC / tracks["bodem"]["ledger"]).read_text()).get("articlesConsidered", []))
+    formalizable = sorted(set(tracks["water"]["formalizableArticles"]) | set(tracks["bodem"]["formalizableArticles"]))
+
+    def inject_mini(considered_list: list) -> None:
+        shard_file = tmp_path / "evidence-water-en-bodem.json"
+        ledger_file = tmp_path / "normcards-rejected-water-en-bodem.json"
+        shard_file.write_text(json.dumps(shard), encoding="utf-8")
+        ledger_file.write_text(json.dumps({"articlesConsidered": considered_list}), encoding="utf-8")
+        entry = {"chapters": ["2", "3"], "shard": str(shard_file), "ledger": str(ledger_file),
+                 "formalizableArticles": formalizable}
+        monkeypatch.setattr(sys.modules[__name__], "load_manifest", lambda: {"water_en_bodem": entry})
+
+    # complete mini-entry: de gate accepteert een multi-hoofdstuktrack
+    inject_mini(considered)
+    test_track_conformance("water_en_bodem")
+
+    # carry-forward-gat: H3-artikel "3.1" (alleen via considered gedekt) zonder
+    # thuis moet afkeuren; op chapters[0]-code blijft dit onopgemerkt (geen raise)
+    inject_mini([a for a in considered if a.split()[-1] != "3.1"])
+    with pytest.raises(AssertionError, match="zonder thuis"):
+        test_track_conformance("water_en_bodem")

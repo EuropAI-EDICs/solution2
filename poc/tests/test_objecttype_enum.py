@@ -29,3 +29,16 @@ def test_new_objecttypes_validate():
 def test_existing_objecttypes_still_validate():
     for object_type in ["wind_turbine", "solar_field", "forest_planting", "biomass_installation", "energy_storage"]:
         jsonschema.validate(_request(object_type), SCHEMA)
+
+
+def test_ambition_mobility_safety_validates():
+    request = _request("roadside_development")
+    request["ambitions"] = ["mobility_safety"]
+    jsonschema.validate(request, SCHEMA)
+
+
+def test_existing_ambitions_still_validate():
+    for ambition in ["energy", "nature", "climate_adaptation", "landscape", "heritage", "water_safety", "housing"]:
+        request = _request("wind_turbine")
+        request["ambitions"] = [ambition]
+        jsonschema.validate(request, SCHEMA)
