@@ -73,7 +73,6 @@
   <span class="models" id="models"></span>
 </header>
 <div id="agents"></div>
-<div id="graph-bar">LangGraph: idle</div>
 <div id="controls">
   <div><label>Scenario run</label><select id="scenario"></select></div>
   <div><label>Prompting / modus</label><select id="mode"></select></div>
@@ -170,16 +169,16 @@ function humanize(e) {
   const s = stripCodes(e.summary || '');
   const n = m => m || '';
   const rules = [
-    [/^start/, s => `📋 Brief: ${s.replace(/^start\s*/, '')}`],
+    [/^start/, m => `📋 Brief: ${m[0].replace(/^start\s*/, '')}`],
     [/^delegate\s*→\s*specialist:\s*(\S+)/, m => `👉 Handed over to the **${m[1]}** specialist`],
     [/submit_request → PASS/, () => '✅ The normalized request passed the schema check and was submitted'],
-    [/submit_request → FAIL/, m => `❌ The request failed the schema check (${n(m[1])} issue(s)) — fixing it`],
+    [/submit_request → FAIL \((\d+)/, m => `❌ The request failed the schema check (${m[1]} issue(s)) — fixing it`],
     [/validate_request.*→ PASS/, () => '✅ Schema check passed for the request'],
     [/validate_request.*→ FAIL \((\d+)/, m => `❌ Schema check found ${m[1]} problem(s) in the request — fixing them`],
     [/submit_norm_cards → PASS \((\d+)/, m => `✅ Submitted ${m[1]} relevant norm cards for the brief`],
     [/submit_norm_cards → FAIL/, () => '❌ The norm-card submission was malformed — rewriting it'],
     [/submit_formal_rule.*→ PASS/, () => '✅ The formal rule passed the schema check and was submitted'],
-    [/submit_formal_rule.*→ FAIL/, m => `❌ The formal rule failed the schema check (${n(m[1])} issue(s)) — fixing it`],
+    [/submit_formal_rule.*→ FAIL \((\d+)/, m => `❌ The formal rule failed the schema check (${m[1]} issue(s)) — fixing it`],
     [/validate_formal_rule.*→ FAIL \((\d+)/, m => `❌ The drafted rule has ${m[1]} schema problem(s) — fixing them`],
     [/validate_formal_rule.*→ PASS/, () => '✅ The drafted rule now passes the schema check'],
     [/get_formal_rules\((.*)\)/, m => `📚 Looked up existing formal rules in the corpus (${m[1] || 'all tracks'}) for calibration`],
@@ -199,7 +198,7 @@ function humanize(e) {
     [/get_provenance\('(.+?)'\)/, m => `🧾 Collected provenance for ${m[1]} (which norm card produced what)`],
     [/specialist klaar|specialist-rapport/, m => `📨 The specialist finished and reported back`],
     [/geen gesubmiteerde aanvraag|GEWEIGERD/, () => '🚧 The build was refused — a submitted request is required first'],
-    [/error|Error/, m => `⚠️ Problem: ${s.replace(/^error\s*/i, '').slice(0, 160)}`],
+    [/error|Error/, m => `⚠️ Problem: ${stripCodes(m[0]).replace(/^error\s*/i, '').slice(0, 160)}`],
   ];
   for (const [re, fn] of rules) {
     const m = s.match(re);
@@ -300,6 +299,55 @@ function ensureMap() {
   controlLayer = L.featureGroup().addTo(map);
   scenarioLayer = L.featureGroup().addTo(map);
 }
+
+function fadeTo(layerGroup, newLayer, targetOpacity) {
+  // crossfade: animate the new layer in, the old one out, then swap
+  const old = layerGroup.getLayers();
+  const t0 = performance.now(), dur = 700;
+  if (newLayer) layerGroup.addLayer(newLayer);
+  function step(t) {
+    const k = Math.min((t - t0) / dur, 1);
+    if (newLayer) newLayer.setStyle({ fillOpacity: targetOpacity * k, opacity: k });
+    for (const l of old) l.setStyle({ fillOpacity: targetOpacity * (1 - k) * 0.9, opacity: 1 - k });
+    if (k < 1) requestAnimationFrame(step);
+    else for (const l of old) layerGroup.removeLayer(l);
+  }
+  requestAnimationFrame(step);
+}
+
+async function drawScen(base, control, scenId, el, opts) {
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  ensureMap();
+  if (!controlDrawn) {
+    fadeTo(controlLayer, L.geoJSON(control, {style:{color:'#2563eb',weight:1,fillColor:'#2563eb',fillOpacity:.25}}), .25);
+    controlDrawn = true;
+  }
+  let scen = control;
+  try { scen = await fetch(`${base}/scenarios/${scenId}.geojson`).then(r => r.json()); } catch {}
+  const label = document.querySelector('.card[data-scen="' + scenId + '"] .note b');
+  fadeTo(scenarioLayer, L.geoJSON(scen, {style:{color:'#dc2626',weight:1,fillColor:'#dc2626',fillOpacity:.3}}), .3);
+  try { map.fitBounds(controlLayer.getBounds().pad(0.05)); } catch {}
+}
+
+// geo steps of the geospecialist, in order: the map follows them gradually
+function geoSteps(entries) {
+  const out = [];
+  for (const e of entries) {
+    const s = e.summary || '';
+    let m = s.match(/inspect_geo_layer\('([^']+)'\)/);
+    if (m && m[1].toLowerCase() !== 'control') out.push(m[1].replace(/^WSS-/, ''));
+    m = s.match(/compare_layers\('([^']+)'\)/);
+    if (m) out.push(m[1].replace(/^WSS-/, ''));
+  }
+  return [...new Set(out)];
+}
+
+$('autobtn').addEventListener('click', () => {
+  autoFollow = !autoFollow;
+  $('autobtn').classList.toggle('on', autoFollow);
+  $('autobtn').textContent = autoFollow ? '▶ auto-volgen' : '⏸ handmatig';
+});
 async function showViz(runId) {
   if (runId === vizRunId) return;
   const base = `/${runId}-worldscene`;
@@ -319,16 +367,6 @@ async function showViz(runId) {
   document.querySelectorAll('.card').forEach(el => el.addEventListener('click', () => drawScen(base, control, el.dataset.scen, el)));
   drawScen(base, control, bundle.specs[0].scenarioId, document.querySelector('.card'));
 }
-async function drawScen(base, control, scenId, el) {
-  document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
-  if (el) el.classList.add('active');
-  controlLayer.clearLayers(); scenarioLayer.clearLayers();
-  L.geoJSON(control, {style:{color:'#2563eb',weight:1,fillColor:'#2563eb',fillOpacity:.25}}).addTo(controlLayer);
-  let scen = control;
-  try { scen = await fetch(`${base}/scenarios/${scenId}.geojson`).then(r => r.json()); } catch {}
-  L.geoJSON(scen, {style:{color:'#dc2626',weight:1,fillColor:'#dc2626',fillOpacity:.3}}).addTo(scenarioLayer);
-  map.fitBounds(controlLayer.getBounds().pad(0.05));
-}
 
 async function tick() {
   let entries = [];
@@ -342,6 +380,17 @@ async function tick() {
   renderSteps(entries);
   const vizEntry = [...entries].reverse().find(e => e.viz && e.viz.kind === 'worldscene');
   if (vizEntry) showViz(vizEntry.viz.runId);
+  // progressive map: follow the geospecialist's steps as they land
+  const gsteps = geoSteps(entries);
+  if (autoFollow && vizRunId && gsteps.length > followedIndex) {
+    const base = `/${vizRunId}-worldscene`;
+    const control = await fetch(`${base}/scenarios/CONTROL.geojson`).then(r => r.json()).catch(() => null);
+    if (control) {
+      const sid = gsteps[gsteps.length - 1];
+      drawScen(base, control, sid, document.querySelector(`.card[data-scen="${sid}"]`));
+      followedIndex = gsteps.length;
+    }
+  }
   if (st) {
     if (st.running) { $('status').textContent = 'running'; $('status').className = 'running'; $('start').disabled = true; $('stop').style.display = 'inline-block'; }
     else if (st.ever_ran && st.rc === 0) { $('status').textContent = 'done'; $('status').className = 'done'; $('start').disabled = false; $('stop').style.display = 'none'; }
@@ -350,6 +399,7 @@ async function tick() {
   }
 }
 initControls();
+buildGraph();
 poll = setInterval(tick, 700);
 tick();
 </script>
