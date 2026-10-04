@@ -37,4 +37,4 @@ def test_full_offline_story(live_sim, tmp_path):
         {"id": "toolbox-sim-e2e", "title": "Toolbox-sim e2e", "description": "smoke", "version": "1.0.0"},
         categories=["urn:ngsi-ld:category:processes"],
     )
-    assert result["mock"] is False and result["offeringId"].startswith("sim-offering-")
+    assert result["mock"] is False and result["offeringId"].startswith("sim-offering-") and result["marketplaceLink"]
