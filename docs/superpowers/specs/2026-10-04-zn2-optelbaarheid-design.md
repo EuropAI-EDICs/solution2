@@ -12,22 +12,27 @@ draaien ongewijzigd over twee gebiedscontexten”.
 
 | | |
 |---|---|
-| Status | Design 2026-10-04 · MVP offline fixtures |
+| Status | Design 2026-10-04 · MVP offline + live CBS (Breda+Tilburg) |
 | Related | Plane D ([gebiedsafweging](2026-10-04-breda-gebiedsafweging-plane-d-design.md)) · PoC-4 Breda |
-| Non-goals v1 | Live tweede gemeente (Tilburg/…); Breda ArcGIS-lagen voor stad 2; fysische modellen |
+| Non-goals | Breda ArcGIS-lagen op stad 2 (parity breekt); fysische modellen; DT-4 organisatie-adoptie |
 
 ---
 
-## Aanpak MVP
+## Aanpak
 
-1. Twee synthetische gebieds-lagen (zelfde CBS-velden + indicatorpad) met
-   verschillende `gemeentecode` / `gemeentenaam`.
-2. `indicators.compute_scan` + **identieke** `DEFAULT_PARAMS` op beide.
-3. Rapport `optelbaarheid-report`:
-   - `definitionsIdentical` (formula fingerprint + params hash)
-   - per gebied: n land-buurten, mean score per waarde
-   - `combined`: gewogen mean (gewicht = n land-buurten met score)
-   - V0 schema; geen LLM; geen winnaar
+### Offline MVP
+1. Twee synthetische gebieds-lagen met verschillende `gemeentecode`.
+2. Identieke `DEFAULT_PARAMS` + formula fingerprint.
+3. Rapport met percentile-means, **absoluteMeans** (cross-area) en gewogen combined.
 
-**Done when:** offline test toont twee gebieden met gelijke fingerprint en
-een gecombineerde mean die algebraïsch volgt uit de deel-means.
+### Live tweede gemeente
+1. `fetch_cbs_buurten(gemeente=…)` — OGC-filter op PDOK CBS 2024; aparte cache per slug.
+2. `fetch_cbs_area_layers` — **CBS-only** voor élke live gemeente (ook Breda in `--live`), zodat overlays de vergelijking niet scheeftrekken.
+3. Default: `--live Breda,Tilburg`.
+
+```bash
+nldt/.venv/bin/python poc-breda/optelbaarheid_run.py --live Breda,Tilburg
+```
+
+**Done when:** offline tests groen; live run Breda+Tilburg verdict `pass` met
+`definitions.identical=true` en divergerende `absoluteMeans`.

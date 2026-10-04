@@ -81,6 +81,21 @@ class _FakeSession:
         return _FakeResponse(self.pages[idx])
 
 
+class TestOgcFilter(unittest.TestCase):
+    def test_breda_filter(self):
+        f = fetch.ogc_gemeente_filter("Breda")
+        self.assertIn("<Literal>Breda</Literal>", f)
+        self.assertEqual(f, fetch.OGC_FILTER)
+
+    def test_tilburg_filter(self):
+        f = fetch.ogc_gemeente_filter("Tilburg")
+        self.assertIn("<Literal>Tilburg</Literal>", f)
+
+    def test_ongeldige_naam(self):
+        with self.assertRaises(fetch.FetchError):
+            fetch.ogc_gemeente_filter("Foo<script>")
+
+
 class TestCbsFetch(unittest.TestCase):
     def setUp(self):
         import tempfile
@@ -104,12 +119,44 @@ class TestCbsFetch(unittest.TestCase):
         self.assertEqual(sess.calls[1]["startIndex"], 250)
         self.assertIn("filter", sess.calls[0])
         self.assertIn("gemeentenaam", sess.calls[0]["filter"])
+        self.assertIn("Breda", sess.calls[0]["filter"])
         # cache geschreven
         self.assertTrue((self.cache / "cbs-buurten-2024.28992.geojson").exists())
         self.assertTrue((self.cache / "cbs-buurten-2024.4326.geojson").exists())
         props = fc["properties"]
         self.assertEqual(props["featureCount"], 225)
         self.assertEqual(props["pages"], 2)
+        self.assertEqual(props["gemeente"], "Breda")
+
+    def test_andere_gemeente_eigen_cache(self):
+        class _TilburgSession:
+            headers: dict = {}
+
+            def get(self, url, params=None, timeout=None):
+                feat = {
+                    "type": "Feature",
+                    "properties": {
+                        "buurtcode": "BU08550001",
+                        "buurtnaam": "T",
+                        "gemeentenaam": "Tilburg",
+                        "gemeentecode": "GM0855",
+                    },
+                    "geometry": {"type": "Point", "coordinates": [1, 2]},
+                }
+                return _FakeResponse({"type": "FeatureCollection", "features": [feat]})
+
+        fc = fetch.fetch_cbs_buurten(
+            None, refresh=True, cache_dir=self.cache,
+            session=_TilburgSession(), gemeente="Tilburg",
+        )
+        self.assertEqual(len(fc["features"]), 1)
+        self.assertEqual(fc["properties"]["gemeente"], "Tilburg")
+        self.assertEqual(fc["properties"]["gemeenteCode"], "GM0855")
+        self.assertTrue(
+            (self.cache / "cbs-buurten-2024-tilburg.28992.geojson").exists()
+        )
+        # Breda-cache onaangeroerd
+        self.assertFalse((self.cache / "cbs-buurten-2024.28992.geojson").exists())
 
     def test_cache_first_zonder_netwerk(self):
         fetch.fetch_cbs_buurten(

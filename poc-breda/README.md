@@ -107,11 +107,17 @@ rejection-paden zijn gedemonstreerd én offline getest (73 tests).
 
 ## ZN-2 — Optelbaarheid (twee gebieden)
 
-Zelfde indicatorformules + params over twee synthetische gemeenten;
-gewogen combined means. Geen live tweede stad in MVP.
+Zelfde indicatorformules + params over ≥2 gebieden; gewogen + absolute
+combined means. Live-modus is **CBS-only** (PDOK) zodat stadsspecifieke
+ArcGIS-lagen de vergelijking niet scheeftrekken.
 
 ```bash
+# Offline (CI)
 nldt/.venv/bin/python poc-breda/optelbaarheid_run.py --offline-fixtures
+
+# Live tweede gemeente (default: Breda + Tilburg)
+nldt/.venv/bin/python poc-breda/optelbaarheid_run.py --live Breda,Tilburg
+nldt/.venv/bin/python poc-breda/optelbaarheid_run.py --live Breda,Eindhoven --refresh
 ```
 
 Design: [`docs/superpowers/specs/2026-10-04-zn2-optelbaarheid-design.md`](../docs/superpowers/specs/2026-10-04-zn2-optelbaarheid-design.md).

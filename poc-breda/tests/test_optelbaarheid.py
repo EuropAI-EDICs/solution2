@@ -90,6 +90,40 @@ class TestOptelbaarheid(unittest.TestCase):
             self.assertTrue((out / "optelbaarheid-report.json").is_file())
             self.assertTrue((out / "optelbaarheid-report.md").is_file())
 
+    def test_cbs_area_layers_parity_shape(self):
+        """CBS-only pakket heeft buurten + None overlays (geen Breda-ArcGIS)."""
+        from breda import fetch
+        from unittest import mock
+
+        fake_fc = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "buurtcode": "BU08550001",
+                        "buurtnaam": "X",
+                        "gemeentenaam": "Tilburg",
+                        "gemeentecode": "GM0855",
+                        "water": "NEE",
+                    },
+                    "geometry": None,
+                }
+            ],
+            "properties": {
+                "gemeente": "Tilburg",
+                "gemeenteCode": "GM0855",
+                "featureCount": 1,
+                "sourceId": "cbs-buurten-2024-tilburg",
+            },
+        }
+        with mock.patch.object(fetch, "fetch_cbs_buurten", return_value=fake_fc):
+            pack = fetch.fetch_cbs_area_layers("Tilburg")
+        self.assertEqual(pack["meta"]["gemeente"], "Tilburg")
+        self.assertIsNotNone(pack["layers"]["buurten"])
+        self.assertIsNone(pack["layers"]["wijkdeals"])
+        self.assertTrue(any("CBS-only" in d["error"] for d in pack["degradations"]))
+
 
 if __name__ == "__main__":
     unittest.main()

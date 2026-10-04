@@ -73,7 +73,7 @@ Zo blijft FDS/dataspace het nationale delen-van-data; DTAS/Toolbox wordt het del
 
 | Ambitie visie | Meetbaar doel 2026 |
 |---|---|
-| Optelbaarheid tot nationaal beeld | Zelfde indicator-recept,zelfde definities, in **≥2 gebieden** aantoonbaar — **MVP done** (offline fixtures Breda+DemoStad, `poc-breda/optelbaarheid_run.py`); live tweede stad volgt |
+| Optelbaarheid tot nationaal beeld | Zelfde indicator-recept,zelfde definities, in **≥2 gebieden** — offline fixtures **én** live CBS (`--live Breda,Tilburg`) |
 | Transparantie algoritmen (algoritmeregister / AI Act) | Export per seam/recept uit bestaande PROV + seam catalogue, klaar voor registratie |
 
 Beide staan al als ZN-1 / ZN-2 in de technische alignment ([24](24-zichtopnl-alignment.md)); dit addendum tilt ze naar de werkagenda.

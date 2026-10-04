@@ -36,15 +36,34 @@ MAX_PAGES = 100  # Breda 2024 = 56 buurten in 11 wijken (recon 13-9-2026, filter
 # PDOK-GoMapserver-quirk (recon 13-9-2026): cql_filter wordt genegeerd; de
 # combinatie bbox+startIndex heeft een instabiele sorteervolgorde (overlappende
 # windows missen features). De standaard OGC-XML ``filter`` op gemeentenaam
-# werkt wél exact: 1 pagina, 56 buurten, geverifieerd tegen de wijkenlaag (11).
-OGC_FILTER = (
-    "<Filter><PropertyIsEqualTo><PropertyName>gemeentenaam</PropertyName>"
-    "<Literal>Breda</Literal></PropertyIsEqualTo></Filter>"
-)
+# werkt wél exact (Breda: 1 pagina, 56 buurten — recon 13-9-2026).
 
 
 class FetchError(RuntimeError):
     """Netwerk- of protocolfout bij het ophalen van één laag."""
+
+
+def ogc_gemeente_filter(gemeente: str) -> str:
+    """OGC-XML PropertyIsEqualTo-filter op ``gemeentenaam`` (geen cql_filter)."""
+    if not gemeente or any(c in gemeente for c in "<>&\"'"):
+        raise FetchError(f"ongeldige gemeentenaam voor OGC-filter: {gemeente!r}")
+    return (
+        "<Filter><PropertyIsEqualTo><PropertyName>gemeentenaam</PropertyName>"
+        f"<Literal>{gemeente}</Literal></PropertyIsEqualTo></Filter>"
+    )
+
+
+def _gemeente_slug(gemeente: str) -> str:
+    return (
+        gemeente.strip()
+        .lower()
+        .replace(" ", "-")
+        .replace("'", "")
+    )
+
+
+# Backward-compat alias (Breda default)
+OGC_FILTER = ogc_gemeente_filter("Breda")
 
 
 def load_sources(path: Path = SOURCES_PATH) -> dict:
@@ -77,26 +96,43 @@ def fetch_cbs_buurten(
     cache_dir: Path = CACHE_DIR,
     timeout: int = 90,
     session: requests.Session | None = None,
+    gemeente: str | None = None,
 ) -> dict:
-    """Haal CBS-buurtvlakken (+statistiek) van gemeente Breda als GeoJSON (RD).
+    """Haal CBS-buurtvlakken (+statistiek) voor één gemeente als GeoJSON (RD).
 
     Server-side gefilterd via de standaard OGC-XML ``filter`` op
-    ``gemeentenaam='Breda'``; client-side dubbelgecheckt op dezelfde waarde.
+    ``gemeentenaam``; client-side dubbelgecheckt op dezelfde waarde.
+    Default gemeente = ``cbsWfs.gemeenteFilter`` (Breda). Andere gemeenten
+    krijgen een aparte cache-sleutel (``cbs-buurten-2024-<slug>``).
     Sentinels blijven raw in de cache staan — opschonen doet
     :mod:`breda.indicators` (raw bewaren = herleidbaar herberekenen).
     """
     cfg = cbs_config(sources)
-    source_id = cfg["id"]
+    gemeente_naam = gemeente or cfg["gemeenteFilter"]
+    ogc_filter = ogc_gemeente_filter(gemeente_naam)
+    # Breda houdt de canonieke cache-id; overige gemeenten krijgen een slug.
+    if gemeente_naam == cfg["gemeenteFilter"]:
+        source_id = cfg["id"]
+    else:
+        source_id = f"{cfg['id']}-{_gemeente_slug(gemeente_naam)}"
     cache_dir = Path(cache_dir)
     cache_dir.mkdir(parents=True, exist_ok=True)
     path_rd = cache_dir / f"{source_id}.28992.geojson"
     path_wgs = cache_dir / f"{source_id}.4326.geojson"
-    fp = {"filter": "gemeentenaam=Breda", "ogc": True}
+    fp = {"filter": f"gemeentenaam={gemeente_naam}", "ogc": True}
 
     if path_rd.exists() and not refresh:
         try:
             cached = json.loads(path_rd.read_text(encoding="utf-8"))
             if (cached.get("properties") or {}).get("queryFingerprint") == fp:
+                props = cached.setdefault("properties", {})
+                props.setdefault("gemeente", gemeente_naam)
+                if not props.get("gemeenteCode"):
+                    for f in cached.get("features") or []:
+                        code = (f.get("properties") or {}).get("gemeentecode")
+                        if code:
+                            props["gemeenteCode"] = code
+                            break
                 if not path_wgs.exists():
                     path_wgs.write_text(
                         json.dumps(
@@ -120,7 +156,7 @@ def fetch_cbs_buurten(
         "typenames": cfg["typeName"],
         "outputFormat": cfg["outputFormat"],
         "srsName": "urn:ogc:def:crs:EPSG::28992",
-        "filter": OGC_FILTER,
+        "filter": ogc_filter,
     }
     feats: list[dict] = []
     pages = 0
@@ -141,7 +177,7 @@ def fetch_cbs_buurten(
         kept = [
             f
             for f in raw
-            if (f.get("properties") or {}).get("gemeentenaam") == cfg["gemeenteFilter"]
+            if (f.get("properties") or {}).get("gemeentenaam") == gemeente_naam
         ]
         feats.extend(kept)
         pages += 1
@@ -152,6 +188,18 @@ def fetch_cbs_buurten(
             raise FetchError(f"{source_id}: meer dan {MAX_PAGES} pagina's — afgebroken")
         time.sleep(PAGE_DELAY_S)
 
+    if not feats:
+        raise FetchError(
+            f"{source_id}: 0 buurten voor gemeentenaam={gemeente_naam!r} "
+            "(controleer spelling / CBS 2024-naam)"
+        )
+
+    gm_code = None
+    for f in feats:
+        gm_code = (f.get("properties") or {}).get("gemeentecode")
+        if gm_code:
+            break
+
     fc = {
         "type": "FeatureCollection",
         "name": source_id,
@@ -159,15 +207,20 @@ def fetch_cbs_buurten(
         "features": feats,
         "properties": {
             "sourceId": source_id,
-            "title": cfg["title"],
+            "title": f"{cfg['title']} — {gemeente_naam}",
             "serviceUrl": cfg["baseUrl"],
             "layerId": cfg["typeName"],
             "role": cfg["role"],
             "authoritative": cfg["authoritative"],
             "licenseNote": cfg["licenseNote"],
             "lastChecked": cfg.get("lastChecked"),
-            "where": "OGC-XML-filter gemeentenaam='Breda' (cql_filter genegeerd door "
-                     "PDOK-GoMapserver; bbox+startIndex instabiel — recon 2026-09-13)",
+            "gemeente": gemeente_naam,
+            "gemeenteCode": gm_code,
+            "where": (
+                f"OGC-XML-filter gemeentenaam='{gemeente_naam}' "
+                "(cql_filter genegeerd door PDOK-GoMapserver; "
+                "bbox+startIndex instabiel — recon 2026-09-13)"
+            ),
             "fetchedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "userAgent": USER_AGENT,
             "pages": pages,
@@ -309,6 +362,68 @@ def fetch_all(
         )
 
     return {"layers": layers, "degradations": degradations, "bbox": bbox}
+
+
+def fetch_cbs_area_layers(
+    gemeente: str,
+    *,
+    refresh: bool = False,
+    sources: dict | None = None,
+    cache_dir: Path = CACHE_DIR,
+    timeout: int = 90,
+    session: requests.Session | None = None,
+) -> dict:
+    """CBS-only lagenpakket voor één gemeente (ZN-2 live / cross-city).
+
+    Geen Breda-ArcGIS overlays: die zijn stad-specifiek en zouden de
+    optelbaarheidsvergelijking scheef trekken. Ontbrekende overlays staan
+    als degradatie; ``indicators.compute_scan`` handelt ``None`` al af.
+    """
+    buurten = fetch_cbs_buurten(
+        None,
+        refresh=refresh,
+        sources=sources,
+        cache_dir=cache_dir,
+        timeout=timeout,
+        session=session,
+        gemeente=gemeente,
+    )
+    props = buurten.get("properties") or {}
+    degradations = [
+        {
+            "sourceId": sid,
+            "error": f"CBS-only area ({gemeente}): stadsspecifieke laag niet meegenomen",
+        }
+        for sid in (
+            "wijkdeals",
+            "hoofdgroenstructuur",
+            "verharding",
+            "kansenkaart",
+            "bomen",
+            "gemeentegrens",
+        )
+    ]
+    layers = {
+        "buurten": buurten,
+        "gemeentegrens": None,
+        "wijkdeals": None,
+        "hoofdgroenstructuur": None,
+        "verharding": None,
+        "kansenkaart": None,
+        "bomen": None,
+    }
+    return {
+        "layers": layers,
+        "degradations": degradations,
+        "bbox": props.get("bbox"),
+        "meta": {
+            "areaId": f"live-{_gemeente_slug(gemeente)}",
+            "gemeente": gemeente,
+            "gemeenteCode": props.get("gemeenteCode") or "GM????",
+            "nFeatures": props.get("featureCount"),
+            "sourceId": props.get("sourceId"),
+        },
+    }
 
 
 def _iter_shapes(geoms):
