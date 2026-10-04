@@ -85,9 +85,10 @@ python agent.py "Welk recipe hoort bij de Rijnland peil conflict POC en welke in
 python live.py "Bouw de world scene voor scenario run 20260831T074521Z-wind-scen"   # streamed to the journal
 ```
 
-Or the **simulation dashboard** (dropdowns for scenario run, prompting mode
-and Ollama models; live step timeline; the world-scene map renders as soon
-as the agents build it — no basemap, no API keys, fully local):
+Or the **simulation dashboard** (dropdown **POC** for all six toolbox POCs,
+scenario run where needed, prompting mode per POC, Ollama models; live step
+timeline; Utrecht world-scene map when agents build; other POCs show reference
+demos from `nldt/simulation/` — fully local):
 
 ```bash
 .venv/bin/python live_server.py     # → http://127.0.0.1:8765/
@@ -124,6 +125,13 @@ every step to `runs/live/steps.jsonl`.
 De balk **LangGraph:** onder de agent-chips toont de laatste actieve node, stap
 nummer en subgraph-pad. Agent-chips krijgen een gele rand als die agent net
 actief was.
+
+### Begrijpelijke scenario’s (Utrecht / Crosstrack)
+
+De dashboard-dropdown **Scenario** toont geen ruwe run-ids meer als primaire tekst:
+`scenario_catalog.py` leest `scenario-report.json` en levert labels (Wind/Zon/Bos,
+aantal varianten). Sterretje (★) = aanbevolen demo-runs; onder de dropdown staat een
+korte toelichting (vraagtype + voorbeeldvarianten).
 
 ### Laya (Apple Silicon MLX)
 

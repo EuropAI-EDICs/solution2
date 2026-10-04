@@ -58,7 +58,9 @@
   @keyframes gpulse { 0%,100% { stroke-width:2; } 50% { stroke-width:5; } }
   #autobtn { font-size:11px; border:1px solid var(--line); background:#fff; border-radius:6px; padding:2px 8px; cursor:pointer; margin-left:8px; color:#556; float:right; }
   #autobtn.on { background:#dbe7ff; border-color:var(--blue); color:var(--blue); font-weight:600; }
-  #viz { flex:1; display:flex; flex-direction:column; }
+  #pinlegend { font-size:11.5px; margin-left:10px; }
+  #viz { flex:1; display:flex; flex-direction:column; min-height:0; }
+  #viz-world { flex:1; display:flex; flex-direction:column; min-height:0; }
   #viz-header { padding:8px 16px; font-size:12px; color:#667; background:#fff; border-bottom:1px solid var(--line); }
   #viz-body { display:flex; flex:1; min-height:0; }
   #cards { width:330px; overflow-y:auto; padding:12px; background:#fff; border-right:1px solid var(--line); }
@@ -74,6 +76,14 @@
   .pin.on { background:#ffedd5; border-color:#ea580c; color:#9a3412; font-weight:600; }
   .hint { font-size:10.5px; color:#8895ad; margin:2px 0 8px; }
   #map { flex:1; background:#e2e8f0; }
+  #viz-static { flex:1; display:none; flex-direction:column; min-height:0; background:#fff; }
+  #static-intro { padding:14px 18px; border-bottom:1px solid var(--line); font-size:13px; line-height:1.45; }
+  #static-intro h2 { margin:0 0 6px; font-size:15px; }
+  #static-intro ul { margin:8px 0 0 18px; padding:0; }
+  #static-links { padding:8px 18px; display:flex; flex-wrap:wrap; gap:8px; border-bottom:1px solid var(--line); }
+  #static-links a, #static-links button.linkish { font-size:12px; padding:5px 10px; border-radius:6px; border:1px solid var(--line); background:#f8fafc; color:var(--blue); cursor:pointer; text-decoration:none; }
+  #static-links .on { background:#dbe7ff; border-color:var(--blue); font-weight:600; }
+  #poc-ref { flex:1; border:0; width:100%; min-height:240px; background:#f1f5f9; }
   .legend { display:inline-flex; align-items:center; gap:4px; margin-right:12px; font-size:11.5px; color:#556; }
   .sw { width:12px; height:12px; border-radius:3px; display:inline-block; }
   .placeholder { display:flex; align-items:center; justify-content:center; height:100%; color:#8895ad; font-size:14px; }
@@ -81,13 +91,15 @@
 </head>
 <body>
 <header>
-  <h1>nLDT deep-agent simulatie — Utrecht Plane B</h1>
+  <h1 id="demo-title">nLDT deep-agent simulatie</h1>
+  <span id="demo-sub" style="font-size:12px;opacity:.85"></span>
   <span id="status">idle</span>
   <span class="models" id="models"></span>
 </header>
 <div id="agents"></div>
 <div id="controls">
-  <div><label>Scenario run</label><select id="scenario"></select></div>
+  <div><label>POC</label><select id="poc"></select></div>
+  <div id="scenario-wrap"><label>Scenario (Utrecht / Crosstrack)</label><select id="scenario"></select><div id="scenario-hint" class="hint"></div></div>
   <div><label>Prompting / modus</label><select id="mode"></select></div>
   <div><label>Orchestrator model</label><select id="model"></select></div>
   <div><label>Specialist model</label><select id="submodel"></select></div>
@@ -103,17 +115,25 @@
     <div id="steps"><div class="placeholder">Nog geen run — druk op “Start simulatie”.</div></div>
   </div>
   <div id="viz">
+    <div id="viz-static">
+      <div id="static-intro"><div class="placeholder">Kies een POC — referentie-demos en recipes verschijnen hier.</div></div>
+      <div id="static-links"></div>
+      <iframe id="poc-ref" title="POC referentie-demo" sandbox="allow-scripts allow-same-origin"></iframe>
+    </div>
+    <div id="viz-world">
     <div id="viz-header">
       <span class="legend"><span class="sw" style="background:#fff;border:2px solid #2563eb"></span>control-grens</span>
-      <span class="legend"><span class="sw" style="background:#dc2626"></span>verloren gebied</span>
-      <span class="legend"><span class="sw" style="background:#16a34a"></span>gewonnen gebied</span>
+      <span class="legend"><span class="sw" style="background:#dc2626"></span>verandert t.o.v. vigerend</span>
+      <span class="legend"><span class="sw" style="background:#16a34a"></span>nieuw gebied</span>
       <span class="legend"><span class="sw" style="background:#ea580c;opacity:.55"></span>gepind</span>
       <span id="viz-note">de kaart bouwt mee met de agentstappen</span>
       <button id="autobtn" class="on" title="kaart volgt automatisch de geo-stappen van de agents">▶ auto-volgen</button>
+      <span id="pinlegend"></span>
     </div>
     <div id="viz-body">
       <div id="cards"><div class="placeholder">Visualisatie verschijnt zodra de agents de world scene bouwen.</div></div>
       <div id="map"></div>
+    </div>
     </div>
   </div>
 </div>
@@ -123,6 +143,7 @@
 const $ = id => document.getElementById(id);
 let vizRunId = null, map = null, controlLayer = null, scenarioLayer = null, controlDrawn = false;
 let lastRunId = null, autoFollow = true;
+let pocCatalog = [], currentPoc = null;
 let mapEvents = [], mapPlayed = 0, lastMapPlay = 0;
 const GRAPH_AGENTS = [
   ['breda','poc'],['rijnland','poc'],['utrecht','poc'],['crosstrack','poc'],['minigim','poc'],['eindhoven','poc'],
@@ -293,19 +314,107 @@ function fullReset() {
   updateGraph([]);
 }
 
+function setVizLayout(viz) {
+  const world = $('viz-world'), stat = $('viz-static');
+  if (viz === 'worldscene') {
+    world.style.display = 'flex';
+    world.style.flexDirection = 'column';
+    world.style.flex = '1';
+    world.style.minHeight = '0';
+    stat.style.display = 'none';
+  } else {
+    world.style.display = 'none';
+    stat.style.display = 'flex';
+    if (viz !== 'worldscene') vizRunId = null;
+  }
+}
+
+function renderStaticPanel(poc) {
+  if (!poc) return;
+  $('static-intro').innerHTML = `
+    <h2>${escapeHtml(poc.label)}</h2>
+    <div>${escapeHtml(poc.subtitle)}</div>
+    <p style="margin:10px 0 0;color:#556;font-size:12px">Start een simulatie links — de agent-timeline volgt de run. Onderstaande HTML-demos zijn referentie uit <code>nldt/simulation/</code> (statisch).</p>
+    <ul>${(poc.highlightRecipes || []).map(r => `<li><code>${escapeHtml(r)}</code></li>`).join('') || '<li>—</li>'}</ul>`;
+  const links = $('static-links');
+  links.innerHTML = '';
+  const pages = poc.simulationPages || [];
+  if (!pages.length) {
+    links.innerHTML = '<span style="font-size:12px;color:#8895ad">Geen lokale referentie-demo — timeline toont agent-output.</span>';
+    $('poc-ref').src = 'about:blank';
+    return;
+  }
+  pages.forEach((pg, i) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'linkish' + (i === 0 ? ' on' : '');
+    btn.textContent = pg.title;
+    btn.addEventListener('click', () => {
+      links.querySelectorAll('.on').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      $('poc-ref').src = `/simulation/${pg.path}`;
+    });
+    links.appendChild(btn);
+  });
+  $('poc-ref').src = `/simulation/${pages[0].path}`;
+}
+
+async function onPocChange() {
+  const id = $('poc').value;
+  currentPoc = pocCatalog.find(p => p.id === id) || null;
+  localStorage.setItem('sim-poc', id);
+  if (currentPoc) {
+    $('demo-sub').textContent = currentPoc.subtitle;
+    setVizLayout(currentPoc.viz);
+    renderStaticPanel(currentPoc);
+    $('scenario-wrap').style.display = currentPoc.requiresScenario ? '' : 'none';
+  }
+  const [modes, scen] = await Promise.all([
+    fetch(`/api/modes?poc=${encodeURIComponent(id)}`).then(r => r.json()),
+    currentPoc?.requiresScenario
+      ? fetch(`/api/scenarios?poc=${encodeURIComponent(id)}`).then(r => r.json())
+      : Promise.resolve([]),
+  ]);
+  $('mode').innerHTML = modes.map(m => `<option value="${m.id}">${m.label}</option>`).join('');
+  const scenIds = scen.map(s => (typeof s === 'string' ? s : s.id));
+  if (scen.length) {
+    $('scenario').innerHTML = scen.map(s => {
+      const id = typeof s === 'string' ? s : s.id;
+      const label = typeof s === 'string' ? s : (s.label || id);
+      const hint = typeof s === 'object' && s.hint ? s.hint : '';
+      return `<option value="${escapeHtml(id)}" data-hint="${escapeHtml(hint)}">${escapeHtml(label)}</option>`;
+    }).join('');
+    const saved = localStorage.getItem('sim-scenario');
+    const featured = scen.find(s => typeof s === 'object' && s.featured);
+    if (saved && scenIds.includes(saved)) $('scenario').value = saved;
+    else if (featured) $('scenario').value = featured.id;
+    updateScenarioHint();
+  } else {
+    $('scenario').innerHTML = '<option value="">—</option>';
+    $('scenario-hint').textContent = '';
+  }
+}
+
+function updateScenarioHint() {
+  const opt = $('scenario').selectedOptions[0];
+  $('scenario-hint').textContent = opt?.dataset?.hint || '';
+}
+
 async function initControls() {
-  const [scen, modes, models, agents] = await Promise.all([
-    fetch('/api/scenarios').then(r => r.json()),
-    fetch('/api/modes').then(r => r.json()),
+  const [pocs, models, agents] = await Promise.all([
+    fetch('/api/pocs').then(r => r.json()),
     fetch('/api/models').then(r => r.json()),
     fetch('/api/agents').then(r => r.json()),
   ]);
+  pocCatalog = pocs;
   $('agents').innerHTML = agents.map(a =>
     `<span class="chip ${a.kind === 'role' ? 'role' : ''}" title="${escapeHtml(a.description)}">${a.name}</span>`).join('');
-  $('scenario').innerHTML = scen.map(s => `<option value="${s}">${s}</option>`).join('');
-  const saved = localStorage.getItem('sim-scenario');
-  if (saved && scen.includes(saved)) $('scenario').value = saved;
-  $('mode').innerHTML = modes.map(m => `<option value="${m.id}">${m.label}</option>`).join('');
+  $('poc').innerHTML = pocs.map(p => `<option value="${p.id}">${p.label}</option>`).join('');
+  const savedPoc = localStorage.getItem('sim-poc');
+  if (savedPoc && pocs.some(p => p.id === savedPoc)) $('poc').value = savedPoc;
+  $('poc').addEventListener('change', onPocChange);
+  $('scenario').addEventListener('change', updateScenarioHint);
+  await onPocChange();
   $('model').innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join('');
   $('submodel').innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join('');
   const pick = (key, fallback) => {
@@ -323,13 +432,15 @@ async function initControls() {
 
 $('start').addEventListener('click', async () => {
   const body = {
-    scenario: $('scenario').value,
+    poc: $('poc').value,
+    scenario: $('scenario').value || '',
     mode: $('mode').value,
     model: $('model').value,
     submodel: $('submodel').value,
     use_laya: $('use_laya').value === '1',
   };
-  localStorage.setItem('sim-scenario', body.scenario);
+  localStorage.setItem('sim-poc', body.poc);
+  if (body.scenario) localStorage.setItem('sim-scenario', body.scenario);
   localStorage.setItem('sim-model', body.model);
   localStorage.setItem('sim-submodel', body.submodel);
   localStorage.setItem('sim-laya', body.use_laya ? '1' : '0');
@@ -446,6 +557,8 @@ async function computeDiff(base, scenId) {
 }
 
 async function focusScen(base, control, scenId, el) {
+  lastFocused = scenId;
+  if (pinned.size) clearAllPins();
   document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
   if (el) el.classList.add('active');
   ensureMap();
@@ -460,7 +573,7 @@ async function focusScen(base, control, scenId, el) {
     L.geoJSON(diff.lost, { style: { color: '#7f1d1d', weight: .6, fillColor: '#dc2626', fillOpacity: 1 } }).addTo(newLayer);
     L.geoJSON(diff.gained, { style: { color: '#14532d', weight: .6, fillColor: '#16a34a', fillOpacity: 1 } }).addTo(newLayer);
     $('viz-note').textContent =
-      `Op de kaart: ${diff.lostKm2.toFixed(1)} km² verdwijnt (rood) · ${diff.gainedKm2.toFixed(1)} km² komt erbij (groen) · ${diff.unchanged} gebieden ongewijzigd`;
+      `${plainTitle(scenId, "")}: ${diff.lostKm2.toFixed(1)} km² ziet er anders uit dan het vigerende beleid (rood) · ${diff.gainedKm2.toFixed(1)} km² is nieuw (groen) · ${diff.unchanged} gebieden ongewijzigd`;
   } else {
     let scen = control;
     try { scen = await fetch(`${base}/scenarios/${scenId}.geojson`).then(r => r.json()); } catch {}
@@ -471,35 +584,83 @@ async function focusScen(base, control, scenId, el) {
   try { map.fitBounds(controlLayer.getBounds().pad(0.05)); } catch {}
 }
 
-// pinned layers: toggle individual scenario layers on/off for side-by-side comparison
-const pinned = new Map();
+// pinned layers: compare mode — each pinned scenario gets its own bright hue,
+// the red/green diff fades out while pins are on, a legend strip names the colors
+const pinned = new Map();   // scenId -> {layer, color}
+const PIN_COLORS = ['#ea580c', '#7c3aed', '#0d9488', '#db2777', '#b45309', '#0284c7'];
+let lastFocused = null, scenNames = {};
+
+function pinColor(scenId) {
+  if (pinned.has(scenId)) return pinned.get(scenId).color;
+  const taken = new Set([...pinned.values()].map(p => p.color));
+  return PIN_COLORS.find(c => !taken.has(c)) || PIN_COLORS[pinned.size % PIN_COLORS.length];
+}
+
+function updatePinLegend() {
+  const el = document.getElementById('pinlegend');
+  if (!el) return;
+  el.innerHTML = pinned.size
+    ? 'vergelijk: ' + [...pinned.entries()].map(([id, p]) =>
+        `<span class="legend"><span class="sw" style="background:${p.color}"></span>${escapeHtml(plainTitle(id, scenNames[id]).slice(0, 34))}</span>`).join('')
+    : '';
+}
+
+function clearAllPins() {
+  for (const [, p] of pinned.values() ? [...pinned.entries()] : []) {
+    p.btn && p.btn.classList.remove('on');
+    map && map.removeLayer(p.layer);
+  }
+  pinned.clear();
+  updatePinLegend();
+}
+
 async function togglePin(base, scenId, btn) {
   ensureMap();
   if (pinned.has(scenId)) {
-    const layer = pinned.get(scenId);
+    const p = pinned.get(scenId);
     pinned.delete(scenId);
     btn.classList.remove('on');
     const t0 = performance.now(), dur = 500;
     (function step(t) {
       const k = Math.min((t - t0) / dur, 1);
-      layer.setStyle({ fillOpacity: .16 * (1 - k), opacity: 1 - k });
-      if (k < 1) requestAnimationFrame(step); else map.removeLayer(layer);
+      p.layer.setStyle({ fillOpacity: .2 * (1 - k), opacity: 1 - k });
+      if (k < 1) requestAnimationFrame(step); else map.removeLayer(p.layer);
     })(t0);
+    if (!pinned.size && lastFocused) {
+      // last pin removed: bring the diff view of the focused card back
+      const control = await fetch(`${base}/scenarios/CONTROL.geojson`).then(r => r.json()).catch(() => null);
+      if (control) focusScen(base, control, lastFocused, document.querySelector(`.card[data-scen="${lastFocused}"]`));
+    }
+    updatePinLegend();
     return;
   }
+  // entering compare mode: fade the diff view out so the hues stand alone
   btn.classList.add('on');
+  btn.style.background = pinColor(scenId) + '33';
+  btn.style.borderColor = pinColor(scenId);
+  if (pinned.size === 0) {
+    const t0 = performance.now(), dur = 500;
+    const olds = scenarioLayer.getLayers();
+    (function step(t) {
+      const k = Math.min((t - t0) / dur, 1);
+      for (const l of olds) l.setStyle({ fillOpacity: .32 * (1 - k), opacity: 1 - k });
+      if (k < 1) requestAnimationFrame(step); else scenarioLayer.clearLayers();
+    })(t0);
+  }
   let scen = null;
   try { scen = await fetch(`${base}/scenarios/${scenId}.geojson`).then(r => r.json()); } catch {}
-  if (!scen) { btn.classList.remove('on'); return; }
-  const layer = L.geoJSON(scen, {style:{color:'#ea580c',weight:1.4,fillColor:'#ea580c',fillOpacity:0}}).addTo(map);
-  pinned.set(scenId, layer);
+  if (!scen) { btn.classList.remove('on'); btn.style.background = ''; return; }
+  const color = pinColor(scenId);
+  const layer = L.geoJSON(scen, {style:{color, weight:2.2, fillColor:color, fillOpacity:0}}).addTo(map);
+  pinned.set(scenId, {layer, color, btn});
   const t0 = performance.now(), dur = 700;
   (function step(t) {
     const k = Math.min((t - t0) / dur, 1);
-    layer.setStyle({ fillOpacity: .16 * k, opacity: k });
+    layer.setStyle({ fillOpacity: .2 * k, opacity: k });
     if (k < 1) requestAnimationFrame(step);
   })(t0);
   try { map.fitBounds(controlLayer.getBounds().pad(0.05)); } catch {}
+  updatePinLegend();
 }
 
 // geo steps of the geospecialist, in order: the map follows them gradually
@@ -533,6 +694,7 @@ async function showViz(runId) {
   try {
     const report = await fetch(`${base}/scenario-report.json`).then(r => r.json());
     for (const sc of report.scenarios || []) reportNames[sc.scenarioId] = sc.name;
+    scenNames = reportNames;
   } catch {}
   $('cards').innerHTML = `<div class="hint">Klik een kaart = het verschil op de kaart · 👁 = extra laag aan/uit</div>` + bundle.specs.map(s => `
     <div class="card" data-scen="${s.scenarioId}">
@@ -566,7 +728,7 @@ async function tick() {
   }
   renderSteps(entries);
   const vizEntry = [...entries].reverse().find(e => e.viz && e.viz.kind === 'worldscene');
-  if (vizEntry) showViz(vizEntry.viz.runId);
+  if (vizEntry && currentPoc && currentPoc.viz === 'worldscene') showViz(vizEntry.viz.runId);
   // the map is built up step by step: control after the build, one crossfade per geo-step
   mapEvents = [];
   if (vizEntry) mapEvents.push({ type: 'control' });
@@ -576,7 +738,7 @@ async function tick() {
     const firstCard = document.querySelector('.card[data-scen]');
     if (firstCard) mapEvents.push({ type: 'focus', scen: firstCard.dataset.scen });
   }
-  if (vizRunId && autoFollow && mapEvents.length > mapPlayed && Date.now() - lastMapPlay > 1200) {
+  if (vizRunId && autoFollow && pinned.size === 0 && mapEvents.length > mapPlayed && Date.now() - lastMapPlay > 1200) {
     const ev = mapEvents[mapPlayed];
     const base = `/${vizRunId}-worldscene`;
     const control = await fetch(`${base}/scenarios/CONTROL.geojson`).then(r => r.json()).catch(() => null);

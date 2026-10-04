@@ -1,14 +1,15 @@
-"""Simulation dashboard server: run the deep agents on a chosen scenario,
-prompting mode and Ollama models, and stream their steps to the dashboard.
+"""Simulation dashboard server: run the deep agents per POC demo.
 
 Serves runs/ at the root plus a small API:
   GET  /                dashboard
-  GET  /api/scenarios   scenario runs available for world-scene builds
-  GET  /api/modes       prompting modes (label + question template)
+  GET  /api/pocs        POC catalog (dropdown)
+  GET  /api/scenarios   scenario runs (Utrecht / Crosstrack)
+  GET  /api/modes       prompting modes for ?poc=
   GET  /api/models      local Ollama models
   POST /api/run         start a simulation run (one at a time)
   GET  /api/status      running / question / exit code
   GET  /api/steps       the run journal (steps.jsonl)
+  GET  /simulation/…    static nldt/simulation HTML demos (reference panels)
 """
 
 from __future__ import annotations
@@ -28,7 +29,9 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parent / ".env")
 
 import journal
+from poc_demos import format_question, get_poc, list_pocs, modes_for_poc
 from pocs import roster
+from scenario_catalog import list_scenario_runs
 
 HERE = Path(__file__).resolve().parent
 from dotenv import load_dotenv  # noqa: E402
@@ -36,46 +39,9 @@ from dotenv import load_dotenv  # noqa: E402
 load_dotenv(HERE / ".env")  # so /api/models sees ZAI_API_KEY for the dropdown
 RUNS = HERE / "runs"
 SCENARIO_RUNS = HERE.parent / "poc" / "scenario-runs"
+SIMULATION_DIR = HERE.parent / "nldt" / "simulation"
 JOURNAL = RUNS / "live" / "steps.jsonl"
 DASHBOARD = HERE / "dashboard.html"
-
-MODES = [
-    {
-        "id": "execute",
-        "label": "Uitvoeren + visual demo",
-        "template": "Bouw de world scene voor scenario run {rid} en toon de visual demo.",
-    },
-    {
-        "id": "plan",
-        "label": "Alleen run plan (geen executie)",
-        "template": "Geef alléén een run plan voor de utrecht-world-scene recipe voor scenario run {rid}. Voer nog niets uit.",
-    },
-    {
-        "id": "critical",
-        "label": "Kritische toets, daarna uitvoeren",
-        "template": "Toets kritisch of scenario run {rid} geschikt is voor een world-scene build: risico's, missende inputs, grounding. Bouw hem daarna en toon de demo.",
-    },
-    {
-        "id": "compare",
-        "label": "Control vs scenario vergelijking",
-        "template": "Vergelijk de control- en scenario-lagen van scenario run {rid}, benoem de grootste deltas met hun mutaties, en toon de demo.",
-    },
-    {
-        "id": "geo",
-        "label": "Geo-analyse + critic-validatie",
-        "template": "Bouw de world scene voor scenario run {rid}, laat de geospecialist de control- en scenario-lagen analyseren (areas in km2, deltas), en laat de critic de bundle valideren. Toon de demo.",
-    },
-    {
-        "id": "normketen",
-        "label": "Normketen: intake → norm → formaliseer",
-        "template": "Nieuwe aanvraag: 'Ik wil weten waar een zonnepark mag in de gemeente Utrecht, bij voorkeur buiten de Groene contour.' Doorloop de normketen: (1) laat intake de aanvraag normaliseren tot een schema-geldig OpportunityMapRequest, (2) laat normspecialist de relevante normkaarten zoeken, (3) laat formalizer voor de belangrijkste normkaart een FormalRule opstellen en valideren. Rapporteer alle drie de artefacten (request-JSON, normkaarten, formal rule).",
-    },
-    {
-        "id": "keten",
-        "label": "Volledige keten (intake → normen → regel → build → validatie)",
-        "template": "Volledige keten voor scenario run {rid}. Aanvraag: 'Ik wil weten waar een zonnepark mag in de gemeente Utrecht, bij voorkeur buiten de Groene contour.' Voer ALLEEN deze 6 stappen uit, in deze volgorde, en NIETS extra: (1) intake normaliseert en SUBMIT de aanvraag (submit_request), (2) normspecialist zoekt en SUBMIT de normkaarten (submit_norm_cards), (3) formalizer formaliseert de belangrijkste kaart en SUBMIT de regel (submit_formal_rule), (4) utrecht bouwt de world scene voor {rid} — gebruik alléén deze bestaande scenario-run en verzin GEEN nieuwe run-ids of extra scenario's, (5) daarna parallel: geospecialist analyseert de lagen en critic valideert de bundle, (6) explainer legt de provenance vast en crosscheckt of de engine de gesubmiteerde regel ook echt heeft uitgevoerd. Rapporteer daarna alle artefacten met hun submission-verdicts en STOP — geen verdere stappen.",
-    },
-]
 
 app = FastAPI(title="nLDT deep-agent simulatie")
 _proc: dict = {"p": None, "question": None, "rc": None, "run_id": 0}
@@ -86,16 +52,28 @@ def dashboard() -> FileResponse:
     return FileResponse(DASHBOARD)
 
 
+@app.get("/api/pocs")
+def pocs() -> list[dict]:
+    return list_pocs()
+
+
 @app.get("/api/scenarios")
-def scenarios() -> list[str]:
-    return sorted(
-        p.name for p in SCENARIO_RUNS.iterdir() if (p / "scenario-report.json").is_file()
-    )
+def scenarios(poc: str | None = None) -> list[dict]:
+    if poc:
+        try:
+            if not get_poc(poc)["requiresScenario"]:
+                return []
+        except KeyError:
+            return []
+    return list_scenario_runs(SCENARIO_RUNS)
 
 
 @app.get("/api/modes")
-def modes() -> list[dict]:
-    return MODES
+def modes(poc: str = "utrecht") -> list[dict]:
+    try:
+        return [{"id": m["id"], "label": m["label"]} for m in modes_for_poc(poc)]
+    except KeyError as exc:
+        raise HTTPException(400, str(exc)) from exc
 
 
 @app.get("/api/agents")
@@ -121,7 +99,8 @@ def models() -> list[str]:
 
 
 class RunBody(BaseModel):
-    scenario: str
+    poc: str = "utrecht"
+    scenario: str = ""
     mode: str
     model: str
     submodel: str
@@ -132,11 +111,20 @@ class RunBody(BaseModel):
 def run(body: RunBody) -> dict:
     if _proc["p"] and _proc["p"].poll() is None:
         raise HTTPException(409, "Er draait al een simulatie — wacht tot die klaar is.")
-    if not (SCENARIO_RUNS / body.scenario / "scenario-report.json").is_file():
-        raise HTTPException(400, f"Onbekende scenario run: {body.scenario}")
-    template = next((m["template"] for m in MODES if m["id"] == body.mode), None)
-    if template is None:
-        raise HTTPException(400, f"Onbekende modus: {body.mode}")
+    try:
+        poc_spec = get_poc(body.poc)
+    except KeyError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    scenario = body.scenario.strip()
+    if poc_spec["requiresScenario"]:
+        if not scenario:
+            raise HTTPException(400, f"POC '{body.poc}' vereist een scenario run.")
+        if not (SCENARIO_RUNS / scenario / "scenario-report.json").is_file():
+            raise HTTPException(400, f"Onbekende scenario run: {scenario}")
+    try:
+        question = format_question(body.poc, body.mode, scenario or None)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
     local = models()
     for role, chosen in (("model", body.model), ("submodel", body.submodel)):
         if chosen not in local:
@@ -146,11 +134,11 @@ def run(body: RunBody) -> dict:
                 "dropdown (lokaal Ollama of zai:GLM met ZAI_API_KEY).",
             )
 
-    question = template.format(rid=body.scenario)
     env = os.environ.copy()
     env["DEEP_AGENT_MODEL"] = body.model
     env["DEEP_AGENT_SUBMODEL"] = body.submodel
-    if body.mode == "keten":
+    env["NLDT_DEMO_POC"] = body.poc
+    if body.mode == "keten" and body.poc == "utrecht":
         env["NLDT_REQUIRE_INTAKE"] = "1"  # hard gate: build refuses without a submitted request
     env["DEEP_AGENT_LAYA"] = "1" if body.use_laya else "0"
     JOURNAL.parent.mkdir(parents=True, exist_ok=True)
@@ -167,7 +155,7 @@ def run(body: RunBody) -> dict:
         rc=None,
         run_id=_proc["run_id"] + 1,
     )
-    return {"ok": True, "question": question, "run_id": _proc["run_id"]}
+    return {"ok": True, "question": question, "run_id": _proc["run_id"], "poc": body.poc}
 
 
 @app.post("/api/stop")
@@ -198,6 +186,14 @@ def steps() -> PlainTextResponse:
     if not JOURNAL.is_file():
         return PlainTextResponse("")
     return PlainTextResponse(JOURNAL.read_text(encoding="utf-8"))
+
+
+@app.get("/simulation/{path:path}")
+def simulation_assets(path: str) -> FileResponse:
+    target = (SIMULATION_DIR / path).resolve()
+    if not str(target).startswith(str(SIMULATION_DIR.resolve())) or not target.is_file():
+        raise HTTPException(404, "not found")
+    return FileResponse(target)
 
 
 @app.get("/{path:path}")
