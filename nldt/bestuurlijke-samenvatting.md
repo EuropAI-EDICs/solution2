@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Voor wie** | Bestuur en directie (GI-beraad / programmaraden / EDIC- en DTAS-gesprekspartners) |
-| **Datum** | 29 september 2026 · concept voor bespreking |
-| **Bronnen** | Hoofdstukken 22–24 en [edic/ra-conformity.md](edic/ra-conformity.md) in deze repo |
+| **Datum** | 4 oktober 2026 · concept voor bespreking |
+| **Bronnen** | Hoofdstukken 22–24, [zon-addendum-digitale-tweeling-2026.md](zon-addendum-digitale-tweeling-2026.md) en [edic/ra-conformity.md](edic/ra-conformity.md) in deze repo |
 
 ---
 
@@ -21,7 +21,7 @@ Er komt geen afzonderlijk "burgermodel": dezelfde rekenkern bedient planoloog, b
 De Nederlandse DTAS-visie (ministerie van VRO) bepleit Europees uitwisselbare, gevalideerde tweeling-modules: "bouw eens, hergebruik vaak". Onze bewezen modules ("recepten") zijn precies dat, en onze kwaliteitsbewaking (validatie V0–V4, bewijsbaar identieke herberekening) is sterker dan wat de visie vraagt. Eerste concrete stap: publicatie van twee à drie modules in de officiële EU-Toolbox-markt (doel: Q4 2026), plus het aanbieden van ons validatiekader als Nederlandse inbreng voor het Europese accreditatieraamwerk.
 
 **3. Nationaal: het kader bevestigt de aanpak** (hoofdstuk 24).
-De meerjarenvisie Zicht op Nederland omschrijft het landelijke stelsel als "geen één systeem, maar een geheel van afspraken" waarmee regionale tweelingen vergelijkbaar en **optelbaar** zijn — letterlijk de architectuur die deze toolbox toepast. Twee verplichtingen uit de visie nemen we over: transparantie over de ingezette algoritmen (voorbereid op het algoritmeregister) en optelbaarheid van indicatoren tussen steden (eerste test: hetzelfde recept in twee steden).
+De meerjarenvisie Zicht op Nederland omschrijft het landelijke stelsel als "geen één systeem, maar een geheel van afspraken" waarmee regionale tweelingen vergelijkbaar en **optelbaar** zijn — letterlijk de architectuur die deze toolbox toepast. Twee verplichtingen uit de visie nemen we over: transparantie over de ingezette algoritmen (voorbereid op het algoritmeregister) en optelbaarheid van indicatoren tussen steden (eerste test: hetzelfde recept in twee steden). Het [addendum Digitale Tweeling 2026](zon-addendum-digitale-tweeling-2026.md) vertaalt dat naar werkagenda-taal: recepten, PROV, begrensde AI, één rekenkern met meerdere toegangen, en DTAS/Toolbox/EDIC als Europees kanaal.
 
 **4. Officieel woordenboek: de EDIC-referentiearchitectuur.**
 Onze conformiteit is machineleesbaar vastgelegd tegen het officiële Europese referentiekader. Uitslag: van de zes basisvereisten voor deelname aan het ecosysteem halen we er vier volwaardig (open standaarden, metadata, identiteitsbeheer, open interfaces); als volwassenheidsprofiel scoren we sterk op **"verkennde tweeling"** (scenario's vergelijken vóór besluit) — precies de volwassenheid die besluitvorming vraagt. Bewust géén "voorschrijvende" of "autonome" tweeling: de aanbeveling blijft bij de mens.
@@ -43,9 +43,10 @@ Onze conformiteit is machineleesbaar vastgelegd tegen het officiële Europese re
 ## Wat wij bestuurlijk vragen
 
 1. **Ken de aanpak toe** ("één rekenkern, meerdere toegangen") als uitgangspunt voor AI in de ruimtelijke ordening.
-2. **Geef mandaat en middelen** voor de eerste twee fasen (publieke veiligheidsposture en modulpaspoort) — klein: dagen tot enkele sprints.
-3. **Mandateer de Europese inbreng**: publicatie van 2–3 modules en het aanbieden van het validatiekader als Nederlandse input voor DTAS/EDIC.
-4. **Zet privacy- en toegankelijkheidstoets (DPIA)** voor de publieke kant vast op de agenda, vóór de eerste pilot.
+2. **Ken het [ZoN-addendum Digitale Tweeling 2026](zon-addendum-digitale-tweeling-2026.md) toe** als bijlage bij de werkagenda / programma Digitale Tweeling.
+3. **Geef mandaat en middelen** voor de eerste twee fasen (publieke veiligheidsposture en modulpaspoort) — klein: dagen tot enkele sprints.
+4. **Mandateer de Europese inbreng**: publicatie van 2–3 modules en het aanbieden van het validatiekader als Nederlandse input voor DTAS/EDIC.
+5. **Zet privacy- en toegankelijkheidstoets (DPIA)** voor de publieke kant vast op de agenda, vóór de eerste pilot.
 
 ## Risico's en beheersing
 
