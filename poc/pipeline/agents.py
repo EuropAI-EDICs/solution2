@@ -69,6 +69,20 @@ CAVEAT_GIO_WATER = (
     "Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; "
     "geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
 )
+#: bodem-track zones: werkingsgebieden of the verordening whose GIO join-id is
+#: NOT carried by the cited article text (arts. 3.7-3.10 and 3.108 quote no
+#: join-id), so no gioJoinId may be claimed; geometry is served by the agrest
+#: IMOW open-data alias (see run.py::ZONE_SOURCES and layers.json aliasNote).
+#: The umbrella alias 'Grondwaterbeschermingszone' was live-verified (task 8)
+#: as the exact union of the seven literal designation areas of art. 3.7/3.9/3.10.
+CAVEAT_GIO_BODEM = (
+    "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet "
+    "overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten "
+    "Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; "
+    "geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json): "
+    "umbrella 'Grondwaterbeschermingszone', live geverifieerd als de vereniging van "
+    "de zeven letterlijke aanwijzingsgebieden van art. 3.7/3.9/3.10 (taak-8-verslag)"
+)
 
 # ---------------------------------------------------------------------------
 # Deterministic engine operations referenced by FormalRule.executableRef.
@@ -423,6 +437,57 @@ EVIDENCE_ENRICHMENT: Dict[str, Dict[str, Any]] = {
             "zoneIds": ["overstroombaar_gebied"],
             "geometrySource": "provincial_gio_unverified",
             "caveat": CAVEAT_GIO_WATER,
+        },
+    },
+    # -- BODEM track (soil activity; shard evidence-bodem.json) -----------------
+    "BO-01": {
+        "objectType": "soil_activity",
+        "claim": "An omgevingsplan for locations within a Waterwingebied, Grondwaterbeschermingsgebied, Boringsvrije zone, Beschermingszone oppervlaktewaterwinning, 100-jaarsaandachtsgebied or Gebied kwetsbare strategische grondwatervoorraad allows no activities that pose a risk to the groundwater and surface-water abstraction for human consumption (art. 3.7): soil-affecting activity inside these six designated protection zones is conditional on the plan refusing risky activities — the umbrella zone alias conservatively covers the union of the designation areas (superset per article).",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_3_7", "geen_risico_activiteiten_winning_menselijke_consumptie", "zes_aanwijzingsgebieden_letterlijk", "exclusion_family_non_permission", "umbrella_superset_conservatief"],
+        "geoBinding": {
+            "zoneIds": ["grondwater_beschermingszone"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_BODEM,
+        },
+    },
+    "BO-02": {
+        "objectType": "soil_activity",
+        "claim": "An omgevingsplan for locations within the 'Waterwingebied Bethunepolder' must contain rules that protect the water-abstraction interest for the parking of motor vehicles and must, notably in busy periods of summer or winter recreation, allow parking only on locations explicitly designated for that purpose (art. 3.8): a zone-bound parking instruction whose literal designation has no registered open-data alias and whose predicate is object-specific (parking arrangements), so it is carried without a geo binding, routed to V4.",
+        "confidence": 0.9,
+        "contextTags": ["instructieregel_art_3_8", "waterwingebied_bethunepolder_parkeren", "geen_alias_geregistreerd", "v4_human_review"],
+    },
+    "BO-03": {
+        "objectType": "soil_activity",
+        "claim": "An omgevingsplan for locations within a Waterwingebied or Grondwaterbeschermingsgebied forbids the establishment of a new cemetery or scattering field (Wet op de lijkbezorging art. 66a/66b) or an animal cemetery (art. 3.9): soil-invasive new burial facilities inside the protection zones are prohibited outright, with rules for having or extending existing facilities following in its second paragraph — bound to the umbrella zone alias as a conservative superset (superset per article).",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_3_9", "verbod_nieuwe_begraafplaats_uitstrooiveld_dierenbegraafplaats", "nieuw_versus_bestaand", "exclusion_family_verbod", "umbrella_superset_conservatief"],
+        "geoBinding": {
+            "zoneIds": ["grondwater_beschermingszone"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_BODEM,
+        },
+    },
+    "BO-04": {
+        "objectType": "soil_activity",
+        "claim": "An omgevingsplan for locations within the 'Gebied matig kwetsbare strategische grondwatervoorraad' must take the protection of the quality of the groundwater for abstraction for human consumption into account (art. 3.10): the weakest variant of the instructieregel family (a take-into-account duty, mirroring art. 2.16 for water) — a conditional marker inside the umbrella zone alias, which conservatively covers the matig-kwetsbare designation as part of the verified union.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_3_10", "rekening_houden_grondwaterkwaliteit", "matig_kwetsbare_strategische_grondwatervoorraad", "conditional_marker_binnen_umbrella", "umbrella_superset_conservatief"],
+        "geoBinding": {
+            "zoneIds": ["grondwater_beschermingszone"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_BODEM,
+        },
+    },
+    "BO-05": {
+        "objectType": "soil_activity",
+        "claim": "An omgevingsplan activity taking place in the 'Gebied gesloten stortplaats' is an omgevingsplan activity of provincial importance (art. 3.108): an unconditional designation rule that routes jurisdiction to the province — which can thereby determine whether activities on the closed landfill can take place (soil protection when opening the landfill) — carried as a context marker, never an elimination.",
+        "confidence": 0.95,
+        "contextTags": ["aanwijzingsregel_art_3_108", "omgevingsplanactiviteit_provinciaal_belang", "provincial_jurisdiction_marker", "bodembescherming_bij_openen_stortplaats"],
+        "geoBinding": {
+            "zoneIds": ["gesloten_stortplaats"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_BODEM,
         },
     },
 }
@@ -964,6 +1029,57 @@ TEMPLATE_SPECS: Dict[str, Dict[str, Any]] = {
         "extra_tags": ["conditional_within_overstroombaar_gebied", "binnendijks_buitendijks_objectdifferentiatie"],
         "rationale": "Art. 2.16 instructieregel: plans for locations within the 'Overstroombaar gebied' must contain rules that take flood risk into account, differentiated binnendijks (vulnerable and vital objects, woonwijken, bedrijventerreinen) versus buitendijks (also individual homes and businesses). The zone overlay is deterministic; the 'rekening houden met overstromingsrisico's' test is object-type- and case-specific, so the rule is a conditional marker for the riparian_development object type routed to V4 — it never eliminates area by itself.",
         "executable_ref": "engine.zone.within@poc-v1",
+    },
+    # -- BODEM track --------------------------------------------------------------
+    # NOTE on the umbrella rules (BO-01/BO-03/BO-04): art. 3.7 ('laat geen
+    # activiteiten toe') and art. 3.9 ('verbiedt') are of the non-permission
+    # family that FR-WA-02 formalizes as engine.zone.exclude_within, and the
+    # zone alias carries registry role 'exclusion'. They are executed as
+    # conditional markers because the umbrella (701.18 km2) as an AOI-seeded
+    # exclusion breaks the V3 independent re-execution: engine.reexecute_independent
+    # skips exclusions when no inclusion rule seeds the zone (documented
+    # pre-existing engine bug, engine.py left untouched per task brief), so a
+    # 701 km2 exclusion would flip the pipeline verdict to fail. The exclusion
+    # semantics are carried in the context tags (exclusion_family_*) and can be
+    # switched to engine.zone.exclude_within when the V3 seeding bug is fixed.
+    "BO-01": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["grondwater_beschermingszone"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_BODEM},
+        "conditions": [],
+        "extra_tags": ["conditional_within_grondwater_beschermingszone", "exclusion_family_non_permission"],
+        "rationale": "CORE BODEM RULE (art. 3.7). Instructieregel directing omgevingsplannen for locations within the six literal designation areas (Waterwingebied, Grondwaterbeschermingsgebied, Boringsvrije zone, Beschermingszone oppervlaktewaterwinning, 100-jaarsaandachtsgebied, Gebied kwetsbare strategische grondwatervoorraad) to allow no activities posing a risk to abstraction for human consumption. The umbrella zone overlay is deterministic (live-verified union of the seven designation areas, conservative superset per article); whether a specific soil activity 'een risico vormt voor de winning' is a case-specific assessment marked for human review (V4) — the same reading FR-W-20 gives this article for wind — hence a conditional marker (mirroring FR-WA-01/FR-WA-03), never an elimination at PoC stage (see the BODEM track note above).",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "BO-03": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["grondwater_beschermingszone"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_BODEM},
+        "conditions": [],
+        "extra_tags": ["conditional_within_grondwater_beschermingszone", "verbod_nieuwe_begraafplaats_uitstrooiveld_dierenbegraafplaats", "exclusion_family_verbod"],
+        "rationale": "Art. 3.9 instructieregel: an omgevingsplan for locations within a Waterwingebied or Grondwaterbeschermingsgebied forbids establishing a new cemetery, scattering field or animal cemetery; the second paragraph adds rules for existing facilities. The prohibition is object-specific (new burial facilities, a soil-invasive activity class within soil_activity), not a blanket prohibition of soil activity, so for the soil_activity object type it is carried as a conditional marker inside the umbrella (conservative superset: both named designations are covered by the verified union), with the prohibited activity classes in the context tags — executed per the BODEM track note above (exclusion family, marker until the V3 seeding fix).",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "BO-04": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["grondwater_beschermingszone"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_BODEM},
+        "conditions": [],
+        "extra_tags": ["conditional_within_grondwater_beschermingszone", "rekening_houden_grondwaterkwaliteit"],
+        "rationale": "Art. 3.10 instructieregel, the weakest variant of the family: plans within the 'Gebied matig kwetsbare strategische grondwatervoorraad' must 'rekening houden met' groundwater-quality protection for abstraction — a take-into-account duty, exactly the art. 2.16 form that FR-WA-03 formalizes as a conditional marker routed to V4, never an elimination. The matig-kwetsbare designation is fully inside the umbrella union (verified in task 8), so the umbrella binding is a conservative superset for this marker.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "BO-05": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["gesloten_stortplaats"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_BODEM},
+        "conditions": [],
+        "extra_tags": ["conditional_within_gesloten_stortplaats", "provincial_jurisdiction_marker"],
+        "rationale": "Art. 3.108 aanwijzingsregel: every omgevingsplan activity in the 'Gebied gesloten stortplaats' is of provincial importance — the province can thereby determine whether activities on the closed landfill can take place (soil protection when opening it). This routes jurisdiction, it does not refuse or allow the activity, so it is a context/conditional marker on the gesloten_stortplaats zone (mirroring the FR-WA-03 marker idiom); the permit/assessment chain of afdeling 3.5 (arts. 3.103-3.107) is motivatedly abstained in the ledger.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "BO-02": {
+        "kind": "ambiguous",
+        "rule_type": "unsupported_claim",
+        "reason": "The literal designation 'Waterwingebied Bethunepolder' has no registered open-data alias (task-8 gap analysis: it matches no selectieregel name and no alias may be invented), and the art. 3.8 predicate is object-specific parking regulation ('uitsluitend parkeren op daartoe expliciet aangewezen locaties' during busy recreation periods) — no deterministic zone predicate for the soil_activity object type without guessing geometry or content.",
+        "rationale": "Nearest existing pattern chosen: the FR-W-18/W-19/W-20 ambiguous family (zone exists in the verordening but no executable predicate/geometry can be cited) rather than the FR-W-01/FR-Z-01 scope_declaration reject, because unlike a definitional scope card, art. 3.8 does carry a gebiedsaanwijzing and binding plan content — it stays routed to the V4 human-expert checkpoint instead of being dismissed as non-executable. A dedicated alias (WHERE NAAM='Waterwingebied Bethunepolder') plus a parking-condition template is the phase-2 follow-up.",
+        "executable_ref": _REVIEW_REF,
     },
 }
 

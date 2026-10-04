@@ -2,8 +2,9 @@
 """CLI orchestrator for the opportunity-map PoC (plan section 3.2, agent #1).
 
 Tracks: ``wind`` (wind turbines), ``zon`` (zonnevelden / solar fields),
-``bos`` (new nature / forest planting) and ``water`` (riparian development
-bounded by the watersysteem instructieregels) — same instrument
+``bos`` (new nature / forest planting), ``water`` (riparian development
+bounded by the watersysteem instructieregels) and ``bodem`` (soil activity
+bounded by the ondergrond-en-bodem instructieregels) — same instrument
 (Omgevingsverordening provincie Utrecht, CVDR704250), same agent architecture,
 per-track evidence shards and cite-or-abstain ledgers.
 
@@ -24,6 +25,7 @@ Usage (no install, from the workspace root):
     python3 poc/run.py --use-case zon      # solar fields (zonnevelden)
     python3 poc/run.py --use-case bos      # new nature / forest planting
     python3 poc/run.py --use-case water    # riparian development (watersysteem rule bounds)
+    python3 poc/run.py --use-case bodem    # soil activity (ondergrond-en-bodem rule bounds)
     python3 poc/run.py --refresh           # re-download live layers
     python3 poc/run.py --bbox 130000,440000,160000,470000   # EPSG:28992 clip
     python3 poc/run.py --out poc/runs/demo
@@ -260,6 +262,30 @@ TRACKS: Dict[str, Dict[str, Any]] = {
                 "procedural rules): routed to the V4 human-expert checkpoint."
             ),
             "Peilbesluit/legger/waterschaarste articles are procedural for water boards: abstained.",
+        ],
+    },
+    "bodem": {
+        "shard": "corpus/evidence-bodem.json",
+        "ledger": "corpus/normcards-rejected-bodem.json",
+        "report_title": "Where is soil activity bounded by groundwater and soil rules in province Utrecht?",
+        "decision_table_id": "DT-bodem-utrecht-poc1",
+        "decision_table_title": "Ondergrond-en-bodem rule bounds for soil activity "
+                                "Decision table (programming stage)",
+        "prov_namespace": "ldttoolbox:poc:bodem:",
+        "headline_note": (
+            "Semantics: the grondwaterbeschermingszone instructieregels (art. 3.2 core) bound "
+            "soil-affecting activities (infiltration, grondverzet) inside the designated protection "
+            "zones; gesloten stortplaats and rommelterrein articles apply only where the letteral "
+            "text carries a gebiedsaanwijzing. Groundwater permitting frames (art. 3.1) are "
+            "procedural and deliberately abstained. Programming-stage screening artifact."
+        ),
+        "limitations": lambda cov, abst: [
+            "Grondwaterbeheer (art. 3.1) and verontreiniging (art. 3.3) are permitting/assessment "
+            "frames: abstained under cite-or-abstain.",
+            (
+                f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms): "
+                "routed to the V4 human-expert checkpoint."
+            ),
         ],
     },
 }
@@ -546,7 +572,8 @@ def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--use-case", default="wind",
                     help="use case id (default: wind; wind=wind turbines, zon=solar fields, "
-                         "bos=new nature/forest planting, water=riparian development)")
+                         "bos=new nature/forest planting, water=riparian development, "
+                         "bodem=soil activity)")
     ap.add_argument("--refresh", action="store_true", help="ignore the layer cache and re-download live layers")
     ap.add_argument("--bbox", default=None,
                     help="optional clip xmin,ymin,xmax,ymax in EPSG:28992 applied to the AOI")
@@ -778,6 +805,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 engine_rules.remove(dropped)
                 print(f"[engine] dropped rule {dropped['id']} after RuleError: {msg[:140]}")
         final_rich = next(z for z in rich_zones if z.get("operation") == "final")
+        # Marker-only tracks (bodem: every formalized rule is a conditional/
+        # context marker, nothing is eliminated) seed the final zone from the
+        # AOI, so the engine's final carries no core rule id — but the
+        # zone-result contract requires non-empty ruleIds. Stamp the executed
+        # rules (the rules that bound the final zone) on the final only.
+        if not final_rich.get("ruleIds"):
+            final_rich["ruleIds"] = [r["id"] for r in engine_rules]
         inclusion_zone = next(
             (z for z in rich_zones if z.get("operation") == "intersection"),
             next((z for z in rich_zones if z.get("operation") == "inclusion_union"), None),
