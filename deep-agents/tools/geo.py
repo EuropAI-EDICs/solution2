@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 import journal
+from tools.utrecht import normalize_run_id
 
 HERE = Path(__file__).resolve().parents[1]
 RUNS_DIR = HERE / "runs"
@@ -80,17 +81,28 @@ def _bbox(geom: dict[str, Any]) -> list[float]:
 
 
 def _layer_path(scenario_run_id: str, layer: str) -> Path:
-    work = RUNS_DIR / f"{scenario_run_id}-worldscene" / "scenarios"
-    name = "CONTROL.geojson" if layer in ("control", "CONTROL") else f"{layer}.geojson"
-    path = work / name
-    if not path.is_file():
-        raise FileNotFoundError(f"Layer '{layer}' not found in {work} (run run_world_scene first)")
-    return path
+    work = RUNS_DIR / f"{normalize_run_id(scenario_run_id)}-worldscene" / "scenarios"
+    name = "CONTROL.geojson" if layer in ("control", "CONTROL") else f"{layer.removeprefix('WSS-')}.geojson"
+    return work / name
+
+
+def _layer(scenario_run_id: str, layer: str) -> dict[str, Any] | None:
+    """Load a layer's GeoJSON; on a miss return an error payload instead of raising."""
+    path = _layer_path(scenario_run_id, layer)
+    if path.is_file():
+        return json.loads(path.read_text(encoding="utf-8"))
+    clean = layer.removeprefix("WSS-")
+    journal.append("error", "geospecialist", f"laag '{layer}' niet gevonden (bedoel je '{clean}'?)")
+    return None
 
 
 def inspect_geo_layer(scenario_run_id: str, layer: str) -> dict[str, Any]:
-    """Inspect one GeoJSON layer of a built world-scene run: feature count, bounding box and total (spherical) area in km2. layer='control' or a scenario id (e.g. 'SC-Z-GROENE-CONTOUR-HARD')."""
+    """Inspect one GeoJSON layer of a built world-scene run: feature count, bounding box and total (spherical) area in km2. layer='control' or a scenario id (a WSS-<spec> id is accepted too — the prefix is stripped)."""
     path = _layer_path(scenario_run_id, layer)
+    if not path.is_file():
+        miss = _layer(scenario_run_id, layer)
+        return {"error": f"Layer '{layer}' not found — use the scenario id "
+                f"(e.g. '{layer.removeprefix('WSS-')}', not the WSS- spec id) or 'control'."}
     geom = json.loads(path.read_text(encoding="utf-8"))
     area = geojson_area_km2(geom)
     result = {
@@ -108,8 +120,12 @@ def inspect_geo_layer(scenario_run_id: str, layer: str) -> dict[str, Any]:
 
 def compare_layers(scenario_run_id: str, scenario_id: str) -> dict[str, Any]:
     """Compare a scenario layer against the control layer of a built world-scene run: areas, delta in km2 and percent, feature counts."""
-    control = json.loads(_layer_path(scenario_run_id, "control").read_text(encoding="utf-8"))
-    scenario = json.loads(_layer_path(scenario_run_id, scenario_id).read_text(encoding="utf-8"))
+    control = _layer(scenario_run_id, "control")
+    scenario = _layer(scenario_run_id, scenario_id.removeprefix("WSS-"))
+    if control is None or scenario is None:
+        missing = "control" if control is None else scenario_id
+        return {"error": f"Layer '{missing}' not found — use the scenario id (strip any "
+                "'WSS-' prefix) and run run_world_scene first."}
     a_ctrl = geojson_area_km2(control)
     a_scen = geojson_area_km2(scenario)
     delta = a_scen - a_ctrl

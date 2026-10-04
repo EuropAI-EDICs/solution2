@@ -12,8 +12,10 @@
   header h1 { font-size:16px; margin:0; font-weight:600; }
   header .models { margin-left:auto; font-size:11px; opacity:.75; }
   #agents { display:flex; flex-wrap:wrap; gap:4px; padding:4px 18px 8px; background:#0f1b33; }
-  .chip { font-size:10.5px; border-radius:10px; padding:2px 8px; background:#26365a; color:#cfe0ff; }
+  .chip { font-size:10.5px; border-radius:10px; padding:2px 8px; background:#26365a; color:#cfe0ff; transition: box-shadow .2s; }
   .chip.role { background:#3d2a68; color:#e6d9ff; }
+  .chip.active { box-shadow: 0 0 0 2px #fbbf24; color:#fff; }
+  #graph-bar { font-size:11px; padding:4px 18px 6px; background:#1a2744; color:#94a3b8; font-family: ui-monospace, Menlo, monospace; }
   #status { font-size:12px; padding:3px 10px; border-radius:12px; background:#334166; }
   #status.running { background:#b45309; } #status.done { background:#15803d; }
   #status.error { background:#7f1d1d; }
@@ -36,7 +38,19 @@
   .step.tool_result { border-left-color:#15803d; } .step.tool_result .badge { background:#d9f0e1; }
   .step.assistant { border-left-color:#0ea5e9; background:#eff8ff; } .step.assistant .badge { background:#d6ecff; }
   .step.done { border-left-color:#15803d; background:#e7f6ec; } .step.done .badge { background:#bbf0cd; }
+  .step.graph_node { border-left-color:#6366f1; background:#eef2ff; } .step.graph_node .badge { background:#c7d2fe; }
   .step .sum { flex:1; } .step .sum small { display:block; color:#667; font-size:11px; margin-top:2px; }
+  #agentgraph { width:100%; height:186px; display:block; background:#fff; border:1px solid var(--line); border-radius:8px; margin-bottom:10px; }
+  .gedge { stroke:#d9deea; stroke-width:1.2; } .gedge.lit { stroke:var(--blue); stroke-width:2.4; }
+  .gnode circle { fill:#fff; stroke:#94a3b8; stroke-width:2; transition: fill .3s; }
+  .gnode.poc circle { stroke:#2563eb; } .gnode.role circle { stroke:#7c3aed; }
+  .gnode.visited circle { fill:#dbe7ff; } .gnode.role.visited circle { fill:#e6d9ff; }
+  .gnode.active circle { animation:gpulse 1.1s ease-in-out infinite; }
+  .gnode text { font-size:8.5px; fill:#33415c; text-anchor:middle; pointer-events:none; }
+  .gnode.orch circle { fill:#0f1b33; stroke:#0f1b33; }
+  @keyframes gpulse { 0%,100% { stroke-width:2; } 50% { stroke-width:5; } }
+  #autobtn { font-size:11px; border:1px solid var(--line); background:#fff; border-radius:6px; padding:2px 8px; cursor:pointer; margin-left:8px; color:#556; float:right; }
+  #autobtn.on { background:#dbe7ff; border-color:var(--blue); color:var(--blue); font-weight:600; }
   #viz { flex:1; display:flex; flex-direction:column; }
   #viz-header { padding:8px 16px; font-size:12px; color:#667; background:#fff; border-bottom:1px solid var(--line); }
   #viz-body { display:flex; flex:1; min-height:0; }
@@ -59,6 +73,7 @@
   <span class="models" id="models"></span>
 </header>
 <div id="agents"></div>
+<div id="graph-bar">LangGraph: idle</div>
 <div id="controls">
   <div><label>Scenario run</label><select id="scenario"></select></div>
   <div><label>Prompting / modus</label><select id="mode"></select></div>
@@ -68,12 +83,18 @@
   <button id="stop">■ Stop</button>
 </div>
 <div id="main">
-  <div id="timeline"><div id="tl-title">Agent-stappen (live)</div><div id="steps"><div class="placeholder">Nog geen run — druk op “Start simulatie”.</div></div></div>
+  <div id="timeline">
+    <div id="tl-title">Agent-graf (live)</div>
+    <svg id="agentgraph" viewBox="0 0 406 186"></svg>
+    <div id="tl-title" style="margin-top:10px;">Agent-stappen (live)</div>
+    <div id="steps"><div class="placeholder">Nog geen run — druk op “Start simulatie”.</div></div>
+  </div>
   <div id="viz">
     <div id="viz-header">
       <span class="legend"><span class="sw" style="background:#2563eb;opacity:.45"></span>control</span>
       <span class="legend"><span class="sw" style="background:#dc2626;opacity:.45"></span>scenario</span>
       <span id="viz-note">geen basemap nodig — overlays zijn engine-grounded</span>
+      <button id="autobtn" class="on" title="kaart volgt automatisch de geo-stappen van de agents">▶ auto-volgen</button>
     </div>
     <div id="viz-body">
       <div id="cards"><div class="placeholder">Visualisatie verschijnt zodra de agents de world scene bouwen.</div></div>
@@ -84,14 +105,117 @@
 <script src="/assets/leaflet.js"></script>
 <script>
 const $ = id => document.getElementById(id);
-let poll = null, vizRunId = null, map = null, controlLayer = null, scenarioLayer = null;
-let lastRunId = null;
+let vizRunId = null, map = null, controlLayer = null, scenarioLayer = null, controlDrawn = false;
+let lastRunId = null, followedIndex = 0, autoFollow = true;
+const GRAPH_AGENTS = [
+  ['breda','poc'],['rijnland','poc'],['utrecht','poc'],['crosstrack','poc'],['minigim','poc'],['eindhoven','poc'],
+  ['geospecialist','role'],['normspecialist','role'],['critic','role'],['explainer','role'],['intake','role'],['formalizer','role'],
+];
+
+function buildGraph() {
+  const svg = $('agentgraph');
+  const orch = { x: 203, y: 26, r: 19 };
+  const rowY = [104, 162], colX = i => 40 + i * 65;
+  let out = '';
+  GRAPH_AGENTS.forEach(([name, kind], i) => {
+    const y = rowY[Math.floor(i / 6)], x = colX(i % 6);
+    out += `<line class="gedge" id="ge-${name}" x1="${orch.x}" y1="${orch.y}" x2="${x}" y2="${y - 13}"></line>`;
+  });
+  out += `<g class="gnode orch" id="gn-orchestrator"><circle cx="${orch.x}" cy="${orch.y}" r="${orch.r}"></circle><text x="${orch.x}" y="${orch.y - 26}" font-size="10" font-weight="600" fill="#33415c">orchestrator</text></g>`;
+  GRAPH_AGENTS.forEach(([name, kind], i) => {
+    const y = rowY[Math.floor(i / 6)], x = colX(i % 6);
+    out += `<g class="gnode ${kind}" id="gn-${name}"><circle cx="${x}" cy="${y}" r="14"></circle><text x="${x}" y="${y + 3}">${name}</text></g>`;
+  });
+  svg.innerHTML = out;
+}
+
+function updateGraph(entries) {
+  const seen = new Set(), lastAgent = 'orchestrator';
+  let last = null;
+  for (const e of entries) {
+    if (e.kind === 'graph_node') continue;
+    last = e;
+    if (e.agent && e.agent !== '?') seen.add(e.agent);
+    const m = (e.summary || '').match(/specialist: (\w+)/);
+    if (m) seen.add(m[1]);
+  }
+  document.querySelectorAll('.gnode').forEach(g => g.classList.remove('active'));
+  for (const [name] of GRAPH_AGENTS) {
+    const node = $('gn-' + name);
+    if (!node) continue;
+    node.classList.toggle('visited', seen.has(name));
+    $('ge-' + name).classList.toggle('lit', seen.has(name));
+  }
+  const lastEntryAgent = last ? (last.agent || '') : '';
+  if (last && last.kind === 'delegate') {
+    const m = (last.summary || '').match(/specialist: (\w+)/);
+    if (m && $('gn-' + m[1])) $('gn-' + m[1]).classList.add('active');
+  } else if (lastEntryAgent && $('gn-' + lastEntryAgent)) {
+    $('gn-' + lastEntryAgent).classList.add('active');
+  } else if (last) {
+    $('gn-orchestrator').classList.add('active');
+  }
+}
+
+// --- plain-English rendering: the raw journal stays technical, the display talks
+function stripCodes(s) {
+  return String(s)
+    .replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, '')
+    .replace(/\/Users\/\S+/g, '…')
+    .replace(/\bdeep-agents\/runs\//g, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+function humanize(e) {
+  const s = stripCodes(e.summary || '');
+  const n = m => m || '';
+  const rules = [
+    [/^start/, s => `📋 Brief: ${s.replace(/^start\s*/, '')}`],
+    [/^delegate\s*→\s*specialist:\s*(\S+)/, m => `👉 Handed over to the **${m[1]}** specialist`],
+    [/submit_request → PASS/, () => '✅ The normalized request passed the schema check and was submitted'],
+    [/submit_request → FAIL/, m => `❌ The request failed the schema check (${n(m[1])} issue(s)) — fixing it`],
+    [/validate_request.*→ PASS/, () => '✅ Schema check passed for the request'],
+    [/validate_request.*→ FAIL \((\d+)/, m => `❌ Schema check found ${m[1]} problem(s) in the request — fixing them`],
+    [/submit_norm_cards → PASS \((\d+)/, m => `✅ Submitted ${m[1]} relevant norm cards for the brief`],
+    [/submit_norm_cards → FAIL/, () => '❌ The norm-card submission was malformed — rewriting it'],
+    [/submit_formal_rule.*→ PASS/, () => '✅ The formal rule passed the schema check and was submitted'],
+    [/submit_formal_rule.*→ FAIL/, m => `❌ The formal rule failed the schema check (${n(m[1])} issue(s)) — fixing it`],
+    [/validate_formal_rule.*→ FAIL \((\d+)/, m => `❌ The drafted rule has ${m[1]} schema problem(s) — fixing them`],
+    [/validate_formal_rule.*→ PASS/, () => '✅ The drafted rule now passes the schema check'],
+    [/get_formal_rules\((.*)\)/, m => `📚 Looked up existing formal rules in the corpus (${m[1] || 'all tracks'}) for calibration`],
+    [/search_norms\((.*)\)/, m => `🔎 Searched the norm-card corpus for: ${m[1]}`],
+    [/request_template/, () => '📐 Loaded the request schema as a template'],
+    [/list_recipes\(\) → (\d+)/, m => `📖 Listed the ${m[1]} available recipes`],
+    [/get_recipe\('(.+?)'\)/, m => `📖 Read the recipe details of ${m[1]}`],
+    [/run_world_scene\('(.+?)'\)/, m => `🏗️ Building the world-scene layers for ${m[1]}`],
+    [/world-scene-specs.json built: (\d+)/, m => `✅ World scene built — ${m[1]} scenario layer(s)`],
+    [/demo.html rendered/, () => '✅ Rendered the interactive map demo'],
+    [/inspect_geo_layer\('(.+?)'\) → ([\d.]+) km²/, m => `🗺️ Measured layer ${m[1]}: ${m[2]} km² total area`],
+    [/compare_layers\('(.+?)'\) → Δ (.*?km².*?)$/, m => `⚖️ Compared ${m[1]} against control: ${m[2]}`],
+    [/validate_world_scene.*→ PASS \((\d+)/, m => `✅ Validation gate PASSED — all ${m[1]} checks OK`],
+    [/validate_world_scene.*→ FAIL/, () => '❌ Validation gate FAILED — see the issues'],
+    [/crosscheck_formal_rule\('(.+?)'\) → UITGEVOERD/, m => `✅ Verified the engine really executed rule ${m[1]}`],
+    [/crosscheck_formal_rule\('(.+?)'\) → NIET/, m => `⚠️ Rule ${m[1]} exists on paper, but the engine did not apply it in this run`],
+    [/get_provenance\('(.+?)'\)/, m => `🧾 Collected provenance for ${m[1]} (which norm card produced what)`],
+    [/specialist klaar|specialist-rapport/, m => `📨 The specialist finished and reported back`],
+    [/geen gesubmiteerde aanvraag|GEWEIGERD/, () => '🚧 The build was refused — a submitted request is required first'],
+    [/error|Error/, m => `⚠️ Problem: ${s.replace(/^error\s*/i, '').slice(0, 160)}`],
+  ];
+  for (const [re, fn] of rules) {
+    const m = s.match(re);
+    if (m) return fn(m);
+  }
+  return s.charAt(0).toUpperCase() + s.slice(1, 180);
+}
+const KIND_LABEL = { start: 'brief', delegate: 'handover', tool_call: 'working', tool_result: 'result', assistant: 'report', done: 'finished', error: 'problem' };
 
 function fullReset() {
   vizRunId = null;
-  $('steps').innerHTML = '<div class="placeholder">Simulatie gestart — eerste stappen volgen…</div>';
-  $('cards').innerHTML = '<div class="placeholder">Visualisatie verschijnt zodra de agents de world scene bouwen.</div>';
-  if (map && controlLayer && scenarioLayer) { controlLayer.clearLayers(); scenarioLayer.clearLayers(); }
+  followedIndex = 0;
+  $('steps').innerHTML = '<div class="placeholder">Simulation started — first steps will appear here…</div>';
+  $('cards').innerHTML = '<div class="placeholder">The map appears as soon as the agents build the world scene.</div>';
+  if (map && controlLayer && scenarioLayer) { controlLayer.clearLayers(); scenarioLayer.clearLayers(); controlDrawn = false; }
+  updateGraph([]);
 }
 
 async function initControls() {
@@ -150,16 +274,23 @@ $('stop').addEventListener('click', async () => {
 });
 
 function renderSteps(entries) {
-  if (!entries.length) return;
+  const visible = entries.filter(e => e.kind !== 'graph_node');
+  updateGraph(visible);
+  if (!visible.length) return;
   const box = $('steps');
   const stick = box.scrollTop + box.clientHeight >= box.scrollHeight - 30;
-  box.innerHTML = entries.map(e => `
+  box.innerHTML = visible.map(e => `
     <div class="step ${e.kind}">
       <span class="t">${e.ts || ''}</span>
-      <span class="badge">${e.kind}</span>
-      <span class="sum">${escapeHtml(e.summary || '')}${e.detail ? `<small>${escapeHtml(String(e.detail).slice(0,140))}</small>` : ''}</span>
+      <span class="badge">${KIND_LABEL[e.kind] || e.kind}</span>
+      <span class="sum">${humanize(e).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')}${e.detail ? `<small>${escapeHtml(String(e.detail).slice(0,140))}</small>` : ''}</span>
     </div>`).join('');
   if (stick) box.scrollTop = box.scrollHeight;
+  const last = visible[visible.length - 1];
+  document.querySelectorAll('#agents .chip').forEach(chip => {
+    const name = chip.textContent.trim();
+    chip.classList.toggle('active', (last.agent || '') === name || (last.summary || '').includes(name));
+  });
 }
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
@@ -219,7 +350,7 @@ async function tick() {
   }
 }
 initControls();
-poll = setInterval(tick, 1200);
+poll = setInterval(tick, 700);
 tick();
 </script>
 </body>

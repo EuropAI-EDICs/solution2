@@ -23,11 +23,17 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, PlainTextResponse
 from pydantic import BaseModel
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parent / ".env")
 
 import journal
 from pocs import roster
 
 HERE = Path(__file__).resolve().parent
+from dotenv import load_dotenv  # noqa: E402
+
+load_dotenv(HERE / ".env")  # so /api/models sees ZAI_API_KEY for the dropdown
 RUNS = HERE / "runs"
 SCENARIO_RUNS = HERE.parent / "poc" / "scenario-runs"
 JOURNAL = RUNS / "live" / "steps.jsonl"
@@ -67,7 +73,7 @@ MODES = [
     {
         "id": "keten",
         "label": "Volledige keten (intake → normen → regel → build → validatie)",
-        "template": "Volledige keten voor scenario run {rid}. Aanvraag: 'Ik wil weten waar een zonnepark mag in de gemeente Utrecht, bij voorkeur buiten de Groene contour.' Doorloop de hele keten in deze volgorde: (1) intake normaliseert en SUBMIT de aanvraag (submit_request), (2) normspecialist zoekt en SUBMIT de normkaarten (submit_norm_cards), (3) formalizer formaliseert de belangrijkste kaart en SUBMIT de regel (submit_formal_rule), (4) utrecht bouwt de world scene, (5) daarna parallel: geospecialist analyseert de lagen en critic valideert de bundle, (6) explainer legt de provenance vast en crosscheckt of de engine de gesubmiteerde regel ook echt heeft uitgevoerd. Rapporteer alle artefacten met hun submission-verdicts.",
+        "template": "Volledige keten voor scenario run {rid}. Aanvraag: 'Ik wil weten waar een zonnepark mag in de gemeente Utrecht, bij voorkeur buiten de Groene contour.' Voer ALLEEN deze 6 stappen uit, in deze volgorde, en NIETS extra: (1) intake normaliseert en SUBMIT de aanvraag (submit_request), (2) normspecialist zoekt en SUBMIT de normkaarten (submit_norm_cards), (3) formalizer formaliseert de belangrijkste kaart en SUBMIT de regel (submit_formal_rule), (4) utrecht bouwt de world scene voor {rid} — gebruik alléén deze bestaande scenario-run en verzin GEEN nieuwe run-ids of extra scenario's, (5) daarna parallel: geospecialist analyseert de lagen en critic valideert de bundle, (6) explainer legt de provenance vast en crosscheckt of de engine de gesubmiteerde regel ook echt heeft uitgevoerd. Rapporteer daarna alle artefacten met hun submission-verdicts en STOP — geen verdere stappen.",
     },
 ]
 

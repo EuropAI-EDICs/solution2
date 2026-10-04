@@ -41,6 +41,7 @@ out in parallel over the fresh artifacts.
 deep-agents/
   agent.py               # orchestrator entry point (build + run)
   live.py                # streaming runner → runs/live/steps.jsonl
+  graph_trace.py         # LangGraph stream (updates+messages, subgraphs) → journal
   live_server.py         # simulation dashboard server (http://127.0.0.1:8765)
   dashboard.html         # the dashboard: dropdowns + live steps + map
   journal.py             # run journal (steps.jsonl) shared by runner + tools
@@ -106,6 +107,23 @@ journaled with PASS/FAIL. In keten mode the world-scene build HARD-REFUSES
 explainer's `crosscheck_formal_rule` reports whether the engine actually
 executed the submitted rule. One simulation at a time; each run journals
 every step to `runs/live/steps.jsonl`.
+
+### LangGraph-zichtbaarheid tijdens een run
+
+`live.py` streamt via `graph_trace.run_streamed` met `stream_mode=["updates",
+"messages"]` en `subgraphs=True`. In het dashboard en in de terminal zie je:
+
+| `kind` | Betekenis |
+|--------|-----------|
+| `graph_node` | LangGraph-node (`model`, `tools`, …) per orchestrator of subagent-subgraph |
+| `delegate` | Orchestrator delegeert naar een specialist (`task`) |
+| `tool_call` / `tool_result` | Van de tools zelf (`tools/*.py` → `journal.append`) |
+| `assistant` | Modelantwoord zonder tool calls |
+| `done` | Eindantwoord orchestrator |
+
+De balk **LangGraph:** onder de agent-chips toont de laatste actieve node, stap
+nummer en subgraph-pad. Agent-chips krijgen een gele rand als die agent net
+actief was.
 
 ## Next steps
 

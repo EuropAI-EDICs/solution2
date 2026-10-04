@@ -79,8 +79,19 @@ show(Object.keys(DATA)[0]);
 """
 
 
+def normalize_run_id(scenario_run_id: str) -> str:
+    """Accept both the scenario-run id and its '-worldscene' workdir name —
+    agents pass either; the workdir suffix is stripped when it resolves."""
+    rid = scenario_run_id.strip()
+    if rid.endswith("-worldscene"):
+        stripped = rid[: -len("-worldscene")]
+        if (RUNS_DIR / rid / "world-scene-specs.json").is_file() or (POC_DIR / "scenario-runs" / stripped).is_dir():
+            return stripped
+    return rid
+
+
 def _workdir(scenario_run_id: str) -> Path:
-    return RUNS_DIR / f"{scenario_run_id}-worldscene"
+    return RUNS_DIR / f"{normalize_run_id(scenario_run_id)}-worldscene"
 
 
 def _available_runs() -> list[str]:
@@ -106,12 +117,17 @@ def run_world_scene(scenario_run_id: str, hitl_approved: bool = False) -> dict[s
                 "submit_request aanroepen (schema-geldig OpportunityMapRequest) voordat de "
                 "world scene gebouwd mag worden."
             )
+    scenario_run_id = normalize_run_id(scenario_run_id)
     src = POC_DIR / "scenario-runs" / scenario_run_id
     if not (src / "scenario-report.json").is_file():
-        raise FileNotFoundError(
-            f"Unknown scenario run '{scenario_run_id}'. Runs with a scenario-report: "
-            + ", ".join(_available_runs())
+        journal.append(
+            "error", "utrecht", f"run_world_scene: onbekende scenario run '{scenario_run_id}'"
         )
+        return {
+            "error": f"Unknown scenario run '{scenario_run_id}'. Runs with a scenario-report: "
+            + ", ".join(_available_runs())
+            + ". Verzin geen nieuwe run-ids — gebruik er één uit deze lijst."
+        }
     journal.append(
         "tool_call", "utrecht", f"run_world_scene('{scenario_run_id}') — world-scene-build"
     )
@@ -159,7 +175,13 @@ def render_world_scene_demo(scenario_run_id: str) -> dict[str, Any]:
     work = _workdir(scenario_run_id)
     bundle_path = work / "world-scene-specs.json"
     if not bundle_path.is_file():
-        raise FileNotFoundError(f"No bundle for '{scenario_run_id}' — run run_world_scene first.")
+        journal.append(
+            "error", "utrecht", f"render_world_scene_demo: geen bundle voor '{scenario_run_id}'"
+        )
+        return {
+            "error": f"No bundle for '{scenario_run_id}' — run run_world_scene first "
+            "(use the scenario-run id, not the '-worldscene' directory)."
+        }
 
     bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
     data: dict[str, Any] = {}

@@ -14,6 +14,7 @@ from typing import Any
 import jsonschema
 
 import journal
+from tools.utrecht import normalize_run_id
 
 HERE = Path(__file__).resolve().parents[1]
 REPO_ROOT = HERE.parent
@@ -23,10 +24,22 @@ SPEC_SCHEMA = REPO_ROOT / "poc" / "schemas" / "world-scene-spec.schema.json"
 
 def validate_world_scene(scenario_run_id: str) -> dict[str, Any]:
     """Validate a built world-scene bundle: every spec against the world-scene-spec JSON schema, plus checks for unique ids, present deltas, gated Marble rendering and grounding stamps. Returns a pass/fail report with per-check evidence."""
-    work = RUNS_DIR / f"{scenario_run_id}-worldscene"
+    rid = normalize_run_id(scenario_run_id)
+    work = RUNS_DIR / f"{rid}-worldscene"
     bundle_path = work / "world-scene-specs.json"
     if not bundle_path.is_file():
-        raise FileNotFoundError(f"No bundle for '{scenario_run_id}' — run run_world_scene first.")
+        journal.append(
+            "error", "critic", f"validate_world_scene: geen bundle voor '{scenario_run_id}' (gebruik scenario-run id '{rid}')"
+        )
+        return {
+            "passed": False,
+            "scenarioRunId": rid,
+            "errors": [
+                f"No bundle for '{scenario_run_id}' — use the scenario-run id (e.g. '{rid}', "
+                "not the '-worldscene' directory) and run run_world_scene first."
+            ],
+            "checks": [],
+        }
 
     bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
     specs = bundle.get("specs", [])
