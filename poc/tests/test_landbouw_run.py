@@ -1,0 +1,100 @@
+# poc/tests/test_landbouw_run.py
+import json
+import re
+from pathlib import Path
+
+POC = Path(__file__).resolve().parents[1]
+
+# Spiegel van test_landschap_run.py: de landbouw-track is exclusie-dragend
+# (drie niet-toestaan-instructieregels, drie markers), dus de water-afmeting
+# past: een stille overslaan van een exclusie scheeftrekt pipeline-vs-
+# independent meteen onder de vloer. De vloer discrimineert ook de
+# payload-rounding-crash die deze track aanvankelijk fataal werd (de
+# 37-delige kassen-sliver multipolygon; zie test_engine_rounding_repair.py).
+IOU_FLOOR = 0.999
+REL_DELTA_CEILING = 1e-3
+
+# Per-run stamps that a deterministic replay cannot and must not reproduce.
+_VOLATILE_KEYS = ("runId", "generatedAt", "computedAt", "formalizedAt", "extractedAt")
+
+
+def _latest(track: str) -> Path:
+    dirs = sorted(p for p in (POC / "runs").glob(f"*-{track}") if (p / "run_summary.json").is_file())
+    assert dirs, f"geen canonieke run voor {track}"
+    return dirs[-1]
+
+
+def _v3_numbers(summary: dict):
+    """Parse (IoU, pipeline_km2, independent_km2) from the v3 summary line."""
+    v3 = str(summary.get("v3", ""))
+    m_iou = re.search(r"IoU ([0-9.]+)", v3)
+    m_km = re.search(r"pipeline ([0-9.]+) km2 vs independent ([0-9.]+) km2", v3)
+    assert m_iou and m_km, f"v3-regel mist IoU of pipeline-vs-independent: {v3!r}"
+    return float(m_iou.group(1)), float(m_km.group(1)), float(m_km.group(2))
+
+
+def _scrub(obj):
+    """Drop run-id/tijdstempelvelden recursief zodat overgebleven dicts
+    letterlijk vergelijkbaar zijn tussen replay en run-artefact."""
+    if isinstance(obj, dict):
+        return {k: _scrub(v) for k, v in obj.items() if k not in _VOLATILE_KEYS}
+    if isinstance(obj, list):
+        return [_scrub(v) for v in obj]
+    return obj
+
+
+def test_landbouw_run_passes_with_v3():
+    run = _latest("landbouw")
+    summary = json.loads((run / "run_summary.json").read_text())
+    assert summary["verdict"] == "pass"
+    v3_iou, pipeline_km2, independent_km2 = _v3_numbers(summary)
+    assert v3_iou >= IOU_FLOOR, f"V3-IoU {v3_iou} onder vloer {IOU_FLOOR}"
+    rel_delta = abs(pipeline_km2 - independent_km2) / pipeline_km2
+    assert rel_delta <= REL_DELTA_CEILING, (
+        f"independent wijkt {rel_delta:.3e} af van pipeline "
+        f"({pipeline_km2} vs {independent_km2} km2)"
+    )
+    final_km2 = summary["headline"]["finalOpportunityKm2"]
+    assert abs(pipeline_km2 - final_km2) / final_km2 <= REL_DELTA_CEILING
+    # track-contract: final = AOI − (stabiliserings ∪ glastuinbouw-niet ∪
+    # bodembewerking). De glastuinbouw-niet-toegestaan-aanduiding dekt vrijwel
+    # de hele provincie minus de kassenconcentraties, dus de final is juridisch
+    # correct klein (≈ de concentratiegebieden); hij mag bovendien niet leeg zijn
+    # en moet klein blijven ten opzichte van de AOI (anders draait de
+    # glastuinbouw-exclusie niet).
+    aoi_km2 = summary["headline"]["aoiKm2"]
+    assert 0 < final_km2 < 0.01 * aoi_km2, (
+        f"final {final_km2} km2 valt buiten het kleine kassen-contract "
+        f"(AOI {aoi_km2} km2) — de art.-8.6-exclusie draait dan niet"
+    )
+    assert summary["headline"]["rulesTotal"] == 6
+    zones = json.loads((run / "zones.json").read_text())
+    diffs = [z for z in zones if str(z.get("id", "")).startswith("ZR-difference")]
+    markers = [z for z in zones if str(z.get("id", "")).startswith("ZR-conditional_mark")]
+    final = [z for z in zones if str(z.get("id", "")).startswith("ZR-final")]
+    assert len(diffs) == 3, f"verwacht 3 exclusies (LB-03/LB-05/LB-06), gevonden {len(diffs)}"
+    assert len(markers) == 3, f"verwacht 3 marker-zones (LB-01/LB-02/LB-04), gevonden {len(markers)}"
+    assert len(final) == 1
+    dt = json.loads((run / "decision-table.json").read_text())
+    assert len(dt.get("rows", dt if isinstance(dt, list) else [])) >= 1
+
+
+def test_landbouw_replay_deterministic(tmp_path):
+    run = _latest("landbouw")
+    replay = tmp_path / "replay.json"
+    import subprocess, sys
+    # Spiegel van het replay-idioom uit test_water_run.py (zelfde caveat):
+    # de asserts vergelijken de VOLLEDige normcards- en formalrules-artefacten
+    # (run-id/tijdstempels gescrubd), niet alleen ids.
+    code = ("import json;from pipeline.agents import NormAnalyst,NormFormalizer;"
+            "cards=NormAnalyst().read('evidence-landbouw.json');"
+            "rules=NormFormalizer().formalize(cards);"
+            f"json.dump([[c.to_dict() for c in cards],[r.to_dict() for r in rules]],"
+            f"open({str(replay)!r},'w'))")
+    subprocess.run([sys.executable, "-c", code], cwd=POC, check=True,
+                   env={"PYTHONPATH": str(POC), "PATH": "/usr/bin:/bin:/usr/local/bin"})
+    cards, rules = json.loads(replay.read_text())
+    run_cards = json.loads((run / "normcards.json").read_text())
+    run_rules = json.loads((run / "formalrules.json").read_text())
+    assert _scrub(cards) == _scrub(run_cards)
+    assert _scrub(rules) == _scrub(run_rules)

@@ -1,0 +1,148 @@
+{
+ "id": "VR-20261005T094244Z-landbouw-pipeline",
+ "artifactId": "20261005T094244Z-landbouw",
+ "artifactType": "pipeline-run",
+ "levels": {
+  "V0": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v0-schema-opportunity-map-request",
+     "status": "pass",
+     "detail": "1/1 artifact(s) valid against opportunity-map-request.schema.json"
+    },
+    {
+     "id": "v0-schema-norm-card",
+     "status": "pass",
+     "detail": "6/6 artifact(s) valid against norm-card.schema.json"
+    },
+    {
+     "id": "v0-schema-formal-rule",
+     "status": "pass",
+     "detail": "6/6 artifact(s) valid against formal-rule.schema.json"
+    },
+    {
+     "id": "v0-schema-zone-result",
+     "status": "pass",
+     "detail": "7/7 artifact(s) valid against zone-result.schema.json"
+    },
+    {
+     "id": "v0-schema-decision-table",
+     "status": "pass",
+     "detail": "1/1 artifact(s) valid against decision-table.schema.json"
+    }
+   ]
+  },
+  "V1": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v1-output-geometry-valid",
+     "status": "pass",
+     "detail": "all 7 zone geometries valid (shapely is_valid)"
+    },
+    {
+     "id": "v1-output-crs-and-bounds",
+     "status": "pass",
+     "detail": "all payloads EPSG:4326 with coordinates inside NL bounds lon(3.0, 7.5)/lat(50.5, 54.0)"
+    },
+    {
+     "id": "v1-input-layers-crs",
+     "status": "pass",
+     "detail": "6 input layer(s) declare a recognised CRS member (EPSG:28992 computation CRS)"
+    },
+    {
+     "id": "v1-input-invalid-census",
+     "status": "pass",
+     "detail": "no invalid as-served features in any input layer",
+     "evidenceRefs": [
+      "gebied_agrarische_bedrijven",
+      "landbouwontwikkelingsgebied",
+      "landbouwstabiliseringsgebied",
+      "concentratiegebied_glastuinbouw",
+      "gebied_glastuinbouw_niet_toegestaan",
+      "gebied_beperken_bodembewerking"
+     ]
+    },
+    {
+     "id": "v1-final-zone-sanity",
+     "status": "pass",
+     "detail": "final zone non-empty, valid, 2.260 km2 <= AOI 1560.054 km2",
+     "evidenceRefs": [
+      "ZR-final-0d65587933"
+     ]
+    }
+   ]
+  },
+  "V2": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v2-rule-card-linkage",
+     "status": "pass",
+     "detail": "all 6 FormalRule(s) link an existing NormCard (cite-or-abstain chain intact)"
+    },
+    {
+     "id": "v2-card-citations",
+     "status": "pass",
+     "detail": "all 6 NormCard(s) carry docId+article+version+verbatim quote+uri"
+    },
+    {
+     "id": "v2-zone-rule-traceability",
+     "status": "pass",
+     "detail": "every zone ruleId traces to a formalized rule (6 available)"
+    },
+    {
+     "id": "v2-decision-table-linkage",
+     "status": "pass",
+     "detail": "all 6 decision-table row(s) link an existing NormCard"
+    },
+    {
+     "id": "v2-executable-refs-registered",
+     "status": "pass",
+     "detail": "all executableRefs are registered deterministic engine operations (6 registered)"
+    }
+   ]
+  },
+  "V3": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v3-reexecution-agreement",
+     "status": "pass",
+     "detail": "independent geopandas re-execution of 6 rule(s): pipeline 2.260 km2 vs independent 2.260 km2; relative area delta 1.603e-13 (threshold 0.01); IoU 0.999889 (threshold 0.98)"
+    }
+   ]
+  },
+  "V4": {
+   "status": "pending",
+   "checks": [],
+   "notes": "V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it."
+  }
+ },
+ "verdict": "pass",
+ "evaluatorRun": "critic-validator#deterministic-v0-v3-poc1",
+ "evaluatedAt": "2026-10-05T09:42:55Z",
+ "evidence": [
+  {
+   "ref": "23a6c916-576d-4be2-9583-49e98eaf4e00",
+   "note": "OpportunityMapRequest"
+  },
+  {
+   "ref": "normcards-landbouw",
+   "note": "6 NormCards"
+  },
+  {
+   "ref": "formalrules-landbouw",
+   "note": "6 FormalRules"
+  },
+  {
+   "ref": "zones",
+   "note": "7 ZoneResults"
+  },
+  {
+   "ref": "DT-landbouw-utrecht-poc1",
+   "note": "DecisionTable"
+  }
+ ]
+}

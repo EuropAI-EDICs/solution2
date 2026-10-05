@@ -1,0 +1,232 @@
+{
+ "title": "Where is agricultural expansion bounded by the landbouw instructieregels in province Utrecht?",
+ "generatedAt": "2026-10-05T09:42:46Z",
+ "generatedBy": "poc-cartographer/0.1",
+ "crs": "EPSG:4326 (computation in EPSG:28992, areas in km²)",
+ "stats": {
+  "zoneCount": 7,
+  "finalAreaKm2": 2.259951313,
+  "finalRuleIds": [
+   "FR-LB-03",
+   "FR-LB-05",
+   "FR-LB-06"
+  ],
+  "geometryRepairsRecorded": 0
+ },
+ "layers": [
+  {
+   "id": "concentratiegebied_glastuinbouw",
+   "title": "concentratiegebied_glastuinbouw",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-05T09:03:33Z"
+  },
+  {
+   "id": "gebied_agrarische_bedrijven",
+   "title": "gebied_agrarische_bedrijven",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-05T09:03:33Z"
+  },
+  {
+   "id": "gebied_beperken_bodembewerking",
+   "title": "gebied_beperken_bodembewerking",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-05T09:03:33Z"
+  },
+  {
+   "id": "gebied_glastuinbouw_niet_toegestaan",
+   "title": "gebied_glastuinbouw_niet_toegestaan",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-05T09:03:33Z"
+  },
+  {
+   "id": "landbouwontwikkelingsgebied",
+   "title": "landbouwontwikkelingsgebied",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-05T09:03:33Z"
+  },
+  {
+   "id": "landbouwstabiliseringsgebied",
+   "title": "landbouwstabiliseringsgebied",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-05T09:03:33Z"
+  },
+  {
+   "id": "provincial_gio_unverified",
+   "title": "provincial_gio_unverified"
+  }
+ ],
+ "zones": [
+  {
+   "id": "zr-difference-919eeca45f",
+   "operation": "difference",
+   "ruleIds": [
+    "FR-LB-03"
+   ],
+   "areaKm2": 1313.249145591,
+   "layers": [
+    "landbouwstabiliseringsgebied",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=aoi_seed; area_m2=1560053846.303311; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=landbouwstabiliseringsgebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=landbouwstabiliseringsgebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:03:33Z; simplifiedM=2.0); features=812; make_valid_repairs=0; area_m2=246805770.513657; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=difference rule=FR-LB-03; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=difference; rule=FR-LB-03; layers=landbouwstabiliseringsgebied,provincial_gio_unverified; buffer_m=0.0; area_before_m2=1560053846.303311; area_after_m2=1313249145.591022; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=3; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-difference-28167731db",
+   "operation": "difference",
+   "ruleIds": [
+    "FR-LB-05"
+   ],
+   "areaKm2": 2.260056752,
+   "layers": [
+    "gebied_glastuinbouw_niet_toegestaan",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=union layer=gebied_glastuinbouw_niet_toegestaan; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_glastuinbouw_niet_toegestaan(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:03:33Z; simplifiedM=2.0); features=1; make_valid_repairs=0; area_m2=1557794704.643597; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=difference rule=FR-LB-05; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=difference; rule=FR-LB-05; layers=gebied_glastuinbouw_niet_toegestaan,provincial_gio_unverified; buffer_m=0.0; area_before_m2=1313249145.591022; area_after_m2=2260056.751523; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-difference-e36251fc0f",
+   "operation": "difference",
+   "ruleIds": [
+    "FR-LB-06"
+   ],
+   "areaKm2": 2.259951313,
+   "layers": [
+    "gebied_beperken_bodembewerking",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=union layer=gebied_beperken_bodembewerking; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_beperken_bodembewerking(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:03:33Z; simplifiedM=2.0); features=19; make_valid_repairs=0; area_m2=192242737.914621; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=difference rule=FR-LB-06; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=difference; rule=FR-LB-06; layers=gebied_beperken_bodembewerking,provincial_gio_unverified; buffer_m=0.0; area_before_m2=2260056.751523; area_after_m2=2259951.312619; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=1; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-6141885843",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-LB-01"
+   ],
+   "areaKm2": 1245.811141603,
+   "layers": [
+    "gebied_agrarische_bedrijven",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-LB-01; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gebied_agrarische_bedrijven; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_agrarische_bedrijven(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:03:33Z; simplifiedM=2.0); features=4; make_valid_repairs=0; area_m2=1245811141.602646; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=3; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-6bf521bf2c",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-LB-02"
+   ],
+   "areaKm2": 9.383824129,
+   "layers": [
+    "landbouwontwikkelingsgebied",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-LB-02; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=landbouwontwikkelingsgebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=landbouwontwikkelingsgebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:03:33Z; simplifiedM=2.0); features=1; make_valid_repairs=0; area_m2=9383824.129163; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-3b86b066ab",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-LB-04"
+   ],
+   "areaKm2": 2.258024066,
+   "layers": [
+    "concentratiegebied_glastuinbouw",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-LB-04; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=concentratiegebied_glastuinbouw; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=concentratiegebied_glastuinbouw(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:03:33Z; simplifiedM=2.0); features=2; make_valid_repairs=0; area_m2=2258024.065802; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-final-0d65587933",
+   "operation": "final",
+   "ruleIds": [
+    "FR-LB-03",
+    "FR-LB-05",
+    "FR-LB-06"
+   ],
+   "areaKm2": 2.259951313,
+   "layers": [
+    "gebied_beperken_bodembewerking",
+    "gebied_glastuinbouw_niet_toegestaan",
+    "landbouwstabiliseringsgebied",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=aoi_seed; area_m2=1560053846.303311; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=landbouwstabiliseringsgebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=landbouwstabiliseringsgebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:03:33Z; simplifiedM=2.0); features=812; make_valid_repairs=0; area_m2=246805770.513657; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=difference rule=FR-LB-03; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=difference; rule=FR-LB-03; layers=landbouwstabiliseringsgebied,provincial_gio_unverified; buffer_m=0.0; area_before_m2=1560053846.303311; area_after_m2=1313249145.591022; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gebied_glastuinbouw_niet_toegestaan; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_glastuinbouw_niet_toegestaan(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:03:33Z; simplifiedM=2.0); features=1; make_valid_repairs=0; area_m2=1557794704.643597; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=difference rule=FR-LB-05; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=difference; rule=FR-LB-05; layers=gebied_glastuinbouw_niet_toegestaan,provincial_gio_unverified; buffer_m=0.0; area_before_m2=1313249145.591022; area_after_m2=2260056.751523; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gebied_beperken_bodembewerking; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_beperken_bodembewerking(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:03:33Z; simplifiedM=2.0); features=19; make_valid_repairs=0; area_m2=192242737.914621; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=difference rule=FR-LB-06; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=difference; rule=FR-LB-06; layers=gebied_beperken_bodembewerking,provincial_gio_unverified; buffer_m=0.0; area_before_m2=2260056.751523; area_after_m2=2259951.312619; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-LB-01; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gebied_agrarische_bedrijven; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_agrarische_bedrijven(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:03:33Z; simplifiedM=2.0); features=4; make_valid_repairs=0; area_m2=1245811141.602646; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-LB-02; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=landbouwontwikkelingsgebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=landbouwontwikkelingsgebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:03:33Z; simplifiedM=2.0); features=1; make_valid_repairs=0; area_m2=9383824.129163; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-LB-04; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=concentratiegebied_glastuinbouw; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=concentratiegebied_glastuinbouw(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:03:33Z; simplifiedM=2.0); features=2; make_valid_repairs=0; area_m2=2258024.065802; engine=poc-zone-engine/0.1"
+   ]
+  }
+ ],
+ "outputs": {
+  "geojson": "/Users/marc/Projecten/ldttoolbox-vf3/poc/runs/20261005T094244Z-landbouw/zones.geojson",
+  "gml": "/Users/marc/Projecten/ldttoolbox-vf3/poc/runs/20261005T094244Z-landbouw/zones.gml",
+  "gmlStatus": {
+   "ok": true,
+   "path": "/Users/marc/Projecten/ldttoolbox-vf3/poc/runs/20261005T094244Z-landbouw/zones.gml",
+   "tool": "/opt/homebrew/bin/ogr2ogr",
+   "error": null,
+   "command": "/opt/homebrew/bin/ogr2ogr -f GML /Users/marc/Projecten/ldttoolbox-vf3/poc/runs/20261005T094244Z-landbouw/zones.gml /Users/marc/Projecten/ldttoolbox-vf3/poc/runs/20261005T094244Z-landbouw/zones.geojson"
+  }
+ },
+ "notes": [
+  "cite-or-abstain: every exclusion/inclusion references a registry layer with lastChecked provenance; see per-zone provSteps.",
+  "Areas computed in EPSG:28992 (RD New, metre); geometries validity-checked with make_valid repairs recorded in provenance."
+ ]
+}

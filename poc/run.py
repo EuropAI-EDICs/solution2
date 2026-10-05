@@ -452,6 +452,54 @@ TRACKS: Dict[str, Dict[str, Any]] = {
             ),
         ],
     },
+    "landbouw": {
+        "shard": "corpus/evidence-landbouw.json",
+        "ledger": "corpus/normcards-rejected-landbouw.json",
+        "report_title": "Where is agricultural expansion bounded by the landbouw instructieregels in province Utrecht?",
+        "decision_table_id": "DT-landbouw-utrecht-poc1",
+        "decision_table_title": "Landbouw rule bounds for agricultural expansion "
+                                "Decision table (programming stage)",
+        "prov_namespace": "ldttoolbox:poc:landbouw:",
+        "headline_note": (
+            "Semantics: three H8 instructieregels carry the niet-toestaan-form with "
+            "refused activity classes inside agricultural_expansion and are executed "
+            "as default exclusions — art. 8.3 (Landbouwstabiliseringsgebied: no "
+            "expansion of niet-grondgebonden farm plots), art. 8.6 (Gebied "
+            "glastuinbouw niet toegestaan: no glastuinbouw, tenzij verplaatsing Ronde "
+            "Venen -> Polder Derde Bedijking; the designation covers 1557.796 km2, "
+            "almost the whole province minus the kassenconcentraties) and art. 8.7 "
+            "(Gebied beperken bodembewerking: no veen-exposing agricultural soil "
+            "work, tenzij graslandvernieuwing/blijvende teelt). The mixed/kan-mits/"
+            "protective instructieregels stay conditional markers: art. 8.1 (Gebied "
+            "agrarische bedrijven: verbod nieuwe bouwpercelen + voorschrift "
+            "bouwpercelen max 1,5 ha — a blanket exclusion would contradict its own "
+            "lid 2), art. 8.2 (Landbouwontwikkelingsgebied: kan-mits 2,5 ha) and "
+            "art. 8.5 (Concentratiegebied glastuinbouw: plans may not hinder "
+            "glastuinbouw). Art. 8.4 (geitenhouderij) is a province-wide verbod "
+            "without gebiedsaanwijzing: motivatedly abstained (no zone predicate; "
+            "ALB-01). Programming-stage screening artifact; per-location permission "
+            "assessment remains required."
+        ),
+        "limitations": lambda cov, abst: [
+            "Art. 8.4 (geitenhouderij) is a province-wide verbod without "
+            "gebiedsaanwijzing: the engine refuses zone-less exclusion rules, so it "
+            "is abstained under cite-or-abstain (ALB-01; heroverwegingskandidaat "
+            "voor een zone-loos verbod-rule-kind).",
+            "The art. 8.3/8.6/8.7 exclusions apply the protective default per "
+            "activity scope: art. 8.3 names niet-grondgebonden expansion only "
+            "(grondgebonden businesses stay V4-assessable), art. 8.6 keeps the "
+            "tenzij-verplaatsing and the lid-2 kan-mits 2-ha expansion, art. 8.7 "
+            "keeps graslandvernieuwing/blijvende teelt outside the verbod.",
+            "The art. 8.5 marker is protective (it forbids PLANS from hindering "
+            "glastuinbouw) and the art. 8.1 marker mixes a verbod with a "
+            "voorschrift; both are plan-content assessments routed to the V4 "
+            "human-expert checkpoint, never area eliminations.",
+            (
+                f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms): "
+                "routed to the V4 human-expert checkpoint."
+            ),
+        ],
+    },
 }
 
 _LIMITATIONS = [
