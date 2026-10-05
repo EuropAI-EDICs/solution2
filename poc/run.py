@@ -175,6 +175,30 @@ ZONE_SOURCES: Dict[str, Dict[str, Any]] = {
         "sourceId": "agrest-ov-gebied-aardkundige-waarden",
         "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied aardkundige waarden' (art. 7.12 instructieregel, LS-06: regels ter bescherming van aangewezen aardkundige waarden)",
     },
+    "gebied_agrarische_bedrijven": {
+        "sourceId": "agrest-ov-gebied-agrarische-bedrijven",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied agrarische bedrijven' (art. 8.1 instructieregel, LB-01: mengvorm verbod nieuwe bouwpercelen/omschakeling + voorschrift bouwperceel max 1,5 ha)",
+    },
+    "landbouwontwikkelingsgebied": {
+        "sourceId": "agrest-ov-landbouwontwikkelingsgebied",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Landbouwontwikkelingsgebied' (art. 8.2 instructieregel, LB-02: kan-mits uitbreiding niet-grondgebonden landbouw tot max 2,5 ha)",
+    },
+    "landbouwstabiliseringsgebied": {
+        "sourceId": "agrest-ov-landbouwstabiliseringsgebied",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Landbouwstabiliseringsgebied' (art. 8.3 instructieregel, LB-03: geen uitbreiding niet-grondgebonden bouwperceel)",
+    },
+    "concentratiegebied_glastuinbouw": {
+        "sourceId": "agrest-ov-concentratiegebied-glastuinbouw",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Concentratiegebied glastuinbouw' (art. 8.5 instructieregel, LB-04: beschermende instructie, geen belemmering van glastuinbouw)",
+    },
+    "gebied_glastuinbouw_niet_toegestaan": {
+        "sourceId": "agrest-ov-gebied-glastuinbouw-niet-toegestaan",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied glastuinbouw niet toegestaan' (art. 8.6 instructieregel, LB-05: geen glastuinbouw, tenzij verplaatsing Ronde Venen -> Polder Derde Bedijking)",
+    },
+    "gebied_beperken_bodembewerking": {
+        "sourceId": "agrest-ov-gebied-beperken-bodembewerking",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied beperken bodembewerking' (art. 8.7 instructieregel, LB-06: geen veenblootleggende bodembewerking in agrarische gronden, tenzij graslandvernieuwing/blijvende teelt)",
+    },
 }
 
 INSTRUMENT = "Omgevingsverordening provincie Utrecht, CVDR704250 geldend 13-10-2025 t/m heden"
