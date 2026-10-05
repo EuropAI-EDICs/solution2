@@ -151,6 +151,30 @@ ZONE_SOURCES: Dict[str, Dict[str, Any]] = {
         "sourceId": "agrest-ov-luchtvaartterrein",
         "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Luchtvaartterrein' (art. 4.65 instructieregel, MO-05: geen regels voor nieuwvestiging luchtvaartterrein gemotoriseerde luchtvaartuigen; Buffer luchtvaartterrein art. 4.66 gemotiveerd onthouden)",
     },
+    "unesco_werelderfgoed_hollandse_waterlinies": {
+        "sourceId": "agrest-ov-unesco-werelderfgoed-hollandse-waterlinies",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='UNESCO Werelderfgoed Hollandse Waterlinies' (art. 7.3 instructieregel, LS-01 lid 1b: geen regels die activiteiten toestaan die de uitzonderlijke universele waarde aantasten)",
+    },
+    "unesco_werelderfgoed_neder_germaanse_limes_kernzone": {
+        "sourceId": "agrest-ov-unesco-werelderfgoed-neder-germaanse-limes-kernzone",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='UNESCO Werelderfgoed Neder-Germaanse Limes (kernzone)' (art. 7.3a instructieregel, LS-02 lid 1b: zelfde niet-toestaan-vorm als 7.3)",
+    },
+    "unesco_werelderfgoed_neder_germaanse_limes_bufferzone": {
+        "sourceId": "agrest-ov-unesco-werelderfgoed-neder-germaanse-limes-bufferzone",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='UNESCO Werelderfgoed Neder-Germaanse Limes (bufferzone)' (art. 7.4 instructieregel, LS-03: versterkingsplicht + vergunningsverbod 100 m2/30 cm-maaiveld)",
+    },
+    "gebied_cultuurhistorische_hoofdstructuur": {
+        "sourceId": "agrest-ov-gebied-cultuurhistorische-hoofdstructuur",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied cultuurhistorische hoofdstructuur' (art. 7.9 instructieregel, LS-04; umbrella = vereniging van de vijf art.-7.8-gebieden, live geverifieerd met 0,000004 km2 symdiff)",
+    },
+    "landschap": {
+        "sourceId": "agrest-ov-landschap",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Landschap' (art. 7.11a instructieregel, LS-05; umbrella = vereniging van de vijf art.-7.11-landschappen, live geverifieerd met 0,0000 km2 symdiff)",
+    },
+    "gebied_aardkundige_waarden": {
+        "sourceId": "agrest-ov-gebied-aardkundige-waarden",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied aardkundige waarden' (art. 7.12 instructieregel, LS-06: regels ter bescherming van aangewezen aardkundige waarden)",
+    },
 }
 
 INSTRUMENT = "Omgevingsverordening provincie Utrecht, CVDR704250 geldend 13-10-2025 t/m heden"
