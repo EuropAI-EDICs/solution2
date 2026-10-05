@@ -1,0 +1,328 @@
+{
+ "title": "Where is housing development possible under the wonen instructieregels in province Utrecht?",
+ "generatedAt": "2026-10-05T10:03:03Z",
+ "generatedBy": "poc-cartographer/0.1",
+ "crs": "EPSG:4326 (computation in EPSG:28992, areas in km²)",
+ "stats": {
+  "zoneCount": 10,
+  "finalAreaKm2": 1142.989820617,
+  "finalRuleIds": [
+   "FR-WN-04",
+   "FR-WN-07",
+   "FR-WN-08",
+   "FR-WN-09",
+   "FR-WN-10"
+  ],
+  "geometryRepairsRecorded": 0
+ },
+ "layers": [
+  {
+   "id": "aandachtsgebied_stiltegebied",
+   "title": "aandachtsgebied_stiltegebied",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-08-30T08:30:00Z"
+  },
+  {
+   "id": "gebied_recreatiewoning",
+   "title": "gebied_recreatiewoning",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-05T09:51:45Z"
+  },
+  {
+   "id": "gebied_uitbreiding_woningbouw",
+   "title": "gebied_uitbreiding_woningbouw",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-05T09:51:45Z"
+  },
+  {
+   "id": "kernrandzone",
+   "title": "kernrandzone",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-05T09:51:45Z"
+  },
+  {
+   "id": "landelijk_gebied",
+   "title": "landelijk_gebied",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-08-30T08:30:00Z"
+  },
+  {
+   "id": "provincial_gio_unverified",
+   "title": "provincial_gio_unverified"
+  },
+  {
+   "id": "stedelijk_gebied",
+   "title": "stedelijk_gebied",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-05T09:51:45Z"
+  },
+  {
+   "id": "stiltegebied",
+   "title": "stiltegebied",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-08-30T08:30:00Z"
+  }
+ ],
+ "zones": [
+  {
+   "id": "zr-inclusion_union-406642c913",
+   "operation": "inclusion_union",
+   "ruleIds": [
+    "FR-WN-04",
+    "FR-WN-07",
+    "FR-WN-08",
+    "FR-WN-09",
+    "FR-WN-10"
+   ],
+   "areaKm2": 1143.003720859,
+   "layers": [
+    "kernrandzone",
+    "gebied_uitbreiding_woningbouw",
+    "gebied_uitbreiding_woningbouw",
+    "gebied_uitbreiding_woningbouw",
+    "stedelijk_gebied"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=validity_check; ctx=union layer=kernrandzone; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=kernrandzone(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:51:45Z; simplifiedM=2.0); features=65; make_valid_repairs=0; area_m2=352960873.056123; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gebied_uitbreiding_woningbouw; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_uitbreiding_woningbouw(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:51:45Z; simplifiedM=2.0); features=652; make_valid_repairs=0; area_m2=703405345.582925; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gebied_uitbreiding_woningbouw; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_uitbreiding_woningbouw(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:51:45Z; simplifiedM=2.0); features=652; make_valid_repairs=0; area_m2=703405345.582925; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gebied_uitbreiding_woningbouw; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_uitbreiding_woningbouw(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:51:45Z; simplifiedM=2.0); features=652; make_valid_repairs=0; area_m2=703405345.582925; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=stedelijk_gebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=stedelijk_gebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:51:45Z; simplifiedM=2.0); features=112; make_valid_repairs=0; area_m2=314241695.520279; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=inclusion_union; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=inclusion_union; rules=FR-WN-04,FR-WN-07,FR-WN-08,FR-WN-09,FR-WN-10; layers=kernrandzone,gebied_uitbreiding_woningbouw,gebied_uitbreiding_woningbouw,gebied_uitbreiding_woningbouw,stedelijk_gebied; area_m2=1143003720.858886; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=3; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-intersection-2477a7a560",
+   "operation": "intersection",
+   "ruleIds": [
+    "FR-WN-04",
+    "FR-WN-07",
+    "FR-WN-08",
+    "FR-WN-09",
+    "FR-WN-10"
+   ],
+   "areaKm2": 1142.989820617,
+   "layers": [
+    "kernrandzone",
+    "gebied_uitbreiding_woningbouw",
+    "gebied_uitbreiding_woningbouw",
+    "gebied_uitbreiding_woningbouw",
+    "stedelijk_gebied"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=clip_aoi; make_valid_repairs=0; dropped_non_polygonal=2; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=intersection; rules=FR-WN-04,FR-WN-07,FR-WN-08,FR-WN-09,FR-WN-10; target=AOI; area_m2=1142989820.616815; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=5; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-dd418abc5e",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-WN-01"
+   ],
+   "areaKm2": 1245.811141603,
+   "layers": [
+    "landelijk_gebied",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-WN-01; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=landelijk_gebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=landelijk_gebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-08-30T08:30:00Z; simplifiedM=2.0); features=4; make_valid_repairs=0; area_m2=1245811141.602646; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=3; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-6af78a9e37",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-WN-02"
+   ],
+   "areaKm2": 1245.811141603,
+   "layers": [
+    "landelijk_gebied",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-WN-02; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=landelijk_gebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=landelijk_gebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-08-30T08:30:00Z; simplifiedM=2.0); features=4; make_valid_repairs=0; area_m2=1245811141.602646; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=3; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-87c213d086",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-WN-03"
+   ],
+   "areaKm2": 1245.811141603,
+   "layers": [
+    "gebied_recreatiewoning",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-WN-03; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gebied_recreatiewoning; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_recreatiewoning(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:51:45Z; simplifiedM=2.0); features=4; make_valid_repairs=0; area_m2=1245811141.602646; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=3; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-c46e5cbf41",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-WN-05"
+   ],
+   "areaKm2": 1245.811141603,
+   "layers": [
+    "landelijk_gebied",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-WN-05; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=landelijk_gebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=landelijk_gebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-08-30T08:30:00Z; simplifiedM=2.0); features=4; make_valid_repairs=0; area_m2=1245811141.602646; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=3; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-05ea7da471",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-WN-06"
+   ],
+   "areaKm2": 1245.811141603,
+   "layers": [
+    "landelijk_gebied",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-WN-06; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=landelijk_gebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=landelijk_gebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-08-30T08:30:00Z; simplifiedM=2.0); features=4; make_valid_repairs=0; area_m2=1245811141.602646; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=3; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-e3ea40092d",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-WN-11"
+   ],
+   "areaKm2": 220.598062403,
+   "layers": [
+    "stiltegebied",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-WN-11; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=stiltegebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=stiltegebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-08-30T08:30:00Z; simplifiedM=2.0); features=27; make_valid_repairs=0; area_m2=220598062.402722; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-8aa748a655",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-WN-12"
+   ],
+   "areaKm2": 220.598062403,
+   "layers": [
+    "aandachtsgebied_stiltegebied",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-WN-12; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=aandachtsgebied_stiltegebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=aandachtsgebied_stiltegebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-08-30T08:30:00Z; simplifiedM=2.0); features=27; make_valid_repairs=0; area_m2=220598062.402722; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-final-66376208dc",
+   "operation": "final",
+   "ruleIds": [
+    "FR-WN-04",
+    "FR-WN-07",
+    "FR-WN-08",
+    "FR-WN-09",
+    "FR-WN-10"
+   ],
+   "areaKm2": 1142.989820617,
+   "layers": [
+    "gebied_uitbreiding_woningbouw",
+    "kernrandzone",
+    "stedelijk_gebied"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=validity_check; ctx=union layer=kernrandzone; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=kernrandzone(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:51:45Z; simplifiedM=2.0); features=65; make_valid_repairs=0; area_m2=352960873.056123; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gebied_uitbreiding_woningbouw; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_uitbreiding_woningbouw(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:51:45Z; simplifiedM=2.0); features=652; make_valid_repairs=0; area_m2=703405345.582925; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gebied_uitbreiding_woningbouw; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_uitbreiding_woningbouw(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:51:45Z; simplifiedM=2.0); features=652; make_valid_repairs=0; area_m2=703405345.582925; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gebied_uitbreiding_woningbouw; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_uitbreiding_woningbouw(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:51:45Z; simplifiedM=2.0); features=652; make_valid_repairs=0; area_m2=703405345.582925; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=stedelijk_gebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=stedelijk_gebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:51:45Z; simplifiedM=2.0); features=112; make_valid_repairs=0; area_m2=314241695.520279; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=inclusion_union; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=inclusion_union; rules=FR-WN-04,FR-WN-07,FR-WN-08,FR-WN-09,FR-WN-10; layers=kernrandzone,gebied_uitbreiding_woningbouw,gebied_uitbreiding_woningbouw,gebied_uitbreiding_woningbouw,stedelijk_gebied; area_m2=1143003720.858886; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=clip_aoi; make_valid_repairs=0; dropped_non_polygonal=2; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=intersection; rules=FR-WN-04,FR-WN-07,FR-WN-08,FR-WN-09,FR-WN-10; target=AOI; area_m2=1142989820.616815; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-WN-01; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=landelijk_gebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=landelijk_gebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-08-30T08:30:00Z; simplifiedM=2.0); features=4; make_valid_repairs=0; area_m2=1245811141.602646; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-WN-02; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=landelijk_gebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=landelijk_gebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-08-30T08:30:00Z; simplifiedM=2.0); features=4; make_valid_repairs=0; area_m2=1245811141.602646; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-WN-03; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gebied_recreatiewoning; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_recreatiewoning(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T09:51:45Z; simplifiedM=2.0); features=4; make_valid_repairs=0; area_m2=1245811141.602646; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-WN-05; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=landelijk_gebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=landelijk_gebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-08-30T08:30:00Z; simplifiedM=2.0); features=4; make_valid_repairs=0; area_m2=1245811141.602646; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-WN-06; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=landelijk_gebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=landelijk_gebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-08-30T08:30:00Z; simplifiedM=2.0); features=4; make_valid_repairs=0; area_m2=1245811141.602646; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-WN-11; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=stiltegebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=stiltegebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-08-30T08:30:00Z; simplifiedM=2.0); features=27; make_valid_repairs=0; area_m2=220598062.402722; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-WN-12; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=aandachtsgebied_stiltegebied; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=aandachtsgebied_stiltegebied(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-08-30T08:30:00Z; simplifiedM=2.0); features=27; make_valid_repairs=0; area_m2=220598062.402722; engine=poc-zone-engine/0.1"
+   ]
+  }
+ ],
+ "outputs": {
+  "geojson": "/Users/marc/Projecten/ldttoolbox-vf3/poc/runs/20261005T100258Z-wonen/zones.geojson",
+  "gml": "/Users/marc/Projecten/ldttoolbox-vf3/poc/runs/20261005T100258Z-wonen/zones.gml",
+  "gmlStatus": {
+   "ok": true,
+   "path": "/Users/marc/Projecten/ldttoolbox-vf3/poc/runs/20261005T100258Z-wonen/zones.gml",
+   "tool": "/opt/homebrew/bin/ogr2ogr",
+   "error": null,
+   "command": "/opt/homebrew/bin/ogr2ogr -f GML /Users/marc/Projecten/ldttoolbox-vf3/poc/runs/20261005T100258Z-wonen/zones.gml /Users/marc/Projecten/ldttoolbox-vf3/poc/runs/20261005T100258Z-wonen/zones.geojson"
+  }
+ },
+ "notes": [
+  "cite-or-abstain: every exclusion/inclusion references a registry layer with lastChecked provenance; see per-zone provSteps.",
+  "Areas computed in EPSG:28992 (RD New, metre); geometries validity-checked with make_valid repairs recorded in provenance."
+ ]
+}

@@ -516,6 +516,61 @@ TRACKS: Dict[str, Dict[str, Any]] = {
             ),
         ],
     },
+    "wonen": {
+        "shard": "corpus/evidence-wonen.json",
+        "ledger": "corpus/normcards-rejected-wonen.json",
+        "report_title": "Where is housing development possible under the wonen instructieregels in province Utrecht?",
+        "decision_table_id": "DT-wonen-utrecht-poc1",
+        "decision_table_title": "Wonen rule bounds for housing development "
+                                "Decision table (programming stage)",
+        "prov_namespace": "ldttoolbox:poc:wonen:",
+        "headline_note": (
+            "Semantics: the opportunity zone is the inclusion composition — "
+            "Stedelijk gebied (art. 9.17), Kernrandzone (art. 9.10) and the "
+            "Gebied uitbreiding woningbouw onder voorwaarden mogelijk "
+            "(arts. 9.14/9.14a/9.15: 50-woningen-vitaliteit, flexwoningen, "
+            "woningbouw onder voorwaarden) — the verordeningeigen exceptions to "
+            "the core art.-9.3 verstedelijkingsverbod in het Landelijk gebied. "
+            "The verbod itself is a conditional marker: its tenzij ('tenzij in "
+            "deze verordening anders is bepaald') is operationalized by those "
+            "inclusions, and executing it as an exclusion would erase the "
+            "exception zones (engine applies inclusion-then-exclusion). "
+            "Art. 9.8 (Gebied recreatiewoning) is a conditional marker: its "
+            "verbod is OBJECT-scoped (omvorming van bestaande recreatiewoningen "
+            "tot permanente bewoning), not an area-wide housing refusal over "
+            "the landelijk-gebied-wide designation (1245.814 km2) — an "
+            "exclusion would nullify the housing exceptions (FR-MO-05-mirror). "
+            "Arts. 9.6/9.12/9.13 (kan-mits wonen in het Landelijk gebied) and "
+            "9.27/9.29 (rekening-houden stiltegebied, fase-1-aliases hergebruikt) "
+            "are conditional markers. Werken/recreatie-regels (9.16-9.23), de "
+            "[Gereserveerde] 9.21, de bebouwingsenclaves-gap (9.7, geen GIO) en "
+            "de vergunningsketen van paragraaf 9.4.2 zijn gemotiveerd "
+            "onthouden (AWN-03/04/06/07/10). Programming-stage screening "
+            "artifact; per-location permission assessment remains required."
+        ),
+        "limitations": lambda cov, abst: [
+            "Werken/recreatie-regels (arts. 9.16, 9.18-9.20 kantoren/detailhandel/"
+            "bedrijventerreinen en 9.22/9.23 recreatie) are zone-gebonden but "
+            "outside the housing_development object type: abstained with fase-4 "
+            "werken/recreatie-track heroverwegingsnotities (AWN-04/07).",
+            "The art. 9.3 verbod is a conditional marker: its verordening-brede "
+            "tenzij is operationalized by the inclusion composition (FR-WN-04/"
+            "07/08/09/10); outside those zones and the Stedelijk gebied the "
+            "verbod remains the default. Art. 9.8 is object-scoped (omvorming "
+            "van bestaande recreatiewoningen; designation 1245.814 km2 = de "
+            "landelijk-gebied-omvang) and therefore a marker, not an "
+            "exclusion — otherwise the housing exceptions would be "
+            "nullified.",
+            "Bebouwingsenclaves/-linten (art. 9.7) have no registered GIO/NAAM "
+            "(AWN-03): gap, no surrogate alias. Art. 9.21 is [Gereserveerd]. "
+            "Art. 9.48a exists only as a toelichting reference, not as a body "
+            "article (AWN-11).",
+            (
+                f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms): "
+                "routed to the V4 human-expert checkpoint."
+            ),
+        ],
+    },
 }
 
 _LIMITATIONS = [

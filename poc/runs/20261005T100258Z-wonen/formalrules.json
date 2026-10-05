@@ -1,0 +1,396 @@
+[
+ {
+  "id": "FR-WN-01",
+  "normCardId": "NC-WN-01",
+  "status": "formalized",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "appliesTo": {
+   "objectType": "housing_development",
+   "contextTags": [
+    "instructieregel_art_9_3",
+    "verstedelijkingsverbod_landelijk_gebied",
+    "tenzij_verordening_breed_gekwalificeerd",
+    "excepties_geoperationaliseerd_via_inclusions",
+    "conditional_within_landelijk_gebied",
+    "verstedelijkingsverbod_met_verordeningbrede_tenzij",
+    "excepties_via_inclusion_compositie_fr_wn_04_07_08_09_10"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "landelijk_gebied"
+   ],
+   "geometrySource": "provincial_gio_unverified",
+   "selection": "within",
+   "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stiltegebied / Aandachtsgebied stiltegebied hergebruikt uit de fase-1-wind-track (zelfde service+laag)"
+  },
+  "conditions": [],
+  "rationale": "CORE WONEN RULE (art. 9.3). Instructieregel: plans within the 'Landelijk gebied' allow no verstedelijking unless the verordening provides otherwise. The tenzij references the verordening's own exception rules (arts. 9.4-9.23), several of which this track executes as INCLUSION zones (FR-WN-04/07/08/09/10) — executing the verbod as an exclusion would erase exactly those exceptions, so the rule is carried as a conditional marker documenting the default prohibition while the inclusion composition operationalizes its exceptions (the FR-MO-05/FR-LB-01 qualification idiom applied to a systematically qualified verbod)."
+ },
+ {
+  "id": "FR-WN-02",
+  "normCardId": "NC-WN-02",
+  "status": "formalized",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "appliesTo": {
+   "objectType": "housing_development",
+   "contextTags": [
+    "instructieregel_art_9_6",
+    "conditional_landelijk_gebied",
+    "inpasbaarheidstoets_v4",
+    "uitbreiding_bestande_woningen_max_inhoudsmaat",
+    "vervangende_ligplaatsen_mits",
+    "conditional_within_landelijk_gebied",
+    "uitbreiding_bestande_woningen_max_inhoudsmaat_lid_2"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "landelijk_gebied"
+   ],
+   "geometrySource": "provincial_gio_unverified",
+   "selection": "within",
+   "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stiltegebied / Aandachtsgebied stiltegebied hergebruikt uit de fase-1-wind-track (zelfde service+laag)"
+  },
+  "conditions": [],
+  "rationale": "Art. 9.6 instructieregel, mixed family: lid 1 (niet-toestaan van landschappelijk niet-inpasbare woningen/woonschepen/woonarken) plus lid 2's kan-mits escape routes for extensions and moorings. The zone overlay is deterministic; the inpasbaarheid test is a plan-quality assessment routed to V4 (FR-WA-01 idiom) — a conditional marker, never an elimination."
+ },
+ {
+  "id": "FR-WN-03",
+  "normCardId": "NC-WN-03",
+  "status": "formalized",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "appliesTo": {
+   "objectType": "housing_development",
+   "contextTags": [
+    "instructieregel_art_9_8",
+    "conditional_gebied_recreatiewoning",
+    "object_gescoped_verbod_bestaande_recreatiewoningen",
+    "omvorming_tot_permenente_bewoning_uitgesloten",
+    "recreatief_gebruik_gegarandeerd_protectief",
+    "conditional_within_gebied_recreatiewoning",
+    "object_gescoped_verbod_omvorming_bestaande_recreatiewoningen",
+    "recreatief_gebruik_gegarandeerd_protectieve_tag"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "gebied_recreatiewoning"
+   ],
+   "geometrySource": "provincial_gio_unverified",
+   "selection": "within",
+   "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stiltegebied / Aandachtsgebied stiltegebied hergebruikt uit de fase-1-wind-track (zelfde service+laag)"
+  },
+  "conditions": [],
+  "rationale": "Art. 9.8 instructieregel (full text quoted): plans within the 'Gebied recreatiewoning' guarantee recreational use and exclude conversion of THOSE recreatiewoningen to permanente bewoning. Re-adjudicated at the canonical run (the FR-MO-05 mirror): the verbod is OBJECT-scoped — it protects the existing holiday-home stock from conversion, it does not refuse housing development across the designation — and the designation covers 1245.814 km2 (the entire landelijk-gebied extent), so an area exclusion would nullify the verordeningeigen housing exceptions FR-WN-04/07/08/09. Carried as a conditional marker routed to V4; the registry keeps role 'exclusion' as the rule-family statement with the scope caveat in its entry note."
+ },
+ {
+  "id": "FR-WN-04",
+  "normCardId": "NC-WN-04",
+  "status": "formalized",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "appliesTo": {
+   "objectType": "housing_development",
+   "contextTags": [
+    "instructieregel_art_9_10",
+    "inclusion_kernrandzone",
+    "uitzondering_op_art_9_3",
+    "vier_mitsen_kwaliteit_inpasbaarheid_borging_schade",
+    "beeldkwaliteitsparagraaf_lid_2",
+    "vier_mitsen_v4_per_case"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "kernrandzone"
+   ],
+   "geometrySource": "provincial_gio_unverified",
+   "selection": "within",
+   "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stiltegebied / Aandachtsgebied stiltegebied hergebruikt uit de fase-1-wind-track (zelfde service+laag)"
+  },
+  "conditions": [],
+  "rationale": "Art. 9.10 instructieregel: plans within the 'Kernrandzone' may allow verstedelijking to strengthen the ruimtelijke kwaliteit, mits four stated conditions. A verordeningeigen exception to art. 9.3 — permissive, zone-gebonden — so the zone is an INCLUSION (the FR-W-05 Gebied-windenergie idiom): opportunity where the plan may open housing development; the mits conditions are plan-quality assessments routed to V4."
+ },
+ {
+  "id": "FR-WN-05",
+  "normCardId": "NC-WN-05",
+  "status": "formalized",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "appliesTo": {
+   "objectType": "housing_development",
+   "contextTags": [
+    "instructieregel_art_9_12",
+    "conditional_landelijk_gebied",
+    "functiewijziging_naar_woonfunctie",
+    "vier_mitsen_lid_1",
+    "ondergeschikt_kantoor_bedrijf_aan_huis",
+    "conditional_within_landelijk_gebied",
+    "functiewijziging_naar_woonfunctie_kan_mits",
+    "vier_mitsen_lid_1_v4"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "landelijk_gebied"
+   ],
+   "geometrySource": "provincial_gio_unverified",
+   "selection": "within",
+   "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stiltegebied / Aandachtsgebied stiltegebied hergebruikt uit de fase-1-wind-track (zelfde service+laag)"
+  },
+  "conditions": [],
+  "rationale": "Art. 9.12 instructieregel, kan-mits family: plans may give a woonfunctie (bedrijfswoning + aangebouwde bedrijfsruimte) to ended agrarische bedrijfspercelen mits four conditions. The zone overlay is deterministic; the conditions are case assessments routed to V4 — a conditional marker (the FR-LB-02 threshold idiom without a hard cap)."
+ },
+ {
+  "id": "FR-WN-06",
+  "normCardId": "NC-WN-06",
+  "status": "formalized",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "appliesTo": {
+   "objectType": "housing_development",
+   "contextTags": [
+    "instructieregel_art_9_13",
+    "conditional_ruimte_voor_ruimte",
+    "sloopdrempels_750_2500_4000_m2_woningladder",
+    "kassen_5000_m2_per_woning",
+    "afwijking_mits_ruimtelijke_kwaliteit_verhoogd",
+    "afwijking_mits_kwaliteit_verhoogd"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "landelijk_gebied"
+   ],
+   "geometrySource": "provincial_gio_unverified",
+   "selection": "within",
+   "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stiltegebied / Aandachtsgebied stiltegebied hergebruikt uit de fase-1-wind-track (zelfde service+laag)"
+  },
+  "conditions": [],
+  "rationale": "Art. 9.13 instructieregel ('ruimte voor ruimte'), kan-mits family: 1+ new dwellings on ended agrarische bedrijfspercelen, with a verbatim demolition-surface-to-dwellings ladder (750-2500 m2 -> 1; 2500-4000 m2 -> 2; >=4000 m2 -> 3; kassen 5000 m2 -> 1) carried in the tags (the FR-MO-02 threshold-tag idiom; a buffer(0)-style engine condition would misread the ladder's range semantics) — a conditional marker routed to V4."
+ },
+ {
+  "id": "FR-WN-07",
+  "normCardId": "NC-WN-07",
+  "status": "formalized",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "appliesTo": {
+   "objectType": "housing_development",
+   "contextTags": [
+    "instructieregel_art_9_14",
+    "inclusion_uitbreiding_woningbouw",
+    "eenmalig_max_50_woningen_vitaliteit_kern",
+    "zes_mitsen_inclusief_geen_bodemdaling",
+    "beeldkwaliteitsparagraaf_lid_2",
+    "zes_mitsen_v4_per_case"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "gebied_uitbreiding_woningbouw"
+   ],
+   "geometrySource": "provincial_gio_unverified",
+   "selection": "within",
+   "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stiltegebied / Aandachtsgebied stiltegebied hergebruikt uit de fase-1-wind-track (zelfde service+laag)"
+  },
+  "conditions": [
+   {
+    "parameter": "housing_units",
+    "operator": "<=",
+    "value": 50,
+    "unit": "count"
+   }
+  ],
+  "rationale": "Art. 9.14 instructieregel: one-time expansion up to 50 dwellings for kern-vitality on the 'Gebied uitbreiding woningbouw onder voorwaarden mogelijk'. Verordeningeigen exception to art. 9.3 — INCLUSION zone with the verbatim 50-dwelling cap as a condition (FR-W-03 threshold idiom); the six mits conditions routed to V4."
+ },
+ {
+  "id": "FR-WN-08",
+  "normCardId": "NC-WN-08",
+  "status": "formalized",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "appliesTo": {
+   "objectType": "housing_development",
+   "contextTags": [
+    "instructieregel_art_9_14a",
+    "inclusion_flexwoningen",
+    "eenmalig_tijdelijk_max_50_flexwoningen_per_kern",
+    "opruimplicht_na_minimaal_15_jaar",
+    "zeven_mitsen",
+    "eenmalig_tijdelijk_max_50_per_kern",
+    "opruimplicht_min_15_jaar_geborgd"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "gebied_uitbreiding_woningbouw"
+   ],
+   "geometrySource": "provincial_gio_unverified",
+   "selection": "within",
+   "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stiltegebied / Aandachtsgebied stiltegebied hergebruikt uit de fase-1-wind-track (zelfde service+laag)"
+  },
+  "conditions": [
+   {
+    "parameter": "flexwoningen_per_kern",
+    "operator": "<=",
+    "value": 50,
+    "unit": "count"
+   }
+  ],
+  "rationale": "Art. 9.14a instructieregel: one-time temporary expansion up to 50 flexwoningen per kern on the same designation, mits seven conditions including a secured opruimplicht after at most 15 years. INCLUSION zone with the verbatim 50-flexwoningen cap as a condition; temporary character in the tags."
+ },
+ {
+  "id": "FR-WN-09",
+  "normCardId": "NC-WN-09",
+  "status": "formalized",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "appliesTo": {
+   "objectType": "housing_development",
+   "contextTags": [
+    "instructieregel_art_9_15",
+    "inclusion_woningbouw_onder_voorwaarden",
+    "programma_wonen_en_werken_bijlage_xix",
+    "zes_mitsen_groenontwikkeling_in_evenwicht",
+    "zes_mitsen_groen_in_evenwicht_v4"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "gebied_uitbreiding_woningbouw"
+   ],
+   "geometrySource": "provincial_gio_unverified",
+   "selection": "within",
+   "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stiltegebied / Aandachtsgebied stiltegebied hergebruikt uit de fase-1-wind-track (zelfde service+laag)"
+  },
+  "conditions": [],
+  "rationale": "Art. 9.15 instructieregel, the core expansion rule of paragraaf 9.1.2: plans may contain rules for woningbouw mits (programma Wonen en werken/Bijlage XIX, aansluiting Stedelijk gebied, no extra bodemdaling, coupled groenontwikkeling, secured natuur/recreatie, kernrandzone quality). INCLUSION zone (FR-W-05 idiom); mits conditions routed to V4."
+ },
+ {
+  "id": "FR-WN-10",
+  "normCardId": "NC-WN-10",
+  "status": "formalized",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "appliesTo": {
+   "objectType": "housing_development",
+   "contextTags": [
+    "instructieregel_art_9_17",
+    "inclusion_stedelijk_gebied",
+    "kan_verstedelijking_en_woningbouw_mits",
+    "programma_wonen_en_werken",
+    "geen_extra_bodemdaling"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "stedelijk_gebied"
+   ],
+   "geometrySource": "provincial_gio_unverified",
+   "selection": "within",
+   "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stiltegebied / Aandachtsgebied stiltegebied hergebruikt uit de fase-1-wind-track (zelfde service+laag)"
+  },
+  "conditions": [],
+  "rationale": "Art. 9.17 instructieregel: plans within the 'Stedelijk gebied' may contain rules for verstedelijking (lid 1) and woningbouw mits programma + no extra bodemdaling (lid 2). The stedelijke main arena of the track — INCLUSION zone, the mirror of the wind track's Landelijk-gebied inclusion; the mits conditions routed to V4."
+ },
+ {
+  "id": "FR-WN-11",
+  "normCardId": "NC-WN-11",
+  "status": "formalized",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "appliesTo": {
+   "objectType": "housing_development",
+   "contextTags": [
+    "instructieregel_art_9_27",
+    "conditional_stiltegebied",
+    "rekening_houden_geluiddoelstellingen",
+    "laeq24h_max_40_db_a_kern_45_bufferzone",
+    "conditional_within_stiltegebied",
+    "rekening_houden_geluiddoelstellingen_art_9_26",
+    "alias_hergebruikt_wind_track"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "stiltegebied"
+   ],
+   "geometrySource": "provincial_gio_unverified",
+   "selection": "within",
+   "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stiltegebied / Aandachtsgebied stiltegebied hergebruikt uit de fase-1-wind-track (zelfde service+laag)"
+  },
+  "conditions": [],
+  "rationale": "Art. 9.27 instructieregel, take-into-account family: plans within the 'Stiltegebied' account for the art.-9.26 geluidniveau doelstellingen (40/45 dB(A) LAeq,24h). Reuses the fase-1 stiltegebied alias (same service+layer, dedup rule); a conditional marker routed to V4 (FR-WA-01/FR-LS-04 idiom), never an elimination."
+ },
+ {
+  "id": "FR-WN-12",
+  "normCardId": "NC-WN-12",
+  "status": "formalized",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "appliesTo": {
+   "objectType": "housing_development",
+   "contextTags": [
+    "instructieregel_art_9_29",
+    "conditional_aandachtsgebied_stiltegebied",
+    "rekening_houden_geluiddoelstellingen",
+    "zone_1500_meter_per_art_9_25_lid_2",
+    "conditional_within_aandachtsgebied_stiltegebied",
+    "rekening_houden_geluiddoelstellingen_art_9_26",
+    "zone_1500_meter_art_9_25_lid_2",
+    "alias_hergebruikt_wind_track"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "aandachtsgebied_stiltegebied"
+   ],
+   "geometrySource": "provincial_gio_unverified",
+   "selection": "within",
+   "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stiltegebied / Aandachtsgebied stiltegebied hergebruikt uit de fase-1-wind-track (zelfde service+laag)"
+  },
+  "conditions": [],
+  "rationale": "Art. 9.29 instructieregel, the same take-into-account family on the 'Aandachtsgebied stiltegebied' (the art.-9.25-lid-2 1500 m zone; alias reused from the wind track's FR-W-10 attention zone). A conditional marker routed to V4, never an elimination."
+ }
+]
