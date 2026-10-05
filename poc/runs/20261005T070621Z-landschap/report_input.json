@@ -1,0 +1,225 @@
+{
+ "title": "Where is landscape intervention bounded by heritage and landscape rules in province Utrecht?",
+ "generatedAt": "2026-10-05T07:06:22Z",
+ "generatedBy": "poc-cartographer/0.1",
+ "crs": "EPSG:4326 (computation in EPSG:28992, areas in km²)",
+ "stats": {
+  "zoneCount": 7,
+  "finalAreaKm2": 1425.95873722,
+  "finalRuleIds": [
+   "FR-LS-01",
+   "FR-LS-02"
+  ],
+  "geometryRepairsRecorded": 0
+ },
+ "layers": [
+  {
+   "id": "gebied_aardkundige_waarden",
+   "title": "gebied_aardkundige_waarden",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-05T07:01:26Z"
+  },
+  {
+   "id": "gebied_cultuurhistorische_hoofdstructuur",
+   "title": "gebied_cultuurhistorische_hoofdstructuur",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-05T07:01:26Z"
+  },
+  {
+   "id": "landschap",
+   "title": "landschap",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-05T07:01:26Z"
+  },
+  {
+   "id": "provincial_gio_unverified",
+   "title": "provincial_gio_unverified"
+  },
+  {
+   "id": "unesco_werelderfgoed_hollandse_waterlinies",
+   "title": "unesco_werelderfgoed_hollandse_waterlinies",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-05T07:01:26Z"
+  },
+  {
+   "id": "unesco_werelderfgoed_neder_germaanse_limes_bufferzone",
+   "title": "unesco_werelderfgoed_neder_germaanse_limes_bufferzone",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-05T07:01:26Z"
+  },
+  {
+   "id": "unesco_werelderfgoed_neder_germaanse_limes_kernzone",
+   "title": "unesco_werelderfgoed_neder_germaanse_limes_kernzone",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-05T07:01:26Z"
+  }
+ ],
+ "zones": [
+  {
+   "id": "zr-difference-83f13d743a",
+   "operation": "difference",
+   "ruleIds": [
+    "FR-LS-01"
+   ],
+   "areaKm2": 1425.972130863,
+   "layers": [
+    "unesco_werelderfgoed_hollandse_waterlinies",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=aoi_seed; area_m2=1560053846.303311; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=unesco_werelderfgoed_hollandse_waterlinies; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=unesco_werelderfgoed_hollandse_waterlinies(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T07:01:26Z; simplifiedM=2.0); features=3; make_valid_repairs=0; area_m2=134084715.050986; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=difference rule=FR-LS-01; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=difference; rule=FR-LS-01; layers=unesco_werelderfgoed_hollandse_waterlinies,provincial_gio_unverified; buffer_m=0.0; area_before_m2=1560053846.303311; area_after_m2=1425972130.862915; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-difference-42104aa0b5",
+   "operation": "difference",
+   "ruleIds": [
+    "FR-LS-02"
+   ],
+   "areaKm2": 1425.95873722,
+   "layers": [
+    "unesco_werelderfgoed_neder_germaanse_limes_kernzone",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=union layer=unesco_werelderfgoed_neder_germaanse_limes_kernzone; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=unesco_werelderfgoed_neder_germaanse_limes_kernzone(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T07:01:26Z; simplifiedM=2.0); features=1; make_valid_repairs=0; area_m2=13393.642652; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=difference rule=FR-LS-02; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=difference; rule=FR-LS-02; layers=unesco_werelderfgoed_neder_germaanse_limes_kernzone,provincial_gio_unverified; buffer_m=0.0; area_before_m2=1425972130.862915; area_after_m2=1425958737.220266; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-17e5c752e6",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-LS-03"
+   ],
+   "areaKm2": 0.747797425,
+   "layers": [
+    "unesco_werelderfgoed_neder_germaanse_limes_bufferzone",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-LS-03; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=unesco_werelderfgoed_neder_germaanse_limes_bufferzone; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=unesco_werelderfgoed_neder_germaanse_limes_bufferzone(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T07:01:26Z; simplifiedM=2.0); features=8; make_valid_repairs=0; area_m2=747797.425128; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-a6a4e6b654",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-LS-04"
+   ],
+   "areaKm2": 847.424382915,
+   "layers": [
+    "gebied_cultuurhistorische_hoofdstructuur",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-LS-04; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gebied_cultuurhistorische_hoofdstructuur; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_cultuurhistorische_hoofdstructuur(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T07:01:26Z; simplifiedM=2.0); features=28; make_valid_repairs=0; area_m2=847424382.915297; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=3; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-e77e5fce4c",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-LS-05"
+   ],
+   "areaKm2": 1411.127589569,
+   "layers": [
+    "landschap",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-LS-05; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=landschap; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=landschap(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T07:01:26Z; simplifiedM=2.0); features=1; make_valid_repairs=0; area_m2=1411127589.568502; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-189e4ed9bd",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-LS-06"
+   ],
+   "areaKm2": 99.152263596,
+   "layers": [
+    "gebied_aardkundige_waarden",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-LS-06; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gebied_aardkundige_waarden; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_aardkundige_waarden(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T07:01:26Z; simplifiedM=2.0); features=187; make_valid_repairs=0; area_m2=99152263.595805; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-final-6c7576b287",
+   "operation": "final",
+   "ruleIds": [
+    "FR-LS-01",
+    "FR-LS-02"
+   ],
+   "areaKm2": 1425.95873722,
+   "layers": [
+    "provincial_gio_unverified",
+    "unesco_werelderfgoed_hollandse_waterlinies",
+    "unesco_werelderfgoed_neder_germaanse_limes_kernzone"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=aoi_seed; area_m2=1560053846.303311; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=unesco_werelderfgoed_hollandse_waterlinies; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=unesco_werelderfgoed_hollandse_waterlinies(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T07:01:26Z; simplifiedM=2.0); features=3; make_valid_repairs=0; area_m2=134084715.050986; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=difference rule=FR-LS-01; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=difference; rule=FR-LS-01; layers=unesco_werelderfgoed_hollandse_waterlinies,provincial_gio_unverified; buffer_m=0.0; area_before_m2=1560053846.303311; area_after_m2=1425972130.862915; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=unesco_werelderfgoed_neder_germaanse_limes_kernzone; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=unesco_werelderfgoed_neder_germaanse_limes_kernzone(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T07:01:26Z; simplifiedM=2.0); features=1; make_valid_repairs=0; area_m2=13393.642652; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=difference rule=FR-LS-02; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=difference; rule=FR-LS-02; layers=unesco_werelderfgoed_neder_germaanse_limes_kernzone,provincial_gio_unverified; buffer_m=0.0; area_before_m2=1425972130.862915; area_after_m2=1425958737.220266; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-LS-03; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=unesco_werelderfgoed_neder_germaanse_limes_bufferzone; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=unesco_werelderfgoed_neder_germaanse_limes_bufferzone(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T07:01:26Z; simplifiedM=2.0); features=8; make_valid_repairs=0; area_m2=747797.425128; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-LS-04; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gebied_cultuurhistorische_hoofdstructuur; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_cultuurhistorische_hoofdstructuur(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T07:01:26Z; simplifiedM=2.0); features=28; make_valid_repairs=0; area_m2=847424382.915297; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-LS-05; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=landschap; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=landschap(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T07:01:26Z; simplifiedM=2.0); features=1; make_valid_repairs=0; area_m2=1411127589.568502; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-LS-06; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gebied_aardkundige_waarden; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_aardkundige_waarden(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T07:01:26Z; simplifiedM=2.0); features=187; make_valid_repairs=0; area_m2=99152263.595805; engine=poc-zone-engine/0.1"
+   ]
+  }
+ ],
+ "outputs": {
+  "geojson": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T070621Z-landschap/zones.geojson",
+  "gml": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T070621Z-landschap/zones.gml",
+  "gmlStatus": {
+   "ok": true,
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T070621Z-landschap/zones.gml",
+   "tool": "/opt/homebrew/bin/ogr2ogr",
+   "error": null,
+   "command": "/opt/homebrew/bin/ogr2ogr -f GML /Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T070621Z-landschap/zones.gml /Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T070621Z-landschap/zones.geojson"
+  }
+ },
+ "notes": [
+  "cite-or-abstain: every exclusion/inclusion references a registry layer with lastChecked provenance; see per-zone provSteps.",
+  "Areas computed in EPSG:28992 (RD New, metre); geometries validity-checked with make_valid repairs recorded in provenance."
+ ]
+}

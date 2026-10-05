@@ -131,6 +131,50 @@ ZONE_SOURCES: Dict[str, Dict[str, Any]] = {
         "sourceId": "agrest-ov-gebied-gesloten-stortplaats",
         "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied gesloten stortplaats' (art. 3.108 aanwijzingsregel, BO-05: omgevingsplanactiviteit van provinciaal belang)",
     },
+    "beperkingengebied_bouwwerken_provinciale_weg": {
+        "sourceId": "agrest-ov-beperkingengebied-bouwwerken-provinciale-weg",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Beperkingengebied bouwwerken provinciale weg' (art. 4.7 instructieregel, MO-01: bouwwerken kan-mits rekening houden met instandhouding/uitbreiding provinciale weg)",
+    },
+    "geluidcontour_buiten_bebouwde_kom": {
+        "sourceId": "agrest-ov-geluidcontour-buiten-bebouwde-kom",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Geluidcontour buiten de bebouwde kom' (art. 4.71 instructieregel, MO-02: nieuwe geluidgevoelige gebouwen tot maximaal 60 dB Lden op de gevel)",
+    },
+    "geluidcontour_binnen_bebouwde_kom": {
+        "sourceId": "agrest-ov-geluidcontour-binnen-bebouwde-kom",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Geluidcontour binnen de bebouwde kom' (art. 4.71 instructieregel, MO-02: nieuwe geluidgevoelige gebouwen tot maximaal 65 dB Lden op de gevel)",
+    },
+    "beperkingengebied_lokale_spoorweg": {
+        "sourceId": "agrest-ov-beperkingengebied-lokale-spoorweg",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Beperkingengebied lokale spoorweg' (art. 4.47/4.48 instructieregels, MO-03/MO-04; umbrella = Kernzone ∪ Beschermingszone per art. 4.46, live geverifieerd met 0,0000 km2 symdiff)",
+    },
+    "luchtvaartterrein": {
+        "sourceId": "agrest-ov-luchtvaartterrein",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Luchtvaartterrein' (art. 4.65 instructieregel, MO-05: geen regels voor nieuwvestiging luchtvaartterrein gemotoriseerde luchtvaartuigen; Buffer luchtvaartterrein art. 4.66 gemotiveerd onthouden)",
+    },
+    "unesco_werelderfgoed_hollandse_waterlinies": {
+        "sourceId": "agrest-ov-unesco-werelderfgoed-hollandse-waterlinies",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='UNESCO Werelderfgoed Hollandse Waterlinies' (art. 7.3 instructieregel, LS-01 lid 1b: geen regels die activiteiten toestaan die de uitzonderlijke universele waarde aantasten)",
+    },
+    "unesco_werelderfgoed_neder_germaanse_limes_kernzone": {
+        "sourceId": "agrest-ov-unesco-werelderfgoed-neder-germaanse-limes-kernzone",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='UNESCO Werelderfgoed Neder-Germaanse Limes (kernzone)' (art. 7.3a instructieregel, LS-02 lid 1b: zelfde niet-toestaan-vorm als 7.3)",
+    },
+    "unesco_werelderfgoed_neder_germaanse_limes_bufferzone": {
+        "sourceId": "agrest-ov-unesco-werelderfgoed-neder-germaanse-limes-bufferzone",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='UNESCO Werelderfgoed Neder-Germaanse Limes (bufferzone)' (art. 7.4 instructieregel, LS-03: versterkingsplicht + vergunningsverbod 100 m2/30 cm-maaiveld)",
+    },
+    "gebied_cultuurhistorische_hoofdstructuur": {
+        "sourceId": "agrest-ov-gebied-cultuurhistorische-hoofdstructuur",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied cultuurhistorische hoofdstructuur' (art. 7.9 instructieregel, LS-04; umbrella = vereniging van de vijf art.-7.8-gebieden, live geverifieerd met 0,000004 km2 symdiff)",
+    },
+    "landschap": {
+        "sourceId": "agrest-ov-landschap",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Landschap' (art. 7.11a instructieregel, LS-05; umbrella = vereniging van de vijf art.-7.11-landschappen, live geverifieerd met 0,0000 km2 symdiff)",
+    },
+    "gebied_aardkundige_waarden": {
+        "sourceId": "agrest-ov-gebied-aardkundige-waarden",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied aardkundige waarden' (art. 7.12 instructieregel, LS-06: regels ter bescherming van aangewezen aardkundige waarden)",
+    },
 }
 
 INSTRUMENT = "Omgevingsverordening provincie Utrecht, CVDR704250 geldend 13-10-2025 t/m heden"
@@ -292,6 +336,92 @@ TRACKS: Dict[str, Dict[str, Any]] = {
             "areas (superset per article); whether a specific activity 'een risico vormt voor de "
             "winning' is a per-case V4 assessment, and art. 3.10 (matig kwetsbare voorraad, "
             "'rekening houden met') is deliberately a marker, not an extra elimination.",
+            (
+                f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms): "
+                "routed to the V4 human-expert checkpoint."
+            ),
+        ],
+    },
+    "mobiliteit": {
+        "shard": "corpus/evidence-mobiliteit.json",
+        "ledger": "corpus/normcards-rejected-mobiliteit.json",
+        "report_title": "Where is roadside development bounded by mobility rules in province Utrecht?",
+        "decision_table_id": "DT-mobiliteit-utrecht-poc1",
+        "decision_table_title": "Mobiliteitsregel bounds for roadside development "
+                                "Decision table (programming stage)",
+        "prov_namespace": "ldttoolbox:poc:mobiliteit:",
+        "headline_note": (
+            "Semantics: instructieregels art. 4.7 (Beperkingengebied bouwwerken provinciale "
+            "weg), 4.47/4.48 (Beperkingengebied lokale spoorweg; umbrella = Kernzone ∪ "
+            "Beschermingszone per art. 4.46, live geverifieerd) and 4.71 (Geluidcontour van "
+            "provinciale wegen, buiten/binnen de bebouwde kom) are kan-mits rules with dB "
+            "thresholds and care duties — executed as conditional markers routed to the V4 "
+            "checkpoint. Art. 4.65 (Luchtvaartterrein) is an unconditional verbod on "
+            "nieuwvestiging van een luchtvaartterrein voor gemotoriseerde luchtvaartuigen, "
+            "activity-scoped to aviation and therefore also a marker, never an elimination "
+            "of roadside-development area. No hoofdstuk-4 rule unconditionally refuses "
+            "roadside development itself, so the opportunity zone equals the province AOI "
+            "with five marker overlays. Vergunnings-/meldingsketens (beheer, vrij zicht, "
+            "vaarweg) and the reserved basisnet articles (4.67/4.68 [Gereserveerd]) are "
+            "deliberately abstained. Programming-stage screening artifact; per-location "
+            "permission assessment remains required."
+        ),
+        "limitations": lambda cov, abst: [
+            "Provinciale-weg beheer/vrij zicht (art. 4.8-4.44), vaarweg (art. 4.52-4.64) and "
+            "bestuursorgaan bepalingen are vergunnings-/meldingsketens: abstained under "
+            "cite-or-abstain; the externe veiligheid basisnet articles 4.67/4.68 are "
+            "[Gereserveerd] in the consolidated text.",
+            "The art. 4.65 verbod is activity-scoped (nieuwvestiging luchtvaartterrein voor "
+            "gemotoriseerde luchtvaartuigen — aviation, not roadside development): it never "
+            "subtracts roadside-development area, and the Luchtvaartterrein designation "
+            "(1014.496 km2 union incl. a 676.516 km2 feature) is reported as a marker. The "
+            "Buffer luchtvaartterrein variant (art. 4.66, onderzoeksgestuurde tenzij-"
+            "uitzondering) is motivatedly abstained.",
+            (
+                f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms): "
+                "routed to the V4 human-expert checkpoint."
+            ),
+        ],
+    },
+    "landschap": {
+        "shard": "corpus/evidence-landschap.json",
+        "ledger": "corpus/normcards-rejected-landschap.json",
+        "report_title": "Where is landscape intervention bounded by heritage and landscape rules in province Utrecht?",
+        "decision_table_id": "DT-landschap-utrecht-poc1",
+        "decision_table_title": "Cultuurhistorie-en-landschap rule bounds for landscape intervention "
+                                "Decision table (programming stage)",
+        "prov_namespace": "ldttoolbox:poc:landschap:",
+        "headline_note": (
+            "Semantics: the werelderfgoed-instructieregels art. 7.3 (Gebied UNESCO "
+            "Werelderfgoed Hollandse Waterlinies) and 7.3a (Neder-Germaanse Limes "
+            "kernzone) carry the niet-toestaan-form in lid 1b and are executed as "
+            "default exclusions for landscape intervention, with the aantasten-toets "
+            "routed to V4 per case (BO-01-idiom). The weaker instructiefamilies stay "
+            "conditional markers: art. 7.4 (Limes bufferzone: versterkingsplicht + "
+            "100 m2/30 cm-vergunningsverbodprescriptie), art. 7.9 (cultuurhistorische "
+            "hoofdstructuur, rekening-houden; umbrella = vijf art.-7.8-gebieden, live "
+            "geverifieerd), art. 7.11a (Landschap-kernkwaliteiten, onevenredig-"
+            "proportionaliteit; umbrella = vijf art.-7.11-landschappen, live "
+            "geverifieerd) and art. 7.12 (aardkundige waarden, beschermingsplicht). "
+            "The 7.10 verstedelijkingsgateway, the beoordelings-/vergunningsketens "
+            "(7.5/7.5a/7.6) and the borden-activiteitenketen (7.13-7.17) are "
+            "deliberately abstained under cite-or-abstain. Programming-stage "
+            "screening artifact; per-location permission assessment remains required."
+        ),
+        "limitations": lambda cov, abst: [
+            "Beoordelingsregels (art. 7.5/7.5a/7.6) and the borden-activiteitenketen "
+            "(art. 7.13-7.17, incl. the onvoorwaardelijke gedragsregel-verbod 7.16) are "
+            "aanvraag-/kennisafhankelijk of buiten het landscape_intervention-"
+            "objecttype: abstained under cite-or-abstain.",
+            "The art. 7.3/7.3a exclusions apply the protective default on the full "
+            "werelderfgoed designations (HW 134.092 km2, NGL-kernzone 0.013 km2); "
+            "whether a specific intervention 'die waarde aantast' is a per-case V4 "
+            "assessment, and the art. 7.11a 'onevenredig'-verbod (Landschap-umbrella, "
+            "1411.133 km2) is deliberately a marker, not an elimination.",
+            "The art. 7.10 verstedelijkingsgateway (Historische buitenplaatszone, "
+            "Militair erfgoed) is a permissive deviation path under three open norms "
+            "(kleinschalig, kostendragers, zorgvuldige inpassing): motivatedly "
+            "abstained, documented as heroverwegingskandidaat.",
             (
                 f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms): "
                 "routed to the V4 human-expert checkpoint."

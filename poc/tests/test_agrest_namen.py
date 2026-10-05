@@ -32,3 +32,25 @@ def test_fase1_alias_naam_binding():  # eindreview-belangrijk-6
     ]:
         assert naam in ART["namen"], naam
         assert f"WHERE NAAM='{naam}'" in run_py, naam
+
+
+def test_fase2_alias_naam_binding():  # spiegel van de fase-1-bindingsrij
+    """De elf gekozen mobiliteit/landschap-NAAM's (fase 2) staan letterlijk
+    in het artifact ÉN letterlijk als WHERE NAAM='<naam>' in run.py's
+    ZONE_SOURCES."""
+    run_py = Path("run.py").read_text()
+    for naam in [
+        "Beperkingengebied bouwwerken provinciale weg",
+        "Geluidcontour buiten de bebouwde kom",
+        "Geluidcontour binnen de bebouwde kom",
+        "Beperkingengebied lokale spoorweg",
+        "Luchtvaartterrein",
+        "UNESCO Werelderfgoed Hollandse Waterlinies",
+        "UNESCO Werelderfgoed Neder-Germaanse Limes (kernzone)",
+        "UNESCO Werelderfgoed Neder-Germaanse Limes (bufferzone)",
+        "Gebied cultuurhistorische hoofdstructuur",
+        "Landschap",
+        "Gebied aardkundige waarden",
+    ]:
+        assert naam in ART["namen"], naam
+        assert f"WHERE NAAM='{naam}'" in run_py, naam

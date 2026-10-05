@@ -1,0 +1,165 @@
+[
+ {
+  "id": "FR-MO-01",
+  "normCardId": "NC-MO-01",
+  "status": "formalized",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "appliesTo": {
+   "objectType": "roadside_development",
+   "contextTags": [
+    "instructieregel_art_4_7",
+    "conditional_beperkingengebied_bouwwerken_provinciale_weg",
+    "mits_rekening_houden_instandhouding_uitbreiding_provinciale_weg",
+    "tweede_lid_motiveringseis",
+    "conditional_within_beperkingengebied_bouwwerken_provinciale_weg"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "beperkingengebied_bouwwerken_provinciale_weg"
+   ],
+   "geometrySource": "provincial_gio_unverified",
+   "selection": "within",
+   "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json): umbrella 'Beperkingengebied lokale spoorweg', live geverifieerd als de vereniging van Kernzone en Beschermingszone lokale spoorweg (art. 4.46, symdiff 0,0000 km2)"
+  },
+  "conditions": [],
+  "rationale": "CORE MOBILITEIT RULE (art. 4.7). Instructieregel directing omgevingsplannen for locations within the 'Beperkingengebied bouwwerken provinciale weg' that they may contain rules providing for realising or modifying bouwwerken, provided account is taken of the unchanged preservation and expansion possibility of the provincial road. The zone overlay is deterministic; whether a specific roadside development's plan rules adequately account for the wegbelang is a plan-quality assessment routed to V4 (mirroring FR-WA-01's art.-2.14 vrijwaringszone) — hence a conditional marker, never an elimination."
+ },
+ {
+  "id": "FR-MO-02",
+  "normCardId": "NC-MO-02",
+  "status": "formalized",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "appliesTo": {
+   "objectType": "roadside_development",
+   "contextTags": [
+    "instructieregel_art_4_71",
+    "conditional_geluidcontour_provinciale_wegen",
+    "transformatie_binnenwaarde_max_33_db_lden",
+    "nieuwe_gebouwen_max_60_db_lden_buiten_bebouwde_kom",
+    "nieuwe_gebouwen_max_65_db_lden_binnen_bebouwde_kom",
+    "derde_lid_motiveringseis",
+    "conditional_within_geluidcontour_provinciale_wegen",
+    "buiten_bebouwde_kom_max_60_db_lden_gevel",
+    "binnen_bebouwde_kom_max_65_db_lden_gevel"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "geluidcontour_buiten_bebouwde_kom",
+    "geluidcontour_binnen_bebouwde_kom"
+   ],
+   "geometrySource": "provincial_gio_unverified",
+   "selection": "within",
+   "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json): umbrella 'Beperkingengebied lokale spoorweg', live geverifieerd als de vereniging van Kernzone en Beschermingszone lokale spoorweg (art. 4.46, symdiff 0,0000 km2)"
+  },
+  "conditions": [],
+  "rationale": "Art. 4.71 instructieregel: plans for locations within the 'Geluidcontour van provinciale wegen' must carry rules for transforming existing buildings into geluidgevoelige gebouwen (indoor value max 33 dB Lden) and may allow new geluidgevoelige gebouwen up to 60 dB Lden façade load outside, respectively 65 dB Lden inside, the bebouwde kom. The two contour designations are served as separate NAAM aliases (the verordening's own bebouwdkom differentiation, mirroring FR-WA-03's binnendijks/buitendijks split); the zone overlays are deterministic, the dB thresholds are object-type-specific (geluidgevoelige gebouwen) and case-dependent, so the rule is a conditional marker routed to V4 — it never eliminates roadside-development area by itself."
+ },
+ {
+  "id": "FR-MO-03",
+  "normCardId": "NC-MO-03",
+  "status": "formalized",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "appliesTo": {
+   "objectType": "roadside_development",
+   "contextTags": [
+    "instructieregel_art_4_47",
+    "conditional_beperkingengebied_lokale_spoorweg",
+    "mits_rekening_houden_instandhouding_uitbreiding_lokale_spoorweg",
+    "umbrella_kernzone_beschermingszone_art_4_46",
+    "tweede_lid_motiveringseis",
+    "conditional_within_beperkingengebied_lokale_spoorweg"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "beperkingengebied_lokale_spoorweg"
+   ],
+   "geometrySource": "provincial_gio_unverified",
+   "selection": "within",
+   "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json): umbrella 'Beperkingengebied lokale spoorweg', live geverifieerd als de vereniging van Kernzone en Beschermingszone lokale spoorweg (art. 4.46, symdiff 0,0000 km2)"
+  },
+  "conditions": [],
+  "rationale": "Art. 4.47 instructieregel, structurally identical to FR-MO-01's art. 4.7 but on the rail designation: plans within the 'Beperkingengebied lokale spoorweg' (the art.-4.46 umbrella of Kernzone and Beschermingszone, live-verified union) may provide for realising or modifying bouwwerken provided account is taken of the unchanged preservation and expansion of the lokale spoorweg. The mits test is plan-content assessment routed to V4 — a conditional marker, never an elimination."
+ },
+ {
+  "id": "FR-MO-04",
+  "normCardId": "NC-MO-04",
+  "status": "formalized",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "appliesTo": {
+   "objectType": "roadside_development",
+   "contextTags": [
+    "instructieregel_art_4_48",
+    "conditional_hinder_lokale_spoorweg",
+    "transformatie_binnenwaarde_max_33_db_lden",
+    "nieuwe_gebouwen_max_60_db_lden_buiten_bebouwde_kom",
+    "nieuwe_gebouwen_max_65_db_lden_binnen_bebouwde_kom",
+    "derde_lid_hinderpreventie_geluid_trillingen_ems_slijpsel",
+    "conditional_within_beperkingengebied_lokale_spoorweg",
+    "buiten_bebouwde_kom_max_60_db_lden_gevel",
+    "binnen_bebouwde_kom_max_65_db_lden_gevel",
+    "hinderpreventie_geluid_trillingen_ems_slijpsel"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "beperkingengebied_lokale_spoorweg"
+   ],
+   "geometrySource": "provincial_gio_unverified",
+   "selection": "within",
+   "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json): umbrella 'Beperkingengebied lokale spoorweg', live geverifieerd als de vereniging van Kernzone en Beschermingszone lokale spoorweg (art. 4.46, symdiff 0,0000 km2)"
+  },
+  "conditions": [],
+  "rationale": "Art. 4.48 instructieregel, the rail mirror of FR-MO-02's art. 4.71 on the same umbrella zone: transforming existing buildings into geluidgevoelige gebouwen mits indoor value max 33 dB Lden, new geluidgevoelige gebouwen allowed up to 60 dB Lden outside respectively 65 dB Lden inside the bebouwde kom; the third lid's hindrance-prevention duty (noise, vibrations, electromagnetic radiation, copper/iron filing emissions) is carried in the tags. The zone overlay is deterministic; the dB and hindrance tests are object-type- and case-specific, so the rule is a conditional marker routed to V4 — never an elimination."
+ },
+ {
+  "id": "FR-MO-05",
+  "normCardId": "NC-MO-05",
+  "status": "formalized",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "appliesTo": {
+   "objectType": "roadside_development",
+   "contextTags": [
+    "instructieregel_art_4_65",
+    "verbod_nieuwvestiging_luchtvaartterrein_gemotoriseerde_luchtvaartuigen",
+    "activiteit_gescoped_verbod",
+    "conditional_marker_niet_track_activiteit",
+    "buffer_luchtvaartterrein_art_4_66_onthouden",
+    "conditional_within_luchtvaartterrein",
+    "activiteit_gescoped_verbod_aviatie_niet_roadside_development"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "luchtvaartterrein"
+   ],
+   "geometrySource": "provincial_gio_unverified",
+   "selection": "within",
+   "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json): umbrella 'Beperkingengebied lokale spoorweg', live geverifieerd als de vereniging van Kernzone en Beschermingszone lokale spoorweg (art. 4.46, symdiff 0,0000 km2)"
+  },
+  "conditions": [],
+  "rationale": "Art. 4.65 instructieregel, an unconditional verbod of the non-permission family (the art.-2.15/FR-WA-02 form): plans within het 'Luchtvaartterrein' contain no rules providing for nieuwvestiging of an airfield for motorised aircraft. Unlike FR-WA-02/FR-BO-03 the prohibited activity class (establishing a motorised-aviation airfield) is OUTSIDE the track's roadside_development object type — an airfield is not a roadside development — so executing the verbod as a track-wide zone exclusion (1014.496 km2, two thirds of the province) would over-exclude legally available roadside-development area. The rule is therefore carried as a conditional marker on the designation documenting where the aviation verbod applies (mirroring the FR-BO-05 marker idiom for a rule that steers something other than the track activity); the Buffer luchtvaartterrein variant (art. 4.66, onderzoeksgestuurde tenzij-uitzondering) is motivatedly abstained in the ledger."
+ }
+]

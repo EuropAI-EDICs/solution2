@@ -83,6 +83,38 @@ CAVEAT_GIO_BODEM = (
     "umbrella 'Grondwaterbeschermingszone', live geverifieerd als de vereniging van "
     "de zeven letterlijke aanwijzingsgebieden van art. 3.7/3.9/3.10 (taak-8-verslag)"
 )
+#: mobiliteit-track zones: werkingsgebieden of the verordening whose GIO join-id is
+#: NOT carried by the cited article text (arts. 4.7, 4.47, 4.48, 4.65 and 4.71
+#: quote no join-id), so no gioJoinId may be claimed; geometry is served by the
+#: agrest IMOW open-data alias (see run.py::ZONE_SOURCES and layers.json aliasNote).
+#: The umbrella alias 'Beperkingengebied lokale spoorweg' was live-verified
+#: (fase-2 taak 3) as the exact union of Kernzone and Beschermingszone lokale
+#: spoorweg (art. 4.46), symmetric difference 0.0000 km2.
+CAVEAT_GIO_MOBILITEIT = (
+    "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet "
+    "overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten "
+    "Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; "
+    "geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json): "
+    "umbrella 'Beperkingengebied lokale spoorweg', live geverifieerd als de vereniging "
+    "van Kernzone en Beschermingszone lokale spoorweg (art. 4.46, symdiff 0,0000 km2)"
+)
+#: landschap-track zones: werkingsgebieden of the verordening whose GIO join-id is
+#: NOT carried by the cited article text (arts. 7.3, 7.3a, 7.4, 7.9, 7.11a and
+#: 7.12 quote no join-id), so no gioJoinId may be claimed; geometry is served by
+#: the agrest IMOW open-data alias (see run.py::ZONE_SOURCES and layers.json
+#: aliasNote). The umbrella aliases 'Gebied cultuurhistorische hoofdstructuur'
+#: (art. 7.8, vijf gebieden) and 'Landschap' (art. 7.11, vijf landschappen) were
+#: live-verified (fase-2 taak 6) as the exact unions of their constituents
+#: (symdiff 0.000004 respectively 0.0000 km2).
+CAVEAT_GIO_LANDSCHAP = (
+    "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet "
+    "overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten "
+    "Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; "
+    "geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json): "
+    "umbrella's 'Gebied cultuurhistorische hoofdstructuur' en 'Landschap', live "
+    "geverifieerd als de verenigingen van de vijf art.-7.8-gebieden respectievelijk "
+    "de vijf art.-7.11-landschappen (symdiff 0,000004 / 0,0000 km2)"
+)
 
 # ---------------------------------------------------------------------------
 # Deterministic engine operations referenced by FormalRule.executableRef.
@@ -488,6 +520,129 @@ EVIDENCE_ENRICHMENT: Dict[str, Dict[str, Any]] = {
             "zoneIds": ["gesloten_stortplaats"],
             "geometrySource": "provincial_gio_unverified",
             "caveat": CAVEAT_GIO_BODEM,
+        },
+    },
+    # -- MOBILITEIT track (roadside development; shard evidence-mobiliteit.json) -
+    "MO-01": {
+        "objectType": "roadside_development",
+        "claim": "An omgevingsplan for locations within the 'Beperkingengebied bouwwerken provinciale weg' may contain rules providing for the realisation or modification of bouwwerken, provided account is taken of the interest of the unchanged preservation and the possibility of expansion of the provincial road (art. 4.7): roadside development inside the zone is conditional on such protective plan rules; the second lid adds a substantiation requirement describing how that account was taken.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_4_7", "conditional_beperkingengebied_bouwwerken_provinciale_weg", "mits_rekening_houden_instandhouding_uitbreiding_provinciale_weg", "tweede_lid_motiveringseis"],
+        "geoBinding": {
+            "zoneIds": ["beperkingengebied_bouwwerken_provinciale_weg"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_MOBILITEIT,
+        },
+    },
+    "MO-02": {
+        "objectType": "roadside_development",
+        "claim": "An omgevingsplan for locations within the 'Geluidcontour van provinciale wegen' contains rules for existing buildings transformed into geluidgevoelige gebouwen provided they have an indoor value of at most 33 dB Lden, and allows new geluidgevoelige gebouwen up to a façade load of at most 60 dB Lden in the Geluidcontour buiten de bebouwde kom respectively at most 65 dB Lden in the Geluidcontour binnen de bebouwde kom (art. 4.71): a conditional instructieregel with quantitative dB thresholds differentiated by bebouwde-kom status; the third lid is a substantiation requirement.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_4_71", "conditional_geluidcontour_provinciale_wegen", "transformatie_binnenwaarde_max_33_db_lden", "nieuwe_gebouwen_max_60_db_lden_buiten_bebouwde_kom", "nieuwe_gebouwen_max_65_db_lden_binnen_bebouwde_kom", "derde_lid_motiveringseis"],
+        "geoBinding": {
+            "zoneIds": ["geluidcontour_buiten_bebouwde_kom", "geluidcontour_binnen_bebouwde_kom"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_MOBILITEIT,
+        },
+    },
+    "MO-03": {
+        "objectType": "roadside_development",
+        "claim": "An omgevingsplan for locations within the 'Beperkingengebied lokale spoorweg' may contain rules providing for the realisation or modification of bouwwerken, provided account is taken of the interest of the unchanged preservation and expansion of the lokale spoorweg (art. 4.47): roadside development inside the zone (the art.-4.46 umbrella of Kernzone and Beschermingszone) is conditional on such protective plan rules; the second lid adds a substantiation requirement; structurally identical to art. 4.7 for the provincial road.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_4_47", "conditional_beperkingengebied_lokale_spoorweg", "mits_rekening_houden_instandhouding_uitbreiding_lokale_spoorweg", "umbrella_kernzone_beschermingszone_art_4_46", "tweede_lid_motiveringseis"],
+        "geoBinding": {
+            "zoneIds": ["beperkingengebied_lokale_spoorweg"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_MOBILITEIT,
+        },
+    },
+    "MO-04": {
+        "objectType": "roadside_development",
+        "claim": "An omgevingsplan for locations within the 'Beperkingengebied lokale spoorweg' contains rules for existing buildings transformed into geluidgevoelige gebouwen provided they have an indoor value of at most 33 dB Lden, and allows new geluidgevoelige gebouwen up to a façade load of at most 60 dB Lden outside respectively at most 65 dB Lden inside the bebouwde kom (art. 4.48): the rail mirror of art. 4.71 on the same art.-4.46 umbrella zone; the third lid adds a duty to prevent hindrance from noise, vibrations, electromagnetic radiation or emissions of copper or iron filings.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_4_48", "conditional_hinder_lokale_spoorweg", "transformatie_binnenwaarde_max_33_db_lden", "nieuwe_gebouwen_max_60_db_lden_buiten_bebouwde_kom", "nieuwe_gebouwen_max_65_db_lden_binnen_bebouwde_kom", "derde_lid_hinderpreventie_geluid_trillingen_ems_slijpsel"],
+        "geoBinding": {
+            "zoneIds": ["beperkingengebied_lokale_spoorweg"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_MOBILITEIT,
+        },
+    },
+    "MO-05": {
+        "objectType": "roadside_development",
+        "claim": "An omgevingsplan for locations within het 'Luchtvaartterrein' contains no rules providing for the establishment (nieuwvestiging) of an airfield for motorised aircraft (art. 4.65): an unconditional instructieregel in the non-permission family (the art.-2.15 form) — but scoped to the aviation activity class rather than to roadside development — so for this track the zone is carried as a conditional marker documenting where the verbod applies, never an elimination of roadside-development area.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_4_65", "verbod_nieuwvestiging_luchtvaartterrein_gemotoriseerde_luchtvaartuigen", "activiteit_gescoped_verbod", "conditional_marker_niet_track_activiteit", "buffer_luchtvaartterrein_art_4_66_onthouden"],
+        "geoBinding": {
+            "zoneIds": ["luchtvaartterrein"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_MOBILITEIT,
+        },
+    },
+    # -- LANDSCHAP track (landscape intervention; shard evidence-landschap.json) -
+    "LS-01": {
+        "objectType": "landscape_intervention",
+        "claim": "An omgevingsplan for locations within the 'Gebied UNESCO Werelderfgoed Hollandse Waterlinies' takes the outstanding universal value (uitzonderlijke universele waarde) of the Hollandse Waterlinies into account and contains rules for its preservation and strengthening, and contains no rules allowing activities that damage that value (art. 7.3): the operative zone exclusion for landscape intervention, with the kernkwaliteiten of Bijlage XV + Gebiedsanalyses as the OUV definition and a motiveringseis in the third lid.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_7_3", "exclusion_unesco_werelderfgoed_hollandse_waterlinies", "ouk_kernkwaliteiten_bijlage_xv_gebiedsanalyses", "aantasten_toets_v4_per_case", "derde_lid_motiveringseis"],
+        "geoBinding": {
+            "zoneIds": ["unesco_werelderfgoed_hollandse_waterlinies"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_LANDSCHAP,
+        },
+    },
+    "LS-02": {
+        "objectType": "landscape_intervention",
+        "claim": "An omgevingsplan for locations within the 'Gebied UNESCO Werelderfgoed Neder-Germaanse Limes (kernzone)' takes the outstanding universal value of the Neder-Germaanse Limes into account and contains rules for its preservation and strengthening, and contains no rules allowing activities that damage that value (art. 7.3a): structurally identical to art. 7.3 on the Limes kernzone designation.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_7_3a", "exclusion_unesco_werelderfgoed_neder_germaanse_limes_kernzone", "kernkwaliteiten_bijlage_xv", "aantasten_toets_v4_per_case", "derde_lid_motiveringseis"],
+        "geoBinding": {
+            "zoneIds": ["unesco_werelderfgoed_neder_germaanse_limes_kernzone"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_LANDSCHAP,
+        },
+    },
+    "LS-03": {
+        "objectType": "landscape_intervention",
+        "claim": "An omgevingsplan for locations within the 'Gebied UNESCO Werelderfgoed Neder-Germaanse Limes (bufferzone)' contains rules for the preservation and strengthening of the outstanding universal value, and in any case contains a prohibition on executing activities of 100 m2 or more that disturb the soil to more than 30 centimetres below ground level without an omgevingsvergunning (art. 7.4): a conditional instructieregel with quantitative thresholds whose permit gateway keeps it from being a hard exclusion.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_7_4", "conditional_neder_germaanse_limes_bufferzone", "vergunningsverbod_100m2_30cm_onder_maaiveld", "bijstelling_op_archeologische_gegevens_lid_4", "kwaliteitsregels_nederlandse_archeologie_lid_5"],
+        "geoBinding": {
+            "zoneIds": ["unesco_werelderfgoed_neder_germaanse_limes_bufferzone"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_LANDSCHAP,
+        },
+    },
+    "LS-04": {
+        "objectType": "landscape_intervention",
+        "claim": "An omgevingsplan for locations within the 'Gebied cultuurhistorische hoofdstructuur' takes the values of the Cultuurhistorische hoofdstructuur into account and contains rules for the protection and utilisation of these values (art. 7.9): the take-into-account family on the umbrella of the five art.-7.8 designations, with the values per gebied in Bijlage XV and a motiveringseis in the third lid.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_7_9", "conditional_cultuurhistorische_hoofdstructuur", "rekening_houden_met_waarden", "bescherming_en_benutting", "waarden_bijlage_xv", "derde_lid_motiveringseis"],
+        "geoBinding": {
+            "zoneIds": ["gebied_cultuurhistorische_hoofdstructuur"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_LANDSCHAP,
+        },
+    },
+    "LS-05": {
+        "objectType": "landscape_intervention",
+        "claim": "An omgevingsplan for locations within a 'Landschap' contains rules protecting the occurring kernkwaliteiten and no rules allowing new activities that disproportionately damage those kernkwaliteiten (art. 7.11a): the verbod element carries an 'onevenredig' proportionality test on location-specific kernkwaliteiten (Bijlage XVI) — a conditional marker with the verbod routed to V4, never a blanket elimination.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_7_11a", "conditional_landschap_kernkwaliteiten", "verbod_onevenredig_aantasten_v4_per_case", "kernkwaliteiten_bijlage_xvi", "derde_lid_motiveringseis"],
+        "geoBinding": {
+            "zoneIds": ["landschap"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_LANDSCHAP,
+        },
+    },
+    "LS-06": {
+        "objectType": "landscape_intervention",
+        "claim": "An omgevingsplan for locations within the 'Gebied aardkundige waarden' contains rules protecting the designated aardkundige waarden in the plan area (art. 7.12): the care-duty family on the 187-feature designation, with a four-part motiveringseis (description, valuation, municipal policy, taking-into-account) in the second lid.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_7_12", "conditional_gebied_aardkundige_waarden", "bescherming_aangewezen_aardkundige_waarden", "tweede_lid_vierledige_motiveringseis"],
+        "geoBinding": {
+            "zoneIds": ["gebied_aardkundige_waarden"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_LANDSCHAP,
         },
     },
 }
@@ -1079,6 +1234,121 @@ TEMPLATE_SPECS: Dict[str, Dict[str, Any]] = {
         "reason": "The literal designation 'Waterwingebied Bethunepolder' has no registered open-data alias (task-8 gap analysis: it matches no selectieregel name and no alias may be invented), and the art. 3.8 predicate is object-specific parking regulation ('uitsluitend parkeren op daartoe expliciet aangewezen locaties' during busy recreation periods) — no deterministic zone predicate for the soil_activity object type without guessing geometry or content.",
         "rationale": "Nearest existing pattern chosen: the FR-W-18/W-19/W-20 ambiguous family (zone exists in the verordening but no executable predicate/geometry can be cited) rather than the FR-W-01/FR-Z-01 scope_declaration reject, because unlike a definitional scope card, art. 3.8 does carry a gebiedsaanwijzing and binding plan content — it stays routed to the V4 human-expert checkpoint instead of being dismissed as non-executable. A dedicated alias (WHERE NAAM='Waterwingebied Bethunepolder') plus a parking-condition template is the phase-2 follow-up.",
         "executable_ref": _REVIEW_REF,
+    },
+    # -- MOBILITEIT track ---------------------------------------------------------
+    # NOTE on the mobiliteit rules (MO-01..MO-05): hoofdstuk 4 contains no
+    # instructieregel that unconditionally refuses roadside development itself —
+    # arts. 4.7/4.47 are kan-mits permissive rules ('kan regels bevatten ...
+    # mits rekening wordt gehouden'), arts. 4.48/4.71 gate geluidgevoelige
+    # gebouwen on quantitative dB thresholds, and art. 4.65 is a verbod of the
+    # non-permission family but activity-scoped to nieuwvestiging van een
+    # luchtvaartterrein voor gemotoriseerde luchtvaartuigen (aviation, not
+    # roadside development; union 1014.496 km2 incl. a 676.516 km2 feature).
+    # All five are therefore formalized as conditional markers (the FR-WA-01/
+    # WA-03/BO-04/BO-05 idiom): the zone overlays are deterministic, the
+    # mits/dB/activity tests are plan-content assessments routed to V4, and
+    # the final opportunity zone equals the province AOI with five markers.
+    "MO-01": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["beperkingengebied_bouwwerken_provinciale_weg"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_MOBILITEIT},
+        "conditions": [],
+        "extra_tags": ["conditional_within_beperkingengebied_bouwwerken_provinciale_weg", "mits_rekening_houden_instandhouding_uitbreiding_provinciale_weg"],
+        "rationale": "CORE MOBILITEIT RULE (art. 4.7). Instructieregel directing omgevingsplannen for locations within the 'Beperkingengebied bouwwerken provinciale weg' that they may contain rules providing for realising or modifying bouwwerken, provided account is taken of the unchanged preservation and expansion possibility of the provincial road. The zone overlay is deterministic; whether a specific roadside development's plan rules adequately account for the wegbelang is a plan-quality assessment routed to V4 (mirroring FR-WA-01's art.-2.14 vrijwaringszone) — hence a conditional marker, never an elimination.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "MO-02": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["geluidcontour_buiten_bebouwde_kom", "geluidcontour_binnen_bebouwde_kom"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_MOBILITEIT},
+        "conditions": [],
+        "extra_tags": ["conditional_within_geluidcontour_provinciale_wegen", "transformatie_binnenwaarde_max_33_db_lden", "buiten_bebouwde_kom_max_60_db_lden_gevel", "binnen_bebouwde_kom_max_65_db_lden_gevel"],
+        "rationale": "Art. 4.71 instructieregel: plans for locations within the 'Geluidcontour van provinciale wegen' must carry rules for transforming existing buildings into geluidgevoelige gebouwen (indoor value max 33 dB Lden) and may allow new geluidgevoelige gebouwen up to 60 dB Lden façade load outside, respectively 65 dB Lden inside, the bebouwde kom. The two contour designations are served as separate NAAM aliases (the verordening's own bebouwdkom differentiation, mirroring FR-WA-03's binnendijks/buitendijks split); the zone overlays are deterministic, the dB thresholds are object-type-specific (geluidgevoelige gebouwen) and case-dependent, so the rule is a conditional marker routed to V4 — it never eliminates roadside-development area by itself.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "MO-03": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["beperkingengebied_lokale_spoorweg"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_MOBILITEIT},
+        "conditions": [],
+        "extra_tags": ["conditional_within_beperkingengebied_lokale_spoorweg", "mits_rekening_houden_instandhouding_uitbreiding_lokale_spoorweg", "umbrella_kernzone_beschermingszone_art_4_46"],
+        "rationale": "Art. 4.47 instructieregel, structurally identical to FR-MO-01's art. 4.7 but on the rail designation: plans within the 'Beperkingengebied lokale spoorweg' (the art.-4.46 umbrella of Kernzone and Beschermingszone, live-verified union) may provide for realising or modifying bouwwerken provided account is taken of the unchanged preservation and expansion of the lokale spoorweg. The mits test is plan-content assessment routed to V4 — a conditional marker, never an elimination.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "MO-04": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["beperkingengebied_lokale_spoorweg"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_MOBILITEIT},
+        "conditions": [],
+        "extra_tags": ["conditional_within_beperkingengebied_lokale_spoorweg", "transformatie_binnenwaarde_max_33_db_lden", "buiten_bebouwde_kom_max_60_db_lden_gevel", "binnen_bebouwde_kom_max_65_db_lden_gevel", "hinderpreventie_geluid_trillingen_ems_slijpsel"],
+        "rationale": "Art. 4.48 instructieregel, the rail mirror of FR-MO-02's art. 4.71 on the same umbrella zone: transforming existing buildings into geluidgevoelige gebouwen mits indoor value max 33 dB Lden, new geluidgevoelige gebouwen allowed up to 60 dB Lden outside respectively 65 dB Lden inside the bebouwde kom; the third lid's hindrance-prevention duty (noise, vibrations, electromagnetic radiation, copper/iron filing emissions) is carried in the tags. The zone overlay is deterministic; the dB and hindrance tests are object-type- and case-specific, so the rule is a conditional marker routed to V4 — never an elimination.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "MO-05": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["luchtvaartterrein"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_MOBILITEIT},
+        "conditions": [],
+        "extra_tags": ["conditional_within_luchtvaartterrein", "verbod_nieuwvestiging_luchtvaartterrein_gemotoriseerde_luchtvaartuigen", "activiteit_gescoped_verbod_aviatie_niet_roadside_development"],
+        "rationale": "Art. 4.65 instructieregel, an unconditional verbod of the non-permission family (the art.-2.15/FR-WA-02 form): plans within het 'Luchtvaartterrein' contain no rules providing for nieuwvestiging of an airfield for motorised aircraft. Unlike FR-WA-02/FR-BO-03 the prohibited activity class (establishing a motorised-aviation airfield) is OUTSIDE the track's roadside_development object type — an airfield is not a roadside development — so executing the verbod as a track-wide zone exclusion (1014.496 km2, two thirds of the province) would over-exclude legally available roadside-development area. The rule is therefore carried as a conditional marker on the designation documenting where the aviation verbod applies (mirroring the FR-BO-05 marker idiom for a rule that steers something other than the track activity); the Buffer luchtvaartterrein variant (art. 4.66, onderzoeksgestuurde tenzij-uitzondering) is motivatedly abstained in the ledger.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    # -- LANDSCHAP track ----------------------------------------------------------
+    # NOTE on the landschap rules: the two werelderfgoed-instructieregels carry
+    # the non-permission family in lid 1b ('bevat geen regels die activiteiten
+    # toestaan die die waarde aantasten', arts. 7.3/7.3a) — executed as actual
+    # exclusions with the aantasten-test routed to V4 per case (the FR-BO-01
+    # protective-default idiom; landscape_intervention is squarely inside the
+    # activities those lids address, unlike FR-MO-05's aviation-scoped verbod).
+    # The bufferzone (7.4), CHS (7.9), Landschap-kernkwaliteiten (7.11a) and
+    # aardkundige-waarden (7.12) instructieregels are the weaker
+    # versterken-/rekening-houden-/onevenredig-families and stay conditional
+    # markers routed to V4.
+    "LS-01": {
+        "kind": "exclusion",
+        "zone": {"zoneIds": ["unesco_werelderfgoed_hollandse_waterlinies"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_LANDSCHAP},
+        "conditions": [],
+        "extra_tags": ["exclusion_unesco_werelderfgoed_hollandse_waterlinies", "aantastende_activiteiten_geweigerd_v4_per_case", "ouk_kernkwaliteiten_bijlage_xv_gebiedsanalyses"],
+        "rationale": "CORE LANDSCHAP RULE (art. 7.3). Instructieregel directing omgevingsplannen for locations within the 'Gebied UNESCO Werelderfgoed Hollandse Waterlinies' to take the outstanding universal value into account, contain preservation/strengthening rules, and contain no rules allowing activities that damage that value. Formalized as the default zone exclusion for landscape intervention (the FR-BO-01 idiom: 'bevat geen regels die activiteiten toestaan' is the non-permission family and landscape interventions are squarely inside the addressed activity space); whether a SPECIFIC intervention 'die waarde aantast' stays a per-case V4 assessment carried in the context tags — the engine applies the protective default, exactly like FR-BO-01/FR-BO-03.",
+        "executable_ref": "engine.zone.exclude_within@poc-v1",
+    },
+    "LS-02": {
+        "kind": "exclusion",
+        "zone": {"zoneIds": ["unesco_werelderfgoed_neder_germaanse_limes_kernzone"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_LANDSCHAP},
+        "conditions": [],
+        "extra_tags": ["exclusion_unesco_werelderfgoed_neder_germaanse_limes_kernzone", "aantastende_activiteiten_geweigerd_v4_per_case", "kernkwaliteiten_bijlage_xv"],
+        "rationale": "Art. 7.3a instructieregel, structurally identical to FR-LS-01's art. 7.3 but on the Neder-Germaanse Limes kernzone designation: same lid-1b non-permission family, executed as the default zone exclusion with the aantasten-test routed to V4 per case. The kernzone covers only 0.013 km2 within the province (the Limes crosses Utrecht locally), so the exclusion is surgical.",
+        "executable_ref": "engine.zone.exclude_within@poc-v1",
+    },
+    "LS-03": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["unesco_werelderfgoed_neder_germaanse_limes_bufferzone"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_LANDSCHAP},
+        "conditions": [
+            {"parameter": "activity_surface", "operator": ">=", "value": 100, "unit": "m2"},
+            {"parameter": "soil_disturbance_depth", "operator": ">", "value": 30, "unit": "cm"},
+        ],
+        "extra_tags": ["conditional_within_neder_germaanse_limes_bufferzone", "vergunningsverbod_zonder_omgevingsvergunning", "bijstelling_op_archeologische_gegevens_lid_4"],
+        "rationale": "Art. 7.4 instructieregel, the weaker bufferzone variant: lid 1 is a preservation/strengthening duty and lid 3 prescribes that the omgevingsplan in any case contains a prohibition on executing activities of 100 m2 or more that disturb the soil to more than 30 cm below maaiveld WITHOUT an omgevingsvergunning. The thresholds are quantitative and quoted verbatim (carried as conditions, mirroring FR-W-03's threshold idiom), but the zonder-omgevingsvergunning gateway makes the rule a permit requirement rather than a refusal — a hard exclusion would misread the gateway, so the rule is a conditional marker routed to V4 (mirroring FR-MO-02's dB-threshold treatment). Lid 4's archaeology-driven adjustment of the thresholds is motivation-gated and stays in the tags.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "LS-04": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["gebied_cultuurhistorische_hoofdstructuur"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_LANDSCHAP},
+        "conditions": [],
+        "extra_tags": ["conditional_within_cultuurhistorische_hoofdstructuur", "rekening_houden_met_waarden", "bescherming_en_benutting", "umbrella_vijf_art_7_8_gebieden"],
+        "rationale": "Art. 7.9 instructieregel, the take-into-account family ('houdt rekening met de waarden ... en bevat regels ter bescherming en benutting') on the CHS umbrella (the five art.-7.8 designations, live-verified union): exactly the art.-2.14/3.10 form that FR-WA-01/FR-BO-04 formalize as a conditional marker routed to V4 — the zone overlay is deterministic, the plan-quality assessment is not.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "LS-05": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["landschap"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_LANDSCHAP},
+        "conditions": [],
+        "extra_tags": ["conditional_within_landschap", "verbod_onevenredig_aantasten_v4_per_case", "kernkwaliteiten_bijlage_xvi_per_gebied"],
+        "rationale": "Art. 7.11a instructieregel on the Landschap umbrella (the five art.-7.11 landschappen, live-verified union): plans contain rules protecting the occurring kernkwaliteiten and no rules allowing NEW activities that disproportionately ('onevenredig') damage them. The onevenredig-proportionality test on location-specific kernkwaliteiten (Bijlage XVI) is an open norm the deterministic engine must not guess — the verbod element is carried as a V4-routed context tag and the rule stays a conditional marker, never an elimination (spiegel of the rekening-houden-familie; documented heroverwegingskandidaat should Bijlage XVI kernkwaliteiten ever be formalized).",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "LS-06": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["gebied_aardkundige_waarden"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_LANDSCHAP},
+        "conditions": [],
+        "extra_tags": ["conditional_within_gebied_aardkundige_waarden", "bescherming_aangewezen_aardkundige_waarden", "vierledige_motiveringseis_lid_2"],
+        "rationale": "Art. 7.12 instructieregel, the care-duty family ('bevat regels ter bescherming van de in het plangebied aangewezen aardkundige waarden') on the 187-feature designation: same weakest-variant form as FR-LS-04's art. 7.9 — a conditional marker routed to V4; the second lid's four-part motiveringseis (description, valuation, municipal policy, taking-into-account) is carried in the tags.",
+        "executable_ref": "engine.zone.within@poc-v1",
     },
 }
 

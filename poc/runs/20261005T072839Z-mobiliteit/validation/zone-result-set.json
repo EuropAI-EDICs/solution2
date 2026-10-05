@@ -1,0 +1,75 @@
+{
+ "id": "VR-20261005T072839Z-mobiliteit-zones",
+ "artifactId": "zones",
+ "artifactType": "zone-result-set",
+ "levels": {
+  "V0": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v0-schema-zone-result",
+     "status": "pass",
+     "detail": "6/6 artifact(s) valid against zone-result.schema.json"
+    }
+   ]
+  },
+  "V1": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v1-output-geometry-valid",
+     "status": "pass",
+     "detail": "all 6 zone geometries valid (shapely is_valid)"
+    },
+    {
+     "id": "v1-output-crs-and-bounds",
+     "status": "pass",
+     "detail": "all payloads EPSG:4326 with coordinates inside NL bounds lon(3.0, 7.5)/lat(50.5, 54.0)"
+    },
+    {
+     "id": "v1-input-layers-crs",
+     "status": "pass",
+     "detail": "5 input layer(s) declare a recognised CRS member (EPSG:28992 computation CRS)"
+    },
+    {
+     "id": "v1-input-invalid-census",
+     "status": "pass",
+     "detail": "no invalid as-served features in any input layer",
+     "evidenceRefs": [
+      "beperkingengebied_bouwwerken_provinciale_weg",
+      "geluidcontour_buiten_bebouwde_kom",
+      "geluidcontour_binnen_bebouwde_kom",
+      "beperkingengebied_lokale_spoorweg",
+      "luchtvaartterrein"
+     ]
+    },
+    {
+     "id": "v1-final-zone-sanity",
+     "status": "pass",
+     "detail": "final zone non-empty, valid, 1560.054 km2 <= AOI 1560.054 km2",
+     "evidenceRefs": [
+      "ZR-final-63d257c43f"
+     ]
+    }
+   ]
+  },
+  "V2": {
+   "status": "not_applicable",
+   "checks": [],
+   "notes": "V2 not evaluated for this artifact"
+  },
+  "V3": {
+   "status": "not_applicable",
+   "checks": [],
+   "notes": "V3 not evaluated for this artifact"
+  },
+  "V4": {
+   "status": "pending",
+   "checks": [],
+   "notes": "V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it."
+  }
+ },
+ "verdict": "pass",
+ "evaluatorRun": "critic-validator#deterministic-v0-v3-poc1",
+ "evaluatedAt": "2026-10-05T07:28:42Z"
+}
