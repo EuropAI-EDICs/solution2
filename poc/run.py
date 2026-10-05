@@ -318,6 +318,47 @@ TRACKS: Dict[str, Dict[str, Any]] = {
             ),
         ],
     },
+    "mobiliteit": {
+        "shard": "corpus/evidence-mobiliteit.json",
+        "ledger": "corpus/normcards-rejected-mobiliteit.json",
+        "report_title": "Where is roadside development bounded by mobility rules in province Utrecht?",
+        "decision_table_id": "DT-mobiliteit-utrecht-poc1",
+        "decision_table_title": "Mobiliteitsregel bounds for roadside development "
+                                "Decision table (programming stage)",
+        "prov_namespace": "ldttoolbox:poc:mobiliteit:",
+        "headline_note": (
+            "Semantics: instructieregels art. 4.7 (Beperkingengebied bouwwerken provinciale "
+            "weg), 4.47/4.48 (Beperkingengebied lokale spoorweg; umbrella = Kernzone ∪ "
+            "Beschermingszone per art. 4.46, live geverifieerd) and 4.71 (Geluidcontour van "
+            "provinciale wegen, buiten/binnen de bebouwde kom) are kan-mits rules with dB "
+            "thresholds and care duties — executed as conditional markers routed to the V4 "
+            "checkpoint. Art. 4.65 (Luchtvaartterrein) is an unconditional verbod on "
+            "nieuwvestiging van een luchtvaartterrein voor gemotoriseerde luchtvaartuigen, "
+            "activity-scoped to aviation and therefore also a marker, never an elimination "
+            "of roadside-development area. No hoofdstuk-4 rule unconditionally refuses "
+            "roadside development itself, so the opportunity zone equals the province AOI "
+            "with five marker overlays. Vergunnings-/meldingsketens (beheer, vrij zicht, "
+            "vaarweg) and the reserved basisnet articles (4.67/4.68 [Gereserveerd]) are "
+            "deliberately abstained. Programming-stage screening artifact; per-location "
+            "permission assessment remains required."
+        ),
+        "limitations": lambda cov, abst: [
+            "Provinciale-weg beheer/vrij zicht (art. 4.8-4.44), vaarweg (art. 4.52-4.64) and "
+            "bestuursorgaan bepalingen are vergunnings-/meldingsketens: abstained under "
+            "cite-or-abstain; the externe veiligheid basisnet articles 4.67/4.68 are "
+            "[Gereserveerd] in the consolidated text.",
+            "The art. 4.65 verbod is activity-scoped (nieuwvestiging luchtvaartterrein voor "
+            "gemotoriseerde luchtvaartuigen — aviation, not roadside development): it never "
+            "subtracts roadside-development area, and the Luchtvaartterrein designation "
+            "(1014.496 km2 union incl. a 676.516 km2 feature) is reported as a marker. The "
+            "Buffer luchtvaartterrein variant (art. 4.66, onderzoeksgestuurde tenzij-"
+            "uitzondering) is motivatedly abstained.",
+            (
+                f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms): "
+                "routed to the V4 human-expert checkpoint."
+            ),
+        ],
+    },
 }
 
 _LIMITATIONS = [

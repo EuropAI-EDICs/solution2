@@ -1,0 +1,202 @@
+{
+ "title": "Where is roadside development bounded by mobility rules in province Utrecht?",
+ "generatedAt": "2026-10-05T06:52:33Z",
+ "generatedBy": "poc-cartographer/0.1",
+ "crs": "EPSG:4326 (computation in EPSG:28992, areas in km²)",
+ "stats": {
+  "zoneCount": 6,
+  "finalAreaKm2": 1560.053846303,
+  "finalRuleIds": [
+   "FR-MO-01",
+   "FR-MO-02",
+   "FR-MO-03",
+   "FR-MO-04",
+   "FR-MO-05"
+  ],
+  "geometryRepairsRecorded": 0
+ },
+ "layers": [
+  {
+   "id": "beperkingengebied_bouwwerken_provinciale_weg",
+   "title": "beperkingengebied_bouwwerken_provinciale_weg",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-05T06:43:52Z"
+  },
+  {
+   "id": "beperkingengebied_lokale_spoorweg",
+   "title": "beperkingengebied_lokale_spoorweg",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-05T06:43:52Z"
+  },
+  {
+   "id": "geluidcontour_binnen_bebouwde_kom",
+   "title": "geluidcontour_binnen_bebouwde_kom",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-05T06:43:52Z"
+  },
+  {
+   "id": "geluidcontour_buiten_bebouwde_kom",
+   "title": "geluidcontour_buiten_bebouwde_kom",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-05T06:43:52Z"
+  },
+  {
+   "id": "luchtvaartterrein",
+   "title": "luchtvaartterrein",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-05T06:43:52Z"
+  },
+  {
+   "id": "provincial_gio_unverified",
+   "title": "provincial_gio_unverified"
+  }
+ ],
+ "zones": [
+  {
+   "id": "zr-conditional_mark-786a461b31",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-MO-01"
+   ],
+   "areaKm2": 7.002570624,
+   "layers": [
+    "beperkingengebied_bouwwerken_provinciale_weg",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=aoi_seed; area_m2=1560053846.303311; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-MO-01; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=beperkingengebied_bouwwerken_provinciale_weg; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=beperkingengebied_bouwwerken_provinciale_weg(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T06:43:52Z; simplifiedM=2.0); features=71; make_valid_repairs=0; area_m2=7002570.623936; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-c5840b374c",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-MO-02"
+   ],
+   "areaKm2": 37.284589752,
+   "layers": [
+    "geluidcontour_buiten_bebouwde_kom",
+    "geluidcontour_binnen_bebouwde_kom",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-MO-02; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=geluidcontour_buiten_bebouwde_kom; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=geluidcontour_buiten_bebouwde_kom(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T06:43:52Z; simplifiedM=2.0); features=77; make_valid_repairs=0; area_m2=34262425.462951; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=geluidcontour_binnen_bebouwde_kom; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=geluidcontour_binnen_bebouwde_kom(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T06:43:52Z; simplifiedM=2.0); features=146; make_valid_repairs=0; area_m2=3027135.317130; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=3; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-0c76030e09",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-MO-03"
+   ],
+   "areaKm2": 0.634958965,
+   "layers": [
+    "beperkingengebied_lokale_spoorweg",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-MO-03; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=beperkingengebied_lokale_spoorweg; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=beperkingengebied_lokale_spoorweg(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T06:43:52Z; simplifiedM=2.0); features=5; make_valid_repairs=0; area_m2=634958.965005; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-c3de4f66dd",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-MO-04"
+   ],
+   "areaKm2": 0.634958965,
+   "layers": [
+    "beperkingengebied_lokale_spoorweg",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-MO-04; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=beperkingengebied_lokale_spoorweg; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=beperkingengebied_lokale_spoorweg(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T06:43:52Z; simplifiedM=2.0); features=5; make_valid_repairs=0; area_m2=634958.965005; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-49de271461",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-MO-05"
+   ],
+   "areaKm2": 1014.473454661,
+   "layers": [
+    "luchtvaartterrein",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-MO-05; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=luchtvaartterrein; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=luchtvaartterrein(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T06:43:52Z; simplifiedM=2.0); features=272; make_valid_repairs=0; area_m2=1014473454.661084; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=5; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-final-63d257c43f",
+   "operation": "final",
+   "ruleIds": [
+    "FR-MO-01",
+    "FR-MO-02",
+    "FR-MO-03",
+    "FR-MO-04",
+    "FR-MO-05"
+   ],
+   "areaKm2": 1560.053846303,
+   "layers": [],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=aoi_seed; area_m2=1560053846.303311; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-MO-01; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=beperkingengebied_bouwwerken_provinciale_weg; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=beperkingengebied_bouwwerken_provinciale_weg(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T06:43:52Z; simplifiedM=2.0); features=71; make_valid_repairs=0; area_m2=7002570.623936; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-MO-02; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=geluidcontour_buiten_bebouwde_kom; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=geluidcontour_buiten_bebouwde_kom(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T06:43:52Z; simplifiedM=2.0); features=77; make_valid_repairs=0; area_m2=34262425.462951; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=geluidcontour_binnen_bebouwde_kom; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=geluidcontour_binnen_bebouwde_kom(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T06:43:52Z; simplifiedM=2.0); features=146; make_valid_repairs=0; area_m2=3027135.317130; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-MO-03; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=beperkingengebied_lokale_spoorweg; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=beperkingengebied_lokale_spoorweg(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T06:43:52Z; simplifiedM=2.0); features=5; make_valid_repairs=0; area_m2=634958.965005; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-MO-04; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=beperkingengebied_lokale_spoorweg; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=beperkingengebied_lokale_spoorweg(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T06:43:52Z; simplifiedM=2.0); features=5; make_valid_repairs=0; area_m2=634958.965005; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-MO-05; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=luchtvaartterrein; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=luchtvaartterrein(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-05T06:43:52Z; simplifiedM=2.0); features=272; make_valid_repairs=0; area_m2=1014473454.661084; engine=poc-zone-engine/0.1"
+   ]
+  }
+ ],
+ "outputs": {
+  "geojson": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/zones.geojson",
+  "gml": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/zones.gml",
+  "gmlStatus": {
+   "ok": true,
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/zones.gml",
+   "tool": "/opt/homebrew/bin/ogr2ogr",
+   "error": null,
+   "command": "/opt/homebrew/bin/ogr2ogr -f GML /Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/zones.gml /Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/zones.geojson"
+  }
+ },
+ "notes": [
+  "cite-or-abstain: every exclusion/inclusion references a registry layer with lastChecked provenance; see per-zone provSteps.",
+  "Areas computed in EPSG:28992 (RD New, metre); geometries validity-checked with make_valid repairs recorded in provenance."
+ ]
+}

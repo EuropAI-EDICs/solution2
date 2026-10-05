@@ -1,0 +1,606 @@
+{
+ "flavour": "W3C PROV-O terms (agent/entity/activity/wasGeneratedBy/wasDerivedFrom) serialised as plain JSON",
+ "namespace": "ldttoolbox:poc:mobiliteit:",
+ "runId": "20261005T065231Z-mobiliteit",
+ "requestId": "8c757a77-de47-40f2-afce-58b10eaf0052",
+ "generatedAt": "2026-10-05T06:52:34Z",
+ "generatedBy": "explainer#deterministic-poc1",
+ "agent": [
+  {
+   "id": "orchestrator",
+   "name": "run.py orchestrator",
+   "version": "poc-run/1.0",
+   "role": "plan -> dispatch -> verify -> synthesize (plan section 3.2 agent #1)"
+  },
+  {
+   "id": "legal-recon-agent",
+   "name": "NormAnalyst",
+   "version": "legal-recon-agent#cvdr704250-geldend-2025-10-13",
+   "role": "deterministic replay of the verified legal recon (agent #3)"
+  },
+  {
+   "id": "norm-formalizer",
+   "name": "NormFormalizer",
+   "version": "norm-formalizer#deterministic-templates-v1",
+   "role": "deterministic templates (agent #4)"
+  },
+  {
+   "id": "geo-connector",
+   "name": "GeoData connector",
+   "version": "ldttoolbox-geoconnector/0.1",
+   "role": "ArcGIS REST fetch, cache-first (agent #5 tool)"
+  },
+  {
+   "id": "zone-engine",
+   "name": "FormalRule zone engine",
+   "version": "poc-zone-engine/0.1",
+   "role": "deterministic execution + validation repair provenance (agent #5)"
+  },
+  {
+   "id": "cartographer",
+   "name": "Cartographer",
+   "version": "poc-cartographer/0.1",
+   "role": "GeoJSON/GML serialization (agent #6)"
+  },
+  {
+   "id": "critic-validator",
+   "name": "Critic/Validator",
+   "version": "critic-validator#deterministic-v0-v3-poc1",
+   "role": "V0-V3 deterministic checks, V4 pending (agent #7)"
+  },
+  {
+   "id": "explainer",
+   "name": "Explainer",
+   "version": "explainer#deterministic-poc1",
+   "role": "decision table + PROV (agent #8)"
+  },
+  {
+   "id": "report",
+   "name": "HTML report renderer",
+   "version": "poc-report/1.0",
+   "role": "single-file report (agent #6 view tier)"
+  }
+ ],
+ "entity": [
+  {
+   "id": "request.json",
+   "type": "OpportunityMapRequest",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/request.json",
+   "sha256": "76734e1ef9601f112fa251d0cdd6118fda3b65ebf310fea69aa51f3c7cb525ee"
+  },
+  {
+   "id": "evidence-mobiliteit.json",
+   "type": "evidence shard",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/corpus/evidence-mobiliteit.json",
+   "sha256": "1e2ce04b86edfea463ef09a8ba75fd0183c47cc83b6ee5488d7d89775a145d68"
+  },
+  {
+   "id": "sources.json",
+   "type": "document source registry",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/corpus/sources.json",
+   "sha256": "ad8e3e722fcec62ee0dc624dc927c83c90df8f3e890472bad9d797103dc645af"
+  },
+  {
+   "id": "sources.json",
+   "type": "geo source registry",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/data/sources.json",
+   "sha256": "4f40f02c824e77333fdc52b44f77044b291097ef8e858d80272134668c462e1a"
+  },
+  {
+   "id": "normcards.json",
+   "type": "NormCard[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/normcards.json",
+   "sha256": "839548178c1ecd5fef7217c05de252648c8669d726f3f12481b58a017c025a63"
+  },
+  {
+   "id": "normcards-rejected.json",
+   "type": "cite-or-abstain ledger",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/normcards-rejected.json",
+   "sha256": "d89ea3293092bc903406c14ff539d00a58ea7cfbee818a9ce3d1259185685c3c"
+  },
+  {
+   "id": "formalrules.json",
+   "type": "FormalRule[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/formalrules.json",
+   "sha256": "184f14d585fe4d3a90af7d29a53fc31ba2bb55913c3f2b090dd20261d3a3c64a"
+  },
+  {
+   "id": "layers.json",
+   "type": "layer manifest",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/layers.json",
+   "sha256": "d595eca09031a4213e7d9bdb9cae8378d75b704c9c189769ffecec0f05e41044"
+  },
+  {
+   "id": "zones.json",
+   "type": "ZoneResult[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/zones.json",
+   "sha256": "dc4c63c75ea1c4bb6cf25179a869e0299891a94b76f99714cb0d6fb2b73d875d"
+  },
+  {
+   "id": "rule-stats.json",
+   "type": "per-rule footprint stats",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/rule-stats.json",
+   "sha256": "449a9ecd0eb7b86c9ffb9c407ffa4949853633dd0acf070004042e28053cc238"
+  },
+  {
+   "id": "zones.geojson",
+   "type": "zones GeoJSON (RFC 7946)",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/zones.geojson",
+   "sha256": "a8c9cf31ab0d49b768939477ed202f6d293f07563647ee847ffbbaf1adbcaceb"
+  },
+  {
+   "id": "report_input.json",
+   "type": "cartographer report input",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/report_input.json",
+   "sha256": "3df1e70abdb53aeebfe885e3898e32b6a2a6bb070280c75dfef444a40477a19b"
+  },
+  {
+   "id": "decision-table.json",
+   "type": "DecisionTable",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/decision-table.json",
+   "sha256": "851961fa26ab4ebbe82656602c4dcfebe148b6feda0a2fa174da6b7a2431e28c"
+  },
+  {
+   "id": "decision-table.md",
+   "type": "DecisionTable (markdown)",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/decision-table.md",
+   "sha256": "a69a97c126222f29e7ace4d570dada778034dded4abca5ff7afbeb75f49b2aa0"
+  },
+  {
+   "id": "validation.json",
+   "type": "ValidationReport[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/validation.json",
+   "sha256": "14f6e18f6d01e691b9f28b0e7b66ca18f9d32b9e83bf259f16de1feaadc7142c"
+  },
+  {
+   "id": "zones.gml",
+   "type": "zones GML 3.2",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/zones.gml",
+   "sha256": "82e0805279de92faf55ddeeeab5e4f4b43fe7bc308239981ab04cd54d7e16d1b"
+  },
+  {
+   "id": "agrest-ov-beperkingengebied-bouwwerken-provinciale-weg.28992.geojson",
+   "type": "layer cache (EPSG:28992)",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/data/cache/agrest-ov-beperkingengebied-bouwwerken-provinciale-weg.28992.geojson",
+   "sha256": "e349fd728e2bf4c94dba656176b4d293eb231bb83e3846379c38ac101ae635db",
+   "zone": "beperkingengebied_bouwwerken_provinciale_weg",
+   "sourceId": "agrest-ov-beperkingengebied-bouwwerken-provinciale-weg"
+  },
+  {
+   "id": "agrest-ov-beperkingengebied-lokale-spoorweg.28992.geojson",
+   "type": "layer cache (EPSG:28992)",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/data/cache/agrest-ov-beperkingengebied-lokale-spoorweg.28992.geojson",
+   "sha256": "06e0ba537065a134de6ca71830399555a77b5c5148a297e1103f2712b7b3fd06",
+   "zone": "beperkingengebied_lokale_spoorweg",
+   "sourceId": "agrest-ov-beperkingengebied-lokale-spoorweg"
+  },
+  {
+   "id": "agrest-ov-geluidcontour-binnen-bebouwde-kom.28992.geojson",
+   "type": "layer cache (EPSG:28992)",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/data/cache/agrest-ov-geluidcontour-binnen-bebouwde-kom.28992.geojson",
+   "sha256": "5373b40c1d11c1434fc0091bfd36e8b6ea57431e53f323211ac8174a83b50bff",
+   "zone": "geluidcontour_binnen_bebouwde_kom",
+   "sourceId": "agrest-ov-geluidcontour-binnen-bebouwde-kom"
+  },
+  {
+   "id": "agrest-ov-geluidcontour-buiten-bebouwde-kom.28992.geojson",
+   "type": "layer cache (EPSG:28992)",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/data/cache/agrest-ov-geluidcontour-buiten-bebouwde-kom.28992.geojson",
+   "sha256": "581372fa990597330f391eb1d57e5d9a76272fd1d67435214452f1261ea04390",
+   "zone": "geluidcontour_buiten_bebouwde_kom",
+   "sourceId": "agrest-ov-geluidcontour-buiten-bebouwde-kom"
+  },
+  {
+   "id": "agrest-ov-luchtvaartterrein.28992.geojson",
+   "type": "layer cache (EPSG:28992)",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/data/cache/agrest-ov-luchtvaartterrein.28992.geojson",
+   "sha256": "a81f600ef01c9867394298cad2bcc60e1f3303bf53ac5c7eada3658fa792b44c",
+   "zone": "luchtvaartterrein",
+   "sourceId": "agrest-ov-luchtvaartterrein"
+  },
+  {
+   "id": "use-cases/mobiliteit.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "corpus/evidence-mobiliteit.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "corpus/sources.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "data/sources.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "validation/opportunity-map-request.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/validation/opportunity-map-request.json",
+   "sha256": "0291b743a82fd433f69228b5baaf13adc38969e8f037644f90438ea7b6e7c7b2"
+  },
+  {
+   "id": "validation/norm-card-set.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/validation/norm-card-set.json",
+   "sha256": "f096baf23c84eeb22a6701bb728e6ce01426f057f47aabe98616e8ace4d878e0"
+  },
+  {
+   "id": "validation/formal-rule-set.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/validation/formal-rule-set.json",
+   "sha256": "c5b37b088dfb27f4e9182ea52e3a26b83b0657cfb445e3e2d17e0171ea558604"
+  },
+  {
+   "id": "validation/zone-result-set.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/validation/zone-result-set.json",
+   "sha256": "b214746a5bf459296cba708118ac868bcf4cd6d39954f8c3f9d22547c3ab6c78"
+  },
+  {
+   "id": "validation/decision-table.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/validation/decision-table.json",
+   "sha256": "6dd7b98a55612e2bf590fbc91c9cf870639d28a454bebdaee19db671081e45b0"
+  },
+  {
+   "id": "validation/pipeline-run.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/validation/pipeline-run.json",
+   "sha256": "84f72d4b1fd0a4fb26bf7e5156aee7c129975324bae961c06af64fb400d56fa1"
+  },
+  {
+   "id": "zones.xsd",
+   "type": "zones GML 3.2 XML schema",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/zones.xsd",
+   "sha256": "e7bdbf18913890795b151d1cf49bb7e8bcf3543876b20bd899b7c1cfc10f7f63"
+  },
+  {
+   "id": "report.html",
+   "type": "single-file HTML report",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/report.html",
+   "sha256": "311d6e0157da088e4aa100a9e49fe8ccee08c603bb200163825c7f5b5d392f32"
+  },
+  {
+   "id": "prov.json",
+   "type": "PROV bundle (this file)",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/prov.json",
+   "note": "self-referential; integrity via run_summary.json artifact hashes"
+  },
+  {
+   "id": "run_summary.json",
+   "type": "run summary (headline, tunings, artifact hashes)",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf2/poc/runs/20261005T065231Z-mobiliteit/run_summary.json",
+   "note": "written after prov.json; its sha256 lives in its own artifacts list"
+  }
+ ],
+ "activity": [
+  {
+   "id": "intake",
+   "label": "Intake: load + validate OpportunityMapRequest",
+   "type": "intake",
+   "agent": "run.py-orchestrator",
+   "startedAt": "2026-10-05T06:52:31Z",
+   "endedAt": "2026-10-05T06:52:31Z",
+   "durationS": 0.052,
+   "used": [
+    "use-cases/mobiliteit.json"
+   ],
+   "generated": [
+    "request.json"
+   ]
+  },
+  {
+   "id": "norm-analyst",
+   "label": "Norm Analyst: harvest NormCards (deterministic replay)",
+   "type": "norm-analyst",
+   "agent": "legal-recon-agent",
+   "startedAt": "2026-10-05T06:52:31Z",
+   "endedAt": "2026-10-05T06:52:31Z",
+   "durationS": 0.007,
+   "used": [
+    "corpus/evidence-mobiliteit.json",
+    "corpus/sources.json"
+   ],
+   "generated": [
+    "normcards.json",
+    "normcards-rejected.json"
+   ]
+  },
+  {
+   "id": "norm-formalizer",
+   "label": "Norm Formalizer: NormCards -> FormalRules (deterministic templates)",
+   "type": "norm-formalizer",
+   "agent": "norm-formalizer",
+   "startedAt": "2026-10-05T06:52:31Z",
+   "endedAt": "2026-10-05T06:52:31Z",
+   "durationS": 0.007,
+   "used": [
+    "normcards.json"
+   ],
+   "generated": [
+    "formalrules.json"
+   ]
+  },
+  {
+   "id": "geo-analyst-fetch",
+   "label": "Geo Analyst: fetch zone layers (cache-first ArcGIS REST)",
+   "type": "geo-analyst-fetch",
+   "agent": "ldttoolbox-geoconnector/0.1",
+   "startedAt": "2026-10-05T06:52:31Z",
+   "endedAt": "2026-10-05T06:52:31Z",
+   "durationS": 0.216,
+   "used": [
+    "data/sources.json"
+   ],
+   "generated": [
+    "layers.json"
+   ]
+  },
+  {
+   "id": "zone-engine",
+   "label": "Geo Analyst: deterministic FormalRule execution (shapely path)",
+   "type": "zone-engine",
+   "agent": "zone-engine",
+   "startedAt": "2026-10-05T06:52:32Z",
+   "endedAt": "2026-10-05T06:52:33Z",
+   "durationS": 1.567,
+   "used": [
+    "formalrules.json",
+    "layers.json"
+   ],
+   "generated": [
+    "zones.json"
+   ]
+  },
+  {
+   "id": "cartographer",
+   "label": "Cartographer: zones.geojson + GML + report input",
+   "type": "cartographer",
+   "agent": "poc-cartographer/0.1",
+   "startedAt": "2026-10-05T06:52:33Z",
+   "endedAt": "2026-10-05T06:52:33Z",
+   "durationS": 0.247,
+   "used": [
+    "zones.json"
+   ],
+   "generated": [
+    "zones.geojson",
+    "zones.gml"
+   ]
+  },
+  {
+   "id": "critic",
+   "label": "Critic/Validator: V0-V3 deterministic + V4 pending",
+   "type": "critic",
+   "agent": "critic-validator",
+   "startedAt": "2026-10-05T06:52:33Z",
+   "endedAt": "2026-10-05T06:52:34Z",
+   "durationS": 0.361,
+   "used": [
+    "request.json",
+    "normcards.json",
+    "formalrules.json",
+    "zones.json",
+    "decision-table.json"
+   ],
+   "generated": [
+    "validation.json"
+   ]
+  },
+  {
+   "id": "explainer",
+   "label": "Explainer: decision table + PROV bundle",
+   "type": "explainer",
+   "agent": "explainer",
+   "startedAt": "2026-10-05T06:52:34Z",
+   "endedAt": "2026-10-05T06:52:34Z",
+   "durationS": 0.151,
+   "used": [
+    "normcards.json",
+    "formalrules.json",
+    "zones.json"
+   ],
+   "generated": [
+    "decision-table.json",
+    "decision-table.md",
+    "prov.json"
+   ]
+  },
+  {
+   "id": "report",
+   "label": "Report: single-file HTML with Leaflet map + tables",
+   "type": "report",
+   "agent": "poc-report/1.0",
+   "startedAt": "2026-10-05T06:52:34Z",
+   "endedAt": "2026-10-05T06:52:34Z",
+   "durationS": 0.359,
+   "used": [
+    "zones.geojson",
+    "decision-table.json",
+    "validation.json",
+    "normcards.json",
+    "prov.json"
+   ],
+   "generated": [
+    "report.html"
+   ]
+  }
+ ],
+ "wasGeneratedBy": [
+  {
+   "entity": "request.json",
+   "activity": "intake",
+   "time": "2026-10-05T06:52:31Z"
+  },
+  {
+   "entity": "normcards.json",
+   "activity": "norm-analyst",
+   "time": "2026-10-05T06:52:31Z"
+  },
+  {
+   "entity": "normcards-rejected.json",
+   "activity": "norm-analyst",
+   "time": "2026-10-05T06:52:31Z"
+  },
+  {
+   "entity": "formalrules.json",
+   "activity": "norm-formalizer",
+   "time": "2026-10-05T06:52:31Z"
+  },
+  {
+   "entity": "layers.json",
+   "activity": "geo-analyst-fetch",
+   "time": "2026-10-05T06:52:31Z"
+  },
+  {
+   "entity": "zones.json",
+   "activity": "zone-engine",
+   "time": "2026-10-05T06:52:33Z"
+  },
+  {
+   "entity": "zones.geojson",
+   "activity": "cartographer",
+   "time": "2026-10-05T06:52:33Z"
+  },
+  {
+   "entity": "zones.gml",
+   "activity": "cartographer",
+   "time": "2026-10-05T06:52:33Z"
+  },
+  {
+   "entity": "validation.json",
+   "activity": "critic",
+   "time": "2026-10-05T06:52:34Z"
+  },
+  {
+   "entity": "validation/opportunity-map-request.json",
+   "activity": "critic",
+   "time": "2026-10-05T06:52:34Z"
+  },
+  {
+   "entity": "validation/norm-card-set.json",
+   "activity": "critic",
+   "time": "2026-10-05T06:52:34Z"
+  },
+  {
+   "entity": "validation/formal-rule-set.json",
+   "activity": "critic",
+   "time": "2026-10-05T06:52:34Z"
+  },
+  {
+   "entity": "validation/zone-result-set.json",
+   "activity": "critic",
+   "time": "2026-10-05T06:52:34Z"
+  },
+  {
+   "entity": "validation/decision-table.json",
+   "activity": "critic",
+   "time": "2026-10-05T06:52:34Z"
+  },
+  {
+   "entity": "validation/pipeline-run.json",
+   "activity": "critic",
+   "time": "2026-10-05T06:52:34Z"
+  },
+  {
+   "entity": "zones.xsd",
+   "activity": "cartographer",
+   "time": "2026-10-05T06:52:34Z"
+  },
+  {
+   "entity": "report.html",
+   "activity": "report",
+   "time": "2026-10-05T06:52:34Z"
+  },
+  {
+   "entity": "prov.json",
+   "activity": "explainer",
+   "time": "2026-10-05T06:52:34Z"
+  }
+ ],
+ "wasDerivedFrom": [
+  {
+   "generatedEntity": "formalrules.json",
+   "usedEntity": "normcards.json",
+   "note": "NormFormalizer deterministic templates"
+  },
+  {
+   "generatedEntity": "normcards.json",
+   "usedEntity": "evidence-mobiliteit.json",
+   "note": "NormAnalyst replay (cite-or-abstain)"
+  },
+  {
+   "generatedEntity": "zones.json",
+   "usedEntity": "formalrules.json",
+   "note": "engine executed FormalRules over fetched layers"
+  },
+  {
+   "generatedEntity": "decision-table.json",
+   "usedEntity": "normcards.json",
+   "note": "every row links a normCardId"
+  },
+  {
+   "generatedEntity": "validation.json",
+   "usedEntity": "zones.json",
+   "note": "V0-V3 over the artifact tree"
+  }
+ ],
+ "hadPrimarySource": [
+  {
+   "zone": "beperkingengebied_bouwwerken_provinciale_weg",
+   "sourceId": "agrest-ov-beperkingengebied-bouwwerken-provinciale-weg",
+   "service": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0",
+   "lastChecked": "2026-10-05T06:43:52Z",
+   "fetchedAt": "2026-10-05T06:43:58Z",
+   "features": 71,
+   "aliasFor": "provincial_gio_unverified",
+   "authoritative": true
+  },
+  {
+   "zone": "beperkingengebied_lokale_spoorweg",
+   "sourceId": "agrest-ov-beperkingengebied-lokale-spoorweg",
+   "service": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0",
+   "lastChecked": "2026-10-05T06:43:52Z",
+   "fetchedAt": "2026-10-05T06:44:01Z",
+   "features": 5,
+   "aliasFor": "provincial_gio_unverified",
+   "authoritative": true
+  },
+  {
+   "zone": "geluidcontour_binnen_bebouwde_kom",
+   "sourceId": "agrest-ov-geluidcontour-binnen-bebouwde-kom",
+   "service": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0",
+   "lastChecked": "2026-10-05T06:43:52Z",
+   "fetchedAt": "2026-10-05T06:44:00Z",
+   "features": 146,
+   "aliasFor": "provincial_gio_unverified",
+   "authoritative": true
+  },
+  {
+   "zone": "geluidcontour_buiten_bebouwde_kom",
+   "sourceId": "agrest-ov-geluidcontour-buiten-bebouwde-kom",
+   "service": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0",
+   "lastChecked": "2026-10-05T06:43:52Z",
+   "fetchedAt": "2026-10-05T06:43:59Z",
+   "features": 77,
+   "aliasFor": "provincial_gio_unverified",
+   "authoritative": true
+  },
+  {
+   "zone": "luchtvaartterrein",
+   "sourceId": "agrest-ov-luchtvaartterrein",
+   "service": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0",
+   "lastChecked": "2026-10-05T06:43:52Z",
+   "fetchedAt": "2026-10-05T06:44:04Z",
+   "features": 272,
+   "aliasFor": "provincial_gio_unverified",
+   "authoritative": true
+  }
+ ]
+}
