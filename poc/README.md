@@ -1,4 +1,4 @@
-# LDT Toolbox PoC — "Where can I do what?" in province Utrecht (wind · zon · bos · water · bodem)
+# LDT Toolbox PoC — "Where can I do what?" in province Utrecht (wind · zon · bos · water · bodem · mobiliteit · landschap)
 
 This is the working proof-of-concept of the multi-agent architecture specified in
 [`MULTI_AGENT_PLAN.md`](../MULTI_AGENT_PLAN.md) and elaborated in
@@ -8,7 +8,7 @@ technology and roadmap). Urban Strategy (Scenexus) stiltegebied noise
 screening for the Utrecht wind track — decision-support annex for
 art. 9.26 / FR-W-11 — is documented in
 [`docs/POC_URBANSTRATEGY_INTEGRATION.md`](../docs/POC_URBANSTRATEGY_INTEGRATION.md). It answers, for the province of Utrecht (NL) at the
-**programming** policy stage, the same traceable question for **five object
+**programming** policy stage, the same traceable question for **seven object
 types** (tracks), all on the same instrument and pipeline:
 
 > Within which zone of the province could an omgevingsplan allow **X**, and
@@ -23,6 +23,8 @@ types** (tracks), all on the same instrument and pipeline:
 | `bos` | new nature / forest planting | where is the zoekgebied for new nature? | `runs/20260830T142446Z-bos` — 23.924 km² |
 | `water` | riparian development (watersysteem activities) | where can riparian development stand under the watersysteem instructieregels? | `runs/20261004T185116Z-water` — 1554.906 km² |
 | `bodem` | soil activity (ondergrond en bodem) | where is soil activity bounded by the groundwater-protection rules? | `runs/20261004T185509Z-bodem` — 858.927 km² |
+| `mobiliteit` | roadside development (bereikbaarheid en mobiliteit) | where is roadside development bounded by the mobility instructieregels? | `runs/20261005T065231Z-mobiliteit` — 1560.054 km² (all-marker) |
+| `landschap` | landscape intervention (cultuurhistorie en landschap) | where is landscape intervention bounded by the heritage/landscape rules? | `runs/20261005T070621Z-landschap` — 1425.959 km² |
 
 Grounding: the **Omgevingsverordening provincie Utrecht** (CVDR704250, geldend
 13-10-2025) and the **Omgevingsvisie 2021**, plus the province's open geo data
@@ -42,9 +44,11 @@ python3 poc/run.py --use-case zon      # solar fields (zonnevelden, art. 5.5)
 python3 poc/run.py --use-case bos      # new nature / forest planting (art. 6.4)
 python3 poc/run.py --use-case water    # riparian development (arts. 2.14–2.16)
 python3 poc/run.py --use-case bodem    # soil activity (grondwaterzone, art. 3.7 e.a.)
+python3 poc/run.py --use-case mobiliteit  # roadside development (arts. 4.7/4.47/4.48/4.65/4.71)
+python3 poc/run.py --use-case landschap   # landscape intervention (arts. 7.3/7.3a/7.4/7.9/7.11a/7.12)
 python3 poc/run.py --refresh           # force live re-download of every layer
 python3 poc/run.py --bbox 130000,440000,160000,470000   # optional EPSG:28992 clip
-cd poc && python3 -m pytest tests -q                         # offline test suite (243 tests)
+cd poc && python3 -m pytest tests -q                         # offline test suite (258 tests)
 ```
 
 No API keys are used anywhere (the DSO GIO download API is key-gated and was
@@ -179,6 +183,33 @@ gate, enforced again independently by the Critic.
   **context marker** of provincial jurisdiction. Art. 3.8 (waterwingebied
   Bethunepolder, parkeren) has no registered zone alias and stays
   ambiguous → V4.
+- **mobiliteit** — an **all-marker track**: no hoofdstuk-4 rule unconditionally
+  refuses roadside development itself, so the final zone equals the province
+  AOI (1560.054 km²) with five conditional markers. Arts. 4.7
+  (beperkingengebied bouwwerken provinciale weg, 7.003 km²) and 4.47/4.48
+  (beperkingengebied lokale spoorweg, the live-verified art.-4.46 umbrella of
+  Kernzone ∪ Beschermingszone, 0.635 km²) are kan-mits instructieregels;
+  art. 4.71 gates geluidgevoelige gebouwen on dB Lden thresholds in the
+  Geluidcontour buiten/binnen de bebouwde kom (37.285 km² combined); and
+  art. 4.65 (Luchtvaartterrein, 1014.473 km²) is an unconditional verbod of
+  the non-permission family but **activity-scoped to aviation**
+  (nieuwvestiging luchtvaartterrein voor gemotoriseerde luchtvaartuigen) —
+  carried as a marker, never an elimination of roadside-development area.
+  The vergunnings-/meldingsketens (beheer, vrij zicht, vaarweg) and the
+  [Gereserveerd] basisnet articles (4.67/4.68) are deliberately abstained.
+- **landschap** — the final zone is the province boundary minus the two
+  werelderfgoed designations whose instructieregels carry the
+  niet-toestaan-form in lid 1b: the Hollandse Waterlinies (art. 7.3,
+  134.092 km²) and the Neder-Germaanse Limes kernzone (art. 7.3a,
+  0.013 km²) — hard exclusions with the aantasten-toets routed to V4 per
+  case. The weaker families stay **conditional** markers: the Limes
+  bufferzone (art. 7.4, versterkingsplicht + 100 m²/30 cm
+  vergunningsverbodprescriptie), the cultuurhistorische hoofdstructuur
+  (art. 7.9 on the live-verified umbrella of the five art.-7.8 gebieden,
+  847.4 km²), the Landschap-kernkwaliteiten (art. 7.11a, 'onevenredig'
+  proportionality on Bijlage XVI, 1411.1 km² umbrella) and the aardkundige
+  waarden (art. 7.12, 99.2 km²). The 7.10 verstedelijkingsgateway and the
+  borden-activiteitenketen (7.13–7.17) are deliberately abstained.
 
 Reference numbers (canonical runs of 2026-08-30 for wind/zon/bos,
 2026-10-04 for water/bodem): wind AOI 1560.054 km² →
@@ -188,7 +219,11 @@ bos → Groene contour ∩ AOI 23.924 km² = final (no exclusions; IoU 0.9997);
 water → AOI 1560.054 km² − waterbergingsgebied 5.148 km² = final
 1554.906 km² (IoU 0.999996); bodem → AOI 1560.054 km² −
 grondwaterbeschermingszone 701.126 km² = final 858.927 km² (IoU 0.999979;
-the art. 3.10 marker never eliminates area).
+the art. 3.10 marker never eliminates area); mobiliteit → final = AOI
+1560.054 km², five markers, no exclusions (IoU 0.999997); landschap →
+AOI 1560.054 km² − Hollandse Waterlinies 134.092 km² − Limes-kernzone
+0.013 km² = final 1425.959 km² (IoU 0.999994; canonical runs of 2026-10-05
+for mobiliteit/landschap).
 
 ## Limitations (short list — full list in every report)
 
