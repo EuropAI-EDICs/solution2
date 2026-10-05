@@ -1,4 +1,4 @@
-# Verordening-regeluitbreiding fase 4 (werken + recreatie) Implementation Plan
+# Verordening-regeluitbreiding fase 5 (werken + recreatie) Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
