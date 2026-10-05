@@ -11,8 +11,8 @@ Branch: `verordening-fase4` · Worktree: `../ldttoolbox-vf4` · Plan: `docs/supe
 | 5.3 Kleine windturbine | `wind` | `evidence-wind.json` |
 | 5.4 Windenergielocatie | `wind` | `evidence-wind.json` |
 | 5.5 Zonneveld | `zon` | `evidence-zon.json` |
-| **5.6 Biomassa landelijk** | **`biomassa` (nieuw)** | open — geen shard |
-| **5.7 Biomassa stedelijk** | **`biomassa` (nieuw)** | open — geen shard |
+| **5.6 Biomassa landelijk** | **`biomassa`** | `evidence-biomassa.json` BM-01 |
+| **5.7 Biomassa stedelijk** | **`biomassa`** | `evidence-biomassa.json` BM-02 |
 | **5.8 Transformatorstation vergunning** | **`energietoets` ledger** | open (procedureel) |
 | **5.9 Transformatorstation indiening** | **`energietoets` ledger** | open (procedureel) |
 | 5.10 Energietoets toepassingsbereik | was abstain in wind/zon → **`energietoets` herhuisvest** | `evidence-wind` + `normcards-rejected-zon` noemen 5.10/5.11 |
@@ -21,7 +21,7 @@ Branch: `verordening-fase4` · Worktree: `../ldttoolbox-vf4` · Plan: `docs/supe
 ## Taken
 
 - [x] Task 1 — worktree + ledger + H5-kaart
-- [ ] Task 2 — biomassa-recon
+- [x] Task 2 — biomassa-recon
 - [ ] Task 3 — biomassa-zones
 - [ ] Task 4 — biomassa formalisering + run
 - [ ] Task 5 — energietoets-recon
