@@ -1,4 +1,4 @@
-# LDT Toolbox PoC — "Where can I do what?" in province Utrecht (wind · zon · bos · water · bodem · mobiliteit · landschap)
+# LDT Toolbox PoC — "Where can I do what?" in province Utrecht (wind · zon · bos · water · bodem · mobiliteit · landschap · landbouw · wonen)
 
 This is the working proof-of-concept of the multi-agent architecture specified in
 [`MULTI_AGENT_PLAN.md`](../MULTI_AGENT_PLAN.md) and elaborated in
@@ -8,7 +8,7 @@ technology and roadmap). Urban Strategy (Scenexus) stiltegebied noise
 screening for the Utrecht wind track — decision-support annex for
 art. 9.26 / FR-W-11 — is documented in
 [`docs/POC_URBANSTRATEGY_INTEGRATION.md`](../docs/POC_URBANSTRATEGY_INTEGRATION.md). It answers, for the province of Utrecht (NL) at the
-**programming** policy stage, the same traceable question for **seven object
+**programming** policy stage, the same traceable question for **nine object
 types** (tracks), all on the same instrument and pipeline:
 
 > Within which zone of the province could an omgevingsplan allow **X**, and
@@ -25,6 +25,8 @@ types** (tracks), all on the same instrument and pipeline:
 | `bodem` | soil activity (ondergrond en bodem) | where is soil activity bounded by the groundwater-protection rules? | `runs/20261004T185509Z-bodem` — 858.927 km² |
 | `mobiliteit` | roadside development (bereikbaarheid en mobiliteit) | where is roadside development bounded by the mobility instructieregels? | `runs/20261005T072839Z-mobiliteit` — 1560.054 km² (all-marker) |
 | `landschap` | landscape intervention (cultuurhistorie en landschap) | where is landscape intervention bounded by the heritage/landscape rules? | `runs/20261005T070621Z-landschap` — 1425.959 km² |
+| `landbouw` | agricultural expansion (landbouw, incl. glastuinbouw en veenbodembewerking) | where is agricultural expansion bounded by the landbouw instructieregels? | `runs/20261005T094244Z-landbouw` — 2.260 km² |
+| `wonen` | housing development (wonen, werken, recreëren) | where is housing development possible under the wonen instructieregels? | `runs/20261005T100258Z-wonen` — 1142.990 km² |
 
 Grounding: the **Omgevingsverordening provincie Utrecht** (CVDR704250, geldend
 13-10-2025) and the **Omgevingsvisie 2021**, plus the province's open geo data
@@ -46,9 +48,11 @@ python3 poc/run.py --use-case water    # riparian development (arts. 2.14–2.16
 python3 poc/run.py --use-case bodem    # soil activity (grondwaterzone, art. 3.7 e.a.)
 python3 poc/run.py --use-case mobiliteit  # roadside development (arts. 4.7/4.47/4.48/4.65/4.71)
 python3 poc/run.py --use-case landschap   # landscape intervention (arts. 7.3/7.3a/7.4/7.9/7.11a/7.12)
+python3 poc/run.py --use-case landbouw   # agricultural expansion (arts. 8.1-8.7)
+python3 poc/run.py --use-case wonen      # housing development (arts. 9.3-9.29)
 python3 poc/run.py --refresh           # force live re-download of every layer
 python3 poc/run.py --bbox 130000,440000,160000,470000   # optional EPSG:28992 clip
-cd poc && python3 -m pytest tests -q                         # offline test suite (260 tests)
+cd poc && python3 -m pytest tests -q                         # offline test suite (274 tests)
 ```
 
 No API keys are used anywhere (the DSO GIO download API is key-gated and was
@@ -197,6 +201,37 @@ gate, enforced again independently by the Critic.
   carried as a marker, never an elimination of roadside-development area.
   The vergunnings-/meldingsketens (beheer, vrij zicht, vaarweg) and the
   [Gereserveerd] basisnet articles (4.67/4.68) are deliberately abstained.
+- **landbouw** — the final zone is the province boundary minus three
+  niet-toestaan-instructieregels whose refused activity classes sit inside
+  agricultural_expansion: the Landbouwstabiliseringsgebied (art. 8.3, no
+  expansion of niet-grondgebonden farm plots, 246.818 km²), the Gebied
+  glastuinbouw niet toegestaan (art. 8.6, no glasshouse horticulture except
+  Ronde Venen relocations to the Polder Derde Bedijking — the designation
+  covers 1557.796 km², i.e. the whole province minus the kassenconcentraties)
+  and the Gebied beperken bodembewerking (art. 8.7, no veen-exposing
+  agricultural soil work, 192.249 km²). Final = **2.260 km²**: legally exact —
+  glasshouse expansion is only possible in the kassenconcentraties. The mixed/
+  kan-mits/protective rules stay **conditional** markers: agrarische bedrijven
+  (art. 8.1, verbod nieuwe bouwpercelen + voorschrift 1,5 ha-bouwpercelen),
+  landbouwontwikkelingsgebied (art. 8.2, kan-mits 2,5 ha), concentratiegebied
+  glastuinbouw (art. 8.5, plans may not hinder glasshouses). Art. 8.4
+  (geitenhouderij) is a province-wide verbod without gebiedsaanwijzing:
+  abstained (ALB-01).
+- **wonen** — the final zone is the **inclusion composition**: Stedelijk
+  gebied (art. 9.17, kan verstedelijking/woningbouw), Kernrandzone (art. 9.10)
+  and the Gebied uitbreiding woningbouw onder voorwaarden mogelijk
+  (arts. 9.14/9.14a/9.15 — 50-woningen-vitaliteit, flexwoningen, woningbouw
+  onder voorwaarden) = **1142.990 km²**. These are the verordeningeigen
+  exceptions to the core art.-9.3 verstedelijkingsverbod in het Landelijk
+  gebied, which is therefore a **conditional** marker (its tenzij-structuur is
+  operationalized by the inclusions; an exclusion would erase the exception
+  zones). Art. 9.8 (Gebied recreatiewoning) is object-scoped (omvorming van
+  bestaande recreatiewoningen tot permanente bewoning — designation 1245.814
+  km² = the landelijk-gebied extent) and likewise a marker, not an exclusion.
+  Arts. 9.6/9.12/9.13 (kan-mits wonen) and 9.27/9.29 (rekening-houden
+  stiltegebied, fase-1-aliases hergebruikt) are markers; werken/recreatie
+  (arts. 9.16-9.23), de [Gereserveerde] 9.21 en de bordenketen zijn onthouden
+  (fase-4-heroverweging).
 - **landschap** — the final zone is the province boundary minus the two
   werelderfgoed designations whose instructieregels carry the
   niet-toestaan-form in lid 1b: the Hollandse Waterlinies (art. 7.3,
@@ -222,8 +257,12 @@ grondwaterbeschermingszone 701.126 km² = final 858.927 km² (IoU 0.999979;
 the art. 3.10 marker never eliminates area); mobiliteit → final = AOI
 1560.054 km², five markers, no exclusions (IoU 0.999997); landschap →
 AOI 1560.054 km² − Hollandse Waterlinies 134.092 km² − Limes-kernzone
-0.013 km² = final 1425.959 km² (IoU 0.999994; canonical runs of 2026-10-05
-for mobiliteit/landschap).
+0.013 km² = final 1425.959 km² (IoU 0.999994); landbouw → AOI −
+glastuinbouw-niet-toegestaan ∪ stabiliserings ∪ bodembewerking = final
+2.260 km² (IoU 0.999889; ≈ de kassenconcentraties); wonen → inclusion-
+compositie stedelijk ∪ kernrand ∪ uitbreiding-woningbouw = final 1142.990
+km² (IoU 0.999973; canonical runs of 2026-10-05 for
+mobiliteit/landschap/landbouw/wonen).
 
 ## Limitations (short list — full list in every report)
 

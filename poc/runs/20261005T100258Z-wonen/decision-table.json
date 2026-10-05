@@ -1,0 +1,130 @@
+{
+ "id": "DT-wonen-utrecht-poc1",
+ "requestId": "22ca237f-761c-46b3-8d88-3ca25824adf5",
+ "title": "Wonen rule bounds for housing development Decision table (programming stage)",
+ "columns": [
+  "criterion",
+  "norm",
+  "source",
+  "zone effect",
+  "ruleId",
+  "normCardId",
+  "condition",
+  "note"
+ ],
+ "rows": [
+  {
+   "criterion": "An omgevingsplan for locations within the 'Landelijk gebied' allows no verstedelijking, unless this verordening provides otherwise (art.",
+   "norm": "Artikel 9.3 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "conditional",
+   "normCardId": "NC-WN-01",
+   "ruleId": "FR-WN-01",
+   "note": "CORE WONEN RULE (art. 9.3). Instructieregel: plans within the 'Landelijk gebied' allow no verstedelijking unless the verordening provides otherwise. The tenzij references the verordening's own exception rules (arts. 9.4-9.23), several of which this track executes as INCLUSION zones (FR-WN-04/07/08/09/10) — executing the verbod as an exclusion would erase exactly those exceptions, so the rule is c…"
+  },
+  {
+   "criterion": "An omgevingsplan for locations within the 'Landelijk gebied' contains no rules allowing a woning, woonschip or woonark that is landschappelijk niet goed inpasbaar, and m…",
+   "norm": "Artikel 9.6 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "conditional",
+   "normCardId": "NC-WN-02",
+   "ruleId": "FR-WN-02",
+   "note": "Art. 9.6 instructieregel, mixed family: lid 1 (niet-toestaan van landschappelijk niet-inpasbare woningen/woonschepen/woonarken) plus lid 2's kan-mits escape routes for extensions and moorings. The zone overlay is deterministic; the inpasbaarheid test is a plan-quality assessment routed to V4 (FR-WA-01 idiom) — a conditional marker, never an elimination. | zones: landelijk_gebied"
+  },
+  {
+   "criterion": "An omgevingsplan for locations within the 'Gebied recreatiewoning' contains rules that guarantee the recreational use of recreatiewoningen and their grounds and exclude…",
+   "norm": "Artikel 9.8 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "conditional",
+   "normCardId": "NC-WN-03",
+   "ruleId": "FR-WN-03",
+   "note": "Art. 9.8 instructieregel (full text quoted): plans within the 'Gebied recreatiewoning' guarantee recreational use and exclude conversion of THOSE recreatiewoningen to permanente bewoning. Re-adjudicated at the canonical run (the FR-MO-05 mirror): the verbod is OBJECT-scoped — it protects the existing holiday-home stock from conversion, it does not refuse housing development across the designation…"
+  },
+  {
+   "criterion": "An omgevingsplan for locations within the 'Kernrandzone' may, to strengthen the ruimtelijke kwaliteit, contain rules allowing verstedelijking, provided the four stated c…",
+   "norm": "Artikel 9.10 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "included",
+   "normCardId": "NC-WN-04",
+   "ruleId": "FR-WN-04",
+   "note": "Art. 9.10 instructieregel: plans within the 'Kernrandzone' may allow verstedelijking to strengthen the ruimtelijke kwaliteit, mits four stated conditions. A verordeningeigen exception to art. 9.3 — permissive, zone-gebonden — so the zone is an INCLUSION (the FR-W-05 Gebied-windenergie idiom): opportunity where the plan may open housing development; the mits conditions are plan-quality assessments…"
+  },
+  {
+   "criterion": "An omgevingsplan for locations within the 'Landelijk gebied' may allow an agrarisch bedrijfsperceel whose agricultural use has ended to be given a woonfunctie (bedrijfsw…",
+   "norm": "Artikel 9.12 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "conditional",
+   "normCardId": "NC-WN-05",
+   "ruleId": "FR-WN-05",
+   "note": "Art. 9.12 instructieregel, kan-mits family: plans may give a woonfunctie (bedrijfswoning + aangebouwde bedrijfsruimte) to ended agrarische bedrijfspercelen mits four conditions. The zone overlay is deterministic; the conditions are case assessments routed to V4 — a conditional marker (the FR-LB-02 threshold idiom without a hard cap). | zones: landelijk_gebied"
+  },
+  {
+   "criterion": "An omgevingsplan for locations within the 'Landelijk gebied' may allow building 1 or more new dwellings on agrarische bedrijfspercelen whose agricultural use has ended (…",
+   "norm": "Artikel 9.13 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "conditional",
+   "normCardId": "NC-WN-06",
+   "ruleId": "FR-WN-06",
+   "note": "Art. 9.13 instructieregel ('ruimte voor ruimte'), kan-mits family: 1+ new dwellings on ended agrarische bedrijfspercelen, with a verbatim demolition-surface-to-dwellings ladder (750-2500 m2 -> 1; 2500-4000 m2 -> 2; >=4000 m2 -> 3; kassen 5000 m2 -> 1) carried in the tags (the FR-MO-02 threshold-tag idiom; a buffer(0)-style engine condition would misread the ladder's range semantics) — a condition…"
+  },
+  {
+   "criterion": "An omgevingsplan for locations within the 'Gebied uitbreiding woningbouw onder voorwaarden mogelijk' may contain rules for a one-time expansion up to a maximum of 50 dwe…",
+   "norm": "Artikel 9.14 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "included",
+   "normCardId": "NC-WN-07",
+   "ruleId": "FR-WN-07",
+   "condition": "housing_units <= 50 count",
+   "note": "Art. 9.14 instructieregel: one-time expansion up to 50 dwellings for kern-vitality on the 'Gebied uitbreiding woningbouw onder voorwaarden mogelijk'. Verordeningeigen exception to art. 9.3 — INCLUSION zone with the verbatim 50-dwelling cap as a condition (FR-W-03 threshold idiom); the six mits conditions routed to V4. | zones: gebied_uitbreiding_woningbouw"
+  },
+  {
+   "criterion": "An omgevingsplan for locations within the 'Gebied uitbreiding woningbouw onder voorwaarden mogelijk' may contain rules for a one-time temporary expansion up to a maximum…",
+   "norm": "Artikel 9.14a — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "included",
+   "normCardId": "NC-WN-08",
+   "ruleId": "FR-WN-08",
+   "condition": "flexwoningen_per_kern <= 50 count",
+   "note": "Art. 9.14a instructieregel: one-time temporary expansion up to 50 flexwoningen per kern on the same designation, mits seven conditions including a secured opruimplicht after at most 15 years. INCLUSION zone with the verbatim 50-flexwoningen cap as a condition; temporary character in the tags. | zones: gebied_uitbreiding_woningbouw"
+  },
+  {
+   "criterion": "An omgevingsplan for locations within the 'Gebied uitbreiding woningbouw onder voorwaarden mogelijk' may contain rules for woningbouw provided the stated conditions are…",
+   "norm": "Artikel 9.15 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "included",
+   "normCardId": "NC-WN-09",
+   "ruleId": "FR-WN-09",
+   "note": "Art. 9.15 instructieregel, the core expansion rule of paragraaf 9.1.2: plans may contain rules for woningbouw mits (programma Wonen en werken/Bijlage XIX, aansluiting Stedelijk gebied, no extra bodemdaling, coupled groenontwikkeling, secured natuur/recreatie, kernrandzone quality). INCLUSION zone (FR-W-05 idiom); mits conditions routed to V4. | zones: gebied_uitbreiding_woningbouw"
+  },
+  {
+   "criterion": "An omgevingsplan for locations within the 'Stedelijk gebied' may contain rules for verstedelijking, and for woningbouw provided it fits the vastgestelde programma Wonen…",
+   "norm": "Artikel 9.17 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "included",
+   "normCardId": "NC-WN-10",
+   "ruleId": "FR-WN-10",
+   "note": "Art. 9.17 instructieregel: plans within the 'Stedelijk gebied' may contain rules for verstedelijking (lid 1) and woningbouw mits programma + no extra bodemdaling (lid 2). The stedelijke main arena of the track — INCLUSION zone, the mirror of the wind track's Landelijk-gebied inclusion; the mits conditions routed to V4. | zones: stedelijk_gebied"
+  },
+  {
+   "criterion": "An omgevingsplan for locations within the 'Stiltegebied' contains rules that take account of the geluidniveau doelstellingen of art.",
+   "norm": "Artikel 9.27 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "conditional",
+   "normCardId": "NC-WN-11",
+   "ruleId": "FR-WN-11",
+   "note": "Art. 9.27 instructieregel, take-into-account family: plans within the 'Stiltegebied' account for the art.-9.26 geluidniveau doelstellingen (40/45 dB(A) LAeq,24h). Reuses the fase-1 stiltegebied alias (same service+layer, dedup rule); a conditional marker routed to V4 (FR-WA-01/FR-LS-04 idiom), never an elimination. | zones: stiltegebied"
+  },
+  {
+   "criterion": "An omgevingsplan for locations within the 'Aandachtsgebied stiltegebied' (the art.-9.25 1500 m zone) contains rules that take account of the geluidniveau doelstellingen…",
+   "norm": "Artikel 9.29 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "conditional",
+   "normCardId": "NC-WN-12",
+   "ruleId": "FR-WN-12",
+   "note": "Art. 9.29 instructieregel, the same take-into-account family on the 'Aandachtsgebied stiltegebied' (the art.-9.25-lid-2 1500 m zone; alias reused from the wind track's FR-W-10 attention zone). A conditional marker routed to V4, never an elimination. | zones: aandachtsgebied_stiltegebied"
+  }
+ ],
+ "generatedBy": "explainer#deterministic-poc1",
+ "generatedAt": "2026-10-05T10:03:05Z",
+ "provenance": "run 20261005T100258Z-wonen of poc-run/1.0; norm corpus poc/corpus/evidence-wonen.json replayed by legal-recon-agent#cvdr704250-geldend-2025-10-13; rules by norm-formalizer#deterministic-templates-v1; instrument Omgevingsverordening provincie Utrecht, CVDR704250 geldend 13-10-2025 t/m heden; zone geometry from provincial open data (agrest Omgevingsverordening FeatureServer + province ArcGIS hub), lastChecked stamps in layers.json; full PROV in prov.json"
+}

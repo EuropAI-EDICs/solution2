@@ -1,0 +1,75 @@
+{
+ "id": "DT-landbouw-utrecht-poc1",
+ "requestId": "23a6c916-576d-4be2-9583-49e98eaf4e00",
+ "title": "Landbouw rule bounds for agricultural expansion Decision table (programming stage)",
+ "columns": [
+  "criterion",
+  "norm",
+  "source",
+  "zone effect",
+  "ruleId",
+  "normCardId",
+  "condition",
+  "note"
+ ],
+ "rows": [
+  {
+   "criterion": "An omgevingsplan for locations within the 'Gebied agrarische bedrijven' contains no rules providing for new agrarische bouwpercelen (unless relocating a grondgebonden ag…",
+   "norm": "Artikel 8.1 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "conditional",
+   "normCardId": "NC-LB-01",
+   "ruleId": "FR-LB-01",
+   "note": "Art. 8.1 instructieregel, a mixed instruction: lid 1 is the non-permission family (no new agrarische bouwpercelen unless relocating a grondgebonden business, no conversion to niet-grondgebonden) while lid 2 simultaneously DIRECTS plans to provide for bouwpercelen up to 1.5 ha for existing farms, and lids 3-4 open kan-mits expansion (2.5 ha) and nevenactiviteiten. Executing lid 1 as a zone exclusi…"
+  },
+  {
+   "criterion": "An omgevingsplan for locations within the 'Landbouwontwikkelingsgebied' may contain rules providing for expansion of an existing agrarisch bouwperceel for niet-grondgebo…",
+   "norm": "Artikel 8.2 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "conditional",
+   "normCardId": "NC-LB-02",
+   "ruleId": "FR-LB-02",
+   "condition": "expansion_surface <= 2.5 ha",
+   "note": "Art. 8.2 instructieregel, the kan-mits permissive family: plans may provide for expansion of an existing agrarisch bouwperceel for niet-grondgebonden landbouw up to 2.5 ha provided four stated conditions are met. The quantitative cap is quoted verbatim and carried as a condition (mirroring FR-W-03's threshold idiom); the mits conditions are plan-quality assessments routed to V4 — a conditional ma…"
+  },
+  {
+   "criterion": "An omgevingsplan for locations within the 'Landbouwstabiliseringsgebied' contains no rules providing for expansion of an agrarisch bouwperceel of an existing niet-grondg…",
+   "norm": "Artikel 8.3 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "excluded",
+   "normCardId": "NC-LB-03",
+   "ruleId": "FR-LB-03",
+   "note": "Art. 8.3 instructieregel (single-lid, full text quoted): plans within the 'Landbouwstabiliseringsgebied' contain no rules providing for expansion of an agrarisch bouwperceel of an existing niet-grondgebonden agrarisch bedrijf. The refused activity class sits inside agricultural_expansion (the FR-BO-01/FR-LS-01 adjudication), so the rule is executed as the default zone exclusion with the activity…"
+  },
+  {
+   "criterion": "An omgevingsplan for locations within the 'Concentratiegebied glastuinbouw' contains no rules that maximise the bedrijfsoppervlakte, make expansion of glastuinbouwbedrij…",
+   "norm": "Artikel 8.5 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "conditional",
+   "normCardId": "NC-LB-04",
+   "ruleId": "FR-LB-04",
+   "note": "Art. 8.5 instructieregel, a protective non-permission instruction: plans in the 'Concentratiegebied glastuinbouw' may not maximise bedrijfsoppervlakte, make glasshouse expansion impossible or otherwise hinder the glastuinbouw. The zone is the provincial development frame for glasshouse horticulture — the verbod binds PLANS against hindering agriculture, it does not refuse agricultural development…"
+  },
+  {
+   "criterion": "An omgevingsplan for locations within the 'Gebied glastuinbouw niet toegestaan' contains no rules allowing glastuinbouw, unless it concerns the relocation of solitary gl…",
+   "norm": "Artikel 8.6 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "excluded",
+   "normCardId": "NC-LB-05",
+   "ruleId": "FR-LB-05",
+   "note": "Art. 8.6 instructieregel, lid 1 quoted: plans within the 'Gebied glastuinbouw niet toegestaan' contain no rules allowing glastuinbouw, unless relocating solitary glasshouse businesses from the Ronde Venen to adjoining the Polder Derde Bedijking kassengebied. The refused activity class (glastuinbouw) sits inside agricultural_expansion, so it is executed as the default zone exclusion with the tenzi…"
+  },
+  {
+   "criterion": "An omgevingsplan for locations within the 'Gebied beperken bodembewerking' contains no rules allowing bodembewerking in agricultural soils that brings veen to the surfac…",
+   "norm": "Artikel 8.7 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]",
+   "source": "S07: https://lokaleregelgeving.overheid.nl/cvdr704250",
+   "zone effect": "excluded",
+   "normCardId": "NC-LB-06",
+   "ruleId": "FR-LB-06",
+   "note": "Art. 8.7 instructieregel (full text quoted): plans within the 'Gebied beperken bodembewerking' (afdeling 8.2, veengebied) contain no rules allowing agricultural soil work that brings veen to the surface, unless for graslandvernieuwing or another blijvende teelt. The refused activity class sits inside agricultural_expansion, so it is executed as the default zone exclusion with the tenzij-exception…"
+  }
+ ],
+ "generatedBy": "explainer#deterministic-poc1",
+ "generatedAt": "2026-10-05T09:42:50Z",
+ "provenance": "run 20261005T094244Z-landbouw of poc-run/1.0; norm corpus poc/corpus/evidence-landbouw.json replayed by legal-recon-agent#cvdr704250-geldend-2025-10-13; rules by norm-formalizer#deterministic-templates-v1; instrument Omgevingsverordening provincie Utrecht, CVDR704250 geldend 13-10-2025 t/m heden; zone geometry from provincial open data (agrest Omgevingsverordening FeatureServer + province ArcGIS hub), lastChecked stamps in layers.json; full PROV in prov.json"
+}

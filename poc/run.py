@@ -175,6 +175,46 @@ ZONE_SOURCES: Dict[str, Dict[str, Any]] = {
         "sourceId": "agrest-ov-gebied-aardkundige-waarden",
         "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied aardkundige waarden' (art. 7.12 instructieregel, LS-06: regels ter bescherming van aangewezen aardkundige waarden)",
     },
+    "gebied_agrarische_bedrijven": {
+        "sourceId": "agrest-ov-gebied-agrarische-bedrijven",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied agrarische bedrijven' (art. 8.1 instructieregel, LB-01: mengvorm verbod nieuwe bouwpercelen/omschakeling + voorschrift bouwperceel max 1,5 ha)",
+    },
+    "landbouwontwikkelingsgebied": {
+        "sourceId": "agrest-ov-landbouwontwikkelingsgebied",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Landbouwontwikkelingsgebied' (art. 8.2 instructieregel, LB-02: kan-mits uitbreiding niet-grondgebonden landbouw tot max 2,5 ha)",
+    },
+    "landbouwstabiliseringsgebied": {
+        "sourceId": "agrest-ov-landbouwstabiliseringsgebied",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Landbouwstabiliseringsgebied' (art. 8.3 instructieregel, LB-03: geen uitbreiding niet-grondgebonden bouwperceel)",
+    },
+    "concentratiegebied_glastuinbouw": {
+        "sourceId": "agrest-ov-concentratiegebied-glastuinbouw",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Concentratiegebied glastuinbouw' (art. 8.5 instructieregel, LB-04: beschermende instructie, geen belemmering van glastuinbouw)",
+    },
+    "gebied_glastuinbouw_niet_toegestaan": {
+        "sourceId": "agrest-ov-gebied-glastuinbouw-niet-toegestaan",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied glastuinbouw niet toegestaan' (art. 8.6 instructieregel, LB-05: geen glastuinbouw, tenzij verplaatsing Ronde Venen -> Polder Derde Bedijking)",
+    },
+    "gebied_beperken_bodembewerking": {
+        "sourceId": "agrest-ov-gebied-beperken-bodembewerking",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied beperken bodembewerking' (art. 8.7 instructieregel, LB-06: geen veenblootleggende bodembewerking in agrarische gronden, tenzij graslandvernieuwing/blijvende teelt)",
+    },
+    "kernrandzone": {
+        "sourceId": "agrest-ov-kernrandzone",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Kernrandzone' (art. 9.10 instructieregel, WN-04: kan-mits verstedelijking ter versterking ruimtelijke kwaliteit; uitzondering op art. 9.3)",
+    },
+    "gebied_recreatiewoning": {
+        "sourceId": "agrest-ov-gebied-recreatiewoning",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied recreatiewoning' (art. 9.8 instructieregel, WN-03: recreatief gebruik gegarandeerd, omvorming tot permanente bewoning uitgesloten)",
+    },
+    "gebied_uitbreiding_woningbouw": {
+        "sourceId": "agrest-ov-gebied-uitbreiding-woningbouw",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied uitbreiding woningbouw onder voorwaarden mogelijk' (art. 9.14/9.14a/9.15 instructieregels, WN-07/WN-08/WN-09: 50 woningen vitaliteit, flexwoningen, woningbouw onder voorwaarden)",
+    },
+    "stedelijk_gebied": {
+        "sourceId": "agrest-ov-stedelijk-gebied",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Stedelijk gebied' (art. 9.17 instructieregel, WN-10: kan verstedelijking/woningbouw-mits; aanwijzing art. 9.2)",
+    },
 }
 
 INSTRUMENT = "Omgevingsverordening provincie Utrecht, CVDR704250 geldend 13-10-2025 t/m heden"
@@ -422,6 +462,109 @@ TRACKS: Dict[str, Dict[str, Any]] = {
             "Militair erfgoed) is a permissive deviation path under three open norms "
             "(kleinschalig, kostendragers, zorgvuldige inpassing): motivatedly "
             "abstained, documented as heroverwegingskandidaat.",
+            (
+                f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms): "
+                "routed to the V4 human-expert checkpoint."
+            ),
+        ],
+    },
+    "landbouw": {
+        "shard": "corpus/evidence-landbouw.json",
+        "ledger": "corpus/normcards-rejected-landbouw.json",
+        "report_title": "Where is agricultural expansion bounded by the landbouw instructieregels in province Utrecht?",
+        "decision_table_id": "DT-landbouw-utrecht-poc1",
+        "decision_table_title": "Landbouw rule bounds for agricultural expansion "
+                                "Decision table (programming stage)",
+        "prov_namespace": "ldttoolbox:poc:landbouw:",
+        "headline_note": (
+            "Semantics: three H8 instructieregels carry the niet-toestaan-form with "
+            "refused activity classes inside agricultural_expansion and are executed "
+            "as default exclusions — art. 8.3 (Landbouwstabiliseringsgebied: no "
+            "expansion of niet-grondgebonden farm plots), art. 8.6 (Gebied "
+            "glastuinbouw niet toegestaan: no glastuinbouw, tenzij verplaatsing Ronde "
+            "Venen -> Polder Derde Bedijking; the designation covers 1557.796 km2, "
+            "almost the whole province minus the kassenconcentraties) and art. 8.7 "
+            "(Gebied beperken bodembewerking: no veen-exposing agricultural soil "
+            "work, tenzij graslandvernieuwing/blijvende teelt). The mixed/kan-mits/"
+            "protective instructieregels stay conditional markers: art. 8.1 (Gebied "
+            "agrarische bedrijven: verbod nieuwe bouwpercelen + voorschrift "
+            "bouwpercelen max 1,5 ha — a blanket exclusion would contradict its own "
+            "lid 2), art. 8.2 (Landbouwontwikkelingsgebied: kan-mits 2,5 ha) and "
+            "art. 8.5 (Concentratiegebied glastuinbouw: plans may not hinder "
+            "glastuinbouw). Art. 8.4 (geitenhouderij) is a province-wide verbod "
+            "without gebiedsaanwijzing: motivatedly abstained (no zone predicate; "
+            "ALB-01). Programming-stage screening artifact; per-location permission "
+            "assessment remains required."
+        ),
+        "limitations": lambda cov, abst: [
+            "Art. 8.4 (geitenhouderij) is a province-wide verbod without "
+            "gebiedsaanwijzing: the engine refuses zone-less exclusion rules, so it "
+            "is abstained under cite-or-abstain (ALB-01; heroverwegingskandidaat "
+            "voor een zone-loos verbod-rule-kind).",
+            "The art. 8.3/8.6/8.7 exclusions apply the protective default per "
+            "activity scope: art. 8.3 names niet-grondgebonden expansion only "
+            "(grondgebonden businesses stay V4-assessable), art. 8.6 keeps the "
+            "tenzij-verplaatsing and the lid-2 kan-mits 2-ha expansion, art. 8.7 "
+            "keeps graslandvernieuwing/blijvende teelt outside the verbod.",
+            "The art. 8.5 marker is protective (it forbids PLANS from hindering "
+            "glastuinbouw) and the art. 8.1 marker mixes a verbod with a "
+            "voorschrift; both are plan-content assessments routed to the V4 "
+            "human-expert checkpoint, never area eliminations.",
+            (
+                f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms): "
+                "routed to the V4 human-expert checkpoint."
+            ),
+        ],
+    },
+    "wonen": {
+        "shard": "corpus/evidence-wonen.json",
+        "ledger": "corpus/normcards-rejected-wonen.json",
+        "report_title": "Where is housing development possible under the wonen instructieregels in province Utrecht?",
+        "decision_table_id": "DT-wonen-utrecht-poc1",
+        "decision_table_title": "Wonen rule bounds for housing development "
+                                "Decision table (programming stage)",
+        "prov_namespace": "ldttoolbox:poc:wonen:",
+        "headline_note": (
+            "Semantics: the opportunity zone is the inclusion composition — "
+            "Stedelijk gebied (art. 9.17), Kernrandzone (art. 9.10) and the "
+            "Gebied uitbreiding woningbouw onder voorwaarden mogelijk "
+            "(arts. 9.14/9.14a/9.15: 50-woningen-vitaliteit, flexwoningen, "
+            "woningbouw onder voorwaarden) — the verordeningeigen exceptions to "
+            "the core art.-9.3 verstedelijkingsverbod in het Landelijk gebied. "
+            "The verbod itself is a conditional marker: its tenzij ('tenzij in "
+            "deze verordening anders is bepaald') is operationalized by those "
+            "inclusions, and executing it as an exclusion would erase the "
+            "exception zones (engine applies inclusion-then-exclusion). "
+            "Art. 9.8 (Gebied recreatiewoning) is a conditional marker: its "
+            "verbod is OBJECT-scoped (omvorming van bestaande recreatiewoningen "
+            "tot permanente bewoning), not an area-wide housing refusal over "
+            "the landelijk-gebied-wide designation (1245.814 km2) — an "
+            "exclusion would nullify the housing exceptions (FR-MO-05-mirror). "
+            "Arts. 9.6/9.12/9.13 (kan-mits wonen in het Landelijk gebied) and "
+            "9.27/9.29 (rekening-houden stiltegebied, fase-1-aliases hergebruikt) "
+            "are conditional markers. Werken/recreatie-regels (9.16-9.23), de "
+            "[Gereserveerde] 9.21, de bebouwingsenclaves-gap (9.7, geen GIO) en "
+            "de vergunningsketen van paragraaf 9.4.2 zijn gemotiveerd "
+            "onthouden (AWN-03/04/06/07/10). Programming-stage screening "
+            "artifact; per-location permission assessment remains required."
+        ),
+        "limitations": lambda cov, abst: [
+            "Werken/recreatie-regels (arts. 9.16, 9.18-9.20 kantoren/detailhandel/"
+            "bedrijventerreinen en 9.22/9.23 recreatie) are zone-gebonden but "
+            "outside the housing_development object type: abstained with fase-4 "
+            "werken/recreatie-track heroverwegingsnotities (AWN-04/07).",
+            "The art. 9.3 verbod is a conditional marker: its verordening-brede "
+            "tenzij is operationalized by the inclusion composition (FR-WN-04/"
+            "07/08/09/10); outside those zones and the Stedelijk gebied the "
+            "verbod remains the default. Art. 9.8 is object-scoped (omvorming "
+            "van bestaande recreatiewoningen; designation 1245.814 km2 = de "
+            "landelijk-gebied-omvang) and therefore a marker, not an "
+            "exclusion — otherwise the housing exceptions would be "
+            "nullified.",
+            "Bebouwingsenclaves/-linten (art. 9.7) have no registered GIO/NAAM "
+            "(AWN-03): gap, no surrogate alias. Art. 9.21 is [Gereserveerd]. "
+            "Art. 9.48a exists only as a toelichting reference, not as a body "
+            "article (AWN-11).",
             (
                 f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms): "
                 "routed to the V4 human-expert checkpoint."

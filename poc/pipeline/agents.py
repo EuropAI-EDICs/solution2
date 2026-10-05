@@ -115,6 +115,30 @@ CAVEAT_GIO_LANDSCHAP = (
     "geverifieerd als de verenigingen van de vijf art.-7.8-gebieden respectievelijk "
     "de vijf art.-7.11-landschappen (symdiff 0,000004 / 0,0000 km2)"
 )
+#: landbouw-track zones: werkingsgebieden of the verordening whose GIO join-id is
+#: NOT carried by the cited article text (arts. 8.1-8.7 quote no join-id), so no
+#: gioJoinId may be claimed; geometry is served by the agrest IMOW open-data
+#: alias (see run.py::ZONE_SOURCES and layers.json aliasNote).
+CAVEAT_GIO_LANDBOUW = (
+    "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet "
+    "overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten "
+    "Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; "
+    "geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+)
+#: wonen-track zones: werkingsgebieden of the verordening whose GIO join-id is
+#: NOT carried by the cited article text (arts. 9.3-9.29 quote no join-id), so
+#: no gioJoinId may be claimed; geometry is served by the agrest IMOW open-data
+#: alias (see run.py::ZONE_SOURCES and layers.json aliasNote). The
+#: Landelijk-gebied, Stiltegebied and Aandachtsgebied-stiltegebied aliases are
+#: REUSED from the fase-1 wind track (fase-1 dedup rule: same service+layer).
+CAVEAT_GIO_WONEN = (
+    "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet "
+    "overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten "
+    "Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; "
+    "geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); "
+    "Landelijk gebied / Stiltegebied / Aandachtsgebied stiltegebied hergebruikt uit "
+    "de fase-1-wind-track (zelfde service+laag)"
+)
 
 # ---------------------------------------------------------------------------
 # Deterministic engine operations referenced by FormalRule.executableRef.
@@ -643,6 +667,206 @@ EVIDENCE_ENRICHMENT: Dict[str, Dict[str, Any]] = {
             "zoneIds": ["gebied_aardkundige_waarden"],
             "geometrySource": "provincial_gio_unverified",
             "caveat": CAVEAT_GIO_LANDSCHAP,
+        },
+    },
+    # -- LANDBOUW track (agricultural expansion; shard evidence-landbouw.json) -
+    "LB-01": {
+        "objectType": "agricultural_expansion",
+        "claim": "An omgevingsplan for locations within the 'Gebied agrarische bedrijven' contains no rules providing for new agrarische bouwpercelen (unless relocating a grondgebonden agrarisch bedrijf to meet international obligations) nor for conversion to niet-grondgebonden landbouw, and contains rules providing for agrarische bouwpercelen of at most 1.5 hectare for existing farms with at most one bedrijfswoning and single-storey livestock buildings (art. 8.1): a mixed instruction whose verbod element and mits conditions are plan-content assessments — carried as a conditional marker, never a blanket elimination of the core agrarian development zone.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_8_1", "conditional_gebied_agrarische_bedrijven", "geen_nieuwe_bouwpercelen_tenzij_verplaatsing_grondgebonden_bedrijf", "bouwpcerceel_max_1_5_ha_bestande_bedrijven", "uitbreiding_kan_mits_max_2_5_ha_vier_mitsen_lid_3", "nevenactiviteiten_kan_mits_lid_4", "beeldkwaliteitsparagraaf_lid_5"],
+        "geoBinding": {
+            "zoneIds": ["gebied_agrarische_bedrijven"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_LANDBOUW,
+        },
+    },
+    "LB-02": {
+        "objectType": "agricultural_expansion",
+        "claim": "An omgevingsplan for locations within the 'Landbouwontwikkelingsgebied' may contain rules providing for expansion of an existing agrarisch bouwperceel for niet-grondgebonden landbouw up to a maximum of 2.5 hectare, provided the four stated conditions are met (landscape integration, animal welfare, environmental burden, public health) (art. 8.2): a kan-mits permissive expansion instruction carried as a conditional marker with the quantitative cap as a tag.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_8_2", "conditional_landbouwontwikkelingsgebied", "uitbreiding_niet_grondgebonden_max_2_5_ha", "vier_mitsen_inpassing_welzijn_milieu_volksgezondheid", "beeldkwaliteitsparagraaf_lid_2"],
+        "geoBinding": {
+            "zoneIds": ["landbouwontwikkelingsgebied"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_LANDBOUW,
+        },
+    },
+    "LB-03": {
+        "objectType": "agricultural_expansion",
+        "claim": "An omgevingsplan for locations within the 'Landbouwstabiliseringsgebied' contains no rules providing for expansion of an agrarisch bouwperceel of an existing niet-grondgebonden agrarisch bedrijf (art. 8.3): an unconditional instructieregel in the non-permission family whose refused activity class (expansion of niet-grondgebonden farm plots) sits inside agricultural_expansion — executed as a real zone exclusion with the activity scope (grondgebonden businesses are outside the verbod) carried in the tags.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_8_3", "exclusion_landbouwstabiliseringsgebied", "activiteit_gescoped_verbod_niet_grondgebonden_uitbreiding", "grondgebonden_buiten_verbod"],
+        "geoBinding": {
+            "zoneIds": ["landbouwstabiliseringsgebied"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_LANDBOUW,
+        },
+    },
+    "LB-04": {
+        "objectType": "agricultural_expansion",
+        "claim": "An omgevingsplan for locations within the 'Concentratiegebied glastuinbouw' contains no rules that maximise the bedrijfsoppervlakte, make expansion of glastuinbouwbedrijven impossible, or in any other way hinder the glastuinbouw (art. 8.5): a protective instruction that makes this designation the provincial development frame for glasshouse horticulture — carried as a conditional marker (the hindrance test is a plan-content assessment routed to V4), never an elimination.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_8_5", "conditional_concentratiegebied_glastuinbouw", "bescherming_tegen_belemmering_glastuinbouw", "provinciaal_ontwikkelingskader_glastuinbouw"],
+        "geoBinding": {
+            "zoneIds": ["concentratiegebied_glastuinbouw"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_LANDBOUW,
+        },
+    },
+    "LB-05": {
+        "objectType": "agricultural_expansion",
+        "claim": "An omgevingsplan for locations within the 'Gebied glastuinbouw niet toegestaan' contains no rules allowing glastuinbouw, unless it concerns the relocation of solitary glasshouse businesses from the Ronde Venen area to the grounds adjoining the existing kassengebied in the Polder Derde Bedijking (art. 8.6 lid 1): an unconditional instructieregel in the non-permission family whose refused activity class (glastuinbouw) sits inside agricultural_expansion — executed as a real zone exclusion with the tenzij-relocation and the lid-2 kan-mits expansion up to 2 ha for existing businesses carried in the tags; the designation covers almost the entire province minus the kassenconcentraties (1557.796 km2), legally correct.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_8_6", "exclusion_gebied_glastuinbouw_niet_toegestaan", "tenzij_verplaatsing_ronde_venen_polder_derde_bedijking", "uitbreiding_bestande_bedrijven_kan_mits_max_2_ha_lid_2"],
+        "geoBinding": {
+            "zoneIds": ["gebied_glastuinbouw_niet_toegestaan"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_LANDBOUW,
+        },
+    },
+    "LB-06": {
+        "objectType": "agricultural_expansion",
+        "claim": "An omgevingsplan for locations within the 'Gebied beperken bodembewerking' contains no rules allowing bodembewerking in agricultural soils that brings veen to the surface, unless the bodembewerking takes place for graslandvernieuwing or the establishment of another blijvende teelt (art. 8.7): an unconditional instructieregel in the non-permission family whose refused activity class (veen-exposing agricultural soil work) sits inside agricultural_expansion — executed as a real zone exclusion with the tenzij-exceptions carried in the tags; overlapping partly with the bodem track (H3) but scoped to agricultural activity.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_8_7", "exclusion_gebied_beperken_bodembewerking", "veenblootleggende_bodembewerking_agrarisch_gebruik", "tenzij_graslandvernieuwing_blijvende_teelt", "afdeling_8_2_bodembewerking_veengebied"],
+        "geoBinding": {
+            "zoneIds": ["gebied_beperken_bodembewerking"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_LANDBOUW,
+        },
+    },
+    # -- WONEN track (housing development; shard evidence-wonen.json) ----------
+    "WN-01": {
+        "objectType": "housing_development",
+        "claim": "An omgevingsplan for locations within the 'Landelijk gebied' allows no verstedelijking, unless this verordening provides otherwise (art. 9.3): the core H9 verbod, systematically qualified by the verordening's own exceptions (arts. 9.4, 9.7, 9.10, 9.12-9.16, 9.22, 9.23) — carried as a conditional marker whose exceptie-structuur is operationalized by this track's inclusion composition.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_9_3", "verstedelijkingsverbod_landelijk_gebied", "tenzij_verordening_breed_gekwalificeerd", "excepties_geoperationaliseerd_via_inclusions"],
+        "geoBinding": {
+            "zoneIds": ["landelijk_gebied"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_WONEN,
+        },
+    },
+    "WN-02": {
+        "objectType": "housing_development",
+        "claim": "An omgevingsplan for locations within the 'Landelijk gebied' contains no rules allowing a woning, woonschip or woonark that is landschappelijk niet goed inpasbaar, and may contain rules for extending existing dwellings, enlarging moorings/dimensions of woonschepen/woonarken and replacing ligplaatsen, all under landscape-integration maxima (art. 9.6): a mixed verbod-plus-kan-mits instruction carried as a conditional marker.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_9_6", "conditional_landelijk_gebied", "inpasbaarheidstoets_v4", "uitbreiding_bestande_woningen_max_inhoudsmaat", "vervangende_ligplaatsen_mits"],
+        "geoBinding": {
+            "zoneIds": ["landelijk_gebied"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_WONEN,
+        },
+    },
+    "WN-03": {
+        "objectType": "housing_development",
+        "claim": "An omgevingsplan for locations within the 'Gebied recreatiewoning' contains rules that guarantee the recreational use of recreatiewoningen and their grounds and exclude conversion of those recreatiewoningen to permanente bewoning (art. 9.8): an OBJECT-scoped verbod protecting the existing holiday-home stock, not an area-wide refusal of housing — carried as a conditional marker (executing it as an exclusion over the landelijk-gebied-wide designation would nullify the arts. 9.10/9.14/9.14a/9.15 housing exceptions).",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_9_8", "conditional_gebied_recreatiewoning", "object_gescoped_verbod_bestaande_recreatiewoningen", "omvorming_tot_permenente_bewoning_uitgesloten", "recreatief_gebruik_gegarandeerd_protectief"],
+        "geoBinding": {
+            "zoneIds": ["gebied_recreatiewoning"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_WONEN,
+        },
+    },
+    "WN-04": {
+        "objectType": "housing_development",
+        "claim": "An omgevingsplan for locations within the 'Kernrandzone' may, to strengthen the ruimtelijke kwaliteit, contain rules allowing verstedelijking, provided the four stated conditions are met (proportional quality enhancement, spatial/landscape integration in connection with the Stedelijk gebied, secured timely realisation, no disproportionate harm) (art. 9.10): a verordeningeigen exception to the art.-9.3 verbod — executed as an inclusion zone.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_9_10", "inclusion_kernrandzone", "uitzondering_op_art_9_3", "vier_mitsen_kwaliteit_inpasbaarheid_borging_schade", "beeldkwaliteitsparagraaf_lid_2"],
+        "geoBinding": {
+            "zoneIds": ["kernrandzone"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_WONEN,
+        },
+    },
+    "WN-05": {
+        "objectType": "housing_development",
+        "claim": "An omgevingsplan for locations within the 'Landelijk gebied' may allow an agrarisch bedrijfsperceel whose agricultural use has ended to be given a woonfunctie (bedrijfswoning plus adjoining bedrijfsruimte), provided the four stated conditions are met (site suitability, heritage/landscape preservation, no hindrance to neighbouring farms, subordinate home office) (art. 9.12): a kan-mits instruction carried as a conditional marker.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_9_12", "conditional_landelijk_gebied", "functiewijziging_naar_woonfunctie", "vier_mitsen_lid_1", "ondergeschikt_kantoor_bedrijf_aan_huis"],
+        "geoBinding": {
+            "zoneIds": ["landelijk_gebied"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_WONEN,
+        },
+    },
+    "WN-06": {
+        "objectType": "housing_development",
+        "claim": "An omgevingsplan for locations within the 'Landelijk gebied' may allow building 1 or more new dwellings on agrarische bedrijfspercelen whose agricultural use has ended ('ruimte voor ruimte'), provided the stated conditions are met (art. 9.13): a kan-mits instruction carried as a conditional marker with the verbatim demolition-threshold ladder (750-2.500 m2 -> 1 dwelling; 2.500-4.000 m2 -> 2; >= 4.000 m2 -> 3; kassen 5.000 m2 -> 1) as tags.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_9_13", "conditional_ruimte_voor_ruimte", "sloopdrempels_750_2500_4000_m2_woningladder", "kassen_5000_m2_per_woning", "afwijking_mits_ruimtelijke_kwaliteit_verhoogd"],
+        "geoBinding": {
+            "zoneIds": ["landelijk_gebied"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_WONEN,
+        },
+    },
+    "WN-07": {
+        "objectType": "housing_development",
+        "claim": "An omgevingsplan for locations within the 'Gebied uitbreiding woningbouw onder voorwaarden mogelijk' may contain rules for a one-time expansion up to a maximum of 50 dwellings for the vitality of a kern, provided the six stated conditions are met (art. 9.14): a verordeningeigen exception to the art.-9.3 verbod — executed as an inclusion zone with the 50-dwelling cap as a condition.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_9_14", "inclusion_uitbreiding_woningbouw", "eenmalig_max_50_woningen_vitaliteit_kern", "zes_mitsen_inclusief_geen_bodemdaling", "beeldkwaliteitsparagraaf_lid_2"],
+        "geoBinding": {
+            "zoneIds": ["gebied_uitbreiding_woningbouw"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_WONEN,
+        },
+    },
+    "WN-08": {
+        "objectType": "housing_development",
+        "claim": "An omgevingsplan for locations within the 'Gebied uitbreiding woningbouw onder voorwaarden mogelijk' may contain rules for a one-time temporary expansion up to a maximum of 50 flexwoningen per kern, provided the seven stated conditions are met including a secured opruimplicht after at most 15 years (art. 9.14a): a verordeningeigen exception to the art.-9.3 verbod — executed as an inclusion zone with the temporary character in the tags.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_9_14a", "inclusion_flexwoningen", "eenmalig_tijdelijk_max_50_flexwoningen_per_kern", "opruimplicht_na_minimaal_15_jaar", "zeven_mitsen"],
+        "geoBinding": {
+            "zoneIds": ["gebied_uitbreiding_woningbouw"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_WONEN,
+        },
+    },
+    "WN-09": {
+        "objectType": "housing_development",
+        "claim": "An omgevingsplan for locations within the 'Gebied uitbreiding woningbouw onder voorwaarden mogelijk' may contain rules for woningbouw provided the stated conditions are met (programma Wonen en werken / Bijlage XIX, aansluiting Stedelijk gebied, no extra bodemdaling, coupled groenontwikkeling, secured natuur/recreatie realisation, kernrandzone quality) (art. 9.15): the core expansion instruction — executed as an inclusion zone.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_9_15", "inclusion_woningbouw_onder_voorwaarden", "programma_wonen_en_werken_bijlage_xix", "zes_mitsen_groenontwikkeling_in_evenwicht"],
+        "geoBinding": {
+            "zoneIds": ["gebied_uitbreiding_woningbouw"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_WONEN,
+        },
+    },
+    "WN-10": {
+        "objectType": "housing_development",
+        "claim": "An omgevingsplan for locations within the 'Stedelijk gebied' may contain rules for verstedelijking, and for woningbouw provided it fits the vastgestelde programma Wonen en werken and leads to no extra bodemdaling (art. 9.17): the stedelijke main arena of the track — executed as an inclusion zone (the mirror of the wind track's Landelijk-gebied inclusion).",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_9_17", "inclusion_stedelijk_gebied", "kan_verstedelijking_en_woningbouw_mits", "programma_wonen_en_werken", "geen_extra_bodemdaling"],
+        "geoBinding": {
+            "zoneIds": ["stedelijk_gebied"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_WONEN,
+        },
+    },
+    "WN-11": {
+        "objectType": "housing_development",
+        "claim": "An omgevingsplan for locations within the 'Stiltegebied' contains rules that take account of the geluidniveau doelstellingen of art. 9.26 (LAeq,24h max 40 dB(A) in de stille kern, bij voorkeur 40/max 45 dB(A) in de bufferzone) (art. 9.27): the take-into-account family on the reused Stiltegebied alias — a conditional marker routed to V4.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_9_27", "conditional_stiltegebied", "rekening_houden_geluiddoelstellingen", "laeq24h_max_40_db_a_kern_45_bufferzone"],
+        "geoBinding": {
+            "zoneIds": ["stiltegebied"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_WONEN,
+        },
+    },
+    "WN-12": {
+        "objectType": "housing_development",
+        "claim": "An omgevingsplan for locations within the 'Aandachtsgebied stiltegebied' (the art.-9.25 1500 m zone) contains rules that take account of the geluidniveau doelstellingen of art. 9.26 (art. 9.29): the same take-into-account family on the reused Aandachtsgebied alias — a conditional marker routed to V4.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_9_29", "conditional_aandachtsgebied_stiltegebied", "rekening_houden_geluiddoelstellingen", "zone_1500_meter_per_art_9_25_lid_2"],
+        "geoBinding": {
+            "zoneIds": ["aandachtsgebied_stiltegebied"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_WONEN,
         },
     },
 }
@@ -1348,6 +1572,181 @@ TEMPLATE_SPECS: Dict[str, Dict[str, Any]] = {
         "conditions": [],
         "extra_tags": ["conditional_within_gebied_aardkundige_waarden", "bescherming_aangewezen_aardkundige_waarden", "vierledige_motiveringseis_lid_2"],
         "rationale": "Art. 7.12 instructieregel, the care-duty family ('bevat regels ter bescherming van de in het plangebied aangewezen aardkundige waarden') on the 187-feature designation: same weakest-variant form as FR-LS-04's art. 7.9 — a conditional marker routed to V4; the second lid's four-part motiveringseis (description, valuation, municipal policy, taking-into-account) is carried in the tags.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    # -- LANDBOUW track ------------------------------------------------------------
+    # NOTE on the landbouw rules: three instructieregels carry the
+    # non-permission family with refused activity classes squarely inside
+    # agricultural_expansion (art. 8.3 niet-grondgebonden expansion, art. 8.6
+    # glastuinbouw, art. 8.7 veen-exposing bodembewerking) and are executed as
+    # actual exclusions with the tenzij/scope elements in the tags (the
+    # FR-BO-01/FR-LS-01 idiom). The mixed/kan-mits/protective rules (art. 8.1
+    # verbod-plus-voorschrift, art. 8.2 kan-mits 2.5 ha, art. 8.5 protective
+    # anti-hindrance) stay conditional markers: 8.1's zone is the core agrarian
+    # development frame — a blanket exclusion would contradict its own lid 2.
+    "LB-01": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["gebied_agrarische_bedrijven"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_LANDBOUW},
+        "conditions": [],
+        "extra_tags": ["conditional_within_gebied_agrarische_bedrijven", "geen_nieuwe_bouwpercelen_tenzij_verplaatsing_grondgebonden_bedrijf", "bouwpcerceel_max_1_5_ha_bestande_bedrijven_voorschrift"],
+        "rationale": "Art. 8.1 instructieregel, a mixed instruction: lid 1 is the non-permission family (no new agrarische bouwpercelen unless relocating a grondgebonden business, no conversion to niet-grondgebonden) while lid 2 simultaneously DIRECTS plans to provide for bouwpercelen up to 1.5 ha for existing farms, and lids 3-4 open kan-mits expansion (2.5 ha) and nevenactiviteiten. Executing lid 1 as a zone exclusion would eliminate the core agrarian development zone that lid 2 orders plans to open up — the instruction shapes how agrarian development must be planned, not whether, so it is a conditional marker with the verbod/cap/voorwaarden elements routed to V4 (mirroring FR-MO-01's kan-mits treatment).",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "LB-02": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["landbouwontwikkelingsgebied"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_LANDBOUW},
+        "conditions": [
+            {"parameter": "expansion_surface", "operator": "<=", "value": 2.5, "unit": "ha"},
+        ],
+        "extra_tags": ["conditional_within_landbouwontwikkelingsgebied", "uitbreiding_niet_grondgebonden_max_2_5_ha", "vier_mitsen_inpassing_welzijn_milieu_volksgezondheid"],
+        "rationale": "Art. 8.2 instructieregel, the kan-mits permissive family: plans may provide for expansion of an existing agrarisch bouwperceel for niet-grondgebonden landbouw up to 2.5 ha provided four stated conditions are met. The quantitative cap is quoted verbatim and carried as a condition (mirroring FR-W-03's threshold idiom); the mits conditions are plan-quality assessments routed to V4 — a conditional marker, never an elimination.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "LB-03": {
+        "kind": "exclusion",
+        "zone": {"zoneIds": ["landbouwstabiliseringsgebied"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_LANDBOUW},
+        "conditions": [],
+        "extra_tags": ["exclusion_landbouwstabiliseringsgebied", "activiteit_gescoped_verbod_niet_grondgebonden_uitbreiding", "grondgebonden_buiten_verbod_v4_per_case"],
+        "rationale": "Art. 8.3 instructieregel (single-lid, full text quoted): plans within the 'Landbouwstabiliseringsgebied' contain no rules providing for expansion of an agrarisch bouwperceel of an existing niet-grondgebonden agrarisch bedrijf. The refused activity class sits inside agricultural_expansion (the FR-BO-01/FR-LS-01 adjudication), so the rule is executed as the default zone exclusion with the activity scope carried in the tags: the verbod names niet-grondgebonden expansion specifically — grondgebonden businesses are outside it and remain V4-assessable.",
+        "executable_ref": "engine.zone.exclude_within@poc-v1",
+    },
+    "LB-04": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["concentratiegebied_glastuinbouw"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_LANDBOUW},
+        "conditions": [],
+        "extra_tags": ["conditional_within_concentratiegebied_glastuinbouw", "bescherming_tegen_belemmering_glastuinbouw", "maximeren_onmogelijk_maken_belemmeren_verboden_voor_plannen"],
+        "rationale": "Art. 8.5 instructieregel, a protective non-permission instruction: plans in the 'Concentratiegebied glastuinbouw' may not maximise bedrijfsoppervlakte, make glasshouse expansion impossible or otherwise hinder the glastuinbouw. The zone is the provincial development frame for glasshouse horticulture — the verbod binds PLANS against hindering agriculture, it does not refuse agricultural development, so it is a conditional marker with the hindrance test routed to V4 (never an elimination).",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "LB-05": {
+        "kind": "exclusion",
+        "zone": {"zoneIds": ["gebied_glastuinbouw_niet_toegestaan"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_LANDBOUW},
+        "conditions": [],
+        "extra_tags": ["exclusion_gebied_glastuinbouw_niet_toegestaan", "tenzij_verplaatsing_ronde_venen_polder_derde_bedijking", "uitbreiding_bestande_bedrijven_kan_mits_max_2_ha_lid_2"],
+        "rationale": "Art. 8.6 instructieregel, lid 1 quoted: plans within the 'Gebied glastuinbouw niet toegestaan' contain no rules allowing glastuinbouw, unless relocating solitary glasshouse businesses from the Ronde Venen to adjoining the Polder Derde Bedijking kassengebied. The refused activity class (glastuinbouw) sits inside agricultural_expansion, so it is executed as the default zone exclusion with the tenzij-relocation and lid 2's kan-mits 2-ha expansion for existing businesses in the tags. The designation covers 1557.796 km2 (almost the entire province minus the kassenconcentraties) — legally correct: glasshouse horticulture is not permit-able outside the concentration areas, so the exclusion eliminates exactly that.",
+        "executable_ref": "engine.zone.exclude_within@poc-v1",
+    },
+    "LB-06": {
+        "kind": "exclusion",
+        "zone": {"zoneIds": ["gebied_beperken_bodembewerking"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_LANDBOUW},
+        "conditions": [],
+        "extra_tags": ["exclusion_gebied_beperken_bodembewerking", "veenblootleggende_bodembewerking_agrarisch_gebruik", "tenzij_graslandvernieuwing_blijvende_teelt"],
+        "rationale": "Art. 8.7 instructieregel (full text quoted): plans within the 'Gebied beperken bodembewerking' (afdeling 8.2, veengebied) contain no rules allowing agricultural soil work that brings veen to the surface, unless for graslandvernieuwing or another blijvende teelt. The refused activity class sits inside agricultural_expansion, so it is executed as the default zone exclusion with the tenzij-exceptions in the tags; the rule is agricultural-activity-scoped (its own H8 instruction, overlapping the bodem track's H3 scope only geographically).",
+        "executable_ref": "engine.zone.exclude_within@poc-v1",
+    },
+    # -- WONEN track ----------------------------------------------------------------
+    # NOTE on the wonen rules: H9's core verbod (art. 9.3, verstedelijking in
+    # het Landelijk gebied) carries a verordening-brede tenzij ("tenzij in deze
+    # verordening anders is bepaald") with ~11 statutory exceptions. Executing
+    # it as an exclusion would eliminate the exception zones themselves (the
+    # engine applies inclusion-then-exclusion), so the verbod is a conditional
+    # marker and the track's opportunity composition is carried by the
+    # INCLUSION zones (arts. 9.10/9.14/9.14a/9.15/9.17) — the operational
+    # reading of the exceptie-structuur (mirroring the FR-MO-05/FR-LB-01
+    # qualification adjudications). The one unconditional housing-scoped
+    # refusal without systematic exceptions (art. 9.8, recreatiewoning) is a
+    # adjudicated as an OBJECT-scoped verbod (protecting the existing holiday-
+    # home stock) at the canonical run — conditional marker, FR-MO-05 mirror;
+    # the remaining instructieregels are kan-mits markers and the two
+    # stiltegebied take-into-account rules reuse the fase-1 aliases.
+    "WN-01": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["landelijk_gebied"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_WONEN},
+        "conditions": [],
+        "extra_tags": ["conditional_within_landelijk_gebied", "verstedelijkingsverbod_met_verordeningbrede_tenzij", "excepties_via_inclusion_compositie_fr_wn_04_07_08_09_10"],
+        "rationale": "CORE WONEN RULE (art. 9.3). Instructieregel: plans within the 'Landelijk gebied' allow no verstedelijking unless the verordening provides otherwise. The tenzij references the verordening's own exception rules (arts. 9.4-9.23), several of which this track executes as INCLUSION zones (FR-WN-04/07/08/09/10) — executing the verbod as an exclusion would erase exactly those exceptions, so the rule is carried as a conditional marker documenting the default prohibition while the inclusion composition operationalizes its exceptions (the FR-MO-05/FR-LB-01 qualification idiom applied to a systematically qualified verbod).",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "WN-02": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["landelijk_gebied"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_WONEN},
+        "conditions": [],
+        "extra_tags": ["conditional_within_landelijk_gebied", "inpasbaarheidstoets_v4", "uitbreiding_bestande_woningen_max_inhoudsmaat_lid_2"],
+        "rationale": "Art. 9.6 instructieregel, mixed family: lid 1 (niet-toestaan van landschappelijk niet-inpasbare woningen/woonschepen/woonarken) plus lid 2's kan-mits escape routes for extensions and moorings. The zone overlay is deterministic; the inpasbaarheid test is a plan-quality assessment routed to V4 (FR-WA-01 idiom) — a conditional marker, never an elimination.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "WN-03": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["gebied_recreatiewoning"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_WONEN},
+        "conditions": [],
+        "extra_tags": ["conditional_within_gebied_recreatiewoning", "object_gescoped_verbod_omvorming_bestaande_recreatiewoningen", "recreatief_gebruik_gegarandeerd_protectieve_tag"],
+        "rationale": "Art. 9.8 instructieregel (full text quoted): plans within the 'Gebied recreatiewoning' guarantee recreational use and exclude conversion of THOSE recreatiewoningen to permanente bewoning. Re-adjudicated at the canonical run (the FR-MO-05 mirror): the verbod is OBJECT-scoped — it protects the existing holiday-home stock from conversion, it does not refuse housing development across the designation — and the designation covers 1245.814 km2 (the entire landelijk-gebied extent), so an area exclusion would nullify the verordeningeigen housing exceptions FR-WN-04/07/08/09. Carried as a conditional marker routed to V4; the registry keeps role 'exclusion' as the rule-family statement with the scope caveat in its entry note.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "WN-04": {
+        "kind": "inclusion",
+        "zone": {"zoneIds": ["kernrandzone"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_WONEN},
+        "conditions": [],
+        "extra_tags": ["inclusion_kernrandzone", "uitzondering_op_art_9_3", "vier_mitsen_v4_per_case"],
+        "rationale": "Art. 9.10 instructieregel: plans within the 'Kernrandzone' may allow verstedelijking to strengthen the ruimtelijke kwaliteit, mits four stated conditions. A verordeningeigen exception to art. 9.3 — permissive, zone-gebonden — so the zone is an INCLUSION (the FR-W-05 Gebied-windenergie idiom): opportunity where the plan may open housing development; the mits conditions are plan-quality assessments routed to V4.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "WN-05": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["landelijk_gebied"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_WONEN},
+        "conditions": [],
+        "extra_tags": ["conditional_within_landelijk_gebied", "functiewijziging_naar_woonfunctie_kan_mits", "vier_mitsen_lid_1_v4"],
+        "rationale": "Art. 9.12 instructieregel, kan-mits family: plans may give a woonfunctie (bedrijfswoning + aangebouwde bedrijfsruimte) to ended agrarische bedrijfspercelen mits four conditions. The zone overlay is deterministic; the conditions are case assessments routed to V4 — a conditional marker (the FR-LB-02 threshold idiom without a hard cap).",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "WN-06": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["landelijk_gebied"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_WONEN},
+        "conditions": [],
+        "extra_tags": ["conditional_ruimte_voor_ruimte", "sloopdrempels_750_2500_4000_m2_woningladder", "kassen_5000_m2_per_woning", "afwijking_mits_kwaliteit_verhoogd"],
+        "rationale": "Art. 9.13 instructieregel ('ruimte voor ruimte'), kan-mits family: 1+ new dwellings on ended agrarische bedrijfspercelen, with a verbatim demolition-surface-to-dwellings ladder (750-2500 m2 -> 1; 2500-4000 m2 -> 2; >=4000 m2 -> 3; kassen 5000 m2 -> 1) carried in the tags (the FR-MO-02 threshold-tag idiom; a buffer(0)-style engine condition would misread the ladder's range semantics) — a conditional marker routed to V4.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "WN-07": {
+        "kind": "inclusion",
+        "zone": {"zoneIds": ["gebied_uitbreiding_woningbouw"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_WONEN},
+        "conditions": [
+            {"parameter": "housing_units", "operator": "<=", "value": 50, "unit": "count"},
+        ],
+        "extra_tags": ["inclusion_uitbreiding_woningbouw", "eenmalig_max_50_woningen_vitaliteit_kern", "zes_mitsen_v4_per_case"],
+        "rationale": "Art. 9.14 instructieregel: one-time expansion up to 50 dwellings for kern-vitality on the 'Gebied uitbreiding woningbouw onder voorwaarden mogelijk'. Verordeningeigen exception to art. 9.3 — INCLUSION zone with the verbatim 50-dwelling cap as a condition (FR-W-03 threshold idiom); the six mits conditions routed to V4.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "WN-08": {
+        "kind": "inclusion",
+        "zone": {"zoneIds": ["gebied_uitbreiding_woningbouw"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_WONEN},
+        "conditions": [
+            {"parameter": "flexwoningen_per_kern", "operator": "<=", "value": 50, "unit": "count"},
+        ],
+        "extra_tags": ["inclusion_flexwoningen", "eenmalig_tijdelijk_max_50_per_kern", "opruimplicht_min_15_jaar_geborgd"],
+        "rationale": "Art. 9.14a instructieregel: one-time temporary expansion up to 50 flexwoningen per kern on the same designation, mits seven conditions including a secured opruimplicht after at most 15 years. INCLUSION zone with the verbatim 50-flexwoningen cap as a condition; temporary character in the tags.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "WN-09": {
+        "kind": "inclusion",
+        "zone": {"zoneIds": ["gebied_uitbreiding_woningbouw"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_WONEN},
+        "conditions": [],
+        "extra_tags": ["inclusion_woningbouw_onder_voorwaarden", "programma_wonen_en_werken_bijlage_xix", "zes_mitsen_groen_in_evenwicht_v4"],
+        "rationale": "Art. 9.15 instructieregel, the core expansion rule of paragraaf 9.1.2: plans may contain rules for woningbouw mits (programma Wonen en werken/Bijlage XIX, aansluiting Stedelijk gebied, no extra bodemdaling, coupled groenontwikkeling, secured natuur/recreatie, kernrandzone quality). INCLUSION zone (FR-W-05 idiom); mits conditions routed to V4.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "WN-10": {
+        "kind": "inclusion",
+        "zone": {"zoneIds": ["stedelijk_gebied"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_WONEN},
+        "conditions": [],
+        "extra_tags": ["inclusion_stedelijk_gebied", "kan_verstedelijking_en_woningbouw_mits", "programma_wonen_en_werken", "geen_extra_bodemdaling"],
+        "rationale": "Art. 9.17 instructieregel: plans within the 'Stedelijk gebied' may contain rules for verstedelijking (lid 1) and woningbouw mits programma + no extra bodemdaling (lid 2). The stedelijke main arena of the track — INCLUSION zone, the mirror of the wind track's Landelijk-gebied inclusion; the mits conditions routed to V4.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "WN-11": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["stiltegebied"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_WONEN},
+        "conditions": [],
+        "extra_tags": ["conditional_within_stiltegebied", "rekening_houden_geluiddoelstellingen_art_9_26", "laeq24h_max_40_db_a_kern_45_bufferzone", "alias_hergebruikt_wind_track"],
+        "rationale": "Art. 9.27 instructieregel, take-into-account family: plans within the 'Stiltegebied' account for the art.-9.26 geluidniveau doelstellingen (40/45 dB(A) LAeq,24h). Reuses the fase-1 stiltegebied alias (same service+layer, dedup rule); a conditional marker routed to V4 (FR-WA-01/FR-LS-04 idiom), never an elimination.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "WN-12": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["aandachtsgebied_stiltegebied"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_WONEN},
+        "conditions": [],
+        "extra_tags": ["conditional_within_aandachtsgebied_stiltegebied", "rekening_houden_geluiddoelstellingen_art_9_26", "zone_1500_meter_art_9_25_lid_2", "alias_hergebruikt_wind_track"],
+        "rationale": "Art. 9.29 instructieregel, the same take-into-account family on the 'Aandachtsgebied stiltegebied' (the art.-9.25-lid-2 1500 m zone; alias reused from the wind track's FR-W-10 attention zone). A conditional marker routed to V4, never an elimination.",
         "executable_ref": "engine.zone.within@poc-v1",
     },
 }
