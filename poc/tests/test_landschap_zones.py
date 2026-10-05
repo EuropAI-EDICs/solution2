@@ -41,13 +41,22 @@ LANDSCHAP_MATCH = re.compile(
 
 
 def _alias_source_ids():
-    """Parse de landschap-alias -> sourceId-regels uit run.py::ZONE_SOURCES."""
+    """Parse de landschap-alias -> sourceId-regels uit run.py::ZONE_SOURCES.
+
+    De scan is begrensd tot het ZONE_SOURCES-dict: de alias `landschap` is
+    óók een TRACKS-sleutel, en de onbegrensde fase-1/2-vorm van deze helper
+    (hele run.py scannen) pakt dan het TRACKS-blok zonder sourceId-regel.
+    """
     lines = (POC / "run.py").read_text().splitlines()
+    start = next(i for i, l in enumerate(lines) if l.startswith("ZONE_SOURCES"))
+    end = next(i for i in range(start, len(lines)) if lines[i] == "}")
+    block = lines[start:end]
     ids = {}
-    for i, line in enumerate(lines):
+    for i, line in enumerate(block):
         m = re.match(r'\s*"(\w+)":\s*\{\s*$', line)
         if m and m.group(1) in set(LANDSCHAP_ALIASES):
-            m2 = re.match(r'\s*"sourceId":\s*"([\w.-]+)"', lines[i + 1])
+            assert i + 1 < len(block), f"alias {m.group(1)} aan het einde van ZONE_SOURCES"
+            m2 = re.match(r'\s*"sourceId":\s*"([\w.-]+)"', block[i + 1])
             assert m2, f"alias {m.group(1)} zonder sourceId-regel in ZONE_SOURCES"
             ids[m.group(1)] = m2.group(1)
     missing = [a for a in LANDSCHAP_ALIASES if a not in ids]

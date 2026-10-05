@@ -383,6 +383,51 @@ TRACKS: Dict[str, Dict[str, Any]] = {
             ),
         ],
     },
+    "landschap": {
+        "shard": "corpus/evidence-landschap.json",
+        "ledger": "corpus/normcards-rejected-landschap.json",
+        "report_title": "Where is landscape intervention bounded by heritage and landscape rules in province Utrecht?",
+        "decision_table_id": "DT-landschap-utrecht-poc1",
+        "decision_table_title": "Cultuurhistorie-en-landschap rule bounds for landscape intervention "
+                                "Decision table (programming stage)",
+        "prov_namespace": "ldttoolbox:poc:landschap:",
+        "headline_note": (
+            "Semantics: the werelderfgoed-instructieregels art. 7.3 (Gebied UNESCO "
+            "Werelderfgoed Hollandse Waterlinies) and 7.3a (Neder-Germaanse Limes "
+            "kernzone) carry the niet-toestaan-form in lid 1b and are executed as "
+            "default exclusions for landscape intervention, with the aantasten-toets "
+            "routed to V4 per case (BO-01-idiom). The weaker instructiefamilies stay "
+            "conditional markers: art. 7.4 (Limes bufferzone: versterkingsplicht + "
+            "100 m2/30 cm-vergunningsverbodprescriptie), art. 7.9 (cultuurhistorische "
+            "hoofdstructuur, rekening-houden; umbrella = vijf art.-7.8-gebieden, live "
+            "geverifieerd), art. 7.11a (Landschap-kernkwaliteiten, onevenredig-"
+            "proportionaliteit; umbrella = vijf art.-7.11-landschappen, live "
+            "geverifieerd) and art. 7.12 (aardkundige waarden, beschermingsplicht). "
+            "The 7.10 verstedelijkingsgateway, the beoordelings-/vergunningsketens "
+            "(7.5/7.5a/7.6) and the borden-activiteitenketen (7.13-7.17) are "
+            "deliberately abstained under cite-or-abstain. Programming-stage "
+            "screening artifact; per-location permission assessment remains required."
+        ),
+        "limitations": lambda cov, abst: [
+            "Beoordelingsregels (art. 7.5/7.5a/7.6) and the borden-activiteitenketen "
+            "(art. 7.13-7.17, incl. the onvoorwaardelijke gedragsregel-verbod 7.16) are "
+            "aanvraag-/kennisafhankelijk of buiten het landscape_intervention-"
+            "objecttype: abstained under cite-or-abstain.",
+            "The art. 7.3/7.3a exclusions apply the protective default on the full "
+            "werelderfgoed designations (HW 134.092 km2, NGL-kernzone 0.013 km2); "
+            "whether a specific intervention 'die waarde aantast' is a per-case V4 "
+            "assessment, and the art. 7.11a 'onevenredig'-verbod (Landschap-umbrella, "
+            "1411.133 km2) is deliberately a marker, not an elimination.",
+            "The art. 7.10 verstedelijkingsgateway (Historische buitenplaatszone, "
+            "Militair erfgoed) is a permissive deviation path under three open norms "
+            "(kleinschalig, kostendragers, zorgvuldige inpassing): motivatedly "
+            "abstained, documented as heroverwegingskandidaat.",
+            (
+                f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms): "
+                "routed to the V4 human-expert checkpoint."
+            ),
+        ],
+    },
 }
 
 _LIMITATIONS = [
