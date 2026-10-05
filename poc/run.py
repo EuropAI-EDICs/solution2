@@ -131,6 +131,26 @@ ZONE_SOURCES: Dict[str, Dict[str, Any]] = {
         "sourceId": "agrest-ov-gebied-gesloten-stortplaats",
         "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied gesloten stortplaats' (art. 3.108 aanwijzingsregel, BO-05: omgevingsplanactiviteit van provinciaal belang)",
     },
+    "beperkingengebied_bouwwerken_provinciale_weg": {
+        "sourceId": "agrest-ov-beperkingengebied-bouwwerken-provinciale-weg",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Beperkingengebied bouwwerken provinciale weg' (art. 4.7 instructieregel, MO-01: bouwwerken kan-mits rekening houden met instandhouding/uitbreiding provinciale weg)",
+    },
+    "geluidcontour_buiten_bebouwde_kom": {
+        "sourceId": "agrest-ov-geluidcontour-buiten-bebouwde-kom",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Geluidcontour buiten de bebouwde kom' (art. 4.71 instructieregel, MO-02: nieuwe geluidgevoelige gebouwen tot maximaal 60 dB Lden op de gevel)",
+    },
+    "geluidcontour_binnen_bebouwde_kom": {
+        "sourceId": "agrest-ov-geluidcontour-binnen-bebouwde-kom",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Geluidcontour binnen de bebouwde kom' (art. 4.71 instructieregel, MO-02: nieuwe geluidgevoelige gebouwen tot maximaal 65 dB Lden op de gevel)",
+    },
+    "beperkingengebied_lokale_spoorweg": {
+        "sourceId": "agrest-ov-beperkingengebied-lokale-spoorweg",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Beperkingengebied lokale spoorweg' (art. 4.47/4.48 instructieregels, MO-03/MO-04; umbrella = Kernzone ∪ Beschermingszone per art. 4.46, live geverifieerd met 0,0000 km2 symdiff)",
+    },
+    "luchtvaartterrein": {
+        "sourceId": "agrest-ov-luchtvaartterrein",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Luchtvaartterrein' (art. 4.65 instructieregel, MO-05: geen regels voor nieuwvestiging luchtvaartterrein gemotoriseerde luchtvaartuigen; Buffer luchtvaartterrein art. 4.66 gemotiveerd onthouden)",
+    },
 }
 
 INSTRUMENT = "Omgevingsverordening provincie Utrecht, CVDR704250 geldend 13-10-2025 t/m heden"
