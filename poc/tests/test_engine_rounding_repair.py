@@ -7,8 +7,10 @@ WGS84-payload-rounding de micro-delen liet overlappen; GEOS' linework
 make_valid weigerde die input hard ("Overlay input is mixed-dimension") en de
 run crashte. De fixwave-fallback (buffer(0) als make_valid een exception
 gooit) repareert die — offline geverifieerd verliesvrijk (oppervlakte
-behouden, geen delen gedropt). Deze test verankert de reparatie op de exacte
-faalgeometrie.
+behouden, geen delen gedropt). Deze test verankert puur het reparatiegedrag
+op de exacte faalgeometrie (geen crash; geldige payload; repair
+geregistreerd) — 'niet-leeg' is onder de hieronder gedocumenteerde
+dubbele-CRS-caveat in de synthetische her-invocatie niet te eisen.
 
 Caveat bewust gedocumenteerd: het fixture is de geometrie ZÓALS die bij de
 make_valid-aanroep bestond (na WGS84-transformatie en rounding); het wordt
