@@ -28,13 +28,22 @@ BODEM_MATCH = re.compile(r"grondwater|stortplaats|rommelterrein", re.IGNORECASE)
 
 
 def _alias_source_ids():
-    """Parse de bodem-alias -> sourceId-regels uit run.py::ZONE_SOURCES."""
+    """Parse de bodem-alias -> sourceId-regels uit run.py::ZONE_SOURCES.
+
+    De scan is begrensd tot het ZONE_SOURCES-dict (eindreview-backlog-hygiëne,
+    spiegel van test_landschap_zones.py): de onbegrensde variant pakt ook
+    regels buiten het dict en botst zodra een aliasnaam óók een TRACKS-sleutel
+    is."""
     lines = (POC / "run.py").read_text().splitlines()
+    start = next(i for i, l in enumerate(lines) if l.startswith("ZONE_SOURCES"))
+    end = next(i for i in range(start, len(lines)) if lines[i] == "}")
+    block = lines[start:end]
     ids = {}
-    for i, line in enumerate(lines):
+    for i, line in enumerate(block):
         m = re.match(r'\s*"(\w+)":\s*\{\s*$', line)
         if m and m.group(1) in set(BODEM_ALIASES):
-            m2 = re.match(r'\s*"sourceId":\s*"([\w.-]+)"', lines[i + 1])
+            assert i + 1 < len(block), f"alias {m.group(1)} aan het einde van ZONE_SOURCES"
+            m2 = re.match(r'\s*"sourceId":\s*"([\w.-]+)"', block[i + 1])
             assert m2, f"alias {m.group(1)} zonder sourceId-regel in ZONE_SOURCES"
             ids[m.group(1)] = m2.group(1)
     missing = [a for a in BODEM_ALIASES if a not in ids]
@@ -48,10 +57,6 @@ def test_bodem_aliases_resolve_to_registered_sources():
         assert f'"{alias}"' in run_py, alias
     registry = json.loads((POC / "data/sources.json").read_text())["sources"]
     by_id = {s["id"]: s for s in registry}
-    for line in run_py.splitlines():
-        m = re.match(r'\s*"(\w+)":\s*"([\w.-]+)",?\s*(?:#.*)?$', line)
-        if m and m.group(1) in set(BODEM_ALIASES):
-            assert m.group(2) in by_id, f"alias {m.group(1)} -> onbekende bron {m.group(2)}"
     # sterke vorm: de dict-vorm van ZONE_SOURCES moet op een bestaand registry-id
     # wijzen (zoals test_water_zones.py) én de where-NAAM van die bron moet de
     # selectieregel-matchwoorden volgen.

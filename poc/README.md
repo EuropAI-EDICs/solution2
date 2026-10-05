@@ -48,7 +48,7 @@ python3 poc/run.py --use-case mobiliteit  # roadside development (arts. 4.7/4.47
 python3 poc/run.py --use-case landschap   # landscape intervention (arts. 7.3/7.3a/7.4/7.9/7.11a/7.12)
 python3 poc/run.py --refresh           # force live re-download of every layer
 python3 poc/run.py --bbox 130000,440000,160000,470000   # optional EPSG:28992 clip
-cd poc && python3 -m pytest tests -q                         # offline test suite (258 tests)
+cd poc && python3 -m pytest tests -q                         # offline test suite (260 tests)
 ```
 
 No API keys are used anywhere (the DSO GIO download API is key-gated and was

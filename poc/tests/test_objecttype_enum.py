@@ -3,8 +3,10 @@ import json
 from pathlib import Path
 
 import jsonschema
+import pytest
 
-SCHEMA = json.loads(Path("schemas/opportunity-map-request.schema.json").read_text())
+POC = Path(__file__).resolve().parents[1]
+SCHEMA = json.loads((POC / "schemas/opportunity-map-request.schema.json").read_text())
 NEW = ["riparian_development", "soil_activity", "roadside_development",
        "landscape_intervention", "agricultural_expansion", "housing_development"]
 
@@ -41,4 +43,18 @@ def test_existing_ambitions_still_validate():
     for ambition in ["energy", "nature", "climate_adaptation", "landscape", "heritage", "water_safety", "housing"]:
         request = _request("wind_turbine")
         request["ambitions"] = [ambition]
+        jsonschema.validate(request, SCHEMA)
+
+
+def test_unknown_objecttype_rejected():
+    # negatieve kant van de enum (eindreview-backlog fase 1): een objectType
+    # buiten de enum moet de request-gate laten falen, niet stil passeren.
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(_request("zeppelin_mooring"), SCHEMA)
+
+
+def test_unknown_ambition_rejected():
+    request = _request("wind_turbine")
+    request["ambitions"] = ["intergalactic_travel"]
+    with pytest.raises(jsonschema.ValidationError):
         jsonschema.validate(request, SCHEMA)

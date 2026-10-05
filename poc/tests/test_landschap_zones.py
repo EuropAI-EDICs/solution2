@@ -70,10 +70,6 @@ def test_landschap_aliases_resolve_to_registered_sources():
         assert f'"{alias}"' in run_py, alias
     registry = json.loads((POC / "data/sources.json").read_text())["sources"]
     by_id = {s["id"]: s for s in registry}
-    for line in run_py.splitlines():
-        m = re.match(r'\s*"(\w+)":\s*"([\w.-]+)",?\s*(?:#.*)?$', line)
-        if m and m.group(1) in set(LANDSCHAP_ALIASES):
-            assert m.group(2) in by_id, f"alias {m.group(1)} -> onbekende bron {m.group(2)}"
     # sterke vorm: de dict-vorm van ZONE_SOURCES moet op een bestaand registry-id
     # wijzen (zoals de fase-1/2-zoneTests) ÉN de where-NAAM van die bron moet de
     # selectieregel-matchwoorden volgen.

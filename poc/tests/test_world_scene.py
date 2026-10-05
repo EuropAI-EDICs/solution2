@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import sys
 from pathlib import Path
 
@@ -46,11 +47,18 @@ def test_marble_url_only_with_hitl(monkeypatch):
 
 
 @pytest.mark.skipif(not FIXTURE_RUN.is_dir(), reason="fixture scenario run missing")
-def test_write_bundle_roundtrip():
-    out = world_scene.write_world_scene_bundle(FIXTURE_RUN, hitl_approved=True)
+def test_write_bundle_roundtrip(tmp_path):
+    # De bundle-schrijver stampt generatedAt en werkt prov.json bij (fase-1
+    # eindreview-backlog: timestamp-mutatie maakte de werkmap na elke suite-
+    # run vuil). De roundtrip draait daarom in een kopie; de gecommitte
+    # fixture blijft byte-identiek.
+    work = tmp_path / "_fixture-zon-scen"
+    shutil.copytree(FIXTURE_RUN, work)
+    out = world_scene.write_world_scene_bundle(work, hitl_approved=True)
     assert out.name == "world-scene-specs.json"
     bundle = json.loads(out.read_text(encoding="utf-8"))
     assert bundle["specCount"] == len(bundle["specs"])
+    assert (work / "prov.json").is_file()
 
 
 def test_engine_and_critic_do_not_import_marble():
