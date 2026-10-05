@@ -441,8 +441,15 @@ def to_zone_geometry(geom, round_dp=None):
                 # rounding can create micro-invalidities; repair and keep the
                 # repaired geometry EXACTLY as produced (its new intersection
                 # vertices stay full precision so the payload stays valid —
-                # never round a second time after repairing)
-                g = make_valid(g)
+                # never round a second time after repairing). GEOS linework
+                # make_valid refuses some rounded-degenerate multipolygons
+                # outright ("Overlay input is mixed-dimension"); buffer(0)
+                # repairs those losslessly (fase-3 landbouw fixwave: 37-part
+                # kassen-sliver multipolygon, area preserved, 0 dropped).
+                try:
+                    g = make_valid(g)
+                except Exception:
+                    g = g.buffer(0)
                 g, dropped = polygonal(g)
                 repairs = 1 + (dropped or 0)
                 m = mapping(g)
