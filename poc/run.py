@@ -199,6 +199,22 @@ ZONE_SOURCES: Dict[str, Dict[str, Any]] = {
         "sourceId": "agrest-ov-gebied-beperken-bodembewerking",
         "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied beperken bodembewerking' (art. 8.7 instructieregel, LB-06: geen veenblootleggende bodembewerking in agrarische gronden, tenzij graslandvernieuwing/blijvende teelt)",
     },
+    "kernrandzone": {
+        "sourceId": "agrest-ov-kernrandzone",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Kernrandzone' (art. 9.10 instructieregel, WN-04: kan-mits verstedelijking ter versterking ruimtelijke kwaliteit; uitzondering op art. 9.3)",
+    },
+    "gebied_recreatiewoning": {
+        "sourceId": "agrest-ov-gebied-recreatiewoning",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied recreatiewoning' (art. 9.8 instructieregel, WN-03: recreatief gebruik gegarandeerd, omvorming tot permanente bewoning uitgesloten)",
+    },
+    "gebied_uitbreiding_woningbouw": {
+        "sourceId": "agrest-ov-gebied-uitbreiding-woningbouw",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied uitbreiding woningbouw onder voorwaarden mogelijk' (art. 9.14/9.14a/9.15 instructieregels, WN-07/WN-08/WN-09: 50 woningen vitaliteit, flexwoningen, woningbouw onder voorwaarden)",
+    },
+    "stedelijk_gebied": {
+        "sourceId": "agrest-ov-stedelijk-gebied",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Stedelijk gebied' (art. 9.17 instructieregel, WN-10: kan verstedelijking/woningbouw-mits; aanwijzing art. 9.2)",
+    },
 }
 
 INSTRUMENT = "Omgevingsverordening provincie Utrecht, CVDR704250 geldend 13-10-2025 t/m heden"
