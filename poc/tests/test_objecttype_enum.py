@@ -53,6 +53,16 @@ def test_ambition_agriculture_validates():
     jsonschema.validate(request, SCHEMA)
 
 
+def test_fase5_objecttypes_and_ambitions_validate():
+    # fase 5 (werken + recreatie tracks)
+    request = _request("business_development")
+    request["ambitions"] = ["economic_vitality"]
+    jsonschema.validate(request, SCHEMA)
+    request = _request("recreation_development")
+    request["ambitions"] = ["recreation"]
+    jsonschema.validate(request, SCHEMA)
+
+
 def test_unknown_objecttype_rejected():
     # negatieve kant van de enum (eindreview-backlog fase 1): een objectType
     # buiten de enum moet de request-gate laten falen, niet stil passeren.
