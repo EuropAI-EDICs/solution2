@@ -444,8 +444,10 @@ def to_zone_geometry(geom, round_dp=None):
                 # never round a second time after repairing). GEOS linework
                 # make_valid refuses some rounded-degenerate multipolygons
                 # outright ("Overlay input is mixed-dimension"); buffer(0)
-                # repairs those losslessly (fase-3 landbouw fixwave: 37-part
-                # kassen-sliver multipolygon, area preserved, 0 dropped).
+                # repairs those losslessly (fase-3 landbouw fixwave, offline
+                # verified on the exact failing multipolygon: area preserved,
+                # no parts dropped; see tests/fixtures/
+                # rounded_degenerate_multipolygon.wkt).
                 try:
                     g = make_valid(g)
                 except Exception:
