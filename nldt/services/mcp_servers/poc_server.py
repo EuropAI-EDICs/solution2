@@ -207,6 +207,26 @@ async def run_bp2op_transform(
     )
 
 
+# --- read-only PoC-run-operaties (harness-unificatie M1) -----------------------
+
+from services.process_adapter.poc_readops import (  # noqa: E402
+    crosscheck_formal_rule as _crosscheck,
+    get_provenance as _get_provenance,
+)
+
+
+@mcp.tool()
+async def get_provenance(run_id: str) -> str:
+    """Read-only: provenance-entiteiten (prov.json) van een canonieke PoC-run."""
+    return json.dumps(_get_provenance(run_id), indent=2, default=str)
+
+
+@mcp.tool()
+async def crosscheck_formal_rule(scenario_run_id: str, formal_rule_id: str) -> str:
+    """Read-only: is een FR-* regel daadwerkelijk door de scenario-engine uitgevoerd in deze run?"""
+    return json.dumps(_crosscheck(scenario_run_id, formal_rule_id), indent=2, default=str)
+
+
 def main() -> None:
     if os.environ.get("NLDT_MCP_TRANSPORT", "stdio") == "streamable-http":
         from services.mcp_servers.http_transport import run_mcp_http

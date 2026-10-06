@@ -78,3 +78,11 @@ def test_crosscheck_formal_rule_scans_report(run_dir: Path) -> None:
 def test_crosscheck_without_report_is_explicit(run_dir: Path) -> None:
     out = crosscheck_formal_rule("20261006T120133Z-biomassa", "FR-BM-01", runs_dir=run_dir.parent)
     assert "error" in out and "scenario-report" in out["error"]
+
+
+def test_mcp_servers_register_readops() -> None:
+    from services.mcp_servers import data_server, poc_server
+
+    assert hasattr(poc_server, "get_provenance")
+    assert hasattr(poc_server, "crosscheck_formal_rule")
+    assert hasattr(data_server, "inspect_geo_layer")

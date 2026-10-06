@@ -104,6 +104,17 @@ async def get_freshness(name: str = "rijnland_peilen") -> str:
     return json.dumps(stream_adapter.get_freshness(name), indent=2, default=str)
 
 
+# --- read-only PoC-run-operatie (harness-unificatie M1) ------------------------
+
+from services.process_adapter.poc_readops import inspect_geo_layer as _inspect_geo_layer  # noqa: E402
+
+
+@mcp.tool()
+async def inspect_geo_layer(run_id: str, layer: str) -> str:
+    """Read-only: laag-metadata + zones van één zoneId binnen een canonieke PoC-run."""
+    return json.dumps(_inspect_geo_layer(run_id, layer), indent=2, default=str)
+
+
 def main() -> None:
     if os.environ.get("NLDT_MCP_TRANSPORT", "stdio") == "streamable-http":
         from services.mcp_servers.http_transport import run_mcp_http
