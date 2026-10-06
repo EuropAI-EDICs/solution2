@@ -2,6 +2,14 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **Executiestatus (2026-10-06):** M1–M3 geïmplementeerd via inline executing-plans. Eén
+> deviatie: `deep-agents/mcp_client.py` is gebouwd direct op de mcp-SDK 2.x (dezelfde pin als
+> nldt) in plaats van `langchain-mcp-adapters` — die vereist mcp<2 en is daarmee incompatibel
+> met de nldt-servers; interfaces (`build_client_config`, `load_mcp_tools`) ongewijzigd.
+> Daarbij: `build_world_scene` is als poc-MCP-tool geregistreerd (stond al in POC_TOOLS maar
+> was nooit blootgesteld). Eindverificatie: nldt 362 passed, poc 295 passed/1 skipped;
+> live-ketencheck (execute_process → journal-regel in deep-agents/runs/live/steps.jsonl) OK.
+
 **Goal:** deep-agents wordt het planningvlak op de nldt-execution harness: alle nldt-capabiliteit via MCP (M1), live `LLMHook` voor S1/S2 (M2), één gedeeld journal-format (M3).
 
 **Architecture:** Vier lagen (Surface → Planningvlak → Operations/MCP → Execution harness). deep-agents verliest zijn filesystem-wrappers voor nldt-capabiliteit; gates/HITL/prov blijven in de harness. Modelconfig wordt gedeeld via `nldt/services/common/model_config.py`; het journal-format van deep-agents wordt het enige trajectory-format.
