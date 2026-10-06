@@ -4,10 +4,10 @@
 |---|---|
 | **Datum** | 6 oktober 2026 |
 | **Status** | ontwerp goedgekeurd in brainstormsessie; wacht op review van dit document |
-| **Scope** | pytest-marker-harness met golden-regressie over de 13 canonieke Utrecht-runs (cache-only her-uitvoering, diff tegen gecommitte goldens), seam-comparators als lokaal-only tests, run/job-id-correlatie over journal + prov + spans met JSONL-spanexporter, GitHub Actions-workflow (jobs `tests` + `golden`) |
-| **Buiten scope** | GS-2 (BNK-cases — het operationele vlak, agents #9–12, is niet gebouwd), Langfuse/Jaeger-server (OTLP-exporter wél env-gated voorbereid), expert-zones als aparte GS-1-dataset (de gecommitte canonieke runs zijn de frozen goldens), CI-geheimen/matrix-uitbreidingen |
+| **Scope** | pytest-marker-harness met golden-regressie over de 13 canonieke Utrecht-runs (cache-only her-uitvoering, diff tegen gecommitte goldens), seam-comparators als lokaal-only tests, run/job-id-correlatie over journal + prov + spans met JSONL-spanexporter. Afdwinging lokaal via markers; CI bewust gedescoped |
+| **Buiten scope** | GS-2 (BNK-cases — het operationele vlak, agents #9–12, is niet gebouwd), Langfuse/Jaeger-server (OTLP-exporter wél env-gated voorbereid), expert-zones als aparte GS-1-dataset (de gecommitte canonieke runs zijn de frozen goldens), **GitHub Actions-workflow** — bewust gedescoped; later toevoegbaar als één YAML die dezelfde pytest-aanroep herhaalt |
 | **Bronnen** | [`MULTI_AGENT_PLAN.md`](../../../MULTI_AGENT_PLAN.md) §4 (evaluation plan: golden sets GS-1..3, metrics, "eval-harness runs GS-1..3 in CI on every prompt/model/graph change; traces diffed") · [`docs/GENAI_SEAMS.md`](../../GENAI_SEAMS.md) (S1/S2/S7-comparator-invarianten) · [`nldt/08-roadmap.md`](../../../nldt/08-roadmap.md) ("OTLP exporter (Langfuse/Jaeger) instead of console-only spans") · [`nldt/services/common/telemetry.py`](../../../nldt/services/common/telemetry.py) (bestaande `span()` + console-exporter) · [harness-unificatie-spec](2026-10-06-utrecht-harness-unificatie-design.md) (M3: gedeeld journal-format) |
-| **Keuzes uit de sessie** | prioriteit: **beide minimaal** (eval-regressie + trace-correlatie, geen observability-server) · CI-platform: **GitHub Actions** · architectuur: **pytest-marker-harness** (aanpak 1) boven een standalone eval-runner of alles-in-standaardsuites |
+| **Keuzes uit de sessie** | prioriteit: **beide minimaal** (eval-regressie + trace-correlatie, geen observability-server) · afdwingingslaag: **lokaal via markers, CI gedescoped** — de harness is machine-onafhankelijk en CI is alleen afdwinging; her-openen door later één workflow-YAML toe te voegen · architectuur: **pytest-marker-harness** (aanpak 1) boven een standalone eval-runner of alles-in-standaardsuites |
 
 ## Context en doel
 
@@ -63,6 +63,6 @@ Canonieke mapping (13 tracks): wind → `20260830T113234Z-wind`, zon → `202608
 
 ## Risico's
 
-- **Caches in git**: de CI-her-uitvoering vertrouwt op gecommitte geo-caches; als een track bij uitvoering toch live-fetch triggert, faalt de job zichtbaar (geen stille netwerkafhankelijkheid) — de implementatie verifieert per track een volledig offline her-uitvoering.
+- **Caches in git**: de her-uitvoering vertrouwt op gecommitte geo-caches; als een track bij uitvoering toch live-fetch triggert, faalt de test zichtbaar (geen stille netwerkafhankelijkheid) — de implementatie verifieert per track een volledig offline her-uitvoering.
 - **Breekbare normalisatie**: te streng = vals alarm bij elke run, te los = blind; daarom verdicts/perRule exact, geometrie IoU-gelimiteerd, gml structureel — en de normalisatie zelf goed unit-gedekt.
-- **Runner-verschillen** (OS/PROJ-versies kunnen projecties micro-latijn): IoU-tolerantie vangt dat op; bij blijkbare omgevingsdrift is de tolerantie één regel aanpassen.
+- **Omgevingsverschillen** (OS/PROJ-versies tussen machines kunnen projecties micro-latijn): IoU-tolerantie vangt dat op; bij blijkbare omgevingsdrift is de tolerantie één regel aanpassen.
