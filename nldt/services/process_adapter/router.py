@@ -6,6 +6,7 @@ from typing import Any
 import httpx
 
 from services.common.prov import new_job_id, prov_bundle, utc_now
+from services.common.telemetry import set_current_job_id
 from services.process_adapter.handlers import execute_local
 from services.process_adapter.kubeflow_adapter import KubeflowAdapter
 
@@ -50,25 +51,29 @@ def route_execute(
     started = utc_now()
     used = [f"nldt:Input/{k}" for k in inputs]
 
-    if backend == "ucs":
-        adapter = UCSAdapter()
-        if adapter.available:
-            outputs = adapter.execute(process_id, inputs)
-            backend_used = "ucs"
+    set_current_job_id(job_id)
+    try:
+        if backend == "ucs":
+            adapter = UCSAdapter()
+            if adapter.available:
+                outputs = adapter.execute(process_id, inputs)
+                backend_used = "ucs"
+            else:
+                outputs = execute_local(process_id, inputs, job_id=job_id)
+                backend_used = "local-fallback"
+        elif backend == "kubeflow":
+            kf = KubeflowAdapter()
+            if kf.available:
+                outputs = kf.execute(process_id, inputs, job_id=job_id)
+                backend_used = "kubeflow"
+            else:
+                outputs = execute_local(process_id, inputs, job_id=job_id)
+                backend_used = "local-fallback"
         else:
             outputs = execute_local(process_id, inputs, job_id=job_id)
-            backend_used = "local-fallback"
-    elif backend == "kubeflow":
-        kf = KubeflowAdapter()
-        if kf.available:
-            outputs = kf.execute(process_id, inputs)
-            backend_used = "kubeflow"
-        else:
-            outputs = execute_local(process_id, inputs, job_id=job_id)
-            backend_used = "local-fallback"
-    else:
-        outputs = execute_local(process_id, inputs, job_id=job_id)
-        backend_used = "local"
+            backend_used = "local"
+    finally:
+        set_current_job_id(None)
 
     ended = utc_now()
     prov = prov_bundle(
