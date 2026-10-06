@@ -60,8 +60,8 @@
 
 ### Task 7: afsluiting
 
-- [ ] Regressie poc (+nldt); docs: README-trackregels + `docs/SOLUTIONS_ARCHITECTURE.md` (tien/elf tracks feitelijk; §2-tabel; §4-rijen biomassa + energietoets; B congestion = seam blijft Open tot EnergyCast-MCP); optioneel UCS-process ids in `build_fixtures.py` recept-omschrijving.
-- [ ] Commit `docs(poc): fase 4 verordening-uitbreiding — biomassa + energietoets geactualiseerd`.
+- [x] Regressie poc (+nldt); docs: README-trackregels + `docs/SOLUTIONS_ARCHITECTURE.md` (tien/elf tracks feitelijk; §2-tabel; §4-rijen biomassa + energietoets; B congestion = seam blijft Open tot EnergyCast-MCP); optioneel UCS-process ids in `build_fixtures.py` recept-omschrijving.
+- [x] Commit `docs(poc): fase 4 verordening-uitbreiding — biomassa + energietoets geactualiseerd`.
 - [ ] Eindreview + fixwave + merge `--no-ff`; ledger archiveren; worktree opruimen.
 
 ## Out of scope (expliciet)

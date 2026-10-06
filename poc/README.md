@@ -1,4 +1,4 @@
-# LDT Toolbox PoC — "Where can I do what?" in province Utrecht (wind · zon · bos · water · bodem · mobiliteit · landschap · landbouw · wonen · werken · recreatie)
+# LDT Toolbox PoC — "Where can I do what?" in province Utrecht (wind · zon · bos · water · bodem · mobiliteit · landschap · landbouw · wonen · werken · recreatie · biomassa · energietoets)
 
 This is the working proof-of-concept of the multi-agent architecture specified in
 [`MULTI_AGENT_PLAN.md`](../MULTI_AGENT_PLAN.md) and elaborated in
@@ -8,7 +8,7 @@ technology and roadmap). Urban Strategy (Scenexus) stiltegebied noise
 screening for the Utrecht wind track — decision-support annex for
 art. 9.26 / FR-W-11 — is documented in
 [`docs/POC_URBANSTRATEGY_INTEGRATION.md`](../docs/POC_URBANSTRATEGY_INTEGRATION.md). It answers, for the province of Utrecht (NL) at the
-**programming** policy stage, the same traceable question for **eleven object
+**programming** policy stage, the same traceable question for **thirteen object
 types** (tracks), all on the same instrument and pipeline:
 
 > Within which zone of the province could an omgevingsplan allow **X**, and
@@ -29,6 +29,8 @@ types** (tracks), all on the same instrument and pipeline:
 | `wonen` | housing development (wonen, werken, recreëren) | where is housing development possible under the wonen instructieregels? | `runs/20261005T100258Z-wonen` — 1142.990 km² |
 | `werken` | business development (kantoren, detailhandel, bedrijventerreinen) | where is business development bounded by the werken instructieregels? | `runs/20261006T121921Z-werken` — 1017.614 km² |
 | `recreatie` | recreation development (dagrecreatie, recreatiezones) | where is recreation development possible under the recreatie instructieregels? | `runs/20261006T114934Z-recreatie` — 186.618 km² |
+| `biomassa` | biomass installations (energie uit biomassa) | where can biomass energy developments stand under arts. 5.6/5.7? | `runs/20261006T120133Z-biomassa` — 1560.054 km² (all-marker) |
+| `energietoets` | energy test / netbelasting (afdeling 5.3) | where do arts. 5.10/5.11 condition new functions that load the grid? | `runs/20261006T171730Z-energietoets` — 1560.054 km² (all-marker) |
 
 Grounding: the **Omgevingsverordening provincie Utrecht** (CVDR704250, geldend
 13-10-2025) and the **Omgevingsvisie 2021**, plus the province's open geo data
@@ -54,9 +56,11 @@ python3 poc/run.py --use-case landbouw   # agricultural expansion (arts. 8.1-8.7
 python3 poc/run.py --use-case wonen      # housing development (arts. 9.3-9.29)
 python3 poc/run.py --use-case werken    # business development (arts. 9.9-9.20)
 python3 poc/run.py --use-case recreatie  # recreation development (arts. 9.22/9.23)
+python3 poc/run.py --use-case biomassa   # biomass installations (arts. 5.6/5.7)
+python3 poc/run.py --use-case energietoets  # energy test / netbelasting (arts. 5.10/5.11)
 python3 poc/run.py --refresh           # force live re-download of every layer
 python3 poc/run.py --bbox 130000,440000,160000,470000   # optional EPSG:28992 clip
-cd poc && python3 -m pytest tests -q                         # offline test suite (287 tests)
+cd poc && python3 -m pytest tests -q                         # offline test suite (295 tests)
 ```
 
 No API keys are used anywhere (the DSO GIO download API is key-gated and was

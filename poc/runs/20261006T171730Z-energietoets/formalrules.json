@@ -1,0 +1,97 @@
+[
+ {
+  "id": "FR-ET-01",
+  "normCardId": "NC-ET-01",
+  "status": "formalized",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "appliesTo": {
+   "objectType": "energy_storage",
+   "contextTags": [
+    "toepassingsbereik_art_5_10",
+    "conditional_afdeling_5_3_energietoets",
+    "overbelasting_elektriciteits_infrastructuur",
+    "geen_gio_provinciebreed",
+    "scope_marker_voor_5_11",
+    "conditional_afdeling_5_3_toepassingsbereik"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "aoi"
+   ],
+   "geometrySource": "national_source",
+   "selection": "within",
+   "caveat": "Afdeling 5.3 Energietoets (art. 5.10/5.11) kent geen gebiedsaanwijzing/GIO; marker-geometrie is de request-AOI (provinciebreed toepassingsbereik). Geen netmodel- of EnergyCast-surrogaat in de PoC — aansluitbaarheid/energieparagraaf blijven V4-/EnergyCast-seam (SOLUTIONS_ARCHITECTURE §4 B congestion)"
+  },
+  "conditions": [],
+  "rationale": "CORE ENERGIETOETS SCOPE (art. 5.10). Declarative toepassingsbereik of Afdeling 5.3: the division applies to new functions that can overload the electricity infrastructure. No gebiedsaanwijzing/GIO exists — marker geometry is the request AOI (province-wide). Carried as a conditional scope marker framing the 5.11 duties, never a spatial exclusion and never an invented net-capacity layer (cite-or-abstain: no grid data in the PoC)."
+ },
+ {
+  "id": "FR-ET-02",
+  "normCardId": "NC-ET-02",
+  "status": "formalized",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "appliesTo": {
+   "objectType": "energy_storage",
+   "contextTags": [
+    "instructieregel_art_5_11_lid_1",
+    "rekening_houden_aansluitbaarheid",
+    "uitzondering_minder_dan_10_woningen",
+    "conditional_marker_geen_netmodel",
+    "v4_plan_content_assessment",
+    "conditional_rekening_houden_aansluitbaarheid",
+    "geen_netmodel_surrogaat"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "aoi"
+   ],
+   "geometrySource": "national_source",
+   "selection": "within",
+   "caveat": "Afdeling 5.3 Energietoets (art. 5.10/5.11) kent geen gebiedsaanwijzing/GIO; marker-geometrie is de request-AOI (provinciebreed toepassingsbereik). Geen netmodel- of EnergyCast-surrogaat in de PoC — aansluitbaarheid/energieparagraaf blijven V4-/EnergyCast-seam (SOLUTIONS_ARCHITECTURE §4 B congestion)"
+  },
+  "conditions": [],
+  "rationale": "Art. 5.11 lid 1 instructieregel, the weakest take-into-account family ('wordt rekening gehouden met de aansluitbaarheid'): plans providing for new functions (not fewer than 10 dwellings) that can add load to the electricity infrastructure must take connection capacity into account. Exactly the art.-2.16/3.10 form that FR-WA-03/FR-BO-04 formalize as a conditional marker routed to V4 — never an elimination. No deterministic netmodel exists in the PoC; the <10-woningen exception stays in the tags."
+ },
+ {
+  "id": "FR-ET-03",
+  "normCardId": "NC-ET-03",
+  "status": "formalized",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "appliesTo": {
+   "objectType": "energy_storage",
+   "contextTags": [
+    "instructieregel_art_5_11_lid_2",
+    "energieparagraaf_motiveringseis",
+    "inventariserend_overleg_netbeheerder",
+    "energycast_seam",
+    "conditional_marker_procedureel",
+    "conditional_energieparagraaf_motiveringseis",
+    "geen_netmodel_surrogaat"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "aoi"
+   ],
+   "geometrySource": "national_source",
+   "selection": "within",
+   "caveat": "Afdeling 5.3 Energietoets (art. 5.10/5.11) kent geen gebiedsaanwijzing/GIO; marker-geometrie is de request-AOI (provinciebreed toepassingsbereik). Geen netmodel- of EnergyCast-surrogaat in de PoC — aansluitbaarheid/energieparagraaf blijven V4-/EnergyCast-seam (SOLUTIONS_ARCHITECTURE §4 B congestion)"
+  },
+  "conditions": [],
+  "rationale": "Art. 5.11 lid 2 motiveringseis: the omgevingsplan motivation must contain an energieparagraaf reporting the inventariserend overleg with the grid operator. This is the EnergyCast/grid seam (SOLUTIONS_ARCHITECTURE §4 B congestion) — procedural/plan-content, not a spatial predicate. Carried as a conditional marker on the AOI alongside ET-02; live EnergyCast-MCP remains out of scope (fase 4). Never a spatial exclusion or invented capacity surrogaat."
+ }
+]

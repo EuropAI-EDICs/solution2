@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where is energy-related development bounded by the energietoets instructieregels in province Utrecht?</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+  :root { --ink:#1a2233; --mut:#5b6472; --line:#dde3ec; --bg:#f6f8fb; --card:#ffffff;
+          --ok:#1a7f4b; --bad:#b3261e; --warn:#9a6700; --pend:#6b55b5; }
+  * { box-sizing: border-box; }
+  body { font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+         color: var(--ink); background: var(--bg); margin: 0; padding: 0 0 60px; }
+  main { max-width: 1180px; margin: 0 auto; padding: 0 22px; }
+  header { background: #10233f; color: #fff; padding: 26px 0 20px; }
+  header h1 { font-size: 24px; margin: 0 0 6px; font-weight: 650; }
+  header .sub { color: #b9c6da; font-size: 13.5px; }
+  header .badges { margin-top: 10px; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12.5px;
+           font-weight: 600; margin-right: 6px; background: #24405f; color: #d7e3f4; }
+  .badge.pass { background: #123f2a; color: #8fe3b4; }
+  .badge.fail { background: #4a1512; color: #ffb3ad; }
+  .badge.needs_human { background: #4d3a07; color: #ffdf9e; }
+  .badge.pending { background: #33276b; color: #cabdf5; }
+  h2 { font-size: 19px; margin: 38px 0 12px; font-weight: 650; }
+  h3 { font-size: 15.5px; margin: 22px 0 8px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .stat .k { color: var(--mut); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  .stat .v { font-size: 21px; font-weight: 680; margin-top: 2px; }
+  .stat .s { color: var(--mut); font-size: 12px; margin-top: 2px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  #map { height: 560px; border-radius: 8px; border: 1px solid var(--line); }
+  .map-note { color: var(--mut); font-size: 12.5px; margin-top: 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; background: var(--card); }
+  th, td { border: 1px solid var(--line); padding: 6px 9px; text-align: left; vertical-align: top; }
+  th { background: #eef2f8; font-weight: 640; position: sticky; top: 0; }
+  .tablewrap { overflow-x: auto; max-height: 480px; overflow-y: auto; border: 1px solid var(--line);
+               border-radius: 8px; }
+  .scrollx { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .fx { font-size: 11.5px; font-weight: 700; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+  .fx.included, .fx.pass { color: var(--ok); background: #e2f3e9; }
+  .fx.excluded, .fx.fail { color: var(--bad); background: #fbe6e4; }
+  .fx.conditional, .fx.attention { color: var(--warn); background: #fdf3d7; }
+  .fx.compensation { color: #6b3fa0; background: #efe6fa; }
+  .fx.ambiguous, .fx.needs_human { color: #7a5b00; background: #fff1c9; }
+  .fx.not_applicable, .fx.pending, .fx.skipped { color: var(--mut); background: #edf0f4; }
+  blockquote { margin: 6px 0; padding: 8px 12px; border-left: 3px solid #b9c6da; background: #f2f5f9;
+               font-style: italic; font-size: 13px; }
+  details { border: 1px solid var(--line); border-radius: 8px; background: var(--card);
+            margin: 8px 0; padding: 0; }
+  details summary { cursor: pointer; padding: 9px 13px; font-weight: 600; font-size: 13.5px; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  details .body { padding: 10px 14px; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+  a { color: #0b5cad; }
+  .checks li { margin: 3px 0; font-size: 12.8px; }
+  .lvl { display: inline-block; min-width: 30px; font-weight: 700; }
+  .lvl-V0,.lvl-V1,.lvl-V2,.lvl-V3 { color: #33415c; }
+  .lvl-V4 { color: var(--pend); }
+  footer { margin-top: 44px; color: var(--mut); font-size: 12.5px; border-top: 1px solid var(--line);
+           padding-top: 14px; }
+  .legend-dot { display:inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px;
+                vertical-align: middle; }
+</style>
+</head>
+<body>
+<header>
+  <main>
+    <h1>Where is energy-related development bounded by the energietoets instructieregels in province Utrecht?</h1>
+    <div class="sub">
+      Run <span class="mono">20261006T171730Z-energietoets</span> &middot; use case <span class="mono">energietoets</span>
+      &middot; generated 2026-10-06T17:17:31Z &middot; policy stage <b>programming</b>
+      &middot; instrument pinned: Omgevingsverordening provincie Utrecht, CVDR704250 geldend 13-10-2025 t/m heden
+    </div>
+    <div class="badges">
+      <span class="badge pass">verdict: pass</span>
+      <span class="badge pending">V4 human: pending</span>
+      <span class="badge ">cite-or-abstain: 3 cards / 4 abstentions</span>
+    </div>
+  </main>
+</header>
+<main>
+
+<section id="headline">
+  <h2>Headline</h2>
+  <div class="cards">
+    <div class="stat"><div class="k">AOI (province)</div><div class="v">1,560.1 km²</div><div class="s">Provinciegrens Utrecht (EPSG:28992)</div></div>
+    <div class="stat"><div class="k">Inclusion ∩ AOI</div><div class="v">—</div><div class="s">union of the formalized inclusion zones</div></div>
+    <div class="stat"><div class="k">Final opportunity zone</div><div class="v">1,560.1 km²</div><div class="s">after Natura 2000 / ganzenrust / NNN exclusions</div></div>
+    <div class="stat"><div class="k">Rules executed</div><div class="v">3 of 3</div><div class="s">3 formalized; 0 ambiguous → V4; 0 rejected</div></div>
+    <div class="stat"><div class="k">Zones emitted</div><div class="v">4</div><div class="s">incl. markers (attention/conditional/compensation)</div></div>
+    <div class="stat"><div class="k">Geometry repairs</div><div class="v">0</div><div class="s">invalid-as-served features, recorded in prov</div></div>
+  </div>
+  <p class="map-note" style="margin-top:12px">Semantics: Afdeling 5.3 Energietoets has no gebiedsaanwijzing/GIO — all three formalized cards are conditional markers on the request AOI (province-wide scope). Art. 5.10 is the declarative toepassingsbereik (new functions that can overload the electricity infrastructure). Art. 5.11 lid 1 is the rekening-houden-met aansluitbaarheid duty (weakest take-into-account family; &lt;10 woningen exception in tags). Art. 5.11 lid 2 is the energieparagraaf / inventariserend-overleg motiveringseis — the EnergyCast/grid seam (SOLUTIONS_ARCHITECTURE §4 B congestion); no deterministic netmodel or capacity surrogaat in the PoC. Neither rule unconditionally refuses energy_storage area, so the opportunity zone equals the province AOI with three marker overlays (mobiliteit/biomassa all-marker precedent). Transformatorstation arts. 5.8/5.9 remain procedureel onthouden (AET-04); wind/zon/biomassa (5.1–5.7) stay on their home tracks. Programming-stage screening artifact; per-location permission assessment and live EnergyCast-MCP remain required / out of scope.</p>
+</section>
+
+<section id="map-section">
+  <h2>Opportunity map</h2>
+  <div class="panel">
+    <div id="map"></div>
+    <p class="map-note">
+      Layers: <span class="legend-dot" style="background:#2e7d32"></span>final opportunity zone &middot;
+      <span class="legend-dot" style="background:#1565c0"></span>inclusion (designated wind zones &cap; AOI) &middot;
+      <span class="legend-dot" style="background:#ef6c00"></span>after each exclusion &middot;
+      <span class="legend-dot" style="background:#6a1b9a"></span>attention / conditional / compensation markers &middot;
+      <span class="legend-dot" style="background:#000"></span>AOI (province boundary).
+      Use the layer switcher (top right) to toggle. Basemap tiles and the Leaflet library load from a CDN;
+      when opened offline the map degrades to the tables below. Full-resolution geometry:
+      <span class="mono">zones.geojson</span> / <span class="mono">zones.gml</span>.
+      Display geometry simplified to 25.0 m (recorded in the run summary).
+    </p>
+  </div>
+</section>
+
+<section id="zones">
+  <h2>Zones &amp; statistics <span class="sub">(fallback table &mdash; always available)</span></h2>
+  <div class="tablewrap">
+    <table>
+      <thead><tr>
+        <th>zone id</th><th>operation</th><th>rules</th><th class="num">area km&sup2;</th>
+        <th>layers</th><th class="num">prov steps</th><th class="num">repairs</th>
+      </tr></thead>
+      <tbody>
+      <tr>
+        <td class="mono">zr-conditional_mark-ee87514f80</td>
+        <td>conditional_mark</td>
+        <td class="mono">FR-ET-01</td>
+        <td class="num">1,560.054</td>
+        <td class="mono">aoi, national_source</td>
+        <td class="num">5</td>
+        <td class="num">0</td>
+      </tr>
+      <tr>
+        <td class="mono">zr-conditional_mark-3ce7c0f70a</td>
+        <td>conditional_mark</td>
+        <td class="mono">FR-ET-02</td>
+        <td class="num">1,560.054</td>
+        <td class="mono">aoi, national_source</td>
+        <td class="num">3</td>
+        <td class="num">0</td>
+      </tr>
+      <tr>
+        <td class="mono">zr-conditional_mark-91ae0112f3</td>
+        <td>conditional_mark</td>
+        <td class="mono">FR-ET-03</td>
+        <td class="num">1,560.054</td>
+        <td class="mono">aoi, national_source</td>
+        <td class="num">3</td>
+        <td class="num">0</td>
+      </tr>
+      <tr>
+        <td class="mono">zr-final-63d257c43f</td>
+        <td>final</td>
+        <td class="mono">FR-ET-01, FR-ET-02, FR-ET-03</td>
+        <td class="num">1,560.054</td>
+        <td class="mono"></td>
+        <td class="num">11</td>
+        <td class="num">0</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="decision">
+  <h2>Decision table</h2>
+  <p class="map-note">Every row links its NormCard (instrument + article + version + verbatim quote + URL in
+     <span class="mono">normcards.json</span>). Machine-readable copy: <span class="mono">decision-table.json</span>,
+     Markdown copy: <span class="mono">decision-table.md</span>.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr>
+<th>criterion</th><th>norm</th><th>source</th><th>zone effect</th><th>ruleId</th><th>normCardId</th><th>condition</th><th>note</th>      </tr></thead>
+      <tbody>
+      <tr>
+        <td>
+Afdeling 5.3 Energietoets (art. 5.10) applies to new functions that can lead to overloading of the electricity infrastructure: a declarative province-wide scope with no…        </td>
+        <td>
+Artikel 5.10 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]        </td>
+        <td>
+<span class="mono">S07</span> <a href="https://lokaleregelgeving.overheid.nl/cvdr704250" target="_blank" rel="noopener">https://lokaleregelgeving.overheid.nl/cvdr704250</a>
+        </td>
+        <td>
+<span class="fx conditional">conditional</span>
+        </td>
+        <td>
+FR-ET-01        </td>
+        <td>
+NC-ET-01        </td>
+        <td>
+        </td>
+        <td>
+CORE ENERGIETOETS SCOPE (art. 5.10). Declarative toepassingsbereik of Afdeling 5.3: the division applies to new functions that can overload the electricity infrastructure. No gebiedsaanwijzing/GIO exists — marker geometry is the request AOI (province-wide). Carried as a conditional scope marker framing the 5.11 duties, never a spatial exclusion and never an invented net-capacity layer (cite-or-ab…        </td>
+      </tr>
+      <tr>
+        <td>
+An omgevingsplan that provides for new functions (other than fewer than 10 dwellings) that can lead to an additional load on the electricity infrastructure must take con…        </td>
+        <td>
+Artikel 5.11 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]        </td>
+        <td>
+<span class="mono">S07</span> <a href="https://lokaleregelgeving.overheid.nl/cvdr704250" target="_blank" rel="noopener">https://lokaleregelgeving.overheid.nl/cvdr704250</a>
+        </td>
+        <td>
+<span class="fx conditional">conditional</span>
+        </td>
+        <td>
+FR-ET-02        </td>
+        <td>
+NC-ET-02        </td>
+        <td>
+        </td>
+        <td>
+Art. 5.11 lid 1 instructieregel, the weakest take-into-account family (&#39;wordt rekening gehouden met de aansluitbaarheid&#39;): plans providing for new functions (not fewer than 10 dwellings) that can add load to the electricity infrastructure must take connection capacity into account. Exactly the art.-2.16/3.10 form that FR-WA-03/FR-BO-04 formalize as a conditional marker routed to V4 — never an eli…        </td>
+      </tr>
+      <tr>
+        <td>
+The motivation of an omgevingsplan must contain an energy paragraph with a report of the inventariserend overleg between the grid operator and the initiator or municipal…        </td>
+        <td>
+Artikel 5.11 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]        </td>
+        <td>
+<span class="mono">S07</span> <a href="https://lokaleregelgeving.overheid.nl/cvdr704250" target="_blank" rel="noopener">https://lokaleregelgeving.overheid.nl/cvdr704250</a>
+        </td>
+        <td>
+<span class="fx conditional">conditional</span>
+        </td>
+        <td>
+FR-ET-03        </td>
+        <td>
+NC-ET-03        </td>
+        <td>
+        </td>
+        <td>
+Art. 5.11 lid 2 motiveringseis: the omgevingsplan motivation must contain an energieparagraaf reporting the inventariserend overleg with the grid operator. This is the EnergyCast/grid seam (SOLUTIONS_ARCHITECTURE §4 B congestion) — procedural/plan-content, not a spatial predicate. Carried as a conditional marker on the AOI alongside ET-02; live EnergyCast-MCP remains out of scope (fase 4). Never…        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="validation">
+  <h2>Validation report (V0&ndash;V4)</h2>
+  <details open>
+    <summary>opportunity-map-request &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261006T171730Z-energietoets-request</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-opportunity-map-request</span>
+&mdash; 1/1 artifact(s) valid against opportunity-map-request.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V1 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V2 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>norm-card-set &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261006T171730Z-energietoets-normcards</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-norm-card</span>
+&mdash; 3/3 artifact(s) valid against norm-card.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v2-card-citations</span>
+&mdash; all 3 NormCard(s) carry docId+article+version+verbatim quote+uri</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V1 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>formal-rule-set &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261006T171730Z-energietoets-formalrules</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-formal-rule</span>
+&mdash; 3/3 artifact(s) valid against formal-rule.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v2-rule-card-linkage</span>
+&mdash; all 3 FormalRule(s) link an existing NormCard (cite-or-abstain chain intact)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-executable-refs-registered</span>
+&mdash; all executableRefs are registered deterministic engine operations (6 registered)</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V1 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>zone-result-set &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261006T171730Z-energietoets-zones</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-zone-result</span>
+&mdash; 4/4 artifact(s) valid against zone-result.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v1-output-geometry-valid</span>
+&mdash; all 4 zone geometries valid (shapely is_valid)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-output-crs-and-bounds</span>
+&mdash; all payloads EPSG:4326 with coordinates inside NL bounds lon(3.0, 7.5)/lat(50.5, 54.0)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-input-layers-crs</span>
+&mdash; 1 input layer(s) declare a recognised CRS member (EPSG:28992 computation CRS)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-input-invalid-census</span>
+&mdash; no invalid as-served features in any input layer</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-final-zone-sanity</span>
+&mdash; final zone non-empty, valid, 1560.054 km2 &lt;= AOI 1560.054 km2</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V2 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>decision-table &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261006T171730Z-energietoets-decisiontable</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-decision-table</span>
+&mdash; 1/1 artifact(s) valid against decision-table.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v2-decision-table-linkage</span>
+&mdash; all 3 decision-table row(s) link an existing NormCard</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V1 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>pipeline-run &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261006T171730Z-energietoets-pipeline</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-opportunity-map-request</span>
+&mdash; 1/1 artifact(s) valid against opportunity-map-request.schema.json</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-norm-card</span>
+&mdash; 3/3 artifact(s) valid against norm-card.schema.json</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-formal-rule</span>
+&mdash; 3/3 artifact(s) valid against formal-rule.schema.json</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-zone-result</span>
+&mdash; 4/4 artifact(s) valid against zone-result.schema.json</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-decision-table</span>
+&mdash; 1/1 artifact(s) valid against decision-table.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v1-output-geometry-valid</span>
+&mdash; all 4 zone geometries valid (shapely is_valid)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-output-crs-and-bounds</span>
+&mdash; all payloads EPSG:4326 with coordinates inside NL bounds lon(3.0, 7.5)/lat(50.5, 54.0)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-input-layers-crs</span>
+&mdash; 1 input layer(s) declare a recognised CRS member (EPSG:28992 computation CRS)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-input-invalid-census</span>
+&mdash; no invalid as-served features in any input layer</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-final-zone-sanity</span>
+&mdash; final zone non-empty, valid, 1560.054 km2 &lt;= AOI 1560.054 km2</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v2-rule-card-linkage</span>
+&mdash; all 3 FormalRule(s) link an existing NormCard (cite-or-abstain chain intact)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-card-citations</span>
+&mdash; all 3 NormCard(s) carry docId+article+version+verbatim quote+uri</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-zone-rule-traceability</span>
+&mdash; every zone ruleId traces to a formalized rule (3 available)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-decision-table-linkage</span>
+&mdash; all 3 decision-table row(s) link an existing NormCard</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-executable-refs-registered</span>
+&mdash; all executableRefs are registered deterministic engine operations (6 registered)</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v3-reexecution-agreement</span>
+&mdash; independent geopandas re-execution of 3 rule(s): pipeline 1560.054 km2 vs independent 1560.054 km2; relative area delta 1.528e-16 (threshold 0.01); IoU 0.999997 (threshold 0.98)</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+</section>
+
+<section id="normcards">
+  <h2>Norm cards (cite-or-abstain)</h2>
+  <p class="map-note">3 verified cards; each carries the verbatim Dutch quote, the article,
+     the consolidated instrument version and the URL. 4 abstentions are listed below.</p>
+  <details>
+    <summary><span class="mono">NC-ET-01</span> &middot; Artikel 5.10
+      <span class="fx pass">binding</span>
+      <span class="fx pending">conf 0.95</span></summary>
+    <div class="body">
+      <p style="margin:4px 0">Afdeling 5.3 Energietoets (art. 5.10) applies to new functions that can lead to overloading of the electricity infrastructure: a declarative province-wide scope with no gebiedsaanwijzing/GIO — carried as a conditional marker on the request AOI framing the 5.11 aansluitbaarheid/energieparagraaf duties, never a spatial exclusion and never an invented net-capacity layer.</p>
+      <blockquote lang="nl">&ldquo;Deze afdeling is van toepassing op nieuwe functies die tot een overbelasting van de elektriciteits-infrastructuur kunnen leiden.&rdquo;</blockquote>
+      <p class="map-note" style="margin:4px 0">
+        <b>Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst</b> &middot; version: CVDR704250, geldend van 13-10-2025 t/m heden (viewed versie 8); grondslag art. 2.6 Omgevingswet; citeertitel &#39;Omgevingsverordening provincie Utrecht&#39; &middot;
+        doc <span class="mono">S07</span> &middot;
+        <a href="https://lokaleregelgeving.overheid.nl/cvdr704250" target="_blank" rel="noopener">https://lokaleregelgeving.overheid.nl/cvdr704250</a><br>
+        theme <span class="mono">energy:energietoets-toepassingsbereik</span>
+&middot; zones <span class="mono">aoi</span><br>caveat: Afdeling 5.3 Energietoets (art. 5.10/5.11) kent geen gebiedsaanwijzing/GIO; marker-geometrie is de request-AOI (provinciebreed toepassingsbereik). Geen netmodel- of EnergyCast-surrogaat in de PoC — aansluitbaarheid/energieparagraaf blijven V4-/EnergyCast-seam (SOLUTIONS_ARCHITECTURE §4 B congestion)      </p>
+    </div>
+  </details>
+  <details>
+    <summary><span class="mono">NC-ET-02</span> &middot; Artikel 5.11
+      <span class="fx pass">binding</span>
+      <span class="fx pending">conf 0.95</span></summary>
+    <div class="body">
+      <p style="margin:4px 0">An omgevingsplan that provides for new functions (other than fewer than 10 dwellings) that can lead to an additional load on the electricity infrastructure must take connection capacity (aansluitbaarheid) into account (art. 5.11 lid 1): the weakest take-into-account variant (bodem 3.10 / mobiliteit mirror) — a conditional marker on the province-wide AOI with the &lt;10-woningen exception in the tags; never a spatial exclusion without grid data.</p>
+      <blockquote lang="nl">&ldquo;Voor zover een omgevingsplan voorziet in nieuwe functies, niet zijnde minder dan 10 woningen, die tot een aanvullende belasting van de elektriciteits-infrastructuur kunnen leiden, wordt rekening gehouden met de aansluitbaarheid op de elektriciteits-infrastructuur.&rdquo;</blockquote>
+      <p class="map-note" style="margin:4px 0">
+        <b>Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst</b> &middot; version: CVDR704250, geldend van 13-10-2025 t/m heden (viewed versie 8); grondslag art. 2.6 Omgevingswet; citeertitel &#39;Omgevingsverordening provincie Utrecht&#39; &middot;
+        doc <span class="mono">S07</span> &middot;
+        <a href="https://lokaleregelgeving.overheid.nl/cvdr704250" target="_blank" rel="noopener">https://lokaleregelgeving.overheid.nl/cvdr704250</a><br>
+        theme <span class="mono">energy:energietoets-aansluitbaarheid</span>
+&middot; zones <span class="mono">aoi</span><br>caveat: Afdeling 5.3 Energietoets (art. 5.10/5.11) kent geen gebiedsaanwijzing/GIO; marker-geometrie is de request-AOI (provinciebreed toepassingsbereik). Geen netmodel- of EnergyCast-surrogaat in de PoC — aansluitbaarheid/energieparagraaf blijven V4-/EnergyCast-seam (SOLUTIONS_ARCHITECTURE §4 B congestion)      </p>
+    </div>
+  </details>
+  <details>
+    <summary><span class="mono">NC-ET-03</span> &middot; Artikel 5.11
+      <span class="fx pass">binding</span>
+      <span class="fx pending">conf 0.95</span></summary>
+    <div class="body">
+      <p style="margin:4px 0">The motivation of an omgevingsplan must contain an energy paragraph with a report of the inventariserend overleg between the grid operator and the initiator or municipality, showing that the development fits within the operator&#39;s energy infrastructure and other relevant energy-management developments (art. 5.11 lid 2): a procedural/motiveringseis — conditional marker on the AOI with the EnergyCast/grid seam noted; no deterministic netmodel or surrogaat capacity in the PoC.</p>
+      <blockquote lang="nl">&ldquo;De motivering van een omgevingsplan bevat een energieparagraaf met daarin een verslag van het inventariserend overleg tussen de netbeheerder en de initiatiefnemer of de gemeente, waarin weergegeven wordt dat de ontwikkeling past binnen de energie-infrastructuur van de netbeheerder en andere relevante ontwikkelingen voor energiebeheer in de leefomgeving.&rdquo;</blockquote>
+      <p class="map-note" style="margin:4px 0">
+        <b>Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst</b> &middot; version: CVDR704250, geldend van 13-10-2025 t/m heden (viewed versie 8); grondslag art. 2.6 Omgevingswet; citeertitel &#39;Omgevingsverordening provincie Utrecht&#39; &middot;
+        doc <span class="mono">S07</span> &middot;
+        <a href="https://lokaleregelgeving.overheid.nl/cvdr704250" target="_blank" rel="noopener">https://lokaleregelgeving.overheid.nl/cvdr704250</a><br>
+        theme <span class="mono">energy:energietoets-energieparagraaf</span>
+&middot; zones <span class="mono">aoi</span><br>caveat: Afdeling 5.3 Energietoets (art. 5.10/5.11) kent geen gebiedsaanwijzing/GIO; marker-geometrie is de request-AOI (provinciebreed toepassingsbereik). Geen netmodel- of EnergyCast-surrogaat in de PoC — aansluitbaarheid/energieparagraaf blijven V4-/EnergyCast-seam (SOLUTIONS_ARCHITECTURE §4 B congestion)      </p>
+    </div>
+  </details>
+  <h3>Abstentions (no verified citation &rarr; no rule)</h3>
+  <div class="scrollx">
+  <table>
+    <thead><tr><th>id</th><th>topic</th><th>reason</th></tr></thead>
+    <tbody>
+    <tr><td class="mono">AET-01</td><td></td><td>Afdeling 5.1 toepassingsbereik (5.1), afwijking verstedelijkingsverbod (5.2), kleine windturbine (5.3) en windenergielocatie (5.4) zijn eigendom van de wind-track (evidence-wind.json). Deze energietoets-track formaliseert ze niet opnieuw — cite-or-abstain-dedup; H5-dekking voor de gate via articlesConsidered.</td></tr>
+    <tr><td class="mono">AET-02</td><td></td><td>Zonneveld-instructieregel (5.5) is eigendom van de zon-track (evidence-zon.json). Niet formaliseren in energietoets.</td></tr>
+    <tr><td class="mono">AET-03</td><td></td><td>Biomassa landelijk (5.6) en stedelijk (5.7) zijn eigendom van de biomassa-track (evidence-biomassa.json BM-01/BM-02). Niet formaliseren in energietoets.</td></tr>
+    <tr><td class="mono">AET-04</td><td></td><td>Afdeling 5.2 transformatorstation: 5.8 vergunningplicht milieubelastende activiteit (≥ 200 MVA, niet in gesloten gebouw) en 5.9 indieningsvereisten (beschrijving, situatietekening, geluidrapport, maatregelen) zijn procedurele vergunningsketen — buiten de energy_storage-objectklasse van deze track en zonder spatial GIO/deterministische zone. Procedureel onthouden (cite-or-abstain); géén surrogaat-formalisering. Gate-dekking via articlesConsidered; formaliseerbare claims blijven 5.10/5.11 als conditionele markers + EnergyCast-seam (ET-03).</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="prov">
+  <h2>Provenance</h2>
+  <div class="panel">
+    <h3 style="margin-top:4px">Pipeline stages</h3>
+    <div class="scrollx">
+    <table>
+      <thead><tr><th>stage</th><th>agent</th><th>started</th><th>ended</th><th>used</th><th>generated</th></tr></thead>
+      <tbody>
+      <tr>
+        <td>Intake: load + validate OpportunityMapRequest</td>
+        <td class="mono">run.py-orchestrator</td>
+        <td class="mono">2026-10-06T17:17:30Z</td>
+        <td class="mono">2026-10-06T17:17:30Z</td>
+        <td class="mono">use-cases/energietoets.json</td>
+        <td class="mono">request.json</td>
+      </tr>
+      <tr>
+        <td>Norm Analyst: harvest NormCards (deterministic replay)</td>
+        <td class="mono">legal-recon-agent</td>
+        <td class="mono">2026-10-06T17:17:30Z</td>
+        <td class="mono">2026-10-06T17:17:30Z</td>
+        <td class="mono">corpus/evidence-energietoets.json, corpus/sources.json</td>
+        <td class="mono">normcards.json, normcards-rejected.json</td>
+      </tr>
+      <tr>
+        <td>Norm Formalizer: NormCards -&gt; FormalRules (deterministic templates)</td>
+        <td class="mono">norm-formalizer</td>
+        <td class="mono">2026-10-06T17:17:30Z</td>
+        <td class="mono">2026-10-06T17:17:30Z</td>
+        <td class="mono">normcards.json</td>
+        <td class="mono">formalrules.json</td>
+      </tr>
+      <tr>
+        <td>Geo Analyst: fetch zone layers (cache-first ArcGIS REST)</td>
+        <td class="mono">ldttoolbox-geoconnector/0.1</td>
+        <td class="mono">2026-10-06T17:17:30Z</td>
+        <td class="mono">2026-10-06T17:17:30Z</td>
+        <td class="mono">data/sources.json</td>
+        <td class="mono">layers.json</td>
+      </tr>
+      <tr>
+        <td>Geo Analyst: deterministic FormalRule execution (shapely path)</td>
+        <td class="mono">zone-engine</td>
+        <td class="mono">2026-10-06T17:17:30Z</td>
+        <td class="mono">2026-10-06T17:17:30Z</td>
+        <td class="mono">formalrules.json, layers.json</td>
+        <td class="mono">zones.json</td>
+      </tr>
+      <tr>
+        <td>Cartographer: zones.geojson + GML + report input</td>
+        <td class="mono">poc-cartographer/0.1</td>
+        <td class="mono">2026-10-06T17:17:30Z</td>
+        <td class="mono">2026-10-06T17:17:30Z</td>
+        <td class="mono">zones.json</td>
+        <td class="mono">zones.geojson, zones.gml</td>
+      </tr>
+      <tr>
+        <td>Critic/Validator: V0-V3 deterministic + V4 pending</td>
+        <td class="mono">critic-validator</td>
+        <td class="mono">2026-10-06T17:17:30Z</td>
+        <td class="mono">2026-10-06T17:17:31Z</td>
+        <td class="mono">request.json, normcards.json, formalrules.json, zones.json, decision-table.json</td>
+        <td class="mono">validation.json</td>
+      </tr>
+      <tr>
+        <td>Explainer: decision table + PROV bundle</td>
+        <td class="mono">explainer</td>
+        <td class="mono">2026-10-06T17:17:31Z</td>
+        <td class="mono">2026-10-06T17:17:31Z</td>
+        <td class="mono">normcards.json, formalrules.json, zones.json</td>
+        <td class="mono">decision-table.json, decision-table.md, prov.json</td>
+      </tr>
+      </tbody>
+    </table>
+    </div>
+    <h3>Agents</h3>
+    <p class="map-note"><span class="mono">run.py orchestrator (poc-run/1.0)</span> &middot; <span class="mono">NormAnalyst (legal-recon-agent#cvdr704250-geldend-2025-10-13)</span> &middot; <span class="mono">NormFormalizer (norm-formalizer#deterministic-templates-v1)</span> &middot; <span class="mono">GeoData connector (ldttoolbox-geoconnector/0.1)</span> &middot; <span class="mono">FormalRule zone engine (poc-zone-engine/0.1)</span> &middot; <span class="mono">Cartographer (poc-cartographer/0.1)</span> &middot; <span class="mono">Critic/Validator (critic-validator#deterministic-v0-v3-poc1)</span> &middot; <span class="mono">Explainer (explainer#deterministic-poc1)</span> &middot; <span class="mono">HTML report renderer (poc-report/1.0)</span> &middot; </p>
+    <h3>Geo sources (open-data aliases, with lastChecked)</h3>
+    <div class="scrollx">
+    <table>
+      <thead><tr><th>zone</th><th>source id</th><th>service / layer</th><th>features</th><th>lastChecked</th><th>alias for (GIO)</th></tr></thead>
+      <tbody>
+      <tr>
+        <td class="mono">aoi</td>
+        <td class="mono">request-aoi</td>
+        <td class="mono">None/None</td>
+        <td class="num">1</td>
+        <td class="mono">None</td>
+        <td class="mono">none</td>
+      </tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="map-note">Full bundle: <span class="mono">prov.json</span> (PROV-O-flavoured: agents, entities with
+       sha256, activities with timestamps, wasGeneratedBy / wasDerivedFrom).</p>
+  </div>
+</section>
+
+<section id="limits">
+  <h2>Limitations &amp; tuning</h2>
+  <div class="panel">
+    <ul style="margin:6px 0;padding-left:20px">
+<li>GIO geometry via the DSO Omgevingsdocumenten Downloaden API is key-gated (HTTP 401, verified); provincial zones are therefore served by the province&#39;s own vigerende-verordening open data (agrest Omgevingsverordening FeatureServer, IMOW ids + AKN DOCUMENT_URL) as provenance aliases of the Bijlage-II join-ids cited on each NormCard.</li><li>Natura 2000 geometry is the 2021 national designation layer (14 features, province hub copy), not a provincial instrument; ganzenrustgebieden come from the verordening&#39;s own designation set.</li><li>A major verordening/visie amendment is in progress (PS decision expected 18-11-2026, in werking 01-01-2027): re-run the legal recon and this pipeline before using results after that date.</li><li>Map geometry in this report is display-simplified; authoritative full-resolution geometry is zones.geojson / zones.gml in the run directory.</li><li>Zone algebra inputs are Douglas-Peucker simplified (tolerance recorded per run in run_summary.json tunings and per layer in the engine provenance) so province-scale GEOS overlays stay tractable; at the recorded 2 m tolerance the final area shifts by ~0.002% versus full resolution.</li><li>Transformatorstation arts. 5.8/5.9 are procedurele vergunnings-/indieningsketen — abstained under cite-or-abstain (AET-04); wind/zon/biomassa arts. 5.1–5.7 remain owned by their home tracks (AET-01–AET-03) — no double formalization.</li><li>Art. 5.11 lid 1 aansluitbaarheid and lid 2 energieparagraaf/inventariserend overleg are plan-content / procedural assessments routed to V4; no netbeheerder API or EnergyCast MCP is invoked in this track (fase 4 out-of-scope seam).</li><li>Marker geometry is the request AOI (sentinel zoneId &#39;aoi&#39;) — not a GIO and not a inventeed net-infrastructure layer.</li><li>0 of 3 rules are intentionally &#39;ambiguous&#39; (open norms): routed to the V4 human-expert checkpoint.</li>    </ul>
+    <p class="map-note"><b>Tuned parameters (recorded):</b>
+<span class="mono">display_tolerance_m=25.0</span> &middot; <span class="mono">input_simplify_m=2.0</span> &middot; <span class="mono">payload_coord_decimals=6</span> &middot; <span class="mono">buffer_resolution_quad_segs=16</span> &middot; </p>
+  </div>
+</section>
+
+<footer>
+  Artifacts in the run directory: <span class="mono">decision-table.json / decision-table.md / formalrules.json / layers.json / normcards-rejected.json / normcards.json / prov.json / report_input.json / request.json / rule-stats.json / validation.json / zones.geojson / zones.gml / zones.json / zones.xsd</span><br>
+  This report is a programming-stage decision-support artifact, not a permit decision. Every legal claim
+  traces to a cited instrument version; ambiguous norms are routed to the V4 human-expert checkpoint.
+</footer>
+</main>
+
+<script type="application/json" id="zones-data">{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"__cat":"marker","id":"zr-conditional_mark-ee87514f80","operation":"conditional_mark","areaKm2":1560.053846303,"ruleIds":["FR-ET-01"],"layers":["aoi","national_source"]},"geometry":{"type":"Polygon","coordinates":[[[5.051261,51.857569],[5.048102,51.85868],[5.043851,51.859226],[5.035999,51.858679],[5.026908,51.858608],[5.027512,51.859854],[5.027092,51.860218],[5.027388,51.863739],[5.023979,51.866347],[5.021749,51.86882],[5.023167,51.872027],[5.022836,51.874265],[5.02325,51.875802],[5.025467,51.880631],[5.027254,51.881528],[5.026956,51.881918],[5.001242,51.874726],[5.001267,51.874992],[4.996238,51.873119],[4.995077,51.875745],[4.995047,51.877616],[4.996174,51.879746],[4.998836,51.882279],[4.999452,51.884284],[4.995962,51.891963],[4.996302,51.896689],[4.994968,51.902292],[4.992457,51.901945],[4.974355,51.897093],[4.973411,51.89725],[4.973741,51.907667],[4.967792,51.910094],[4.964128,51.910638],[4.96416,51.912267],[4.963262,51.912804],[4.964785,51.913519],[4.96038,51.914827],[4.959693,51.914046],[4.958558,51.915285],[4.956157,51.915591],[4.949595,51.931566],[4.948545,51.931231],[4.947696,51.933725],[4.945944,51.93329],[4.942293,51.930167],[4.939235,51.928938],[4.932615,51.946663],[4.931366,51.94861],[4.930732,51.949006],[4.929964,51.948822],[4.929475,51.950191],[4.926301,51.950928],[4.924494,51.948946],[4.919188,51.944729],[4.91638,51.943178],[4.914011,51.942436],[4.88511,51.938587],[4.877793,51.938031],[4.871223,51.954643],[4.870429,51.955],[4.865689,51.9604],[4.864072,51.963911],[4.860806,51.967784],[4.859484,51.968673],[4.857828,51.969004],[4.847553,51.975137],[4.845622,51.974985],[4.834114,51.98558],[4.835218,51.986143],[4.817806,51.999767],[4.853337,52.004747],[4.857127,52.00596],[4.846896,52.018182],[4.840178,52.016707],[4.833335,52.016423],[4.824994,52.017237],[4.815616,52.013981],[4.803523,52.013956],[4.7987,52.022272],[4.809933,52.026765],[4.806704,52.033167],[4.811822,52.033825],[4.817193,52.036931],[4.829706,52.049476],[4.82949,52.049813],[4.848049,52.058165],[4.855971,52.059065],[4.867858,52.063054],[4.8732,52.068745],[4.863902,52.069053],[4.86404,52.068553],[4.862263,52.069064],[4.856064,52.068811],[4.850786,52.069117],[4.842204,52.069006],[4.837139,52.068424],[4.829808,52.066823],[4.834035,52.072736],[4.832666,52.072844],[4.833045,52.074827],[4.830898,52.074353],[4.830634,52.074971],[4.826276,52.074644],[4.826493,52.079527],[4.825629,52.079774],[4.823348,52.093369],[4.823056,52.105193],[4.824389,52.105403],[4.82538,52.107087],[4.79208,52.122287],[4.792345,52.123164],[4.793491,52.123973],[4.796993,52.124661],[4.798342,52.125299],[4.802097,52.124889],[4.802985,52.125394],[4.803474,52.126404],[4.806416,52.127422],[4.808065,52.128948],[4.80779,52.129858],[4.808882,52.131888],[4.807486,52.135022],[4.808967,52.135843],[4.808664,52.137149],[4.809093,52.137642],[4.813111,52.140173],[4.814038,52.140222],[4.816666,52.139387],[4.817916,52.140755],[4.820495,52.142216],[4.821577,52.141908],[4.826472,52.142176],[4.830144,52.143308],[4.832858,52.144762],[4.834128,52.142876],[4.836705,52.14288],[4.837366,52.14065],[4.840276,52.141561],[4.84174,52.140897],[4.842872,52.13946],[4.846251,52.139545],[4.847485,52.138938],[4.849534,52.139578],[4.851479,52.139674],[4.852152,52.139392],[4.852608,52.138269],[4.855239,52.13721],[4.864915,52.137391],[4.870342,52.138207],[4.871315,52.138838],[4.874518,52.138831],[4.873623,52.156083],[4.892273,52.161593],[4.855582,52.178917],[4.851409,52.179026],[4.843921,52.180122],[4.83652,52.184358],[4.83535,52.186109],[4.834029,52.186673],[4.833462,52.187561],[4.829336,52.18929],[4.827583,52.190932],[4.826323,52.191262],[4.824914,52.192608],[4.823445,52.193266],[4.823554,52.194303],[4.822209,52.196125],[4.8144,52.199309],[4.813102,52.201189],[4.813594,52.201847],[4.802925,52.201028],[4.801588,52.204322],[4.801622,52.21491],[4.80215,52.217634],[4.797003,52.220348],[4.795888,52.223485],[4.79443,52.223423],[4.794576,52.226731],[4.801755,52.226882],[4.805404,52.227989],[4.80896,52.226958],[4.814455,52.227224],[4.81914,52.228941],[4.820807,52.228833],[4.82371,52.229811],[4.830107,52.230913],[4.832533,52.23241],[4.834888,52.23288],[4.838687,52.235366],[4.842826,52.235339],[4.842939,52.236739],[4.846084,52.237719],[4.84728,52.239765],[4.848429,52.23968],[4.850819,52.2386],[4.851626,52.238995],[4.852187,52.239884],[4.851254,52.241867],[4.854938,52.242146],[4.855311,52.245605],[4.856862,52.246391],[4.857522,52.247723],[4.860621,52.248217],[4.864401,52.249795],[4.866253,52.251061],[4.868583,52.251579],[4.870037,52.253361],[4.87229,52.251182],[4.873853,52.250743],[4.877729,52.252816],[4.882719,52.253712],[4.884082,52.253352],[4.885711,52.251471],[4.887016,52.250899],[4.888265,52.251196],[4.891325,52.253303],[4.893042,52.253002],[4.896351,52.251292],[4.898569,52.250932],[4.899819,52.251237],[4.901795,52.252755],[4.903076,52.253205],[4.905712,52.253164],[4.909715,52.252446],[4.910805,52.252614],[4.914309,52.255345],[4.917601,52.257077],[4.918637,52.258942],[4.918118,52.261695],[4.923257,52.26309],[4.924748,52.267001],[4.929422,52.268403],[4.929354,52.269891],[4.928506,52.270466],[4.928015,52.271742],[4.926651,52.272445],[4.927661,52.273712],[4.925958,52.278195],[4.926444,52.27978],[4.928587,52.279611],[4.933801,52.280893],[4.937463,52.279548],[4.940717,52.279057],[4.942692,52.278184],[4.947214,52.279004],[4.953798,52.278027],[4.956773,52.278671],[4.961054,52.278174],[4.962244,52.280207],[4.965315,52.280448],[4.966166,52.28098],[4.966491,52.280096],[4.967674,52.279582],[4.969378,52.281789],[4.969726,52.283121],[4.975148,52.286342],[4.982889,52.289642],[4.983506,52.290368],[4.997475,52.289118],[5.001789,52.292793],[5.001851,52.295879],[5.003227,52.296065],[5.003835,52.298509],[5.005265,52.298393],[5.007892,52.301522],[5.009915,52.302094],[5.011769,52.303393],[5.014265,52.303677],[5.01784,52.302662],[5.021543,52.302457],[5.021867,52.282653],[5.024382,52.281357],[5.030528,52.288487],[5.033212,52.286258],[5.039429,52.283244],[5.040794,52.283881],[5.042779,52.282488],[5.047484,52.28502],[5.050404,52.287872],[5.052769,52.286485],[5.05954,52.28932],[5.063284,52.287195],[5.064792,52.285081],[5.065471,52.285198],[5.06588,52.280543],[5.064383,52.28075],[5.06307,52.281841],[5.062838,52.284798],[5.060519,52.285169],[5.055293,52.283006],[5.050753,52.281818],[5.049726,52.2805],[5.049621,52.277796],[5.048602,52.27703],[5.047216,52.277013],[5.043734,52.277909],[5.04211,52.27787],[5.033328,52.275437],[5.030579,52.272248],[5.028331,52.272091],[5.024078,52.273236],[5.022887,52.272483],[5.024817,52.269633],[5.02775,52.267574],[5.027799,52.266041],[5.026582,52.264148],[5.031099,52.261557],[5.032489,52.260166],[5.032457,52.258706],[5.030972,52.25682],[5.03186,52.255117],[5.034497,52.252865],[5.035733,52.252654],[5.037495,52.253689],[5.040062,52.256499],[5.04138,52.256698],[5.042943,52.255977],[5.044803,52.250666],[5.046634,52.248541],[5.045854,52.243382],[5.056276,52.237127],[5.05773,52.235353],[5.056762,52.235593],[5.05579,52.235214],[5.056224,52.234979],[5.042397,52.230547],[5.041586,52.230888],[5.041345,52.230077],[5.040518,52.229834],[5.042484,52.22878],[5.040842,52.227693],[5.040489,52.226942],[5.040046,52.227031],[5.038731,52.225179],[5.037102,52.225342],[5.036965,52.224776],[5.042796,52.22404],[5.036666,52.22436],[5.035849,52.217529],[5.036845,52.217191],[5.037145,52.216203],[5.036909,52.215156],[5.035683,52.215125],[5.035771,52.214557],[5.03533,52.214462],[5.03729,52.214215],[5.036666,52.214196],[5.036699,52.213648],[5.033788,52.213714],[5.03373,52.213123],[5.034339,52.2129],[5.033401,52.209836],[5.036445,52.209568],[5.035315,52.205233],[5.037421,52.204965],[5.03665,52.202138],[5.0256,52.203982],[5.025431,52.203256],[5.024674,52.202863],[5.023315,52.203051],[5.023433,52.203828],[5.022621,52.203941],[5.022454,52.202815],[5.02311,52.202743],[5.023026,52.202039],[5.021919,52.202501],[5.021587,52.202475],[5.023006,52.201746],[5.021293,52.201886],[5.026061,52.201374],[5.027942,52.199958],[5.029849,52.199534],[5.031826,52.198437],[5.037201,52.197949],[5.037123,52.196626],[5.037765,52.196565],[5.038134,52.195163],[5.036516,52.193552],[5.03622,52.191489],[5.035336,52.1907],[5.035708,52.189201],[5.034977,52.186803],[5.033635,52.186049],[5.032503,52.184113],[5.041549,52.183752],[5.042049,52.18337],[5.046223,52.166014],[5.082452,52.173842],[5.121176,52.180947],[5.143208,52.179936],[5.143358,52.18027],[5.189316,52.177681],[5.192586,52.177833],[5.217214,52.206233],[5.216487,52.206367],[5.22473,52.225197],[5.222901,52.225261],[5.245093,52.254431],[5.24398,52.254535],[5.265978,52.281926],[5.305834,52.277329],[5.335461,52.290218],[5.393236,52.255157],[5.402897,52.249527],[5.404643,52.24963],[5.393215,52.220634],[5.393642,52.22008],[5.407222,52.213405],[5.40967,52.21858],[5.421029,52.213194],[5.421987,52.212279],[5.434714,52.205876],[5.436382,52.205296],[5.436652,52.205586],[5.439237,52.204601],[5.43982,52.205984],[5.441039,52.205693],[5.440187,52.20463],[5.441146,52.204314],[5.439637,52.202608],[5.439387,52.20143],[5.440096,52.190052],[5.438086,52.184585],[5.439248,52.184313],[5.440137,52.173215],[5.438916,52.172917],[5.439876,52.171197],[5.444244,52.168563],[5.448824,52.167704],[5.475752,52.165762],[5.475746,52.166095],[5.479922,52.165815],[5.478883,52.164401],[5.475557,52.16439],[5.474484,52.163876],[5.472982,52.163822],[5.473393,52.162995],[5.472433,52.162851],[5.472866,52.161848],[5.47552,52.162162],[5.479197,52.161361],[5.480973,52.160102],[5.482116,52.159796],[5.481496,52.158297],[5.484317,52.158064],[5.483767,52.153981],[5.483248,52.154017],[5.482626,52.151504],[5.481342,52.150501],[5.484795,52.149166],[5.489476,52.148219],[5.496251,52.14735],[5.498982,52.147393],[5.497306,52.141444],[5.500002,52.141043],[5.502603,52.139536],[5.507592,52.138866],[5.50745,52.138532],[5.510307,52.137999],[5.514079,52.135923],[5.511881,52.134115],[5.511928,52.132105],[5.509203,52.131945],[5.506721,52.13098],[5.505043,52.131114],[5.501424,52.129926],[5.499165,52.130245],[5.499087,52.130543],[5.497913,52.130283],[5.496759,52.124814],[5.494695,52.124698],[5.49506,52.121993],[5.496653,52.120496],[5.496918,52.119557],[5.500042,52.1192],[5.505354,52.11975],[5.503756,52.116586],[5.507549,52.115645],[5.507702,52.113897],[5.506168,52.11431],[5.50395,52.11372],[5.50261,52.115092],[5.498917,52.116018],[5.496456,52.115945],[5.495626,52.115586],[5.488082,52.116101],[5.486447,52.11536],[5.491831,52.114508],[5.491832,52.11409],[5.493688,52.113094],[5.493941,52.112504],[5.493862,52.111097],[5.484302,52.105542],[5.485237,52.099216],[5.48474,52.096624],[5.486083,52.093657],[5.480622,52.092027],[5.476761,52.090348],[5.474833,52.090255],[5.472786,52.089162],[5.471886,52.089381],[5.471498,52.088351],[5.464054,52.083056],[5.463368,52.083442],[5.459678,52.082003],[5.460148,52.080952],[5.459243,52.080226],[5.461328,52.079311],[5.465435,52.078429],[5.466108,52.077731],[5.466382,52.07619],[5.467144,52.07557],[5.470305,52.074948],[5.473825,52.07305],[5.476174,52.072716],[5.477222,52.072013],[5.479976,52.07138],[5.48415,52.069622],[5.48589,52.070263],[5.487821,52.07025],[5.490696,52.071411],[5.493887,52.071889],[5.499882,52.071335],[5.502092,52.073345],[5.504584,52.07335],[5.50507,52.076911],[5.506482,52.076706],[5.509204,52.07697],[5.510361,52.078055],[5.509923,52.07905],[5.514157,52.078752],[5.519437,52.079227],[5.520357,52.078308],[5.521411,52.078231],[5.522654,52.077542],[5.526896,52.08068],[5.530474,52.081819],[5.531245,52.082419],[5.531807,52.083619],[5.531306,52.083939],[5.526634,52.084903],[5.530856,52.089774],[5.537127,52.088659],[5.538294,52.09269],[5.535079,52.092875],[5.538831,52.096436],[5.53916,52.097814],[5.534241,52.099772],[5.532817,52.099984],[5.531543,52.102267],[5.54154,52.103737],[5.544013,52.101949],[5.546302,52.102444],[5.545292,52.10439],[5.550343,52.10542],[5.553063,52.100954],[5.554236,52.100151],[5.551581,52.09726],[5.550463,52.096641],[5.554429,52.095392],[5.554435,52.093469],[5.55587,52.09182],[5.55471,52.091522],[5.555264,52.088096],[5.554905,52.08655],[5.555781,52.087112],[5.557112,52.086851],[5.557414,52.086111],[5.556687,52.085483],[5.559118,52.084468],[5.560778,52.084394],[5.560711,52.081413],[5.561343,52.080057],[5.562582,52.079258],[5.562739,52.078332],[5.561444,52.073286],[5.559212,52.071043],[5.560782,52.06859],[5.560729,52.067501],[5.559815,52.05955],[5.557575,52.050375],[5.558649,52.050006],[5.557903,52.048865],[5.570853,52.047997],[5.569981,52.045684],[5.570045,52.043401],[5.568657,52.042397],[5.567386,52.040606],[5.58354,52.036448],[5.59003,52.034387],[5.589589,52.031177],[5.586712,52.03129],[5.586503,52.029171],[5.587511,52.026628],[5.5872,52.02045],[5.590242,52.020267],[5.589622,52.015595],[5.586922,52.015713],[5.586751,52.012286],[5.586015,52.011776],[5.589132,52.009856],[5.591113,52.007301],[5.590808,52.003025],[5.591998,52.001392],[5.596556,51.999202],[5.602805,51.994869],[5.605065,51.99406],[5.607051,51.994327],[5.609972,51.993692],[5.613905,51.99018],[5.614337,51.98637],[5.615229,51.985172],[5.615083,51.982687],[5.620147,51.977362],[5.622262,51.976528],[5.626064,51.97407],[5.624856,51.970448],[5.622424,51.968239],[5.619539,51.967203],[5.618329,51.966258],[5.620258,51.966582],[5.624978,51.960065],[5.627124,51.955616],[5.627309,51.952473],[5.625027,51.951615],[5.623446,51.951946],[5.620162,51.951498],[5.620446,51.948166],[5.618791,51.948122],[5.616428,51.949354],[5.605782,51.94316],[5.590992,51.949776],[5.575574,51.952827],[5.561253,51.954502],[5.556934,51.955711],[5.552742,51.9574],[5.549561,51.959197],[5.545709,51.962256],[5.542407,51.965855],[5.538942,51.967827],[5.536086,51.968601],[5.51695,51.97194],[5.512481,51.973081],[5.500751,51.978592],[5.491877,51.981856],[5.485918,51.983284],[5.486214,51.983826],[5.481507,51.983889],[5.470991,51.982987],[5.453885,51.98371],[5.444654,51.985802],[5.440601,51.985918],[5.437323,51.985561],[5.431304,51.983725],[5.423364,51.978755],[5.418156,51.976606],[5.413514,51.97543],[5.399338,51.973103],[5.38707,51.969831],[5.381996,51.969199],[5.376909,51.969161],[5.366212,51.970672],[5.361845,51.970966],[5.357674,51.970694],[5.354038,51.969982],[5.350237,51.968668],[5.347095,51.966997],[5.338319,51.95995],[5.335221,51.958044],[5.329075,51.95614],[5.321611,51.954919],[5.318322,51.955019],[5.314857,51.95562],[5.310768,51.95705],[5.304594,51.960279],[5.300894,51.961569],[5.284083,51.962981],[5.272413,51.964849],[5.264561,51.967286],[5.258549,51.969762],[5.254186,51.97213],[5.247575,51.976905],[5.24526,51.977999],[5.241165,51.978869],[5.236867,51.978757],[5.233007,51.97755],[5.229913,51.975649],[5.227192,51.972603],[5.224373,51.968284],[5.219738,51.96387],[5.215444,51.961448],[5.210275,51.959847],[5.207434,51.959478],[5.203083,51.959562],[5.196104,51.960806],[5.189721,51.962914],[5.180227,51.967448],[5.169664,51.955475],[5.163429,51.946857],[5.153962,51.937292],[5.151467,51.933615],[5.15069,51.933321],[5.149412,51.933522],[5.148276,51.932737],[5.148024,51.93179],[5.149007,51.93054],[5.14846,51.929485],[5.142215,51.924749],[5.135675,51.918223],[5.136167,51.917739],[5.136436,51.914508],[5.135721,51.914195],[5.132278,51.914882],[5.119409,51.898605],[5.119065,51.89827],[5.116948,51.898104],[5.116986,51.896911],[5.118499,51.896378],[5.117671,51.89257],[5.112737,51.887776],[5.105759,51.888811],[5.097629,51.887852],[5.094825,51.888744],[5.090975,51.888976],[5.089043,51.888087],[5.088159,51.887094],[5.087382,51.883068],[5.08634,51.880769],[5.080532,51.875525],[5.073659,51.874039],[5.063388,51.87441],[5.055362,51.873041],[5.053614,51.871898],[5.052311,51.869984],[5.051811,51.868266],[5.052199,51.866643],[5.0542,51.865099],[5.062456,51.862195],[5.063292,51.861678],[5.06363,51.860608],[5.062358,51.859362],[5.059185,51.858154],[5.053808,51.857386],[5.051261,51.857569]]]}},{"type":"Feature","properties":{"__cat":"marker","id":"zr-conditional_mark-3ce7c0f70a","operation":"conditional_mark","areaKm2":1560.053846303,"ruleIds":["FR-ET-02"],"layers":["aoi","national_source"]},"geometry":{"type":"Polygon","coordinates":[[[5.051261,51.857569],[5.048102,51.85868],[5.043851,51.859226],[5.035999,51.858679],[5.026908,51.858608],[5.027512,51.859854],[5.027092,51.860218],[5.027388,51.863739],[5.023979,51.866347],[5.021749,51.86882],[5.023167,51.872027],[5.022836,51.874265],[5.02325,51.875802],[5.025467,51.880631],[5.027254,51.881528],[5.026956,51.881918],[5.001242,51.874726],[5.001267,51.874992],[4.996238,51.873119],[4.995077,51.875745],[4.995047,51.877616],[4.996174,51.879746],[4.998836,51.882279],[4.999452,51.884284],[4.995962,51.891963],[4.996302,51.896689],[4.994968,51.902292],[4.992457,51.901945],[4.974355,51.897093],[4.973411,51.89725],[4.973741,51.907667],[4.967792,51.910094],[4.964128,51.910638],[4.96416,51.912267],[4.963262,51.912804],[4.964785,51.913519],[4.96038,51.914827],[4.959693,51.914046],[4.958558,51.915285],[4.956157,51.915591],[4.949595,51.931566],[4.948545,51.931231],[4.947696,51.933725],[4.945944,51.93329],[4.942293,51.930167],[4.939235,51.928938],[4.932615,51.946663],[4.931366,51.94861],[4.930732,51.949006],[4.929964,51.948822],[4.929475,51.950191],[4.926301,51.950928],[4.924494,51.948946],[4.919188,51.944729],[4.91638,51.943178],[4.914011,51.942436],[4.88511,51.938587],[4.877793,51.938031],[4.871223,51.954643],[4.870429,51.955],[4.865689,51.9604],[4.864072,51.963911],[4.860806,51.967784],[4.859484,51.968673],[4.857828,51.969004],[4.847553,51.975137],[4.845622,51.974985],[4.834114,51.98558],[4.835218,51.986143],[4.817806,51.999767],[4.853337,52.004747],[4.857127,52.00596],[4.846896,52.018182],[4.840178,52.016707],[4.833335,52.016423],[4.824994,52.017237],[4.815616,52.013981],[4.803523,52.013956],[4.7987,52.022272],[4.809933,52.026765],[4.806704,52.033167],[4.811822,52.033825],[4.817193,52.036931],[4.829706,52.049476],[4.82949,52.049813],[4.848049,52.058165],[4.855971,52.059065],[4.867858,52.063054],[4.8732,52.068745],[4.863902,52.069053],[4.86404,52.068553],[4.862263,52.069064],[4.856064,52.068811],[4.850786,52.069117],[4.842204,52.069006],[4.837139,52.068424],[4.829808,52.066823],[4.834035,52.072736],[4.832666,52.072844],[4.833045,52.074827],[4.830898,52.074353],[4.830634,52.074971],[4.826276,52.074644],[4.826493,52.079527],[4.825629,52.079774],[4.823348,52.093369],[4.823056,52.105193],[4.824389,52.105403],[4.82538,52.107087],[4.79208,52.122287],[4.792345,52.123164],[4.793491,52.123973],[4.796993,52.124661],[4.798342,52.125299],[4.802097,52.124889],[4.802985,52.125394],[4.803474,52.126404],[4.806416,52.127422],[4.808065,52.128948],[4.80779,52.129858],[4.808882,52.131888],[4.807486,52.135022],[4.808967,52.135843],[4.808664,52.137149],[4.809093,52.137642],[4.813111,52.140173],[4.814038,52.140222],[4.816666,52.139387],[4.817916,52.140755],[4.820495,52.142216],[4.821577,52.141908],[4.826472,52.142176],[4.830144,52.143308],[4.832858,52.144762],[4.834128,52.142876],[4.836705,52.14288],[4.837366,52.14065],[4.840276,52.141561],[4.84174,52.140897],[4.842872,52.13946],[4.846251,52.139545],[4.847485,52.138938],[4.849534,52.139578],[4.851479,52.139674],[4.852152,52.139392],[4.852608,52.138269],[4.855239,52.13721],[4.864915,52.137391],[4.870342,52.138207],[4.871315,52.138838],[4.874518,52.138831],[4.873623,52.156083],[4.892273,52.161593],[4.855582,52.178917],[4.851409,52.179026],[4.843921,52.180122],[4.83652,52.184358],[4.83535,52.186109],[4.834029,52.186673],[4.833462,52.187561],[4.829336,52.18929],[4.827583,52.190932],[4.826323,52.191262],[4.824914,52.192608],[4.823445,52.193266],[4.823554,52.194303],[4.822209,52.196125],[4.8144,52.199309],[4.813102,52.201189],[4.813594,52.201847],[4.802925,52.201028],[4.801588,52.204322],[4.801622,52.21491],[4.80215,52.217634],[4.797003,52.220348],[4.795888,52.223485],[4.79443,52.223423],[4.794576,52.226731],[4.801755,52.226882],[4.805404,52.227989],[4.80896,52.226958],[4.814455,52.227224],[4.81914,52.228941],[4.820807,52.228833],[4.82371,52.229811],[4.830107,52.230913],[4.832533,52.23241],[4.834888,52.23288],[4.838687,52.235366],[4.842826,52.235339],[4.842939,52.236739],[4.846084,52.237719],[4.84728,52.239765],[4.848429,52.23968],[4.850819,52.2386],[4.851626,52.238995],[4.852187,52.239884],[4.851254,52.241867],[4.854938,52.242146],[4.855311,52.245605],[4.856862,52.246391],[4.857522,52.247723],[4.860621,52.248217],[4.864401,52.249795],[4.866253,52.251061],[4.868583,52.251579],[4.870037,52.253361],[4.87229,52.251182],[4.873853,52.250743],[4.877729,52.252816],[4.882719,52.253712],[4.884082,52.253352],[4.885711,52.251471],[4.887016,52.250899],[4.888265,52.251196],[4.891325,52.253303],[4.893042,52.253002],[4.896351,52.251292],[4.898569,52.250932],[4.899819,52.251237],[4.901795,52.252755],[4.903076,52.253205],[4.905712,52.253164],[4.909715,52.252446],[4.910805,52.252614],[4.914309,52.255345],[4.917601,52.257077],[4.918637,52.258942],[4.918118,52.261695],[4.923257,52.26309],[4.924748,52.267001],[4.929422,52.268403],[4.929354,52.269891],[4.928506,52.270466],[4.928015,52.271742],[4.926651,52.272445],[4.927661,52.273712],[4.925958,52.278195],[4.926444,52.27978],[4.928587,52.279611],[4.933801,52.280893],[4.937463,52.279548],[4.940717,52.279057],[4.942692,52.278184],[4.947214,52.279004],[4.953798,52.278027],[4.956773,52.278671],[4.961054,52.278174],[4.962244,52.280207],[4.965315,52.280448],[4.966166,52.28098],[4.966491,52.280096],[4.967674,52.279582],[4.969378,52.281789],[4.969726,52.283121],[4.975148,52.286342],[4.982889,52.289642],[4.983506,52.290368],[4.997475,52.289118],[5.001789,52.292793],[5.001851,52.295879],[5.003227,52.296065],[5.003835,52.298509],[5.005265,52.298393],[5.007892,52.301522],[5.009915,52.302094],[5.011769,52.303393],[5.014265,52.303677],[5.01784,52.302662],[5.021543,52.302457],[5.021867,52.282653],[5.024382,52.281357],[5.030528,52.288487],[5.033212,52.286258],[5.039429,52.283244],[5.040794,52.283881],[5.042779,52.282488],[5.047484,52.28502],[5.050404,52.287872],[5.052769,52.286485],[5.05954,52.28932],[5.063284,52.287195],[5.064792,52.285081],[5.065471,52.285198],[5.06588,52.280543],[5.064383,52.28075],[5.06307,52.281841],[5.062838,52.284798],[5.060519,52.285169],[5.055293,52.283006],[5.050753,52.281818],[5.049726,52.2805],[5.049621,52.277796],[5.048602,52.27703],[5.047216,52.277013],[5.043734,52.277909],[5.04211,52.27787],[5.033328,52.275437],[5.030579,52.272248],[5.028331,52.272091],[5.024078,52.273236],[5.022887,52.272483],[5.024817,52.269633],[5.02775,52.267574],[5.027799,52.266041],[5.026582,52.264148],[5.031099,52.261557],[5.032489,52.260166],[5.032457,52.258706],[5.030972,52.25682],[5.03186,52.255117],[5.034497,52.252865],[5.035733,52.252654],[5.037495,52.253689],[5.040062,52.256499],[5.04138,52.256698],[5.042943,52.255977],[5.044803,52.250666],[5.046634,52.248541],[5.045854,52.243382],[5.056276,52.237127],[5.05773,52.235353],[5.056762,52.235593],[5.05579,52.235214],[5.056224,52.234979],[5.042397,52.230547],[5.041586,52.230888],[5.041345,52.230077],[5.040518,52.229834],[5.042484,52.22878],[5.040842,52.227693],[5.040489,52.226942],[5.040046,52.227031],[5.038731,52.225179],[5.037102,52.225342],[5.036965,52.224776],[5.042796,52.22404],[5.036666,52.22436],[5.035849,52.217529],[5.036845,52.217191],[5.037145,52.216203],[5.036909,52.215156],[5.035683,52.215125],[5.035771,52.214557],[5.03533,52.214462],[5.03729,52.214215],[5.036666,52.214196],[5.036699,52.213648],[5.033788,52.213714],[5.03373,52.213123],[5.034339,52.2129],[5.033401,52.209836],[5.036445,52.209568],[5.035315,52.205233],[5.037421,52.204965],[5.03665,52.202138],[5.0256,52.203982],[5.025431,52.203256],[5.024674,52.202863],[5.023315,52.203051],[5.023433,52.203828],[5.022621,52.203941],[5.022454,52.202815],[5.02311,52.202743],[5.023026,52.202039],[5.021919,52.202501],[5.021587,52.202475],[5.023006,52.201746],[5.021293,52.201886],[5.026061,52.201374],[5.027942,52.199958],[5.029849,52.199534],[5.031826,52.198437],[5.037201,52.197949],[5.037123,52.196626],[5.037765,52.196565],[5.038134,52.195163],[5.036516,52.193552],[5.03622,52.191489],[5.035336,52.1907],[5.035708,52.189201],[5.034977,52.186803],[5.033635,52.186049],[5.032503,52.184113],[5.041549,52.183752],[5.042049,52.18337],[5.046223,52.166014],[5.082452,52.173842],[5.121176,52.180947],[5.143208,52.179936],[5.143358,52.18027],[5.189316,52.177681],[5.192586,52.177833],[5.217214,52.206233],[5.216487,52.206367],[5.22473,52.225197],[5.222901,52.225261],[5.245093,52.254431],[5.24398,52.254535],[5.265978,52.281926],[5.305834,52.277329],[5.335461,52.290218],[5.393236,52.255157],[5.402897,52.249527],[5.404643,52.24963],[5.393215,52.220634],[5.393642,52.22008],[5.407222,52.213405],[5.40967,52.21858],[5.421029,52.213194],[5.421987,52.212279],[5.434714,52.205876],[5.436382,52.205296],[5.436652,52.205586],[5.439237,52.204601],[5.43982,52.205984],[5.441039,52.205693],[5.440187,52.20463],[5.441146,52.204314],[5.439637,52.202608],[5.439387,52.20143],[5.440096,52.190052],[5.438086,52.184585],[5.439248,52.184313],[5.440137,52.173215],[5.438916,52.172917],[5.439876,52.171197],[5.444244,52.168563],[5.448824,52.167704],[5.475752,52.165762],[5.475746,52.166095],[5.479922,52.165815],[5.478883,52.164401],[5.475557,52.16439],[5.474484,52.163876],[5.472982,52.163822],[5.473393,52.162995],[5.472433,52.162851],[5.472866,52.161848],[5.47552,52.162162],[5.479197,52.161361],[5.480973,52.160102],[5.482116,52.159796],[5.481496,52.158297],[5.484317,52.158064],[5.483767,52.153981],[5.483248,52.154017],[5.482626,52.151504],[5.481342,52.150501],[5.484795,52.149166],[5.489476,52.148219],[5.496251,52.14735],[5.498982,52.147393],[5.497306,52.141444],[5.500002,52.141043],[5.502603,52.139536],[5.507592,52.138866],[5.50745,52.138532],[5.510307,52.137999],[5.514079,52.135923],[5.511881,52.134115],[5.511928,52.132105],[5.509203,52.131945],[5.506721,52.13098],[5.505043,52.131114],[5.501424,52.129926],[5.499165,52.130245],[5.499087,52.130543],[5.497913,52.130283],[5.496759,52.124814],[5.494695,52.124698],[5.49506,52.121993],[5.496653,52.120496],[5.496918,52.119557],[5.500042,52.1192],[5.505354,52.11975],[5.503756,52.116586],[5.507549,52.115645],[5.507702,52.113897],[5.506168,52.11431],[5.50395,52.11372],[5.50261,52.115092],[5.498917,52.116018],[5.496456,52.115945],[5.495626,52.115586],[5.488082,52.116101],[5.486447,52.11536],[5.491831,52.114508],[5.491832,52.11409],[5.493688,52.113094],[5.493941,52.112504],[5.493862,52.111097],[5.484302,52.105542],[5.485237,52.099216],[5.48474,52.096624],[5.486083,52.093657],[5.480622,52.092027],[5.476761,52.090348],[5.474833,52.090255],[5.472786,52.089162],[5.471886,52.089381],[5.471498,52.088351],[5.464054,52.083056],[5.463368,52.083442],[5.459678,52.082003],[5.460148,52.080952],[5.459243,52.080226],[5.461328,52.079311],[5.465435,52.078429],[5.466108,52.077731],[5.466382,52.07619],[5.467144,52.07557],[5.470305,52.074948],[5.473825,52.07305],[5.476174,52.072716],[5.477222,52.072013],[5.479976,52.07138],[5.48415,52.069622],[5.48589,52.070263],[5.487821,52.07025],[5.490696,52.071411],[5.493887,52.071889],[5.499882,52.071335],[5.502092,52.073345],[5.504584,52.07335],[5.50507,52.076911],[5.506482,52.076706],[5.509204,52.07697],[5.510361,52.078055],[5.509923,52.07905],[5.514157,52.078752],[5.519437,52.079227],[5.520357,52.078308],[5.521411,52.078231],[5.522654,52.077542],[5.526896,52.08068],[5.530474,52.081819],[5.531245,52.082419],[5.531807,52.083619],[5.531306,52.083939],[5.526634,52.084903],[5.530856,52.089774],[5.537127,52.088659],[5.538294,52.09269],[5.535079,52.092875],[5.538831,52.096436],[5.53916,52.097814],[5.534241,52.099772],[5.532817,52.099984],[5.531543,52.102267],[5.54154,52.103737],[5.544013,52.101949],[5.546302,52.102444],[5.545292,52.10439],[5.550343,52.10542],[5.553063,52.100954],[5.554236,52.100151],[5.551581,52.09726],[5.550463,52.096641],[5.554429,52.095392],[5.554435,52.093469],[5.55587,52.09182],[5.55471,52.091522],[5.555264,52.088096],[5.554905,52.08655],[5.555781,52.087112],[5.557112,52.086851],[5.557414,52.086111],[5.556687,52.085483],[5.559118,52.084468],[5.560778,52.084394],[5.560711,52.081413],[5.561343,52.080057],[5.562582,52.079258],[5.562739,52.078332],[5.561444,52.073286],[5.559212,52.071043],[5.560782,52.06859],[5.560729,52.067501],[5.559815,52.05955],[5.557575,52.050375],[5.558649,52.050006],[5.557903,52.048865],[5.570853,52.047997],[5.569981,52.045684],[5.570045,52.043401],[5.568657,52.042397],[5.567386,52.040606],[5.58354,52.036448],[5.59003,52.034387],[5.589589,52.031177],[5.586712,52.03129],[5.586503,52.029171],[5.587511,52.026628],[5.5872,52.02045],[5.590242,52.020267],[5.589622,52.015595],[5.586922,52.015713],[5.586751,52.012286],[5.586015,52.011776],[5.589132,52.009856],[5.591113,52.007301],[5.590808,52.003025],[5.591998,52.001392],[5.596556,51.999202],[5.602805,51.994869],[5.605065,51.99406],[5.607051,51.994327],[5.609972,51.993692],[5.613905,51.99018],[5.614337,51.98637],[5.615229,51.985172],[5.615083,51.982687],[5.620147,51.977362],[5.622262,51.976528],[5.626064,51.97407],[5.624856,51.970448],[5.622424,51.968239],[5.619539,51.967203],[5.618329,51.966258],[5.620258,51.966582],[5.624978,51.960065],[5.627124,51.955616],[5.627309,51.952473],[5.625027,51.951615],[5.623446,51.951946],[5.620162,51.951498],[5.620446,51.948166],[5.618791,51.948122],[5.616428,51.949354],[5.605782,51.94316],[5.590992,51.949776],[5.575574,51.952827],[5.561253,51.954502],[5.556934,51.955711],[5.552742,51.9574],[5.549561,51.959197],[5.545709,51.962256],[5.542407,51.965855],[5.538942,51.967827],[5.536086,51.968601],[5.51695,51.97194],[5.512481,51.973081],[5.500751,51.978592],[5.491877,51.981856],[5.485918,51.983284],[5.486214,51.983826],[5.481507,51.983889],[5.470991,51.982987],[5.453885,51.98371],[5.444654,51.985802],[5.440601,51.985918],[5.437323,51.985561],[5.431304,51.983725],[5.423364,51.978755],[5.418156,51.976606],[5.413514,51.97543],[5.399338,51.973103],[5.38707,51.969831],[5.381996,51.969199],[5.376909,51.969161],[5.366212,51.970672],[5.361845,51.970966],[5.357674,51.970694],[5.354038,51.969982],[5.350237,51.968668],[5.347095,51.966997],[5.338319,51.95995],[5.335221,51.958044],[5.329075,51.95614],[5.321611,51.954919],[5.318322,51.955019],[5.314857,51.95562],[5.310768,51.95705],[5.304594,51.960279],[5.300894,51.961569],[5.284083,51.962981],[5.272413,51.964849],[5.264561,51.967286],[5.258549,51.969762],[5.254186,51.97213],[5.247575,51.976905],[5.24526,51.977999],[5.241165,51.978869],[5.236867,51.978757],[5.233007,51.97755],[5.229913,51.975649],[5.227192,51.972603],[5.224373,51.968284],[5.219738,51.96387],[5.215444,51.961448],[5.210275,51.959847],[5.207434,51.959478],[5.203083,51.959562],[5.196104,51.960806],[5.189721,51.962914],[5.180227,51.967448],[5.169664,51.955475],[5.163429,51.946857],[5.153962,51.937292],[5.151467,51.933615],[5.15069,51.933321],[5.149412,51.933522],[5.148276,51.932737],[5.148024,51.93179],[5.149007,51.93054],[5.14846,51.929485],[5.142215,51.924749],[5.135675,51.918223],[5.136167,51.917739],[5.136436,51.914508],[5.135721,51.914195],[5.132278,51.914882],[5.119409,51.898605],[5.119065,51.89827],[5.116948,51.898104],[5.116986,51.896911],[5.118499,51.896378],[5.117671,51.89257],[5.112737,51.887776],[5.105759,51.888811],[5.097629,51.887852],[5.094825,51.888744],[5.090975,51.888976],[5.089043,51.888087],[5.088159,51.887094],[5.087382,51.883068],[5.08634,51.880769],[5.080532,51.875525],[5.073659,51.874039],[5.063388,51.87441],[5.055362,51.873041],[5.053614,51.871898],[5.052311,51.869984],[5.051811,51.868266],[5.052199,51.866643],[5.0542,51.865099],[5.062456,51.862195],[5.063292,51.861678],[5.06363,51.860608],[5.062358,51.859362],[5.059185,51.858154],[5.053808,51.857386],[5.051261,51.857569]]]}},{"type":"Feature","properties":{"__cat":"marker","id":"zr-conditional_mark-91ae0112f3","operation":"conditional_mark","areaKm2":1560.053846303,"ruleIds":["FR-ET-03"],"layers":["aoi","national_source"]},"geometry":{"type":"Polygon","coordinates":[[[5.051261,51.857569],[5.048102,51.85868],[5.043851,51.859226],[5.035999,51.858679],[5.026908,51.858608],[5.027512,51.859854],[5.027092,51.860218],[5.027388,51.863739],[5.023979,51.866347],[5.021749,51.86882],[5.023167,51.872027],[5.022836,51.874265],[5.02325,51.875802],[5.025467,51.880631],[5.027254,51.881528],[5.026956,51.881918],[5.001242,51.874726],[5.001267,51.874992],[4.996238,51.873119],[4.995077,51.875745],[4.995047,51.877616],[4.996174,51.879746],[4.998836,51.882279],[4.999452,51.884284],[4.995962,51.891963],[4.996302,51.896689],[4.994968,51.902292],[4.992457,51.901945],[4.974355,51.897093],[4.973411,51.89725],[4.973741,51.907667],[4.967792,51.910094],[4.964128,51.910638],[4.96416,51.912267],[4.963262,51.912804],[4.964785,51.913519],[4.96038,51.914827],[4.959693,51.914046],[4.958558,51.915285],[4.956157,51.915591],[4.949595,51.931566],[4.948545,51.931231],[4.947696,51.933725],[4.945944,51.93329],[4.942293,51.930167],[4.939235,51.928938],[4.932615,51.946663],[4.931366,51.94861],[4.930732,51.949006],[4.929964,51.948822],[4.929475,51.950191],[4.926301,51.950928],[4.924494,51.948946],[4.919188,51.944729],[4.91638,51.943178],[4.914011,51.942436],[4.88511,51.938587],[4.877793,51.938031],[4.871223,51.954643],[4.870429,51.955],[4.865689,51.9604],[4.864072,51.963911],[4.860806,51.967784],[4.859484,51.968673],[4.857828,51.969004],[4.847553,51.975137],[4.845622,51.974985],[4.834114,51.98558],[4.835218,51.986143],[4.817806,51.999767],[4.853337,52.004747],[4.857127,52.00596],[4.846896,52.018182],[4.840178,52.016707],[4.833335,52.016423],[4.824994,52.017237],[4.815616,52.013981],[4.803523,52.013956],[4.7987,52.022272],[4.809933,52.026765],[4.806704,52.033167],[4.811822,52.033825],[4.817193,52.036931],[4.829706,52.049476],[4.82949,52.049813],[4.848049,52.058165],[4.855971,52.059065],[4.867858,52.063054],[4.8732,52.068745],[4.863902,52.069053],[4.86404,52.068553],[4.862263,52.069064],[4.856064,52.068811],[4.850786,52.069117],[4.842204,52.069006],[4.837139,52.068424],[4.829808,52.066823],[4.834035,52.072736],[4.832666,52.072844],[4.833045,52.074827],[4.830898,52.074353],[4.830634,52.074971],[4.826276,52.074644],[4.826493,52.079527],[4.825629,52.079774],[4.823348,52.093369],[4.823056,52.105193],[4.824389,52.105403],[4.82538,52.107087],[4.79208,52.122287],[4.792345,52.123164],[4.793491,52.123973],[4.796993,52.124661],[4.798342,52.125299],[4.802097,52.124889],[4.802985,52.125394],[4.803474,52.126404],[4.806416,52.127422],[4.808065,52.128948],[4.80779,52.129858],[4.808882,52.131888],[4.807486,52.135022],[4.808967,52.135843],[4.808664,52.137149],[4.809093,52.137642],[4.813111,52.140173],[4.814038,52.140222],[4.816666,52.139387],[4.817916,52.140755],[4.820495,52.142216],[4.821577,52.141908],[4.826472,52.142176],[4.830144,52.143308],[4.832858,52.144762],[4.834128,52.142876],[4.836705,52.14288],[4.837366,52.14065],[4.840276,52.141561],[4.84174,52.140897],[4.842872,52.13946],[4.846251,52.139545],[4.847485,52.138938],[4.849534,52.139578],[4.851479,52.139674],[4.852152,52.139392],[4.852608,52.138269],[4.855239,52.13721],[4.864915,52.137391],[4.870342,52.138207],[4.871315,52.138838],[4.874518,52.138831],[4.873623,52.156083],[4.892273,52.161593],[4.855582,52.178917],[4.851409,52.179026],[4.843921,52.180122],[4.83652,52.184358],[4.83535,52.186109],[4.834029,52.186673],[4.833462,52.187561],[4.829336,52.18929],[4.827583,52.190932],[4.826323,52.191262],[4.824914,52.192608],[4.823445,52.193266],[4.823554,52.194303],[4.822209,52.196125],[4.8144,52.199309],[4.813102,52.201189],[4.813594,52.201847],[4.802925,52.201028],[4.801588,52.204322],[4.801622,52.21491],[4.80215,52.217634],[4.797003,52.220348],[4.795888,52.223485],[4.79443,52.223423],[4.794576,52.226731],[4.801755,52.226882],[4.805404,52.227989],[4.80896,52.226958],[4.814455,52.227224],[4.81914,52.228941],[4.820807,52.228833],[4.82371,52.229811],[4.830107,52.230913],[4.832533,52.23241],[4.834888,52.23288],[4.838687,52.235366],[4.842826,52.235339],[4.842939,52.236739],[4.846084,52.237719],[4.84728,52.239765],[4.848429,52.23968],[4.850819,52.2386],[4.851626,52.238995],[4.852187,52.239884],[4.851254,52.241867],[4.854938,52.242146],[4.855311,52.245605],[4.856862,52.246391],[4.857522,52.247723],[4.860621,52.248217],[4.864401,52.249795],[4.866253,52.251061],[4.868583,52.251579],[4.870037,52.253361],[4.87229,52.251182],[4.873853,52.250743],[4.877729,52.252816],[4.882719,52.253712],[4.884082,52.253352],[4.885711,52.251471],[4.887016,52.250899],[4.888265,52.251196],[4.891325,52.253303],[4.893042,52.253002],[4.896351,52.251292],[4.898569,52.250932],[4.899819,52.251237],[4.901795,52.252755],[4.903076,52.253205],[4.905712,52.253164],[4.909715,52.252446],[4.910805,52.252614],[4.914309,52.255345],[4.917601,52.257077],[4.918637,52.258942],[4.918118,52.261695],[4.923257,52.26309],[4.924748,52.267001],[4.929422,52.268403],[4.929354,52.269891],[4.928506,52.270466],[4.928015,52.271742],[4.926651,52.272445],[4.927661,52.273712],[4.925958,52.278195],[4.926444,52.27978],[4.928587,52.279611],[4.933801,52.280893],[4.937463,52.279548],[4.940717,52.279057],[4.942692,52.278184],[4.947214,52.279004],[4.953798,52.278027],[4.956773,52.278671],[4.961054,52.278174],[4.962244,52.280207],[4.965315,52.280448],[4.966166,52.28098],[4.966491,52.280096],[4.967674,52.279582],[4.969378,52.281789],[4.969726,52.283121],[4.975148,52.286342],[4.982889,52.289642],[4.983506,52.290368],[4.997475,52.289118],[5.001789,52.292793],[5.001851,52.295879],[5.003227,52.296065],[5.003835,52.298509],[5.005265,52.298393],[5.007892,52.301522],[5.009915,52.302094],[5.011769,52.303393],[5.014265,52.303677],[5.01784,52.302662],[5.021543,52.302457],[5.021867,52.282653],[5.024382,52.281357],[5.030528,52.288487],[5.033212,52.286258],[5.039429,52.283244],[5.040794,52.283881],[5.042779,52.282488],[5.047484,52.28502],[5.050404,52.287872],[5.052769,52.286485],[5.05954,52.28932],[5.063284,52.287195],[5.064792,52.285081],[5.065471,52.285198],[5.06588,52.280543],[5.064383,52.28075],[5.06307,52.281841],[5.062838,52.284798],[5.060519,52.285169],[5.055293,52.283006],[5.050753,52.281818],[5.049726,52.2805],[5.049621,52.277796],[5.048602,52.27703],[5.047216,52.277013],[5.043734,52.277909],[5.04211,52.27787],[5.033328,52.275437],[5.030579,52.272248],[5.028331,52.272091],[5.024078,52.273236],[5.022887,52.272483],[5.024817,52.269633],[5.02775,52.267574],[5.027799,52.266041],[5.026582,52.264148],[5.031099,52.261557],[5.032489,52.260166],[5.032457,52.258706],[5.030972,52.25682],[5.03186,52.255117],[5.034497,52.252865],[5.035733,52.252654],[5.037495,52.253689],[5.040062,52.256499],[5.04138,52.256698],[5.042943,52.255977],[5.044803,52.250666],[5.046634,52.248541],[5.045854,52.243382],[5.056276,52.237127],[5.05773,52.235353],[5.056762,52.235593],[5.05579,52.235214],[5.056224,52.234979],[5.042397,52.230547],[5.041586,52.230888],[5.041345,52.230077],[5.040518,52.229834],[5.042484,52.22878],[5.040842,52.227693],[5.040489,52.226942],[5.040046,52.227031],[5.038731,52.225179],[5.037102,52.225342],[5.036965,52.224776],[5.042796,52.22404],[5.036666,52.22436],[5.035849,52.217529],[5.036845,52.217191],[5.037145,52.216203],[5.036909,52.215156],[5.035683,52.215125],[5.035771,52.214557],[5.03533,52.214462],[5.03729,52.214215],[5.036666,52.214196],[5.036699,52.213648],[5.033788,52.213714],[5.03373,52.213123],[5.034339,52.2129],[5.033401,52.209836],[5.036445,52.209568],[5.035315,52.205233],[5.037421,52.204965],[5.03665,52.202138],[5.0256,52.203982],[5.025431,52.203256],[5.024674,52.202863],[5.023315,52.203051],[5.023433,52.203828],[5.022621,52.203941],[5.022454,52.202815],[5.02311,52.202743],[5.023026,52.202039],[5.021919,52.202501],[5.021587,52.202475],[5.023006,52.201746],[5.021293,52.201886],[5.026061,52.201374],[5.027942,52.199958],[5.029849,52.199534],[5.031826,52.198437],[5.037201,52.197949],[5.037123,52.196626],[5.037765,52.196565],[5.038134,52.195163],[5.036516,52.193552],[5.03622,52.191489],[5.035336,52.1907],[5.035708,52.189201],[5.034977,52.186803],[5.033635,52.186049],[5.032503,52.184113],[5.041549,52.183752],[5.042049,52.18337],[5.046223,52.166014],[5.082452,52.173842],[5.121176,52.180947],[5.143208,52.179936],[5.143358,52.18027],[5.189316,52.177681],[5.192586,52.177833],[5.217214,52.206233],[5.216487,52.206367],[5.22473,52.225197],[5.222901,52.225261],[5.245093,52.254431],[5.24398,52.254535],[5.265978,52.281926],[5.305834,52.277329],[5.335461,52.290218],[5.393236,52.255157],[5.402897,52.249527],[5.404643,52.24963],[5.393215,52.220634],[5.393642,52.22008],[5.407222,52.213405],[5.40967,52.21858],[5.421029,52.213194],[5.421987,52.212279],[5.434714,52.205876],[5.436382,52.205296],[5.436652,52.205586],[5.439237,52.204601],[5.43982,52.205984],[5.441039,52.205693],[5.440187,52.20463],[5.441146,52.204314],[5.439637,52.202608],[5.439387,52.20143],[5.440096,52.190052],[5.438086,52.184585],[5.439248,52.184313],[5.440137,52.173215],[5.438916,52.172917],[5.439876,52.171197],[5.444244,52.168563],[5.448824,52.167704],[5.475752,52.165762],[5.475746,52.166095],[5.479922,52.165815],[5.478883,52.164401],[5.475557,52.16439],[5.474484,52.163876],[5.472982,52.163822],[5.473393,52.162995],[5.472433,52.162851],[5.472866,52.161848],[5.47552,52.162162],[5.479197,52.161361],[5.480973,52.160102],[5.482116,52.159796],[5.481496,52.158297],[5.484317,52.158064],[5.483767,52.153981],[5.483248,52.154017],[5.482626,52.151504],[5.481342,52.150501],[5.484795,52.149166],[5.489476,52.148219],[5.496251,52.14735],[5.498982,52.147393],[5.497306,52.141444],[5.500002,52.141043],[5.502603,52.139536],[5.507592,52.138866],[5.50745,52.138532],[5.510307,52.137999],[5.514079,52.135923],[5.511881,52.134115],[5.511928,52.132105],[5.509203,52.131945],[5.506721,52.13098],[5.505043,52.131114],[5.501424,52.129926],[5.499165,52.130245],[5.499087,52.130543],[5.497913,52.130283],[5.496759,52.124814],[5.494695,52.124698],[5.49506,52.121993],[5.496653,52.120496],[5.496918,52.119557],[5.500042,52.1192],[5.505354,52.11975],[5.503756,52.116586],[5.507549,52.115645],[5.507702,52.113897],[5.506168,52.11431],[5.50395,52.11372],[5.50261,52.115092],[5.498917,52.116018],[5.496456,52.115945],[5.495626,52.115586],[5.488082,52.116101],[5.486447,52.11536],[5.491831,52.114508],[5.491832,52.11409],[5.493688,52.113094],[5.493941,52.112504],[5.493862,52.111097],[5.484302,52.105542],[5.485237,52.099216],[5.48474,52.096624],[5.486083,52.093657],[5.480622,52.092027],[5.476761,52.090348],[5.474833,52.090255],[5.472786,52.089162],[5.471886,52.089381],[5.471498,52.088351],[5.464054,52.083056],[5.463368,52.083442],[5.459678,52.082003],[5.460148,52.080952],[5.459243,52.080226],[5.461328,52.079311],[5.465435,52.078429],[5.466108,52.077731],[5.466382,52.07619],[5.467144,52.07557],[5.470305,52.074948],[5.473825,52.07305],[5.476174,52.072716],[5.477222,52.072013],[5.479976,52.07138],[5.48415,52.069622],[5.48589,52.070263],[5.487821,52.07025],[5.490696,52.071411],[5.493887,52.071889],[5.499882,52.071335],[5.502092,52.073345],[5.504584,52.07335],[5.50507,52.076911],[5.506482,52.076706],[5.509204,52.07697],[5.510361,52.078055],[5.509923,52.07905],[5.514157,52.078752],[5.519437,52.079227],[5.520357,52.078308],[5.521411,52.078231],[5.522654,52.077542],[5.526896,52.08068],[5.530474,52.081819],[5.531245,52.082419],[5.531807,52.083619],[5.531306,52.083939],[5.526634,52.084903],[5.530856,52.089774],[5.537127,52.088659],[5.538294,52.09269],[5.535079,52.092875],[5.538831,52.096436],[5.53916,52.097814],[5.534241,52.099772],[5.532817,52.099984],[5.531543,52.102267],[5.54154,52.103737],[5.544013,52.101949],[5.546302,52.102444],[5.545292,52.10439],[5.550343,52.10542],[5.553063,52.100954],[5.554236,52.100151],[5.551581,52.09726],[5.550463,52.096641],[5.554429,52.095392],[5.554435,52.093469],[5.55587,52.09182],[5.55471,52.091522],[5.555264,52.088096],[5.554905,52.08655],[5.555781,52.087112],[5.557112,52.086851],[5.557414,52.086111],[5.556687,52.085483],[5.559118,52.084468],[5.560778,52.084394],[5.560711,52.081413],[5.561343,52.080057],[5.562582,52.079258],[5.562739,52.078332],[5.561444,52.073286],[5.559212,52.071043],[5.560782,52.06859],[5.560729,52.067501],[5.559815,52.05955],[5.557575,52.050375],[5.558649,52.050006],[5.557903,52.048865],[5.570853,52.047997],[5.569981,52.045684],[5.570045,52.043401],[5.568657,52.042397],[5.567386,52.040606],[5.58354,52.036448],[5.59003,52.034387],[5.589589,52.031177],[5.586712,52.03129],[5.586503,52.029171],[5.587511,52.026628],[5.5872,52.02045],[5.590242,52.020267],[5.589622,52.015595],[5.586922,52.015713],[5.586751,52.012286],[5.586015,52.011776],[5.589132,52.009856],[5.591113,52.007301],[5.590808,52.003025],[5.591998,52.001392],[5.596556,51.999202],[5.602805,51.994869],[5.605065,51.99406],[5.607051,51.994327],[5.609972,51.993692],[5.613905,51.99018],[5.614337,51.98637],[5.615229,51.985172],[5.615083,51.982687],[5.620147,51.977362],[5.622262,51.976528],[5.626064,51.97407],[5.624856,51.970448],[5.622424,51.968239],[5.619539,51.967203],[5.618329,51.966258],[5.620258,51.966582],[5.624978,51.960065],[5.627124,51.955616],[5.627309,51.952473],[5.625027,51.951615],[5.623446,51.951946],[5.620162,51.951498],[5.620446,51.948166],[5.618791,51.948122],[5.616428,51.949354],[5.605782,51.94316],[5.590992,51.949776],[5.575574,51.952827],[5.561253,51.954502],[5.556934,51.955711],[5.552742,51.9574],[5.549561,51.959197],[5.545709,51.962256],[5.542407,51.965855],[5.538942,51.967827],[5.536086,51.968601],[5.51695,51.97194],[5.512481,51.973081],[5.500751,51.978592],[5.491877,51.981856],[5.485918,51.983284],[5.486214,51.983826],[5.481507,51.983889],[5.470991,51.982987],[5.453885,51.98371],[5.444654,51.985802],[5.440601,51.985918],[5.437323,51.985561],[5.431304,51.983725],[5.423364,51.978755],[5.418156,51.976606],[5.413514,51.97543],[5.399338,51.973103],[5.38707,51.969831],[5.381996,51.969199],[5.376909,51.969161],[5.366212,51.970672],[5.361845,51.970966],[5.357674,51.970694],[5.354038,51.969982],[5.350237,51.968668],[5.347095,51.966997],[5.338319,51.95995],[5.335221,51.958044],[5.329075,51.95614],[5.321611,51.954919],[5.318322,51.955019],[5.314857,51.95562],[5.310768,51.95705],[5.304594,51.960279],[5.300894,51.961569],[5.284083,51.962981],[5.272413,51.964849],[5.264561,51.967286],[5.258549,51.969762],[5.254186,51.97213],[5.247575,51.976905],[5.24526,51.977999],[5.241165,51.978869],[5.236867,51.978757],[5.233007,51.97755],[5.229913,51.975649],[5.227192,51.972603],[5.224373,51.968284],[5.219738,51.96387],[5.215444,51.961448],[5.210275,51.959847],[5.207434,51.959478],[5.203083,51.959562],[5.196104,51.960806],[5.189721,51.962914],[5.180227,51.967448],[5.169664,51.955475],[5.163429,51.946857],[5.153962,51.937292],[5.151467,51.933615],[5.15069,51.933321],[5.149412,51.933522],[5.148276,51.932737],[5.148024,51.93179],[5.149007,51.93054],[5.14846,51.929485],[5.142215,51.924749],[5.135675,51.918223],[5.136167,51.917739],[5.136436,51.914508],[5.135721,51.914195],[5.132278,51.914882],[5.119409,51.898605],[5.119065,51.89827],[5.116948,51.898104],[5.116986,51.896911],[5.118499,51.896378],[5.117671,51.89257],[5.112737,51.887776],[5.105759,51.888811],[5.097629,51.887852],[5.094825,51.888744],[5.090975,51.888976],[5.089043,51.888087],[5.088159,51.887094],[5.087382,51.883068],[5.08634,51.880769],[5.080532,51.875525],[5.073659,51.874039],[5.063388,51.87441],[5.055362,51.873041],[5.053614,51.871898],[5.052311,51.869984],[5.051811,51.868266],[5.052199,51.866643],[5.0542,51.865099],[5.062456,51.862195],[5.063292,51.861678],[5.06363,51.860608],[5.062358,51.859362],[5.059185,51.858154],[5.053808,51.857386],[5.051261,51.857569]]]}},{"type":"Feature","properties":{"__cat":"final","id":"zr-final-63d257c43f","operation":"final","areaKm2":1560.053846303,"ruleIds":["FR-ET-01","FR-ET-02","FR-ET-03"],"layers":[]},"geometry":{"type":"Polygon","coordinates":[[[5.051805,51.857477],[5.048102,51.85868],[5.043851,51.859226],[5.035999,51.858679],[5.026908,51.858608],[5.027512,51.859854],[5.027092,51.860218],[5.027388,51.863739],[5.023979,51.866347],[5.021749,51.86882],[5.023167,51.872027],[5.022836,51.874265],[5.02325,51.875802],[5.025467,51.880631],[5.027254,51.881528],[5.026956,51.881918],[5.001242,51.874726],[5.001267,51.874992],[4.996238,51.873119],[4.995077,51.875745],[4.995047,51.877616],[4.996174,51.879746],[4.998836,51.882279],[4.999452,51.884284],[4.995962,51.891963],[4.996302,51.896689],[4.994968,51.902292],[4.992457,51.901945],[4.974355,51.897093],[4.973411,51.89725],[4.973741,51.907667],[4.967792,51.910094],[4.964128,51.910638],[4.96416,51.912267],[4.963262,51.912804],[4.964785,51.913519],[4.96038,51.914827],[4.959693,51.914046],[4.958558,51.915285],[4.956157,51.915591],[4.949595,51.931566],[4.948545,51.931231],[4.947696,51.933725],[4.945944,51.93329],[4.942293,51.930167],[4.939235,51.928938],[4.932615,51.946663],[4.931366,51.94861],[4.930732,51.949006],[4.929964,51.948822],[4.929475,51.950191],[4.926301,51.950928],[4.924494,51.948946],[4.919188,51.944729],[4.91638,51.943178],[4.914011,51.942436],[4.88511,51.938587],[4.877793,51.938031],[4.871223,51.954643],[4.870429,51.955],[4.865689,51.9604],[4.864072,51.963911],[4.860806,51.967784],[4.859484,51.968673],[4.857828,51.969004],[4.847553,51.975137],[4.845622,51.974985],[4.834114,51.98558],[4.835218,51.986143],[4.817806,51.999767],[4.853337,52.004747],[4.857127,52.00596],[4.846896,52.018182],[4.840178,52.016707],[4.833335,52.016423],[4.824994,52.017237],[4.815616,52.013981],[4.803523,52.013956],[4.7987,52.022272],[4.809933,52.026765],[4.806704,52.033167],[4.811822,52.033825],[4.817193,52.036931],[4.829706,52.049476],[4.82949,52.049813],[4.848049,52.058165],[4.855971,52.059065],[4.867858,52.063054],[4.8732,52.068745],[4.863902,52.069053],[4.86404,52.068553],[4.862263,52.069064],[4.856064,52.068811],[4.850786,52.069117],[4.842204,52.069006],[4.837139,52.068424],[4.829808,52.066823],[4.834035,52.072736],[4.832666,52.072844],[4.833045,52.074827],[4.830898,52.074353],[4.830634,52.074971],[4.826276,52.074644],[4.826493,52.079527],[4.825629,52.079774],[4.823348,52.093369],[4.823056,52.105193],[4.824389,52.105403],[4.82538,52.107087],[4.79208,52.122287],[4.792345,52.123164],[4.793491,52.123973],[4.796993,52.124661],[4.798342,52.125299],[4.802097,52.124889],[4.802985,52.125394],[4.803474,52.126404],[4.806416,52.127422],[4.808065,52.128948],[4.80779,52.129858],[4.808882,52.131888],[4.807486,52.135022],[4.808967,52.135843],[4.808664,52.137149],[4.809093,52.137642],[4.813111,52.140173],[4.814038,52.140222],[4.816666,52.139387],[4.817916,52.140755],[4.820495,52.142216],[4.821577,52.141908],[4.826472,52.142176],[4.830144,52.143308],[4.832858,52.144762],[4.834128,52.142876],[4.836705,52.14288],[4.837366,52.14065],[4.840276,52.141561],[4.84174,52.140897],[4.842872,52.13946],[4.846251,52.139545],[4.847485,52.138938],[4.849534,52.139578],[4.851479,52.139674],[4.852152,52.139392],[4.852608,52.138269],[4.855239,52.13721],[4.864915,52.137391],[4.870342,52.138207],[4.871315,52.138838],[4.874518,52.138831],[4.873623,52.156083],[4.892273,52.161593],[4.855582,52.178917],[4.851409,52.179026],[4.843921,52.180122],[4.83652,52.184358],[4.83535,52.186109],[4.834029,52.186673],[4.833462,52.187561],[4.829336,52.18929],[4.827583,52.190932],[4.826323,52.191262],[4.824914,52.192608],[4.823445,52.193266],[4.823554,52.194303],[4.822209,52.196125],[4.8144,52.199309],[4.813102,52.201189],[4.813594,52.201847],[4.802925,52.201028],[4.801588,52.204322],[4.801622,52.21491],[4.80215,52.217634],[4.797003,52.220348],[4.795888,52.223485],[4.79443,52.223423],[4.794576,52.226731],[4.801755,52.226882],[4.805404,52.227989],[4.80896,52.226958],[4.814455,52.227224],[4.81914,52.228941],[4.820807,52.228833],[4.82371,52.229811],[4.830107,52.230913],[4.832533,52.23241],[4.834888,52.23288],[4.838687,52.235366],[4.842826,52.235339],[4.842939,52.236739],[4.846084,52.237719],[4.84728,52.239765],[4.848429,52.23968],[4.850819,52.2386],[4.851626,52.238995],[4.852187,52.239884],[4.851254,52.241867],[4.854938,52.242146],[4.855311,52.245605],[4.856862,52.246391],[4.857522,52.247723],[4.860621,52.248217],[4.864401,52.249795],[4.866253,52.251061],[4.868583,52.251579],[4.870037,52.253361],[4.87229,52.251182],[4.873853,52.250743],[4.877729,52.252816],[4.882719,52.253712],[4.884082,52.253352],[4.885711,52.251471],[4.887016,52.250899],[4.888265,52.251196],[4.891325,52.253303],[4.893042,52.253002],[4.896351,52.251292],[4.898569,52.250932],[4.899819,52.251237],[4.901795,52.252755],[4.903076,52.253205],[4.905712,52.253164],[4.909715,52.252446],[4.910805,52.252614],[4.914309,52.255345],[4.917601,52.257077],[4.918637,52.258942],[4.918118,52.261695],[4.923257,52.26309],[4.924748,52.267001],[4.929422,52.268403],[4.929354,52.269891],[4.928506,52.270466],[4.928015,52.271742],[4.926651,52.272445],[4.927661,52.273712],[4.925958,52.278195],[4.926444,52.27978],[4.928587,52.279611],[4.933801,52.280893],[4.937463,52.279548],[4.940717,52.279057],[4.942692,52.278184],[4.947214,52.279004],[4.953798,52.278027],[4.956773,52.278671],[4.961054,52.278174],[4.962244,52.280207],[4.965315,52.280448],[4.966166,52.28098],[4.966491,52.280096],[4.967674,52.279582],[4.969378,52.281789],[4.969726,52.283121],[4.975148,52.286342],[4.982889,52.289642],[4.983506,52.290368],[4.997475,52.289118],[5.001789,52.292793],[5.001851,52.295879],[5.003227,52.296065],[5.003835,52.298509],[5.005265,52.298393],[5.007892,52.301522],[5.009915,52.302094],[5.011769,52.303393],[5.014265,52.303677],[5.01784,52.302662],[5.021543,52.302457],[5.021867,52.282653],[5.024382,52.281357],[5.030528,52.288487],[5.033212,52.286258],[5.039429,52.283244],[5.040794,52.283881],[5.042779,52.282488],[5.047484,52.28502],[5.050404,52.287872],[5.052769,52.286485],[5.05954,52.28932],[5.063284,52.287195],[5.064792,52.285081],[5.065471,52.285198],[5.06588,52.280543],[5.064383,52.28075],[5.06307,52.281841],[5.062838,52.284798],[5.060519,52.285169],[5.055293,52.283006],[5.050753,52.281818],[5.049726,52.2805],[5.049621,52.277796],[5.048602,52.27703],[5.047216,52.277013],[5.043734,52.277909],[5.04211,52.27787],[5.033328,52.275437],[5.030579,52.272248],[5.028331,52.272091],[5.024078,52.273236],[5.022887,52.272483],[5.024817,52.269633],[5.02775,52.267574],[5.027799,52.266041],[5.026582,52.264148],[5.031099,52.261557],[5.032489,52.260166],[5.032457,52.258706],[5.030972,52.25682],[5.03186,52.255117],[5.034497,52.252865],[5.035733,52.252654],[5.037495,52.253689],[5.040062,52.256499],[5.04138,52.256698],[5.042943,52.255977],[5.044803,52.250666],[5.046634,52.248541],[5.045854,52.243382],[5.056276,52.237127],[5.05773,52.235353],[5.056762,52.235593],[5.05579,52.235214],[5.056224,52.234979],[5.042397,52.230547],[5.041586,52.230888],[5.041345,52.230077],[5.040518,52.229834],[5.042484,52.22878],[5.040842,52.227693],[5.040489,52.226942],[5.040046,52.227031],[5.038731,52.225179],[5.037102,52.225342],[5.036965,52.224776],[5.042796,52.22404],[5.036666,52.22436],[5.035849,52.217529],[5.036845,52.217191],[5.037145,52.216203],[5.036909,52.215156],[5.035683,52.215125],[5.035771,52.214557],[5.03533,52.214462],[5.03729,52.214215],[5.036666,52.214196],[5.036699,52.213648],[5.033788,52.213714],[5.03373,52.213123],[5.034339,52.2129],[5.033401,52.209836],[5.036445,52.209568],[5.035315,52.205233],[5.037421,52.204965],[5.03665,52.202138],[5.0256,52.203982],[5.025431,52.203256],[5.024674,52.202863],[5.023315,52.203051],[5.023433,52.203828],[5.022621,52.203941],[5.022454,52.202815],[5.02311,52.202743],[5.023026,52.202039],[5.021919,52.202501],[5.021587,52.202475],[5.023006,52.201746],[5.021293,52.201886],[5.026061,52.201374],[5.027942,52.199958],[5.029849,52.199534],[5.031826,52.198437],[5.037201,52.197949],[5.037123,52.196626],[5.037765,52.196565],[5.038134,52.195163],[5.036516,52.193552],[5.03622,52.191489],[5.035336,52.1907],[5.035708,52.189201],[5.034977,52.186803],[5.033635,52.186049],[5.032503,52.184113],[5.041549,52.183752],[5.042049,52.18337],[5.046223,52.166014],[5.082452,52.173842],[5.121176,52.180947],[5.143208,52.179936],[5.143358,52.18027],[5.189316,52.177681],[5.192586,52.177833],[5.217214,52.206233],[5.216487,52.206367],[5.22473,52.225197],[5.222901,52.225261],[5.245093,52.254431],[5.24398,52.254535],[5.265978,52.281926],[5.305834,52.277329],[5.335461,52.290218],[5.393236,52.255157],[5.402897,52.249527],[5.404643,52.24963],[5.393215,52.220634],[5.393642,52.22008],[5.407222,52.213405],[5.40967,52.21858],[5.421029,52.213194],[5.421987,52.212279],[5.434714,52.205876],[5.436382,52.205296],[5.436652,52.205586],[5.439237,52.204601],[5.43982,52.205984],[5.441039,52.205693],[5.440187,52.20463],[5.441146,52.204314],[5.439637,52.202608],[5.439387,52.20143],[5.440096,52.190052],[5.438086,52.184585],[5.439248,52.184313],[5.440137,52.173215],[5.438916,52.172917],[5.439876,52.171197],[5.444244,52.168563],[5.448824,52.167704],[5.475752,52.165762],[5.475746,52.166095],[5.479922,52.165815],[5.478883,52.164401],[5.475557,52.16439],[5.474484,52.163876],[5.472982,52.163822],[5.473393,52.162995],[5.472433,52.162851],[5.472866,52.161848],[5.47552,52.162162],[5.479197,52.161361],[5.480973,52.160102],[5.482116,52.159796],[5.481496,52.158297],[5.484317,52.158064],[5.483767,52.153981],[5.483248,52.154017],[5.482626,52.151504],[5.481342,52.150501],[5.484795,52.149166],[5.489476,52.148219],[5.496251,52.14735],[5.498982,52.147393],[5.497306,52.141444],[5.500002,52.141043],[5.502603,52.139536],[5.507592,52.138866],[5.50745,52.138532],[5.510307,52.137999],[5.514079,52.135923],[5.511881,52.134115],[5.511928,52.132105],[5.509203,52.131945],[5.506721,52.13098],[5.505043,52.131114],[5.501424,52.129926],[5.499165,52.130245],[5.499087,52.130543],[5.497913,52.130283],[5.496759,52.124814],[5.494695,52.124698],[5.49506,52.121993],[5.496653,52.120496],[5.496918,52.119557],[5.500042,52.1192],[5.505354,52.11975],[5.503756,52.116586],[5.507549,52.115645],[5.507702,52.113897],[5.506168,52.11431],[5.50395,52.11372],[5.50261,52.115092],[5.498917,52.116018],[5.496456,52.115945],[5.495626,52.115586],[5.488082,52.116101],[5.486447,52.11536],[5.491831,52.114508],[5.491832,52.11409],[5.493688,52.113094],[5.493941,52.112504],[5.493862,52.111097],[5.484302,52.105542],[5.485237,52.099216],[5.48474,52.096624],[5.486083,52.093657],[5.480622,52.092027],[5.476761,52.090348],[5.474833,52.090255],[5.472786,52.089162],[5.471886,52.089381],[5.471498,52.088351],[5.464054,52.083056],[5.463368,52.083442],[5.459678,52.082003],[5.460148,52.080952],[5.459243,52.080226],[5.461328,52.079311],[5.465435,52.078429],[5.466108,52.077731],[5.466382,52.07619],[5.467144,52.07557],[5.470305,52.074948],[5.473825,52.07305],[5.476174,52.072716],[5.477222,52.072013],[5.479976,52.07138],[5.48415,52.069622],[5.48589,52.070263],[5.487821,52.07025],[5.490696,52.071411],[5.493887,52.071889],[5.499882,52.071335],[5.502092,52.073345],[5.504584,52.07335],[5.50507,52.076911],[5.506482,52.076706],[5.509204,52.07697],[5.510361,52.078055],[5.509923,52.07905],[5.514157,52.078752],[5.519437,52.079227],[5.520357,52.078308],[5.521411,52.078231],[5.522654,52.077542],[5.526896,52.08068],[5.530474,52.081819],[5.531245,52.082419],[5.531807,52.083619],[5.531306,52.083939],[5.526634,52.084903],[5.530856,52.089774],[5.537127,52.088659],[5.538294,52.09269],[5.535079,52.092875],[5.538831,52.096436],[5.53916,52.097814],[5.534241,52.099772],[5.532817,52.099984],[5.531543,52.102267],[5.54154,52.103737],[5.544013,52.101949],[5.546302,52.102444],[5.545292,52.10439],[5.550343,52.10542],[5.553063,52.100954],[5.554236,52.100151],[5.551581,52.09726],[5.550463,52.096641],[5.554429,52.095392],[5.554435,52.093469],[5.55587,52.09182],[5.55471,52.091522],[5.555264,52.088096],[5.554905,52.08655],[5.555781,52.087112],[5.557112,52.086851],[5.557414,52.086111],[5.556687,52.085483],[5.559118,52.084468],[5.560778,52.084394],[5.560711,52.081413],[5.561343,52.080057],[5.562582,52.079258],[5.562739,52.078332],[5.561444,52.073286],[5.559212,52.071043],[5.560782,52.06859],[5.560729,52.067501],[5.559815,52.05955],[5.557575,52.050375],[5.558649,52.050006],[5.557903,52.048865],[5.570853,52.047997],[5.569981,52.045684],[5.570045,52.043401],[5.568657,52.042397],[5.567386,52.040606],[5.58354,52.036448],[5.59003,52.034387],[5.589589,52.031177],[5.586712,52.03129],[5.586503,52.029171],[5.587511,52.026628],[5.5872,52.02045],[5.590242,52.020267],[5.589622,52.015595],[5.586922,52.015713],[5.586751,52.012286],[5.586015,52.011776],[5.589132,52.009856],[5.591113,52.007301],[5.590808,52.003025],[5.591998,52.001392],[5.596556,51.999202],[5.602805,51.994869],[5.605065,51.99406],[5.607051,51.994327],[5.609972,51.993692],[5.613905,51.99018],[5.614337,51.98637],[5.615229,51.985172],[5.615083,51.982687],[5.620147,51.977362],[5.622262,51.976528],[5.626064,51.97407],[5.624856,51.970448],[5.622424,51.968239],[5.619539,51.967203],[5.618329,51.966258],[5.620258,51.966582],[5.624978,51.960065],[5.627124,51.955616],[5.627309,51.952473],[5.625027,51.951615],[5.623446,51.951946],[5.620162,51.951498],[5.620446,51.948166],[5.618791,51.948122],[5.616428,51.949354],[5.605782,51.94316],[5.590992,51.949776],[5.575574,51.952827],[5.561253,51.954502],[5.556934,51.955711],[5.552742,51.9574],[5.549561,51.959197],[5.545709,51.962256],[5.542407,51.965855],[5.538942,51.967827],[5.536086,51.968601],[5.51695,51.97194],[5.512481,51.973081],[5.500751,51.978592],[5.491877,51.981856],[5.485918,51.983284],[5.486214,51.983826],[5.481507,51.983889],[5.470991,51.982987],[5.453885,51.98371],[5.444654,51.985802],[5.440601,51.985918],[5.437323,51.985561],[5.431304,51.983725],[5.423364,51.978755],[5.418156,51.976606],[5.413514,51.97543],[5.399338,51.973103],[5.38707,51.969831],[5.381996,51.969199],[5.376909,51.969161],[5.366212,51.970672],[5.361845,51.970966],[5.357674,51.970694],[5.354038,51.969982],[5.350237,51.968668],[5.347095,51.966997],[5.338319,51.95995],[5.335221,51.958044],[5.329075,51.95614],[5.321611,51.954919],[5.318322,51.955019],[5.314857,51.95562],[5.310768,51.95705],[5.304594,51.960279],[5.300894,51.961569],[5.284083,51.962981],[5.272413,51.964849],[5.264561,51.967286],[5.258549,51.969762],[5.254186,51.97213],[5.247575,51.976905],[5.24526,51.977999],[5.241165,51.978869],[5.236867,51.978757],[5.233007,51.97755],[5.229913,51.975649],[5.227192,51.972603],[5.224373,51.968284],[5.219738,51.96387],[5.215444,51.961448],[5.210275,51.959847],[5.207434,51.959478],[5.203083,51.959562],[5.196104,51.960806],[5.189721,51.962914],[5.180227,51.967448],[5.169664,51.955475],[5.163429,51.946857],[5.153962,51.937292],[5.151467,51.933615],[5.15069,51.933321],[5.149412,51.933522],[5.148276,51.932737],[5.148024,51.93179],[5.149007,51.93054],[5.14846,51.929485],[5.142215,51.924749],[5.135675,51.918223],[5.136167,51.917739],[5.136436,51.914508],[5.135721,51.914195],[5.132278,51.914882],[5.119409,51.898605],[5.119065,51.89827],[5.116948,51.898104],[5.116986,51.896911],[5.118499,51.896378],[5.117671,51.89257],[5.112737,51.887776],[5.105759,51.888811],[5.097629,51.887852],[5.094825,51.888744],[5.090975,51.888976],[5.089043,51.888087],[5.088159,51.887094],[5.087382,51.883068],[5.08634,51.880769],[5.080532,51.875525],[5.073659,51.874039],[5.063388,51.87441],[5.055362,51.873041],[5.053614,51.871898],[5.052311,51.869984],[5.051811,51.868266],[5.052199,51.866643],[5.0542,51.865099],[5.062456,51.862195],[5.063682,51.860824],[5.062358,51.859362],[5.059185,51.858154],[5.053808,51.857386],[5.051805,51.857477]]]}}]}</script>
+<script type="application/json" id="aoi-data">{"type":"Polygon","coordinates":[[[5.051805191752606,51.85747728421476],[5.048102330469578,51.858680364643014],[5.043850831849191,51.85922605908287],[5.035999449985038,51.858678950268185],[5.026907960578834,51.858607715033884],[5.027512074590075,51.859854297680826],[5.027091939103976,51.860218200032726],[5.027387882340039,51.863739025037624],[5.023978901045821,51.86634652930022],[5.021748886874258,51.86881960914218],[5.023167179670962,51.872026718357276],[5.022836317669296,51.87426495974196],[5.02325031255518,51.875801835895615],[5.02546697444192,51.88063055874165],[5.027254431529192,51.881527811132266],[5.026955908456507,51.88191820509296],[5.001242457133439,51.87472591924761],[5.001266806415844,51.87499222638967],[4.99623812500091,51.87311919156875],[4.995077152576099,51.875744760420936],[4.9950473997957,51.87761631396468],[4.996173868001637,51.879745714420224],[4.998836253907426,51.882279076182435],[4.9994522734591555,51.884283506417155],[4.995961684139997,51.8919629771162],[4.996301869478571,51.896689232735625],[4.994968055710089,51.90229233350238],[4.992456880356493,51.90194533523566],[4.974354975055686,51.8970931075487],[4.973410699442001,51.897250049557194],[4.973740624971704,51.90766741243568],[4.967791941386356,51.91009411316662],[4.964128182781904,51.910638002342715],[4.9641601578144225,51.9122674564867],[4.963261944781535,51.91280392707624],[4.9647852237394,51.91351896096518],[4.960380233898458,51.91482682947019],[4.959693416242848,51.914045995404884],[4.958557722910685,51.91528522040843],[4.956157452716002,51.91559106386883],[4.94959548872089,51.93156606332523],[4.948545399731534,51.93123071433861],[4.947696234459879,51.9337246056973],[4.945944227038912,51.933289506995095],[4.942293150208047,51.93016667866049],[4.939235057525859,51.928938071445],[4.932615468529446,51.94666291390403],[4.931366111699701,51.948610210816824],[4.930731672360831,51.949006014562826],[4.92996374424164,51.94882229429465],[4.929475474039462,51.950191449182],[4.926301291212205,51.95092794425963],[4.9244937121895065,51.948945947403786],[4.919187601286364,51.94472895078483],[4.916379881931708,51.94317845316258],[4.914011340842767,51.94243593793896],[4.885109973229771,51.938586715358504],[4.877792920155553,51.938030675583256],[4.871222881982619,51.95464349499807],[4.870429097210865,51.954999931340524],[4.86568871923655,51.96039990082861],[4.864071640712274,51.96391119601028],[4.860805962622425,51.967784030130424],[4.859483947168091,51.96867274545392],[4.85782751541197,51.96900449737811],[4.847553164557075,51.975136900480095],[4.845621868218755,51.974984932119774],[4.834114363667692,51.985580247177246],[4.83521784818436,51.98614302050802],[4.817805905521917,51.99976688905378],[4.853336795466417,52.00474740402129],[4.857126556382674,52.00595950798789],[4.846895777654139,52.01818170817921],[4.84017805405892,52.016706942722244],[4.833334776270466,52.01642293447143],[4.82499425684944,52.01723660891754],[4.815616228006635,52.013980726492406],[4.803523202820714,52.01395615945561],[4.798700208048414,52.022271728063245],[4.809933419604734,52.02676451715632],[4.806704370126569,52.03316730157611],[4.8118222280513345,52.03382451107382],[4.8171929301965095,52.03693109671079],[4.829706496622855,52.04947620425675],[4.829490283666749,52.04981340023965],[4.848048500015045,52.05816468475323],[4.855970528981295,52.05906490902759],[4.867858338946181,52.06305408882087],[4.873200411814855,52.06874539314768],[4.863901943171678,52.069053181657345],[4.864039980272276,52.068553492460936],[4.862263044631026,52.069064389723174],[4.856064016473986,52.06881111420594],[4.850785605712955,52.069117430795075],[4.842203785799473,52.06900558797532],[4.8371389874565685,52.06842355161784],[4.829807903191149,52.066823402842914],[4.834035388545849,52.07273585029404],[4.832665861412454,52.07284371678194],[4.833045259568281,52.07482692983459],[4.830897844453911,52.074353064331845],[4.830634414172837,52.074970956701996],[4.82627568767136,52.07464357557838],[4.82649261121797,52.07952717593587],[4.825629043009987,52.07977414123271],[4.8233479031816975,52.09336852616915],[4.823055886140583,52.105192804673514],[4.824389494020956,52.10540307553848],[4.825379801010053,52.107087187811686],[4.792080179629928,52.122287379380666],[4.792345364100412,52.12316413974513],[4.793490841428949,52.123972736782214],[4.796993122016418,52.12466065504895],[4.798341616835126,52.12529872571628],[4.802096796482823,52.12488859903729],[4.802984754404958,52.12539390315312],[4.803474269649144,52.12640411710171],[4.806415837260093,52.127421863318055],[4.808065124824432,52.12894798526243],[4.807790214039822,52.12985772047877],[4.808882165372842,52.13188774437889],[4.807485524940786,52.135021584956725],[4.80896677932635,52.1358430029063],[4.808664453237675,52.13714875769697],[4.809093355493601,52.13764215297747],[4.8131110945665325,52.14017324365466],[4.814038300291536,52.14022160559842],[4.816665724377837,52.139386931291526],[4.81791646714648,52.140755207994964],[4.820494630237902,52.142216357014],[4.821576634776313,52.141908385229414],[4.826471851529677,52.14217633121172],[4.830144341198824,52.14330781807754],[4.832857874477111,52.14476235872126],[4.834128194636678,52.14287649110724],[4.8367046421185735,52.14287992242768],[4.837366434221983,52.14064959388379],[4.840276080943512,52.141560746010285],[4.841739605569374,52.14089734056435],[4.842871910809104,52.13945955403158],[4.846251156250041,52.13954540383094],[4.847484850063686,52.13893768712637],[4.849534466072761,52.13957819294182],[4.851478612064764,52.139674402617075],[4.852152404516528,52.13939204283963],[4.8526075410414,52.13826892823858],[4.855238666869632,52.13720961848719],[4.8649150495969655,52.13739112288686],[4.870341815501212,52.138207013060864],[4.871315313458664,52.13883845583309],[4.874518480819275,52.13883141526054],[4.873623464337556,52.156082509353375],[4.892272620186269,52.161592759132176],[4.855581828673363,52.17891717529039],[4.851408688433382,52.17902563144557],[4.843920855386425,52.18012162776823],[4.8365201673698035,52.18435780672893],[4.8353504789962,52.18610888140694],[4.834028951186484,52.18667260224536],[4.8334617984471056,52.18756115441368],[4.829336483245679,52.18929001782527],[4.827582794043457,52.19093205143688],[4.826323178033191,52.19126217339626],[4.82491433567788,52.19260752750566],[4.823444800306137,52.1932656986735],[4.823553903396266,52.194302533528585],[4.8222091333793635,52.196124581886174],[4.814399874184103,52.19930925298205],[4.813101772301555,52.20118881283502],[4.813594310150964,52.20184711858083],[4.802925127414566,52.20102775709673],[4.801587807401213,52.2043218254009],[4.801621776833321,52.21491021815385],[4.802149664101763,52.21763360257282],[4.797002861236844,52.22034806059185],[4.795888171390616,52.22348469182521],[4.794429874012161,52.223423400268835],[4.79457569770201,52.226730665167196],[4.8017551679203505,52.226882249972086],[4.8054037770456395,52.22798870745603],[4.80895980794946,52.226957617560124],[4.814455193599131,52.227224100756374],[4.819139953204132,52.22894103319594],[4.8208067691205425,52.22883265119527],[4.823709826207532,52.229811324659075],[4.830107176287866,52.23091266735947],[4.832532816239376,52.23240956229634],[4.834887605342533,52.232879575414394],[4.838686662935383,52.23536565395928],[4.84282606862663,52.23533922187773],[4.842939225603955,52.2367386317929],[4.846084266812921,52.2377185751302],[4.847279676368694,52.239765310614835],[4.848428982503685,52.239680389771635],[4.850819100286066,52.23860010753849],[4.851625654980304,52.23899493168393],[4.852187207012209,52.23988394980066],[4.851254286677123,52.24186694224552],[4.854937885688049,52.242145619318435],[4.85531103140221,52.24560484913244],[4.856861781038592,52.246391326356665],[4.857521716364106,52.24772305570538],[4.860620840930342,52.24821680907315],[4.864400553741413,52.249794949831646],[4.866252553793704,52.251061305123265],[4.8685825671839655,52.251579192107634],[4.8700365037283735,52.253361309498295],[4.872289667838326,52.251182047744194],[4.873852938211023,52.25074263401525],[4.877728871488567,52.25281610606548],[4.882718838004233,52.25371151620988],[4.884082497935373,52.253352276039365],[4.885711495015504,52.251471457516146],[4.887016495076886,52.250898839977914],[4.888264674076524,52.251196196902484],[4.891325436124735,52.253302923318124],[4.893041668925259,52.2530024915892],[4.896351469233814,52.2512917104275],[4.898568544630839,52.25093224087821],[4.8998189267515215,52.25123739397196],[4.901795068351667,52.25275456208548],[4.9030757427855916,52.25320451916454],[4.905711897847729,52.25316402162767],[4.909714855916953,52.25244550101883],[4.910805125328928,52.25261396627942],[4.914309475114408,52.255344930881286],[4.917600690159871,52.25707659388752],[4.918637453909451,52.258942263287],[4.918117897764077,52.26169544021198],[4.92325663040872,52.263090382942785],[4.924747906240315,52.267000597298555],[4.9294216830265425,52.26840340700192],[4.929353782559671,52.26989095997504],[4.928506388882081,52.27046614315715],[4.928014655902837,52.27174215600534],[4.926651425743642,52.272444791300885],[4.927661330407429,52.27371236098293],[4.925958340096178,52.27819545258876],[4.926444447303998,52.27977961481453],[4.928587193839557,52.279611280472444],[4.933801278071896,52.28089315835562],[4.93746280529855,52.27954818910834],[4.940716802290599,52.27905654635711],[4.942691519470017,52.278183959986976],[4.947214009440373,52.27900400312951],[4.953797693661148,52.27802698444414],[4.956773283326089,52.27867100285846],[4.961053634284879,52.27817420107842],[4.9622439689455184,52.28020652743386],[4.965315465877878,52.28044797473437],[4.9661656186752845,52.28097984004776],[4.9664913965337565,52.28009642634572],[4.967674336998118,52.27958230128039],[4.969378107436351,52.28178876150703],[4.969726306599129,52.28312082774705],[4.9751478039363715,52.28634245622833],[4.982889255101767,52.289642062274055],[4.983505890657176,52.29036813665715],[4.9974753672904555,52.28911835496414],[5.001789345799042,52.29279290774238],[5.001851253794968,52.29587877059097],[5.003226842731347,52.29606475281969],[5.003834504571174,52.298509316138286],[5.005264794834351,52.298392833050066],[5.007891504576925,52.30152201306785],[5.009915089303333,52.30209432818454],[5.011769325656086,52.30339284021619],[5.014264634308443,52.303677035676216],[5.017840054139746,52.30266232734861],[5.021543196394508,52.30245685000958],[5.021867208979982,52.28265326889607],[5.02438163266932,52.281357446748586],[5.0305284178354075,52.28848718128803],[5.033212457394688,52.28625810435435],[5.039429249088885,52.28324351223156],[5.040794009150387,52.28388076178399],[5.04277865748143,52.2824881393336],[5.047484233419793,52.28501968892413],[5.05040433066437,52.28787198241012],[5.05276914468519,52.286485254804724],[5.0595402992860175,52.289320133136584],[5.063283550595799,52.287194733508315],[5.0647918742631015,52.285080543725364],[5.0654714866142525,52.28519815713902],[5.065880042775948,52.28054321901695],[5.064383185004435,52.28075048107921],[5.06307024529586,52.28184131440504],[5.062838396459294,52.28479800084681],[5.060518836748894,52.285168707429335],[5.055292608360805,52.28300602963311],[5.050753455708158,52.28181780638937],[5.049725883130355,52.280500296932196],[5.049621318767528,52.27779613708567],[5.048601723311928,52.27702960948041],[5.04721607096267,52.2770127898904],[5.043733674050284,52.27790904651893],[5.042109869091151,52.27786965273312],[5.033328025979872,52.27543695128861],[5.0305792532425775,52.27224777103664],[5.028331084483894,52.27209066528921],[5.024078264115925,52.273235976040276],[5.022886886924668,52.2724834371064],[5.024817271246796,52.26963270801393],[5.027750278808653,52.26757383351743],[5.027798546385287,52.26604147516924],[5.0265820603063425,52.26414805271634],[5.0310994970279275,52.261557055566314],[5.032489030090198,52.26016573729497],[5.032457482199754,52.25870626079639],[5.030972094336802,52.256820369415095],[5.0318595353753075,52.25511695947718],[5.034496700935384,52.25286464005365],[5.035732989630342,52.252654196309614],[5.037495197923631,52.25368930434827],[5.040062298277416,52.25649888450103],[5.041379545070533,52.256698258023064],[5.042943402123736,52.25597692929979],[5.044802615548243,52.2506656981706],[5.046634024679834,52.24854112156525],[5.045854209945123,52.243381624262604],[5.056276247186322,52.23712736142322],[5.057729908047755,52.23535277902338],[5.056761734003472,52.235592837862086],[5.055789549384012,52.235213595612805],[5.056224256550339,52.23497866680089],[5.04239725597265,52.23054719452234],[5.041585570519999,52.230888222961525],[5.041345389191955,52.23007671456014],[5.040517638900178,52.22983381796563],[5.042484454907708,52.22877988338749],[5.040842252740333,52.2276925530997],[5.040489101082656,52.226942431003806],[5.040046173519215,52.227031440662884],[5.038730558437268,52.22517941526976],[5.037101783319566,52.22534164886803],[5.036964983581923,52.224775590536055],[5.04279565759692,52.22403951046947],[5.036665603760618,52.22436015414485],[5.035848998815416,52.21752913741791],[5.036845287969445,52.2171914998754],[5.037144908357694,52.21620299069524],[5.036909314691441,52.21515572262357],[5.03568342554251,52.21512465889785],[5.035771348059705,52.21455723529194],[5.035329562331752,52.214462266119924],[5.037290336418393,52.21421517989873],[5.036666076619096,52.21419626101508],[5.036699169345506,52.21364800692344],[5.033787956201579,52.213713995285865],[5.0337296817666966,52.213123036579134],[5.034339379337715,52.21290010778498],[5.0334005868717115,52.209836231866774],[5.036444712024812,52.2095679528398],[5.035315192062123,52.20523268569192],[5.037421020948804,52.20496451273438],[5.036649899088372,52.20213798678062],[5.025599913625554,52.203982096748945],[5.025430682632718,52.203256324468335],[5.024674286796338,52.20286251774702],[5.023315078621096,52.20305084117693],[5.0234328564891415,52.20382839038358],[5.02262103591969,52.203941462902755],[5.022453625672897,52.20281491099401],[5.023109925440951,52.20274328001117],[5.023025933654328,52.202038978304245],[5.021918798135862,52.202500819481635],[5.021586742478817,52.202475227948945],[5.0230062815141405,52.20174609981891],[5.021292959948613,52.20188574324996],[5.026061262061414,52.20137396151108],[5.027942301170777,52.199957960401726],[5.029849291230635,52.199534140956665],[5.031825518116411,52.19843685341842],[5.037201069619377,52.19794906187848],[5.037122660872881,52.19662560773892],[5.0377652146625005,52.19656506264355],[5.038134078369397,52.19516317259551],[5.036516091553503,52.19355150595098],[5.036220439902484,52.19148891935114],[5.035335763534154,52.19069985922762],[5.035708010721444,52.18920056497287],[5.034977237777951,52.18680295477805],[5.033634511085384,52.186049355319355],[5.032503227235228,52.184113407909244],[5.041549163362089,52.18375157988983],[5.0420493094694745,52.18337001237662],[5.046222990069486,52.16601444042288],[5.082452223566312,52.1738421473119],[5.121176259915788,52.180947457528625],[5.1432078042218,52.17993565662082],[5.143358179653268,52.18026993154001],[5.189316048751699,52.17768072125894],[5.192585964926117,52.177832945608294],[5.217214078318188,52.20623278589405],[5.216486574468838,52.20636680675864],[5.224730241326972,52.22519709437527],[5.222901246812828,52.225260950509934],[5.2450931232942715,52.254431068107735],[5.243980268174148,52.25453485590743],[5.265977690366715,52.28192616764455],[5.305834428134979,52.27732856900349],[5.335461439568496,52.290218414259606],[5.39323617384216,52.25515656285539],[5.4028967656098645,52.24952706860832],[5.404643328230832,52.249630477283524],[5.393214979747361,52.22063389950551],[5.393642065604325,52.22008013650516],[5.407221832548996,52.21340465543309],[5.409669926667259,52.2185795671252],[5.421028649357723,52.213194345303506],[5.4219870622516755,52.21227866320528],[5.434713926126309,52.20587578163692],[5.436382388952696,52.20529613470812],[5.436651651657421,52.20558613168771],[5.439237129943847,52.20460143134188],[5.439820495614624,52.20598373708438],[5.441039359507698,52.20569343553961],[5.4401871727339435,52.20463046962456],[5.441146232415234,52.2043136525685],[5.439636819880067,52.20260783792947],[5.439386670190665,52.20142990185777],[5.440095867864739,52.190052214242584],[5.43808620544449,52.1845848209716],[5.439247739708765,52.18431309445501],[5.44013706081564,52.17321510393587],[5.4389160699358525,52.172917042025105],[5.439875543340812,52.171197455114424],[5.4442438036792415,52.16856346241481],[5.448824361377805,52.167704263274054],[5.475752130982872,52.16576177871055],[5.475746451111048,52.16609546833644],[5.4799223625850875,52.165814554991165],[5.478882735447856,52.16440149760863],[5.475556929674107,52.16438964118573],[5.474484072010012,52.163875586348915],[5.472981619620091,52.16382248427799],[5.473392845770685,52.16299529542133],[5.472433304005097,52.162850865932896],[5.472865765703492,52.16184839893439],[5.475519830714217,52.1621616805682],[5.479196697128446,52.16136073807351],[5.480973142802362,52.160102016247016],[5.482116095322875,52.15979568192471],[5.481495536102817,52.15829730881432],[5.484317295704739,52.158063855116744],[5.483767058155542,52.15398109917832],[5.483247862364258,52.15401725082916],[5.482626224045285,52.15150399213004],[5.48134176553574,52.150500974372356],[5.484795408903209,52.14916580815504],[5.489475634529395,52.148219216733004],[5.496250547103865,52.14735036726346],[5.498982467819471,52.147393356915224],[5.497306242821555,52.14144350120465],[5.500002497957506,52.141042980688646],[5.5026030946815645,52.13953561618767],[5.507591871817098,52.13886580055363],[5.507450244309839,52.13853163803251],[5.510306968354749,52.137998729360184],[5.514079390291929,52.135923062822464],[5.511880893199548,52.134115009469056],[5.511927529958853,52.13210464775808],[5.509203092156142,52.131945268914755],[5.50672072398542,52.130980223444034],[5.505042649626253,52.13111404690322],[5.5014238148101064,52.12992641894428],[5.4991651629475164,52.130244623486355],[5.499087499571261,52.13054269353871],[5.497913059059918,52.13028289186234],[5.496759075113308,52.12481428434796],[5.494694927731337,52.12469788736473],[5.495060038840912,52.12199346497847],[5.496653035641686,52.12049622307271],[5.496917681310253,52.11955748700612],[5.5000422984090305,52.119200011168964],[5.505353945037492,52.119750446668135],[5.503755992024418,52.116585633088015],[5.507548672524963,52.1156445489707],[5.507702067276886,52.113896963690216],[5.506168190168933,52.11430983250816],[5.503949637993998,52.113720283870414],[5.502610294876358,52.115092417861355],[5.498916518954089,52.11601763718006],[5.496456481610691,52.11594493235171],[5.495625918978626,52.115585794085064],[5.4880822229381065,52.11610112286145],[5.48644708827617,52.11535973632497],[5.491830900091078,52.11450789204729],[5.491831804240361,52.11409040784429],[5.493688219082939,52.11309387958268],[5.49394108946902,52.11250369632981],[5.493861741262745,52.11109726320615],[5.484301742753561,52.1055421177186],[5.4852372352489445,52.09921645096659],[5.484739537947659,52.09662442344926],[5.486082696439797,52.09365676943773],[5.480622150927823,52.09202732608897],[5.4767608594683095,52.09034770758414],[5.474832833491456,52.0902553517426],[5.472786019951509,52.08916235963833],[5.4718858055455835,52.08938142937204],[5.471497545618628,52.08835095200068],[5.464053566429644,52.08305617718553],[5.463367709863107,52.083442165355656],[5.459678098559756,52.08200340967245],[5.460147783769256,52.0809521027442],[5.459242922467765,52.08022575292875],[5.461328347129281,52.079311415171325],[5.465434767519095,52.07842912144939],[5.466108381525378,52.077731486613644],[5.466382295203088,52.07619017601462],[5.467143693113144,52.07556962025941],[5.470305343939444,52.07494841214652],[5.473824970986123,52.07305041769113],[5.4761740415319835,52.07271644732549],[5.477222221017084,52.07201293652994],[5.479976120961937,52.07138014024054],[5.48414974183941,52.06962163968503],[5.485890392385694,52.07026329648931],[5.487820842644923,52.070250209982696],[5.49069648300487,52.07141053574879],[5.493887297326995,52.07188892346055],[5.499882446522588,52.07133520561437],[5.502092373150259,52.07334520646257],[5.504584378402768,52.073349622226786],[5.5050702371568585,52.07691112018693],[5.506481770849922,52.0767058216218],[5.509203849247479,52.07697007447839],[5.510360777463597,52.07805500324145],[5.509922651325362,52.07905017747691],[5.514156706300884,52.078751991791194],[5.519436950378674,52.07922706409794],[5.520357237133709,52.07830769918971],[5.521411374869957,52.07823091212593],[5.522654413224588,52.07754211754583],[5.526896257269581,52.08067990261216],[5.530473932379877,52.08181948354201],[5.531245020971458,52.0824187821404],[5.531807147401551,52.08361898574699],[5.531306078118354,52.08393924218872],[5.526634174081149,52.08490339975986],[5.530856074381411,52.08977438821309],[5.537127446202061,52.088658872464165],[5.538293934641312,52.09268972889167],[5.535079190075906,52.09287462350515],[5.538830674046432,52.09643618501125],[5.539160181441286,52.097813705696346],[5.5342411342981475,52.099772340055914],[5.532816949823166,52.09998388170579],[5.531543293471549,52.10226696037966],[5.54153992529124,52.10373709656603],[5.544012636740615,52.1019488983395],[5.546302197375961,52.10244363730845],[5.5452917921146465,52.104390041736025],[5.550342587549014,52.105419542474245],[5.553063469065192,52.1009540065125],[5.554235791800076,52.10015121957417],[5.551581201848656,52.09725971407381],[5.550462508849702,52.096640826933594],[5.554429270284013,52.09539191800997],[5.554434925244034,52.093468632359404],[5.555869540371865,52.09181954590384],[5.554709974471946,52.091522187422356],[5.555264414418198,52.08809646809166],[5.554905150747784,52.086550326655626],[5.555781120735096,52.087112248450794],[5.557111817509386,52.086850706631274],[5.557413935448464,52.08611086852675],[5.55668725944154,52.085482762665634],[5.559117873265885,52.084468298257704],[5.56077779710837,52.084394074822605],[5.560710779551275,52.08141286358386],[5.561343406635731,52.0800569530268],[5.5625815102824845,52.07925789213469],[5.562739316986179,52.07833217447279],[5.5614435131986335,52.073286295887044],[5.559211906517474,52.071042687429916],[5.560781774549768,52.06858988384803],[5.560729348082994,52.067501496460196],[5.55981521910729,52.059549891198905],[5.557574677232972,52.05037451773104],[5.55864915035405,52.050006242480585],[5.557903285826301,52.048865119387315],[5.57085294112609,52.047996988680175],[5.569980740699259,52.045683649134254],[5.57004497865298,52.0434007765167],[5.568657150195648,52.042396508555065],[5.567385763970617,52.04060567588091],[5.583539823302713,52.03644775315486],[5.590030134181185,52.03438706317611],[5.5895886781445565,52.031176589689295],[5.586711623441605,52.03129042256951],[5.586502546222022,52.02917104296054],[5.587511183774148,52.026627961454174],[5.587199611225112,52.02044992668222],[5.590242100595249,52.020266739457604],[5.589621609857189,52.01559481633117],[5.5869222458686005,52.015713176485825],[5.586750695154486,52.012285916173624],[5.58601462616675,52.011776276083104],[5.58913169624003,52.00985649624405],[5.5911127003897,52.007301473511234],[5.590808130664803,52.00302480249254],[5.591997672005078,52.00139229151772],[5.5965563055385505,51.999201539061616],[5.602804772646771,51.99486917089913],[5.605065263239438,51.99405981547282],[5.607050750625865,51.994326978563],[5.609972265310209,51.99369153343738],[5.613905259289521,51.990179808216055],[5.614337474668026,51.98636966025315],[5.6152288713328975,51.98517197400122],[5.615083052921151,51.98268710019594],[5.620147033370575,51.97736191764307],[5.622261926271589,51.97652847312634],[5.626064193314592,51.974070063653436],[5.624855689070762,51.970448364777056],[5.622423565015262,51.96823940441947],[5.619538847029283,51.96720312870907],[5.61832929368957,51.96625759755821],[5.620258227663941,51.96658232589909],[5.624978284947088,51.96006505153103],[5.627124249692655,51.95561635718931],[5.62730856198782,51.9524733047994],[5.625027437331346,51.95161482976939],[5.623446479864052,51.95194555960161],[5.620162494552837,51.95149811121395],[5.620445612237472,51.948166424892065],[5.618790880953634,51.948122267150055],[5.616427933586836,51.94935354481838],[5.605782324959749,51.94315970907613],[5.590991781904774,51.9497757846177],[5.575574378434685,51.9528265512993],[5.561252509155972,51.95450179322846],[5.556933776462779,51.95571102430804],[5.552742321136534,51.95740000486265],[5.549561074079528,51.95919689303178],[5.545709469714751,51.96225612351714],[5.542406694873004,51.96585487332862],[5.538942162391109,51.96782703412337],[5.536085863266374,51.96860138197607],[5.516950201317245,51.97193951539026],[5.512481394982679,51.9730813817752],[5.500751005113356,51.978592046726924],[5.4918765970126096,51.98185595358491],[5.485918370608235,51.983284426395585],[5.486214004563033,51.9838264431859],[5.481506939648633,51.98388866841323],[5.470990561604533,51.98298721064834],[5.453885356290694,51.98370950685178],[5.4446542121,51.98580181172862],[5.440601433910229,51.985917759615006],[5.437322735981689,51.985561432616365],[5.431303769880304,51.983724727898384],[5.4233636552964315,51.9787554234284],[5.4181555795271255,51.9766057037629],[5.413514453895802,51.97542960403912],[5.399337609624778,51.97310277910691],[5.387069877570881,51.96983074280809],[5.381995995356926,51.96919925045424],[5.3769085451185346,51.969161405621904],[5.3618447190457665,51.97096638055047],[5.357673626346262,51.970694482235935],[5.354037504439511,51.96998173465328],[5.350237276501019,51.96866834035108],[5.347094758607895,51.96699748890366],[5.338319352563972,51.95995048146673],[5.335220685385141,51.95804409826273],[5.329075150972113,51.95614006232975],[5.321611259114634,51.954919169897074],[5.318322080354796,51.955019274018994],[5.3148569454818935,51.95561999229914],[5.310767897120406,51.95704971817735],[5.3045937551804885,51.96027878009523],[5.300894137080279,51.96156856001281],[5.284083154217911,51.96298133742678],[5.272412899174387,51.96484913921835],[5.264561113499136,51.967286087176625],[5.2585490204553995,51.96976247404754],[5.254185962907261,51.97212969279935],[5.247575272024838,51.97690533210347],[5.245260152484402,51.97799949219],[5.241165301208623,51.97886896444708],[5.23686707713957,51.97875747724223],[5.233006667953755,51.97755042297185],[5.229912519749958,51.97564895890624],[5.227191888435707,51.9726032198438],[5.224372645714946,51.96828412761148],[5.219737619054008,51.96387044619455],[5.215443943617388,51.96144767952056],[5.210275372429215,51.95984670095829],[5.207433614447638,51.959477940824904],[5.2030831741645045,51.95956246444238],[5.196104353297566,51.960806473857744],[5.1897206634224,51.9629142171598],[5.180226656080339,51.967448325528885],[5.169663898977863,51.95547485537185],[5.163428672847712,51.946857462249774],[5.153962253726014,51.93729193273222],[5.151467134150005,51.93361525348091],[5.150689745715618,51.933321394593484],[5.149412474151031,51.93352177460521],[5.148276234736903,51.93273731317343],[5.148024060020374,51.93178979669594],[5.149007036344462,51.930540264633706],[5.1484598477486,51.92948519058408],[5.142215495929703,51.92474928067689],[5.135674745403968,51.918222742415885],[5.1361671505844795,51.9177385168178],[5.136435753022035,51.914508428192285],[5.135720816011938,51.914195367132],[5.13227754589955,51.91488175936808],[5.119408863265156,51.89860526182494],[5.119065359664218,51.89826957409646],[5.116947868134778,51.898104014069716],[5.1169855464832485,51.896910631561525],[5.118498764202483,51.896377686206364],[5.117671295106729,51.89256990208491],[5.112736806283508,51.88777617992665],[5.105759335174848,51.88881093683975],[5.097629283028759,51.887851897730734],[5.094825398344781,51.8887435382932],[5.090974556623542,51.888976428164284],[5.089043493506849,51.88808738027573],[5.088159412984989,51.887094358300914],[5.087381889077541,51.88306782817192],[5.086339589708924,51.88076896497589],[5.080532403703809,51.87552472692182],[5.073658695193277,51.87403901196115],[5.063387690923343,51.87440977166782],[5.055362254895166,51.87304093180558],[5.053614080410489,51.871897667170614],[5.052310581203279,51.869984486887404],[5.051810970298782,51.86826626392131],[5.052198839889442,51.866643008844925],[5.054199740969438,51.865099082787026],[5.062455775537735,51.86219475131594],[5.063681621090426,51.860823954006946],[5.062358152453463,51.859362053627095],[5.05918548386213,51.85815448355402],[5.053808180457935,51.857386468792484],[5.051805191752606,51.85747728421476]]]}</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+(function () {
+  var mapEl = document.getElementById('map');
+  if (typeof L === 'undefined') {
+    mapEl.innerHTML = '<div style="padding:24px;color:#5b6472;font-size:14px">' +
+      'Leaflet could not be loaded (CDN unreachable). The zone tables below carry the same information; ' +
+      'open this file with internet access to render the interactive map.</div>';
+    mapEl.style.height = 'auto';
+    return;
+  }
+  var zones = JSON.parse(document.getElementById('zones-data').textContent);
+  var aoi = JSON.parse(document.getElementById('aoi-data').textContent);
+
+  var bounds = L.latLngBounds([[51.857386, 4.79208], [52.303677035676216, 5.627309]]);
+  var map = L.map('map').fitBounds(bounds.pad(0.06));
+
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  var base = { 'OSM (CDN)': L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {maxZoom:18}) };
+
+  function cat(f) { return f.properties.__cat; }
+  var styles = {
+    final:       {color: '#2e7d32', weight: 2.2, fillColor: '#66bb6a', fillOpacity: 0.30},
+    inclusion:   {color: '#1565c0', weight: 2.0, fillColor: '#64b5f6', fillOpacity: 0.22},
+    exclusion:   {color: '#ef6c00', weight: 1.6, fillColor: '#ffb74d', fillOpacity: 0.14, dashArray: '6 4'},
+    marker:      {color: '#6a1b9a', weight: 1.6, fillColor: '#ce93d8', fillOpacity: 0.14, dashArray: '3 5'}
+  };
+  var labels = {
+    final: 'Final opportunity zone', inclusion: 'Inclusion (designated zones \u2229 AOI)',
+    exclusion: 'After exclusion step (cumulative)', marker: 'Attention / conditional / compensation markers'
+  };
+  var overlays = {};
+  ['final', 'inclusion', 'exclusion', 'marker'].forEach(function (c) {
+    var feats = zones.features.filter(function (f) { return cat(f) === c; });
+    if (!feats.length) return;
+    var g = L.geoJSON({type: 'FeatureCollection', features: feats}, {
+      style: function () { return styles[c]; },
+      onEachFeature: function (f, layer) {
+        var p = f.properties;
+        layer.bindPopup('<b>' + p.id + '</b><br>op: ' + p.operation +
+          '<br>area: ' + p.areaKm2 + ' km\u00b2<br>rules: ' + (p.ruleIds || []).join(', ') +
+          '<br>layers: ' + (p.layers || []).join(', '));
+      }
+    });
+    if (c === 'final' || c === 'inclusion') g.addTo(map);
+    overlays[labels[c]] = g;
+  });
+  if (aoi) {
+    overlays['AOI (province boundary)'] = L.geoJSON(aoi, {
+      style: {color: '#000', weight: 2.4, fill: false, dashArray: '9 6'}
+    }).addTo(map);
+  }
+  L.control.layers(base, overlays, {collapsed: false}).addTo(map);
+})();
+</script>
+</body>
+</html>

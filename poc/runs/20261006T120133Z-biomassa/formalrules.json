@@ -1,0 +1,67 @@
+[
+ {
+  "id": "FR-BM-01",
+  "normCardId": "NC-BM-01",
+  "status": "formalized",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "appliesTo": {
+   "objectType": "biomass_installation",
+   "contextTags": [
+    "instructieregel_art_5_6",
+    "conditional_gebied_energie_biomassa_landelijk",
+    "kan_mits_energie_uit_biomassa",
+    "aansluiting_agrarische_bouwpercelen_of_landgoedverhardingen",
+    "geen_onevenredige_aantasting_omringende_functies",
+    "goede_landschappelijke_inpassing",
+    "conditional_within_gebied_energie_biomassa_landelijk"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "gebied_energie_biomassa_landelijk"
+   ],
+   "geometrySource": "provincial_gio_unverified",
+   "selection": "within",
+   "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+  },
+  "conditions": [],
+  "rationale": "CORE BIOMASSA RULE (art. 5.6). Instructieregel directing omgevingsplannen for locations within the 'Gebied energie uit biomassa landelijk gebied' that they may contain rules allowing developments for energy from biomass, provided the quoted first-lid conditions are met (kleinschalige biomassa-installaties in aansluiting on existing bebouwde agrarische bouwpercelen or legale (half)verhardingen on landgoederen in scale with the built environment unless a better landscape fit nearby; no disproportionate harm to surrounding functions; good landscape integration). The zone overlay is deterministic; the mits conditions are plan-quality assessments routed to V4 — a conditional marker (kan-mits family, FR-LB-02/FR-MO-01 idiom), never an elimination. No numeric thresholds are invented beyond the quote (lid-2 >500 kW conditions sit outside the cited first lid)."
+ },
+ {
+  "id": "FR-BM-02",
+  "normCardId": "NC-BM-02",
+  "status": "formalized",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "appliesTo": {
+   "objectType": "biomass_installation",
+   "contextTags": [
+    "instructieregel_art_5_7",
+    "conditional_gebied_energie_biomassa_stedelijk",
+    "geen_toestaan_tenzij_vier_voorwaarden",
+    "geen_redelijk_alternatief_hernieuwbaar",
+    "geen_hoogwaardiger_toepassing",
+    "biomassa_gecertificeerd",
+    "aanmerkelijk_lagere_co2_emissie_dan_fossiel",
+    "conditional_within_gebied_energie_biomassa_stedelijk"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+  "formalizedAt": "2026-08-30",
+  "zoneSelector": {
+   "zoneIds": [
+    "gebied_energie_biomassa_stedelijk"
+   ],
+   "geometrySource": "provincial_gio_unverified",
+   "selection": "within",
+   "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+  },
+  "conditions": [],
+  "rationale": "Art. 5.7 instructieregel, non-permission family with fourfold tenzij: plans within the 'Gebied energie uit biomassa stedelijk gebied' contain no rules allowing developments for energy from biomass unless (a) no reasonable alternative renewable sources, (b) biomass not usable for higher-value applications, (c) certified biomass, and (d) substantially lower CO2 emission than conventional fossil fuels. Executing the verbod as a hard zone exclusion would erase the planning question inside the designation (the tenzij keeps the GIO as a conditional development frame, mirroring FR-MO-05/FR-WN-01 qualification adjudications) — carried as a conditional marker with the four tenzij conditions in the tags, routed to V4; never an AOI-wide elimination."
+ }
+]
