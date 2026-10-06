@@ -13,10 +13,10 @@ Branch: `verordening-fase4` · Worktree: `../ldttoolbox-vf4` · Plan: `docs/supe
 | 5.5 Zonneveld | `zon` | `evidence-zon.json` |
 | **5.6 Biomassa landelijk** | **`biomassa`** | `evidence-biomassa.json` BM-01 |
 | **5.7 Biomassa stedelijk** | **`biomassa`** | `evidence-biomassa.json` BM-02 |
-| **5.8 Transformatorstation vergunning** | **`energietoets` ledger** | open (procedureel) |
-| **5.9 Transformatorstation indiening** | **`energietoets` ledger** | open (procedureel) |
-| 5.10 Energietoets toepassingsbereik | was abstain in wind/zon → **`energietoets` herhuisvest** | `evidence-wind` + `normcards-rejected-zon` noemen 5.10/5.11 |
-| 5.11 Weging elektriciteits-infrastructuur | idem → **`energietoets` als conditional marker + EnergyCast-seam** | geen GIO; geen netdata in PoC |
+| **5.8 Transformatorstation vergunning** | **`energietoets` ledger** | `normcards-rejected-energietoets.json` AET-04 (procedureel) |
+| **5.9 Transformatorstation indiening** | **`energietoets` ledger** | `normcards-rejected-energietoets.json` AET-04 (procedureel) |
+| **5.10 Energietoets toepassingsbereik** | **`energietoets`** | `evidence-energietoets.json` ET-01 |
+| **5.11 Weging elektriciteits-infrastructuur** | **`energietoets`** (conditional + EnergyCast-seam) | `evidence-energietoets.json` ET-02/ET-03; geen GIO; geen netdata in PoC |
 
 ## Taken
 
@@ -24,6 +24,6 @@ Branch: `verordening-fase4` · Worktree: `../ldttoolbox-vf4` · Plan: `docs/supe
 - [x] Task 2 — biomassa-recon
 - [x] Task 3 — biomassa-zones
 - [x] Task 4 — biomassa formalisering + run
-- [ ] Task 5 — energietoets-recon
+- [x] Task 5 — energietoets-recon
 - [ ] Task 6 — energietoets formalisering + run
 - [ ] Task 7 — docs + regressie + merge
