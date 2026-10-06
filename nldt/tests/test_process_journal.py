@@ -47,6 +47,34 @@ def test_execute_local_journals_success_and_error(tmp_path, monkeypatch) -> None
     assert error_entry["status"] == "error"
 
 
+def test_execute_local_includes_job_id(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("NLDT_JOURNAL_PATH", str(tmp_path / "steps.jsonl"))
+    from services.process_adapter.handlers import execute_local
+
+    execute_local("compute-area-statistics", {
+        "features": {"type": "FeatureCollection", "features": [
+            {"type": "Feature", "properties": {},
+             "geometry": {"type": "Polygon", "coordinates": [[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]]]}},
+        ]},
+    }, job_id="job-42")
+    entry = json.loads((tmp_path / "steps.jsonl").read_text(encoding="utf-8").splitlines()[-1])
+    assert entry["jobId"] == "job-42"
+
+
+def test_route_execute_journals_job_id(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("NLDT_JOURNAL_PATH", str(tmp_path / "steps.jsonl"))
+    from services.process_adapter.router import route_execute
+
+    route_execute("compute-area-statistics", {
+        "features": {"type": "FeatureCollection", "features": [
+            {"type": "Feature", "properties": {},
+             "geometry": {"type": "Polygon", "coordinates": [[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]]]}},
+        ]},
+    })
+    entry = json.loads((tmp_path / "steps.jsonl").read_text(encoding="utf-8").splitlines()[-1])
+    assert entry.get("jobId")  # job-id uit route_execute komt in het journal
+
+
 def test_journal_schema_matches_deep_agents_writer(tmp_path, monkeypatch) -> None:
     """Eén format: onze writer gebruikt dezelfde verplichte velden als de
     deep-agents-journal-writer (`deep-agents/journal.py::append`)."""

@@ -56,7 +56,7 @@ def route_execute(
             outputs = adapter.execute(process_id, inputs)
             backend_used = "ucs"
         else:
-            outputs = execute_local(process_id, inputs)
+            outputs = execute_local(process_id, inputs, job_id=job_id)
             backend_used = "local-fallback"
     elif backend == "kubeflow":
         kf = KubeflowAdapter()
@@ -64,10 +64,10 @@ def route_execute(
             outputs = kf.execute(process_id, inputs)
             backend_used = "kubeflow"
         else:
-            outputs = execute_local(process_id, inputs)
+            outputs = execute_local(process_id, inputs, job_id=job_id)
             backend_used = "local-fallback"
     else:
-        outputs = execute_local(process_id, inputs)
+        outputs = execute_local(process_id, inputs, job_id=job_id)
         backend_used = "local"
 
     ended = utc_now()

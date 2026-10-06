@@ -392,20 +392,21 @@ def describe_process(process_id: str) -> dict[str, Any]:
     return PROCESS_DEFINITIONS[process_id]
 
 
-def execute_local(process_id: str, inputs: dict[str, Any]) -> dict[str, Any]:
+def execute_local(process_id: str, inputs: dict[str, Any], job_id: str | None = None) -> dict[str, Any]:
     """Instrumented dispatch: elke process-executie landt als journal-event
-    (harness-unificatie M3) — ok of error, met duur in ms."""
+    (harness-unificatie M3 + eval-harness jobId-correlatie)."""
     import time
 
     start = time.monotonic()
+    extras = {"jobId": job_id} if job_id else {}
     try:
         result = _execute_local_inner(process_id, inputs)
     except Exception as exc:
-        journal_process_event(process_id, "error", f"{type(exc).__name__}: {exc}")
+        journal_process_event(process_id, "error", f"{type(exc).__name__}: {exc}", **extras)
         raise
     journal_process_event(
         process_id, "ok", f"process '{process_id}' executed",
-        durationMs=int((time.monotonic() - start) * 1000),
+        durationMs=int((time.monotonic() - start) * 1000), **extras,
     )
     return result
 
