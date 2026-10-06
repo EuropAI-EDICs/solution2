@@ -215,6 +215,14 @@ ZONE_SOURCES: Dict[str, Dict[str, Any]] = {
         "sourceId": "agrest-ov-stedelijk-gebied",
         "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Stedelijk gebied' (art. 9.17 instructieregel, WN-10: kan verstedelijking/woningbouw-mits; aanwijzing art. 9.2)",
     },
+    "gebied_energie_biomassa_landelijk": {
+        "sourceId": "agrest-ov-gebied-energie-biomassa-landelijk",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied energie uit biomassa landelijk gebied' (art. 5.6 instructieregel, BM-01: kan-mits kleinschalige biomassa)",
+    },
+    "gebied_energie_biomassa_stedelijk": {
+        "sourceId": "agrest-ov-gebied-energie-biomassa-stedelijk",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied energie uit biomassa stedelijk gebied' (art. 5.7 instructieregel, BM-02: geen toestaan tenzij voorwaarden)",
+    },
 }
 
 INSTRUMENT = "Omgevingsverordening provincie Utrecht, CVDR704250 geldend 13-10-2025 t/m heden"

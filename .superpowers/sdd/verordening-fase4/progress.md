@@ -22,7 +22,7 @@ Branch: `verordening-fase4` · Worktree: `../ldttoolbox-vf4` · Plan: `docs/supe
 
 - [x] Task 1 — worktree + ledger + H5-kaart
 - [x] Task 2 — biomassa-recon
-- [ ] Task 3 — biomassa-zones
+- [x] Task 3 — biomassa-zones
 - [ ] Task 4 — biomassa formalisering + run
 - [ ] Task 5 — energietoets-recon
 - [ ] Task 6 — energietoets formalisering + run
