@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where is recreation development possible under the recreatie instructieregels in province Utrecht?</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+  :root { --ink:#1a2233; --mut:#5b6472; --line:#dde3ec; --bg:#f6f8fb; --card:#ffffff;
+          --ok:#1a7f4b; --bad:#b3261e; --warn:#9a6700; --pend:#6b55b5; }
+  * { box-sizing: border-box; }
+  body { font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+         color: var(--ink); background: var(--bg); margin: 0; padding: 0 0 60px; }
+  main { max-width: 1180px; margin: 0 auto; padding: 0 22px; }
+  header { background: #10233f; color: #fff; padding: 26px 0 20px; }
+  header h1 { font-size: 24px; margin: 0 0 6px; font-weight: 650; }
+  header .sub { color: #b9c6da; font-size: 13.5px; }
+  header .badges { margin-top: 10px; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12.5px;
+           font-weight: 600; margin-right: 6px; background: #24405f; color: #d7e3f4; }
+  .badge.pass { background: #123f2a; color: #8fe3b4; }
+  .badge.fail { background: #4a1512; color: #ffb3ad; }
+  .badge.needs_human { background: #4d3a07; color: #ffdf9e; }
+  .badge.pending { background: #33276b; color: #cabdf5; }
+  h2 { font-size: 19px; margin: 38px 0 12px; font-weight: 650; }
+  h3 { font-size: 15.5px; margin: 22px 0 8px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .stat .k { color: var(--mut); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  .stat .v { font-size: 21px; font-weight: 680; margin-top: 2px; }
+  .stat .s { color: var(--mut); font-size: 12px; margin-top: 2px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  #map { height: 560px; border-radius: 8px; border: 1px solid var(--line); }
+  .map-note { color: var(--mut); font-size: 12.5px; margin-top: 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; background: var(--card); }
+  th, td { border: 1px solid var(--line); padding: 6px 9px; text-align: left; vertical-align: top; }
+  th { background: #eef2f8; font-weight: 640; position: sticky; top: 0; }
+  .tablewrap { overflow-x: auto; max-height: 480px; overflow-y: auto; border: 1px solid var(--line);
+               border-radius: 8px; }
+  .scrollx { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .fx { font-size: 11.5px; font-weight: 700; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+  .fx.included, .fx.pass { color: var(--ok); background: #e2f3e9; }
+  .fx.excluded, .fx.fail { color: var(--bad); background: #fbe6e4; }
+  .fx.conditional, .fx.attention { color: var(--warn); background: #fdf3d7; }
+  .fx.compensation { color: #6b3fa0; background: #efe6fa; }
+  .fx.ambiguous, .fx.needs_human { color: #7a5b00; background: #fff1c9; }
+  .fx.not_applicable, .fx.pending, .fx.skipped { color: var(--mut); background: #edf0f4; }
+  blockquote { margin: 6px 0; padding: 8px 12px; border-left: 3px solid #b9c6da; background: #f2f5f9;
+               font-style: italic; font-size: 13px; }
+  details { border: 1px solid var(--line); border-radius: 8px; background: var(--card);
+            margin: 8px 0; padding: 0; }
+  details summary { cursor: pointer; padding: 9px 13px; font-weight: 600; font-size: 13.5px; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  details .body { padding: 10px 14px; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+  a { color: #0b5cad; }
+  .checks li { margin: 3px 0; font-size: 12.8px; }
+  .lvl { display: inline-block; min-width: 30px; font-weight: 700; }
+  .lvl-V0,.lvl-V1,.lvl-V2,.lvl-V3 { color: #33415c; }
+  .lvl-V4 { color: var(--pend); }
+  footer { margin-top: 44px; color: var(--mut); font-size: 12.5px; border-top: 1px solid var(--line);
+           padding-top: 14px; }
+  .legend-dot { display:inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px;
+                vertical-align: middle; }
+</style>
+</head>
+<body>
+<header>
+  <main>
+    <h1>Where is recreation development possible under the recreatie instructieregels in province Utrecht?</h1>
+    <div class="sub">
+      Run <span class="mono">20261006T114934Z-recreatie</span> &middot; use case <span class="mono">recreatie</span>
+      &middot; generated 2026-10-06T11:49:35Z &middot; policy stage <b>programming</b>
+      &middot; instrument pinned: Omgevingsverordening provincie Utrecht, CVDR704250 geldend 13-10-2025 t/m heden
+    </div>
+    <div class="badges">
+      <span class="badge pass">verdict: pass</span>
+      <span class="badge pending">V4 human: pending</span>
+      <span class="badge ">cite-or-abstain: 2 cards / 8 abstentions</span>
+    </div>
+  </main>
+</header>
+<main>
+
+<section id="headline">
+  <h2>Headline</h2>
+  <div class="cards">
+    <div class="stat"><div class="k">AOI (province)</div><div class="v">1,560.1 km²</div><div class="s">Provinciegrens Utrecht (EPSG:28992)</div></div>
+    <div class="stat"><div class="k">Inclusion ∩ AOI</div><div class="v">186.6 km²</div><div class="s">union of the formalized inclusion zones</div></div>
+    <div class="stat"><div class="k">Final opportunity zone</div><div class="v">186.6 km²</div><div class="s">after Natura 2000 / ganzenrust / NNN exclusions</div></div>
+    <div class="stat"><div class="k">Rules executed</div><div class="v">2 of 2</div><div class="s">2 formalized; 0 ambiguous → V4; 0 rejected</div></div>
+    <div class="stat"><div class="k">Zones emitted</div><div class="v">3</div><div class="s">incl. markers (attention/conditional/compensation)</div></div>
+    <div class="stat"><div class="k">Geometry repairs</div><div class="v">0</div><div class="s">invalid-as-served features, recorded in prov</div></div>
+  </div>
+  <p class="map-note" style="margin-top:12px">Semantics: the opportunity zone is the inclusion composition — Gebied bovenlokaal dagrecreatieterrein (art. 9.22) and Recreatiezone (art. 9.23) — both instructieregels open development explicitly &#39;In afwijking van Artikel 9.3&#39;, the verordeningeigen exceptions to the verstedelijkingsverbod for recreation development. Art. 9.23 lid 1 (bescherming instandhouding/bereikbaarheid bestaande voorzieningen) stays a protective tag; lid 3&#39;s verstedelijking-opening mits twee voorwaarden (samenhang, borging) is inbegrepen en lid 4&#39;s integrale visie/beeldkwaliteitsparagraaf is een motiveringseis (V4). De overige H9-artikelen behoren tot de wonen-track (fase 3) en de werken-track (fase 5) (ARC-01..08). Programming-stage screening artifact; per-location permission assessment remains required.</p>
+</section>
+
+<section id="map-section">
+  <h2>Opportunity map</h2>
+  <div class="panel">
+    <div id="map"></div>
+    <p class="map-note">
+      Layers: <span class="legend-dot" style="background:#2e7d32"></span>final opportunity zone &middot;
+      <span class="legend-dot" style="background:#1565c0"></span>inclusion (designated wind zones &cap; AOI) &middot;
+      <span class="legend-dot" style="background:#ef6c00"></span>after each exclusion &middot;
+      <span class="legend-dot" style="background:#6a1b9a"></span>attention / conditional / compensation markers &middot;
+      <span class="legend-dot" style="background:#000"></span>AOI (province boundary).
+      Use the layer switcher (top right) to toggle. Basemap tiles and the Leaflet library load from a CDN;
+      when opened offline the map degrades to the tables below. Full-resolution geometry:
+      <span class="mono">zones.geojson</span> / <span class="mono">zones.gml</span>.
+      Display geometry simplified to 25.0 m (recorded in the run summary).
+    </p>
+  </div>
+</section>
+
+<section id="zones">
+  <h2>Zones &amp; statistics <span class="sub">(fallback table &mdash; always available)</span></h2>
+  <div class="tablewrap">
+    <table>
+      <thead><tr>
+        <th>zone id</th><th>operation</th><th>rules</th><th class="num">area km&sup2;</th>
+        <th>layers</th><th class="num">prov steps</th><th class="num">repairs</th>
+      </tr></thead>
+      <tbody>
+      <tr>
+        <td class="mono">zr-inclusion_union-6643b278c1</td>
+        <td>inclusion_union</td>
+        <td class="mono">FR-RC-01, FR-RC-02</td>
+        <td class="num">186.619</td>
+        <td class="mono">gebied_bovenlokaal_dagrecreatieterrein, recreatiezone</td>
+        <td class="num">7</td>
+        <td class="num">0</td>
+      </tr>
+      <tr>
+        <td class="mono">zr-intersection-4b9c80dec6</td>
+        <td>intersection</td>
+        <td class="mono">FR-RC-01, FR-RC-02</td>
+        <td class="num">186.618</td>
+        <td class="mono">gebied_bovenlokaal_dagrecreatieterrein, recreatiezone</td>
+        <td class="num">2</td>
+        <td class="num">0</td>
+      </tr>
+      <tr>
+        <td class="mono">zr-final-8679e6adb8</td>
+        <td>final</td>
+        <td class="mono">FR-RC-01, FR-RC-02</td>
+        <td class="num">186.618</td>
+        <td class="mono">gebied_bovenlokaal_dagrecreatieterrein, recreatiezone</td>
+        <td class="num">9</td>
+        <td class="num">0</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="decision">
+  <h2>Decision table</h2>
+  <p class="map-note">Every row links its NormCard (instrument + article + version + verbatim quote + URL in
+     <span class="mono">normcards.json</span>). Machine-readable copy: <span class="mono">decision-table.json</span>,
+     Markdown copy: <span class="mono">decision-table.md</span>.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr>
+<th>criterion</th><th>norm</th><th>source</th><th>zone effect</th><th>ruleId</th><th>normCardId</th><th>condition</th><th>note</th>      </tr></thead>
+      <tbody>
+      <tr>
+        <td>
+In afwijking van Artikel 9.3, an omgevingsplan for locations within the &#39;Gebied bovenlokaal dagrecreatieterrein&#39; may, for the dagrecreatieve functie, allow development o…        </td>
+        <td>
+Artikel 9.22 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]        </td>
+        <td>
+<span class="mono">S07</span> <a href="https://lokaleregelgeving.overheid.nl/cvdr704250" target="_blank" rel="noopener">https://lokaleregelgeving.overheid.nl/cvdr704250</a>
+        </td>
+        <td>
+<span class="fx included">included</span>
+        </td>
+        <td>
+FR-RC-01        </td>
+        <td>
+NC-RC-01        </td>
+        <td>
+        </td>
+        <td>
+Art. 9.22 instructieregel: plans within the &#39;Gebied bovenlokaal dagrecreatieterrein&#39; may, in afwijking van art. 9.3, allow development of recreation-related facilities mits three conditions (value strengthened, sustainable exploitation, concentrated siting sparing nearby nature). INCLUSION zone (FR-W-05 idiom); mits conditions routed to V4. | zones: gebied_bovenlokaal_dagrecreatieterrein        </td>
+      </tr>
+      <tr>
+        <td>
+An omgevingsplan for locations within the &#39;Recreatiezone&#39; contains rules protecting the instandhouding and bereikbaarheid of existing recreational facilities (lid 1), an…        </td>
+        <td>
+Artikel 9.23 — Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst [binding]        </td>
+        <td>
+<span class="mono">S07</span> <a href="https://lokaleregelgeving.overheid.nl/cvdr704250" target="_blank" rel="noopener">https://lokaleregelgeving.overheid.nl/cvdr704250</a>
+        </td>
+        <td>
+<span class="fx included">included</span>
+        </td>
+        <td>
+FR-RC-02        </td>
+        <td>
+NC-RC-02        </td>
+        <td>
+        </td>
+        <td>
+Art. 9.23 instructieregel, three lids quoted: lid 1 protects existing facilities (tag), lid 2 opens new bovenlokale facilities and lid 3 opens even verstedelijking in support thereof, both &#39;in afwijking van artikel 9.3&#39;, mits two conditions (coupled realisation, secured durable realisation). For the recreation_development object type the opening lids govern (FR-WN-04 idiom): INCLUSION zone with t…        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="validation">
+  <h2>Validation report (V0&ndash;V4)</h2>
+  <details open>
+    <summary>opportunity-map-request &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261006T114934Z-recreatie-request</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-opportunity-map-request</span>
+&mdash; 1/1 artifact(s) valid against opportunity-map-request.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V1 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V2 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>norm-card-set &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261006T114934Z-recreatie-normcards</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-norm-card</span>
+&mdash; 2/2 artifact(s) valid against norm-card.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v2-card-citations</span>
+&mdash; all 2 NormCard(s) carry docId+article+version+verbatim quote+uri</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V1 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>formal-rule-set &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261006T114934Z-recreatie-formalrules</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-formal-rule</span>
+&mdash; 2/2 artifact(s) valid against formal-rule.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v2-rule-card-linkage</span>
+&mdash; all 2 FormalRule(s) link an existing NormCard (cite-or-abstain chain intact)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-executable-refs-registered</span>
+&mdash; all executableRefs are registered deterministic engine operations (6 registered)</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V1 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>zone-result-set &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261006T114934Z-recreatie-zones</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-zone-result</span>
+&mdash; 3/3 artifact(s) valid against zone-result.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v1-output-geometry-valid</span>
+&mdash; all 3 zone geometries valid (shapely is_valid)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-output-crs-and-bounds</span>
+&mdash; all payloads EPSG:4326 with coordinates inside NL bounds lon(3.0, 7.5)/lat(50.5, 54.0)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-input-layers-crs</span>
+&mdash; 2 input layer(s) declare a recognised CRS member (EPSG:28992 computation CRS)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-input-invalid-census</span>
+&mdash; no invalid as-served features in any input layer</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-final-zone-sanity</span>
+&mdash; final zone non-empty, valid, 186.618 km2 &lt;= AOI 1560.054 km2 and &lt;= inclusion union 186.618 km2</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V2 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>decision-table &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261006T114934Z-recreatie-decisiontable</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-decision-table</span>
+&mdash; 1/1 artifact(s) valid against decision-table.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v2-decision-table-linkage</span>
+&mdash; all 2 decision-table row(s) link an existing NormCard</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V1 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>pipeline-run &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261006T114934Z-recreatie-pipeline</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-opportunity-map-request</span>
+&mdash; 1/1 artifact(s) valid against opportunity-map-request.schema.json</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-norm-card</span>
+&mdash; 2/2 artifact(s) valid against norm-card.schema.json</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-formal-rule</span>
+&mdash; 2/2 artifact(s) valid against formal-rule.schema.json</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-zone-result</span>
+&mdash; 3/3 artifact(s) valid against zone-result.schema.json</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-decision-table</span>
+&mdash; 1/1 artifact(s) valid against decision-table.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v1-output-geometry-valid</span>
+&mdash; all 3 zone geometries valid (shapely is_valid)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-output-crs-and-bounds</span>
+&mdash; all payloads EPSG:4326 with coordinates inside NL bounds lon(3.0, 7.5)/lat(50.5, 54.0)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-input-layers-crs</span>
+&mdash; 2 input layer(s) declare a recognised CRS member (EPSG:28992 computation CRS)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-input-invalid-census</span>
+&mdash; no invalid as-served features in any input layer</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-final-zone-sanity</span>
+&mdash; final zone non-empty, valid, 186.618 km2 &lt;= AOI 1560.054 km2 and &lt;= inclusion union 186.618 km2</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v2-rule-card-linkage</span>
+&mdash; all 2 FormalRule(s) link an existing NormCard (cite-or-abstain chain intact)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-card-citations</span>
+&mdash; all 2 NormCard(s) carry docId+article+version+verbatim quote+uri</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-zone-rule-traceability</span>
+&mdash; every zone ruleId traces to a formalized rule (2 available)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-decision-table-linkage</span>
+&mdash; all 2 decision-table row(s) link an existing NormCard</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-executable-refs-registered</span>
+&mdash; all executableRefs are registered deterministic engine operations (6 registered)</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v3-reexecution-agreement</span>
+&mdash; independent geopandas re-execution of 2 rule(s): pipeline 186.618 km2 vs independent 186.618 km2; relative area delta 7.985e-16 (threshold 0.01); IoU 0.999962 (threshold 0.98)</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+</section>
+
+<section id="normcards">
+  <h2>Norm cards (cite-or-abstain)</h2>
+  <p class="map-note">2 verified cards; each carries the verbatim Dutch quote, the article,
+     the consolidated instrument version and the URL. 8 abstentions are listed below.</p>
+  <details>
+    <summary><span class="mono">NC-RC-01</span> &middot; Artikel 9.22
+      <span class="fx pass">binding</span>
+      <span class="fx pending">conf 0.95</span></summary>
+    <div class="body">
+      <p style="margin:4px 0">In afwijking van Artikel 9.3, an omgevingsplan for locations within the &#39;Gebied bovenlokaal dagrecreatieterrein&#39; may, for the dagrecreatieve functie, allow development of facilities related to recreational use on an existing bovenlokaal dagrecreatieterrein, provided three conditions are met (recreational value strengthened, necessary for sustainable exploitation, concentrated siting sparing nearby nature areas) (art. 9.22): a verordeningeigen exception to the verstedelijkingsverbod — executed as an inclusion zone.</p>
+      <blockquote lang="nl">&ldquo;1. In afwijking van Artikel 9.3 kan een omgevingsplan dat betrekking heeft op locaties binnen het Gebied bovenlokaal dagrecreatieterrein ten behoeve van de dagrecreatieve functie regels bevatten die ontwikkeling van aan het recreatieve gebruik gerelateerde voorzieningen op een bestaand bovenlokaal dagrecreatieterrein toestaan, mits is voldaan aan de volgende voorwaarden:&rdquo;</blockquote>
+      <p class="map-note" style="margin:4px 0">
+        <b>Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst</b> &middot; version: CVDR704250, geldend van 13-10-2025 t/m heden (viewed versie 8); grondslag art. 2.6 Omgevingswet; citeertitel &#39;Omgevingsverordening provincie Utrecht&#39; &middot;
+        doc <span class="mono">S07</span> &middot;
+        <a href="https://lokaleregelgeving.overheid.nl/cvdr704250" target="_blank" rel="noopener">https://lokaleregelgeving.overheid.nl/cvdr704250</a><br>
+        theme <span class="mono">recreatie:bovenlokaal-dagrecreatieterrein</span>
+&middot; zones <span class="mono">gebied_bovenlokaal_dagrecreatieterrein</span><br>caveat: Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)      </p>
+    </div>
+  </details>
+  <details>
+    <summary><span class="mono">NC-RC-02</span> &middot; Artikel 9.23
+      <span class="fx pass">binding</span>
+      <span class="fx pending">conf 0.95</span></summary>
+    <div class="body">
+      <p style="margin:4px 0">An omgevingsplan for locations within the &#39;Recreatiezone&#39; contains rules protecting the instandhouding and bereikbaarheid of existing recreational facilities (lid 1), and — in afwijking van Artikel 9.3 — may provide for new bovenlokale recreational facilities (lid 2) and even for verstedelijking in support thereof, mits two conditions (coupled realisation with balanced proportions, secured timely realisation and durable maintenance) (lid 3): the opening lids dominate for the recreation_development object type — executed as an inclusion zone with the protective component as a tag.</p>
+      <blockquote lang="nl">&ldquo;Een omgevingsplan dat betrekking heeft op locaties binnen de Recreatiezone bevat regels ter bescherming van de instandhouding en de bereikbaarheid van bestaande recreatieve voorzieningen. 2. In afwijking van Artikel 9.3 kan een omgevingsplan dat betrekking heeft op locaties binnen de Recreatiezone regels bevatten die voorzien in nieuwe bovenlokale recreatieve voorzieningen. 3. In afwijking van artikel 9.3 kan een omgevingsplan dat betrekking heeft op locaties binnen de Recreatiezone ten behoeve van bovenlokale recreatievoorzieningen regels bevatten die verstedelijking toestaan, mits voldaan is aan de volgende voorwaarden:&rdquo;</blockquote>
+      <p class="map-note" style="margin:4px 0">
+        <b>Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025) - artikeltekst</b> &middot; version: CVDR704250, geldend van 13-10-2025 t/m heden (viewed versie 8); grondslag art. 2.6 Omgevingswet; citeertitel &#39;Omgevingsverordening provincie Utrecht&#39; &middot;
+        doc <span class="mono">S07</span> &middot;
+        <a href="https://lokaleregelgeving.overheid.nl/cvdr704250" target="_blank" rel="noopener">https://lokaleregelgeving.overheid.nl/cvdr704250</a><br>
+        theme <span class="mono">recreatie:recreatiezone</span>
+&middot; zones <span class="mono">recreatiezone</span><br>caveat: Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)      </p>
+    </div>
+  </details>
+  <h3>Abstentions (no verified citation &rarr; no rule)</h3>
+  <div class="scrollx">
+  <table>
+    <thead><tr><th>id</th><th>topic</th><th>reason</th></tr></thead>
+    <tbody>
+    <tr><td class="mono">ARC-01</td><td></td><td>Oogmerk/aanwijzing en de overige wonen-paragrafen (9.1-9.21): buiten het recreation_development-objecttype en geformaliseerd in de wonen-track (fase 3, WN-01..12) respectievelijk de werken-track (fase 5, WE-01..06); geen dubbele formalisering.</td></tr>
+    <tr><td class="mono">ARC-02</td><td></td><td>Gateway/legalisatie met open normen (AWN-02-spiegel).</td></tr>
+    <tr><td class="mono">ARC-03</td><td></td><td>Bebouwingsenclaves: geen geregistreerde GIO/NAAM (AWN-03-spiegel).</td></tr>
+    <tr><td class="mono">ARC-04</td><td></td><td>Beoordelingsregel ontheffing flexwoningen: aanvraagafhankelijk (AWN-05-spiegel).</td></tr>
+    <tr><td class="mono">ARC-05</td><td></td><td>[Gereserveerd] in de geconsolideerde tekst (AWN-06-spiegel).</td></tr>
+    <tr><td class="mono">ARC-06</td><td></td><td>Stiltegebied-paragraaf: constitutief/doelstellend of gedekt door wonen (9.27/9.29 = WN-11/12) en wind (9.28-context); buiten het recreation_development-objecttype.</td></tr>
+    <tr><td class="mono">ARC-07</td><td></td><td>Vergunnings-/gedragsketen stiltegebied: geen omgevingsplan-instructieregels (AWN-10-spiegel).</td></tr>
+    <tr><td class="mono">ARC-08</td><td></td><td>Toelichting-verwijzing, geen body-artikel (AWN-11-spiegel).</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="prov">
+  <h2>Provenance</h2>
+  <div class="panel">
+    <h3 style="margin-top:4px">Pipeline stages</h3>
+    <div class="scrollx">
+    <table>
+      <thead><tr><th>stage</th><th>agent</th><th>started</th><th>ended</th><th>used</th><th>generated</th></tr></thead>
+      <tbody>
+      <tr>
+        <td>Intake: load + validate OpportunityMapRequest</td>
+        <td class="mono">run.py-orchestrator</td>
+        <td class="mono">2026-10-06T11:49:34Z</td>
+        <td class="mono">2026-10-06T11:49:34Z</td>
+        <td class="mono">use-cases/recreatie.json</td>
+        <td class="mono">request.json</td>
+      </tr>
+      <tr>
+        <td>Norm Analyst: harvest NormCards (deterministic replay)</td>
+        <td class="mono">legal-recon-agent</td>
+        <td class="mono">2026-10-06T11:49:34Z</td>
+        <td class="mono">2026-10-06T11:49:34Z</td>
+        <td class="mono">corpus/evidence-recreatie.json, corpus/sources.json</td>
+        <td class="mono">normcards.json, normcards-rejected.json</td>
+      </tr>
+      <tr>
+        <td>Norm Formalizer: NormCards -&gt; FormalRules (deterministic templates)</td>
+        <td class="mono">norm-formalizer</td>
+        <td class="mono">2026-10-06T11:49:34Z</td>
+        <td class="mono">2026-10-06T11:49:34Z</td>
+        <td class="mono">normcards.json</td>
+        <td class="mono">formalrules.json</td>
+      </tr>
+      <tr>
+        <td>Geo Analyst: fetch zone layers (cache-first ArcGIS REST)</td>
+        <td class="mono">ldttoolbox-geoconnector/0.1</td>
+        <td class="mono">2026-10-06T11:49:34Z</td>
+        <td class="mono">2026-10-06T11:49:34Z</td>
+        <td class="mono">data/sources.json</td>
+        <td class="mono">layers.json</td>
+      </tr>
+      <tr>
+        <td>Geo Analyst: deterministic FormalRule execution (shapely path)</td>
+        <td class="mono">zone-engine</td>
+        <td class="mono">2026-10-06T11:49:34Z</td>
+        <td class="mono">2026-10-06T11:49:34Z</td>
+        <td class="mono">formalrules.json, layers.json</td>
+        <td class="mono">zones.json</td>
+      </tr>
+      <tr>
+        <td>Cartographer: zones.geojson + GML + report input</td>
+        <td class="mono">poc-cartographer/0.1</td>
+        <td class="mono">2026-10-06T11:49:34Z</td>
+        <td class="mono">2026-10-06T11:49:34Z</td>
+        <td class="mono">zones.json</td>
+        <td class="mono">zones.geojson, zones.gml</td>
+      </tr>
+      <tr>
+        <td>Critic/Validator: V0-V3 deterministic + V4 pending</td>
+        <td class="mono">critic-validator</td>
+        <td class="mono">2026-10-06T11:49:34Z</td>
+        <td class="mono">2026-10-06T11:49:34Z</td>
+        <td class="mono">request.json, normcards.json, formalrules.json, zones.json, decision-table.json</td>
+        <td class="mono">validation.json</td>
+      </tr>
+      <tr>
+        <td>Explainer: decision table + PROV bundle</td>
+        <td class="mono">explainer</td>
+        <td class="mono">2026-10-06T11:49:34Z</td>
+        <td class="mono">2026-10-06T11:49:35Z</td>
+        <td class="mono">normcards.json, formalrules.json, zones.json</td>
+        <td class="mono">decision-table.json, decision-table.md, prov.json</td>
+      </tr>
+      </tbody>
+    </table>
+    </div>
+    <h3>Agents</h3>
+    <p class="map-note"><span class="mono">run.py orchestrator (poc-run/1.0)</span> &middot; <span class="mono">NormAnalyst (legal-recon-agent#cvdr704250-geldend-2025-10-13)</span> &middot; <span class="mono">NormFormalizer (norm-formalizer#deterministic-templates-v1)</span> &middot; <span class="mono">GeoData connector (ldttoolbox-geoconnector/0.1)</span> &middot; <span class="mono">FormalRule zone engine (poc-zone-engine/0.1)</span> &middot; <span class="mono">Cartographer (poc-cartographer/0.1)</span> &middot; <span class="mono">Critic/Validator (critic-validator#deterministic-v0-v3-poc1)</span> &middot; <span class="mono">Explainer (explainer#deterministic-poc1)</span> &middot; <span class="mono">HTML report renderer (poc-report/1.0)</span> &middot; </p>
+    <h3>Geo sources (open-data aliases, with lastChecked)</h3>
+    <div class="scrollx">
+    <table>
+      <thead><tr><th>zone</th><th>source id</th><th>service / layer</th><th>features</th><th>lastChecked</th><th>alias for (GIO)</th></tr></thead>
+      <tbody>
+      <tr>
+        <td class="mono">gebied_bovenlokaal_dagrecreatieterrein</td>
+        <td class="mono">agrest-ov-gebied-bovenlokaal-dagrecreatieterrein</td>
+        <td class="mono">https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0</td>
+        <td class="num">32</td>
+        <td class="mono">2026-10-06T11:41:16Z</td>
+        <td class="mono">provincial_gio_unverified</td>
+      </tr>
+      <tr>
+        <td class="mono">recreatiezone</td>
+        <td class="mono">agrest-ov-recreatiezone</td>
+        <td class="mono">https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0</td>
+        <td class="num">20</td>
+        <td class="mono">2026-10-06T11:41:16Z</td>
+        <td class="mono">provincial_gio_unverified</td>
+      </tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="map-note">Full bundle: <span class="mono">prov.json</span> (PROV-O-flavoured: agents, entities with
+       sha256, activities with timestamps, wasGeneratedBy / wasDerivedFrom).</p>
+  </div>
+</section>
+
+<section id="limits">
+  <h2>Limitations &amp; tuning</h2>
+  <div class="panel">
+    <ul style="margin:6px 0;padding-left:20px">
+<li>GIO geometry via the DSO Omgevingsdocumenten Downloaden API is key-gated (HTTP 401, verified); provincial zones are therefore served by the province&#39;s own vigerende-verordening open data (agrest Omgevingsverordening FeatureServer, IMOW ids + AKN DOCUMENT_URL) as provenance aliases of the Bijlage-II join-ids cited on each NormCard.</li><li>Natura 2000 geometry is the 2021 national designation layer (14 features, province hub copy), not a provincial instrument; ganzenrustgebieden come from the verordening&#39;s own designation set.</li><li>A major verordening/visie amendment is in progress (PS decision expected 18-11-2026, in werking 01-01-2027): re-run the legal recon and this pipeline before using results after that date.</li><li>Map geometry in this report is display-simplified; authoritative full-resolution geometry is zones.geojson / zones.gml in the run directory.</li><li>Zone algebra inputs are Douglas-Peucker simplified (tolerance recorded per run in run_summary.json tunings and per layer in the engine provenance) so province-scale GEOS overlays stay tractable; at the recorded 2 m tolerance the final area shifts by ~0.002% versus full resolution.</li><li>Wonen/werken/stilte-artikelen (9.1-9.21, 9.24-9.37) are outside the recreation_development object type: covered by the fase-3 wonen track and the fase-5 werken track (ARC-01..07); 9.21 is [Gereserveerd] and 9.48a only a toelichting reference (ARC-05/08).</li><li>The art. 9.23 lid-1 protection of existing facilities and lid 4&#39;s integrale visie are plan-content assessments routed to the V4 human-expert checkpoint, carried in the tags — the inclusion composition follows the opening lids 2-3.</li><li>0 of 2 rules are intentionally &#39;ambiguous&#39; (open norms): routed to the V4 human-expert checkpoint.</li>    </ul>
+    <p class="map-note"><b>Tuned parameters (recorded):</b>
+<span class="mono">display_tolerance_m=25.0</span> &middot; <span class="mono">input_simplify_m=2.0</span> &middot; <span class="mono">payload_coord_decimals=6</span> &middot; <span class="mono">buffer_resolution_quad_segs=16</span> &middot; </p>
+  </div>
+</section>
+
+<footer>
+  Artifacts in the run directory: <span class="mono">decision-table.json / decision-table.md / formalrules.json / layers.json / normcards-rejected.json / normcards.json / prov.json / report_input.json / request.json / rule-stats.json / validation.json / zones.geojson / zones.gml / zones.json / zones.xsd</span><br>
+  This report is a programming-stage decision-support artifact, not a permit decision. Every legal claim
+  traces to a cited instrument version; ambiguous norms are routed to the V4 human-expert checkpoint.
+</footer>
+</main>
+
+<script type="application/json" id="zones-data">{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"__cat":"inclusion","id":"zr-inclusion_union-6643b278c1","operation":"inclusion_union","areaKm2":186.618679281,"ruleIds":["FR-RC-01","FR-RC-02"],"layers":["gebied_bovenlokaal_dagrecreatieterrein","recreatiezone"]},"geometry":{"type":"MultiPolygon","coordinates":[[[[5.079636,51.95925],[5.073893,51.957205],[5.06774,51.956015],[5.05511,51.955701],[5.058563,51.960645],[5.064642,51.964591],[5.057665,51.972751],[5.065497,51.977303],[5.065281,51.977568],[5.070201,51.982229],[5.082012,51.974253],[5.094615,51.969192],[5.086501,51.963094],[5.079636,51.95925]]],[[[4.975324,51.965142],[4.972051,51.962664],[4.967489,51.961152],[4.962418,51.960833],[4.957456,51.961747],[4.953443,51.963768],[4.951019,51.966538],[4.950478,51.969719],[4.951919,51.97274],[4.955167,51.975231],[4.959715,51.976761],[4.964866,51.977095],[4.969829,51.97618],[4.97379,51.974197],[4.976266,51.971388],[4.976805,51.968207],[4.975324,51.965142]]],[[[5.075348,51.985591],[5.071043,51.983812],[5.066043,51.983192],[5.060959,51.983804],[5.056645,51.985575],[5.054321,51.987506],[5.052828,51.990517],[5.053002,51.99292],[5.053776,51.994496],[5.052282,51.995174],[5.05405,51.996408],[5.048937,52.000672],[5.050857,52.007556],[5.061588,52.009071],[5.071546,52.011566],[5.067233,52.01868],[5.070496,52.017853],[5.074816,52.015727],[5.075636,52.015883],[5.078398,52.014235],[5.080287,52.011469],[5.07545,52.006878],[5.073449,52.006034],[5.0754,52.001476],[5.087544,52.003578],[5.088393,52.001974],[5.087572,52.002147],[5.087527,52.003301],[5.086549,52.003145],[5.087491,52.00151],[5.08673,52.001606],[5.086018,52.000886],[5.08197,51.999429],[5.079661,51.999091],[5.079639,51.998779],[5.076305,51.998289],[5.075915,51.997783],[5.075221,51.998173],[5.073892,51.997893],[5.076659,51.996164],[5.076611,51.996669],[5.077049,51.996303],[5.077998,51.996445],[5.078203,51.996079],[5.078954,51.996303],[5.078702,51.996756],[5.080717,51.997131],[5.080385,51.997597],[5.080801,51.997174],[5.083051,51.997798],[5.082879,51.998364],[5.083223,51.997977],[5.084251,51.998093],[5.085139,51.99858],[5.084754,51.999067],[5.085236,51.99864],[5.085821,51.998834],[5.087191,51.999366],[5.08692,51.999931],[5.087343,51.999538],[5.088015,51.999692],[5.089208,52.000271],[5.089113,52.000665],[5.091231,52.000929],[5.091246,52.001258],[5.091446,52.000957],[5.092854,52.001127],[5.093458,52.001548],[5.09632,52.002073],[5.097065,52.00151],[5.102766,52.002169],[5.10635,52.002099],[5.108384,52.001626],[5.109141,52.00199],[5.110806,52.001234],[5.111918,52.001552],[5.113274,52.000937],[5.113857,52.001116],[5.121108,51.998605],[5.128499,51.99422],[5.132442,51.990757],[5.133665,51.99335],[5.130107,51.996342],[5.133977,51.995682],[5.135492,51.995089],[5.13773,51.996583],[5.133015,51.99783],[5.126101,51.998862],[5.126032,51.999492],[5.124922,51.999949],[5.123893,51.999966],[5.123301,51.99943],[5.122717,51.999473],[5.114874,52.002062],[5.117945,52.009307],[5.123723,52.017329],[5.139119,52.011919],[5.175591,51.996861],[5.175044,51.996475],[5.176142,51.995698],[5.164553,51.989083],[5.165225,51.98782],[5.164321,51.98047],[5.165774,51.978329],[5.167226,51.977855],[5.184074,51.975143],[5.18372,51.971825],[5.182267,51.96981],[5.179629,51.967697],[5.171736,51.969713],[5.160996,51.970469],[5.156578,51.971146],[5.151073,51.973049],[5.148662,51.974596],[5.146652,51.976837],[5.144285,51.981684],[5.140604,51.982241],[5.1383,51.982988],[5.134667,51.985191],[5.132256,51.984543],[5.132333,51.983056],[5.131399,51.982344],[5.127576,51.981704],[5.125335,51.982011],[5.123592,51.982917],[5.122685,51.982862],[5.121826,51.984552],[5.1265,51.987649],[5.127446,51.989709],[5.131077,51.990828],[5.128281,51.992657],[5.112582,51.997411],[5.111288,51.996978],[5.102498,51.997651],[5.097799,51.996603],[5.097821,51.995492],[5.097139,51.995487],[5.096691,51.99746],[5.095464,51.996886],[5.092224,51.996671],[5.091383,51.998295],[5.08856,51.997708],[5.089513,51.996405],[5.086976,51.995858],[5.08694,51.99465],[5.0792,51.991521],[5.078218,51.988254],[5.075348,51.985591]],[[5.13428,52.000831],[5.137522,51.999642],[5.138622,52.000528],[5.133083,52.002547],[5.13264,52.003031],[5.129422,52.000006],[5.132383,51.998867],[5.13428,52.000831]]],[[[5.114494,52.002178],[5.110286,52.003135],[5.106363,52.003491],[5.107148,52.005617],[5.115421,52.004662],[5.114494,52.002178]]],[[[5.128836,52.027585],[5.127911,52.027382],[5.122236,52.031253],[5.118268,52.0353],[5.114786,52.038013],[5.110362,52.042997],[5.115384,52.044324],[5.115107,52.048143],[5.116375,52.050366],[5.117806,52.051708],[5.121795,52.053753],[5.125748,52.054602],[5.12599,52.055272],[5.140595,52.053313],[5.142469,52.052686],[5.143195,52.051577],[5.139279,52.039056],[5.136826,52.033696],[5.135633,52.031982],[5.132791,52.030705],[5.128836,52.027585]]],[[[5.173097,52.043746],[5.170849,52.042298],[5.167415,52.040916],[5.158734,52.039556],[5.155893,52.0386],[5.151212,52.038221],[5.148582,52.041236],[5.145009,52.043351],[5.143309,52.043798],[5.141206,52.043758],[5.143938,52.05047],[5.148531,52.054806],[5.151476,52.056556],[5.164567,52.060719],[5.168473,52.061512],[5.185302,52.062178],[5.193069,52.061587],[5.193255,52.055855],[5.192553,52.050756],[5.189215,52.046107],[5.185472,52.042096],[5.184858,52.041692],[5.18354,52.042983],[5.181457,52.043658],[5.177513,52.043277],[5.173097,52.043746]]],[[[5.069998,52.071234],[5.066737,52.068746],[5.062176,52.06722],[5.057014,52.066891],[5.052042,52.067809],[5.048024,52.069833],[5.0456,52.072605],[5.045064,52.075787],[5.046554,52.07885],[5.049839,52.081327],[5.054338,52.082821],[5.059502,52.08315],[5.064403,52.082255],[5.068442,52.080246],[5.070917,52.077435],[5.071451,52.074253],[5.069998,52.071234]]],[[[5.205748,52.084886],[5.205981,52.084199],[5.208254,52.082677],[5.225037,52.074907],[5.231779,52.079386],[5.232983,52.077818],[5.234932,52.077638],[5.236435,52.076649],[5.238218,52.077727],[5.240005,52.076722],[5.241903,52.07796],[5.253512,52.071342],[5.258272,52.067503],[5.256904,52.066634],[5.252453,52.066089],[5.250953,52.065121],[5.253245,52.065188],[5.256381,52.062506],[5.25711,52.06233],[5.25927,52.064477],[5.261531,52.064871],[5.26653,52.061147],[5.259732,52.058748],[5.254258,52.058006],[5.217278,52.05984],[5.216243,52.060532],[5.221745,52.064117],[5.213464,52.063846],[5.21287,52.065008],[5.210781,52.066587],[5.200376,52.069605],[5.196587,52.07249],[5.196082,52.073361],[5.1933,52.073759],[5.187813,52.072036],[5.186217,52.071067],[5.188231,52.064119],[5.186704,52.063732],[5.187287,52.063047],[5.188504,52.063092],[5.188675,52.0625],[5.168471,52.061952],[5.165511,52.061423],[5.152341,52.057558],[5.151145,52.058957],[5.150789,52.060738],[5.14839,52.063305],[5.147791,52.065866],[5.148206,52.068002],[5.1415,52.070118],[5.136875,52.072916],[5.139087,52.074128],[5.141581,52.077198],[5.143564,52.076935],[5.147002,52.077296],[5.150663,52.078951],[5.153646,52.080864],[5.155625,52.081334],[5.156682,52.081213],[5.157494,52.081733],[5.159153,52.081458],[5.161008,52.080211],[5.161584,52.081261],[5.187447,52.080958],[5.187385,52.083809],[5.186016,52.083832],[5.186057,52.08523],[5.184183,52.085243],[5.183588,52.088925],[5.185463,52.089239],[5.184223,52.09167],[5.182696,52.090893],[5.182623,52.091198],[5.18513,52.092063],[5.19428,52.092181],[5.199973,52.092748],[5.203986,52.093981],[5.207397,52.095937],[5.209668,52.091063],[5.211275,52.089961],[5.205057,52.087029],[5.20704,52.086507],[5.205748,52.084886]]],[[[5.044286,52.028553],[5.040935,52.029784],[5.038533,52.031381],[5.036027,52.030131],[5.024705,52.040516],[5.023444,52.041331],[5.019052,52.042487],[5.017065,52.0434],[5.015047,52.044756],[5.012582,52.047741],[5.007655,52.050081],[5.010363,52.053832],[5.006809,52.055257],[5.006957,52.055603],[5.007517,52.055415],[5.008014,52.056171],[5.012263,52.056064],[5.012053,52.05642],[5.017397,52.061894],[5.000004,52.065527],[4.995923,52.06691],[4.982861,52.064529],[4.977831,52.065566],[4.97389,52.079941],[4.975162,52.079878],[4.974562,52.080771],[4.933793,52.080422],[4.926279,52.07891],[4.918125,52.076031],[4.911079,52.0853],[4.911045,52.088498],[4.911789,52.090039],[4.913647,52.091995],[4.909682,52.096614],[4.908282,52.09711],[4.912515,52.096908],[4.9144,52.097263],[4.917226,52.100674],[4.919241,52.102212],[4.922947,52.102691],[4.925113,52.104023],[4.928728,52.10518],[4.936233,52.104446],[4.93822,52.10332],[4.939632,52.100714],[4.942574,52.098781],[4.945021,52.094765],[4.947756,52.093424],[4.948758,52.100496],[4.947473,52.100768],[4.947021,52.101305],[4.946375,52.101006],[4.945187,52.102414],[4.957472,52.105788],[4.963931,52.106252],[4.971465,52.106126],[4.976973,52.111717],[4.969606,52.121259],[4.973816,52.129628],[4.99327,52.134189],[4.993372,52.138126],[5.003122,52.142086],[5.002728,52.141648],[5.003532,52.141933],[5.009687,52.133058],[5.01336,52.128746],[5.010086,52.129054],[5.007123,52.123574],[5.010705,52.125802],[5.015493,52.127046],[5.019395,52.127177],[5.024374,52.12626],[5.027519,52.124832],[5.030411,52.122175],[5.031422,52.119088],[5.030429,52.115948],[5.02843,52.113881],[5.025539,52.112263],[5.022008,52.111233],[5.018225,52.110881],[5.014435,52.111209],[5.010888,52.112217],[5.00797,52.113817],[5.006451,52.115215],[5.004989,52.111442],[5.007083,52.110355],[5.006396,52.108469],[5.005307,52.10857],[5.00514,52.10809],[5.004507,52.10819],[5.002819,52.10352],[4.976569,52.105339],[4.975771,52.105209],[4.973211,52.102876],[4.973016,52.101946],[4.97688,52.098724],[4.975652,52.097922],[4.979073,52.088645],[4.978791,52.08809],[4.982967,52.088381],[4.990751,52.090627],[5.003916,52.0885],[5.002091,52.077853],[5.020357,52.074039],[5.038331,52.071391],[5.036041,52.065623],[5.032019,52.066248],[5.02939,52.059944],[5.031874,52.059323],[5.035014,52.057895],[5.03667,52.056654],[5.038316,52.054528],[5.03891,52.05215],[5.038665,52.05055],[5.035803,52.046362],[5.041048,52.044097],[5.042136,52.04296],[5.04666,52.044107],[5.051846,52.044121],[5.056442,52.042983],[5.056655,52.043539],[5.06396,52.040888],[5.063359,52.029835],[5.06274,52.029041],[5.063323,52.02804],[5.06298,52.025984],[5.060931,52.026164],[5.054958,52.02873],[5.049375,52.027941],[5.044286,52.028553]],[[4.950822,52.092513],[4.95478,52.0899],[4.953046,52.087868],[4.950677,52.086445],[4.953246,52.085613],[4.952832,52.084446],[4.960505,52.084018],[4.960888,52.082983],[4.962996,52.083253],[4.962621,52.084358],[4.965644,52.084777],[4.968007,52.084695],[4.969608,52.086018],[4.971262,52.089014],[4.965172,52.091783],[4.9633,52.092053],[4.962694,52.092902],[4.963242,52.094347],[4.964549,52.095701],[4.968728,52.0966],[4.96666,52.097476],[4.965088,52.097349],[4.964145,52.097764],[4.960876,52.094952],[4.959525,52.095401],[4.953066,52.095096],[4.95321,52.095826],[4.949735,52.096227],[4.949012,52.093112],[4.950822,52.092513]]],[[[5.021654,52.160174],[5.023973,52.161769],[5.025173,52.16186],[5.026816,52.161351],[5.029005,52.16183],[5.02976,52.162527],[5.031657,52.162271],[5.046394,52.165714],[5.05185,52.15708],[5.051034,52.156626],[5.052512,52.154662],[5.05558,52.151396],[5.061441,52.146612],[5.06584,52.148705],[5.073688,52.145037],[5.078801,52.148855],[5.079895,52.148376],[5.083697,52.149247],[5.088896,52.14926],[5.092582,52.148456],[5.095726,52.147026],[5.098584,52.144413],[5.099588,52.141672],[5.10172,52.141024],[5.104462,52.140407],[5.109378,52.141334],[5.113284,52.141225],[5.135027,52.137182],[5.135727,52.137611],[5.139606,52.135893],[5.150144,52.133755],[5.145768,52.126531],[5.146277,52.123396],[5.144566,52.120113],[5.146553,52.119892],[5.146562,52.121578],[5.151296,52.120646],[5.151797,52.121469],[5.152479,52.121336],[5.152854,52.121975],[5.156433,52.121247],[5.156858,52.121962],[5.157571,52.121737],[5.158984,52.124024],[5.159423,52.123929],[5.160669,52.126141],[5.160155,52.126257],[5.160503,52.126824],[5.159359,52.125479],[5.157356,52.126057],[5.157656,52.126596],[5.156999,52.126742],[5.156556,52.125986],[5.154294,52.126461],[5.154872,52.127475],[5.152929,52.127852],[5.151232,52.124823],[5.149199,52.124885],[5.148962,52.124431],[5.147542,52.124717],[5.154109,52.135073],[5.159522,52.141479],[5.165361,52.140053],[5.172513,52.139127],[5.174026,52.140572],[5.176908,52.142198],[5.180435,52.143236],[5.184301,52.143597],[5.189401,52.142979],[5.194209,52.140876],[5.197368,52.143159],[5.202685,52.14507],[5.200838,52.141943],[5.200986,52.14064],[5.206027,52.138846],[5.206387,52.138098],[5.202545,52.134224],[5.201579,52.134495],[5.201028,52.134285],[5.200301,52.132632],[5.199402,52.13285],[5.199545,52.133403],[5.19855,52.133662],[5.199866,52.135029],[5.197583,52.135744],[5.196603,52.132316],[5.194595,52.130252],[5.192748,52.129116],[5.188239,52.127627],[5.18215,52.127386],[5.179306,52.123389],[5.164866,52.119564],[5.174109,52.116474],[5.168371,52.107909],[5.171216,52.106981],[5.171019,52.106597],[5.167335,52.101089],[5.165699,52.100712],[5.165332,52.099758],[5.166426,52.099004],[5.168273,52.098949],[5.170279,52.10144],[5.173451,52.102273],[5.177459,52.101301],[5.176829,52.100383],[5.177962,52.100114],[5.179044,52.10148],[5.181723,52.100893],[5.182731,52.102237],[5.185201,52.1011],[5.185771,52.10214],[5.191781,52.101995],[5.199547,52.102622],[5.20302,52.102073],[5.209993,52.098747],[5.205199,52.094932],[5.201464,52.093623],[5.197948,52.092943],[5.182273,52.092659],[5.170923,52.093009],[5.160303,52.094188],[5.157759,52.093077],[5.156887,52.091538],[5.15353,52.096675],[5.151257,52.096068],[5.150853,52.095429],[5.151562,52.094299],[5.145788,52.092864],[5.145216,52.094216],[5.146501,52.094405],[5.147649,52.094979],[5.147668,52.09545],[5.149628,52.095958],[5.148749,52.096839],[5.156824,52.098314],[5.147511,52.115257],[5.144513,52.114729],[5.142809,52.115026],[5.142204,52.115436],[5.141861,52.118068],[5.138133,52.116624],[5.134422,52.116048],[5.130519,52.116159],[5.126837,52.116964],[5.123696,52.118395],[5.120962,52.120857],[5.112005,52.125086],[5.108185,52.125198],[5.104502,52.126003],[5.10136,52.127433],[5.099137,52.129256],[5.098055,52.12941],[5.088916,52.133237],[5.084017,52.133213],[5.076141,52.127067],[5.083568,52.122767],[5.081997,52.121155],[5.085653,52.120108],[5.085324,52.118694],[5.079304,52.119042],[5.07629,52.120751],[5.074095,52.123018],[5.067624,52.120158],[5.065283,52.121688],[5.063423,52.120538],[5.056321,52.124689],[5.061855,52.127936],[5.0606,52.130249],[5.058967,52.130468],[5.058619,52.128998],[5.054288,52.131165],[5.051608,52.129431],[5.049536,52.131133],[5.053455,52.13295],[5.059149,52.134833],[5.057173,52.139063],[5.053352,52.142098],[5.053737,52.142833],[5.040623,52.15118],[5.037929,52.153468],[5.035375,52.151033],[5.034651,52.149332],[5.035745,52.149528],[5.036615,52.148415],[5.035123,52.146092],[5.035568,52.144422],[5.036478,52.143416],[5.038626,52.142289],[5.036886,52.140426],[5.034224,52.140726],[5.032317,52.142098],[5.028517,52.140208],[5.002456,52.155188],[4.999677,52.157467],[4.997363,52.161205],[5.005303,52.164651],[5.005713,52.164308],[5.007924,52.165149],[5.007676,52.165778],[5.008812,52.166282],[5.009569,52.165731],[5.011203,52.161079],[5.013601,52.159134],[5.017262,52.158105],[5.021654,52.160174]],[[5.197529,52.136299],[5.197565,52.136341],[5.197515,52.136356],[5.197529,52.136299]],[[5.071735,52.127208],[5.069512,52.130094],[5.068875,52.130024],[5.069024,52.129394],[5.067128,52.12825],[5.064993,52.127255],[5.063704,52.127273],[5.066031,52.125621],[5.070047,52.127448],[5.071735,52.127208]]],[[[5.278176,52.125933],[5.274874,52.123463],[5.270364,52.121977],[5.265194,52.121657],[5.260293,52.12256],[5.256259,52.124576],[5.253792,52.127391],[5.253271,52.130574],[5.254776,52.133635],[5.258014,52.136074],[5.262589,52.137592],[5.267761,52.137912],[5.272736,52.136985],[5.276698,52.134992],[5.279163,52.132176],[5.279682,52.128994],[5.278176,52.125933]]],[[[4.919196,52.126527],[4.915978,52.124079],[4.911416,52.122548],[4.906249,52.122212],[4.901268,52.123123],[4.897238,52.125142],[4.894801,52.127911],[4.894255,52.131092],[4.895735,52.134158],[4.899016,52.136638],[4.903516,52.138138],[4.908685,52.138474],[4.913667,52.137562],[4.917646,52.135581],[4.920134,52.132773],[4.920679,52.129592],[4.919196,52.126527]]],[[[5.248999,52.182723],[5.245695,52.180252],[5.24118,52.178765],[5.236004,52.178444],[5.231024,52.179369],[5.227003,52.1814],[5.22456,52.184223],[5.22406,52.187357],[5.225565,52.190419],[5.228869,52.19289],[5.233385,52.194377],[5.238563,52.194699],[5.243545,52.193773],[5.247565,52.191742],[5.250008,52.188918],[5.250506,52.185784],[5.248999,52.182723]]],[[[5.288512,52.195666],[5.285205,52.193196],[5.280687,52.191711],[5.275509,52.191391],[5.270528,52.192319],[5.266509,52.19435],[5.264091,52.197127],[5.26357,52.200309],[5.265078,52.20337],[5.268385,52.20584],[5.272904,52.207326],[5.278084,52.207645],[5.283066,52.206718],[5.287086,52.204686],[5.289503,52.201909],[5.290022,52.198727],[5.288512,52.195666]]],[[[5.26054,52.210152],[5.257259,52.207669],[5.252677,52.206151],[5.247497,52.20583],[5.242514,52.206756],[5.238492,52.208787],[5.236072,52.211563],[5.235549,52.214745],[5.237056,52.217806],[5.240362,52.220277],[5.244881,52.221764],[5.250063,52.222085],[5.255047,52.221159],[5.25907,52.219127],[5.261489,52.216351],[5.26201,52.213169],[5.26054,52.210152]]],[[[4.962986,52.235715],[4.959694,52.233237],[4.955183,52.231739],[4.950003,52.231405],[4.945083,52.232295],[4.941025,52.2343],[4.938532,52.237109],[4.937988,52.240289],[4.939437,52.24331],[4.942703,52.245802],[4.947279,52.247332],[4.952461,52.247666],[4.957454,52.246752],[4.961493,52.244731],[4.963932,52.241961],[4.964475,52.23878],[4.962986,52.235715]]],[[[5.372694,51.981947],[5.377332,51.983374],[5.381202,51.983655],[5.385035,51.983228],[5.389519,51.98163],[5.392035,51.979795],[5.393835,51.976849],[5.393659,51.973605],[5.391823,51.970988],[5.387779,51.969967],[5.381996,51.969199],[5.376011,51.969211],[5.371369,51.969768],[5.368471,51.972538],[5.36758,51.975739],[5.368244,51.97806],[5.369301,51.979529],[5.372694,51.981947]]],[[[5.560341,51.987909],[5.557034,51.985447],[5.55245,51.983958],[5.547372,51.983665],[5.54242,51.984603],[5.538431,51.986644],[5.536042,51.989426],[5.535542,51.99261],[5.537062,51.995668],[5.540368,51.99813],[5.544876,51.999605],[5.550033,51.999913],[5.554987,51.998974],[5.558924,51.996972],[5.561365,51.99415],[5.561862,51.990967],[5.560341,51.987909]]],[[[5.391993,52.027272],[5.388693,52.024805],[5.384188,52.023324],[5.379029,52.023009],[5.374069,52.02394],[5.370069,52.025975],[5.367667,52.028754],[5.367155,52.031937],[5.368665,52.034997],[5.371965,52.037464],[5.37647,52.038946],[5.381632,52.039261],[5.386593,52.038329],[5.390541,52.036332],[5.392994,52.033514],[5.393504,52.030331],[5.391993,52.027272]]],[[[5.541034,52.043509],[5.537245,52.045696],[5.535129,52.048564],[5.534943,52.051762],[5.536765,52.054758],[5.540249,52.057063],[5.544969,52.058395],[5.550147,52.058508],[5.554566,52.057545],[5.558763,52.05522],[5.557575,52.050375],[5.558646,52.05003],[5.557903,52.048865],[5.560935,52.048653],[5.559099,52.04598],[5.555862,52.043871],[5.550523,52.042431],[5.546056,52.042373],[5.541034,52.043509]]],[[[5.38443,52.075774],[5.381151,52.073295],[5.376579,52.071781],[5.371414,52.071466],[5.366521,52.072374],[5.362496,52.074393],[5.360039,52.077211],[5.359526,52.080393],[5.361037,52.083453],[5.36434,52.085921],[5.36885,52.087403],[5.374017,52.087718],[5.378984,52.086787],[5.382989,52.084751],[5.385393,52.081972],[5.385904,52.078789],[5.38443,52.075774]]],[[[5.352678,52.084847],[5.349375,52.082379],[5.344866,52.080896],[5.339701,52.080579],[5.334806,52.081485],[5.330779,52.083504],[5.328319,52.086321],[5.327804,52.089503],[5.329275,52.092519],[5.332552,52.095],[5.337125,52.096515],[5.342293,52.096832],[5.347261,52.095902],[5.351268,52.093867],[5.353675,52.091089],[5.354188,52.087907],[5.352678,52.084847]]],[[[5.356359,52.136588],[5.366185,52.133311],[5.363175,52.130812],[5.366185,52.129817],[5.366845,52.130461],[5.368007,52.130122],[5.368689,52.12988],[5.367952,52.129208],[5.348587,52.125317],[5.334609,52.134384],[5.350544,52.138708],[5.355697,52.136874],[5.35532,52.136591],[5.356359,52.136588]]],[[[5.354929,52.141475],[5.353494,52.139439],[5.35038,52.138898],[5.348779,52.145038],[5.353993,52.145542],[5.355357,52.143514],[5.354929,52.141475]]],[[[5.448968,52.15799],[5.453521,52.156234],[5.455013,52.154742],[5.451863,52.154269],[5.442217,52.150114],[5.44019,52.150563],[5.436484,52.148738],[5.431371,52.147804],[5.429948,52.146765],[5.417766,52.146714],[5.416562,52.142898],[5.413344,52.142949],[5.413357,52.1433],[5.412277,52.143677],[5.408852,52.142797],[5.409279,52.141334],[5.416275,52.140979],[5.416197,52.138202],[5.419067,52.138116],[5.416308,52.133259],[5.415179,52.127984],[5.411992,52.124083],[5.409839,52.123531],[5.405162,52.12395],[5.404368,52.122923],[5.403614,52.123035],[5.403123,52.122186],[5.402527,52.122286],[5.402293,52.121985],[5.400321,52.123527],[5.399913,52.123322],[5.400082,52.122072],[5.398066,52.121179],[5.393962,52.120385],[5.362618,52.117108],[5.362812,52.120371],[5.364881,52.125818],[5.367997,52.128912],[5.377001,52.130776],[5.391346,52.13285],[5.399227,52.135448],[5.402852,52.137782],[5.412973,52.147327],[5.414543,52.149324],[5.417259,52.154174],[5.416935,52.155939],[5.417513,52.158318],[5.419193,52.16049],[5.42183,52.162267],[5.42635,52.163747],[5.431274,52.164068],[5.437366,52.168002],[5.44213,52.167277],[5.44841,52.166978],[5.448713,52.161758],[5.44831,52.160422],[5.446973,52.159568],[5.448968,52.15799]]],[[[5.319375,52.145469],[5.31607,52.143],[5.311556,52.141516],[5.306383,52.141198],[5.301409,52.142126],[5.297395,52.144159],[5.294982,52.146936],[5.294464,52.150118],[5.295934,52.153135],[5.299214,52.155617],[5.303792,52.157133],[5.308966,52.157451],[5.313942,52.156522],[5.317956,52.154489],[5.320369,52.151712],[5.320885,52.148529],[5.319375,52.145469]]],[[[5.353271,52.150673],[5.349377,52.149259],[5.347068,52.146694],[5.343112,52.144695],[5.33814,52.143761],[5.332966,52.144074],[5.328384,52.145585],[5.325096,52.148063],[5.323616,52.151077],[5.324336,52.154626],[5.323834,52.154621],[5.323971,52.154895],[5.322048,52.155091],[5.321721,52.155685],[5.32008,52.155147],[5.320314,52.156695],[5.319284,52.156896],[5.319481,52.157374],[5.318716,52.156127],[5.313977,52.156578],[5.314126,52.157029],[5.31323,52.157184],[5.314332,52.158141],[5.316794,52.159094],[5.317528,52.161448],[5.339401,52.159897],[5.344162,52.160141],[5.345978,52.15779],[5.349078,52.155028],[5.350049,52.151267],[5.352449,52.151097],[5.353271,52.150673]]],[[[5.444244,52.168563],[5.436386,52.171907],[5.438769,52.172932],[5.436716,52.175283],[5.435981,52.181112],[5.439018,52.18426],[5.440137,52.173215],[5.438916,52.172917],[5.439876,52.171197],[5.444244,52.168563]]],[[[5.368745,52.179504],[5.368775,52.176822],[5.367941,52.175263],[5.362958,52.172775],[5.36153,52.171446],[5.350426,52.175341],[5.347583,52.175793],[5.345974,52.173784],[5.346934,52.172933],[5.346668,52.171585],[5.347182,52.169921],[5.34352,52.160396],[5.337951,52.160147],[5.320177,52.16139],[5.318393,52.163073],[5.315883,52.167849],[5.314951,52.174594],[5.318742,52.176753],[5.323311,52.178634],[5.321108,52.1804],[5.321402,52.180604],[5.323627,52.178993],[5.324198,52.179958],[5.321079,52.181181],[5.323556,52.183091],[5.324222,52.182352],[5.325883,52.181782],[5.331061,52.182128],[5.337069,52.184381],[5.340129,52.187418],[5.34412,52.189262],[5.349273,52.190757],[5.354131,52.192674],[5.367879,52.193469],[5.367324,52.188971],[5.369151,52.182457],[5.369363,52.180656],[5.368745,52.179504]]],[[[5.439369,52.197475],[5.438581,52.198082],[5.439659,52.198104],[5.440163,52.192033],[5.439795,52.188445],[5.438867,52.185902],[5.438086,52.184585],[5.438655,52.184338],[5.438023,52.184567],[5.438072,52.185055],[5.439323,52.187816],[5.439878,52.190776],[5.439369,52.197475]]],[[[5.414633,52.202487],[5.412223,52.204379],[5.410813,52.206621],[5.410526,52.209018],[5.411463,52.211466],[5.407263,52.2135],[5.40967,52.21858],[5.421029,52.213194],[5.421987,52.212279],[5.434864,52.205818],[5.436382,52.205296],[5.436652,52.205586],[5.439237,52.204601],[5.43982,52.205984],[5.441039,52.205693],[5.440187,52.20463],[5.441146,52.204314],[5.439449,52.202195],[5.439627,52.19821],[5.437983,52.198248],[5.431292,52.201678],[5.427228,52.200524],[5.423097,52.200256],[5.419033,52.200784],[5.414633,52.202487]]],[[[5.384141,52.206031],[5.370205,52.208035],[5.367303,52.20935],[5.364803,52.209932],[5.364628,52.211996],[5.366855,52.215499],[5.368993,52.223226],[5.376568,52.222443],[5.377183,52.224572],[5.380578,52.224218],[5.381004,52.225822],[5.394617,52.224298],[5.393211,52.220645],[5.39552,52.219155],[5.392775,52.205516],[5.384957,52.206309],[5.384141,52.206031]]]]}},{"type":"Feature","properties":{"__cat":"inclusion","id":"zr-intersection-4b9c80dec6","operation":"intersection","areaKm2":186.617571493,"ruleIds":["FR-RC-01","FR-RC-02"],"layers":["gebied_bovenlokaal_dagrecreatieterrein","recreatiezone"]},"geometry":{"type":"MultiPolygon","coordinates":[[[[5.06774,51.956015],[5.05511,51.955701],[5.058563,51.960645],[5.064642,51.964591],[5.057665,51.972751],[5.065497,51.977303],[5.065281,51.977568],[5.068556,51.980949],[5.070432,51.982235],[5.082012,51.974253],[5.094615,51.969192],[5.086501,51.963094],[5.080979,51.9599],[5.073893,51.957205],[5.06774,51.956015]]],[[[4.969891,51.961769],[4.964938,51.960838],[4.959864,51.961139],[4.955288,51.962635],[4.951993,51.965103],[4.950494,51.968112],[4.950972,51.971297],[4.953344,51.974085],[4.957318,51.976135],[4.962264,51.977085],[4.967421,51.976789],[4.971998,51.975292],[4.975253,51.972868],[4.97679,51.969814],[4.97631,51.966629],[4.973886,51.963803],[4.969891,51.961769]]],[[[5.068632,51.983357],[5.064741,51.983228],[5.060959,51.983804],[5.057612,51.985036],[5.054992,51.986816],[5.053349,51.988943],[5.052828,51.990517],[5.053002,51.99292],[5.053776,51.994496],[5.052282,51.995174],[5.05405,51.996408],[5.048937,52.000672],[5.050857,52.007556],[5.061588,52.009071],[5.071546,52.011566],[5.067233,52.01868],[5.070496,52.017853],[5.074816,52.015727],[5.075636,52.015883],[5.078398,52.014235],[5.080287,52.011469],[5.07545,52.006878],[5.073449,52.006034],[5.0754,52.001476],[5.087544,52.003578],[5.088393,52.001974],[5.087572,52.002147],[5.087527,52.003301],[5.086549,52.003145],[5.087491,52.00151],[5.08673,52.001606],[5.086018,52.000886],[5.08197,51.999429],[5.079661,51.999091],[5.079639,51.998779],[5.076305,51.998289],[5.075915,51.997783],[5.075221,51.998173],[5.073892,51.997893],[5.076659,51.996164],[5.076611,51.996669],[5.077049,51.996303],[5.077998,51.996445],[5.078203,51.996079],[5.078954,51.996303],[5.078702,51.996756],[5.080717,51.997131],[5.080385,51.997597],[5.080801,51.997174],[5.083051,51.997798],[5.082879,51.998364],[5.083223,51.997977],[5.084251,51.998093],[5.085139,51.99858],[5.084754,51.999067],[5.085236,51.99864],[5.085821,51.998834],[5.087191,51.999366],[5.08692,51.999931],[5.087343,51.999538],[5.088015,51.999692],[5.089208,52.000271],[5.089113,52.000665],[5.091231,52.000929],[5.091246,52.001258],[5.091446,52.000957],[5.092854,52.001127],[5.093458,52.001548],[5.09632,52.002073],[5.097065,52.00151],[5.102766,52.002169],[5.10635,52.002099],[5.108384,52.001626],[5.109141,52.00199],[5.110806,52.001234],[5.111918,52.001552],[5.113274,52.000937],[5.113857,52.001116],[5.121108,51.998605],[5.128499,51.99422],[5.132442,51.990757],[5.133665,51.99335],[5.130107,51.996342],[5.133977,51.995682],[5.135492,51.995089],[5.13773,51.996583],[5.133015,51.99783],[5.126101,51.998862],[5.126032,51.999492],[5.124922,51.999949],[5.123893,51.999966],[5.123301,51.99943],[5.122717,51.999473],[5.114874,52.002062],[5.117945,52.009307],[5.123723,52.017329],[5.139119,52.011919],[5.175591,51.996861],[5.175044,51.996475],[5.176142,51.995698],[5.164553,51.989083],[5.165225,51.98782],[5.164321,51.98047],[5.165774,51.978329],[5.167226,51.977855],[5.184074,51.975143],[5.18372,51.971825],[5.182267,51.96981],[5.179629,51.967697],[5.171736,51.969713],[5.160996,51.970469],[5.156578,51.971146],[5.151073,51.973049],[5.148662,51.974596],[5.146652,51.976837],[5.144285,51.981684],[5.140604,51.982241],[5.1383,51.982988],[5.134667,51.985191],[5.132256,51.984543],[5.132333,51.983056],[5.131399,51.982344],[5.127576,51.981704],[5.125335,51.982011],[5.123592,51.982917],[5.122685,51.982862],[5.121826,51.984552],[5.1265,51.987649],[5.127446,51.989709],[5.131077,51.990828],[5.128281,51.992657],[5.112582,51.997411],[5.111288,51.996978],[5.102498,51.997651],[5.097799,51.996603],[5.097821,51.995492],[5.097139,51.995487],[5.096691,51.99746],[5.095464,51.996886],[5.092224,51.996671],[5.091383,51.998295],[5.08856,51.997708],[5.089513,51.996405],[5.086976,51.995858],[5.08694,51.99465],[5.0792,51.991521],[5.078653,51.989012],[5.076222,51.986188],[5.073338,51.98457],[5.068632,51.983357]],[[5.13428,52.000831],[5.137522,51.999642],[5.138622,52.000528],[5.133083,52.002547],[5.13264,52.003031],[5.129422,52.000006],[5.132383,51.998867],[5.13428,52.000831]]],[[[5.114494,52.002178],[5.106363,52.003491],[5.107148,52.005617],[5.115421,52.004662],[5.114494,52.002178]]],[[[5.124096,52.029806],[5.114786,52.038013],[5.110362,52.042997],[5.115384,52.044324],[5.115107,52.048143],[5.116375,52.050366],[5.117806,52.051708],[5.121795,52.053753],[5.125748,52.054602],[5.12599,52.055272],[5.134487,52.054327],[5.14185,52.052996],[5.142982,52.052192],[5.143198,52.051148],[5.138364,52.036556],[5.136138,52.0326],[5.134899,52.031447],[5.132285,52.030371],[5.129088,52.027606],[5.127911,52.027382],[5.124096,52.029806]]],[[[5.167415,52.040916],[5.158734,52.039556],[5.155893,52.0386],[5.151212,52.038221],[5.148582,52.041236],[5.145009,52.043351],[5.143309,52.043798],[5.141206,52.043758],[5.14363,52.050036],[5.148531,52.054806],[5.151476,52.056556],[5.164567,52.060719],[5.168473,52.061512],[5.185302,52.062178],[5.193069,52.061587],[5.193255,52.055855],[5.192553,52.050756],[5.189215,52.046107],[5.185472,52.042096],[5.184858,52.041692],[5.18354,52.042983],[5.181457,52.043658],[5.177513,52.043277],[5.173097,52.043746],[5.170849,52.042298],[5.167415,52.040916]]],[[[5.064579,52.067844],[5.059621,52.066898],[5.054454,52.067199],[5.049871,52.068699],[5.046574,52.071169],[5.045077,52.07418],[5.045563,52.077364],[5.047998,52.080189],[5.052007,52.082221],[5.056894,52.083143],[5.062062,52.082842],[5.066583,52.081374],[5.069905,52.078916],[5.071439,52.07586],[5.070951,52.072676],[5.068567,52.069891],[5.064579,52.067844]]],[[[5.207408,52.083146],[5.225037,52.074907],[5.231779,52.079386],[5.232983,52.077818],[5.234932,52.077638],[5.236435,52.076649],[5.238218,52.077727],[5.240005,52.076722],[5.241903,52.07796],[5.253512,52.071342],[5.258272,52.067503],[5.256904,52.066634],[5.252453,52.066089],[5.250953,52.065121],[5.253245,52.065188],[5.256381,52.062506],[5.25711,52.06233],[5.25927,52.064477],[5.261531,52.064871],[5.26653,52.061147],[5.259732,52.058748],[5.254258,52.058006],[5.217278,52.05984],[5.216243,52.060532],[5.221745,52.064117],[5.213464,52.063846],[5.21287,52.065008],[5.210781,52.066587],[5.200376,52.069605],[5.196587,52.07249],[5.196082,52.073361],[5.1933,52.073759],[5.187813,52.072036],[5.186217,52.071067],[5.188231,52.064119],[5.186704,52.063732],[5.187287,52.063047],[5.188504,52.063092],[5.188675,52.0625],[5.168471,52.061952],[5.165511,52.061423],[5.152341,52.057558],[5.151145,52.058957],[5.150789,52.060738],[5.14839,52.063305],[5.147791,52.065866],[5.148206,52.068002],[5.1415,52.070118],[5.136875,52.072916],[5.139087,52.074128],[5.141581,52.077198],[5.143564,52.076935],[5.147002,52.077296],[5.150663,52.078951],[5.153646,52.080864],[5.155625,52.081334],[5.156682,52.081213],[5.157494,52.081733],[5.159153,52.081458],[5.161008,52.080211],[5.161584,52.081261],[5.187447,52.080958],[5.187385,52.083809],[5.186016,52.083832],[5.186057,52.08523],[5.184183,52.085243],[5.183588,52.088925],[5.185463,52.089239],[5.184223,52.09167],[5.182696,52.090893],[5.182623,52.091198],[5.18513,52.092063],[5.19428,52.092181],[5.199973,52.092748],[5.203986,52.093981],[5.207397,52.095937],[5.209668,52.091063],[5.211275,52.089961],[5.205057,52.087029],[5.20704,52.086507],[5.205699,52.084847],[5.207408,52.083146]]],[[[5.038533,52.031381],[5.036027,52.030131],[5.024705,52.040516],[5.023444,52.041331],[5.019052,52.042487],[5.017065,52.0434],[5.015047,52.044756],[5.012582,52.047741],[5.007655,52.050081],[5.010363,52.053832],[5.006809,52.055257],[5.006957,52.055603],[5.007517,52.055415],[5.008014,52.056171],[5.012263,52.056064],[5.012053,52.05642],[5.017397,52.061894],[5.000004,52.065527],[4.995923,52.06691],[4.982861,52.064529],[4.977831,52.065566],[4.97389,52.079941],[4.975162,52.079878],[4.974562,52.080771],[4.933793,52.080422],[4.926279,52.07891],[4.918125,52.076031],[4.911079,52.0853],[4.911045,52.088498],[4.911789,52.090039],[4.913647,52.091995],[4.909682,52.096614],[4.908282,52.09711],[4.912515,52.096908],[4.9144,52.097263],[4.917226,52.100674],[4.919241,52.102212],[4.922947,52.102691],[4.925113,52.104023],[4.928728,52.10518],[4.936233,52.104446],[4.93822,52.10332],[4.939632,52.100714],[4.942574,52.098781],[4.945021,52.094765],[4.947756,52.093424],[4.948758,52.100496],[4.947473,52.100768],[4.947021,52.101305],[4.946375,52.101006],[4.945187,52.102414],[4.957472,52.105788],[4.963931,52.106252],[4.971465,52.106126],[4.976973,52.111717],[4.969606,52.121259],[4.973816,52.129628],[4.99327,52.134189],[4.993372,52.138126],[5.003122,52.142086],[5.002728,52.141648],[5.003532,52.141933],[5.009687,52.133058],[5.01336,52.128746],[5.010086,52.129054],[5.007123,52.123574],[5.010705,52.125802],[5.015493,52.127046],[5.019395,52.127177],[5.024374,52.12626],[5.027519,52.124832],[5.030411,52.122175],[5.031422,52.119088],[5.030429,52.115948],[5.02843,52.113881],[5.025539,52.112263],[5.022008,52.111233],[5.018225,52.110881],[5.014435,52.111209],[5.010888,52.112217],[5.00797,52.113817],[5.006451,52.115215],[5.004989,52.111442],[5.007083,52.110355],[5.006396,52.108469],[5.005307,52.10857],[5.00514,52.10809],[5.004507,52.10819],[5.002819,52.10352],[4.976569,52.105339],[4.975771,52.105209],[4.973211,52.102876],[4.973016,52.101946],[4.97688,52.098724],[4.975652,52.097922],[4.979073,52.088645],[4.978791,52.08809],[4.982967,52.088381],[4.990751,52.090627],[5.003916,52.0885],[5.002091,52.077853],[5.020357,52.074039],[5.038331,52.071391],[5.036041,52.065623],[5.032019,52.066248],[5.02939,52.059944],[5.031874,52.059323],[5.035014,52.057895],[5.03667,52.056654],[5.038316,52.054528],[5.03891,52.05215],[5.038665,52.05055],[5.035803,52.046362],[5.041048,52.044097],[5.042136,52.04296],[5.04666,52.044107],[5.051846,52.044121],[5.056442,52.042983],[5.056655,52.043539],[5.06396,52.040888],[5.063359,52.029835],[5.06274,52.029041],[5.063323,52.02804],[5.063254,52.026234],[5.062772,52.025949],[5.060931,52.026164],[5.054958,52.02873],[5.050677,52.027984],[5.045515,52.028284],[5.041985,52.029306],[5.038533,52.031381]],[[4.954731,52.090031],[4.953046,52.087868],[4.950677,52.086445],[4.953246,52.085613],[4.952832,52.084446],[4.960505,52.084018],[4.960888,52.082983],[4.962996,52.083253],[4.962621,52.084358],[4.965644,52.084777],[4.968007,52.084695],[4.969608,52.086018],[4.971262,52.089014],[4.965172,52.091783],[4.9633,52.092053],[4.962694,52.092902],[4.963242,52.094347],[4.964549,52.095701],[4.968728,52.0966],[4.96666,52.097476],[4.965088,52.097349],[4.964145,52.097764],[4.960876,52.094952],[4.959525,52.095401],[4.953066,52.095096],[4.95321,52.095826],[4.949735,52.096227],[4.949012,52.093112],[4.950822,52.092513],[4.954731,52.090031]]],[[[5.025651,52.161758],[5.026816,52.161351],[5.029005,52.16183],[5.02976,52.162527],[5.031657,52.162271],[5.046394,52.165714],[5.05185,52.15708],[5.051034,52.156626],[5.052512,52.154662],[5.05558,52.151396],[5.061441,52.146612],[5.06584,52.148705],[5.073688,52.145037],[5.078801,52.148855],[5.079895,52.148376],[5.083697,52.149247],[5.088896,52.14926],[5.092582,52.148456],[5.095726,52.147026],[5.098584,52.144413],[5.099588,52.141672],[5.10172,52.141024],[5.104462,52.140407],[5.109378,52.141334],[5.113284,52.141225],[5.135027,52.137182],[5.135727,52.137611],[5.139606,52.135893],[5.150144,52.133755],[5.145768,52.126531],[5.146277,52.123396],[5.144566,52.120113],[5.146553,52.119892],[5.146562,52.121578],[5.151296,52.120646],[5.151797,52.121469],[5.152479,52.121336],[5.152854,52.121975],[5.156433,52.121247],[5.156858,52.121962],[5.157571,52.121737],[5.158984,52.124024],[5.159423,52.123929],[5.160669,52.126141],[5.160155,52.126257],[5.160503,52.126824],[5.159359,52.125479],[5.157356,52.126057],[5.157656,52.126596],[5.156999,52.126742],[5.156556,52.125986],[5.154294,52.126461],[5.154872,52.127475],[5.152929,52.127852],[5.151232,52.124823],[5.149199,52.124885],[5.148962,52.124431],[5.147542,52.124717],[5.154109,52.135073],[5.159522,52.141479],[5.165361,52.140053],[5.172513,52.139127],[5.174026,52.140572],[5.176908,52.142198],[5.180435,52.143236],[5.184301,52.143597],[5.189401,52.142979],[5.194209,52.140876],[5.197368,52.143159],[5.202685,52.14507],[5.200838,52.141943],[5.200986,52.14064],[5.206027,52.138846],[5.206387,52.138098],[5.202545,52.134224],[5.201579,52.134495],[5.201028,52.134285],[5.200301,52.132632],[5.199402,52.13285],[5.199545,52.133403],[5.19855,52.133662],[5.199866,52.135029],[5.197583,52.135744],[5.196603,52.132316],[5.194595,52.130252],[5.192748,52.129116],[5.188239,52.127627],[5.18215,52.127386],[5.179306,52.123389],[5.164866,52.119564],[5.174109,52.116474],[5.168371,52.107909],[5.171216,52.106981],[5.171019,52.106597],[5.167335,52.101089],[5.165699,52.100712],[5.165332,52.099758],[5.166426,52.099004],[5.168273,52.098949],[5.170279,52.10144],[5.173451,52.102273],[5.177459,52.101301],[5.176829,52.100383],[5.177962,52.100114],[5.179044,52.10148],[5.181723,52.100893],[5.182731,52.102237],[5.185201,52.1011],[5.185771,52.10214],[5.191781,52.101995],[5.199547,52.102622],[5.20302,52.102073],[5.209993,52.098747],[5.205199,52.094932],[5.201464,52.093623],[5.197948,52.092943],[5.182273,52.092659],[5.170923,52.093009],[5.160303,52.094188],[5.157759,52.093077],[5.156887,52.091538],[5.15353,52.096675],[5.151257,52.096068],[5.150853,52.095429],[5.151562,52.094299],[5.145788,52.092864],[5.145216,52.094216],[5.146501,52.094405],[5.147649,52.094979],[5.147668,52.09545],[5.149628,52.095958],[5.148749,52.096839],[5.156824,52.098314],[5.147511,52.115257],[5.144513,52.114729],[5.142809,52.115026],[5.142204,52.115436],[5.141861,52.118068],[5.138133,52.116624],[5.134422,52.116048],[5.130519,52.116159],[5.126837,52.116964],[5.123696,52.118395],[5.120962,52.120857],[5.112005,52.125086],[5.108185,52.125198],[5.104502,52.126003],[5.10136,52.127433],[5.099137,52.129256],[5.098055,52.12941],[5.088916,52.133237],[5.084017,52.133213],[5.076141,52.127067],[5.083568,52.122767],[5.081997,52.121155],[5.085653,52.120108],[5.085324,52.118694],[5.079304,52.119042],[5.07629,52.120751],[5.074095,52.123018],[5.067624,52.120158],[5.065283,52.121688],[5.063423,52.120538],[5.056321,52.124689],[5.061855,52.127936],[5.0606,52.130249],[5.058967,52.130468],[5.058619,52.128998],[5.054288,52.131165],[5.051608,52.129431],[5.049536,52.131133],[5.053455,52.13295],[5.059149,52.134833],[5.057173,52.139063],[5.053352,52.142098],[5.053737,52.142833],[5.040623,52.15118],[5.037929,52.153468],[5.035375,52.151033],[5.034651,52.149332],[5.035745,52.149528],[5.036615,52.148415],[5.035123,52.146092],[5.035568,52.144422],[5.036478,52.143416],[5.038626,52.142289],[5.036886,52.140426],[5.034224,52.140726],[5.032317,52.142098],[5.028517,52.140208],[5.002456,52.155188],[4.999677,52.157467],[4.997363,52.161205],[5.005303,52.164651],[5.005713,52.164308],[5.007924,52.165149],[5.007676,52.165778],[5.008812,52.166282],[5.009569,52.165731],[5.011405,52.16079],[5.012991,52.159471],[5.014899,52.158669],[5.017262,52.158105],[5.020842,52.159658],[5.023973,52.161769],[5.025651,52.161758]],[[5.197529,52.136299],[5.197565,52.136341],[5.197515,52.136356],[5.197529,52.136299]],[[5.069024,52.129394],[5.064993,52.127255],[5.063737,52.12736],[5.066031,52.125621],[5.070047,52.127448],[5.071735,52.127208],[5.070837,52.127847],[5.069512,52.130094],[5.068875,52.130024],[5.069024,52.129394]]],[[[5.2727,52.122573],[5.267804,52.12166],[5.262633,52.121969],[5.258114,52.123446],[5.254799,52.125909],[5.253276,52.128967],[5.253778,52.13215],[5.256228,52.134971],[5.26018,52.136972],[5.265149,52.137909],[5.270323,52.137599],[5.274906,52.136091],[5.278157,52.133659],[5.279679,52.130601],[5.279175,52.127417],[5.276723,52.124597],[5.2727,52.122573]]],[[[4.91382,52.123174],[4.908859,52.122222],[4.903685,52.122516],[4.899091,52.12401],[4.895781,52.126476],[4.894273,52.129485],[4.894749,52.13267],[4.897177,52.135498],[4.901184,52.137535],[4.906074,52.138463],[4.91125,52.138169],[4.915845,52.136675],[4.919115,52.134253],[4.920662,52.131199],[4.920184,52.128014],[4.917755,52.125187],[4.91382,52.123174]]],[[[5.243591,52.179385],[5.238618,52.178447],[5.233439,52.178755],[5.22885,52.180262],[5.225555,52.182737],[5.224066,52.18575],[5.224566,52.188934],[5.227018,52.191755],[5.231045,52.193781],[5.235949,52.194695],[5.241129,52.194387],[5.245719,52.19288],[5.249014,52.190404],[5.250501,52.187391],[5.249999,52.184207],[5.247546,52.181387],[5.243591,52.179385]]],[[[5.2831,52.19233],[5.278124,52.191394],[5.272944,52.191704],[5.268355,52.193212],[5.265061,52.195688],[5.263574,52.198702],[5.264078,52.201885],[5.266533,52.204705],[5.270563,52.20673],[5.275468,52.207643],[5.28065,52.207333],[5.28524,52.205824],[5.288534,52.203347],[5.290018,52.200333],[5.289513,52.19715],[5.287057,52.19433],[5.2831,52.19233]]],[[[5.25509,52.206771],[5.250113,52.205833],[5.244931,52.206142],[5.24034,52.207649],[5.237082,52.21008],[5.235554,52.213138],[5.236056,52.216321],[5.23851,52.219142],[5.24254,52.221168],[5.247446,52.222082],[5.25263,52.221773],[5.257222,52.220265],[5.260519,52.217789],[5.262006,52.214776],[5.261502,52.211593],[5.259099,52.208811],[5.25509,52.206771]]],[[[4.957521,52.232341],[4.95262,52.231415],[4.947433,52.23171],[4.942893,52.233175],[4.939553,52.235629],[4.938004,52.238683],[4.938484,52.241867],[4.940869,52.244655],[4.944868,52.246706],[4.949843,52.247656],[4.955031,52.247361],[4.959636,52.245864],[4.962951,52.243397],[4.96446,52.240387],[4.963977,52.237203],[4.96154,52.234376],[4.957521,52.232341]]],[[[5.379899,51.98364],[5.3825,51.983591],[5.386246,51.982933],[5.389519,51.98163],[5.391296,51.980457],[5.392666,51.979091],[5.393835,51.976849],[5.393955,51.974695],[5.393069,51.972455],[5.391827,51.970992],[5.383583,51.969341],[5.378229,51.969118],[5.371338,51.96979],[5.369002,51.971803],[5.368038,51.97335],[5.36758,51.975739],[5.368244,51.97806],[5.37,51.980208],[5.372694,51.981947],[5.376092,51.983125],[5.379899,51.98364]]],[[[5.554861,51.984563],[5.549974,51.983661],[5.544821,51.983983],[5.540262,51.985502],[5.536998,51.987986],[5.535537,51.991003],[5.536057,51.994185],[5.538518,51.997],[5.54247,51.998991],[5.54743,51.999917],[5.552585,51.999595],[5.557082,51.998107],[5.56037,51.995635],[5.561868,51.992574],[5.561346,51.989392],[5.558884,51.986577],[5.554861,51.984563]]],[[[5.386521,52.023917],[5.381634,52.023009],[5.376474,52.023323],[5.371906,52.024836],[5.36863,52.027315],[5.367156,52.03033],[5.367665,52.033513],[5.370117,52.036331],[5.374137,52.038352],[5.379026,52.039261],[5.384187,52.038946],[5.388756,52.037433],[5.391994,52.034998],[5.393504,52.031938],[5.392994,52.028755],[5.39054,52.025938],[5.386521,52.023917]]],[[[5.535944,52.047089],[5.534779,52.050157],[5.535613,52.053316],[5.537508,52.05542],[5.541343,52.057503],[5.546253,52.058542],[5.550147,52.058508],[5.554566,52.057545],[5.558756,52.055226],[5.557575,52.050375],[5.558641,52.050017],[5.557903,52.048865],[5.560935,52.048653],[5.558383,52.045368],[5.554633,52.043376],[5.549068,52.042309],[5.543375,52.042801],[5.538965,52.044487],[5.535944,52.047089]]],[[[5.378987,52.072399],[5.374022,52.071466],[5.368857,52.07178],[5.364347,52.073261],[5.361042,52.075727],[5.359527,52.078786],[5.360036,52.081969],[5.362491,52.084788],[5.366442,52.086785],[5.371408,52.087718],[5.376575,52.087404],[5.38115,52.085891],[5.38443,52.083412],[5.385904,52.080396],[5.385393,52.077214],[5.38299,52.074435],[5.378987,52.072399]]],[[[5.347202,52.08149],[5.342309,52.08058],[5.337142,52.080893],[5.33263,52.082372],[5.329323,52.084837],[5.327806,52.087896],[5.328313,52.091079],[5.330714,52.093859],[5.334717,52.095897],[5.339683,52.096831],[5.344851,52.096518],[5.349428,52.095007],[5.35271,52.092528],[5.354187,52.089514],[5.353679,52.086331],[5.351225,52.083512],[5.347202,52.08149]]],[[[5.363175,52.130812],[5.366185,52.129817],[5.366845,52.130461],[5.368689,52.12988],[5.367952,52.129208],[5.348587,52.125317],[5.334609,52.134384],[5.350544,52.138708],[5.355697,52.136874],[5.35532,52.136591],[5.356359,52.136588],[5.366185,52.133311],[5.363175,52.130812]]],[[[5.35038,52.138898],[5.348779,52.145038],[5.353993,52.145542],[5.355335,52.143916],[5.354929,52.141475],[5.353494,52.139439],[5.35038,52.138898]]],[[[5.453521,52.156234],[5.455013,52.154742],[5.451863,52.154269],[5.442217,52.150114],[5.44019,52.150563],[5.436484,52.148738],[5.431371,52.147804],[5.429948,52.146765],[5.417766,52.146714],[5.416562,52.142898],[5.413344,52.142949],[5.413357,52.1433],[5.412277,52.143677],[5.408852,52.142797],[5.409279,52.141334],[5.416275,52.140979],[5.416197,52.138202],[5.419067,52.138116],[5.416308,52.133259],[5.415179,52.127984],[5.412312,52.124332],[5.411459,52.123859],[5.409249,52.123538],[5.405162,52.12395],[5.404368,52.122923],[5.403614,52.123035],[5.403123,52.122186],[5.402527,52.122286],[5.402293,52.121985],[5.400321,52.123527],[5.399913,52.123322],[5.400082,52.122072],[5.398066,52.121179],[5.393962,52.120385],[5.362618,52.117108],[5.362812,52.120371],[5.364881,52.125818],[5.367997,52.128912],[5.377001,52.130776],[5.391346,52.13285],[5.399227,52.135448],[5.402852,52.137782],[5.412973,52.147327],[5.417,52.153498],[5.417,52.156742],[5.417956,52.159075],[5.419975,52.161135],[5.422883,52.162744],[5.42635,52.163747],[5.431274,52.164068],[5.437366,52.168002],[5.44213,52.167277],[5.44841,52.166978],[5.448713,52.161758],[5.44831,52.160422],[5.446973,52.159568],[5.448968,52.15799],[5.453521,52.156234]]],[[[5.313894,52.142111],[5.308995,52.1412],[5.303821,52.141511],[5.299239,52.143021],[5.29595,52.145497],[5.294467,52.148511],[5.294948,52.151646],[5.297374,52.154475],[5.301381,52.156514],[5.306354,52.157449],[5.311529,52.157138],[5.316113,52.155628],[5.319363,52.153195],[5.320883,52.150136],[5.320376,52.146953],[5.317921,52.144134],[5.313894,52.142111]]],[[[5.346187,52.146099],[5.341931,52.14435],[5.336834,52.143721],[5.331735,52.144345],[5.328384,52.145585],[5.325765,52.147371],[5.324129,52.149501],[5.32355,52.15188],[5.324336,52.154626],[5.322048,52.155091],[5.321721,52.155685],[5.32008,52.155147],[5.320314,52.156695],[5.319284,52.156896],[5.319481,52.157374],[5.318716,52.156127],[5.313977,52.156578],[5.314126,52.157029],[5.31323,52.157184],[5.314332,52.158141],[5.316794,52.159094],[5.317528,52.161448],[5.339401,52.159897],[5.344162,52.160141],[5.345978,52.15779],[5.349078,52.155028],[5.350049,52.151267],[5.352449,52.151097],[5.353271,52.150673],[5.349377,52.149259],[5.346187,52.146099]]],[[[5.438769,52.172932],[5.436716,52.175283],[5.435981,52.181112],[5.439018,52.18426],[5.440137,52.173215],[5.438916,52.172917],[5.439876,52.171197],[5.444244,52.168563],[5.436386,52.171907],[5.438769,52.172932]]],[[[5.368775,52.176822],[5.367671,52.175039],[5.362958,52.172775],[5.36153,52.171446],[5.350426,52.175341],[5.347583,52.175793],[5.345974,52.173784],[5.346934,52.172933],[5.346668,52.171585],[5.347182,52.169921],[5.343416,52.160365],[5.337951,52.160147],[5.320177,52.16139],[5.317425,52.164395],[5.317487,52.165364],[5.316816,52.165586],[5.315883,52.167849],[5.314951,52.174594],[5.318742,52.176753],[5.323311,52.178634],[5.321108,52.1804],[5.321402,52.180604],[5.323627,52.178993],[5.324198,52.179958],[5.321079,52.181181],[5.323556,52.183091],[5.324222,52.182352],[5.325883,52.181782],[5.331437,52.182218],[5.333384,52.183231],[5.337069,52.184381],[5.340129,52.187418],[5.34412,52.189262],[5.349273,52.190757],[5.354131,52.192674],[5.367879,52.193469],[5.367324,52.188971],[5.369324,52.18115],[5.368664,52.179381],[5.368775,52.176822]]],[[[5.439659,52.198104],[5.440096,52.190052],[5.439292,52.186992],[5.438086,52.184585],[5.438655,52.184338],[5.438023,52.184567],[5.438072,52.185055],[5.43949,52.188395],[5.439885,52.191407],[5.439369,52.197475],[5.438581,52.198082],[5.439659,52.198104]]],[[[5.410813,52.206621],[5.410526,52.209018],[5.411463,52.211466],[5.407264,52.2135],[5.40967,52.21858],[5.421029,52.213194],[5.421987,52.212279],[5.434714,52.205876],[5.436382,52.205296],[5.436652,52.205586],[5.439237,52.204601],[5.43982,52.205984],[5.441039,52.205693],[5.440187,52.20463],[5.441146,52.204314],[5.439449,52.202195],[5.439651,52.198232],[5.437983,52.198248],[5.431292,52.201678],[5.428625,52.200807],[5.424487,52.200256],[5.421715,52.200344],[5.417836,52.201107],[5.41373,52.203068],[5.411633,52.205097],[5.410813,52.206621]]],[[[5.38146,52.206765],[5.370205,52.208035],[5.367303,52.20935],[5.364803,52.209932],[5.364628,52.211996],[5.366855,52.215499],[5.368993,52.223226],[5.376568,52.222443],[5.377183,52.224572],[5.380578,52.224218],[5.381004,52.225822],[5.394617,52.224298],[5.393211,52.220645],[5.395519,52.219148],[5.392775,52.205516],[5.384957,52.206309],[5.384141,52.206031],[5.38146,52.206765]]]]}},{"type":"Feature","properties":{"__cat":"final","id":"zr-final-8679e6adb8","operation":"final","areaKm2":186.617571493,"ruleIds":["FR-RC-01","FR-RC-02"],"layers":["gebied_bovenlokaal_dagrecreatieterrein","recreatiezone"]},"geometry":{"type":"MultiPolygon","coordinates":[[[[5.06774,51.956015],[5.05511,51.955701],[5.058563,51.960645],[5.064642,51.964591],[5.057665,51.972751],[5.065497,51.977303],[5.065281,51.977568],[5.068556,51.980949],[5.070432,51.982235],[5.082012,51.974253],[5.094615,51.969192],[5.086501,51.963094],[5.080979,51.9599],[5.073893,51.957205],[5.06774,51.956015]]],[[[4.969891,51.961769],[4.964938,51.960838],[4.959864,51.961139],[4.955288,51.962635],[4.951993,51.965103],[4.950494,51.968112],[4.950972,51.971297],[4.953344,51.974085],[4.957318,51.976135],[4.962264,51.977085],[4.967421,51.976789],[4.971998,51.975292],[4.975253,51.972868],[4.97679,51.969814],[4.97631,51.966629],[4.973886,51.963803],[4.969891,51.961769]]],[[[5.068632,51.983357],[5.064741,51.983228],[5.060959,51.983804],[5.057612,51.985036],[5.054992,51.986816],[5.053349,51.988943],[5.052828,51.990517],[5.053002,51.99292],[5.053776,51.994496],[5.052282,51.995174],[5.05405,51.996408],[5.048937,52.000672],[5.050857,52.007556],[5.061588,52.009071],[5.071546,52.011566],[5.067233,52.01868],[5.070496,52.017853],[5.074816,52.015727],[5.075636,52.015883],[5.078398,52.014235],[5.080287,52.011469],[5.07545,52.006878],[5.073449,52.006034],[5.0754,52.001476],[5.087544,52.003578],[5.088393,52.001974],[5.087572,52.002147],[5.087527,52.003301],[5.086549,52.003145],[5.087491,52.00151],[5.08673,52.001606],[5.086018,52.000886],[5.08197,51.999429],[5.079661,51.999091],[5.079639,51.998779],[5.076305,51.998289],[5.075915,51.997783],[5.075221,51.998173],[5.073892,51.997893],[5.076659,51.996164],[5.076611,51.996669],[5.077049,51.996303],[5.077998,51.996445],[5.078203,51.996079],[5.078954,51.996303],[5.078702,51.996756],[5.080717,51.997131],[5.080385,51.997597],[5.080801,51.997174],[5.083051,51.997798],[5.082879,51.998364],[5.083223,51.997977],[5.084251,51.998093],[5.085139,51.99858],[5.084754,51.999067],[5.085236,51.99864],[5.085821,51.998834],[5.087191,51.999366],[5.08692,51.999931],[5.087343,51.999538],[5.088015,51.999692],[5.089208,52.000271],[5.089113,52.000665],[5.091231,52.000929],[5.091246,52.001258],[5.091446,52.000957],[5.092854,52.001127],[5.093458,52.001548],[5.09632,52.002073],[5.097065,52.00151],[5.102766,52.002169],[5.10635,52.002099],[5.108384,52.001626],[5.109141,52.00199],[5.110806,52.001234],[5.111918,52.001552],[5.113274,52.000937],[5.113857,52.001116],[5.121108,51.998605],[5.128499,51.99422],[5.132442,51.990757],[5.133665,51.99335],[5.130107,51.996342],[5.133977,51.995682],[5.135492,51.995089],[5.13773,51.996583],[5.133015,51.99783],[5.126101,51.998862],[5.126032,51.999492],[5.124922,51.999949],[5.123893,51.999966],[5.123301,51.99943],[5.122717,51.999473],[5.114874,52.002062],[5.117945,52.009307],[5.123723,52.017329],[5.139119,52.011919],[5.175591,51.996861],[5.175044,51.996475],[5.176142,51.995698],[5.164553,51.989083],[5.165225,51.98782],[5.164321,51.98047],[5.165774,51.978329],[5.167226,51.977855],[5.184074,51.975143],[5.18372,51.971825],[5.182267,51.96981],[5.179629,51.967697],[5.171736,51.969713],[5.160996,51.970469],[5.156578,51.971146],[5.151073,51.973049],[5.148662,51.974596],[5.146652,51.976837],[5.144285,51.981684],[5.140604,51.982241],[5.1383,51.982988],[5.134667,51.985191],[5.132256,51.984543],[5.132333,51.983056],[5.131399,51.982344],[5.127576,51.981704],[5.125335,51.982011],[5.123592,51.982917],[5.122685,51.982862],[5.121826,51.984552],[5.1265,51.987649],[5.127446,51.989709],[5.131077,51.990828],[5.128281,51.992657],[5.112582,51.997411],[5.111288,51.996978],[5.102498,51.997651],[5.097799,51.996603],[5.097821,51.995492],[5.097139,51.995487],[5.096691,51.99746],[5.095464,51.996886],[5.092224,51.996671],[5.091383,51.998295],[5.08856,51.997708],[5.089513,51.996405],[5.086976,51.995858],[5.08694,51.99465],[5.0792,51.991521],[5.078653,51.989012],[5.076222,51.986188],[5.073338,51.98457],[5.068632,51.983357]],[[5.13428,52.000831],[5.137522,51.999642],[5.138622,52.000528],[5.133083,52.002547],[5.13264,52.003031],[5.129422,52.000006],[5.132383,51.998867],[5.13428,52.000831]]],[[[5.114494,52.002178],[5.106363,52.003491],[5.107148,52.005617],[5.115421,52.004662],[5.114494,52.002178]]],[[[5.124096,52.029806],[5.114786,52.038013],[5.110362,52.042997],[5.115384,52.044324],[5.115107,52.048143],[5.116375,52.050366],[5.117806,52.051708],[5.121795,52.053753],[5.125748,52.054602],[5.12599,52.055272],[5.134487,52.054327],[5.14185,52.052996],[5.142982,52.052192],[5.143198,52.051148],[5.138364,52.036556],[5.136138,52.0326],[5.134899,52.031447],[5.132285,52.030371],[5.129088,52.027606],[5.127911,52.027382],[5.124096,52.029806]]],[[[5.167415,52.040916],[5.158734,52.039556],[5.155893,52.0386],[5.151212,52.038221],[5.148582,52.041236],[5.145009,52.043351],[5.143309,52.043798],[5.141206,52.043758],[5.14363,52.050036],[5.148531,52.054806],[5.151476,52.056556],[5.164567,52.060719],[5.168473,52.061512],[5.185302,52.062178],[5.193069,52.061587],[5.193255,52.055855],[5.192553,52.050756],[5.189215,52.046107],[5.185472,52.042096],[5.184858,52.041692],[5.18354,52.042983],[5.181457,52.043658],[5.177513,52.043277],[5.173097,52.043746],[5.170849,52.042298],[5.167415,52.040916]]],[[[5.064579,52.067844],[5.059621,52.066898],[5.054454,52.067199],[5.049871,52.068699],[5.046574,52.071169],[5.045077,52.07418],[5.045563,52.077364],[5.047998,52.080189],[5.052007,52.082221],[5.056894,52.083143],[5.062062,52.082842],[5.066583,52.081374],[5.069905,52.078916],[5.071439,52.07586],[5.070951,52.072676],[5.068567,52.069891],[5.064579,52.067844]]],[[[5.207408,52.083146],[5.225037,52.074907],[5.231779,52.079386],[5.232983,52.077818],[5.234932,52.077638],[5.236435,52.076649],[5.238218,52.077727],[5.240005,52.076722],[5.241903,52.07796],[5.253512,52.071342],[5.258272,52.067503],[5.256904,52.066634],[5.252453,52.066089],[5.250953,52.065121],[5.253245,52.065188],[5.256381,52.062506],[5.25711,52.06233],[5.25927,52.064477],[5.261531,52.064871],[5.26653,52.061147],[5.259732,52.058748],[5.254258,52.058006],[5.217278,52.05984],[5.216243,52.060532],[5.221745,52.064117],[5.213464,52.063846],[5.21287,52.065008],[5.210781,52.066587],[5.200376,52.069605],[5.196587,52.07249],[5.196082,52.073361],[5.1933,52.073759],[5.187813,52.072036],[5.186217,52.071067],[5.188231,52.064119],[5.186704,52.063732],[5.187287,52.063047],[5.188504,52.063092],[5.188675,52.0625],[5.168471,52.061952],[5.165511,52.061423],[5.152341,52.057558],[5.151145,52.058957],[5.150789,52.060738],[5.14839,52.063305],[5.147791,52.065866],[5.148206,52.068002],[5.1415,52.070118],[5.136875,52.072916],[5.139087,52.074128],[5.141581,52.077198],[5.143564,52.076935],[5.147002,52.077296],[5.150663,52.078951],[5.153646,52.080864],[5.155625,52.081334],[5.156682,52.081213],[5.157494,52.081733],[5.159153,52.081458],[5.161008,52.080211],[5.161584,52.081261],[5.187447,52.080958],[5.187385,52.083809],[5.186016,52.083832],[5.186057,52.08523],[5.184183,52.085243],[5.183588,52.088925],[5.185463,52.089239],[5.184223,52.09167],[5.182696,52.090893],[5.182623,52.091198],[5.18513,52.092063],[5.19428,52.092181],[5.199973,52.092748],[5.203986,52.093981],[5.207397,52.095937],[5.209668,52.091063],[5.211275,52.089961],[5.205057,52.087029],[5.20704,52.086507],[5.205699,52.084847],[5.207408,52.083146]]],[[[5.038533,52.031381],[5.036027,52.030131],[5.024705,52.040516],[5.023444,52.041331],[5.019052,52.042487],[5.017065,52.0434],[5.015047,52.044756],[5.012582,52.047741],[5.007655,52.050081],[5.010363,52.053832],[5.006809,52.055257],[5.006957,52.055603],[5.007517,52.055415],[5.008014,52.056171],[5.012263,52.056064],[5.012053,52.05642],[5.017397,52.061894],[5.000004,52.065527],[4.995923,52.06691],[4.982861,52.064529],[4.977831,52.065566],[4.97389,52.079941],[4.975162,52.079878],[4.974562,52.080771],[4.933793,52.080422],[4.926279,52.07891],[4.918125,52.076031],[4.911079,52.0853],[4.911045,52.088498],[4.911789,52.090039],[4.913647,52.091995],[4.909682,52.096614],[4.908282,52.09711],[4.912515,52.096908],[4.9144,52.097263],[4.917226,52.100674],[4.919241,52.102212],[4.922947,52.102691],[4.925113,52.104023],[4.928728,52.10518],[4.936233,52.104446],[4.93822,52.10332],[4.939632,52.100714],[4.942574,52.098781],[4.945021,52.094765],[4.947756,52.093424],[4.948758,52.100496],[4.947473,52.100768],[4.947021,52.101305],[4.946375,52.101006],[4.945187,52.102414],[4.957472,52.105788],[4.963931,52.106252],[4.971465,52.106126],[4.976973,52.111717],[4.969606,52.121259],[4.973816,52.129628],[4.99327,52.134189],[4.993372,52.138126],[5.003122,52.142086],[5.002728,52.141648],[5.003532,52.141933],[5.009687,52.133058],[5.01336,52.128746],[5.010086,52.129054],[5.007123,52.123574],[5.010705,52.125802],[5.015493,52.127046],[5.019395,52.127177],[5.024374,52.12626],[5.027519,52.124832],[5.030411,52.122175],[5.031422,52.119088],[5.030429,52.115948],[5.02843,52.113881],[5.025539,52.112263],[5.022008,52.111233],[5.018225,52.110881],[5.014435,52.111209],[5.010888,52.112217],[5.00797,52.113817],[5.006451,52.115215],[5.004989,52.111442],[5.007083,52.110355],[5.006396,52.108469],[5.005307,52.10857],[5.00514,52.10809],[5.004507,52.10819],[5.002819,52.10352],[4.976569,52.105339],[4.975771,52.105209],[4.973211,52.102876],[4.973016,52.101946],[4.97688,52.098724],[4.975652,52.097922],[4.979073,52.088645],[4.978791,52.08809],[4.982967,52.088381],[4.990751,52.090627],[5.003916,52.0885],[5.002091,52.077853],[5.020357,52.074039],[5.038331,52.071391],[5.036041,52.065623],[5.032019,52.066248],[5.02939,52.059944],[5.031874,52.059323],[5.035014,52.057895],[5.03667,52.056654],[5.038316,52.054528],[5.03891,52.05215],[5.038665,52.05055],[5.035803,52.046362],[5.041048,52.044097],[5.042136,52.04296],[5.04666,52.044107],[5.051846,52.044121],[5.056442,52.042983],[5.056655,52.043539],[5.06396,52.040888],[5.063359,52.029835],[5.06274,52.029041],[5.063323,52.02804],[5.063254,52.026234],[5.062772,52.025949],[5.060931,52.026164],[5.054958,52.02873],[5.050677,52.027984],[5.045515,52.028284],[5.041985,52.029306],[5.038533,52.031381]],[[4.954731,52.090031],[4.953046,52.087868],[4.950677,52.086445],[4.953246,52.085613],[4.952832,52.084446],[4.960505,52.084018],[4.960888,52.082983],[4.962996,52.083253],[4.962621,52.084358],[4.965644,52.084777],[4.968007,52.084695],[4.969608,52.086018],[4.971262,52.089014],[4.965172,52.091783],[4.9633,52.092053],[4.962694,52.092902],[4.963242,52.094347],[4.964549,52.095701],[4.968728,52.0966],[4.96666,52.097476],[4.965088,52.097349],[4.964145,52.097764],[4.960876,52.094952],[4.959525,52.095401],[4.953066,52.095096],[4.95321,52.095826],[4.949735,52.096227],[4.949012,52.093112],[4.950822,52.092513],[4.954731,52.090031]]],[[[5.025651,52.161758],[5.026816,52.161351],[5.029005,52.16183],[5.02976,52.162527],[5.031657,52.162271],[5.046394,52.165714],[5.05185,52.15708],[5.051034,52.156626],[5.052512,52.154662],[5.05558,52.151396],[5.061441,52.146612],[5.06584,52.148705],[5.073688,52.145037],[5.078801,52.148855],[5.079895,52.148376],[5.083697,52.149247],[5.088896,52.14926],[5.092582,52.148456],[5.095726,52.147026],[5.098584,52.144413],[5.099588,52.141672],[5.10172,52.141024],[5.104462,52.140407],[5.109378,52.141334],[5.113284,52.141225],[5.135027,52.137182],[5.135727,52.137611],[5.139606,52.135893],[5.150144,52.133755],[5.145768,52.126531],[5.146277,52.123396],[5.144566,52.120113],[5.146553,52.119892],[5.146562,52.121578],[5.151296,52.120646],[5.151797,52.121469],[5.152479,52.121336],[5.152854,52.121975],[5.156433,52.121247],[5.156858,52.121962],[5.157571,52.121737],[5.158984,52.124024],[5.159423,52.123929],[5.160669,52.126141],[5.160155,52.126257],[5.160503,52.126824],[5.159359,52.125479],[5.157356,52.126057],[5.157656,52.126596],[5.156999,52.126742],[5.156556,52.125986],[5.154294,52.126461],[5.154872,52.127475],[5.152929,52.127852],[5.151232,52.124823],[5.149199,52.124885],[5.148962,52.124431],[5.147542,52.124717],[5.154109,52.135073],[5.159522,52.141479],[5.165361,52.140053],[5.172513,52.139127],[5.174026,52.140572],[5.176908,52.142198],[5.180435,52.143236],[5.184301,52.143597],[5.189401,52.142979],[5.194209,52.140876],[5.197368,52.143159],[5.202685,52.14507],[5.200838,52.141943],[5.200986,52.14064],[5.206027,52.138846],[5.206387,52.138098],[5.202545,52.134224],[5.201579,52.134495],[5.201028,52.134285],[5.200301,52.132632],[5.199402,52.13285],[5.199545,52.133403],[5.19855,52.133662],[5.199866,52.135029],[5.197583,52.135744],[5.196603,52.132316],[5.194595,52.130252],[5.192748,52.129116],[5.188239,52.127627],[5.18215,52.127386],[5.179306,52.123389],[5.164866,52.119564],[5.174109,52.116474],[5.168371,52.107909],[5.171216,52.106981],[5.171019,52.106597],[5.167335,52.101089],[5.165699,52.100712],[5.165332,52.099758],[5.166426,52.099004],[5.168273,52.098949],[5.170279,52.10144],[5.173451,52.102273],[5.177459,52.101301],[5.176829,52.100383],[5.177962,52.100114],[5.179044,52.10148],[5.181723,52.100893],[5.182731,52.102237],[5.185201,52.1011],[5.185771,52.10214],[5.191781,52.101995],[5.199547,52.102622],[5.20302,52.102073],[5.209993,52.098747],[5.205199,52.094932],[5.201464,52.093623],[5.197948,52.092943],[5.182273,52.092659],[5.170923,52.093009],[5.160303,52.094188],[5.157759,52.093077],[5.156887,52.091538],[5.15353,52.096675],[5.151257,52.096068],[5.150853,52.095429],[5.151562,52.094299],[5.145788,52.092864],[5.145216,52.094216],[5.146501,52.094405],[5.147649,52.094979],[5.147668,52.09545],[5.149628,52.095958],[5.148749,52.096839],[5.156824,52.098314],[5.147511,52.115257],[5.144513,52.114729],[5.142809,52.115026],[5.142204,52.115436],[5.141861,52.118068],[5.138133,52.116624],[5.134422,52.116048],[5.130519,52.116159],[5.126837,52.116964],[5.123696,52.118395],[5.120962,52.120857],[5.112005,52.125086],[5.108185,52.125198],[5.104502,52.126003],[5.10136,52.127433],[5.099137,52.129256],[5.098055,52.12941],[5.088916,52.133237],[5.084017,52.133213],[5.076141,52.127067],[5.083568,52.122767],[5.081997,52.121155],[5.085653,52.120108],[5.085324,52.118694],[5.079304,52.119042],[5.07629,52.120751],[5.074095,52.123018],[5.067624,52.120158],[5.065283,52.121688],[5.063423,52.120538],[5.056321,52.124689],[5.061855,52.127936],[5.0606,52.130249],[5.058967,52.130468],[5.058619,52.128998],[5.054288,52.131165],[5.051608,52.129431],[5.049536,52.131133],[5.053455,52.13295],[5.059149,52.134833],[5.057173,52.139063],[5.053352,52.142098],[5.053737,52.142833],[5.040623,52.15118],[5.037929,52.153468],[5.035375,52.151033],[5.034651,52.149332],[5.035745,52.149528],[5.036615,52.148415],[5.035123,52.146092],[5.035568,52.144422],[5.036478,52.143416],[5.038626,52.142289],[5.036886,52.140426],[5.034224,52.140726],[5.032317,52.142098],[5.028517,52.140208],[5.002456,52.155188],[4.999677,52.157467],[4.997363,52.161205],[5.005303,52.164651],[5.005713,52.164308],[5.007924,52.165149],[5.007676,52.165778],[5.008812,52.166282],[5.009569,52.165731],[5.011405,52.16079],[5.012991,52.159471],[5.014899,52.158669],[5.017262,52.158105],[5.020842,52.159658],[5.023973,52.161769],[5.025651,52.161758]],[[5.197529,52.136299],[5.197565,52.136341],[5.197515,52.136356],[5.197529,52.136299]],[[5.069024,52.129394],[5.064993,52.127255],[5.063737,52.12736],[5.066031,52.125621],[5.070047,52.127448],[5.071735,52.127208],[5.070837,52.127847],[5.069512,52.130094],[5.068875,52.130024],[5.069024,52.129394]]],[[[5.2727,52.122573],[5.267804,52.12166],[5.262633,52.121969],[5.258114,52.123446],[5.254799,52.125909],[5.253276,52.128967],[5.253778,52.13215],[5.256228,52.134971],[5.26018,52.136972],[5.265149,52.137909],[5.270323,52.137599],[5.274906,52.136091],[5.278157,52.133659],[5.279679,52.130601],[5.279175,52.127417],[5.276723,52.124597],[5.2727,52.122573]]],[[[4.91382,52.123174],[4.908859,52.122222],[4.903685,52.122516],[4.899091,52.12401],[4.895781,52.126476],[4.894273,52.129485],[4.894749,52.13267],[4.897177,52.135498],[4.901184,52.137535],[4.906074,52.138463],[4.91125,52.138169],[4.915845,52.136675],[4.919115,52.134253],[4.920662,52.131199],[4.920184,52.128014],[4.917755,52.125187],[4.91382,52.123174]]],[[[5.243591,52.179385],[5.238618,52.178447],[5.233439,52.178755],[5.22885,52.180262],[5.225555,52.182737],[5.224066,52.18575],[5.224566,52.188934],[5.227018,52.191755],[5.231045,52.193781],[5.235949,52.194695],[5.241129,52.194387],[5.245719,52.19288],[5.249014,52.190404],[5.250501,52.187391],[5.249999,52.184207],[5.247546,52.181387],[5.243591,52.179385]]],[[[5.2831,52.19233],[5.278124,52.191394],[5.272944,52.191704],[5.268355,52.193212],[5.265061,52.195688],[5.263574,52.198702],[5.264078,52.201885],[5.266533,52.204705],[5.270563,52.20673],[5.275468,52.207643],[5.28065,52.207333],[5.28524,52.205824],[5.288534,52.203347],[5.290018,52.200333],[5.289513,52.19715],[5.287057,52.19433],[5.2831,52.19233]]],[[[5.25509,52.206771],[5.250113,52.205833],[5.244931,52.206142],[5.24034,52.207649],[5.237082,52.21008],[5.235554,52.213138],[5.236056,52.216321],[5.23851,52.219142],[5.24254,52.221168],[5.247446,52.222082],[5.25263,52.221773],[5.257222,52.220265],[5.260519,52.217789],[5.262006,52.214776],[5.261502,52.211593],[5.259099,52.208811],[5.25509,52.206771]]],[[[4.957521,52.232341],[4.95262,52.231415],[4.947433,52.23171],[4.942893,52.233175],[4.939553,52.235629],[4.938004,52.238683],[4.938484,52.241867],[4.940869,52.244655],[4.944868,52.246706],[4.949843,52.247656],[4.955031,52.247361],[4.959636,52.245864],[4.962951,52.243397],[4.96446,52.240387],[4.963977,52.237203],[4.96154,52.234376],[4.957521,52.232341]]],[[[5.379899,51.98364],[5.3825,51.983591],[5.386246,51.982933],[5.389519,51.98163],[5.391296,51.980457],[5.392666,51.979091],[5.393835,51.976849],[5.393955,51.974695],[5.393069,51.972455],[5.391827,51.970992],[5.383583,51.969341],[5.378229,51.969118],[5.371338,51.96979],[5.369002,51.971803],[5.368038,51.97335],[5.36758,51.975739],[5.368244,51.97806],[5.37,51.980208],[5.372694,51.981947],[5.376092,51.983125],[5.379899,51.98364]]],[[[5.554861,51.984563],[5.549974,51.983661],[5.544821,51.983983],[5.540262,51.985502],[5.536998,51.987986],[5.535537,51.991003],[5.536057,51.994185],[5.538518,51.997],[5.54247,51.998991],[5.54743,51.999917],[5.552585,51.999595],[5.557082,51.998107],[5.56037,51.995635],[5.561868,51.992574],[5.561346,51.989392],[5.558884,51.986577],[5.554861,51.984563]]],[[[5.386521,52.023917],[5.381634,52.023009],[5.376474,52.023323],[5.371906,52.024836],[5.36863,52.027315],[5.367156,52.03033],[5.367665,52.033513],[5.370117,52.036331],[5.374137,52.038352],[5.379026,52.039261],[5.384187,52.038946],[5.388756,52.037433],[5.391994,52.034998],[5.393504,52.031938],[5.392994,52.028755],[5.39054,52.025938],[5.386521,52.023917]]],[[[5.535944,52.047089],[5.534779,52.050157],[5.535613,52.053316],[5.537508,52.05542],[5.541343,52.057503],[5.546253,52.058542],[5.550147,52.058508],[5.554566,52.057545],[5.558756,52.055226],[5.557575,52.050375],[5.558641,52.050017],[5.557903,52.048865],[5.560935,52.048653],[5.558383,52.045368],[5.554633,52.043376],[5.549068,52.042309],[5.543375,52.042801],[5.538965,52.044487],[5.535944,52.047089]]],[[[5.378987,52.072399],[5.374022,52.071466],[5.368857,52.07178],[5.364347,52.073261],[5.361042,52.075727],[5.359527,52.078786],[5.360036,52.081969],[5.362491,52.084788],[5.366442,52.086785],[5.371408,52.087718],[5.376575,52.087404],[5.38115,52.085891],[5.38443,52.083412],[5.385904,52.080396],[5.385393,52.077214],[5.38299,52.074435],[5.378987,52.072399]]],[[[5.347202,52.08149],[5.342309,52.08058],[5.337142,52.080893],[5.33263,52.082372],[5.329323,52.084837],[5.327806,52.087896],[5.328313,52.091079],[5.330714,52.093859],[5.334717,52.095897],[5.339683,52.096831],[5.344851,52.096518],[5.349428,52.095007],[5.35271,52.092528],[5.354187,52.089514],[5.353679,52.086331],[5.351225,52.083512],[5.347202,52.08149]]],[[[5.363175,52.130812],[5.366185,52.129817],[5.366845,52.130461],[5.368689,52.12988],[5.367952,52.129208],[5.348587,52.125317],[5.334609,52.134384],[5.350544,52.138708],[5.355697,52.136874],[5.35532,52.136591],[5.356359,52.136588],[5.366185,52.133311],[5.363175,52.130812]]],[[[5.35038,52.138898],[5.348779,52.145038],[5.353993,52.145542],[5.355335,52.143916],[5.354929,52.141475],[5.353494,52.139439],[5.35038,52.138898]]],[[[5.453521,52.156234],[5.455013,52.154742],[5.451863,52.154269],[5.442217,52.150114],[5.44019,52.150563],[5.436484,52.148738],[5.431371,52.147804],[5.429948,52.146765],[5.417766,52.146714],[5.416562,52.142898],[5.413344,52.142949],[5.413357,52.1433],[5.412277,52.143677],[5.408852,52.142797],[5.409279,52.141334],[5.416275,52.140979],[5.416197,52.138202],[5.419067,52.138116],[5.416308,52.133259],[5.415179,52.127984],[5.412312,52.124332],[5.411459,52.123859],[5.409249,52.123538],[5.405162,52.12395],[5.404368,52.122923],[5.403614,52.123035],[5.403123,52.122186],[5.402527,52.122286],[5.402293,52.121985],[5.400321,52.123527],[5.399913,52.123322],[5.400082,52.122072],[5.398066,52.121179],[5.393962,52.120385],[5.362618,52.117108],[5.362812,52.120371],[5.364881,52.125818],[5.367997,52.128912],[5.377001,52.130776],[5.391346,52.13285],[5.399227,52.135448],[5.402852,52.137782],[5.412973,52.147327],[5.417,52.153498],[5.417,52.156742],[5.417956,52.159075],[5.419975,52.161135],[5.422883,52.162744],[5.42635,52.163747],[5.431274,52.164068],[5.437366,52.168002],[5.44213,52.167277],[5.44841,52.166978],[5.448713,52.161758],[5.44831,52.160422],[5.446973,52.159568],[5.448968,52.15799],[5.453521,52.156234]]],[[[5.313894,52.142111],[5.308995,52.1412],[5.303821,52.141511],[5.299239,52.143021],[5.29595,52.145497],[5.294467,52.148511],[5.294948,52.151646],[5.297374,52.154475],[5.301381,52.156514],[5.306354,52.157449],[5.311529,52.157138],[5.316113,52.155628],[5.319363,52.153195],[5.320883,52.150136],[5.320376,52.146953],[5.317921,52.144134],[5.313894,52.142111]]],[[[5.346187,52.146099],[5.341931,52.14435],[5.336834,52.143721],[5.331735,52.144345],[5.328384,52.145585],[5.325765,52.147371],[5.324129,52.149501],[5.32355,52.15188],[5.324336,52.154626],[5.322048,52.155091],[5.321721,52.155685],[5.32008,52.155147],[5.320314,52.156695],[5.319284,52.156896],[5.319481,52.157374],[5.318716,52.156127],[5.313977,52.156578],[5.314126,52.157029],[5.31323,52.157184],[5.314332,52.158141],[5.316794,52.159094],[5.317528,52.161448],[5.339401,52.159897],[5.344162,52.160141],[5.345978,52.15779],[5.349078,52.155028],[5.350049,52.151267],[5.352449,52.151097],[5.353271,52.150673],[5.349377,52.149259],[5.346187,52.146099]]],[[[5.438769,52.172932],[5.436716,52.175283],[5.435981,52.181112],[5.439018,52.18426],[5.440137,52.173215],[5.438916,52.172917],[5.439876,52.171197],[5.444244,52.168563],[5.436386,52.171907],[5.438769,52.172932]]],[[[5.368775,52.176822],[5.367671,52.175039],[5.362958,52.172775],[5.36153,52.171446],[5.350426,52.175341],[5.347583,52.175793],[5.345974,52.173784],[5.346934,52.172933],[5.346668,52.171585],[5.347182,52.169921],[5.343416,52.160365],[5.337951,52.160147],[5.320177,52.16139],[5.317425,52.164395],[5.317487,52.165364],[5.316816,52.165586],[5.315883,52.167849],[5.314951,52.174594],[5.318742,52.176753],[5.323311,52.178634],[5.321108,52.1804],[5.321402,52.180604],[5.323627,52.178993],[5.324198,52.179958],[5.321079,52.181181],[5.323556,52.183091],[5.324222,52.182352],[5.325883,52.181782],[5.331437,52.182218],[5.333384,52.183231],[5.337069,52.184381],[5.340129,52.187418],[5.34412,52.189262],[5.349273,52.190757],[5.354131,52.192674],[5.367879,52.193469],[5.367324,52.188971],[5.369324,52.18115],[5.368664,52.179381],[5.368775,52.176822]]],[[[5.439659,52.198104],[5.440096,52.190052],[5.439292,52.186992],[5.438086,52.184585],[5.438655,52.184338],[5.438023,52.184567],[5.438072,52.185055],[5.43949,52.188395],[5.439885,52.191407],[5.439369,52.197475],[5.438581,52.198082],[5.439659,52.198104]]],[[[5.410813,52.206621],[5.410526,52.209018],[5.411463,52.211466],[5.407264,52.2135],[5.40967,52.21858],[5.421029,52.213194],[5.421987,52.212279],[5.434714,52.205876],[5.436382,52.205296],[5.436652,52.205586],[5.439237,52.204601],[5.43982,52.205984],[5.441039,52.205693],[5.440187,52.20463],[5.441146,52.204314],[5.439449,52.202195],[5.439651,52.198232],[5.437983,52.198248],[5.431292,52.201678],[5.428625,52.200807],[5.424487,52.200256],[5.421715,52.200344],[5.417836,52.201107],[5.41373,52.203068],[5.411633,52.205097],[5.410813,52.206621]]],[[[5.38146,52.206765],[5.370205,52.208035],[5.367303,52.20935],[5.364803,52.209932],[5.364628,52.211996],[5.366855,52.215499],[5.368993,52.223226],[5.376568,52.222443],[5.377183,52.224572],[5.380578,52.224218],[5.381004,52.225822],[5.394617,52.224298],[5.393211,52.220645],[5.395519,52.219148],[5.392775,52.205516],[5.384957,52.206309],[5.384141,52.206031],[5.38146,52.206765]]]]}}]}</script>
+<script type="application/json" id="aoi-data">{"type":"Polygon","coordinates":[[[5.051805191752606,51.85747728421476],[5.048102330469578,51.858680364643014],[5.043850831849191,51.85922605908287],[5.035999449985038,51.858678950268185],[5.026907960578834,51.858607715033884],[5.027512074590075,51.859854297680826],[5.027091939103976,51.860218200032726],[5.027387882340039,51.863739025037624],[5.023978901045821,51.86634652930022],[5.021748886874258,51.86881960914218],[5.023167179670962,51.872026718357276],[5.022836317669296,51.87426495974196],[5.02325031255518,51.875801835895615],[5.02546697444192,51.88063055874165],[5.027254431529192,51.881527811132266],[5.026955908456507,51.88191820509296],[5.001242457133439,51.87472591924761],[5.001266806415844,51.87499222638967],[4.99623812500091,51.87311919156875],[4.995077152576099,51.875744760420936],[4.9950473997957,51.87761631396468],[4.996173868001637,51.879745714420224],[4.998836253907426,51.882279076182435],[4.9994522734591555,51.884283506417155],[4.995961684139997,51.8919629771162],[4.996301869478571,51.896689232735625],[4.994968055710089,51.90229233350238],[4.992456880356493,51.90194533523566],[4.974354975055686,51.8970931075487],[4.973410699442001,51.897250049557194],[4.973740624971704,51.90766741243568],[4.967791941386356,51.91009411316662],[4.964128182781904,51.910638002342715],[4.9641601578144225,51.9122674564867],[4.963261944781535,51.91280392707624],[4.9647852237394,51.91351896096518],[4.960380233898458,51.91482682947019],[4.959693416242848,51.914045995404884],[4.958557722910685,51.91528522040843],[4.956157452716002,51.91559106386883],[4.94959548872089,51.93156606332523],[4.948545399731534,51.93123071433861],[4.947696234459879,51.9337246056973],[4.945944227038912,51.933289506995095],[4.942293150208047,51.93016667866049],[4.939235057525859,51.928938071445],[4.932615468529446,51.94666291390403],[4.931366111699701,51.948610210816824],[4.930731672360831,51.949006014562826],[4.92996374424164,51.94882229429465],[4.929475474039462,51.950191449182],[4.926301291212205,51.95092794425963],[4.9244937121895065,51.948945947403786],[4.919187601286364,51.94472895078483],[4.916379881931708,51.94317845316258],[4.914011340842767,51.94243593793896],[4.885109973229771,51.938586715358504],[4.877792920155553,51.938030675583256],[4.871222881982619,51.95464349499807],[4.870429097210865,51.954999931340524],[4.86568871923655,51.96039990082861],[4.864071640712274,51.96391119601028],[4.860805962622425,51.967784030130424],[4.859483947168091,51.96867274545392],[4.85782751541197,51.96900449737811],[4.847553164557075,51.975136900480095],[4.845621868218755,51.974984932119774],[4.834114363667692,51.985580247177246],[4.83521784818436,51.98614302050802],[4.817805905521917,51.99976688905378],[4.853336795466417,52.00474740402129],[4.857126556382674,52.00595950798789],[4.846895777654139,52.01818170817921],[4.84017805405892,52.016706942722244],[4.833334776270466,52.01642293447143],[4.82499425684944,52.01723660891754],[4.815616228006635,52.013980726492406],[4.803523202820714,52.01395615945561],[4.798700208048414,52.022271728063245],[4.809933419604734,52.02676451715632],[4.806704370126569,52.03316730157611],[4.8118222280513345,52.03382451107382],[4.8171929301965095,52.03693109671079],[4.829706496622855,52.04947620425675],[4.829490283666749,52.04981340023965],[4.848048500015045,52.05816468475323],[4.855970528981295,52.05906490902759],[4.867858338946181,52.06305408882087],[4.873200411814855,52.06874539314768],[4.863901943171678,52.069053181657345],[4.864039980272276,52.068553492460936],[4.862263044631026,52.069064389723174],[4.856064016473986,52.06881111420594],[4.850785605712955,52.069117430795075],[4.842203785799473,52.06900558797532],[4.8371389874565685,52.06842355161784],[4.829807903191149,52.066823402842914],[4.834035388545849,52.07273585029404],[4.832665861412454,52.07284371678194],[4.833045259568281,52.07482692983459],[4.830897844453911,52.074353064331845],[4.830634414172837,52.074970956701996],[4.82627568767136,52.07464357557838],[4.82649261121797,52.07952717593587],[4.825629043009987,52.07977414123271],[4.8233479031816975,52.09336852616915],[4.823055886140583,52.105192804673514],[4.824389494020956,52.10540307553848],[4.825379801010053,52.107087187811686],[4.792080179629928,52.122287379380666],[4.792345364100412,52.12316413974513],[4.793490841428949,52.123972736782214],[4.796993122016418,52.12466065504895],[4.798341616835126,52.12529872571628],[4.802096796482823,52.12488859903729],[4.802984754404958,52.12539390315312],[4.803474269649144,52.12640411710171],[4.806415837260093,52.127421863318055],[4.808065124824432,52.12894798526243],[4.807790214039822,52.12985772047877],[4.808882165372842,52.13188774437889],[4.807485524940786,52.135021584956725],[4.80896677932635,52.1358430029063],[4.808664453237675,52.13714875769697],[4.809093355493601,52.13764215297747],[4.8131110945665325,52.14017324365466],[4.814038300291536,52.14022160559842],[4.816665724377837,52.139386931291526],[4.81791646714648,52.140755207994964],[4.820494630237902,52.142216357014],[4.821576634776313,52.141908385229414],[4.826471851529677,52.14217633121172],[4.830144341198824,52.14330781807754],[4.832857874477111,52.14476235872126],[4.834128194636678,52.14287649110724],[4.8367046421185735,52.14287992242768],[4.837366434221983,52.14064959388379],[4.840276080943512,52.141560746010285],[4.841739605569374,52.14089734056435],[4.842871910809104,52.13945955403158],[4.846251156250041,52.13954540383094],[4.847484850063686,52.13893768712637],[4.849534466072761,52.13957819294182],[4.851478612064764,52.139674402617075],[4.852152404516528,52.13939204283963],[4.8526075410414,52.13826892823858],[4.855238666869632,52.13720961848719],[4.8649150495969655,52.13739112288686],[4.870341815501212,52.138207013060864],[4.871315313458664,52.13883845583309],[4.874518480819275,52.13883141526054],[4.873623464337556,52.156082509353375],[4.892272620186269,52.161592759132176],[4.855581828673363,52.17891717529039],[4.851408688433382,52.17902563144557],[4.843920855386425,52.18012162776823],[4.8365201673698035,52.18435780672893],[4.8353504789962,52.18610888140694],[4.834028951186484,52.18667260224536],[4.8334617984471056,52.18756115441368],[4.829336483245679,52.18929001782527],[4.827582794043457,52.19093205143688],[4.826323178033191,52.19126217339626],[4.82491433567788,52.19260752750566],[4.823444800306137,52.1932656986735],[4.823553903396266,52.194302533528585],[4.8222091333793635,52.196124581886174],[4.814399874184103,52.19930925298205],[4.813101772301555,52.20118881283502],[4.813594310150964,52.20184711858083],[4.802925127414566,52.20102775709673],[4.801587807401213,52.2043218254009],[4.801621776833321,52.21491021815385],[4.802149664101763,52.21763360257282],[4.797002861236844,52.22034806059185],[4.795888171390616,52.22348469182521],[4.794429874012161,52.223423400268835],[4.79457569770201,52.226730665167196],[4.8017551679203505,52.226882249972086],[4.8054037770456395,52.22798870745603],[4.80895980794946,52.226957617560124],[4.814455193599131,52.227224100756374],[4.819139953204132,52.22894103319594],[4.8208067691205425,52.22883265119527],[4.823709826207532,52.229811324659075],[4.830107176287866,52.23091266735947],[4.832532816239376,52.23240956229634],[4.834887605342533,52.232879575414394],[4.838686662935383,52.23536565395928],[4.84282606862663,52.23533922187773],[4.842939225603955,52.2367386317929],[4.846084266812921,52.2377185751302],[4.847279676368694,52.239765310614835],[4.848428982503685,52.239680389771635],[4.850819100286066,52.23860010753849],[4.851625654980304,52.23899493168393],[4.852187207012209,52.23988394980066],[4.851254286677123,52.24186694224552],[4.854937885688049,52.242145619318435],[4.85531103140221,52.24560484913244],[4.856861781038592,52.246391326356665],[4.857521716364106,52.24772305570538],[4.860620840930342,52.24821680907315],[4.864400553741413,52.249794949831646],[4.866252553793704,52.251061305123265],[4.8685825671839655,52.251579192107634],[4.8700365037283735,52.253361309498295],[4.872289667838326,52.251182047744194],[4.873852938211023,52.25074263401525],[4.877728871488567,52.25281610606548],[4.882718838004233,52.25371151620988],[4.884082497935373,52.253352276039365],[4.885711495015504,52.251471457516146],[4.887016495076886,52.250898839977914],[4.888264674076524,52.251196196902484],[4.891325436124735,52.253302923318124],[4.893041668925259,52.2530024915892],[4.896351469233814,52.2512917104275],[4.898568544630839,52.25093224087821],[4.8998189267515215,52.25123739397196],[4.901795068351667,52.25275456208548],[4.9030757427855916,52.25320451916454],[4.905711897847729,52.25316402162767],[4.909714855916953,52.25244550101883],[4.910805125328928,52.25261396627942],[4.914309475114408,52.255344930881286],[4.917600690159871,52.25707659388752],[4.918637453909451,52.258942263287],[4.918117897764077,52.26169544021198],[4.92325663040872,52.263090382942785],[4.924747906240315,52.267000597298555],[4.9294216830265425,52.26840340700192],[4.929353782559671,52.26989095997504],[4.928506388882081,52.27046614315715],[4.928014655902837,52.27174215600534],[4.926651425743642,52.272444791300885],[4.927661330407429,52.27371236098293],[4.925958340096178,52.27819545258876],[4.926444447303998,52.27977961481453],[4.928587193839557,52.279611280472444],[4.933801278071896,52.28089315835562],[4.93746280529855,52.27954818910834],[4.940716802290599,52.27905654635711],[4.942691519470017,52.278183959986976],[4.947214009440373,52.27900400312951],[4.953797693661148,52.27802698444414],[4.956773283326089,52.27867100285846],[4.961053634284879,52.27817420107842],[4.9622439689455184,52.28020652743386],[4.965315465877878,52.28044797473437],[4.9661656186752845,52.28097984004776],[4.9664913965337565,52.28009642634572],[4.967674336998118,52.27958230128039],[4.969378107436351,52.28178876150703],[4.969726306599129,52.28312082774705],[4.9751478039363715,52.28634245622833],[4.982889255101767,52.289642062274055],[4.983505890657176,52.29036813665715],[4.9974753672904555,52.28911835496414],[5.001789345799042,52.29279290774238],[5.001851253794968,52.29587877059097],[5.003226842731347,52.29606475281969],[5.003834504571174,52.298509316138286],[5.005264794834351,52.298392833050066],[5.007891504576925,52.30152201306785],[5.009915089303333,52.30209432818454],[5.011769325656086,52.30339284021619],[5.014264634308443,52.303677035676216],[5.017840054139746,52.30266232734861],[5.021543196394508,52.30245685000958],[5.021867208979982,52.28265326889607],[5.02438163266932,52.281357446748586],[5.0305284178354075,52.28848718128803],[5.033212457394688,52.28625810435435],[5.039429249088885,52.28324351223156],[5.040794009150387,52.28388076178399],[5.04277865748143,52.2824881393336],[5.047484233419793,52.28501968892413],[5.05040433066437,52.28787198241012],[5.05276914468519,52.286485254804724],[5.0595402992860175,52.289320133136584],[5.063283550595799,52.287194733508315],[5.0647918742631015,52.285080543725364],[5.0654714866142525,52.28519815713902],[5.065880042775948,52.28054321901695],[5.064383185004435,52.28075048107921],[5.06307024529586,52.28184131440504],[5.062838396459294,52.28479800084681],[5.060518836748894,52.285168707429335],[5.055292608360805,52.28300602963311],[5.050753455708158,52.28181780638937],[5.049725883130355,52.280500296932196],[5.049621318767528,52.27779613708567],[5.048601723311928,52.27702960948041],[5.04721607096267,52.2770127898904],[5.043733674050284,52.27790904651893],[5.042109869091151,52.27786965273312],[5.033328025979872,52.27543695128861],[5.0305792532425775,52.27224777103664],[5.028331084483894,52.27209066528921],[5.024078264115925,52.273235976040276],[5.022886886924668,52.2724834371064],[5.024817271246796,52.26963270801393],[5.027750278808653,52.26757383351743],[5.027798546385287,52.26604147516924],[5.0265820603063425,52.26414805271634],[5.0310994970279275,52.261557055566314],[5.032489030090198,52.26016573729497],[5.032457482199754,52.25870626079639],[5.030972094336802,52.256820369415095],[5.0318595353753075,52.25511695947718],[5.034496700935384,52.25286464005365],[5.035732989630342,52.252654196309614],[5.037495197923631,52.25368930434827],[5.040062298277416,52.25649888450103],[5.041379545070533,52.256698258023064],[5.042943402123736,52.25597692929979],[5.044802615548243,52.2506656981706],[5.046634024679834,52.24854112156525],[5.045854209945123,52.243381624262604],[5.056276247186322,52.23712736142322],[5.057729908047755,52.23535277902338],[5.056761734003472,52.235592837862086],[5.055789549384012,52.235213595612805],[5.056224256550339,52.23497866680089],[5.04239725597265,52.23054719452234],[5.041585570519999,52.230888222961525],[5.041345389191955,52.23007671456014],[5.040517638900178,52.22983381796563],[5.042484454907708,52.22877988338749],[5.040842252740333,52.2276925530997],[5.040489101082656,52.226942431003806],[5.040046173519215,52.227031440662884],[5.038730558437268,52.22517941526976],[5.037101783319566,52.22534164886803],[5.036964983581923,52.224775590536055],[5.04279565759692,52.22403951046947],[5.036665603760618,52.22436015414485],[5.035848998815416,52.21752913741791],[5.036845287969445,52.2171914998754],[5.037144908357694,52.21620299069524],[5.036909314691441,52.21515572262357],[5.03568342554251,52.21512465889785],[5.035771348059705,52.21455723529194],[5.035329562331752,52.214462266119924],[5.037290336418393,52.21421517989873],[5.036666076619096,52.21419626101508],[5.036699169345506,52.21364800692344],[5.033787956201579,52.213713995285865],[5.0337296817666966,52.213123036579134],[5.034339379337715,52.21290010778498],[5.0334005868717115,52.209836231866774],[5.036444712024812,52.2095679528398],[5.035315192062123,52.20523268569192],[5.037421020948804,52.20496451273438],[5.036649899088372,52.20213798678062],[5.025599913625554,52.203982096748945],[5.025430682632718,52.203256324468335],[5.024674286796338,52.20286251774702],[5.023315078621096,52.20305084117693],[5.0234328564891415,52.20382839038358],[5.02262103591969,52.203941462902755],[5.022453625672897,52.20281491099401],[5.023109925440951,52.20274328001117],[5.023025933654328,52.202038978304245],[5.021918798135862,52.202500819481635],[5.021586742478817,52.202475227948945],[5.0230062815141405,52.20174609981891],[5.021292959948613,52.20188574324996],[5.026061262061414,52.20137396151108],[5.027942301170777,52.199957960401726],[5.029849291230635,52.199534140956665],[5.031825518116411,52.19843685341842],[5.037201069619377,52.19794906187848],[5.037122660872881,52.19662560773892],[5.0377652146625005,52.19656506264355],[5.038134078369397,52.19516317259551],[5.036516091553503,52.19355150595098],[5.036220439902484,52.19148891935114],[5.035335763534154,52.19069985922762],[5.035708010721444,52.18920056497287],[5.034977237777951,52.18680295477805],[5.033634511085384,52.186049355319355],[5.032503227235228,52.184113407909244],[5.041549163362089,52.18375157988983],[5.0420493094694745,52.18337001237662],[5.046222990069486,52.16601444042288],[5.082452223566312,52.1738421473119],[5.121176259915788,52.180947457528625],[5.1432078042218,52.17993565662082],[5.143358179653268,52.18026993154001],[5.189316048751699,52.17768072125894],[5.192585964926117,52.177832945608294],[5.217214078318188,52.20623278589405],[5.216486574468838,52.20636680675864],[5.224730241326972,52.22519709437527],[5.222901246812828,52.225260950509934],[5.2450931232942715,52.254431068107735],[5.243980268174148,52.25453485590743],[5.265977690366715,52.28192616764455],[5.305834428134979,52.27732856900349],[5.335461439568496,52.290218414259606],[5.39323617384216,52.25515656285539],[5.4028967656098645,52.24952706860832],[5.404643328230832,52.249630477283524],[5.393214979747361,52.22063389950551],[5.393642065604325,52.22008013650516],[5.407221832548996,52.21340465543309],[5.409669926667259,52.2185795671252],[5.421028649357723,52.213194345303506],[5.4219870622516755,52.21227866320528],[5.434713926126309,52.20587578163692],[5.436382388952696,52.20529613470812],[5.436651651657421,52.20558613168771],[5.439237129943847,52.20460143134188],[5.439820495614624,52.20598373708438],[5.441039359507698,52.20569343553961],[5.4401871727339435,52.20463046962456],[5.441146232415234,52.2043136525685],[5.439636819880067,52.20260783792947],[5.439386670190665,52.20142990185777],[5.440095867864739,52.190052214242584],[5.43808620544449,52.1845848209716],[5.439247739708765,52.18431309445501],[5.44013706081564,52.17321510393587],[5.4389160699358525,52.172917042025105],[5.439875543340812,52.171197455114424],[5.4442438036792415,52.16856346241481],[5.448824361377805,52.167704263274054],[5.475752130982872,52.16576177871055],[5.475746451111048,52.16609546833644],[5.4799223625850875,52.165814554991165],[5.478882735447856,52.16440149760863],[5.475556929674107,52.16438964118573],[5.474484072010012,52.163875586348915],[5.472981619620091,52.16382248427799],[5.473392845770685,52.16299529542133],[5.472433304005097,52.162850865932896],[5.472865765703492,52.16184839893439],[5.475519830714217,52.1621616805682],[5.479196697128446,52.16136073807351],[5.480973142802362,52.160102016247016],[5.482116095322875,52.15979568192471],[5.481495536102817,52.15829730881432],[5.484317295704739,52.158063855116744],[5.483767058155542,52.15398109917832],[5.483247862364258,52.15401725082916],[5.482626224045285,52.15150399213004],[5.48134176553574,52.150500974372356],[5.484795408903209,52.14916580815504],[5.489475634529395,52.148219216733004],[5.496250547103865,52.14735036726346],[5.498982467819471,52.147393356915224],[5.497306242821555,52.14144350120465],[5.500002497957506,52.141042980688646],[5.5026030946815645,52.13953561618767],[5.507591871817098,52.13886580055363],[5.507450244309839,52.13853163803251],[5.510306968354749,52.137998729360184],[5.514079390291929,52.135923062822464],[5.511880893199548,52.134115009469056],[5.511927529958853,52.13210464775808],[5.509203092156142,52.131945268914755],[5.50672072398542,52.130980223444034],[5.505042649626253,52.13111404690322],[5.5014238148101064,52.12992641894428],[5.4991651629475164,52.130244623486355],[5.499087499571261,52.13054269353871],[5.497913059059918,52.13028289186234],[5.496759075113308,52.12481428434796],[5.494694927731337,52.12469788736473],[5.495060038840912,52.12199346497847],[5.496653035641686,52.12049622307271],[5.496917681310253,52.11955748700612],[5.5000422984090305,52.119200011168964],[5.505353945037492,52.119750446668135],[5.503755992024418,52.116585633088015],[5.507548672524963,52.1156445489707],[5.507702067276886,52.113896963690216],[5.506168190168933,52.11430983250816],[5.503949637993998,52.113720283870414],[5.502610294876358,52.115092417861355],[5.498916518954089,52.11601763718006],[5.496456481610691,52.11594493235171],[5.495625918978626,52.115585794085064],[5.4880822229381065,52.11610112286145],[5.48644708827617,52.11535973632497],[5.491830900091078,52.11450789204729],[5.491831804240361,52.11409040784429],[5.493688219082939,52.11309387958268],[5.49394108946902,52.11250369632981],[5.493861741262745,52.11109726320615],[5.484301742753561,52.1055421177186],[5.4852372352489445,52.09921645096659],[5.484739537947659,52.09662442344926],[5.486082696439797,52.09365676943773],[5.480622150927823,52.09202732608897],[5.4767608594683095,52.09034770758414],[5.474832833491456,52.0902553517426],[5.472786019951509,52.08916235963833],[5.4718858055455835,52.08938142937204],[5.471497545618628,52.08835095200068],[5.464053566429644,52.08305617718553],[5.463367709863107,52.083442165355656],[5.459678098559756,52.08200340967245],[5.460147783769256,52.0809521027442],[5.459242922467765,52.08022575292875],[5.461328347129281,52.079311415171325],[5.465434767519095,52.07842912144939],[5.466108381525378,52.077731486613644],[5.466382295203088,52.07619017601462],[5.467143693113144,52.07556962025941],[5.470305343939444,52.07494841214652],[5.473824970986123,52.07305041769113],[5.4761740415319835,52.07271644732549],[5.477222221017084,52.07201293652994],[5.479976120961937,52.07138014024054],[5.48414974183941,52.06962163968503],[5.485890392385694,52.07026329648931],[5.487820842644923,52.070250209982696],[5.49069648300487,52.07141053574879],[5.493887297326995,52.07188892346055],[5.499882446522588,52.07133520561437],[5.502092373150259,52.07334520646257],[5.504584378402768,52.073349622226786],[5.5050702371568585,52.07691112018693],[5.506481770849922,52.0767058216218],[5.509203849247479,52.07697007447839],[5.510360777463597,52.07805500324145],[5.509922651325362,52.07905017747691],[5.514156706300884,52.078751991791194],[5.519436950378674,52.07922706409794],[5.520357237133709,52.07830769918971],[5.521411374869957,52.07823091212593],[5.522654413224588,52.07754211754583],[5.526896257269581,52.08067990261216],[5.530473932379877,52.08181948354201],[5.531245020971458,52.0824187821404],[5.531807147401551,52.08361898574699],[5.531306078118354,52.08393924218872],[5.526634174081149,52.08490339975986],[5.530856074381411,52.08977438821309],[5.537127446202061,52.088658872464165],[5.538293934641312,52.09268972889167],[5.535079190075906,52.09287462350515],[5.538830674046432,52.09643618501125],[5.539160181441286,52.097813705696346],[5.5342411342981475,52.099772340055914],[5.532816949823166,52.09998388170579],[5.531543293471549,52.10226696037966],[5.54153992529124,52.10373709656603],[5.544012636740615,52.1019488983395],[5.546302197375961,52.10244363730845],[5.5452917921146465,52.104390041736025],[5.550342587549014,52.105419542474245],[5.553063469065192,52.1009540065125],[5.554235791800076,52.10015121957417],[5.551581201848656,52.09725971407381],[5.550462508849702,52.096640826933594],[5.554429270284013,52.09539191800997],[5.554434925244034,52.093468632359404],[5.555869540371865,52.09181954590384],[5.554709974471946,52.091522187422356],[5.555264414418198,52.08809646809166],[5.554905150747784,52.086550326655626],[5.555781120735096,52.087112248450794],[5.557111817509386,52.086850706631274],[5.557413935448464,52.08611086852675],[5.55668725944154,52.085482762665634],[5.559117873265885,52.084468298257704],[5.56077779710837,52.084394074822605],[5.560710779551275,52.08141286358386],[5.561343406635731,52.0800569530268],[5.5625815102824845,52.07925789213469],[5.562739316986179,52.07833217447279],[5.5614435131986335,52.073286295887044],[5.559211906517474,52.071042687429916],[5.560781774549768,52.06858988384803],[5.560729348082994,52.067501496460196],[5.55981521910729,52.059549891198905],[5.557574677232972,52.05037451773104],[5.55864915035405,52.050006242480585],[5.557903285826301,52.048865119387315],[5.57085294112609,52.047996988680175],[5.569980740699259,52.045683649134254],[5.57004497865298,52.0434007765167],[5.568657150195648,52.042396508555065],[5.567385763970617,52.04060567588091],[5.583539823302713,52.03644775315486],[5.590030134181185,52.03438706317611],[5.5895886781445565,52.031176589689295],[5.586711623441605,52.03129042256951],[5.586502546222022,52.02917104296054],[5.587511183774148,52.026627961454174],[5.587199611225112,52.02044992668222],[5.590242100595249,52.020266739457604],[5.589621609857189,52.01559481633117],[5.5869222458686005,52.015713176485825],[5.586750695154486,52.012285916173624],[5.58601462616675,52.011776276083104],[5.58913169624003,52.00985649624405],[5.5911127003897,52.007301473511234],[5.590808130664803,52.00302480249254],[5.591997672005078,52.00139229151772],[5.5965563055385505,51.999201539061616],[5.602804772646771,51.99486917089913],[5.605065263239438,51.99405981547282],[5.607050750625865,51.994326978563],[5.609972265310209,51.99369153343738],[5.613905259289521,51.990179808216055],[5.614337474668026,51.98636966025315],[5.6152288713328975,51.98517197400122],[5.615083052921151,51.98268710019594],[5.620147033370575,51.97736191764307],[5.622261926271589,51.97652847312634],[5.626064193314592,51.974070063653436],[5.624855689070762,51.970448364777056],[5.622423565015262,51.96823940441947],[5.619538847029283,51.96720312870907],[5.61832929368957,51.96625759755821],[5.620258227663941,51.96658232589909],[5.624978284947088,51.96006505153103],[5.627124249692655,51.95561635718931],[5.62730856198782,51.9524733047994],[5.625027437331346,51.95161482976939],[5.623446479864052,51.95194555960161],[5.620162494552837,51.95149811121395],[5.620445612237472,51.948166424892065],[5.618790880953634,51.948122267150055],[5.616427933586836,51.94935354481838],[5.605782324959749,51.94315970907613],[5.590991781904774,51.9497757846177],[5.575574378434685,51.9528265512993],[5.561252509155972,51.95450179322846],[5.556933776462779,51.95571102430804],[5.552742321136534,51.95740000486265],[5.549561074079528,51.95919689303178],[5.545709469714751,51.96225612351714],[5.542406694873004,51.96585487332862],[5.538942162391109,51.96782703412337],[5.536085863266374,51.96860138197607],[5.516950201317245,51.97193951539026],[5.512481394982679,51.9730813817752],[5.500751005113356,51.978592046726924],[5.4918765970126096,51.98185595358491],[5.485918370608235,51.983284426395585],[5.486214004563033,51.9838264431859],[5.481506939648633,51.98388866841323],[5.470990561604533,51.98298721064834],[5.453885356290694,51.98370950685178],[5.4446542121,51.98580181172862],[5.440601433910229,51.985917759615006],[5.437322735981689,51.985561432616365],[5.431303769880304,51.983724727898384],[5.4233636552964315,51.9787554234284],[5.4181555795271255,51.9766057037629],[5.413514453895802,51.97542960403912],[5.399337609624778,51.97310277910691],[5.387069877570881,51.96983074280809],[5.381995995356926,51.96919925045424],[5.3769085451185346,51.969161405621904],[5.3618447190457665,51.97096638055047],[5.357673626346262,51.970694482235935],[5.354037504439511,51.96998173465328],[5.350237276501019,51.96866834035108],[5.347094758607895,51.96699748890366],[5.338319352563972,51.95995048146673],[5.335220685385141,51.95804409826273],[5.329075150972113,51.95614006232975],[5.321611259114634,51.954919169897074],[5.318322080354796,51.955019274018994],[5.3148569454818935,51.95561999229914],[5.310767897120406,51.95704971817735],[5.3045937551804885,51.96027878009523],[5.300894137080279,51.96156856001281],[5.284083154217911,51.96298133742678],[5.272412899174387,51.96484913921835],[5.264561113499136,51.967286087176625],[5.2585490204553995,51.96976247404754],[5.254185962907261,51.97212969279935],[5.247575272024838,51.97690533210347],[5.245260152484402,51.97799949219],[5.241165301208623,51.97886896444708],[5.23686707713957,51.97875747724223],[5.233006667953755,51.97755042297185],[5.229912519749958,51.97564895890624],[5.227191888435707,51.9726032198438],[5.224372645714946,51.96828412761148],[5.219737619054008,51.96387044619455],[5.215443943617388,51.96144767952056],[5.210275372429215,51.95984670095829],[5.207433614447638,51.959477940824904],[5.2030831741645045,51.95956246444238],[5.196104353297566,51.960806473857744],[5.1897206634224,51.9629142171598],[5.180226656080339,51.967448325528885],[5.169663898977863,51.95547485537185],[5.163428672847712,51.946857462249774],[5.153962253726014,51.93729193273222],[5.151467134150005,51.93361525348091],[5.150689745715618,51.933321394593484],[5.149412474151031,51.93352177460521],[5.148276234736903,51.93273731317343],[5.148024060020374,51.93178979669594],[5.149007036344462,51.930540264633706],[5.1484598477486,51.92948519058408],[5.142215495929703,51.92474928067689],[5.135674745403968,51.918222742415885],[5.1361671505844795,51.9177385168178],[5.136435753022035,51.914508428192285],[5.135720816011938,51.914195367132],[5.13227754589955,51.91488175936808],[5.119408863265156,51.89860526182494],[5.119065359664218,51.89826957409646],[5.116947868134778,51.898104014069716],[5.1169855464832485,51.896910631561525],[5.118498764202483,51.896377686206364],[5.117671295106729,51.89256990208491],[5.112736806283508,51.88777617992665],[5.105759335174848,51.88881093683975],[5.097629283028759,51.887851897730734],[5.094825398344781,51.8887435382932],[5.090974556623542,51.888976428164284],[5.089043493506849,51.88808738027573],[5.088159412984989,51.887094358300914],[5.087381889077541,51.88306782817192],[5.086339589708924,51.88076896497589],[5.080532403703809,51.87552472692182],[5.073658695193277,51.87403901196115],[5.063387690923343,51.87440977166782],[5.055362254895166,51.87304093180558],[5.053614080410489,51.871897667170614],[5.052310581203279,51.869984486887404],[5.051810970298782,51.86826626392131],[5.052198839889442,51.866643008844925],[5.054199740969438,51.865099082787026],[5.062455775537735,51.86219475131594],[5.063681621090426,51.860823954006946],[5.062358152453463,51.859362053627095],[5.05918548386213,51.85815448355402],[5.053808180457935,51.857386468792484],[5.051805191752606,51.85747728421476]]]}</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+(function () {
+  var mapEl = document.getElementById('map');
+  if (typeof L === 'undefined') {
+    mapEl.innerHTML = '<div style="padding:24px;color:#5b6472;font-size:14px">' +
+      'Leaflet could not be loaded (CDN unreachable). The zone tables below carry the same information; ' +
+      'open this file with internet access to render the interactive map.</div>';
+    mapEl.style.height = 'auto';
+    return;
+  }
+  var zones = JSON.parse(document.getElementById('zones-data').textContent);
+  var aoi = JSON.parse(document.getElementById('aoi-data').textContent);
+
+  var bounds = L.latLngBounds([[51.857386468792484, 4.792080179629928], [52.303677035676216, 5.62730856198782]]);
+  var map = L.map('map').fitBounds(bounds.pad(0.06));
+
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  var base = { 'OSM (CDN)': L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {maxZoom:18}) };
+
+  function cat(f) { return f.properties.__cat; }
+  var styles = {
+    final:       {color: '#2e7d32', weight: 2.2, fillColor: '#66bb6a', fillOpacity: 0.30},
+    inclusion:   {color: '#1565c0', weight: 2.0, fillColor: '#64b5f6', fillOpacity: 0.22},
+    exclusion:   {color: '#ef6c00', weight: 1.6, fillColor: '#ffb74d', fillOpacity: 0.14, dashArray: '6 4'},
+    marker:      {color: '#6a1b9a', weight: 1.6, fillColor: '#ce93d8', fillOpacity: 0.14, dashArray: '3 5'}
+  };
+  var labels = {
+    final: 'Final opportunity zone', inclusion: 'Inclusion (designated zones \u2229 AOI)',
+    exclusion: 'After exclusion step (cumulative)', marker: 'Attention / conditional / compensation markers'
+  };
+  var overlays = {};
+  ['final', 'inclusion', 'exclusion', 'marker'].forEach(function (c) {
+    var feats = zones.features.filter(function (f) { return cat(f) === c; });
+    if (!feats.length) return;
+    var g = L.geoJSON({type: 'FeatureCollection', features: feats}, {
+      style: function () { return styles[c]; },
+      onEachFeature: function (f, layer) {
+        var p = f.properties;
+        layer.bindPopup('<b>' + p.id + '</b><br>op: ' + p.operation +
+          '<br>area: ' + p.areaKm2 + ' km\u00b2<br>rules: ' + (p.ruleIds || []).join(', ') +
+          '<br>layers: ' + (p.layers || []).join(', '));
+      }
+    });
+    if (c === 'final' || c === 'inclusion') g.addTo(map);
+    overlays[labels[c]] = g;
+  });
+  if (aoi) {
+    overlays['AOI (province boundary)'] = L.geoJSON(aoi, {
+      style: {color: '#000', weight: 2.4, fill: false, dashArray: '9 6'}
+    }).addTo(map);
+  }
+  L.control.layers(base, overlays, {collapsed: false}).addTo(map);
+})();
+</script>
+</body>
+</html>

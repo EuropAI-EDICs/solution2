@@ -655,6 +655,44 @@ TRACKS: Dict[str, Dict[str, Any]] = {
             ),
         ],
     },
+    "recreatie": {
+        "shard": "corpus/evidence-recreatie.json",
+        "ledger": "corpus/normcards-rejected-recreatie.json",
+        "report_title": "Where is recreation development possible under the recreatie instructieregels in province Utrecht?",
+        "decision_table_id": "DT-recreatie-utrecht-poc1",
+        "decision_table_title": "Recreatie rule bounds for recreation development "
+                                "Decision table (programming stage)",
+        "prov_namespace": "ldttoolbox:poc:recreatie:",
+        "headline_note": (
+            "Semantics: the opportunity zone is the inclusion composition — "
+            "Gebied bovenlokaal dagrecreatieterrein (art. 9.22) and Recreatiezone "
+            "(art. 9.23) — both instructieregels open development explicitly "
+            "'In afwijking van Artikel 9.3', the verordeningeigen exceptions to "
+            "the verstedelijkingsverbod for recreation development. Art. 9.23 "
+            "lid 1 (bescherming instandhouding/bereikbaarheid bestaande "
+            "voorzieningen) stays a protective tag; lid 3's verstedelijking-"
+            "opening mits twee voorwaarden (samenhang, borging) is inbegrepen "
+            "en lid 4's integrale visie/beeldkwaliteitsparagraaf is een "
+            "motiveringseis (V4). De overige H9-artikelen behoren tot de "
+            "wonen-track (fase 3) en de werken-track (fase 5) (ARC-01..08). "
+            "Programming-stage screening artifact; per-location permission "
+            "assessment remains required."
+        ),
+        "limitations": lambda cov, abst: [
+            "Wonen/werken/stilte-artikelen (9.1-9.21, 9.24-9.37) are outside the "
+            "recreation_development object type: covered by the fase-3 wonen "
+            "track and the fase-5 werken track (ARC-01..07); 9.21 is "
+            "[Gereserveerd] and 9.48a only a toelichting reference (ARC-05/08).",
+            "The art. 9.23 lid-1 protection of existing facilities and lid 4's "
+            "integrale visie are plan-content assessments routed to the V4 "
+            "human-expert checkpoint, carried in the tags — the inclusion "
+            "composition follows the opening lids 2-3.",
+            (
+                f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms): "
+                "routed to the V4 human-expert checkpoint."
+            ),
+        ],
+    },
 }
 
 _LIMITATIONS = [

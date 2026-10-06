@@ -153,6 +153,16 @@ CAVEAT_GIO_WERKEN = (
     "Landelijk gebied / Stedelijk gebied hergebruikt uit de fase-3-wonen-track "
     "(zelfde service+laag)"
 )
+#: recreatie-track zones: werkingsgebieden of the verordening whose GIO join-id
+#: is NOT carried by the cited article text (arts. 9.22/9.23 quote no join-id),
+#: so no gioJoinId may be claimed; geometry is served by the agrest IMOW
+#: open-data alias (see run.py::ZONE_SOURCES and layers.json aliasNote).
+CAVEAT_GIO_RECREATIE = (
+    "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet "
+    "overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten "
+    "Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; "
+    "geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+)
 
 # ---------------------------------------------------------------------------
 # Deterministic engine operations referenced by FormalRule.executableRef.
@@ -948,6 +958,29 @@ EVIDENCE_ENRICHMENT: Dict[str, Dict[str, Any]] = {
             "zoneIds": ["gebied_detailhandel_buiten_bestaand_winkelgebied"],
             "geometrySource": "provincial_gio_unverified",
             "caveat": CAVEAT_GIO_WERKEN,
+        },
+    },
+    # -- RECREATIE track (recreation development; shard evidence-recreatie.json) -
+    "RC-01": {
+        "objectType": "recreation_development",
+        "claim": "In afwijking van Artikel 9.3, an omgevingsplan for locations within the 'Gebied bovenlokaal dagrecreatieterrein' may, for the dagrecreatieve functie, allow development of facilities related to recreational use on an existing bovenlokaal dagrecreatieterrein, provided three conditions are met (recreational value strengthened, necessary for sustainable exploitation, concentrated siting sparing nearby nature areas) (art. 9.22): a verordeningeigen exception to the verstedelijkingsverbod — executed as an inclusion zone.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_9_22", "inclusion_bovenlokaal_dagrecreatieterrein", "uitzondering_op_art_9_3", "drie_mitsen_waarde_exploitatie_concentratie", "bestaand_terrein"],
+        "geoBinding": {
+            "zoneIds": ["gebied_bovenlokaal_dagrecreatieterrein"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_RECREATIE,
+        },
+    },
+    "RC-02": {
+        "objectType": "recreation_development",
+        "claim": "An omgevingsplan for locations within the 'Recreatiezone' contains rules protecting the instandhouding and bereikbaarheid of existing recreational facilities (lid 1), and — in afwijking van Artikel 9.3 — may provide for new bovenlokale recreational facilities (lid 2) and even for verstedelijking in support thereof, mits two conditions (coupled realisation with balanced proportions, secured timely realisation and durable maintenance) (lid 3): the opening lids dominate for the recreation_development object type — executed as an inclusion zone with the protective component as a tag.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_9_23", "inclusion_recreatiezone", "uitzondering_op_art_9_3_lid_2_en_3", "bescherming_instandhouding_bereikbaarheid_tag", "twee_mitsen_samenhang_borging", "integrale_visie_beeldkwaliteitsparagraaf_lid_4"],
+        "geoBinding": {
+            "zoneIds": ["recreatiezone"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_RECREATIE,
         },
     },
 }
@@ -1889,6 +1922,29 @@ TEMPLATE_SPECS: Dict[str, Dict[str, Any]] = {
         "conditions": [],
         "extra_tags": ["conditional_within_gebied_detailhandel_buiten_bestaand_winkelgebied", "subklasse_gescoped_verbod_detailhandel_v4_per_case", "zeven_tenzij_uitzonderingen_a_g", "functiewijziging_bij_stilgevallen_lid_2"],
         "rationale": "Art. 9.20 instructieregel, lid 1 quoted: plans within the 'Gebied detailhandel buiten bestaand winkelgebied' contain no rules providing for nieuwvestiging/uitbreiding of detailhandel nor brancheringswijziging, tenzij seven stated exceptions (a-g). RE-ADJUDICATED at the canonical run (the FR-WN-03 mirror): the verbod is SUB-CLASS-scoped — it refuses detailhandel development only, while arts. 9.16/9.18 explicitly open bedrijventerrein development on the same province-spanning areas — and the designation covers 1550.208 km2, so an area exclusion (first-run final collapsed from ~850 to 9.830 km2) would nullify those same-track inclusion openings. Carried as a conditional marker routed to V4; the registry keeps role 'exclusion' as the rule-family statement with the scope caveat in its entry note. Consolidated nullification rule (fase 5): an exclusion may not nullify a same-track inclusion opening — when the refused sub-class shares its designation with an inclusion opening of a different sub-class, the verbod is a marker.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    # -- RECREATIE track -------------------------------------------------------------
+    # NOTE on the recreatie rules: both instructieregels open development
+    # explicitly 'In afwijking van Artikel 9.3' — verordeningeigen exceptions
+    # to the verstedelijkingsverbod for the recreation_development object type
+    # — and are executed as INCLUSION zones (the FR-W-05/FR-WN-04 idiom).
+    # RC-02's protective lid 1 stays a tag: the opening lids (2 and 3) govern
+    # what this track computes.
+    "RC-01": {
+        "kind": "inclusion",
+        "zone": {"zoneIds": ["gebied_bovenlokaal_dagrecreatieterrein"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_RECREATIE},
+        "conditions": [],
+        "extra_tags": ["inclusion_bovenlokaal_dagrecreatieterrein", "drie_mitsen_v4_per_case", "voorzieningen_op_bestaand_terrein"],
+        "rationale": "Art. 9.22 instructieregel: plans within the 'Gebied bovenlokaal dagrecreatieterrein' may, in afwijking van art. 9.3, allow development of recreation-related facilities mits three conditions (value strengthened, sustainable exploitation, concentrated siting sparing nearby nature). INCLUSION zone (FR-W-05 idiom); mits conditions routed to V4.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "RC-02": {
+        "kind": "inclusion",
+        "zone": {"zoneIds": ["recreatiezone"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_RECREATIE},
+        "conditions": [],
+        "extra_tags": ["inclusion_recreatiezone", "lid_2_nieuwe_voorzieningen_lid_3_verstedelijking_mits_twee", "beschermende_lid_1_tag", "integrale_visie_lid_4"],
+        "rationale": "Art. 9.23 instructieregel, three lids quoted: lid 1 protects existing facilities (tag), lid 2 opens new bovenlokale facilities and lid 3 opens even verstedelijking in support thereof, both 'in afwijking van artikel 9.3', mits two conditions (coupled realisation, secured durable realisation). For the recreation_development object type the opening lids govern (FR-WN-04 idiom): INCLUSION zone with the protective component and lid 4's integrale visie/beeldkwaliteitsparagraaf routed to V4 via the tags.",
         "executable_ref": "engine.zone.within@poc-v1",
     },
 }
