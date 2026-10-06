@@ -239,6 +239,14 @@ ZONE_SOURCES: Dict[str, Dict[str, Any]] = {
         "sourceId": "agrest-ov-gebied-detailhandel-buiten-bestaand-winkelgebied",
         "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied detailhandel buiten bestaand winkelgebied' (art. 9.20 instructieregel, WE-06: geen detailhandel-ontwikkeling, tenzij a-g; lid 2 functiewijziging bij stilgevallen)",
     },
+    "gebied_bovenlokaal_dagrecreatieterrein": {
+        "sourceId": "agrest-ov-gebied-bovenlokaal-dagrecreatieterrein",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied bovenlokaal dagrecreatieterrein' (art. 9.22 instructieregel, RC-01: in afwijking van art. 9.3 kan het plan recreatieve voorzieningen toestaan mits drie voorwaarden)",
+    },
+    "recreatiezone": {
+        "sourceId": "agrest-ov-recreatiezone",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Recreatiezone' (art. 9.23 instructieregel, RC-02: bescherming + in afwijking van art. 9.3 nieuwe bovenlokale voorzieningen en verstedelijking mits twee voorwaarden)",
+    },
 }
 
 INSTRUMENT = "Omgevingsverordening provincie Utrecht, CVDR704250 geldend 13-10-2025 t/m heden"
