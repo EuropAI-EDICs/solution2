@@ -215,6 +215,38 @@ ZONE_SOURCES: Dict[str, Dict[str, Any]] = {
         "sourceId": "agrest-ov-stedelijk-gebied",
         "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Stedelijk gebied' (art. 9.17 instructieregel, WN-10: kan verstedelijking/woningbouw-mits; aanwijzing art. 9.2)",
     },
+    "gebied_uitbreiding_bedrijventerrein": {
+        "sourceId": "agrest-ov-gebied-uitbreiding-bedrijventerrein",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied uitbreiding bedrijventerrein onder voorwaarden mogelijk' (art. 9.16 instructieregel, WE-03: kan-mits uitbreiding bedrijventerreinen; uitzondering op art. 9.3)",
+    },
+    "kantoor_knooppunt_utrecht_centraal": {
+        "sourceId": "agrest-ov-kantoor-knooppunt-utrecht-centraal",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Kantoor op knooppunt Utrecht Centraal' (art. 9.19 lid 3 uitzondering, WE-05: kantorenbeperking geldt niet mits behoefte aangetoond)",
+    },
+    "kantoor_knooppunt_leidsche_rijn_centrum": {
+        "sourceId": "agrest-ov-kantoor-knooppunt-leidsche-rijn-centrum",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Kantoor op knooppunt Leidsche Rijn Centrum' (art. 9.19 lid 3 uitzondering, WE-05)",
+    },
+    "reductielocaties": {
+        "sourceId": "agrest-ov-reductielocaties",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Reductielocaties' (art. 9.19 lid 4/5 kader, WE-05: tijdelijke uitzondering tot 2029 + bvo-neutrale plancapaciteitsverplaatsing)",
+    },
+    "gebiedstransformatie_herstructurering": {
+        "sourceId": "agrest-ov-gebiedstransformatie-of-herstructurering",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebiedstransformatie of  herstructurering' (dubbele spatie verordening-eigen; art. 9.19 lid 6 verplaatsingskader, WE-05)",
+    },
+    "gebied_detailhandel_buiten_bestaand_winkelgebied": {
+        "sourceId": "agrest-ov-gebied-detailhandel-buiten-bestaand-winkelgebied",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied detailhandel buiten bestaand winkelgebied' (art. 9.20 instructieregel, WE-06: geen detailhandel-ontwikkeling, tenzij a-g; lid 2 functiewijziging bij stilgevallen)",
+    },
+    "gebied_bovenlokaal_dagrecreatieterrein": {
+        "sourceId": "agrest-ov-gebied-bovenlokaal-dagrecreatieterrein",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied bovenlokaal dagrecreatieterrein' (art. 9.22 instructieregel, RC-01: in afwijking van art. 9.3 kan het plan recreatieve voorzieningen toestaan mits drie voorwaarden)",
+    },
+    "recreatiezone": {
+        "sourceId": "agrest-ov-recreatiezone",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Recreatiezone' (art. 9.23 instructieregel, RC-02: bescherming + in afwijking van art. 9.3 nieuwe bovenlokale voorzieningen en verstedelijking mits twee voorwaarden)",
+    },
 }
 
 INSTRUMENT = "Omgevingsverordening provincie Utrecht, CVDR704250 geldend 13-10-2025 t/m heden"
@@ -565,6 +597,96 @@ TRACKS: Dict[str, Dict[str, Any]] = {
             "(AWN-03): gap, no surrogate alias. Art. 9.21 is [Gereserveerd]. "
             "Art. 9.48a exists only as a toelichting reference, not as a body "
             "article (AWN-11).",
+            (
+                f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms): "
+                "routed to the V4 human-expert checkpoint."
+            ),
+        ],
+    },
+    "werken": {
+        "shard": "corpus/evidence-werken.json",
+        "ledger": "corpus/normcards-rejected-werken.json",
+        "report_title": "Where is business development bounded by the werken instructieregels in province Utrecht?",
+        "decision_table_id": "DT-werken-utrecht-poc1",
+        "decision_table_title": "Werken rule bounds for business development "
+                                "Decision table (programming stage)",
+        "prov_namespace": "ldttoolbox:poc:werken:",
+        "headline_note": (
+            "Semantics: the opportunity zone is the inclusion composition — "
+            "Gebied uitbreiding bedrijventerrein onder voorwaarden mogelijk "
+            "(art. 9.16) and Stedelijk gebied (art. 9.18, hergebruikte fase-3-"
+            "alias) — the verordeningeigen exceptions to the art.-9.3 "
+            "verstedelijkingsverbod for business development. Art. 9.20 (Gebied "
+            "detailhandel buiten bestaand winkelgebied, 1550.208 km2 = de "
+            "provincie minus de bestaande winkelgebieden) is a conditional "
+            "marker: its verbod is SUB-CLASS-scoped (detailhandel only, not "
+            "bedrijventerreinen/kantoren) and an area exclusion would nullify "
+            "the arts.-9.16/9.18 openings (WN-03-idiom; tenzij-lijst a-g en "
+            "lid-2-voorschrift in de tags). Arts. 9.9/9.11 (kan-mits stedelijke functies in het "
+            "Landelijk gebied, hergebruikte fase-3-alias) and the art.-9.19 "
+            "kantoren framework (four zone-gebonden designations: two knooppunten "
+            "mits behoefte, Reductielocaties tot 2029/bvo-neutraal, "
+            "gebiedstransformatie) are conditional markers. Wonen-/stilte-/"
+            "recreatie-artikelen zijn buiten dit objecttype en gedekt door de "
+            "fase-3-wonen-track en de fase-5-recreatie-track (AWB-02/07/08). "
+            "Programming-stage screening artifact; per-location permission "
+            "assessment remains required."
+        ),
+        "limitations": lambda cov, abst: [
+            "Wonen/recreatie/stilte-artikelen (9.3, 9.6-9.8, 9.10, 9.12-9.15, "
+            "9.17, 9.22-9.29) are outside the business_development object type: "
+            "covered by the fase-3 wonen track and the fase-5 recreatie track "
+            "(AWB-02/07/08); the 9.7 enclaves gap and 9.21 [Gereserveerd] carry "
+            "over from fase 3 (AWN-03/06).",
+            "Art. 9.20 is a conditional marker, not an exclusion: the verbod is "
+            "SUB-CLASS-scoped (detailhandel development only) and the "
+            "designation (1550.208 km2) overlaps the arts.-9.16/9.18 openings — "
+            "an exclusion would nullify them (consolidated nullification rule, "
+            "WN-03-idiom). Whether one of the seven tenzij exceptions (a-g) "
+            "applies is a per-case V4 assessment; lid 2's functiewijziging "
+            "prescription stays a tag.",
+            "The art. 9.19 kantoren markers document where the zone-loze "
+            "lid-1-2 restriction opens up (knooppunten mits behoefte, "
+            "Reductielocaties, gebiedstransformatie); the lid-1-2 restriction "
+            "itself is zone-less and stays in the tags (8.4-precedent).",
+            (
+                f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms): "
+                "routed to the V4 human-expert checkpoint."
+            ),
+        ],
+    },
+    "recreatie": {
+        "shard": "corpus/evidence-recreatie.json",
+        "ledger": "corpus/normcards-rejected-recreatie.json",
+        "report_title": "Where is recreation development possible under the recreatie instructieregels in province Utrecht?",
+        "decision_table_id": "DT-recreatie-utrecht-poc1",
+        "decision_table_title": "Recreatie rule bounds for recreation development "
+                                "Decision table (programming stage)",
+        "prov_namespace": "ldttoolbox:poc:recreatie:",
+        "headline_note": (
+            "Semantics: the opportunity zone is the inclusion composition — "
+            "Gebied bovenlokaal dagrecreatieterrein (art. 9.22) and Recreatiezone "
+            "(art. 9.23) — both instructieregels open development explicitly "
+            "'In afwijking van Artikel 9.3', the verordeningeigen exceptions to "
+            "the verstedelijkingsverbod for recreation development. Art. 9.23 "
+            "lid 1 (bescherming instandhouding/bereikbaarheid bestaande "
+            "voorzieningen) stays a protective tag; lid 3's verstedelijking-"
+            "opening mits twee voorwaarden (samenhang, borging) is inbegrepen "
+            "en lid 4's integrale visie/beeldkwaliteitsparagraaf is een "
+            "motiveringseis (V4). De overige H9-artikelen behoren tot de "
+            "wonen-track (fase 3) en de werken-track (fase 5) (ARC-01..08). "
+            "Programming-stage screening artifact; per-location permission "
+            "assessment remains required."
+        ),
+        "limitations": lambda cov, abst: [
+            "Wonen/werken/stilte-artikelen (9.1-9.21, 9.24-9.37) are outside the "
+            "recreation_development object type: covered by the fase-3 wonen "
+            "track and the fase-5 werken track (ARC-01..07); 9.21 is "
+            "[Gereserveerd] and 9.48a only a toelichting reference (ARC-05/08).",
+            "The art. 9.23 lid-1 protection of existing facilities and lid 4's "
+            "integrale visie are plan-content assessments routed to the V4 "
+            "human-expert checkpoint, carried in the tags — the inclusion "
+            "composition follows the opening lids 2-3.",
             (
                 f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms): "
                 "routed to the V4 human-expert checkpoint."
