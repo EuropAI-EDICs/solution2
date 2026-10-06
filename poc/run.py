@@ -215,6 +215,30 @@ ZONE_SOURCES: Dict[str, Dict[str, Any]] = {
         "sourceId": "agrest-ov-stedelijk-gebied",
         "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Stedelijk gebied' (art. 9.17 instructieregel, WN-10: kan verstedelijking/woningbouw-mits; aanwijzing art. 9.2)",
     },
+    "gebied_uitbreiding_bedrijventerrein": {
+        "sourceId": "agrest-ov-gebied-uitbreiding-bedrijventerrein",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied uitbreiding bedrijventerrein onder voorwaarden mogelijk' (art. 9.16 instructieregel, WE-03: kan-mits uitbreiding bedrijventerreinen; uitzondering op art. 9.3)",
+    },
+    "kantoor_knooppunt_utrecht_centraal": {
+        "sourceId": "agrest-ov-kantoor-knooppunt-utrecht-centraal",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Kantoor op knooppunt Utrecht Centraal' (art. 9.19 lid 3 uitzondering, WE-05: kantorenbeperking geldt niet mits behoefte aangetoond)",
+    },
+    "kantoor_knooppunt_leidsche_rijn_centrum": {
+        "sourceId": "agrest-ov-kantoor-knooppunt-leidsche-rijn-centrum",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Kantoor op knooppunt Leidsche Rijn Centrum' (art. 9.19 lid 3 uitzondering, WE-05)",
+    },
+    "reductielocaties": {
+        "sourceId": "agrest-ov-reductielocaties",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Reductielocaties' (art. 9.19 lid 4/5 kader, WE-05: tijdelijke uitzondering tot 2029 + bvo-neutrale plancapaciteitsverplaatsing)",
+    },
+    "gebiedstransformatie_herstructurering": {
+        "sourceId": "agrest-ov-gebiedstransformatie-of-herstructurering",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebiedstransformatie of  herstructurering' (dubbele spatie verordening-eigen; art. 9.19 lid 6 verplaatsingskader, WE-05)",
+    },
+    "gebied_detailhandel_buiten_bestaand_winkelgebied": {
+        "sourceId": "agrest-ov-gebied-detailhandel-buiten-bestaand-winkelgebied",
+        "note": "vigerende Omgevingsverordening IMOW layer, WHERE NAAM='Gebied detailhandel buiten bestaand winkelgebied' (art. 9.20 instructieregel, WE-06: geen detailhandel-ontwikkeling, tenzij a-g; lid 2 functiewijziging bij stilgevallen)",
+    },
 }
 
 INSTRUMENT = "Omgevingsverordening provincie Utrecht, CVDR704250 geldend 13-10-2025 t/m heden"
