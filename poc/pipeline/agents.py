@@ -139,6 +139,20 @@ CAVEAT_GIO_WONEN = (
     "Landelijk gebied / Stiltegebied / Aandachtsgebied stiltegebied hergebruikt uit "
     "de fase-1-wind-track (zelfde service+laag)"
 )
+#: werken-track zones: werkingsgebieden of the verordening whose GIO join-id is
+#: NOT carried by the cited article text (arts. 9.9-9.20 quote no join-id), so
+#: no gioJoinId may be claimed; geometry is served by the agrest IMOW open-data
+#: alias (see run.py::ZONE_SOURCES and layers.json aliasNote). The
+#: Landelijk-gebied and Stedelijk-gebied aliases are REUSED from the fase-3
+#: wonen track (fase-1 dedup rule: same service+layer).
+CAVEAT_GIO_WERKEN = (
+    "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet "
+    "overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten "
+    "Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; "
+    "geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); "
+    "Landelijk gebied / Stedelijk gebied hergebruikt uit de fase-3-wonen-track "
+    "(zelfde service+laag)"
+)
 
 # ---------------------------------------------------------------------------
 # Deterministic engine operations referenced by FormalRule.executableRef.
@@ -867,6 +881,73 @@ EVIDENCE_ENRICHMENT: Dict[str, Dict[str, Any]] = {
             "zoneIds": ["aandachtsgebied_stiltegebied"],
             "geometrySource": "provincial_gio_unverified",
             "caveat": CAVEAT_GIO_WONEN,
+        },
+    },
+    # -- WERKEN track (business development; shard evidence-werken.json) --------
+    "WE-01": {
+        "objectType": "business_development",
+        "claim": "An omgevingsplan for locations within the 'Landelijk gebied' may allow percelen for specific stedelijke functies to change to another stedelijke functie (not being permanent dwelling from recreatiewoning, kantoor or detailhandel) under an integral-assessment condition, and may allow stedelijke functies to expand by at most 20% of the bebouwingsmogelijkheden under the vigerende planologisch regime (art. 9.9): a kan-mits instruction carried as a conditional marker.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_9_9", "conditional_landelijk_gebied", "functiewijziging_integrale_afweging_lid_1a", "uitbreiding_max_20pct_bebouwingsmogelijkheden_lid_1b", "geen_permenente_bewoning_uit_recreatiewoning_kantoor_detailhandel"],
+        "geoBinding": {
+            "zoneIds": ["landelijk_gebied"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_WERKEN,
+        },
+    },
+    "WE-02": {
+        "objectType": "business_development",
+        "claim": "An omgevingsplan for locations within the 'Landelijk gebied' may allow ended agrarische bedrijfspercelen to receive a stedelijke functie (not being wonen) for the bedrijfswoning and overige bedrijfsgebouwen, provided the five stated conditions are met (site suitability, 50% demolition norm with six exception categories, compact siting, preservation of cultuurhistorie/landschap/natuur, no hindrance to neighbouring farms) (art. 9.11): a kan-mits instruction carried as a conditional marker.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_9_11", "conditional_landelijk_gebied", "functiewijzing_agrarisch_perceel_stedelijke_functie", "sloopnorm_50pct_met_zes_uitzonderingen", "vijf_mitsen_lid_1"],
+        "geoBinding": {
+            "zoneIds": ["landelijk_gebied"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_WERKEN,
+        },
+    },
+    "WE-03": {
+        "objectType": "business_development",
+        "claim": "An omgevingsplan for locations within the 'Gebied uitbreiding bedrijventerrein onder voorwaarden mogelijk' may contain rules for expansion of bedrijventerreinen, provided the eight stated conditions are met (programma Wonen en werken or small-scale 1 ha netto with municipal 1-3 ha per 10 years frames, milieucategorie ladder, groen-blauwe inrichting, no bedrijfskavels above 5 ha, no extra bodemdaling, landscape integration, secured revitalisation, connection to an existing bedrijventerrein or the Stedelijk gebied) (art. 9.16): a verordeningeigen exception to the art.-9.3 verbod for business development — executed as an inclusion zone.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_9_16", "inclusion_uitbreiding_bedrijventerrein", "acht_mitsen_lid_1", "kleinschalig_1_ha_netto_gemeentekaders_1_3_ha_per_10_jaar", "geen_bedrijfskavels_boven_5_ha", "geen_extra_bodemdaling"],
+        "geoBinding": {
+            "zoneIds": ["gebied_uitbreiding_bedrijventerrein"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_WERKEN,
+        },
+    },
+    "WE-04": {
+        "objectType": "business_development",
+        "claim": "An omgevingsplan for locations within the 'Stedelijk gebied' may contain rules for bedrijventerreinen, provided the same eight stated conditions as art. 9.16 are met (art. 9.18): the stedelijke main arena for business-park development — executed as an inclusion zone on the reused stedelijk-gebied alias.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_9_18", "inclusion_stedelijk_gebied_bedrijventerreinen", "acht_mitsen_gelijk_aan_art_9_16", "revitalisering_herstructurering_verzekerd"],
+        "geoBinding": {
+            "zoneIds": ["stedelijk_gebied"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_WERKEN,
+        },
+    },
+    "WE-05": {
+        "objectType": "business_development",
+        "claim": "The general kantoren restriction of art. 9.19 lid 1-2 (nieuwvestiging of zelfstandige kantoren only under three narrow cases) does not apply within het 'Gebied Kantoor op knooppunt Utrecht Centraal' and het 'Gebied Kantoor op knooppunt Leidsche Rijn Centrum' mits behoefte aan kantoren is aangetoond (lid 3); until 01-01-2029 lid 1-2 do not apply to delegatie-/afwijkingsbesluiten within de 'Reductielocaties' where Inpassingsplan-Kantoren plancapaciteit remains (lid 4), and plans for the Reductielocaties may allow relocation of plancapaciteit with bvo-neutral reduction on an unbuilt parcel (lid 5); plans within 'Gebiedstransformatie of herstructurering' may relocate existing plancapaciteit under four conditions (lid 6): conditional markers on the four designations, with the zone-loze lid-1-2 restriction carried in the tags.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_9_19", "conditional_kantoren_vier_gebieden", "lid_1_2_zone_loze_nieuwvestigingsbeperking_in_tags", "knooppuntuitzondering_mits_behoefte_aangetoond", "reductielocaties_tot_01_01_2029", "bvo_neutrale_plancapaciteitsverplaatsing"],
+        "geoBinding": {
+            "zoneIds": ["kantoor_knooppunt_utrecht_centraal", "kantoor_knooppunt_leidsche_rijn_centrum", "reductielocaties", "gebiedstransformatie_herstructurering"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_WERKEN,
+        },
+    },
+    "WE-06": {
+        "objectType": "business_development",
+        "claim": "An omgevingsplan for locations within the 'Gebied detailhandel buiten bestaand winkelgebied' contains no rules providing for nieuwvestiging or uitbreiding of detailhandel nor for changing brancheringsregels, unless one of the seven stated exceptions applies (a-g) (art. 9.20 lid 1): a SUB-CLASS-scoped verbod — it refuses detailhandel development only, not bedrijventerreinen or kantoren — carried as a conditional marker because an area exclusion over the 1550.208 km2 designation would nullify the arts.-9.16/9.18 inclusion openings for business development (the WN-03 re-adjudication idiom).",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_9_20", "conditional_gebied_detailhandel_buiten_bestaand_winkelgebied", "subklasse_gescoped_verbod_detailhandel", "zeven_tenzij_uitzonderingen_a_g_v4", "functiewijziging_bij_stilgevallen_lid_2", "geen_brancheringswijziging"],
+        "geoBinding": {
+            "zoneIds": ["gebied_detailhandel_buiten_bestaand_winkelgebied"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_WERKEN,
         },
     },
 }
@@ -1747,6 +1828,67 @@ TEMPLATE_SPECS: Dict[str, Dict[str, Any]] = {
         "conditions": [],
         "extra_tags": ["conditional_within_aandachtsgebied_stiltegebied", "rekening_houden_geluiddoelstellingen_art_9_26", "zone_1500_meter_art_9_25_lid_2", "alias_hergebruikt_wind_track"],
         "rationale": "Art. 9.29 instructieregel, the same take-into-account family on the 'Aandachtsgebied stiltegebied' (the art.-9.25-lid-2 1500 m zone; alias reused from the wind track's FR-W-10 attention zone). A conditional marker routed to V4, never an elimination.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    # -- WERKEN track ----------------------------------------------------------------
+    # NOTE on the werken rules: two instructieregels are verordeningeigen
+    # exceptions to art. 9.3 with activity classes inside business_development
+    # and are executed as INCLUSION zones (art. 9.16 bedrijventerrein-
+    # uitbreidingsgebied, art. 9.18 Stedelijk gebied — the WN-09/WN-10 idiom);
+    # art. 9.20 (detailhandel-buiten-bestaand-winkelgebied) was first executed
+    # as an exclusion but re-adjudicated at the canonical run as a
+    # SUB-CLASS-scoped verbod whose area exclusion nullified the 9.16/9.18
+    # openings — conditional marker, consolidated nullification rule; the
+    # remaining rules are kan-mits markers
+    # (arts. 9.9/9.11 on the reused landelijk_gebied alias) and the art.-9.19
+    # kantoren framework (conditional markers on its four zone-gebonden
+    # designations, the zone-loze lid-1-2 restriction in the tags).
+    "WE-01": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["landelijk_gebied"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_WERKEN},
+        "conditions": [],
+        "extra_tags": ["conditional_within_landelijk_gebied", "functiewijziging_integrale_afweging_v4", "uitbreiding_max_20pct_bebouwingsmogelijkheden"],
+        "rationale": "Art. 9.9 instructieregel, kan-mits family for non-dwelling stedelijke functies in het Landelijk gebied: function change under an integral assessment (lid 1a) and expansion up to 20% of the bebouwingsmogelijkheden (lid 1b). The zone overlay is deterministic; both tests are plan-quality assessments routed to V4 — a conditional marker (FR-WN-05 idiom), never an elimination.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "WE-02": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["landelijk_gebied"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_WERKEN},
+        "conditions": [],
+        "extra_tags": ["conditional_within_landelijk_gebied", "functiewijzing_agrarisch_perceel_v4", "sloopnorm_50pct_zes_uitzonderingen"],
+        "rationale": "Art. 9.11 instructieregel, kan-mits family: ended agrarische bedrijfspercelen may receive a stedelijke functie (not wonen) mits five conditions including the 50% demolition norm with six exception categories. A conditional marker routed to V4 (FR-WN-05 idiom), never an elimination.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "WE-03": {
+        "kind": "inclusion",
+        "zone": {"zoneIds": ["gebied_uitbreiding_bedrijventerrein"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_WERKEN},
+        "conditions": [],
+        "extra_tags": ["inclusion_uitbreiding_bedrijventerrein", "acht_mitsen_v4_per_case", "kleinschalig_1_ha_netto_gemeentekaders"],
+        "rationale": "Art. 9.16 instructieregel: plans within the 'Gebied uitbreiding bedrijventerrein onder voorwaarden mogelijk' may contain rules for bedrijventerrein expansion mits eight conditions. A verordeningeigen exception to art. 9.3 for business development — INCLUSION zone (the FR-W-05/FR-WN-09 idiom); the mits conditions are plan-quality assessments routed to V4.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "WE-04": {
+        "kind": "inclusion",
+        "zone": {"zoneIds": ["stedelijk_gebied"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_WERKEN},
+        "conditions": [],
+        "extra_tags": ["inclusion_stedelijk_gebied_bedrijventerreinen", "acht_mitsen_gelijk_aan_art_9_16_v4"],
+        "rationale": "Art. 9.18 instructieregel: plans within the 'Stedelijk gebied' may contain rules for bedrijventerreinen mits the same eight conditions as art. 9.16. INCLUSION zone on the reused stedelijk-gebied alias (FR-WN-10 idiom); mits conditions routed to V4.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "WE-05": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["kantoor_knooppunt_utrecht_centraal", "kantoor_knooppunt_leidsche_rijn_centrum", "reductielocaties", "gebiedstransformatie_herstructurering"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_WERKEN},
+        "conditions": [],
+        "extra_tags": ["conditional_kantoren_kaders_vier_gebieden", "lid_1_2_zone_loze_restrictie_in_tags", "knooppunten_mits_behoefte_aangetoond", "reductielocaties_tot_2029_bvo_neutraal", "gebiedstransformatie_vier_verplaatsingsvoorwaarden"],
+        "rationale": "Art. 9.19 instructieregel: lid 1-2 carry a zone-loze restriction on nieuwvestiging of zelfstandige kantoren (carried in the tags per the FR-LB-01/8.4 zone-loos precedent — the engine refuses zone-less exclusion rules and a blanket marker on the whole AOI would overstate a lid that mostly governs plan content), while lids 3-6 open zone-gebonden uitzonderings-/verplaatsingskaders on the four designations (knooppunten mits behoefte, Reductielocaties until 2029 and with bvo-neutral relocation, Gebiedstransformatie with four conditions). The zone overlays are deterministic; every need/relocation test is market-dependent — conditional markers routed to V4, never eliminations.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "WE-06": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["gebied_detailhandel_buiten_bestaand_winkelgebied"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_WERKEN},
+        "conditions": [],
+        "extra_tags": ["conditional_within_gebied_detailhandel_buiten_bestaand_winkelgebied", "subklasse_gescoped_verbod_detailhandel_v4_per_case", "zeven_tenzij_uitzonderingen_a_g", "functiewijziging_bij_stilgevallen_lid_2"],
+        "rationale": "Art. 9.20 instructieregel, lid 1 quoted: plans within the 'Gebied detailhandel buiten bestaand winkelgebied' contain no rules providing for nieuwvestiging/uitbreiding of detailhandel nor brancheringswijziging, tenzij seven stated exceptions (a-g). RE-ADJUDICATED at the canonical run (the FR-WN-03 mirror): the verbod is SUB-CLASS-scoped — it refuses detailhandel development only, while arts. 9.16/9.18 explicitly open bedrijventerrein development on the same province-spanning areas — and the designation covers 1550.208 km2, so an area exclusion (first-run final collapsed from ~850 to 9.830 km2) would nullify those same-track inclusion openings. Carried as a conditional marker routed to V4; the registry keeps role 'exclusion' as the rule-family statement with the scope caveat in its entry note. Consolidated nullification rule (fase 5): an exclusion may not nullify a same-track inclusion opening — when the refused sub-class shares its designation with an inclusion opening of a different sub-class, the verbod is a marker.",
         "executable_ref": "engine.zone.within@poc-v1",
     },
 }

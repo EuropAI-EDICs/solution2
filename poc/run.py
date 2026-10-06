@@ -595,6 +595,58 @@ TRACKS: Dict[str, Dict[str, Any]] = {
             ),
         ],
     },
+    "werken": {
+        "shard": "corpus/evidence-werken.json",
+        "ledger": "corpus/normcards-rejected-werken.json",
+        "report_title": "Where is business development bounded by the werken instructieregels in province Utrecht?",
+        "decision_table_id": "DT-werken-utrecht-poc1",
+        "decision_table_title": "Werken rule bounds for business development "
+                                "Decision table (programming stage)",
+        "prov_namespace": "ldttoolbox:poc:werken:",
+        "headline_note": (
+            "Semantics: the opportunity zone is the inclusion composition — "
+            "Gebied uitbreiding bedrijventerrein onder voorwaarden mogelijk "
+            "(art. 9.16) and Stedelijk gebied (art. 9.18, hergebruikte fase-3-"
+            "alias) — the verordeningeigen exceptions to the art.-9.3 "
+            "verstedelijkingsverbod for business development. Art. 9.20 (Gebied "
+            "detailhandel buiten bestaand winkelgebied, 1550.208 km2 = de "
+            "provincie minus de bestaande winkelgebieden) is a conditional "
+            "marker: its verbod is SUB-CLASS-scoped (detailhandel only, not "
+            "bedrijventerreinen/kantoren) and an area exclusion would nullify "
+            "the arts.-9.16/9.18 openings (WN-03-idiom; tenzij-lijst a-g en "
+            "lid-2-voorschrift in de tags). Arts. 9.9/9.11 (kan-mits stedelijke functies in het "
+            "Landelijk gebied, hergebruikte fase-3-alias) and the art.-9.19 "
+            "kantoren framework (four zone-gebonden designations: two knooppunten "
+            "mits behoefte, Reductielocaties tot 2029/bvo-neutraal, "
+            "gebiedstransformatie) are conditional markers. Wonen-/stilte-/"
+            "recreatie-artikelen zijn buiten dit objecttype en gedekt door de "
+            "fase-3-wonen-track en de fase-5-recreatie-track (AWB-02/07/08). "
+            "Programming-stage screening artifact; per-location permission "
+            "assessment remains required."
+        ),
+        "limitations": lambda cov, abst: [
+            "Wonen/recreatie/stilte-artikelen (9.3, 9.6-9.8, 9.10, 9.12-9.15, "
+            "9.17, 9.22-9.29) are outside the business_development object type: "
+            "covered by the fase-3 wonen track and the fase-5 recreatie track "
+            "(AWB-02/07/08); the 9.7 enclaves gap and 9.21 [Gereserveerd] carry "
+            "over from fase 3 (AWN-03/06).",
+            "Art. 9.20 is a conditional marker, not an exclusion: the verbod is "
+            "SUB-CLASS-scoped (detailhandel development only) and the "
+            "designation (1550.208 km2) overlaps the arts.-9.16/9.18 openings — "
+            "an exclusion would nullify them (consolidated nullification rule, "
+            "WN-03-idiom). Whether one of the seven tenzij exceptions (a-g) "
+            "applies is a per-case V4 assessment; lid 2's functiewijziging "
+            "prescription stays a tag.",
+            "The art. 9.19 kantoren markers document where the zone-loze "
+            "lid-1-2 restriction opens up (knooppunten mits behoefte, "
+            "Reductielocaties, gebiedstransformatie); the lid-1-2 restriction "
+            "itself is zone-less and stays in the tags (8.4-precedent).",
+            (
+                f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms): "
+                "routed to the V4 human-expert checkpoint."
+            ),
+        ],
+    },
 }
 
 _LIMITATIONS = [
