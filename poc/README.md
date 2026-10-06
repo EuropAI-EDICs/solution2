@@ -1,4 +1,4 @@
-# LDT Toolbox PoC — "Where can I do what?" in province Utrecht (wind · zon · bos · water · bodem · mobiliteit · landschap · landbouw · wonen)
+# LDT Toolbox PoC — "Where can I do what?" in province Utrecht (wind · zon · bos · water · bodem · mobiliteit · landschap · landbouw · wonen · werken · recreatie)
 
 This is the working proof-of-concept of the multi-agent architecture specified in
 [`MULTI_AGENT_PLAN.md`](../MULTI_AGENT_PLAN.md) and elaborated in
@@ -8,7 +8,7 @@ technology and roadmap). Urban Strategy (Scenexus) stiltegebied noise
 screening for the Utrecht wind track — decision-support annex for
 art. 9.26 / FR-W-11 — is documented in
 [`docs/POC_URBANSTRATEGY_INTEGRATION.md`](../docs/POC_URBANSTRATEGY_INTEGRATION.md). It answers, for the province of Utrecht (NL) at the
-**programming** policy stage, the same traceable question for **nine object
+**programming** policy stage, the same traceable question for **eleven object
 types** (tracks), all on the same instrument and pipeline:
 
 > Within which zone of the province could an omgevingsplan allow **X**, and
@@ -27,6 +27,8 @@ types** (tracks), all on the same instrument and pipeline:
 | `landschap` | landscape intervention (cultuurhistorie en landschap) | where is landscape intervention bounded by the heritage/landscape rules? | `runs/20261005T070621Z-landschap` — 1425.959 km² |
 | `landbouw` | agricultural expansion (landbouw, incl. glastuinbouw en veenbodembewerking) | where is agricultural expansion bounded by the landbouw instructieregels? | `runs/20261005T094244Z-landbouw` — 2.260 km² |
 | `wonen` | housing development (wonen, werken, recreëren) | where is housing development possible under the wonen instructieregels? | `runs/20261005T100258Z-wonen` — 1142.990 km² |
+| `werken` | business development (kantoren, detailhandel, bedrijventerreinen) | where is business development bounded by the werken instructieregels? | `runs/20261006T112519Z-werken` — 1017.614 km² |
+| `recreatie` | recreation development (dagrecreatie, recreatiezones) | where is recreation development possible under the recreatie instructieregels? | `runs/20261006T114934Z-recreatie` — 186.618 km² |
 
 Grounding: the **Omgevingsverordening provincie Utrecht** (CVDR704250, geldend
 13-10-2025) and the **Omgevingsvisie 2021**, plus the province's open geo data
@@ -50,9 +52,11 @@ python3 poc/run.py --use-case mobiliteit  # roadside development (arts. 4.7/4.47
 python3 poc/run.py --use-case landschap   # landscape intervention (arts. 7.3/7.3a/7.4/7.9/7.11a/7.12)
 python3 poc/run.py --use-case landbouw   # agricultural expansion (arts. 8.1-8.7)
 python3 poc/run.py --use-case wonen      # housing development (arts. 9.3-9.29)
+python3 poc/run.py --use-case werken    # business development (arts. 9.9-9.20)
+python3 poc/run.py --use-case recreatie  # recreation development (arts. 9.22/9.23)
 python3 poc/run.py --refresh           # force live re-download of every layer
 python3 poc/run.py --bbox 130000,440000,160000,470000   # optional EPSG:28992 clip
-cd poc && python3 -m pytest tests -q                         # offline test suite (274 tests)
+cd poc && python3 -m pytest tests -q                         # offline test suite (287 tests)
 ```
 
 No API keys are used anywhere (the DSO GIO download API is key-gated and was
@@ -230,8 +234,26 @@ gate, enforced again independently by the Critic.
   km² = the landelijk-gebied extent) and likewise a marker, not an exclusion.
   Arts. 9.6/9.12/9.13 (kan-mits wonen) and 9.27/9.29 (rekening-houden
   stiltegebied, fase-1-aliases hergebruikt) are markers; werken/recreatie
-  (arts. 9.16-9.23), de [Gereserveerde] 9.21 en de bordenketen zijn onthouden
-  (fase-4-heroverweging).
+  zijn sinds fase 5 eigen tracks (onder), de [Gereserveerde] 9.21 en de
+  bordenketen zijn onthouden (heroverweging).
+- **werken** — the final zone is the **inclusion composition**: Gebied
+  uitbreiding bedrijventerrein onder voorwaarden mogelijk (art. 9.16, 703.4
+  km²) ∪ Stedelijk gebied (art. 9.18, fase-3-alias) = **1017.614 km²**. Art.
+  9.20 (Gebied detailhandel buiten bestaand winkelgebied, 1550.2 km² = de
+  provincie minus de bestaande winkelgebieden) is a **conditional** marker:
+  its verbod is sub-class-scoped (detailhandel only, not bedrijventerreinen) —
+  the first-run area exclusion nullified the 9.16/9.18 openings (final 9.830
+  km²) and was re-adjudicated (WN-03-idiom; consolidated nullification rule).
+  Arts. 9.9/9.11 (kan-mits stedelijke functies in het Landelijk gebied,
+  fase-3-alias) and the art.-9.19 kantoren framework (two knooppunten mits
+  behoefte, Reductielocaties tot 2029, gebiedstransformatie) are markers.
+- **recreatie** — the final zone is the **inclusion composition**: Gebied
+  bovenlokaal dagrecreatieterrein (art. 9.22, 81.8 km²) ∪ Recreatiezone
+  (art. 9.23, 136.3 km²) = **186.618 km²**. Both instructieregels open
+  development explicitly 'In afwijking van Artikel 9.3'; art. 9.23 lid 1
+  (bescherming bestaande voorzieningen) stays a protective tag and lid 3
+  opens even verstedelijking mits twee voorwaarden. Pure inclusion track —
+  no exclusions, no markers.
 - **landschap** — the final zone is the province boundary minus the two
   werelderfgoed designations whose instructieregels carry the
   niet-toestaan-form in lid 1b: the Hollandse Waterlinies (art. 7.3,
@@ -262,7 +284,11 @@ glastuinbouw-niet-toegestaan ∪ stabiliserings ∪ bodembewerking = final
 2.260 km² (IoU 0.999889; ≈ de kassenconcentraties); wonen → inclusion-
 compositie stedelijk ∪ kernrand ∪ uitbreiding-woningbouw = final 1142.990
 km² (IoU 0.999973; canonical runs of 2026-10-05 for
-mobiliteit/landschap/landbouw/wonen).
+mobiliteit/landschap/landbouw/wonen); werken → inclusion-compositie
+uitbreiding-bedrijventerrein ∪ stedelijk = final 1017.614 km² (IoU
+0.999959); recreatie → dagrecreatieterrein ∪ recreatiezone = final
+186.618 km² (IoU 0.999962; canonical runs of 2026-10-06 for werken/
+recreatie).
 
 ## Limitations (short list — full list in every report)
 
