@@ -60,8 +60,14 @@ python3 poc/run.py --use-case biomassa   # biomass installations (arts. 5.6/5.7)
 python3 poc/run.py --use-case energietoets  # energy test / netbelasting (arts. 5.10/5.11)
 python3 poc/run.py --refresh           # force live re-download of every layer
 python3 poc/run.py --bbox 130000,440000,160000,470000   # optional EPSG:28992 clip
-cd poc && python3 -m pytest tests -q                         # offline test suite (295 tests)
+cd poc && python3 -m pytest tests -q                         # offline test suite (303 tests)
 ```
+
+Eval-regressie (golden): `python3 -m pytest tests -m golden -q` her-uitvoert alle 13
+canonieke tracks op cache en diff't tegen de frozen goldens (`pipeline/golden.py`).
+Draai dit vóór het committen van prompt-, model- of formalizer-wijzigingen. De
+LLM-seam-comparators draaien lokaal met `pytest -m llm` (vereist `LDT_NORM_LLM_ENDPOINT`
+resp. `LDT_SCENARIO_LLM_ENDPOINT`).
 
 No API keys are used anywhere (the DSO GIO download API is key-gated and was
 verified 401 — see limitations below). Exit code is `0` only when the
