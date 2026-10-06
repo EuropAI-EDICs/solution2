@@ -37,7 +37,7 @@ def test_chapter_articles_known_counts():  # snapshot-sanity van de afleider zel
     assert len(chapter_articles("2")) > 30 and len(chapter_articles("3")) > 20
 
 
-@pytest.mark.parametrize("track_id", ["water", "bodem", "mobiliteit", "landschap", "landbouw", "wonen", "werken"])
+@pytest.mark.parametrize("track_id", ["water", "bodem", "mobiliteit", "landschap", "landbouw", "wonen", "werken", "recreatie"])
 def test_track_conformance(track_id):
     tracks = load_manifest()
     if track_id not in tracks:
