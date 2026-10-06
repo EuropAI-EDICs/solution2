@@ -16,6 +16,7 @@ from services.common.geo import (
     intersect_feature_collections,
     parse_geojson_input,
 )
+from services.process_adapter.journal import journal_process_event
 from services.process_adapter.poc_handlers import (
     POC_PROCESS_DEFINITIONS,
     execute_poc_process,
@@ -392,6 +393,24 @@ def describe_process(process_id: str) -> dict[str, Any]:
 
 
 def execute_local(process_id: str, inputs: dict[str, Any]) -> dict[str, Any]:
+    """Instrumented dispatch: elke process-executie landt als journal-event
+    (harness-unificatie M3) — ok of error, met duur in ms."""
+    import time
+
+    start = time.monotonic()
+    try:
+        result = _execute_local_inner(process_id, inputs)
+    except Exception as exc:
+        journal_process_event(process_id, "error", f"{type(exc).__name__}: {exc}")
+        raise
+    journal_process_event(
+        process_id, "ok", f"process '{process_id}' executed",
+        durationMs=int((time.monotonic() - start) * 1000),
+    )
+    return result
+
+
+def _execute_local_inner(process_id: str, inputs: dict[str, Any]) -> dict[str, Any]:
     if process_id in POC_PROCESS_DEFINITIONS:
         return execute_poc_process(process_id, inputs)
     if process_id == "fetch-features":
