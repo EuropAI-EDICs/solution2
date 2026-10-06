@@ -1,0 +1,552 @@
+{
+ "flavour": "W3C PROV-O terms (agent/entity/activity/wasGeneratedBy/wasDerivedFrom) serialised as plain JSON",
+ "namespace": "ldttoolbox:poc:biomassa:",
+ "runId": "20261006T120133Z-biomassa",
+ "requestId": "91ae7dfc-2c8b-4fcc-9136-48d6418bfd4b",
+ "generatedAt": "2026-10-06T12:01:34Z",
+ "generatedBy": "explainer#deterministic-poc1",
+ "agent": [
+  {
+   "id": "orchestrator",
+   "name": "run.py orchestrator",
+   "version": "poc-run/1.0",
+   "role": "plan -> dispatch -> verify -> synthesize (plan section 3.2 agent #1)"
+  },
+  {
+   "id": "legal-recon-agent",
+   "name": "NormAnalyst",
+   "version": "legal-recon-agent#cvdr704250-geldend-2025-10-13",
+   "role": "deterministic replay of the verified legal recon (agent #3)"
+  },
+  {
+   "id": "norm-formalizer",
+   "name": "NormFormalizer",
+   "version": "norm-formalizer#deterministic-templates-v1",
+   "role": "deterministic templates (agent #4)"
+  },
+  {
+   "id": "geo-connector",
+   "name": "GeoData connector",
+   "version": "ldttoolbox-geoconnector/0.1",
+   "role": "ArcGIS REST fetch, cache-first (agent #5 tool)"
+  },
+  {
+   "id": "zone-engine",
+   "name": "FormalRule zone engine",
+   "version": "poc-zone-engine/0.1",
+   "role": "deterministic execution + validation repair provenance (agent #5)"
+  },
+  {
+   "id": "cartographer",
+   "name": "Cartographer",
+   "version": "poc-cartographer/0.1",
+   "role": "GeoJSON/GML serialization (agent #6)"
+  },
+  {
+   "id": "critic-validator",
+   "name": "Critic/Validator",
+   "version": "critic-validator#deterministic-v0-v3-poc1",
+   "role": "V0-V3 deterministic checks, V4 pending (agent #7)"
+  },
+  {
+   "id": "explainer",
+   "name": "Explainer",
+   "version": "explainer#deterministic-poc1",
+   "role": "decision table + PROV (agent #8)"
+  },
+  {
+   "id": "report",
+   "name": "HTML report renderer",
+   "version": "poc-report/1.0",
+   "role": "single-file report (agent #6 view tier)"
+  }
+ ],
+ "entity": [
+  {
+   "id": "request.json",
+   "type": "OpportunityMapRequest",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/request.json",
+   "sha256": "95be5fcc30f8f89ea4b51a779e2a5dccaf9c9fb0c3ebbd12c48283dbbeb35651"
+  },
+  {
+   "id": "evidence-biomassa.json",
+   "type": "evidence shard",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/corpus/evidence-biomassa.json",
+   "sha256": "131d0d987ee399a65b29612f608f61dc85c39ebfc9c4d5320a742df696a8e0b5"
+  },
+  {
+   "id": "sources.json",
+   "type": "document source registry",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/corpus/sources.json",
+   "sha256": "ad8e3e722fcec62ee0dc624dc927c83c90df8f3e890472bad9d797103dc645af"
+  },
+  {
+   "id": "sources.json",
+   "type": "geo source registry",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/data/sources.json",
+   "sha256": "c738e79e5d6f40fbca8c3b700df1ad9ae4e2b5eab9cf94725801df141b3399a3"
+  },
+  {
+   "id": "normcards.json",
+   "type": "NormCard[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/normcards.json",
+   "sha256": "d7e32fff7840dfd4d5c09967d510a0b9a3f46b44fcb34bc788f719306ebf320d"
+  },
+  {
+   "id": "normcards-rejected.json",
+   "type": "cite-or-abstain ledger",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/normcards-rejected.json",
+   "sha256": "891d78c6e9e7bc638cbc469fd0e598e1cb20e039acdf1eeef32ee5ba5e0f42b1"
+  },
+  {
+   "id": "formalrules.json",
+   "type": "FormalRule[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/formalrules.json",
+   "sha256": "db19728c8e21e05d8634970ff85f42133f7756833957f4fd29c537c150e003b2"
+  },
+  {
+   "id": "layers.json",
+   "type": "layer manifest",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/layers.json",
+   "sha256": "2ae0c2d726f1fe2d68f13a648d64c218719d0d2b7c62ec9dbdc3d5aa9f55cd0f"
+  },
+  {
+   "id": "zones.json",
+   "type": "ZoneResult[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/zones.json",
+   "sha256": "5ba9a8ed521bc51499a7428446fad611bb623f3958999a6b06d321883fb456b5"
+  },
+  {
+   "id": "rule-stats.json",
+   "type": "per-rule footprint stats",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/rule-stats.json",
+   "sha256": "0555cedb0c5aa61bbf6f63968924bd63fdbaf773c686f02f63058b75f0d2a04d"
+  },
+  {
+   "id": "zones.geojson",
+   "type": "zones GeoJSON (RFC 7946)",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/zones.geojson",
+   "sha256": "72af9f56f8dd21e6d6ec72988c54cafe1b88b8f3b0a880c2048d3076d0e2bb51"
+  },
+  {
+   "id": "report_input.json",
+   "type": "cartographer report input",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/report_input.json",
+   "sha256": "dbdd3c1e878fb89275dfa591bb011e92956e6d71b7e6a16febdf1c95ecff1550"
+  },
+  {
+   "id": "decision-table.json",
+   "type": "DecisionTable",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/decision-table.json",
+   "sha256": "87e41b19dbefc9b7f9934135563c87abe10e8b0f04b878e6def042e2ffdd41c0"
+  },
+  {
+   "id": "decision-table.md",
+   "type": "DecisionTable (markdown)",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/decision-table.md",
+   "sha256": "b15680f6b32bf701a0b8870f11c4eaa52cc1c33f6a9873303a90aa0373e0d61d"
+  },
+  {
+   "id": "validation.json",
+   "type": "ValidationReport[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/validation.json",
+   "sha256": "226a30426726d616952a67f151f35f28ada0e49bf8c193c00442a8023cbf31df"
+  },
+  {
+   "id": "zones.gml",
+   "type": "zones GML 3.2",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/zones.gml",
+   "sha256": "9e0fce185db807deb3b38dc293d232c521e99a23b1d74f9de8c021f40979fb57"
+  },
+  {
+   "id": "agrest-ov-gebied-energie-biomassa-landelijk.28992.geojson",
+   "type": "layer cache (EPSG:28992)",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/data/cache/agrest-ov-gebied-energie-biomassa-landelijk.28992.geojson",
+   "sha256": "272476ba1c62600ffe40b49d3a059706678f32cf3d0515a01e668ed3be8fcfe1",
+   "zone": "gebied_energie_biomassa_landelijk",
+   "sourceId": "agrest-ov-gebied-energie-biomassa-landelijk"
+  },
+  {
+   "id": "agrest-ov-gebied-energie-biomassa-stedelijk.28992.geojson",
+   "type": "layer cache (EPSG:28992)",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/data/cache/agrest-ov-gebied-energie-biomassa-stedelijk.28992.geojson",
+   "sha256": "d8a912eaf8a2e1e0222fd32c6e8c8ec35eaea6663b45c8befcc0a924c34427ae",
+   "zone": "gebied_energie_biomassa_stedelijk",
+   "sourceId": "agrest-ov-gebied-energie-biomassa-stedelijk"
+  },
+  {
+   "id": "use-cases/biomassa.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "corpus/evidence-biomassa.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "corpus/sources.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "data/sources.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "validation/opportunity-map-request.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/validation/opportunity-map-request.json",
+   "sha256": "4d767f37791de2252ea3722c5b1bb71275efc9895fe3ca09ff46f2e3d03636d0"
+  },
+  {
+   "id": "validation/norm-card-set.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/validation/norm-card-set.json",
+   "sha256": "81985f193d90fe4cae8762aa0092a4c3e3f4c25115edcf7e1a91dec6fcbca510"
+  },
+  {
+   "id": "validation/formal-rule-set.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/validation/formal-rule-set.json",
+   "sha256": "2b9e2c8ee1a21637ffa754797b96202ef9dc8e24765e3099fd9b2fa20c5f68a5"
+  },
+  {
+   "id": "validation/zone-result-set.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/validation/zone-result-set.json",
+   "sha256": "93db425f7d67496f0f5deedc4ada79fdf4c28c60d2381072c79bfdd7aef651e2"
+  },
+  {
+   "id": "validation/decision-table.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/validation/decision-table.json",
+   "sha256": "3ae08300f00e4669c33e1da9865483f9fd84abec1c17f2bce55516010039a818"
+  },
+  {
+   "id": "validation/pipeline-run.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/validation/pipeline-run.json",
+   "sha256": "453ae686c3071ca5904925842eb3103f81440e6c60a049fbc885358fcbf2d1f1"
+  },
+  {
+   "id": "zones.xsd",
+   "type": "zones GML 3.2 XML schema",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/zones.xsd",
+   "sha256": "e7bdbf18913890795b151d1cf49bb7e8bcf3543876b20bd899b7c1cfc10f7f63"
+  },
+  {
+   "id": "report.html",
+   "type": "single-file HTML report",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/report.html",
+   "sha256": "7589bca8db54a2f746b9bd2992060bf421825d1760fad6b28f89d60870cc6876"
+  },
+  {
+   "id": "prov.json",
+   "type": "PROV bundle (this file)",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/prov.json",
+   "note": "self-referential; integrity via run_summary.json artifact hashes"
+  },
+  {
+   "id": "run_summary.json",
+   "type": "run summary (headline, tunings, artifact hashes)",
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/run_summary.json",
+   "note": "written after prov.json; its sha256 lives in its own artifacts list"
+  }
+ ],
+ "activity": [
+  {
+   "id": "intake",
+   "label": "Intake: load + validate OpportunityMapRequest",
+   "type": "intake",
+   "agent": "run.py-orchestrator",
+   "startedAt": "2026-10-06T12:01:33Z",
+   "endedAt": "2026-10-06T12:01:33Z",
+   "durationS": 0.061,
+   "used": [
+    "use-cases/biomassa.json"
+   ],
+   "generated": [
+    "request.json"
+   ]
+  },
+  {
+   "id": "norm-analyst",
+   "label": "Norm Analyst: harvest NormCards (deterministic replay)",
+   "type": "norm-analyst",
+   "agent": "legal-recon-agent",
+   "startedAt": "2026-10-06T12:01:33Z",
+   "endedAt": "2026-10-06T12:01:33Z",
+   "durationS": 0.008,
+   "used": [
+    "corpus/evidence-biomassa.json",
+    "corpus/sources.json"
+   ],
+   "generated": [
+    "normcards.json",
+    "normcards-rejected.json"
+   ]
+  },
+  {
+   "id": "norm-formalizer",
+   "label": "Norm Formalizer: NormCards -> FormalRules (deterministic templates)",
+   "type": "norm-formalizer",
+   "agent": "norm-formalizer",
+   "startedAt": "2026-10-06T12:01:33Z",
+   "endedAt": "2026-10-06T12:01:33Z",
+   "durationS": 0.008,
+   "used": [
+    "normcards.json"
+   ],
+   "generated": [
+    "formalrules.json"
+   ]
+  },
+  {
+   "id": "geo-analyst-fetch",
+   "label": "Geo Analyst: fetch zone layers (cache-first ArcGIS REST)",
+   "type": "geo-analyst-fetch",
+   "agent": "ldttoolbox-geoconnector/0.1",
+   "startedAt": "2026-10-06T12:01:33Z",
+   "endedAt": "2026-10-06T12:01:33Z",
+   "durationS": 0.056,
+   "used": [
+    "data/sources.json"
+   ],
+   "generated": [
+    "layers.json"
+   ]
+  },
+  {
+   "id": "zone-engine",
+   "label": "Geo Analyst: deterministic FormalRule execution (shapely path)",
+   "type": "zone-engine",
+   "agent": "zone-engine",
+   "startedAt": "2026-10-06T12:01:33Z",
+   "endedAt": "2026-10-06T12:01:33Z",
+   "durationS": 0.445,
+   "used": [
+    "formalrules.json",
+    "layers.json"
+   ],
+   "generated": [
+    "zones.json"
+   ]
+  },
+  {
+   "id": "cartographer",
+   "label": "Cartographer: zones.geojson + GML + report input",
+   "type": "cartographer",
+   "agent": "poc-cartographer/0.1",
+   "startedAt": "2026-10-06T12:01:33Z",
+   "endedAt": "2026-10-06T12:01:34Z",
+   "durationS": 0.368,
+   "used": [
+    "zones.json"
+   ],
+   "generated": [
+    "zones.geojson",
+    "zones.gml"
+   ]
+  },
+  {
+   "id": "critic",
+   "label": "Critic/Validator: V0-V3 deterministic + V4 pending",
+   "type": "critic",
+   "agent": "critic-validator",
+   "startedAt": "2026-10-06T12:01:34Z",
+   "endedAt": "2026-10-06T12:01:34Z",
+   "durationS": 0.466,
+   "used": [
+    "request.json",
+    "normcards.json",
+    "formalrules.json",
+    "zones.json",
+    "decision-table.json"
+   ],
+   "generated": [
+    "validation.json"
+   ]
+  },
+  {
+   "id": "explainer",
+   "label": "Explainer: decision table + PROV bundle",
+   "type": "explainer",
+   "agent": "explainer",
+   "startedAt": "2026-10-06T12:01:34Z",
+   "endedAt": "2026-10-06T12:01:34Z",
+   "durationS": 0.085,
+   "used": [
+    "normcards.json",
+    "formalrules.json",
+    "zones.json"
+   ],
+   "generated": [
+    "decision-table.json",
+    "decision-table.md",
+    "prov.json"
+   ]
+  },
+  {
+   "id": "report",
+   "label": "Report: single-file HTML with Leaflet map + tables",
+   "type": "report",
+   "agent": "poc-report/1.0",
+   "startedAt": "2026-10-06T12:01:34Z",
+   "endedAt": "2026-10-06T12:01:35Z",
+   "durationS": 0.166,
+   "used": [
+    "zones.geojson",
+    "decision-table.json",
+    "validation.json",
+    "normcards.json",
+    "prov.json"
+   ],
+   "generated": [
+    "report.html"
+   ]
+  }
+ ],
+ "wasGeneratedBy": [
+  {
+   "entity": "request.json",
+   "activity": "intake",
+   "time": "2026-10-06T12:01:33Z"
+  },
+  {
+   "entity": "normcards.json",
+   "activity": "norm-analyst",
+   "time": "2026-10-06T12:01:33Z"
+  },
+  {
+   "entity": "normcards-rejected.json",
+   "activity": "norm-analyst",
+   "time": "2026-10-06T12:01:33Z"
+  },
+  {
+   "entity": "formalrules.json",
+   "activity": "norm-formalizer",
+   "time": "2026-10-06T12:01:33Z"
+  },
+  {
+   "entity": "layers.json",
+   "activity": "geo-analyst-fetch",
+   "time": "2026-10-06T12:01:33Z"
+  },
+  {
+   "entity": "zones.json",
+   "activity": "zone-engine",
+   "time": "2026-10-06T12:01:33Z"
+  },
+  {
+   "entity": "zones.geojson",
+   "activity": "cartographer",
+   "time": "2026-10-06T12:01:34Z"
+  },
+  {
+   "entity": "zones.gml",
+   "activity": "cartographer",
+   "time": "2026-10-06T12:01:34Z"
+  },
+  {
+   "entity": "validation.json",
+   "activity": "critic",
+   "time": "2026-10-06T12:01:34Z"
+  },
+  {
+   "entity": "validation/opportunity-map-request.json",
+   "activity": "critic",
+   "time": "2026-10-06T12:01:35Z"
+  },
+  {
+   "entity": "validation/norm-card-set.json",
+   "activity": "critic",
+   "time": "2026-10-06T12:01:35Z"
+  },
+  {
+   "entity": "validation/formal-rule-set.json",
+   "activity": "critic",
+   "time": "2026-10-06T12:01:35Z"
+  },
+  {
+   "entity": "validation/zone-result-set.json",
+   "activity": "critic",
+   "time": "2026-10-06T12:01:35Z"
+  },
+  {
+   "entity": "validation/decision-table.json",
+   "activity": "critic",
+   "time": "2026-10-06T12:01:35Z"
+  },
+  {
+   "entity": "validation/pipeline-run.json",
+   "activity": "critic",
+   "time": "2026-10-06T12:01:35Z"
+  },
+  {
+   "entity": "zones.xsd",
+   "activity": "cartographer",
+   "time": "2026-10-06T12:01:35Z"
+  },
+  {
+   "entity": "report.html",
+   "activity": "report",
+   "time": "2026-10-06T12:01:35Z"
+  },
+  {
+   "entity": "prov.json",
+   "activity": "explainer",
+   "time": "2026-10-06T12:01:35Z"
+  }
+ ],
+ "wasDerivedFrom": [
+  {
+   "generatedEntity": "formalrules.json",
+   "usedEntity": "normcards.json",
+   "note": "NormFormalizer deterministic templates"
+  },
+  {
+   "generatedEntity": "normcards.json",
+   "usedEntity": "evidence-biomassa.json",
+   "note": "NormAnalyst replay (cite-or-abstain)"
+  },
+  {
+   "generatedEntity": "zones.json",
+   "usedEntity": "formalrules.json",
+   "note": "engine executed FormalRules over fetched layers"
+  },
+  {
+   "generatedEntity": "decision-table.json",
+   "usedEntity": "normcards.json",
+   "note": "every row links a normCardId"
+  },
+  {
+   "generatedEntity": "validation.json",
+   "usedEntity": "zones.json",
+   "note": "V0-V3 over the artifact tree"
+  }
+ ],
+ "hadPrimarySource": [
+  {
+   "zone": "gebied_energie_biomassa_landelijk",
+   "sourceId": "agrest-ov-gebied-energie-biomassa-landelijk",
+   "service": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0",
+   "lastChecked": "2026-10-06T11:52:23Z",
+   "fetchedAt": "2026-10-06T11:52:24Z",
+   "features": 4,
+   "aliasFor": "provincial_gio_unverified",
+   "authoritative": true
+  },
+  {
+   "zone": "gebied_energie_biomassa_stedelijk",
+   "sourceId": "agrest-ov-gebied-energie-biomassa-stedelijk",
+   "service": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0",
+   "lastChecked": "2026-10-06T11:52:23Z",
+   "fetchedAt": "2026-10-06T11:52:27Z",
+   "features": 112,
+   "aliasFor": "provincial_gio_unverified",
+   "authoritative": true
+  }
+ ]
+}

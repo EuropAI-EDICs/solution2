@@ -139,6 +139,16 @@ CAVEAT_GIO_WONEN = (
     "Landelijk gebied / Stiltegebied / Aandachtsgebied stiltegebied hergebruikt uit "
     "de fase-1-wind-track (zelfde service+laag)"
 )
+#: biomassa-track zones: werkingsgebieden of the verordening whose GIO join-id
+#: is NOT carried by the cited article text (arts. 5.6/5.7 quote no join-id),
+#: so no gioJoinId may be claimed; geometry is served by the agrest IMOW
+#: open-data alias (see run.py::ZONE_SOURCES and layers.json aliasNote).
+CAVEAT_GIO_BIOMASSA = (
+    "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet "
+    "overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten "
+    "Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; "
+    "geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+)
 
 # ---------------------------------------------------------------------------
 # Deterministic engine operations referenced by FormalRule.executableRef.
@@ -867,6 +877,29 @@ EVIDENCE_ENRICHMENT: Dict[str, Dict[str, Any]] = {
             "zoneIds": ["aandachtsgebied_stiltegebied"],
             "geometrySource": "provincial_gio_unverified",
             "caveat": CAVEAT_GIO_WONEN,
+        },
+    },
+    # -- BIOMASSA track (biomass installation; shard evidence-biomassa.json) ---
+    "BM-01": {
+        "objectType": "biomass_installation",
+        "claim": "An omgevingsplan for locations within the 'Gebied energie uit biomassa landelijk gebied' may contain rules allowing developments for energy from biomass, provided the stated conditions are met (kleinschalige biomassa-installaties in aansluiting on existing bebouwde agrarische bouwpercelen or legale (half)verhardingen on landgoederen in scale with the built environment unless a better landscape fit is available nearby; no disproportionate harm to surrounding functions; good landscape integration) (art. 5.6): a kan-mits permissive instructieregel — the designation is the provincial development frame, carried as a conditional marker with the mits conditions as tags (no invented numeric thresholds; lid-2 >500 kW conditions are outside the quoted first lid).",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_5_6", "conditional_gebied_energie_biomassa_landelijk", "kan_mits_energie_uit_biomassa", "aansluiting_agrarische_bouwpercelen_of_landgoedverhardingen", "geen_onevenredige_aantasting_omringende_functies", "goede_landschappelijke_inpassing"],
+        "geoBinding": {
+            "zoneIds": ["gebied_energie_biomassa_landelijk"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_BIOMASSA,
+        },
+    },
+    "BM-02": {
+        "objectType": "biomass_installation",
+        "claim": "An omgevingsplan for locations within the 'Gebied energie uit biomassa stedelijk gebied' contains no rules allowing developments for energy from biomass, unless four cumulative conditions are met (no reasonable alternative renewable sources; biomass not usable for higher-value applications; certified biomass; substantially lower CO2 emission than conventional fossil fuels) (art. 5.7): a non-permission instructieregel with a fourfold tenzij — carried as a conditional marker on the stedelijk biomassa designation (never a hard AOI-wide exclusion that would erase the planning question; the tenzij tests are plan-content assessments routed to V4).",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_5_7", "conditional_gebied_energie_biomassa_stedelijk", "geen_toestaan_tenzij_vier_voorwaarden", "geen_redelijk_alternatief_hernieuwbaar", "geen_hoogwaardiger_toepassing", "biomassa_gecertificeerd", "aanmerkelijk_lagere_co2_emissie_dan_fossiel"],
+        "geoBinding": {
+            "zoneIds": ["gebied_energie_biomassa_stedelijk"],
+            "geometrySource": "provincial_gio_unverified",
+            "caveat": CAVEAT_GIO_BIOMASSA,
         },
     },
 }
@@ -1747,6 +1780,32 @@ TEMPLATE_SPECS: Dict[str, Dict[str, Any]] = {
         "conditions": [],
         "extra_tags": ["conditional_within_aandachtsgebied_stiltegebied", "rekening_houden_geluiddoelstellingen_art_9_26", "zone_1500_meter_art_9_25_lid_2", "alias_hergebruikt_wind_track"],
         "rationale": "Art. 9.29 instructieregel, the same take-into-account family on the 'Aandachtsgebied stiltegebied' (the art.-9.25-lid-2 1500 m zone; alias reused from the wind track's FR-W-10 attention zone). A conditional marker routed to V4, never an elimination.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    # -- BIOMASSA track ------------------------------------------------------------
+    # NOTE on the biomassa rules: art. 5.6 is the kan-mits permissive family on
+    # the landelijk biomassa GIO (LB-02/MO-01 idiom) — a conditional marker, not
+    # an inclusion-only opportunity (the mits conditions are plan-content). Art.
+    # 5.7 is the non-permission family with a fourfold tenzij on the stedelijk
+    # biomassa GIO — also a conditional marker: executing it as a hard exclusion
+    # would erase the planning question inside that designation (FR-MO-05 /
+    # FR-WN-01 qualification), and the tenzij tests are open plan-content norms
+    # routed to V4. Neither rule invents numeric thresholds outside the quote.
+    # All-marker composition: final zone equals the AOI (mobiliteit precedent).
+    "BM-01": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["gebied_energie_biomassa_landelijk"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_BIOMASSA},
+        "conditions": [],
+        "extra_tags": ["conditional_within_gebied_energie_biomassa_landelijk", "kan_mits_energie_uit_biomassa", "aansluiting_agrarische_bouwpercelen_of_landgoedverhardingen", "geen_onevenredige_aantasting_omringende_functies", "goede_landschappelijke_inpassing"],
+        "rationale": "CORE BIOMASSA RULE (art. 5.6). Instructieregel directing omgevingsplannen for locations within the 'Gebied energie uit biomassa landelijk gebied' that they may contain rules allowing developments for energy from biomass, provided the quoted first-lid conditions are met (kleinschalige biomassa-installaties in aansluiting on existing bebouwde agrarische bouwpercelen or legale (half)verhardingen on landgoederen in scale with the built environment unless a better landscape fit nearby; no disproportionate harm to surrounding functions; good landscape integration). The zone overlay is deterministic; the mits conditions are plan-quality assessments routed to V4 — a conditional marker (kan-mits family, FR-LB-02/FR-MO-01 idiom), never an elimination. No numeric thresholds are invented beyond the quote (lid-2 >500 kW conditions sit outside the cited first lid).",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "BM-02": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["gebied_energie_biomassa_stedelijk"], "selection": "within", "geometrySource": "provincial_gio_unverified", "caveat": CAVEAT_GIO_BIOMASSA},
+        "conditions": [],
+        "extra_tags": ["conditional_within_gebied_energie_biomassa_stedelijk", "geen_toestaan_tenzij_vier_voorwaarden", "geen_redelijk_alternatief_hernieuwbaar", "geen_hoogwaardiger_toepassing", "biomassa_gecertificeerd", "aanmerkelijk_lagere_co2_emissie_dan_fossiel"],
+        "rationale": "Art. 5.7 instructieregel, non-permission family with fourfold tenzij: plans within the 'Gebied energie uit biomassa stedelijk gebied' contain no rules allowing developments for energy from biomass unless (a) no reasonable alternative renewable sources, (b) biomass not usable for higher-value applications, (c) certified biomass, and (d) substantially lower CO2 emission than conventional fossil fuels. Executing the verbod as a hard zone exclusion would erase the planning question inside the designation (the tenzij keeps the GIO as a conditional development frame, mirroring FR-MO-05/FR-WN-01 qualification adjudications) — carried as a conditional marker with the four tenzij conditions in the tags, routed to V4; never an AOI-wide elimination.",
         "executable_ref": "engine.zone.within@poc-v1",
     },
 }

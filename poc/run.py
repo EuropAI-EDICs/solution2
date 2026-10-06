@@ -579,6 +579,55 @@ TRACKS: Dict[str, Dict[str, Any]] = {
             ),
         ],
     },
+    "biomassa": {
+        "shard": "corpus/evidence-biomassa.json",
+        "ledger": "corpus/normcards-rejected-biomassa.json",
+        "report_title": "Where is biomass-energy development bounded by the biomassa instructieregels in province Utrecht?",
+        "decision_table_id": "DT-biomassa-utrecht-poc1",
+        "decision_table_title": "Biomassa rule bounds for biomass installation "
+                                "Decision table (programming stage)",
+        "prov_namespace": "ldttoolbox:poc:biomassa:",
+        "headline_note": (
+            "Semantics: both H5 biomassa instructieregels are conditional markers "
+            "— art. 5.6 (Gebied energie uit biomassa landelijk gebied) is the "
+            "kan-mits permissive family (development frame with plan-content "
+            "mits: aansluiting agrarische bouwpercelen/landgoedverhardingen, "
+            "geen onevenredige aantasting omringende functies, goede "
+            "landschappelijke inpassing; no invented numeric thresholds) and "
+            "art. 5.7 (Gebied energie uit biomassa stedelijk gebied) is the "
+            "non-permission family with a fourfold tenzij (geen redelijk "
+            "alternatief hernieuwbaar, geen hoogwaardiger toepassing, "
+            "certificering, aanmerkelijk lagere CO2-emissie dan fossiel). "
+            "Art. 5.7 is deliberately NOT a hard exclusion: executing it as "
+            "an AOI-wide elimination of the stedelijk biomassa GIO would erase "
+            "the planning question inside that designation (FR-MO-05/"
+            "FR-WN-01-mirror). Neither rule unconditionally refuses biomass "
+            "installation area outside its own GIO overlay, so the opportunity "
+            "zone equals the province AOI with two marker overlays (mobiliteit "
+            "all-marker precedent). Wind/zon (5.1–5.5) and transformator/"
+            "energietoets (5.8–5.11) remain outside this track. Programming-"
+            "stage screening artifact; per-location permission assessment "
+            "remains required."
+        ),
+        "limitations": lambda cov, abst: [
+            "Wind/zon arts. 5.1–5.5 remain owned by the wind/zon tracks "
+            "(ABM-01/ABM-02); transformatorstation/energietoets arts. 5.8–5.11 "
+            "are deferred to the energietoets track (ABM-03) — no double "
+            "formalization under cite-or-abstain.",
+            "Art. 5.6's kan-mits conditions and art. 5.7's fourfold tenzij are "
+            "plan-content assessments routed to the V4 human-expert checkpoint; "
+            "neither marker invents numeric thresholds outside the quoted "
+            "first-lid text (lid-2 >500 kW conditions of 5.6 sit outside the "
+            "cited quote).",
+            "Art. 5.7 is a conditional marker, not a hard exclusion of the "
+            "stedelijk biomassa GIO: an exclusion would erase the tenzij-"
+            "qualified planning question inside that designation.",
+            (
+                f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms): "
+                "routed to the V4 human-expert checkpoint."
+            ),
+        ],
+    },
 }
 
 _LIMITATIONS = [

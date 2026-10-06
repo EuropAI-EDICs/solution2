@@ -1,0 +1,110 @@
+{
+ "title": "Where is biomass-energy development bounded by the biomassa instructieregels in province Utrecht?",
+ "generatedAt": "2026-10-06T12:01:34Z",
+ "generatedBy": "poc-cartographer/0.1",
+ "crs": "EPSG:4326 (computation in EPSG:28992, areas in km²)",
+ "stats": {
+  "zoneCount": 3,
+  "finalAreaKm2": 1560.053846303,
+  "finalRuleIds": [
+   "FR-BM-01",
+   "FR-BM-02"
+  ],
+  "geometryRepairsRecorded": 0
+ },
+ "layers": [
+  {
+   "id": "gebied_energie_biomassa_landelijk",
+   "title": "gebied_energie_biomassa_landelijk",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-06T11:52:23Z"
+  },
+  {
+   "id": "gebied_energie_biomassa_stedelijk",
+   "title": "gebied_energie_biomassa_stedelijk",
+   "serviceUrl": "https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer",
+   "layerId": 0,
+   "lastChecked": "2026-10-06T11:52:23Z"
+  },
+  {
+   "id": "provincial_gio_unverified",
+   "title": "provincial_gio_unverified"
+  }
+ ],
+ "zones": [
+  {
+   "id": "zr-conditional_mark-7af0e908ba",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-BM-01"
+   ],
+   "areaKm2": 1245.811141603,
+   "layers": [
+    "gebied_energie_biomassa_landelijk",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=aoi_seed; area_m2=1560053846.303311; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-BM-01; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gebied_energie_biomassa_landelijk; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_energie_biomassa_landelijk(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-06T11:52:23Z; simplifiedM=2.0); features=4; make_valid_repairs=0; area_m2=1245811141.602646; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=3; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-conditional_mark-7bba2775c5",
+   "operation": "conditional_mark",
+   "ruleIds": [
+    "FR-BM-02"
+   ],
+   "areaKm2": 314.24169552,
+   "layers": [
+    "gebied_energie_biomassa_stedelijk",
+    "provincial_gio_unverified"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-BM-02; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gebied_energie_biomassa_stedelijk; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_energie_biomassa_stedelijk(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-06T11:52:23Z; simplifiedM=2.0); features=112; make_valid_repairs=0; area_m2=314241695.520279; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=5; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-final-63d257c43f",
+   "operation": "final",
+   "ruleIds": [
+    "FR-BM-01",
+    "FR-BM-02"
+   ],
+   "areaKm2": 1560.053846303,
+   "layers": [],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=aoi_seed; area_m2=1560053846.303311; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-BM-01; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gebied_energie_biomassa_landelijk; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_energie_biomassa_landelijk(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-06T11:52:23Z; simplifiedM=2.0); features=4; make_valid_repairs=0; area_m2=1245811141.602646; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-BM-02; semantics=conditional; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=gebied_energie_biomassa_stedelijk; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.1.2",
+    "op=union; layer=gebied_energie_biomassa_stedelijk(https://agrest.geodata-utrecht.nl/rest/services/Omgevingsverordening/FeatureServer/0; lastChecked=2026-10-06T11:52:23Z; simplifiedM=2.0); features=112; make_valid_repairs=0; area_m2=314241695.520279; engine=poc-zone-engine/0.1"
+   ]
+  }
+ ],
+ "outputs": {
+  "geojson": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/zones.geojson",
+  "gml": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/zones.gml",
+  "gmlStatus": {
+   "ok": true,
+   "path": "/Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/zones.gml",
+   "tool": "/opt/homebrew/bin/ogr2ogr",
+   "error": null,
+   "command": "/opt/homebrew/bin/ogr2ogr -f GML /Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/zones.gml /Users/marc/Projecten/ldttoolbox-vf4/poc/runs/20261006T120133Z-biomassa/zones.geojson"
+  }
+ },
+ "notes": [
+  "cite-or-abstain: every exclusion/inclusion references a registry layer with lastChecked provenance; see per-zone provSteps.",
+  "Areas computed in EPSG:28992 (RD New, metre); geometries validity-checked with make_valid repairs recorded in provenance."
+ ]
+}
