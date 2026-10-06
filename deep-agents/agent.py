@@ -3,10 +3,15 @@
 A main orchestrator delegates to per-POC specialist subagents (breda,
 rijnland, utrecht, crosstrack, minigim, eindhoven) via the task tool.
 Run with a request, or without arguments for a demo question.
+
+Harness-unificatie (M1): alle nldt-capabiliteit komt uit de nldt-MCP-servers
+(mcp_client.load_mcp_tools); lokaal blijven alleen de chain-mode
+artefactgates (submit_*) en laya-advies.
 """
 
 from __future__ import annotations
 
+import asyncio
 import sys
 from pathlib import Path
 
@@ -22,9 +27,10 @@ from models import (  # noqa: E402
     orchestrator_model_name,
     subagent_model_name,
 )
+from mcp_client import load_mcp_tools  # noqa: E402
 from pocs import poc_subagents  # noqa: E402
+from tools.artifacts import submit_formal_rule, submit_norm_cards, submit_request  # noqa: E402
 from tools.laya import laya_advise_request  # noqa: E402
-from tools.recipes import get_recipe, list_recipes  # noqa: E402
 from laya_router import augment_user_message, laya_enabled  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
@@ -36,23 +42,36 @@ DEFAULT_QUESTION = (
 
 SYSTEM_PROMPT = (HERE / "prompts" / "recipe_driver.md").read_text(encoding="utf-8")
 
+# Lokaal blijven alleen de chain-mode artefactgates + laya-advies; ALLE
+# nldt-capabiliteit komt uit MCP (M1).
+LOCAL_TOOLS = [laya_advise_request, submit_request, submit_norm_cards, submit_formal_rule]
 
-def build_agent():
-    tools = [list_recipes, get_recipe]
-    if laya_enabled():
-        tools.append(laya_advise_request)
+
+def _tool_name(t) -> str:
+    return getattr(t, "name", getattr(t, "__name__", ""))
+
+
+def build_agent(tools: list):
+    if not laya_enabled():
+        tools = [t for t in tools if _tool_name(t) != "laya_advise_request"]
     return create_deep_agent(
         model=ollama_model(orchestrator_model_name()),
         tools=tools,
         system_prompt=SYSTEM_PROMPT,
-        subagents=poc_subagents(),
+        subagents=poc_subagents(mcp_tools=tools),
     )
+
+
+async def build_agent_with_mcp():
+    mcp_tools = await load_mcp_tools()
+    return build_agent(list(mcp_tools) + LOCAL_TOOLS)
 
 
 def main() -> None:
     check_ollama([orchestrator_model_name(), subagent_model_name()])
     question = augment_user_message(" ".join(sys.argv[1:]) or DEFAULT_QUESTION)
-    result = build_agent().invoke(
+    agent = asyncio.run(build_agent_with_mcp())
+    result = agent.invoke(
         {"messages": [{"role": "user", "content": question}]},
         config={"configurable": {"thread_id": "nldt-recipes"}},
     )

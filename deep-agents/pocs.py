@@ -136,11 +136,39 @@ ROLE_AGENTS: list[dict[str, Any]] = [
 ]
 
 
-def poc_subagents() -> list[dict[str, Any]]:
-    """Build the declarative subagent specs (one per POC) on the subagent model."""
+def _mcp(mcp_tools: list | None, names: list[str]) -> list:
+    """Selecteer tools op naam uit de geladen MCP-tools (harness-unificatie M1)."""
+    by_name = {getattr(t, "name", ""): t for t in (mcp_tools or [])}
+    return [by_name[n] for n in names if n in by_name]
+
+
+# MCP-namen: catalog-replacement voor alle PoC-agenten + utrecht run/read-operaties
+POC_CATALOG_MCP = ["search_records", "get_record"]
+UTRECHT_OPS_MCP = [
+    "run_opportunity_map",
+    "propose_scenarios",
+    "run_scenario_sweep",
+    "build_world_scene",
+    "inspect_geo_layer",
+    "get_provenance",
+    "crosscheck_formal_rule",
+    "describe_process",
+    "execute_process",
+]
+
+
+def poc_subagents(mcp_tools: list | None = None) -> list[dict[str, Any]]:
+    """Build the declarative subagent specs (one per POC) on the subagent model.
+
+    Met mcp_tools (M1) komen nldt-capabiliteiten uit de nldt-MCP-servers;
+    zonder blijven de lokale wrapper-tools actief als expliciete fallback
+    (M2-cleanup verwijdert die wrappers).
+    """
     submodel = ollama_model(subagent_model_name())
+    mcp_catalog = _mcp(mcp_tools, POC_CATALOG_MCP)
+    mcp_utrecht = _mcp(mcp_tools, UTRECHT_OPS_MCP)
     extra_tools = {
-        "utrecht": [run_world_scene, render_world_scene_demo],
+        "utrecht": [run_world_scene, render_world_scene_demo] + mcp_utrecht,
     }
 
     def spec_to_subagent(spec: dict[str, Any], prompt_dir: Path, base_tools: list) -> dict[str, Any]:
@@ -152,7 +180,8 @@ def poc_subagents() -> list[dict[str, Any]]:
             "model": submodel,
         }
 
-    poc_specs = [spec_to_subagent(spec, PROMPTS_DIR, [list_recipes, get_recipe]) for spec in POC_AGENTS]
+    poc_base = mcp_catalog or [list_recipes, get_recipe]
+    poc_specs = [spec_to_subagent(spec, PROMPTS_DIR, poc_base) for spec in POC_AGENTS]
     role_specs = [spec_to_subagent(spec, ROLE_PROMPTS_DIR, spec["tools"]) for spec in ROLE_AGENTS]
     return poc_specs + role_specs
 

@@ -1,4 +1,9 @@
-"""Explainer tools: provenance and decision-table material for a built run."""
+"""DEPRECATED (M1, harness-unificatie): vervangen door de nldt-MCP-tools
+(catalog :8090 / data :8092 / poc :8093). Nog aanwezig als expliciete
+fallback voor het geval er geen MCP-stack draait; verwijderd in de
+M2-cleanup zodra het MCP-pad standaard is.
+
+Explainer tools: provenance and decision-table material for a built run."""
 
 from __future__ import annotations
 

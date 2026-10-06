@@ -1,4 +1,9 @@
-"""Recipe tools backed by the nLDT cookbook (../nldt/recipes/*.json).
+"""DEPRECATED (M1, harness-unificatie): vervangen door de nldt-MCP-tools
+(catalog :8090 / data :8092 / poc :8093). Nog aanwezig als expliciete
+fallback voor het geval er geen MCP-stack draait; verwijderd in de
+M2-cleanup zodra het MCP-pad standaard is.
+
+Recipe tools backed by the nLDT cookbook (../nldt/recipes/*.json).
 
 Docstrings double as the tool descriptions the deep agent sees.
 """
