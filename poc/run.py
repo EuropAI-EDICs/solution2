@@ -51,7 +51,7 @@ WORKSPACE = POC_ROOT.parent
 if str(POC_ROOT) not in sys.path:
     sys.path.insert(0, str(POC_ROOT))
 
-from shapely.geometry import box, shape  # noqa: E402
+from shapely.geometry import box, mapping, shape  # noqa: E402
 from shapely.ops import unary_union  # noqa: E402
 
 from pipeline import agents, cartographer, contracts, critic, engine, explainer, geodata, norm_llm, report  # noqa: E402
@@ -628,6 +628,50 @@ TRACKS: Dict[str, Dict[str, Any]] = {
             ),
         ],
     },
+    "energietoets": {
+        "shard": "corpus/evidence-energietoets.json",
+        "ledger": "corpus/normcards-rejected-energietoets.json",
+        "report_title": "Where is energy-related development bounded by the energietoets instructieregels in province Utrecht?",
+        "decision_table_id": "DT-energietoets-utrecht-poc1",
+        "decision_table_title": "Energietoets rule bounds for energy storage / netbelasting "
+                                "Decision table (programming stage)",
+        "prov_namespace": "ldttoolbox:poc:energietoets:",
+        "headline_note": (
+            "Semantics: Afdeling 5.3 Energietoets has no gebiedsaanwijzing/GIO — "
+            "all three formalized cards are conditional markers on the request "
+            "AOI (province-wide scope). Art. 5.10 is the declarative "
+            "toepassingsbereik (new functions that can overload the electricity "
+            "infrastructure). Art. 5.11 lid 1 is the rekening-houden-met "
+            "aansluitbaarheid duty (weakest take-into-account family; <10 "
+            "woningen exception in tags). Art. 5.11 lid 2 is the "
+            "energieparagraaf / inventariserend-overleg motiveringseis — the "
+            "EnergyCast/grid seam (SOLUTIONS_ARCHITECTURE §4 B congestion); no "
+            "deterministic netmodel or capacity surrogaat in the PoC. Neither "
+            "rule unconditionally refuses energy_storage area, so the "
+            "opportunity zone equals the province AOI with three marker overlays "
+            "(mobiliteit/biomassa all-marker precedent). Transformatorstation "
+            "arts. 5.8/5.9 remain procedureel onthouden (AET-04); wind/zon/"
+            "biomassa (5.1–5.7) stay on their home tracks. Programming-stage "
+            "screening artifact; per-location permission assessment and live "
+            "EnergyCast-MCP remain required / out of scope."
+        ),
+        "limitations": lambda cov, abst: [
+            "Transformatorstation arts. 5.8/5.9 are procedurele vergunnings-/"
+            "indieningsketen — abstained under cite-or-abstain (AET-04); wind/"
+            "zon/biomassa arts. 5.1–5.7 remain owned by their home tracks "
+            "(AET-01–AET-03) — no double formalization.",
+            "Art. 5.11 lid 1 aansluitbaarheid and lid 2 energieparagraaf/"
+            "inventariserend overleg are plan-content / procedural assessments "
+            "routed to V4; no netbeheerder API or EnergyCast MCP is invoked in "
+            "this track (fase 4 out-of-scope seam).",
+            "Marker geometry is the request AOI (sentinel zoneId 'aoi') — not a "
+            "GIO and not an invented net-infrastructure layer.",
+            (
+                f"{cov['ambiguous']} of {cov['output_rules']} rules are intentionally 'ambiguous' (open norms): "
+                "routed to the V4 human-expert checkpoint."
+            ),
+        ],
+    },
 }
 
 _LIMITATIONS = [
@@ -1078,17 +1122,22 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         for z in rule_zones(r):
             if z not in needed_zones:
                 needed_zones.append(z)
+    # Sentinel zoneId 'aoi' = request AOI (province-wide markers without GIO,
+    # energietoets track). Not fetched from ArcGIS — seeded from the use-case
+    # geometry after input simplification.
+    fetch_zones = [z for z in needed_zones if z != "aoi"]
     with log.stage("geo-analyst-fetch", "Geo Analyst: fetch zone layers (cache-first ArcGIS REST)",
                    geodata.USER_AGENT.split(" ")[0], used=["data/sources.json"],
                    generated=["layers.json"]):
         layers, manifest, fetch_degrades, source_of_zone = fetch_layers(
-            needed_zones, refresh=args.refresh, bbox=bbox, timeout=args.timeout, geo_bindings=geo_bindings
+            fetch_zones, refresh=args.refresh, bbox=bbox, timeout=args.timeout, geo_bindings=geo_bindings
         )
         degradations.extend(fetch_degrades)
         dump_json(run_dir / "layers.json", manifest, indent=1)
         total_feats = sum((fc.get("properties") or {}).get("featureCount", 0) for fc in layers.values())
-        print(f"[geo] {len(layers)}/{len(needed_zones)} zone layers resolved "
-              f"({total_feats} features); {len(fetch_degrades)} degradation(s)")
+        print(f"[geo] {len(layers)}/{len(fetch_zones)} zone layers resolved "
+              f"({total_feats} features); {len(fetch_degrades)} degradation(s)"
+              f"{'; + aoi-sentinel' if 'aoi' in needed_zones else ''}")
 
     # ---------------- 5. zone engine --------------------------------------- #
     # Recorded tuning: province-scale multipolygons (NNN 390 polygons against a
@@ -1101,6 +1150,49 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         for zone in manifest:
             manifest[zone]["inputSimplifyM"] = args.input_simplify_m
         dump_json(run_dir / "layers.json", manifest, indent=1)
+
+    if "aoi" in needed_zones:
+        # Seed after simplify so marker overlays match the algebra AOI.
+        binding = geo_bindings.get("aoi") or {}
+        layers["aoi"] = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "id": 0,
+                "properties": {"fid": 0, "role": "aoi"},
+                "geometry": mapping(aoi),
+            }],
+            "crs": {"type": "name", "properties": {"name": "EPSG:28992"}},
+            "properties": {
+                "sourceId": "request-aoi",
+                "featureCount": 1,
+                "title": "Area of Interest (request AOI; province-wide marker scope, no GIO)",
+                "role": "aoi",
+                "authoritative": True,
+                "lastChecked": request.get("requestedAt"),
+            },
+        }
+        manifest["aoi"] = {
+            "zoneId": "aoi",
+            "aliasSourceId": "request-aoi",
+            "title": "Area of Interest (request AOI)",
+            "role": "aoi",
+            "authoritative": True,
+            "featureCount": 1,
+            "aliasNote": (
+                "Sentinel zone for province-wide conditional markers without "
+                "gebiedsaanwijzing/GIO (energietoets arts. 5.10/5.11); geometry "
+                "is the use-case AOI, not a net-infrastructure surrogaat."
+            ),
+            "geoBinding": {
+                "geometrySource": binding.get("geometrySource") or "none",
+                "gioJoinId": binding.get("gioJoinId"),
+                "caveat": binding.get("caveat"),
+            },
+            "inputSimplifyM": args.input_simplify_m if args.input_simplify_m and args.input_simplify_m > 0 else None,
+        }
+        dump_json(run_dir / "layers.json", manifest, indent=1)
+        source_of_zone["aoi"] = "request-aoi"
 
     engine_rules = []
     for r in formalized:

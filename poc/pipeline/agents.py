@@ -149,6 +149,15 @@ CAVEAT_GIO_BIOMASSA = (
     "Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; "
     "geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
 )
+#: energietoets-track (arts. 5.10/5.11): Afdeling 5.3 has NO gebiedsaanwijzing /
+#: GIO. Marker geometry is the request AOI (province-wide scope); never a
+#: invented net-infrastructure layer or EnergyCast surrogaat.
+CAVEAT_AOI_ENERGIETOETS = (
+    "Afdeling 5.3 Energietoets (art. 5.10/5.11) kent geen gebiedsaanwijzing/GIO; "
+    "marker-geometrie is de request-AOI (provinciebreed toepassingsbereik). Geen "
+    "netmodel- of EnergyCast-surrogaat in de PoC — aansluitbaarheid/energieparagraaf "
+    "blijven V4-/EnergyCast-seam (SOLUTIONS_ARCHITECTURE §4 B congestion)"
+)
 
 # ---------------------------------------------------------------------------
 # Deterministic engine operations referenced by FormalRule.executableRef.
@@ -900,6 +909,41 @@ EVIDENCE_ENRICHMENT: Dict[str, Dict[str, Any]] = {
             "zoneIds": ["gebied_energie_biomassa_stedelijk"],
             "geometrySource": "provincial_gio_unverified",
             "caveat": CAVEAT_GIO_BIOMASSA,
+        },
+    },
+    # -- ENERGIETOETS track (energy_storage / netbelasting; shard evidence-energietoets.json) -
+    # Province-wide Afdeling 5.3: no GIO. Marker geometry = request AOI (sentinel zoneId 'aoi').
+    "ET-01": {
+        "objectType": "energy_storage",
+        "claim": "Afdeling 5.3 Energietoets (art. 5.10) applies to new functions that can lead to overloading of the electricity infrastructure: a declarative province-wide scope with no gebiedsaanwijzing/GIO — carried as a conditional marker on the request AOI framing the 5.11 aansluitbaarheid/energieparagraaf duties, never a spatial exclusion and never an invented net-capacity layer.",
+        "confidence": 0.95,
+        "contextTags": ["toepassingsbereik_art_5_10", "conditional_afdeling_5_3_energietoets", "overbelasting_elektriciteits_infrastructuur", "geen_gio_provinciebreed", "scope_marker_voor_5_11"],
+        "geoBinding": {
+            "zoneIds": ["aoi"],
+            "geometrySource": "none",
+            "caveat": CAVEAT_AOI_ENERGIETOETS,
+        },
+    },
+    "ET-02": {
+        "objectType": "energy_storage",
+        "claim": "An omgevingsplan that provides for new functions (other than fewer than 10 dwellings) that can lead to an additional load on the electricity infrastructure must take connection capacity (aansluitbaarheid) into account (art. 5.11 lid 1): the weakest take-into-account variant (bodem 3.10 / mobiliteit mirror) — a conditional marker on the province-wide AOI with the <10-woningen exception in the tags; never a spatial exclusion without grid data.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_5_11_lid_1", "rekening_houden_aansluitbaarheid", "uitzondering_minder_dan_10_woningen", "conditional_marker_geen_netmodel", "v4_plan_content_assessment"],
+        "geoBinding": {
+            "zoneIds": ["aoi"],
+            "geometrySource": "none",
+            "caveat": CAVEAT_AOI_ENERGIETOETS,
+        },
+    },
+    "ET-03": {
+        "objectType": "energy_storage",
+        "claim": "The motivation of an omgevingsplan must contain an energy paragraph with a report of the inventariserend overleg between the grid operator and the initiator or municipality, showing that the development fits within the operator's energy infrastructure and other relevant energy-management developments (art. 5.11 lid 2): a procedural/motiveringseis — conditional marker on the AOI with the EnergyCast/grid seam noted; no deterministic netmodel or surrogaat capacity in the PoC.",
+        "confidence": 0.95,
+        "contextTags": ["instructieregel_art_5_11_lid_2", "energieparagraaf_motiveringseis", "inventariserend_overleg_netbeheerder", "energycast_seam", "conditional_marker_procedureel"],
+        "geoBinding": {
+            "zoneIds": ["aoi"],
+            "geometrySource": "none",
+            "caveat": CAVEAT_AOI_ENERGIETOETS,
         },
     },
 }
@@ -1806,6 +1850,38 @@ TEMPLATE_SPECS: Dict[str, Dict[str, Any]] = {
         "conditions": [],
         "extra_tags": ["conditional_within_gebied_energie_biomassa_stedelijk", "geen_toestaan_tenzij_vier_voorwaarden", "geen_redelijk_alternatief_hernieuwbaar", "geen_hoogwaardiger_toepassing", "biomassa_gecertificeerd", "aanmerkelijk_lagere_co2_emissie_dan_fossiel"],
         "rationale": "Art. 5.7 instructieregel, non-permission family with fourfold tenzij: plans within the 'Gebied energie uit biomassa stedelijk gebied' contain no rules allowing developments for energy from biomass unless (a) no reasonable alternative renewable sources, (b) biomass not usable for higher-value applications, (c) certified biomass, and (d) substantially lower CO2 emission than conventional fossil fuels. Executing the verbod as a hard zone exclusion would erase the planning question inside the designation (the tenzij keeps the GIO as a conditional development frame, mirroring FR-MO-05/FR-WN-01 qualification adjudications) — carried as a conditional marker with the four tenzij conditions in the tags, routed to V4; never an AOI-wide elimination.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    # -- ENERGIETOETS track -------------------------------------------------------
+    # NOTE: Afdeling 5.3 has no gebiedsaanwijzing/GIO. All three evidence cards
+    # are conditional markers on the request AOI (sentinel zoneId 'aoi', seeded
+    # from the use-case geometry — not a net-infrastructure surrogaat). Art.
+    # 5.10 is declarative scope; 5.11 lid 1 is rekening-houden-met aansluitbaarheid
+    # (BO-04/WA-03 idiom); 5.11 lid 2 is the energieparagraaf/inventariserend-
+    # overleg motiveringseis (EnergyCast seam). All-marker composition: final
+    # zone equals the AOI (mobiliteit/biomassa precedent).
+    "ET-01": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["aoi"], "selection": "within", "geometrySource": "national_source", "caveat": CAVEAT_AOI_ENERGIETOETS},
+        "conditions": [],
+        "extra_tags": ["conditional_afdeling_5_3_toepassingsbereik", "overbelasting_elektriciteits_infrastructuur", "geen_gio_provinciebreed", "scope_marker_voor_5_11"],
+        "rationale": "CORE ENERGIETOETS SCOPE (art. 5.10). Declarative toepassingsbereik of Afdeling 5.3: the division applies to new functions that can overload the electricity infrastructure. No gebiedsaanwijzing/GIO exists — marker geometry is the request AOI (province-wide). Carried as a conditional scope marker framing the 5.11 duties, never a spatial exclusion and never an invented net-capacity layer (cite-or-abstain: no grid data in the PoC).",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "ET-02": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["aoi"], "selection": "within", "geometrySource": "national_source", "caveat": CAVEAT_AOI_ENERGIETOETS},
+        "conditions": [],
+        "extra_tags": ["conditional_rekening_houden_aansluitbaarheid", "uitzondering_minder_dan_10_woningen", "geen_netmodel_surrogaat", "v4_plan_content_assessment"],
+        "rationale": "Art. 5.11 lid 1 instructieregel, the weakest take-into-account family ('wordt rekening gehouden met de aansluitbaarheid'): plans providing for new functions (not fewer than 10 dwellings) that can add load to the electricity infrastructure must take connection capacity into account. Exactly the art.-2.16/3.10 form that FR-WA-03/FR-BO-04 formalize as a conditional marker routed to V4 — never an elimination. No deterministic netmodel exists in the PoC; the <10-woningen exception stays in the tags.",
+        "executable_ref": "engine.zone.within@poc-v1",
+    },
+    "ET-03": {
+        "kind": "conditional",
+        "zone": {"zoneIds": ["aoi"], "selection": "within", "geometrySource": "national_source", "caveat": CAVEAT_AOI_ENERGIETOETS},
+        "conditions": [],
+        "extra_tags": ["conditional_energieparagraaf_motiveringseis", "inventariserend_overleg_netbeheerder", "energycast_seam", "geen_netmodel_surrogaat"],
+        "rationale": "Art. 5.11 lid 2 motiveringseis: the omgevingsplan motivation must contain an energieparagraaf reporting the inventariserend overleg with the grid operator. This is the EnergyCast/grid seam (SOLUTIONS_ARCHITECTURE §4 B congestion) — procedural/plan-content, not a spatial predicate. Carried as a conditional marker on the AOI alongside ET-02; live EnergyCast-MCP remains out of scope (fase 4). Never a spatial exclusion or invented capacity surrogaat.",
         "executable_ref": "engine.zone.within@poc-v1",
     },
 }

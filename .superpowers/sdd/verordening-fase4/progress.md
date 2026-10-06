@@ -25,5 +25,5 @@ Branch: `verordening-fase4` · Worktree: `../ldttoolbox-vf4` · Plan: `docs/supe
 - [x] Task 3 — biomassa-zones
 - [x] Task 4 — biomassa formalisering + run
 - [x] Task 5 — energietoets-recon
-- [ ] Task 6 — energietoets formalisering + run
+- [x] Task 6 — energietoets formalisering + run
 - [ ] Task 7 — docs + regressie + merge
