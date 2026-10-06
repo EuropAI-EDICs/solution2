@@ -6,7 +6,7 @@ from typing import Any
 import httpx
 
 from agents.orchestrator.data_plane import enrich_catalog_hits
-from agents.orchestrator.llm_hook import rank_recipes
+from agents.orchestrator.llm_hook import hook_from_env, rank_recipes
 
 CATALOG_URL = os.environ.get("NLDT_CATALOG_URL", "http://localhost:8083")
 COOKBOOK_URL = os.environ.get("NLDT_COOKBOOK_URL", "http://localhost:8081")
@@ -32,6 +32,6 @@ def catalog_search(state: dict[str, Any]) -> dict[str, Any]:
             or h.get("id") == f"recipe-{recipe_id}"
             or recipe_id in h.get("id", "")
         ] or hits
-    hits = rank_recipes(q, hits)
+    hits = rank_recipes(q, hits, hook_from_env())
     enriched = enrich_catalog_hits(hits, request=q, recipe_id=recipe_id)
     return enriched
