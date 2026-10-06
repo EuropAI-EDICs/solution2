@@ -207,6 +207,14 @@ async def run_bp2op_transform(
     )
 
 
+@mcp.tool(name="build_world_scene", description=POC_TOOLS["build_world_scene"]["description"])
+async def build_world_scene(scenarioRunDir: str, hitlApproved: bool = False) -> str:
+    return await _run_poc_tool(
+        "build_world_scene",
+        {"scenarioRunDir": scenarioRunDir, "hitlApproved": hitlApproved},
+    )
+
+
 # --- read-only PoC-run-operaties (harness-unificatie M1) -----------------------
 
 from services.process_adapter.poc_readops import (  # noqa: E402
