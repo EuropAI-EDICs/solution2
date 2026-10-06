@@ -2,6 +2,15 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **Executiestatus (2026-10-06):** alle 7 taken via subagent-driven development geïmplementeerd
+> (implementer + taakreview per taak, commitreeks `46dd993..730eac9`, gepusht). Correctie op het
+> plan: de standaard-suite verwachting "295 passed" is al vóór Task 3 verouderd — Taak 1's
+> 8 unit-tests zijn bewust ongemarkeerd, de echte standaard-suite is `303 passed, 1 skipped`.
+> Eindverificatie: poc 303/1, golden 13/13 (offline, 92,6s), nldt 365; journal jobId end-to-end
+> bewezen. Eindreview-triage (kan-later): `normalize_run_summary` wordt niet door `diff_runs`
+> gebruikt; UCS-fallback nog zonder jobId (kubeflow wel); exact-jobId-assert + afwezigheid-case
+> in de journal-tests; `--strict-markers` overweging.
+
 **Goal:** Golden-regressie over de 13 canonieke Utrecht-tracks als pytest-marker-harness (cache-only her-uitvoering, diff tegen gecommitte goldens), plus run/job-id-correlatie over journal en spans met een JSONL-spanexporter — zonder CI (gedescoped, zie spec).
 
 **Architecture:** Pure diff-module (`poc/pipeline/golden.py`) + pytest-markers (`golden`, `llm`) met default-deselectie via `poc/pytest.ini`; jobId stroomt van `route_execute` via `execute_local` naar het journal, en een contextvar verrijkt elke `span()` met `job.id` waarvoor `telemetry.py` naast de console-exporter een JSONL-bestandsexporter krijgt.
