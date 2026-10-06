@@ -1,6 +1,9 @@
 """Chat models for the nLDT deep agents.
 
-Two providers:
+Sinds de harness-unificatie (M2) is `nldt/services/common/model_config.py` de
+canonieke bron voor modelnamen en -bouw; deze module delegeert en houdt
+alleen `check_ollama` (fail-fast diagnose) lokaal. Twee providers:
+
 - Local Ollama (default): `ollama_model()` builds ChatOllama; names must
   match `ollama list`. Cloud-routed Ollama variants (`:cloud`) are refused —
   they hit Ollama's paid tier with a 402.
@@ -13,61 +16,30 @@ Env vars (read at build time, after .env is loaded): DEEP_AGENT_MODEL
 (orchestrator), DEEP_AGENT_SUBMODEL (POC specialists), OLLAMA_BASE_URL,
 OLLAMA_NUM_CTX, ZAI_API_KEY.
 """
-
 from __future__ import annotations
 
 import json
 import os
+import sys
 import urllib.error
 import urllib.request
+from pathlib import Path
 
-from langchain_ollama import ChatOllama
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "nldt"))
 
-ZAI_ANTHROPIC_URL = "https://api.z.ai/api/anthropic"
-
-
-def orchestrator_model_name() -> str:
-    return os.environ.get("DEEP_AGENT_MODEL", "gemma4:31b-mlx")
-
-
-def subagent_model_name() -> str:
-    return os.environ.get("DEEP_AGENT_SUBMODEL", "gemma4:12b-mlx")
-
-
-def is_zai(model: str) -> bool:
-    return model.startswith("zai:")
+from services.common.model_config import (  # noqa: E402,F401
+    ZAI_ANTHROPIC_URL,
+    build_chat_model as _build_chat_model,
+    is_zai,
+    orchestrator_model_name,
+    subagent_model_name,
+)
 
 
 def ollama_model(model: str | None = None, **overrides):
     """Build the chat model for a spec string: `ollama-name` (local) or
     `zai:glm-...` (Z.ai GLM over the Anthropic-compatible endpoint)."""
-    spec = model or orchestrator_model_name()
-    if is_zai(spec):
-        from langchain_anthropic import ChatAnthropic
-
-        key = os.environ.get("ZAI_API_KEY")
-        if not key:
-            raise SystemExit(
-                f"Model '{spec}' needs ZAI_API_KEY (set it in deep-agents/.env). "
-                "Create a key at https://z.ai/manage-apikey/apikey-list."
-            )
-        kwargs = dict(
-            model=spec.removeprefix("zai:"),
-            base_url=ZAI_ANTHROPIC_URL,
-            api_key=key,
-            max_retries=2,
-            timeout=300,
-        )
-        kwargs.update(overrides)
-        return ChatAnthropic(**kwargs)
-    kwargs = dict(
-        model=spec,
-        base_url=os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434"),
-        num_ctx=int(os.environ.get("OLLAMA_NUM_CTX", "16384")),
-        request_timeout=int(os.environ.get("OLLAMA_REQUEST_TIMEOUT", "600")),
-    )
-    kwargs.update(overrides)
-    return ChatOllama(**kwargs)
+    return _build_chat_model(model or orchestrator_model_name(), **overrides)
 
 
 def check_ollama(models: list[str]) -> None:
