@@ -27,7 +27,7 @@ types** (tracks), all on the same instrument and pipeline:
 | `landschap` | landscape intervention (cultuurhistorie en landschap) | where is landscape intervention bounded by the heritage/landscape rules? | `runs/20261005T070621Z-landschap` — 1425.959 km² |
 | `landbouw` | agricultural expansion (landbouw, incl. glastuinbouw en veenbodembewerking) | where is agricultural expansion bounded by the landbouw instructieregels? | `runs/20261005T094244Z-landbouw` — 2.260 km² |
 | `wonen` | housing development (wonen, werken, recreëren) | where is housing development possible under the wonen instructieregels? | `runs/20261005T100258Z-wonen` — 1142.990 km² |
-| `werken` | business development (kantoren, detailhandel, bedrijventerreinen) | where is business development bounded by the werken instructieregels? | `runs/20261006T112519Z-werken` — 1017.614 km² |
+| `werken` | business development (kantoren, detailhandel, bedrijventerreinen) | where is business development bounded by the werken instructieregels? | `runs/20261006T121921Z-werken` — 1017.614 km² |
 | `recreatie` | recreation development (dagrecreatie, recreatiezones) | where is recreation development possible under the recreatie instructieregels? | `runs/20261006T114934Z-recreatie` — 186.618 km² |
 
 Grounding: the **Omgevingsverordening provincie Utrecht** (CVDR704250, geldend
@@ -248,7 +248,8 @@ gate, enforced again independently by the Critic.
   fase-3-alias) and the art.-9.19 kantoren framework (two knooppunten mits
   behoefte, Reductielocaties tot 2029, gebiedstransformatie) are markers.
 - **recreatie** — the final zone is the **inclusion composition**: Gebied
-  bovenlokaal dagrecreatieterrein (art. 9.22, 81.8 km²) ∪ Recreatiezone
+  bovenlokaal dagrecreatieterrein (art. 9.22, 81.8 km² as-served union; 81.692
+  km² in-run na 2 m-invoer-simplificatie) ∪ Recreatiezone
   (art. 9.23, 136.3 km²) = **186.618 km²**. Both instructieregels open
   development explicitly 'In afwijking van Artikel 9.3'; art. 9.23 lid 1
   (bescherming bestaande voorzieningen) stays a protective tag and lid 3
