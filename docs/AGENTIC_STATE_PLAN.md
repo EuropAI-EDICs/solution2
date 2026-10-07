@@ -211,7 +211,7 @@ Aansluitend op `nldt/08` (Phase 6 done) en het DSR-faserenpatroon uit `MULTI_AGE
 4. **Scope van fase A-dataset** — zelf scannen (AI-gegenereerd + bronquotes, Sitra-stijl) of beperkt tot de PoC-bewezen functies.
 5. Commit/push van dit plan achterwege gelaten (werkboom bevat lopende deep-agents-wijzigingen) — zeg het maar als ik het document apart commit.
 6. **Koppelingsdiepte met het zusterplatform** — alleen catalogus- en vocabulaire-afstemming (lage drempel, fase A/B) dan wel een echte integratie (nLDT recipes/MCP als instruments achter de Omgevingschat-composer, of Omgevingschat als front-door boven de governed layer); [`nldt/14`](../nldt/14-beleidskompas-integration.md) geeft het integratiepatroon, inclusief de afweging dat de Beleidskompas-variant daar (GovChat-NL) een ander spoor is dan de eigen app in het platform.
-7. **Volgende stap uit de gap-analyse** — voorgesteld op 2026-10-07: a (HITL / mens-agent-grens); onderbouwing in `AGENTIC_STATE_GAP_ANALYSE.md` §5–§6. Nog te bevestigen door Marc; start als eigen spec/plan ná afronding van de decision-trail memory.
+7. **Volgende stap uit de gap-analyse** — **besloten op 2026-10-07: a (HITL / mens-agent-grens)**, door Marc bevestigd; onderbouwing in `AGENTIC_STATE_GAP_ANALYSE.md` §5–§6. Start als eigen spec/plan ná afronding van de decision-trail memory.
 
 ## 10. Bronnen
 

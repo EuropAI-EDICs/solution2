@@ -214,10 +214,9 @@ het zwaarst weegt: mensen houden de knoppen, aantoonbaar. Let op: de decision-tr
 
 ## 6. Besluit volgende stap (2026-10-07)
 
-**Voorgesteld: a (HITL / mens-agent-grens)** — de beslissessie is voorgelegd aan Marc
-(2026-10-07) maar nog **niet bevestigd**; dit is de aanbeveling uit §5, vastgelegd als
-voorstel zodat het plan verder kan. Bevestiging of een andere keuze wijzigt dit besluit
-én beslispunt 7 in `docs/AGENTIC_STATE_PLAN.md` §9.
+**Gekozen: a (HITL / mens-agent-grens)** — voorgesteld in §5, door Marc bevestigd op
+2026-10-07 ("akkoord"). Beslispunt 7 in `docs/AGENTIC_STATE_PLAN.md` §9 is daarmee besloten.
 
-**Toelichting:** nog niet ontvangen. De stap doorloopt de eigen spec/plan-cyclus ná
-afronding van de decision-trail memory (taken 2–6).
+**Toelichting:** de stap raakt drie lagen tegelijk (2, 10, 12), is de randvoorwaarde voor de
+fase C/D-demonstrator en heeft de hoogste repo-gereedheid (bp2op als eerste instantie). De
+stap doorloopt de eigen spec/plan-cyclus ná afronding van de decision-trail memory (taken 2–6).
