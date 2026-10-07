@@ -178,6 +178,12 @@ negotiate via the connector; they do **not** get raw MinIO credentials.
 | `internal` | nLDT participant only | Offer with policy `nldt-internal` |
 | `restricted` | Do not publish automatically | **No** auto-offer; HITL required |
 
+Usage policies are since October 2026 real ODRL 2.2 sets
+([`schemas/dataspace-policies.json`](schemas/dataspace-policies.json), one per
+accessClass), embedded in every offer and shipped in every EDC manifest —
+see [`26-odrl-usage-policies.md`](26-odrl-usage-policies.md) for the worked
+example on the Utrecht planning process (15 live offers).
+
 ### Deny-list / defaults
 
 | Path / asset | accessClass | Reason |
