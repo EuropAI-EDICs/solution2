@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Document | `docs/AGENTIC_STATE_PLAN.md` · v1.1 · 2026-10-04 (v1.1: zusterplatform Omgevingschat als F1-instantie en koppelingspunten opgenomen) |
+| Document | `docs/AGENTIC_STATE_PLAN.md` · v1.2 · 2026-10-07 (v1.2: whitepaper-kader als §0a — The Agentic State als vision-frame bovenop de Sitra-methode; beslispunt 7: volgende stap uit gap-analyse) |
 | Specialiseert | [`MULTI_AGENT_PLAN.md`](../MULTI_AGENT_PLAN.md) v1.2 (algemene multi-agent spec) · [`docs/SOLUTIONS_ARCHITECTURE.md`](SOLUTIONS_ARCHITECTURE.md) v1.4 (Utrecht-pilot) · [`nldt/00-architecture.md`](../nldt/00-architecture.md) (platformlaag, Phase 0–6 done) |
 | Brononderzoek | Sitra/Agentic State — *The Next Right Questions on the Path to the Agentic State* (working paper, sept 2026) · *First Moves: A Finland-Specific Assessment of Agentic AI Potential in Government* + [First Moves Dashboard](https://firstmovesinteractivedashboard.sitra.fi/) · [Sitra-artikel over de nationale mapping](https://www.sitra.fi/en/articles/a-nationwide-mapping-of-agentic-ai-readiness-in-the-finnish-public-sector-is-here-sitra-suggests-what-should-be-done-next/) |
 | Doel | Een **werkbare referentie-implementatie** voor urban planning (ruimtelijke ordening, omgevingswet-domein) waarin de building blocks van het Finse onderzoek **landen conform de LDT toolbox**: dit repo als implementatiesubstraat, de EU LDT Toolbox-catalogus als alignerings- en publicatiekader ("wrap, don't rebuild") |
@@ -22,6 +22,40 @@ Dit repo heeft alle technische bouwstenen al in huis (deep-agents orchestrator m
 2. **Eén gedeelde functie kiezen** via de vier-vragen-toets (waarde, schaal, uitvoerbaarheid, leverbaarheid). Aanbeveling: *voorbereiden van een ruimtelijke beoordeling* (de normketen intake → normspecialist → formalizer → build → critic → explainer), geïnstalleerd voor minimaal drie organisaties die er al in het repo liggen (Utrecht, Breda, Eindhoven, Rijnland).
 3. **De vijf Sitra-poorten uitsmeren over de bestaande V0–V4-validatieketen** plus twee nieuwe first-class artefacten: een `function-baseline.json` (poort 1) en stopcondities in de run-reportage (poort 5).
 4. **De leerloop bouwen**: een decision trail bovenop het bestaande run-journal, en de herbruikbare capability-kern expliciet maken (wat is gedeeld, wat is organisatie-specifiek) zodat die als open specificatie (recipe/skill/MCP-server) publiceerbaar is.
+
+## 0a. Het whitepaper-kader — The Agentic State als vision-frame
+
+De whitepaper *The Agentic State* (Ilves e.a., 2025; launch Tallinn Digital Summit) beschrijft
+hoe agentic AI de overheid herschikt langs **twaalf functionele lagen**: zes implementatielagen
+(1 service design & UX · 2 government workflows · 3 policy- & rule-making · 4 regulatory
+compliance & supervision · 5 crisis response · 6 public procurement) en zes enablement-lagen
+(7 agent governance · 8 data & privacy · 9 tech stack · 10 cyber security & resilience ·
+11 public finance & buying agents · 12 people, culture & leadership), met een
+autonomieschaal **L0–L5**. Kernboodschap: hoger autonomieniveau is niet beter — het juiste
+niveau volgt uit risico, complexiteit en toezichtbehoefte; *"a reliable Level 3 system may
+beat an unpredictable Level 4 in sensitive domains."*
+
+**Verhouding tot dit plan:** de whitepaper is hier het **vision-frame** (waarheen: de lagen
+waarop agentic AI overheidswerk raakt, en op welk autonomieniveau), het Sitra-onderzoek
+(B1–B14, dit plan §1/§3) blijft de **methode** (hoe: functie-first, poorten, leerloop). De
+gap-analyse ([`AGENTIC_STATE_GAP_ANALYSE.md`](AGENTIC_STATE_GAP_ANALYSE.md)) scoret het repo
+per laag: L3 op government workflows, L2–L3 op governance/data/tech-stack, L2 op
+rule-making/compliance/people, L0 op crisis/procurement/finance (bewust out-of-scope).
+
+| Whitepaper-laag | Sitra-block | Landingsplaats in de toolbox |
+|---|---|---|
+| 1 Service design & UX | B6, B11 | Omgevingschat-platform (zusterrepo), `nldt/14`, Q&A-gates |
+| 2 Government workflows | B1, B2, B8 | `deep-agents/`-keten, recipes, fase C/D (HITL) |
+| 3 Policy- & rule-making | B2, B6 | normkaarten/citaten, `poc-bp2op/`, verordening-fases |
+| 4 Compliance & supervision | B9 | V0–V4, eval-harness/golden, `nldt/17` |
+| 5 Crisis response | — | niet in scope (vastlegging) |
+| 6 Public procurement | B12 | dataspace-offers, `nldt/edic/`, EU-marketplace-kanaal |
+| 7 Agent governance | B9, B10, B13 | `nldt/07`, `nldt/12`, journal, decision-trail (leerstaat) |
+| 8 Data & privacy | B6 | `nldt/13`, `nldt/17`, `nldt/18`, governed vocabulary (fase B) |
+| 9 Tech stack | B7, B12 | `deep-agents/models.py`, MCP/A2A-adapters, contracten |
+| 10 Cyber security & resilience | B8 | `nldt/SECURITY.md`, wallet, schema-gates, lake-deny |
+| 11 Public finance & buying agents | — | niet in scope (procesvraag, bestuurlijke vraag 3) |
+| 12 People, culture & leadership | B8, B10, B13, B14 | `docs/GENAI_SEAMS.md`-doctrine, leerstaat, stewardship |
 
 ---
 
@@ -177,13 +211,14 @@ Aansluitend op `nldt/08` (Phase 6 done) en het DSR-faserenpatroon uit `MULTI_AGE
 4. **Scope van fase A-dataset** — zelf scannen (AI-gegenereerd + bronquotes, Sitra-stijl) of beperkt tot de PoC-bewezen functies.
 5. Commit/push van dit plan achterwege gelaten (werkboom bevat lopende deep-agents-wijzigingen) — zeg het maar als ik het document apart commit.
 6. **Koppelingsdiepte met het zusterplatform** — alleen catalogus- en vocabulaire-afstemming (lage drempel, fase A/B) dan wel een echte integratie (nLDT recipes/MCP als instruments achter de Omgevingschat-composer, of Omgevingschat als front-door boven de governed layer); [`nldt/14`](../nldt/14-beleidskompas-integration.md) geeft het integratiepatroon, inclusief de afweging dat de Beleidskompas-variant daar (GovChat-NL) een ander spoor is dan de eigen app in het platform.
+7. **Volgende stap uit de gap-analyse** — voorgesteld op 2026-10-07: a (HITL / mens-agent-grens); onderbouwing in `AGENTIC_STATE_GAP_ANALYSE.md` §5–§6. Nog te bevestigen door Marc; start als eigen spec/plan ná afronding van de decision-trail memory.
 
 ## 10. Bronnen
 
+- The Agentic State (primaire vision-bron): Ilves, L., Kilian, M., Parazzoli, S. M., Peixoto, T. C., Velsberg, O. (2025) — <https://agenticstate.org/paper.html>
 - Sitra working paper: *The Next Right Questions on the Path to the Agentic State* — <https://www.sitra.fi/wp-content/uploads/2026/09/Sitra-%E2%80%93-The-Next-Right-Questions-on-the-Path-to-the-Agentic-State.pdf>
 - Sitra-artikel: *A nationwide mapping of agentic AI readiness in the Finnish public sector* — <https://www.sitra.fi/en/articles/a-nationwide-mapping-of-agentic-ai-readiness-in-the-finnish-public-sector-is-here-sitra-suggests-what-should-be-done-next/>
 - First Moves Dashboard — <https://firstmovesinteractivedashboard.sitra.fi/>
 - WEF, Capgemini & GGT Centre Berlin (2026): *Making Agentic AI Work for Government: A Readiness Framework* — <https://www.weforum.org/publications/making-agentic-ai-work-for-government-a-readiness-framework/>
-- Ilves, L. et al. (2025): *The Agentic State* — <https://agenticstate.org/paper.html>
 - Repo: [`MULTI_AGENT_PLAN.md`](../MULTI_AGENT_PLAN.md) · [`docs/SOLUTIONS_ARCHITECTURE.md`](SOLUTIONS_ARCHITECTURE.md) · [`nldt/00-architecture.md`](../nldt/00-architecture.md) · [`deep-agents/README.md`](../deep-agents/README.md) · [`docs/GENAI_SEAMS.md`](GENAI_SEAMS.md)
 - Zusterrepo: Omgevingschat-platform — `../omgevingschat-platform-develop` (`CONTEXT.md`, `PRODUCT.md`, `CONTEXT-MAP.md`, `plans/`) · integratiepatroon front-door op engines: [`nldt/14-beleidskompas-integration.md`](../nldt/14-beleidskompas-integration.md)
