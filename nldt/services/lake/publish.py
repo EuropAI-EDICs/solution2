@@ -56,29 +56,25 @@ def build_odrl_offer(
     access_class: str,
     license_: str | None = None,
 ) -> dict[str, Any]:
-    """Minimal ODRL-shaped offer stub (not full ODRL JSON-LD)."""
+    """ODRL-offer met ingebette usage-policy uit de policy-bibliotheek."""
+    from services.adapters.odrl_policies import policy_for
+
     offer_id = f"offer-{uuid.uuid4().hex[:10]}"
-    permission = {
-        "action": "use",
-        "constraint": [
-            {"leftOperand": "accessClass", "operator": "eq", "rightOperand": access_class},
-        ],
-    }
-    if access_class == "internal":
-        permission["constraint"].append(
-            {"leftOperand": "spatial", "operator": "isA", "rightOperand": "nldt-participant"}
-        )
-    return {
+    policy = policy_for(access_class)
+    offer: dict[str, Any] = {
         "@type": "Offer",
         "uid": offer_id,
         "datasetId": dataset_id,
         "lakeUri": lake_uri,
         "accessClass": access_class,
         "license": license_ or "unknown",
-        "permission": [permission],
+        "permission": policy.get("odrl:permission", []),
         "createdAt": datetime.now(timezone.utc).isoformat(),
         "status": "draft" if access_class == "restricted" else "published",
     }
+    if policy.get("odrl:prohibition"):
+        offer["prohibition"] = policy["odrl:prohibition"]
+    return offer
 
 
 def _offer_validation_report(

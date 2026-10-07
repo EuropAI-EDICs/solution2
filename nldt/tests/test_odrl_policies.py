@@ -38,3 +38,27 @@ def test_restricted_permits_use_only() -> None:
 def test_policy_ids_referenced_by_offer() -> None:
     offer = {"accessClass": "internal", "permission": [], "prohibition": []}
     assert odrl_policies.policy_ids_referenced_by(offer) == ["policy-internal"]
+
+
+def test_build_odrl_offer_embeds_policy(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("NLDT_LAKE_BACKEND", "fs")
+    from services.lake.publish import build_odrl_offer
+
+    offer = build_odrl_offer(
+        dataset_id="utrecht-test", lake_uri="lake://nldt-poc-lake/gold/utrecht/test.json",
+        access_class="internal", license_="CC-BY-4.0",
+    )
+    assert offer["permission"][0]["odrl:action"] == ["odrl:use", "odrl:distribute"]
+    assert offer["prohibition"][0]["odrl:action"] == ["odrl:distribute"]
+    assert offer["license"] == "CC-BY-4.0"
+
+
+def test_build_odrl_offer_open_has_no_prohibition() -> None:
+    from services.lake.publish import build_odrl_offer
+
+    offer = build_odrl_offer(
+        dataset_id="utrecht-open", lake_uri="lake://nldt-poc-lake/gold/utrecht/open.json",
+        access_class="open",
+    )
+    assert offer["permission"][0]["odrl:action"] == ["odrl:use", "odrl:distribute"]
+    assert "prohibition" not in offer

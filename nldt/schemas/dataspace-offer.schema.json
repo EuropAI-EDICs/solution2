@@ -18,10 +18,21 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["action"],
+        "additionalProperties": true,
+        "anyOf": [
+          { "required": ["action"] },
+          { "required": ["odrl:action"] }
+        ]
+      }
+    },
+    "prohibition": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["odrl:action"],
         "properties": {
-          "action": { "type": "string" },
-          "constraint": { "type": "array" }
+          "odrl:action": { "type": "array" },
+          "odrl:constraint": { "type": "array" }
         }
       }
     }
