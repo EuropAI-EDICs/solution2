@@ -241,6 +241,40 @@ def test_server_verdict_route_state_is_authoritair_boven_verlaten_ledger_request
     assert resp["ok"] is True
     assert spawned, "verdict voor B moet slagen ondanks verlaten request A in het ledger"
 
+    # minor (fixwave 2): ook het ledger-verdict-record voor i-B is geclaimd
+    regels = [json.loads(l) for l in (tmp_path / "hitl-verdicts.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert regels[0]["kind"] == "request" and regels[0]["interruptId"] == "i-A"
+    verdict = regels[-1]
+    assert verdict["kind"] == "verdict" and verdict["interruptId"] == "i-B"
+    assert verdict["tool"] == "run_bp2op_transform" and verdict["auto"] is False
+    assert verdict["operator"] == "marc"
+
+
+def test_server_verdict_route_fallback_ledger_bij_onleesbare_state(monkeypatch, tmp_path):
+    """Review-fixwave 2: onleesbare checkpoint-state + open ledger-request → het
+    verdict slaagt (geen KeyError/500): het duurzame record krijgt de juiste
+    tool uit de ledger-request en resume.py wordt gespawnd."""
+    import live_server
+
+    ledger = tmp_path / "hitl-verdicts.jsonl"
+    monkeypatch.setattr("hitl.LEDGER", ledger)
+    ledger_append({
+        "kind": "request", "interruptId": "i-C", "threadId": "nldt-live",
+        "tool": "run_bp2op_transform", "argsSummary": "useCase=eindhoven",
+    })
+    monkeypatch.setattr(live_server, "_interrupt_state", lambda: (False, {"pending": False}))
+    spawned = []
+    monkeypatch.setattr(live_server.subprocess, "Popen", lambda cmd, **k: spawned.append((cmd, k)))
+
+    resp = live_server.hitl_verdict(live_server.VerdictBody(
+        interruptId="i-C", approved=True, comment="akkoord", operator="marc"))
+    assert resp["ok"] is True
+    regels = [json.loads(l) for l in ledger.read_text(encoding="utf-8").splitlines()]
+    verdict = regels[-1]
+    assert verdict["kind"] == "verdict" and verdict["interruptId"] == "i-C"
+    assert verdict["tool"] == "run_bp2op_transform" and verdict["auto"] is False
+    assert spawned and spawned[0][0][1].endswith("resume.py") and "--approved" in spawned[0][0]
+
 
 def test_server_verdict_route_ledger_voor_spawn_en_daarna_409(monkeypatch, tmp_path):
     """Duurzaam verdict (auto: False) staat in het ledger vóór resume.py start."""

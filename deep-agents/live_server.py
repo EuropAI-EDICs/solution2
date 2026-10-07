@@ -243,6 +243,7 @@ def hitl_verdict(body: VerdictBody) -> dict:
     if not ok:
         raise HTTPException(400, fout)
     beschikbaar, state_pending = _interrupt_state()
+    tool = ""
     if beschikbaar:
         # de checkpoint-state is authoritair: 409 alléén als er niet ón deze
         # interrupt wordt gewacht (verbruikt, of een andere, vers interrupt).
@@ -253,9 +254,11 @@ def hitl_verdict(body: VerdictBody) -> dict:
                 "Geen wachtende HITL-interrupt met dit id (al verbruikt?) — "
                 "ververs de pending-status.",
             )
+        tool = state_pending.get("tool", "")
     else:
         # checkpoints onleesbaar → het ledger is de tweede bron; zonder open
-        # request voor dit id is er niets om te bevestigen
+        # request voor dit id is er niets om te bevestigen. De request-record
+        # draagt de tool (geschreven bij de interrupt door graph_trace).
         ledger_pending = pending_from_ledger()
         if not ledger_pending or ledger_pending.get("interruptId") != body.interruptId:
             raise HTTPException(
@@ -263,12 +266,13 @@ def hitl_verdict(body: VerdictBody) -> dict:
                 "Checkpoint-state onleesbaar en geen open HITL-request voor dit "
                 "id in het ledger.",
             )
+        tool = ledger_pending.get("tool", "")
     comment = body.comment.strip()
     operator = body.operator.strip() or "operator"
     # Duurzaam verdict vóór het spawnen: bewaard, ook als resume.py zou crashen.
     ledger_append({
         "kind": "verdict", "interruptId": body.interruptId, "threadId": THREAD_ID,
-        "tool": state_pending["tool"], "approved": bool(body.approved),
+        "tool": tool, "approved": bool(body.approved),
         "comment": comment, "operator": operator, "auto": False,
     })
     JOURNAL.parent.mkdir(parents=True, exist_ok=True)
