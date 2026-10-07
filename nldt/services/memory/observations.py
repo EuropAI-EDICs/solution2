@@ -101,6 +101,40 @@ def read_hitl_observations(runs_root: Path | None = None) -> list[dict[str, Any]
     return out
 
 
+DEEP_AGENTS_LEDGER = REPO_ROOT / "deep-agents" / "runs" / "live" / "hitl-verdicts.jsonl"
+
+
+def read_live_hitl_observations(ledger: Path | None = None) -> list[dict[str, Any]]:
+    """Mens-agent-grens in de live-runner: request-zonder-verdict = open, mét verdict = afgehandeld.
+
+    De ledger kent het dubbel-schrijfcontract uit hitl.py: server én resume.py
+    kunnen allebei een verdict-regel voor hetzelfde interruptId appenden; de
+    dict hieronder pakt per interruptId de laatste (last-wins), zodat
+    consumers set-based kunnen werken.
+    """
+    pad = ledger or DEEP_AGENTS_LEDGER
+    if not pad.exists():
+        return []
+    regels = [json.loads(r) for r in pad.read_text(encoding="utf-8").splitlines() if r.strip()]
+    verdicts = {r["interruptId"]: r for r in regels if r.get("kind") == "verdict"}
+    out: list[dict[str, Any]] = []
+    for r in regels:
+        if r.get("kind") != "request":
+            continue
+        vid = r.get("interruptId", "")
+        v = verdicts.get(vid)
+        if v is None:
+            detail = f"hitl-pending: {r.get('tool')} ({r.get('argsSummary', '')}) wacht op menselijk verdict"
+        else:
+            uitkomst = "goedgekeurd" if v.get("approved") else "afgewezen"
+            detail = (
+                f"hitl-{uitkomst}: {r.get('tool')} ({r.get('argsSummary', '')}) — "
+                f"opmerking: {v.get('comment', '')} (operator: {v.get('operator', 'onbekend')})"
+            )
+        out.append(_obs("hitl_needs_human", _rel(pad), detail, {"threadId": r.get("threadId", ""), "interruptId": vid}))
+    return out
+
+
 def _ledger_entries(path: Path) -> list[dict[str, Any]]:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -144,7 +178,13 @@ def read_golden_drift(diff_path: Path | None = None) -> list[dict[str, Any]]:
 
 
 def collect_observations() -> list[dict[str, Any]]:
-    return read_journal_errors() + read_hitl_observations() + read_ledger_observations() + read_golden_drift()
+    return (
+        read_journal_errors()
+        + read_hitl_observations()
+        + read_live_hitl_observations()
+        + read_ledger_observations()
+        + read_golden_drift()
+    )
 
 
 def to_trail(observation: dict[str, Any]) -> dict[str, Any]:
