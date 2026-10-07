@@ -7,11 +7,11 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <style>
-  :root { --ink:#1a1a1a; --muted:#666; --line:#ddd; --bg:#f7f7f5; }
+  :root { --ink:#f5f2ec; --muted:#8a857a; --line:rgba(245,242,236,.14); --bg:#0d0d12; }
   * { box-sizing:border-box; }
   body { margin:0; font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
          color:var(--ink); background:var(--bg); line-height:1.55; }
-  header { background:#0e2a47; color:#fff; padding:28px 34px; }
+  header { background:#14141b; color:#fff; padding:28px 34px; }
   header h1 { margin:0 0 6px; font-size:26px; }
   header p { margin:2px 0; color:#cfe0f5; font-size:14px; }
   header a { color:#ffd166; }
@@ -19,11 +19,11 @@
   h2 { font-size:20px; margin:34px 0 10px; border-bottom:2px solid var(--line); padding-bottom:6px; }
   h3 { font-size:16px; margin:20px 0 6px; }
   .lede { font-size:16.5px; max-width:900px; }
-  #map { height:620px; border:1px solid var(--line); border-radius:8px; background:#eef2f5; }
-  .panel { background:#fff; border:1px solid var(--line); border-radius:8px; padding:16px 18px;
+  #map { height:620px; border:1px solid var(--line); border-radius:8px; background:#1a1a23; }
+  .panel { background:#1a1a23; border:1px solid var(--line); border-radius:8px; padding:16px 18px;
            margin:14px 0; }
   .values { display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:14px; }
-  .vcard { background:#fff; border:1px solid var(--line); border-left:6px solid var(--vc,#888);
+  .vcard { background:#1a1a23; border:1px solid var(--line); border-left:6px solid var(--vc,#888);
            border-radius:8px; padding:14px 16px; }
   .vcard h3 { margin-top:0; }
   .vcard .quote { font-style:italic; color:var(--muted); margin:6px 0; padding-left:10px;
@@ -31,30 +31,32 @@
   .vcard .items { font-size:13px; color:var(--muted); }
   .vcard table { width:100%; border-collapse:collapse; font-size:13px; margin-top:8px; }
   .vcard td, .vcard th { padding:3px 6px; border-bottom:1px solid #eee; text-align:left; }
-  .legend { background:#fff; padding:8px 10px; border-radius:6px; box-shadow:0 1px 4px rgba(0,0,0,.25);
+  .legend { background:#1a1a23; padding:8px 10px; border-radius:6px; box-shadow:0 1px 4px rgba(0,0,0,.25);
             font-size:12px; }
   .legend .swatches span { display:inline-block; width:26px; height:12px; margin-right:2px;
                            border:1px solid #999; vertical-align:middle; }
-  .controls { position:absolute; top:10px; right:10px; z-index:1000; background:#fff;
+  .controls { position:absolute; top:10px; right:10px; z-index:1000; background:#1a1a23;
               border-radius:8px; box-shadow:0 1px 5px rgba(0,0,0,.35); padding:12px 14px;
               font-size:13px; max-width:270px; }
   .controls label { display:block; margin:3px 0; cursor:pointer; }
   .controls .grp { margin-bottom:6px; }
   .controls .sub { color:var(--muted); font-size:11.5px; margin-top:6px; border-top:1px solid #eee;
                    padding-top:6px; }
-  table.data { border-collapse:collapse; width:100%; font-size:13.5px; background:#fff; }
+  table.data { border-collapse:collapse; width:100%; font-size:13.5px; background:#1a1a23; }
   table.data th, table.data td { border:1px solid #e3e3e3; padding:6px 9px; text-align:left;
                                  vertical-align:top; }
-  table.data th { background:#f0f2f5; }
+  table.data th { background:#1a1a23; }
   .ok { color:#0a7d32; font-weight:600; }
   .warn { color:#a05a00; font-weight:600; }
   .fail { color:#b00020; font-weight:600; }
   .pill { display:inline-block; padding:1px 8px; border-radius:10px; font-size:12px;
-          background:#eef; margin:1px 2px; }
+          background:#1a1a23; margin:1px 2px; }
   footer { color:var(--muted); font-size:12.5px; margin-top:40px; border-top:1px solid var(--line);
            padding-top:12px; }
   .leaflet-popup-content { font-size:13px; max-height:280px; overflow-y:auto; min-width:250px; }
   .popup-missing { color:#a05a00; font-size:12px; }
+
+    .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.85) contrast(1.05) saturate(.8); }
 </style>
 </head>
 <body>
