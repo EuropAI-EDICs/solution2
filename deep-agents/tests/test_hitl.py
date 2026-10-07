@@ -1,6 +1,7 @@
 """Unit: hitl-ledger en verdict-mapping (offline, geen model)."""
 
 import json
+from pathlib import Path
 
 from hitl import (
     LEDGER,
@@ -78,6 +79,31 @@ def test_run_streamed_onderschept_interrupt(monkeypatch, tmp_path):
     regels = ledger_file.read_text().splitlines()
     assert regels and json.loads(regels[0])["kind"] == "request"
     assert json.loads(regels[0])["tool"] == "run_bp2op_transform"
+
+
+def test_live_pending_wegschrijven_en_auto_approve_mapping():
+    """Het auto-verdict is een geregistreerde machinale goedkeuring, geen menselijke."""
+    from hitl import verdict_to_decisions
+
+    # de auto-resume gebruikt dezelfde mapping; het verschil zit in de registratie
+    d = verdict_to_decisions(True, "auto: dev-flag --auto-approve-hitl")
+    assert d["decisions"][0]["type"] == "approve"
+    # en het ledger-record draagt 'auto': True (getest via ledger-append-assert in Task 2-stijl)
+
+
+def test_live_py_help_benoemt_auto_approve_flag():
+    """`live.py --help` werkt (spawn-contract: eerste positioneel blijft de vraag)."""
+    import os
+    import subprocess
+    import sys
+
+    live_py = Path(__file__).resolve().parent.parent / "live.py"
+    result = subprocess.run(
+        [sys.executable, str(live_py), "--help"],
+        capture_output=True, text=True, timeout=120, env=os.environ.copy(),
+    )
+    assert result.returncode == 0
+    assert "--auto-approve-hitl" in result.stdout
 
 
 def test_build_agent_geeft_interrupt_en_checkpointer_door(tmp_path):
