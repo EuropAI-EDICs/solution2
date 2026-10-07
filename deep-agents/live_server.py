@@ -185,36 +185,42 @@ def stop() -> dict:
     return {"ok": True, "stopped": False}
 
 
-def _load_pending() -> dict:
-    """Authoritatieve pending-status: de interrupt-state op disk (checkpoints).
+def _interrupt_state() -> tuple[bool, dict]:
+    """Lees de HITL-interrupt van de checkpoints op disk.
 
-    Bouwt de agent met SqliteSaver, zelfde pad als live.py en resume.py;
-    get_state leest alléén de checkpoint-DB — geen model of Ollama nodig.
-    Klopt daardoor ook na een server-herstart en zodra een verdict het
-    interrupt heeft verbruikt.
+    Geeft (beschikbaar, pending) terug. beschikbaar=False als de checkpoint-DB
+    onleesbaar is (bijv. nog geen enkele run) — het verdict-endpoint valt dan
+    terug op het ledger. Bouwt de agent met SqliteSaver, zelfde pad als
+    live.py en resume.py; get_state leest alléén de checkpoint-DB — geen model
+    of Ollama nodig. Klopt daardoor ook na een server-herstart en zodra een
+    verdict het interrupt heeft verbruikt.
     """
-    intr = None
     conn = None
     try:
         conn = sqlite3.connect(str(CHECKPOINTS), check_same_thread=False)
         agent = build_agent(list(LOCAL_TOOLS), checkpointer=SqliteSaver(conn))
         state = agent.get_state({"configurable": {"thread_id": THREAD_ID}})
-        intr = next((i for t in state.tasks for i in t.interrupts), None)
     except sqlite3.OperationalError:
-        return {"pending": False}  # nog geen checkpoints (eerste run nog niet gestart)
+        return False, {"pending": False}  # nog geen checkpoints (eerste run nog niet gestart)
     finally:
         if conn is not None:
             conn.close()
+    intr = next((i for t in state.tasks for i in t.interrupts), None)
     if intr is None:
-        return {"pending": False}
+        return True, {"pending": False}
     act = (intr.value.get("action_requests") or [{}])[0]
-    return {
+    return True, {
         "pending": True,
         "interruptId": intr.id,
         "tool": act.get("name", ""),
         "argsSummary": args_summary(act.get("args", {})),
         "threadId": THREAD_ID,
     }
+
+
+def _load_pending() -> dict:
+    """Authoritatieve pending-status (publieke vorm van /api/hitl/pending)."""
+    return _interrupt_state()[1]
 
 
 def _valideer_verdict(body: VerdictBody) -> tuple[bool, str]:
@@ -236,18 +242,27 @@ def hitl_verdict(body: VerdictBody) -> dict:
     ok, fout = _valideer_verdict(body)
     if not ok:
         raise HTTPException(400, fout)
-    state_pending = _load_pending()
-    ledger_pending = pending_from_ledger()
-    if (
-        not state_pending.get("pending")
-        or state_pending.get("interruptId") != body.interruptId
-        or (ledger_pending is not None and ledger_pending.get("interruptId") != body.interruptId)
-    ):
-        raise HTTPException(
-            409,
-            "Geen wachtende HITL-interrupt met dit id (al verbruikt?) — "
-            "ververs de pending-status.",
-        )
+    beschikbaar, state_pending = _interrupt_state()
+    if beschikbaar:
+        # de checkpoint-state is authoritair: 409 alléén als er niet ón deze
+        # interrupt wordt gewacht (verbruikt, of een andere, vers interrupt).
+        # Een verlaten request in het ledger (nooit verdict) blokkeert niet.
+        if not state_pending.get("pending") or state_pending.get("interruptId") != body.interruptId:
+            raise HTTPException(
+                409,
+                "Geen wachtende HITL-interrupt met dit id (al verbruikt?) — "
+                "ververs de pending-status.",
+            )
+    else:
+        # checkpoints onleesbaar → het ledger is de tweede bron; zonder open
+        # request voor dit id is er niets om te bevestigen
+        ledger_pending = pending_from_ledger()
+        if not ledger_pending or ledger_pending.get("interruptId") != body.interruptId:
+            raise HTTPException(
+                409,
+                "Checkpoint-state onleesbaar en geen open HITL-request voor dit "
+                "id in het ledger.",
+            )
     comment = body.comment.strip()
     operator = body.operator.strip() or "operator"
     # Duurzaam verdict vóór het spawnen: bewaard, ook als resume.py zou crashen.

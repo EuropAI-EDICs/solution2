@@ -180,6 +180,16 @@ def test_server_valideer_verdict_weigert_leeg_comment_en_accepteert_geldig():
     assert ok and fout == ""
 
 
+def test_server_valideer_verdict_weigert_lege_interruptid():
+    """Review-fixwave: de lege-interruptId-tak van de validatiehelper is een 400."""
+    import live_server
+
+    ok, fout = live_server._valideer_verdict(
+        live_server.VerdictBody(interruptId="  ", approved=True, comment="akkoord")
+    )
+    assert not ok and "interruptid" in fout.lower()
+
+
 def test_server_load_pending_zonder_checkpoints_of_interrupt_is_niet_pending(monkeypatch, tmp_path):
     """Authoritair via checkpoints op disk: geen DB (of lege DB) → pending False.
 
@@ -202,12 +212,34 @@ def test_server_verdict_route_409_bij_afwezige_pending(monkeypatch, tmp_path):
     import live_server
 
     monkeypatch.setattr("hitl.LEDGER", tmp_path / "hitl-verdicts.jsonl")
-    monkeypatch.setattr(live_server, "_load_pending", lambda: {"pending": False})
+    monkeypatch.setattr(live_server, "_interrupt_state", lambda: (True, {"pending": False}))
     with pytest.raises(HTTPException) as ei:
         live_server.hitl_verdict(
             live_server.VerdictBody(interruptId="i-1", approved=True, comment="ok")
         )
     assert ei.value.status_code == 409
+
+
+def test_server_verdict_route_state_is_authoritair_boven_verlaten_ledger_request(monkeypatch, tmp_path):
+    """Regressie (review-fixwave): een verlaten request A (nooit verdict) in het
+    append-only ledger mag een vers interrupt B niet blokkeren. De checkpoint-
+    state is authoritair: 409 alléén als de state niet pending is voor dit id."""
+    import live_server
+
+    monkeypatch.setattr("hitl.LEDGER", tmp_path / "hitl-verdicts.jsonl")
+    ledger_append({"kind": "request", "interruptId": "i-A", "tool": "run_bp2op_transform"})
+    monkeypatch.setattr(live_server, "_interrupt_state", lambda: (
+        True,
+        {"pending": True, "interruptId": "i-B", "tool": "run_bp2op_transform",
+         "argsSummary": "useCase=eindhoven", "threadId": "nldt-live"},
+    ))
+    spawned = []
+    monkeypatch.setattr(live_server.subprocess, "Popen", lambda cmd, **k: spawned.append((cmd, k)))
+
+    resp = live_server.hitl_verdict(live_server.VerdictBody(
+        interruptId="i-B", approved=True, comment="akkoord", operator="marc"))
+    assert resp["ok"] is True
+    assert spawned, "verdict voor B moet slagen ondanks verlaten request A in het ledger"
 
 
 def test_server_verdict_route_ledger_voor_spawn_en_daarna_409(monkeypatch, tmp_path):
@@ -216,10 +248,11 @@ def test_server_verdict_route_ledger_voor_spawn_en_daarna_409(monkeypatch, tmp_p
 
     ledger = tmp_path / "hitl-verdicts.jsonl"
     monkeypatch.setattr("hitl.LEDGER", ledger)
-    monkeypatch.setattr(live_server, "_load_pending", lambda: {
-        "pending": True, "interruptId": "i-9", "tool": "run_bp2op_transform",
-        "argsSummary": "useCase=eindhoven", "threadId": "nldt-live",
-    })
+    monkeypatch.setattr(live_server, "_interrupt_state", lambda: (
+        True,
+        {"pending": True, "interruptId": "i-9", "tool": "run_bp2op_transform",
+         "argsSummary": "useCase=eindhoven", "threadId": "nldt-live"},
+    ))
     spawned = []
     monkeypatch.setattr(live_server.subprocess, "Popen", lambda cmd, **k: spawned.append((cmd, k)))
 
@@ -234,7 +267,7 @@ def test_server_verdict_route_ledger_voor_spawn_en_daarna_409(monkeypatch, tmp_p
     # na verbruik (state leeg) is een tweede verdict voor hetzelfde id geweigerd:
     from fastapi import HTTPException
 
-    monkeypatch.setattr(live_server, "_load_pending", lambda: {"pending": False})
+    monkeypatch.setattr(live_server, "_interrupt_state", lambda: (True, {"pending": False}))
     with pytest.raises(HTTPException) as ei:
         live_server.hitl_verdict(live_server.VerdictBody(
             interruptId="i-9", approved=True, comment="tweede poging"))

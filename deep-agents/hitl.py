@@ -2,6 +2,14 @@
 
 De journal (runs/live/steps.jsonl) wordt per run gereset; alles wat de
 leerstaat voedt gaat daarom in dit append-only ledger.
+
+Dubbelweegschrif (contract): voor hetzelfde interruptId kunnen twéé
+verdict-records in het ledger belanden — live_server schrijft één record
+vóór het spawnen van resume.py (duurzaamheidsgarantie: het menselijk
+verdict is bewaard, ook als het resume-proces crasht) en resume.py zelf
+schrijft er één in zijn CLI-pad. Consumers zijn daarom set-based of
+last-wins per interruptId (zie pending_from_ledger); de leerstaat (Task 9)
+leunt op die garantie.
 """
 
 import json
@@ -45,7 +53,12 @@ def ledger_read() -> list[dict]:
 
 
 def pending_from_ledger() -> dict | None:
-    """Eerste request zonder bijbehorend verdict (op interruptId), of None."""
+    """Eerste request zonder bijbehorend verdict (op interruptId), of None.
+
+    Verdict-records mogen dubbel voorkomen (live_server vóór spawn + resume.py
+    CLI-pad, zie module-docstring); de matching hier is set-based op
+    interruptId en negeert duplicaten dus bewust.
+    """
     verdicts = {r["interruptId"] for r in ledger_read() if r.get("kind") == "verdict"}
     for r in ledger_read():
         if r.get("kind") == "request" and r.get("interruptId") not in verdicts:
