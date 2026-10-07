@@ -725,3 +725,17 @@ Deviaties: [noteer hier afwijkingen van het plan, of "geen"].
 git add docs/superpowers/plans/2026-10-07-agentic-state-whitepaper-kader.md
 git commit -m "docs(plans): executiestatus agentic-state whitepaper-kader — 7 taken klaar, eindverificatie groen"
 ```
+
+## Executiestatus
+
+| Taak | Status |
+|---|---|
+| 1. Gap-analyse scaffold + lagen 1–6 | klaar (commit: 6dfe9bb) |
+| 2. Gap-analyse lagen 7–12 + top-gaps | klaar (commit: 3c7e47e) |
+| 3. Beslissessie volgende stap | klaar (commit: 4df44bf) — voorgelegd aan Marc maar niet bevestigd; vastgelegd als VOORSTEL a (HITL), beslispunt 7 in het plan in voorstel-formulering |
+| 4. Plan → v1.2 | klaar (commit: fb80958) |
+| 5. Slides NL/EN | klaar (commit: c011a0a) |
+| 6. Samenvatting + demo | klaar (commit: 8424c96) |
+| 7. Eindverificatie | klaar — alle evidence-claims OK, geen placeholders |
+
+Deviaties: (1) beslissessie onbevestigd → voorstel-formulering in gap-analyse §6 en beslispunt 7 (taak 3/4). (2) citatie-uitbreiding "(Ilves e.a., 2025, agenticstate.org)" in de bestuurlijke samenvatting — planstekort: Step 1 verbatim bevatte het domein niet, Step 7 eiste het (taak 6). (3) notitie EN-demo na de §4-leeswijzer i.p.v. direct onder de tabel (taak 6). (4) padcorrectie in de gap-analyse `AGENTIC_STATE_PLAN.md` → `docs/AGENTIC_STATE_PLAN.md` (r.7 en r.220) — ONTBREEKT bij de Step-1-herverificatie, aparte commit e27dcb3 (taak 7). Review-minors niet verwerkt: laag 12 "(lagen 7)"→"(zie laag 7)", "nldt/16"-afkorting, §0a-vat flakt score-ranges af ("L2 (+L3-aanzet)"→"L2", "L0–L1"→"L0"), nowrap-overflow risico .laag-tag.
