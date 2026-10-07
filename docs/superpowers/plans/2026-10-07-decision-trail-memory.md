@@ -60,7 +60,8 @@
           "additionalProperties": false,
           "properties": {
             "jobId": { "type": "string" },
-            "runId": { "type": "string" }
+            "runId": { "type": "string" },
+            "agent": { "type": "string" }
           }
         },
         "detail": { "type": "string" }
@@ -211,7 +212,7 @@ def make_trail(
         "status": "open",
         "createdAt": created_at or datetime.now(timezone.utc).isoformat(),
     }
-    validate_instance(record, "decision-trail")
+    validate_instance(record, "decision-trail.schema.json")
     return record
 
 
@@ -224,7 +225,7 @@ def append_trails(records: list[dict[str, Any]]) -> int:
         for record in records:
             if record["trailId"] in existing:
                 continue
-            validate_instance(record, "decision-trail")
+            validate_instance(record, "decision-trail.schema.json")
             fh.write(json.dumps(record, ensure_ascii=False, default=str) + "\n")
             existing.add(record["trailId"])
             written += 1
@@ -265,7 +266,7 @@ def update_trail(
                 record["learningLevel"] = learning_level
         if hit:
             for record in records:
-                validate_instance(record, "decision-trail")
+                validate_instance(record, "decision-trail.schema.json")
             path.write_text("".join(json.dumps(r, ensure_ascii=False, default=str) + "\n" for r in records), encoding="utf-8")
             return next(r for r in records if r["trailId"] == trail_id)
     return None
@@ -475,7 +476,7 @@ def read_journal_errors(journal_path: Path | None = None) -> list[dict[str, Any]
                 "journal_error",
                 _rel(path),
                 f"{entry.get('agent')}: {entry.get('summary')}",
-                {"jobId": entry.get("jobId"), "runId": entry.get("agent")},
+                {"jobId": entry.get("jobId"), "agent": entry.get("agent")},
             ))
     return out
 
