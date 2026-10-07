@@ -7,8 +7,11 @@ Serves runs/ at the root plus a small API:
   GET  /api/modes       prompting modes for ?poc=
   GET  /api/models      local Ollama models
   POST /api/run         start a simulation run (one at a time)
+  POST /api/stop        stop de lopende run
   GET  /api/status      running / question / exit code
   GET  /api/steps       the run journal (steps.jsonl)
+  GET  /api/hitl/pending  wachtende HITL-interrupt (authoritair, van checkpoints op disk)
+  POST /api/hitl/verdict  menselijk verdict → duurzaam ledger + resume.py (MC-6)
   GET  /simulation/…    static nldt/simulation HTML demos (reference panels)
 """
 
@@ -16,6 +19,7 @@ from __future__ import annotations
 
 import json
 import os
+import sqlite3
 import subprocess
 import sys
 import urllib.request
@@ -29,6 +33,10 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parent / ".env")
 
 import journal
+from agent import LOCAL_TOOLS, build_agent
+from hitl import args_summary, ledger_append, pending_from_ledger
+from live import THREAD_ID  # zelfde thread als de live-run én resume.py
+from langgraph.checkpoint.sqlite import SqliteSaver
 from poc_demos import format_question, get_poc, list_pocs, modes_for_poc
 from pocs import roster
 from scenario_catalog import list_scenario_runs
@@ -41,6 +49,7 @@ RUNS = HERE / "runs"
 SCENARIO_RUNS = HERE.parent / "poc" / "scenario-runs"
 SIMULATION_DIR = HERE.parent / "nldt" / "simulation"
 JOURNAL = RUNS / "live" / "steps.jsonl"
+CHECKPOINTS = RUNS / "live" / "checkpoints.sqlite"
 DASHBOARD = HERE / "dashboard.html"
 
 app = FastAPI(title="nLDT deep-agent simulatie")
@@ -107,6 +116,15 @@ class RunBody(BaseModel):
     use_laya: bool = True
 
 
+class VerdictBody(BaseModel):
+    """Menselijk verdict op een wachtende HITL-interrupt (MC-6: de jurist beslist)."""
+
+    interruptId: str
+    approved: bool
+    comment: str
+    operator: str = "operator"
+
+
 @app.post("/api/run")
 def run(body: RunBody) -> dict:
     if _proc["p"] and _proc["p"].poll() is None:
@@ -165,6 +183,91 @@ def stop() -> dict:
         journal.append("error", "runner", "simulatie gestopt door gebruiker")
         return {"ok": True, "stopped": True}
     return {"ok": True, "stopped": False}
+
+
+def _load_pending() -> dict:
+    """Authoritatieve pending-status: de interrupt-state op disk (checkpoints).
+
+    Bouwt de agent met SqliteSaver, zelfde pad als live.py en resume.py;
+    get_state leest alléén de checkpoint-DB — geen model of Ollama nodig.
+    Klopt daardoor ook na een server-herstart en zodra een verdict het
+    interrupt heeft verbruikt.
+    """
+    intr = None
+    conn = None
+    try:
+        conn = sqlite3.connect(str(CHECKPOINTS), check_same_thread=False)
+        agent = build_agent(list(LOCAL_TOOLS), checkpointer=SqliteSaver(conn))
+        state = agent.get_state({"configurable": {"thread_id": THREAD_ID}})
+        intr = next((i for t in state.tasks for i in t.interrupts), None)
+    except sqlite3.OperationalError:
+        return {"pending": False}  # nog geen checkpoints (eerste run nog niet gestart)
+    finally:
+        if conn is not None:
+            conn.close()
+    if intr is None:
+        return {"pending": False}
+    act = (intr.value.get("action_requests") or [{}])[0]
+    return {
+        "pending": True,
+        "interruptId": intr.id,
+        "tool": act.get("name", ""),
+        "argsSummary": args_summary(act.get("args", {})),
+        "threadId": THREAD_ID,
+    }
+
+
+def _valideer_verdict(body: VerdictBody) -> tuple[bool, str]:
+    """400-validaties vóór de pending-check (volgorde: eerst 400, dan 409)."""
+    if not body.interruptId.strip():
+        return False, "interruptId ontbreekt."
+    if not body.comment.strip():
+        return False, "Het verdict vereist een niet-lege opmerking (leerstaat)."
+    return True, ""
+
+
+@app.get("/api/hitl/pending")
+def hitl_pending() -> dict:
+    return _load_pending()
+
+
+@app.post("/api/hitl/verdict")
+def hitl_verdict(body: VerdictBody) -> dict:
+    ok, fout = _valideer_verdict(body)
+    if not ok:
+        raise HTTPException(400, fout)
+    state_pending = _load_pending()
+    ledger_pending = pending_from_ledger()
+    if (
+        not state_pending.get("pending")
+        or state_pending.get("interruptId") != body.interruptId
+        or (ledger_pending is not None and ledger_pending.get("interruptId") != body.interruptId)
+    ):
+        raise HTTPException(
+            409,
+            "Geen wachtende HITL-interrupt met dit id (al verbruikt?) — "
+            "ververs de pending-status.",
+        )
+    comment = body.comment.strip()
+    operator = body.operator.strip() or "operator"
+    # Duurzaam verdict vóór het spawnen: bewaard, ook als resume.py zou crashen.
+    ledger_append({
+        "kind": "verdict", "interruptId": body.interruptId, "threadId": THREAD_ID,
+        "tool": state_pending["tool"], "approved": bool(body.approved),
+        "comment": comment, "operator": operator, "auto": False,
+    })
+    JOURNAL.parent.mkdir(parents=True, exist_ok=True)
+    log = (RUNS / "live" / "run.log").open("a")  # append: het run-log blijft staan
+    subprocess.Popen(
+        [sys.executable, "resume.py", body.interruptId,
+         "--approved" if body.approved else "--rejected",
+         "--comment", comment, "--operator", operator],
+        cwd=HERE,
+        env=os.environ.copy(),
+        stdout=log,
+        stderr=subprocess.STDOUT,
+    )
+    return {"ok": True, "interruptId": body.interruptId, "approved": bool(body.approved)}
 
 
 @app.get("/api/status")

@@ -154,6 +154,93 @@ def test_resume_argparse_verplicht_comment_bij_beide_uitkomsten(tmp_path):
         assert "opmerking" in (r.stdout + r.stderr).lower()
 
 
+def test_server_verdict_route_bestaat_en_weigert_leeg_comment():
+    """Task 7 (brief): hitl-routes bestaan in live_server; dubbel verdict → 409."""
+    import inspect
+
+    import live_server
+
+    src = inspect.getsource(live_server)
+    assert "/api/hitl/pending" in src and "/api/hitl/verdict" in src
+    assert "409" in src, "dubbel verdict moet geweigerd worden"
+
+
+def test_server_valideer_verdict_weigert_leeg_comment_en_accepteert_geldig():
+    """Validatiehelper: leeg comment → 400-melding vóór de pending-check; geldig → ok."""
+    import live_server
+
+    ok, fout = live_server._valideer_verdict(
+        live_server.VerdictBody(interruptId="i-1", approved=True, comment="   \n")
+    )
+    assert not ok and "opmerking" in fout.lower()
+
+    ok, fout = live_server._valideer_verdict(
+        live_server.VerdictBody(interruptId="i-1", approved=False, comment="niet koppelen")
+    )
+    assert ok and fout == ""
+
+
+def test_server_load_pending_zonder_checkpoints_of_interrupt_is_niet_pending(monkeypatch, tmp_path):
+    """Authoritair via checkpoints op disk: geen DB (of lege DB) → pending False.
+
+    Bewijst dat de pending-check zonder Ollama/model werkt (zelfde pad als resume.py).
+    """
+    import live_server
+
+    monkeypatch.setattr(live_server, "CHECKPOINTS", tmp_path / "ontbreekt" / "checkpoints.sqlite")
+    assert live_server._load_pending() == {"pending": False}
+
+    (tmp_path / "leeg").mkdir()
+    monkeypatch.setattr(live_server, "CHECKPOINTS", tmp_path / "leeg" / "checkpoints.sqlite")
+    assert live_server._load_pending() == {"pending": False}
+
+
+def test_server_verdict_route_409_bij_afwezige_pending(monkeypatch, tmp_path):
+    """Zonder wachtende interrupt (al verbruikt) geeft het verdict-endpoint 409."""
+    from fastapi import HTTPException
+
+    import live_server
+
+    monkeypatch.setattr("hitl.LEDGER", tmp_path / "hitl-verdicts.jsonl")
+    monkeypatch.setattr(live_server, "_load_pending", lambda: {"pending": False})
+    with pytest.raises(HTTPException) as ei:
+        live_server.hitl_verdict(
+            live_server.VerdictBody(interruptId="i-1", approved=True, comment="ok")
+        )
+    assert ei.value.status_code == 409
+
+
+def test_server_verdict_route_ledger_voor_spawn_en_daarna_409(monkeypatch, tmp_path):
+    """Duurzaam verdict (auto: False) staat in het ledger vóór resume.py start."""
+    import live_server
+
+    ledger = tmp_path / "hitl-verdicts.jsonl"
+    monkeypatch.setattr("hitl.LEDGER", ledger)
+    monkeypatch.setattr(live_server, "_load_pending", lambda: {
+        "pending": True, "interruptId": "i-9", "tool": "run_bp2op_transform",
+        "argsSummary": "useCase=eindhoven", "threadId": "nldt-live",
+    })
+    spawned = []
+    monkeypatch.setattr(live_server.subprocess, "Popen", lambda cmd, **k: spawned.append((cmd, k)))
+
+    resp = live_server.hitl_verdict(live_server.VerdictBody(
+        interruptId="i-9", approved=False, comment="niet koppelen", operator="marc"))
+    assert resp["ok"] is True
+    regels = [json.loads(l) for l in ledger.read_text(encoding="utf-8").splitlines()]
+    assert regels and regels[0]["kind"] == "verdict" and regels[0]["auto"] is False
+    assert regels[0]["approved"] is False and regels[0]["operator"] == "marc"
+    assert spawned and spawned[0][0][1].endswith("resume.py") and "--rejected" in spawned[0][0]
+
+    # na verbruik (state leeg) is een tweede verdict voor hetzelfde id geweigerd:
+    from fastapi import HTTPException
+
+    monkeypatch.setattr(live_server, "_load_pending", lambda: {"pending": False})
+    with pytest.raises(HTTPException) as ei:
+        live_server.hitl_verdict(live_server.VerdictBody(
+            interruptId="i-9", approved=True, comment="tweede poging"))
+    assert ei.value.status_code == 409
+
+
 def test_build_agent_geeft_interrupt_en_checkpointer_door(tmp_path):
     """build_agent plakt de interrupt-config op create_deep_agent (offline bewijs)."""
     import inspect
