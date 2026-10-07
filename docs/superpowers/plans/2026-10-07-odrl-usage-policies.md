@@ -2,6 +2,15 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **Executiestatus (2026-10-07):** alle 4 taken uitgevoerd — T1–T3 subagent-driven met review
+> (spec ✅, geen Critical/Important), T4 inline door de controller (live-publicatiegolf 15/15:
+> 13 open policy-open, 1 internal policy-internal, 1 restricted policy-restricted HITL-approved;
+> nldt/26 met de fase × databron × acteur-matrix en de werkelijke JSON's; nldt/13-koppeling).
+> Suites: nldt 401 passed, poc 304/1. Gepusht (`91cd0cd`). Eindreview-triage (kan-later):
+> geen caching in load_policies; `odrl:spatial isA` met custom terms is niet-canoniek ODRL
+> (documentair tot de wallet-binding); permissief policy-schema; KeyError-hardening bij
+> onbekende accessClass in het http-pad; body bevat asset-tekst bij policy-≥400.
+
 **Goal:** ODRL-beleid machinaal leesbaar: drie vaste Policy-Definitions als beleidsartefact, geëmbed in offers en meegeleverd in EDC-manifests/http-registratie, gedemonstreerd met een live-publicatiegolf over het Utrechtse planproces (15 offers) en de fase × databron × acteur-matrix als `nldt/26`.
 
 **Architecture:** Policy-bibliotheek (JSON + schema + pure lader) als enige bron van beleidsinhoud; `build_odrl_offer` embedt permission/prohibition uit de bibliotheek; de connector levert Policy-Definitions mee (manifest compleet, http POST vóór asset, mock krijgt policyId). Geen enforcement-runtime, geen wijziging aan deny-lijst/HITL-gate.
