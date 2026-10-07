@@ -86,3 +86,9 @@ def test_mcp_servers_register_readops() -> None:
     assert hasattr(poc_server, "get_provenance")
     assert hasattr(poc_server, "crosscheck_formal_rule")
     assert hasattr(data_server, "inspect_geo_layer")
+
+
+def test_data_server_registers_decision_trail_readop() -> None:
+    from services.mcp_servers import data_server
+
+    assert hasattr(data_server, "list_decision_trails")

@@ -115,6 +115,28 @@ async def inspect_geo_layer(run_id: str, layer: str) -> str:
     return json.dumps(_inspect_geo_layer(run_id, layer), indent=2, default=str)
 
 
+# --- read-only leerstaat-operatie (decision-trail memory, retrieval v2) --------
+
+from services.memory.store import load_trails  # noqa: E402
+
+
+@mcp.tool()
+async def list_decision_trails(
+    status: str | None = None,
+    learning_level: str | None = None,
+    observation_type: str | None = None,
+) -> str:
+    """Read-only: decision trails (leerstaat) uit de semantic memory — optioneel gefilterd op status (open|handled), learning_level (operationeel|organisatie|institutioneel) of observation_type (journal_error|hitl_needs_human|ledger_reject|golden_drift)."""
+    trails = load_trails()
+    if status:
+        trails = [t for t in trails if t["status"] == status]
+    if learning_level:
+        trails = [t for t in trails if t["learningLevel"] == learning_level]
+    if observation_type:
+        trails = [t for t in trails if t["observation"]["type"] == observation_type]
+    return json.dumps({"count": len(trails), "trails": trails}, indent=2, default=str)
+
+
 def main() -> None:
     if os.environ.get("NLDT_MCP_TRANSPORT", "stdio") == "streamable-http":
         from services.mcp_servers.http_transport import run_mcp_http
