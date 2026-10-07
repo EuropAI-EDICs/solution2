@@ -34,7 +34,7 @@ load_dotenv(Path(__file__).resolve().parent / ".env")
 
 import journal
 from agent import LOCAL_TOOLS, build_agent
-from hitl import args_summary, ledger_append, pending_from_ledger
+from hitl import args_summary, ledger_append, ledger_read, pending_from_ledger
 from live import THREAD_ID  # zelfde thread als de live-run én resume.py
 from langgraph.checkpoint.sqlite import SqliteSaver
 from poc_demos import format_question, get_poc, list_pocs, modes_for_poc
@@ -53,7 +53,7 @@ CHECKPOINTS = RUNS / "live" / "checkpoints.sqlite"
 DASHBOARD = HERE / "dashboard.html"
 
 app = FastAPI(title="nLDT deep-agent simulatie")
-_proc: dict = {"p": None, "question": None, "rc": None, "run_id": 0}
+_proc: dict = {"p": None, "question": None, "rc": None, "run_id": 0, "resume": None}
 
 
 @app.get("/")
@@ -129,6 +129,13 @@ class VerdictBody(BaseModel):
 def run(body: RunBody) -> dict:
     if _proc["p"] and _proc["p"].poll() is None:
         raise HTTPException(409, "Er draait al een simulatie — wacht tot die klaar is.")
+    resume = _proc.get("resume")
+    if resume and resume.poll() is None:
+        raise HTTPException(
+            409,
+            "Er loopt nog een hervatting (verdict wordt verwerkt) — wacht tot die "
+            "klaar is, anders wordt het checkpoint onder de hervatting weggeschreven.",
+        )
     try:
         poc_spec = get_poc(body.poc)
     except KeyError as exc:
@@ -237,11 +244,32 @@ def hitl_pending() -> dict:
     return _load_pending()
 
 
+def _al_beslist(interrupt_id: str) -> bool:
+    """True als er al een verdict-record voor dit interruptId in het ledger staat.
+
+    Idempotentie van POST /api/hitl/verdict: het dashboard kan een dubbele
+    klik niet volledig uitsluiten; de tweede POST mag dan géén tweede resume
+    spawnen. Dit raakt het last-wins-contract niet: server én resume.py
+    schrijven elk óp record per id (dubbelweegschrif), maar de server-POST
+    zelf wordt nu maximaal één keer geaccepteerd per interruptId.
+    """
+    return any(
+        r.get("kind") == "verdict" and r.get("interruptId") == interrupt_id
+        for r in ledger_read()
+    )
+
+
 @app.post("/api/hitl/verdict")
 def hitl_verdict(body: VerdictBody) -> dict:
     ok, fout = _valideer_verdict(body)
     if not ok:
         raise HTTPException(400, fout)
+    if _al_beslist(body.interruptId):
+        raise HTTPException(
+            409,
+            "Voor dit interruptId is al een verdict vastgelegd — de beslissing "
+            "is definitief en kan niet worden herhaald.",
+        )
     beschikbaar, state_pending = _interrupt_state()
     tool = ""
     if beschikbaar:
@@ -277,7 +305,8 @@ def hitl_verdict(body: VerdictBody) -> dict:
     })
     JOURNAL.parent.mkdir(parents=True, exist_ok=True)
     log = (RUNS / "live" / "run.log").open("a")  # append: het run-log blijft staan
-    subprocess.Popen(
+    # geregistreerd in _proc: /api/run weigert zolang deze hervatting leeft
+    _proc["resume"] = subprocess.Popen(
         [sys.executable, "resume.py", body.interruptId,
          "--approved" if body.approved else "--rejected",
          "--comment", comment, "--operator", operator],

@@ -184,7 +184,9 @@ jurist beslist. Het enige interrupt-punt is daarom de tool
   `POST /api/hitl/verdict` schrijft het verdict eerst duurzaam weg en spawnt
   dan resume.py; `GET /api/hitl/pending` leest authoritair uit de
   checkpoint-state en overleeft daarmee een serverherstart (ledger als
-  fallback).
+  fallback). Let op: het hervatte leg draait op de default-modelconfig van de
+  server-omgeving; de modelkeuze van de oorspronkelijke run wordt niet
+  gepersist.
 - **Duurzaam ledger:** requests én verdicts landen append-only in
   `runs/live/hitl-verdicts.jsonl` (dubbelweegschrif-contract: server én
   resume.py schrijven elk een record; consumers zijn set-based/last-wins).

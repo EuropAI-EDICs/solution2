@@ -115,8 +115,15 @@ def read_live_hitl_observations(ledger: Path | None = None) -> list[dict[str, An
     pad = ledger or DEEP_AGENTS_LEDGER
     if not pad.exists():
         return []
-    regels = [json.loads(r) for r in pad.read_text(encoding="utf-8").splitlines() if r.strip()]
-    verdicts = {r["interruptId"]: r for r in regels if r.get("kind") == "verdict"}
+    regels: list[dict[str, Any]] = []
+    for r in pad.read_text(encoding="utf-8").splitlines():
+        if not r.strip():
+            continue
+        try:
+            regels.append(json.loads(r))
+        except json.JSONDecodeError:
+            continue  # torn regel (crash midden in een append): overslaan
+    verdicts = {r.get("interruptId", ""): r for r in regels if r.get("kind") == "verdict"}
     out: list[dict[str, Any]] = []
     for r in regels:
         if r.get("kind") != "request":

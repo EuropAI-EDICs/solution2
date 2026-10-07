@@ -94,6 +94,7 @@
   #hitl-comment { font-size:12.5px; padding:6px 8px; border:1px solid var(--line); border-radius:6px; width:100%; margin-bottom:8px; }
   .hitl-btn { border:0; border-radius:6px; padding:7px 14px; font-size:12.5px; font-weight:600; cursor:pointer; color:#fff; margin-right:6px; }
   .hitl-btn.approve { background:#15803d; } .hitl-btn.reject { background:#b91c1c; }
+  .hitl-btn:disabled { opacity:.55; cursor:wait; }
 </style>
 </head>
 <body>
@@ -753,15 +754,23 @@ async function hitlVerdict(approved) {
   const kaart = $('hitl-kaart');
   const comment = $('hitl-comment').value.trim();
   if (!comment) { alert('Een verdict vereist een opmerking (leerstaat).'); return; }
-  let r;
+  // dubbel-submit dicht: na de eerste klik kan een tweede POST niet eens vertrekken;
+  // bij 409/foutmelding worden de knoppen weer actief (de kaart blijft dan staan).
+  const knoppen = kaart.querySelectorAll('.hitl-btn');
+  knoppen.forEach(b => b.disabled = true);
   try {
-    r = await fetch('/api/hitl/verdict', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({interruptId: kaart.dataset.interruptId, approved, comment}),
-    });
-  } catch { alert('Kon het verdict niet opslaan — server onbereikbaar.'); return; }
-  if (r.status === 409) { alert('Deze beslissing is al genomen.'); return; }
-  if (r.ok) { $('hitl-comment').value = ''; kaart.style.display = 'none'; }
+    let r;
+    try {
+      r = await fetch('/api/hitl/verdict', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({interruptId: kaart.dataset.interruptId, approved, comment}),
+      });
+    } catch { alert('Kon het verdict niet opslaan — server onbereikbaar.'); return; }
+    if (r.status === 409) { alert('Deze beslissing is al genomen.'); return; }
+    if (r.ok) { $('hitl-comment').value = ''; kaart.style.display = 'none'; }
+  } finally {
+    knoppen.forEach(b => b.disabled = false);
+  }
 }
 
 async function tick() {

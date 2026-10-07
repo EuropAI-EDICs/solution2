@@ -47,8 +47,14 @@ def ledger_read() -> list[dict]:
         return []
     out = []
     for line in LEDGER.read_text(encoding="utf-8").splitlines():
-        if line.strip():
+        if not line.strip():
+            continue
+        try:
             out.append(json.loads(line))
+        except json.JSONDecodeError:
+            # torn regel (crash midden in een append): overslaan — de append-only
+            # bron blijft leesbaar en de gezonde regels blijven bruikbaar.
+            continue
     return out
 
 

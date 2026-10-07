@@ -33,6 +33,22 @@ def test_pending_is_request_zonder_verdict(tmp_path, monkeypatch):
     assert pending_from_ledger() is None
 
 
+def test_ledger_read_slaat_kapotte_regels_over(tmp_path, monkeypatch):
+    """Eindreview: een torn regel (halve JSON, bijv. crash midden in een append)
+    mag de ledger-lezing niet laten crashen; de gezonde regels overleven."""
+    ledger = tmp_path / "hitl-verdicts.jsonl"
+    goed1 = json.dumps({"kind": "request", "interruptId": "i-1"})
+    goed2 = json.dumps({"kind": "verdict", "interruptId": "i-1", "approved": True, "comment": "ok"})
+    torn = '{"kind": "verdict", "inter'  # halfweg afgebroken schrijfactie
+    ledger.write_text(f"{goed1}\n{torn}\n{goed2}\n", encoding="utf-8")
+    monkeypatch.setattr("hitl.LEDGER", ledger)
+
+    regels = ledger_read()
+    assert [r["interruptId"] for r in regels] == ["i-1", "i-1"]
+    # de pending-berekening blijft ook met een torn regel in de file correct
+    assert pending_from_ledger() is None
+
+
 def test_verdict_mapping_conform_resume_contract():
     assert verdict_to_decisions(True, "wat dan ook") == {"decisions": [{"type": "approve"}]}
     assert verdict_to_decisions(False, "niet koppelen") == {
@@ -106,6 +122,49 @@ def test_live_py_help_benoemt_auto_approve_flag():
     )
     assert result.returncode == 0
     assert "--auto-approve-hitl" in result.stdout
+
+
+@pytest.mark.filterwarnings("ignore:laya-mlx:RuntimeWarning")
+def test_live_auto_approve_schrijft_auto_ledger_record(monkeypatch, tmp_path):
+    """Eindreview (Task 5-contract): het dev-flag-pad hervat in-process en het
+    ledger-record is expliciet machinaal — `auto: True`, operator `dev-flag`,
+    met het interruptId van de wachtende interrupt."""
+    import sys
+    from types import SimpleNamespace
+
+    import journal as journal_mod
+    import live
+    from hitl import PENDING
+
+    fake_interrupt = SimpleNamespace(id="i-auto", value={})
+
+    class FakeAgent:
+        def get_state(self, _config):
+            return SimpleNamespace(tasks=[SimpleNamespace(interrupts=[fake_interrupt])])
+
+        def stream(self, *_a, **_k):
+            return iter([])  # stream is lazy; het resume-mechanisme is afgedekt door de smoke
+
+    monkeypatch.setattr("live.check_ollama", lambda modellen: None)
+    monkeypatch.setattr("live.run_streamed", lambda agent, vraag, **k: PENDING)
+    monkeypatch.setattr(live, "build_agent", lambda tools, *, checkpointer=None: FakeAgent())
+    ledger = tmp_path / "hitl-verdicts.jsonl"
+    monkeypatch.setattr("hitl.LEDGER", ledger)
+    monkeypatch.setattr(journal_mod, "LIVE_DIR", tmp_path / "runs" / "live")
+    monkeypatch.setattr(journal_mod, "JOURNAL", tmp_path / "runs" / "live" / "steps.jsonl")
+    monkeypatch.setattr(journal_mod, "append", lambda *a, **k: None)
+    monkeypatch.setattr(live, "HERE", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["live.py", "--auto-approve-hitl", "auto rooktest"])
+
+    live.main()
+
+    regels = [json.loads(l) for l in ledger.read_text(encoding="utf-8").splitlines()]
+    verdict = regels[-1]
+    assert verdict["kind"] == "verdict"
+    assert verdict["auto"] is True
+    assert verdict["operator"] == "dev-flag"
+    assert verdict["interruptId"] == "i-auto"
+    assert verdict["approved"] is True
 
 
 @pytest.mark.filterwarnings("ignore:laya-mlx:RuntimeWarning")
@@ -306,6 +365,62 @@ def test_server_verdict_route_ledger_voor_spawn_en_daarna_409(monkeypatch, tmp_p
         live_server.hitl_verdict(live_server.VerdictBody(
             interruptId="i-9", approved=True, comment="tweede poging"))
     assert ei.value.status_code == 409
+
+
+def test_server_verdict_route_is_idempotent_per_interruptid(monkeypatch, tmp_path):
+    """Eindreview: dubbel-submit dicht — een tweede POST voor een interruptId
+    waar al een verdict-record voor staat, geeft 409 en spawnét geen tweede
+    resume (last-wins-dubbelweegschrift server+resume.py blijft onaangetast)."""
+    from fastapi import HTTPException
+
+    import live_server
+
+    ledger = tmp_path / "hitl-verdicts.jsonl"
+    monkeypatch.setattr("hitl.LEDGER", ledger)
+    monkeypatch.setattr(live_server, "_interrupt_state", lambda: (
+        True,
+        {"pending": True, "interruptId": "i-dup", "tool": "run_bp2op_transform",
+         "argsSummary": "useCase=eindhoven", "threadId": "nldt-live"},
+    ))
+    spawned = []
+    monkeypatch.setattr(live_server.subprocess, "Popen", lambda cmd, **k: spawned.append((cmd, k)))
+
+    resp = live_server.hitl_verdict(live_server.VerdictBody(
+        interruptId="i-dup", approved=True, comment="akkoord", operator="marc"))
+    assert resp["ok"] is True
+    assert len(spawned) == 1
+
+    with pytest.raises(HTTPException) as ei:
+        live_server.hitl_verdict(live_server.VerdictBody(
+            interruptId="i-dup", approved=True, comment="akkoord"))
+    assert ei.value.status_code == 409
+    assert len(spawned) == 1, "tweede verdict mag geen tweede resume spawnen"
+    verdicts = [json.loads(l) for l in ledger.read_text(encoding="utf-8").splitlines()]
+    assert len([r for r in verdicts if r["kind"] == "verdict"]) == 1
+
+
+def test_server_run_weigert_tijdens_levende_resume(monkeypatch):
+    """Eindreview: /api/run geeft 409 zolang een gespawnde hervatting leeft —
+    anders overschrijft een nieuwe run het checkpoint onder de resume."""
+    from fastapi import HTTPException
+    from types import SimpleNamespace
+
+    import live_server
+
+    levende_resume = SimpleNamespace(poll=lambda: None)  # poll() is None → leeft
+    monkeypatch.setitem(live_server._proc, "p", None)
+    monkeypatch.setitem(live_server._proc, "resume", levende_resume)
+
+    with pytest.raises(HTTPException) as ei:
+        live_server.run(live_server.RunBody(mode="demo", model="x", submodel="x"))
+    assert ei.value.status_code == 409
+    assert "hervat" in str(ei.value.detail).lower()
+
+    # na afloop van de hervatting komt de run voorbij de 409-gate (hier: 400 model-check)
+    monkeypatch.setitem(live_server._proc, "resume", SimpleNamespace(poll=lambda: 0))
+    with pytest.raises(HTTPException) as ei2:
+        live_server.run(live_server.RunBody(mode="demo", model="x", submodel="x"))
+    assert ei2.value.status_code != 409
 
 
 def test_build_agent_geeft_interrupt_en_checkpointer_door(tmp_path):

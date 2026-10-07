@@ -891,11 +891,11 @@ Alle tien taken uitgevoerd op `main` (HITL-workstream, 2026-10-07):
 
 | Taak | Commit(s) |
 |------|-----------|
-| T1 — hitl.py (config, ledger, resume-mapping) + tests | da007d5 |
-| T2 — agent.py `interrupt_on` + `build_agent`-contract | 5032d5d |
-| T3 — graph_trace.py vangt `__interrupt__` (journal + ledger-request) | 7f03b72 |
-| T4 — live.py: pending-sentinel, exit 2, SqliteSaver-thread `nldt-live` | c63a27f |
-| T5 — live.py hersteld (bare `build_agent` → LOCAL_TOOLS) + rooktest | 2bf8f98 + f1674b6 |
+| T1 — smoke-verificatie interrupt-mechanisme (`test_hitl_smoke.py`) | da007d5 |
+| T2 — hitl.py (config, ledger, resume-mapping) + tests | 5032d5d |
+| T3 — agent.py `interrupt_on` + `build_agent`-contract | 7f03b72 |
+| T4 — graph_trace.py vangt `__interrupt__` (journal + ledger-request) | c63a27f |
+| T5 — live.py: pending-sentinel, exit 2, SqliteSaver-thread `nldt-live`; hersteld (bare `build_agent` → LOCAL_TOOLS) + rooktest | 2bf8f98 + f1674b6 |
 | T6 — resume.py CLI (verplichte opmerking, exit 0/3/4) | 73eee48 |
 | T7 — live_server.py hitl-API (pending authoritair, verdict + 409) | b90966b + 4ce0319 + 7de75e6 |
 | T8 — dashboard pending-kaart (verplichte opmerking, 409-alert) | 9cedb15 + 5ba8e7a |
@@ -918,4 +918,22 @@ vers interrupt) + fallback-tak die de tool uit het ledger-request haalt;
 in de provenance (consolidatie crashte anders); (6) deferred:
 JSONDecodeError-guards beide kanten, operator-veld in het dashboard,
 model-env-persist, `/api/run` ziet geen lopende resume, DT-werkstroom moet
-schema-velden reconciliëren.
+schema-velden reconciliëren; (7) de journal-echo `hitl_verdict` is dunner dan
+spec §2 voorschrijft: `approved` is alleen zichtbaar in de samenvattingstekst
+en de opmerking is afgekapt via `args_summary` — bewust, het ledger is de
+duurzame bron en de journal hoeft het verdict niet te dupliceren; (8) de
+`llm`-marker-test (spec §5) is in de eindreview-fixwave alsnog geleverd
+(`tests/test_hitl_llm.py` + markerregistratie in `deep-agents/pytest.ini`,
+geskipt zonder `LDT_DEEP_AGENTS_ENDPOINT`).
+
+Eindreview-fixwave (2026-10-07, dezelfde dag): sluit het toepasselijke deel
+van (6) af — JSONDecodeError-guards in `hitl.ledger_read` én
+`read_live_hitl_observations`, en `/api/run` weigert (409) zolang een
+gespawnde hervatting leeft. Daarbovenop: verdict-idempotentie per
+interruptId (tweede POST → 409, vóór de pending-check; last-wins-contract
+blijft), dubbel-submit-dicht in het dashboard (knoppen disabled na de eerste
+klik), reject-resume-smoketest, unit-test voor het `auto: True`-ledgerrecord
+en de torn-regeltests beide kanten. Status na de fixwave: deep-agents
+**33 passed, 1 skipped** (llm-marker, endpoint-loos), nldt **405 passed**.
+Overgebleven deferred: operator-veld in het dashboard, model-env-persist,
+DT-werkstroom moet schema-velden reconciliëren.

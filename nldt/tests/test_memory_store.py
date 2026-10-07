@@ -103,3 +103,21 @@ def test_live_hitl_dubbel_verdict_collapsed(tmp_path: Path) -> None:
     assert len(obs) == 1
     assert "goedgekeurd" in obs[0]["detail"] and "tweede" in obs[0]["detail"]
     assert obs[0]["provenance"] == {"threadId": "nldt-live", "interruptId": "i-9"}
+
+
+def test_live_hitl_torn_regel_crasht_niet(tmp_path: Path) -> None:
+    """Eindreview: een torn regel (halve JSON, crash midden in een append) mag de
+    observatie-lezing niet laten crashen; de gezonde regels overleven."""
+    ledger = tmp_path / "hitl-verdicts.jsonl"
+    goed = json.dumps(
+        {"kind": "request", "interruptId": "i-1", "threadId": "nldt-live",
+         "tool": "run_bp2op_transform", "argsSummary": "useCase=eindhoven"},
+        ensure_ascii=False,
+    )
+    torn = '{"kind": "verdict", "inter'  # halfweg afgebroken schrijfactie
+    ledger.write_text(f"{goed}\n{torn}\n", encoding="utf-8")
+
+    obs = observations.read_live_hitl_observations(ledger=ledger)
+    assert len(obs) == 1
+    assert obs[0]["provenance"] == {"threadId": "nldt-live", "interruptId": "i-1"}
+    assert "hitl-pending" in obs[0]["detail"]

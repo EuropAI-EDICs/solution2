@@ -101,3 +101,46 @@ def test_interrupt_vuur_bij_submit_en_resume_werkt(tmp_path):
     state2 = graph.get_state(config)
     assert not any(t.interrupts for t in state2.tasks), "interrupt na approve niet verbruikt"
     assert state2.values["messages"][-1].content == "klaar"
+
+
+def test_resume_reject_slaat_tool_over_en_loopt_af(tmp_path):
+    """Eindreview: het reject-pad van het zelfde contract — de tool mag niet
+    draaien en de afwijzing moet in de context van de aflopende run zitten."""
+    from langchain_core.messages import ToolMessage
+
+    graph, _ = _build(tmp_path)
+    config = {"configurable": {"thread_id": "smoke-reject"}}
+    seen_interrupt = None
+    for chunk in graph.stream(
+        {"messages": [{"role": "user", "content": "converteer"}]},
+        config=config,
+        stream_mode=["updates", "messages"],
+        subgraphs=True,
+    ):
+        _ns, _mode, payload = chunk
+        items = payload if isinstance(payload, tuple) else [payload]
+        for item in items:
+            if isinstance(item, dict) and "__interrupt__" in item:
+                seen_interrupt = item["__interrupt__"][0]
+    assert seen_interrupt is not None, "geen __interrupt__-chunk gezien"
+
+    # resume: afkeuren met een opmerking (dashboard-verdict-vorm)
+    for _chunk in graph.stream(
+        Command(resume={"decisions": [{"type": "reject", "message": "niet koppelen"}]}),
+        config=config,
+        stream_mode=["updates", "messages"],
+    ):
+        pass
+
+    state2 = graph.get_state(config)
+    assert not any(t.interrupts for t in state2.tasks), "interrupt na reject niet verbruikt"
+    berichten = state2.values["messages"]
+    assert not any(
+        isinstance(m, ToolMessage) and "transform-uitgevoerd" in str(m.content)
+        for m in berichten
+    ), "de transform draaide ondanks een reject"
+    assert any(
+        "niet koppelen" in str(getattr(m, "content", "")) for m in berichten
+    ), "de reject-reden ontbreekt in de context"
+    # de run loopt normaal af: het model krijgt de afwijzing te zien en sluit met "klaar"
+    assert berichten[-1].content == "klaar"
