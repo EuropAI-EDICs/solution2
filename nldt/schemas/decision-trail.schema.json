@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "decision-trail.schema.json",
+  "title": "Decision trail record (leerstaat B10 / semantic memory)",
+  "type": "object",
+  "required": ["trailId", "observation", "what", "why", "whatShouldChange", "whoDecides", "didItHelp", "learningLevel", "status", "createdAt"],
+  "additionalProperties": false,
+  "properties": {
+    "trailId": { "type": "string", "pattern": "^dt-[0-9a-f]{8}$" },
+    "observation": {
+      "type": "object",
+      "required": ["type", "source", "detail"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "enum": ["journal_error", "hitl_needs_human", "ledger_reject", "golden_drift"] },
+        "source": { "type": "string" },
+        "provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "jobId": { "type": "string" },
+            "runId": { "type": "string" },
+            "agent": { "type": "string" }
+          }
+        },
+        "detail": { "type": "string" }
+      }
+    },
+    "what": { "type": "string" },
+    "why": { "type": "string" },
+    "whatShouldChange": { "type": "string" },
+    "whoDecides": { "type": "string" },
+    "didItHelp": { "type": ["string", "null"] },
+    "learningLevel": { "enum": ["operationeel", "organisatie", "institutioneel"] },
+    "status": { "enum": ["open", "handled"] },
+    "createdAt": { "type": "string" }
+  }
+}
