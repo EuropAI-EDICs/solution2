@@ -69,6 +69,11 @@ Draai dit vóór het committen van prompt-, model- of formalizer-wijzigingen. De
 LLM-seam-comparators draaien lokaal met `pytest -m llm` (vereist `LDT_NORM_LLM_ENDPOINT`
 resp. `LDT_SCENARIO_LLM_ENDPOINT`).
 
+Leerstaat (decision trails): `python3 -m services.memory.consolidate` (uit `nldt/`) zet
+automatische observaties (o.a. golden-drift via `eval/golden_report.py`, journal-errors,
+HITL-verdicts, ledger-rejects) om in durabele decision-trail-records met leerniveau;
+`python3 -m services.memory.report` geeft het leerrapport (`--handle`/`--promote` voor afhandeling).
+
 No API keys are used anywhere (the DSO GIO download API is key-gated and was
 verified 401 — see limitations below). Exit code is `0` only when the
 Critic/Validator's pipeline-run verdict is `pass`.

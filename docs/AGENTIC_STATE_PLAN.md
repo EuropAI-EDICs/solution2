@@ -126,7 +126,13 @@ Aansluitend op `nldt/08` (Phase 6 done) en het DSR-faserenpatroon uit `MULTI_AGE
 - **Exit:** minimaal drie organisatie-contexten draaien dezelfde kern met expliciete, gerechtvaardigde variatie; besluit doorgaan/wijzigen/stoppen met evidence.
 
 ### Fase E (mnd 10–18) — Leren, verpakken, bestuurlijke inbedding
-- Decision trail (B10) bovenop journal + PROV; eerste leerrapport over de drie niveaus (operationeel/organisatorisch/institutioneel).
+- Decision trail (B10): **vervroegd en geland** in `nldt/services/memory/` (spec
+  `docs/superpowers/specs/2026-10-07-decision-trail-memory-design.md`) — automatische observaties
+  (journal-errors, HITL-verdicts, ledger-rejects, golden-drift) → durabele, schema-gedwongen
+  trail-records met de drie leerniveaus; consolidatie + leerrapport via
+  `python -m services.memory.consolidate` / `report`. Fase E houdt restant: menselijke
+  observatie-invoer, promotieproces met de beslispuntenkalender, eerste leerrapport over de
+  demonstrator.
 - Herbruikbare kern publiceerbaar als open specificatie: recipes, skills, MCP-servers, schema-packs; publicatie via EU LDT Marketplace-kanaal (B12).
 - Stewardship-voorstel en de 2030-vragen (mandaat, funding, standaarden, toezicht) met de verzamelde evidence als input.
 - **Exit:** referentie-implementatie gedocumenteerd (nieuw `nldt/26`-doc + dit plan geüpdateet); leerpakket voor volgende functie (F3).
