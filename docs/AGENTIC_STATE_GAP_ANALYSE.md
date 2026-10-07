@@ -4,7 +4,7 @@
 |---|---|
 | Document | `docs/AGENTIC_STATE_GAP_ANALYSE.md` · v1.0 · 2026-10-07 |
 | Kader | [The Agentic State](https://agenticstate.org/paper.html) (Ilves, Kilian, Parazzoli, Peixoto, Velsberg, 2025): twaalf functionele lagen — zes implementatielagen (1–6) en zes enablement-lagen (7–12) — met een autonomieschaal L0–L5 (naar Bornet e.a. 2025) |
-| Methode-kader | [`AGENTIC_STATE_PLAN.md`](AGENTIC_STATE_PLAN.md) v1.1: Sitra-building-blocks B1–B14 als operationele methode (functie-first, poorten, leerstaat) |
+| Methode-kader | [`docs/AGENTIC_STATE_PLAN.md`](AGENTIC_STATE_PLAN.md) v1.1: Sitra-building-blocks B1–B14 als operationele methode (functie-first, poorten, leerstaat) |
 | Status | gap-analyse ter onderbouwing van het beslispunt "volgende stap" (plan §9) |
 
 ## 1. Methode
@@ -217,7 +217,7 @@ het zwaarst weegt: mensen houden de knoppen, aantoonbaar. Let op: de decision-tr
 **Voorgesteld: a (HITL / mens-agent-grens)** — de beslissessie is voorgelegd aan Marc
 (2026-10-07) maar nog **niet bevestigd**; dit is de aanbeveling uit §5, vastgelegd als
 voorstel zodat het plan verder kan. Bevestiging of een andere keuze wijzigt dit besluit
-én beslispunt 7 in `AGENTIC_STATE_PLAN.md` §9.
+én beslispunt 7 in `docs/AGENTIC_STATE_PLAN.md` §9.
 
 **Toelichting:** nog niet ontvangen. De stap doorloopt de eigen spec/plan-cyclus ná
 afronding van de decision-trail memory (taken 2–6).
