@@ -193,6 +193,9 @@ autonomieniveau dat het paper aanbeveelt voor gevoelige overheidsdomeinen. De en
 7/8/9 scoren mee omdat governance, data-herkomst en vervangbaarheid vanaf dag één
 meegemaakt zijn; de implementatielagen 5, 6 en 11 zijn bewust niet in scope.
 
+*Notitie: de Engelstalige demo (`agentic-state-demo-en.html`) volgt in een latere ronde; deze
+annotatieronde dekt de Nederlandse demo.*
+
 ## 5. Top-gaps → volgende stap
 
 De drie gaps die het meest opleveren, gescoord op de criteria uit de beslissessie

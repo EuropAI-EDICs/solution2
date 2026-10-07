@@ -26,6 +26,17 @@ De meerjarenvisie Zicht op Nederland omschrijft het landelijke stelsel als "geen
 **4. Officieel woordenboek: de EDIC-referentiearchitectuur.**
 Onze conformiteit is machineleesbaar vastgelegd tegen het officiële Europese referentiekader. Uitslag: van de zes basisvereisten voor deelname aan het ecosysteem halen we er vier volwaardig (open standaarden, metadata, identiteitsbeheer, open interfaces); als volwassenheidsprofiel scoren we sterk op **"verkennde tweeling"** (scenario's vergelijken vóór besluit) — precies de volwassenheid die besluitvorming vraagt. Bewust géén "voorschrijvende" of "autonome" tweeling: de aanbeveling blijft bij de mens.
 
+## Positie in het agentic-state-kader
+
+De whitepaper *The Agentic State* (Ilves e.a., 2025, agenticstate.org) beschrijft twaalf functionele lagen
+waarop agentic AI de overheid raakt — zes implementatie- en zes enablement-lagen — met een
+autonomieschaal van L0 (handmatig) tot L5 (volledig autonoom). De toolbox is daarop gescoord:
+**L3 in een begrensd domein** (agentic workflows met planning en toezicht — exact het niveau
+dat het paper voor gevoelige domeinen aanbeveelt), sterk op **governance** (verantwoordelijkheid,
+herkomst, leerstaat) en op **data** (autoritatieve bronnen, gedeelde betekenis). Crisisrespons,
+inkoop en publieke financiën zijn bewust niet in scope. Volledige onderbouwing per laag:
+[`docs/AGENTIC_STATE_GAP_ANALYSE.md`](../docs/AGENTIC_STATE_GAP_ANALYSE.md).
+
 ## Wat dit bestuurlijk oplevert
 
 - **Weerbaarheid van besluiten** — elk cijfer is herleidbaar en opnieuw te berekenen; onderbouwing overleeft bezwaar en toetsing.
