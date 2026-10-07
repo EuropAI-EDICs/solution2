@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nldt.example/schemas/dataspace-policy.schema.json",
+  "title": "ODRL Set policy (nLDT usage policies)",
+  "type": "object",
+  "required": ["@id", "@type", "odrl:permission"],
+  "additionalProperties": true,
+  "properties": {
+    "@id": { "enum": ["policy-open", "policy-internal", "policy-restricted"] },
+    "@type": { "const": "odrl:Set" },
+    "odrl:uid": { "type": "string" },
+    "odrl:permission": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/rule" }
+    },
+    "odrl:prohibition": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/rule" }
+    }
+  },
+  "$defs": {
+    "rule": {
+      "type": "object",
+      "required": ["odrl:action"],
+      "additionalProperties": true,
+      "properties": {
+        "odrl:action": { "type": "array", "minItems": 1 },
+        "odrl:constraint": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["odrl:leftOperand", "odrl:operator", "odrl:rightOperand"],
+            "additionalProperties": true
+          }
+        }
+      }
+    }
+  }
+}

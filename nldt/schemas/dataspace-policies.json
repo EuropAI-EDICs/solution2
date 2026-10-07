@@ -1,0 +1,53 @@
+{
+  "@context": "https://www.w3.org/ns/odrl.jsonld",
+  "vocabularies": {
+    "nldt-participant": "Deelnemer aan de nLDT data space (provincies, gemeenten, waterschappen, omgevingsdiensten met actieve deelname-overeenkomst).",
+    "external-party": "Elke partij buiten de nLDT-deelnemerskring."
+  },
+  "policies": [
+    {
+      "@id": "policy-open",
+      "@type": "odrl:Set",
+      "odrl:uid": "http://nldt.example/policy/open",
+      "odrl:permission": [
+        { "odrl:action": ["odrl:use", "odrl:distribute"] }
+      ]
+    },
+    {
+      "@id": "policy-internal",
+      "@type": "odrl:Set",
+      "odrl:uid": "http://nldt.example/policy/internal",
+      "odrl:permission": [
+        {
+          "odrl:action": ["odrl:use", "odrl:distribute"],
+          "odrl:constraint": [{
+            "odrl:leftOperand": "odrl:spatial",
+            "odrl:operator": "odrl:isA",
+            "odrl:rightOperand": "nldt-participant"
+          }]
+        }
+      ],
+      "odrl:prohibition": [
+        {
+          "odrl:action": ["odrl:distribute"],
+          "odrl:constraint": [{
+            "odrl:leftOperand": "odrl:spatial",
+            "odrl:operator": "odrl:isA",
+            "odrl:rightOperand": "external-party"
+          }]
+        }
+      ]
+    },
+    {
+      "@id": "policy-restricted",
+      "@type": "odrl:Set",
+      "odrl:uid": "http://nldt.example/policy/restricted",
+      "odrl:permission": [
+        { "odrl:action": ["odrl:use"] }
+      ],
+      "odrl:prohibition": [
+        { "odrl:action": ["odrl:distribute"] }
+      ]
+    }
+  ]
+}
