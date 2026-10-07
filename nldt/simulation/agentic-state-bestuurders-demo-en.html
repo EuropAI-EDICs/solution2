@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Agentic State — executive demo · LDT toolbox</title>
+<!--
+  Executive demo (English): the agentic-state approach of the LDT toolbox.
+  Dutch twin: agentic-state-bestuurders-demo.html. Style: a fusion of two
+  references — OpenEuroLLM (navy ink, ice blue, Roboto/mono) and the Mistral
+  stripe motif (warm orange sun). Fully offline; no external fonts, no keys.
+  Navigation: → / ← or click the dots at the bottom.
+-->
+<style>
+  :root {
+    --papier: #f6f8fb;
+    --inkt: #06121b;
+    --inkt-2: #0d1e2c;
+    --ijs: #dff3ff;
+    --ijs-rand: #c4d0da;
+    --blauw: #2ba8ff;
+    --hemel: #79c9ff;
+    --oranje: #ff9815;
+    --oranje-donker: #ef8700;
+    --amber: #ffc37e;
+    --rood: #e10500;
+    --mint: #1cefa5;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: Roboto, "Helvetica Neue", system-ui, -apple-system, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--sans);
+    color: var(--inkt);
+    background: var(--papier);
+    overflow: hidden;
+  }
+  .deck { position: relative; height: 100vh; }
+  .scene {
+    position: absolute; inset: 0;
+    padding: 52px 72px 84px;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    overflow: auto;
+  }
+  .scene.actief { display: flex; animation: binnen .35s ease; }
+  @keyframes binnen { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  .kicker {
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--oranje-donker);
+    display: flex; align-items: center; gap: .9rem;
+    margin-bottom: 14px;
+  }
+  .kicker .streep { display: inline-block; width: 34px; height: 8px;
+    background: linear-gradient(90deg, var(--amber), var(--oranje), var(--rood));
+    border-radius: 2px; }
+  h1 { font-size: 3.1rem; line-height: 1.04; letter-spacing: -.02em; font-weight: 800; }
+  h2 { font-size: 2rem; line-height: 1.1; letter-spacing: -.015em; font-weight: 800; margin-bottom: 6px; }
+  h2 span, h1 span { color: var(--oranje-donker); }
+  .lede { font-size: 1.06rem; line-height: 1.5; max-width: 62ch; margin: 10px 0 18px; color: var(--inkt-2); }
+  .mono { font-family: var(--mono); font-size: .86em; }
+  .note { font-size: .88rem; line-height: 1.45; color: var(--inkt-2);
+    border-left: 3px solid var(--hemel); padding: 6px 14px; margin-top: auto; max-width: 78ch; }
+  .src { font-family: var(--mono); font-size: .68rem; color: #5c6c7a; margin-top: 10px; }
+  .src b { color: var(--inkt-2); }
+
+  .kaarten { display: grid; gap: 14px; margin: 8px 0; }
+  .c2 { grid-template-columns: 1fr 1fr; } .c3 { grid-template-columns: 1fr 1fr 1fr; } .c4 { grid-template-columns: repeat(4, 1fr); }
+  .kaart { background: #fff; border: 1px solid var(--ijs-rand); border-radius: 10px; padding: 16px 18px; }
+  .kaart h3 { font-size: .98rem; margin-bottom: 6px; }
+  .kaart p { font-size: .88rem; line-height: 1.45; color: var(--inkt-2); }
+  .kaart.accent { border-top: 4px solid var(--oranje); }
+  .kaart.blauw { border-top: 4px solid var(--blauw); }
+
+  .zon { display: flex; flex-direction: column; gap: 6px; width: min(46vh, 420px); margin: 18px 0 10px; }
+  .zon i { display: block; height: 14px; border-radius: 8px; }
+  .zon i:nth-child(1){background:#ffd66e; width: 58%;} .zon i:nth-child(2){background:#ffc37e; width:70%;}
+  .zon i:nth-child(3){background:#ff9815; width:82%;} .zon i:nth-child(4){background:#ef8700; width:92%;}
+  .zon i:nth-child(5){background:#fb8332; width:100%;} .zon i:nth-child(6){background:#e10500; width:88%;}
+  .zon i:nth-child(7){background:#06121b; width:60%; height: 18px; border-radius: 9px;}
+
+  .twaalf { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 12px 0; }
+  .laag-chip { background: #fff; border: 1px solid var(--ijs-rand); border-radius: 8px;
+    padding: 10px 12px; border-left: 5px solid var(--hemel); }
+  .laag-chip b { display: block; font-size: .84rem; }
+  .laag-chip small { font-family: var(--mono); font-size: .66rem; color: #5c6c7a; }
+  .laag-chip.sterk { border-left-color: var(--oranje); background: #fff8ec; }
+  .laag-chip.nul { border-left-color: var(--ijs-rand); opacity: .62; }
+  .laag-chip .score { float: right; font-family: var(--mono); font-weight: 700; font-size: .8rem; }
+
+  .scoretabel, .meter, .poorten, .flow, .verboden, .vraag { }
+  table.scoretabel { border-collapse: collapse; width: 100%; background: #fff; border-radius: 10px; overflow: hidden; border: 1px solid var(--ijs-rand); }
+  .scoretabel th { text-align: left; font-size: .78rem; letter-spacing: .06em; text-transform: uppercase;
+    color: #5c6c7a; padding: 10px 14px; border-bottom: 2px solid var(--inkt); }
+  .scoretabel td { font-size: .9rem; padding: 9px 14px; border-bottom: 1px solid #eef2f6; }
+  .scoretabel .L3 { color: var(--oranje-donker); font-weight: 800; }
+  .scoretabel .L23 { color: var(--oranje-donker); font-weight: 700; }
+  .scoretabel .L0 { color: #8fa3af; }
+
+  .quote { font-size: 1.35rem; line-height: 1.4; font-weight: 500; max-width: 44ch;
+    border-left: 5px solid var(--oranje); padding: 8px 20px; margin: 14px 0; }
+  .quote small { display: block; font-family: var(--mono); font-size: .68rem; margin-top: 8px; color: #5c6c7a; }
+
+  .poorten { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 12px 0; }
+  .poort { background: #fff; border: 1px solid var(--ijs-rand); border-radius: 8px; padding: 12px; position: relative; }
+  .poort b { position: absolute; top: -12px; left: 10px; background: var(--inkt); color: #fff;
+    font-family: var(--mono); font-size: .7rem; padding: 2px 8px; border-radius: 6px; }
+  .poort p { font-size: .8rem; line-height: 1.35; margin-top: 8px; color: var(--inkt-2); }
+  .poort h4 { font-size: .88rem; margin-top: 6px; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 16px 0 8px; }
+  .stap { flex: 1; background: #fff; border: 1px solid var(--ijs-rand); border-radius: 10px; padding: 14px; position: relative; }
+  .stap + .stap { margin-left: 26px; }
+  .stap + .stap::before { content: "→"; position: absolute; left: -22px; top: 42%;
+    font-size: 1.2rem; color: var(--oranje-donker); font-weight: 800; }
+  .stap .nr { font-family: var(--mono); font-size: .66rem; letter-spacing: .1em; color: var(--oranje-donker); text-transform: uppercase; }
+  .stap h4 { font-size: .92rem; margin: 4px 0 6px; }
+  .stap p { font-size: .8rem; line-height: 1.4; color: var(--inkt-2); }
+  .stap.mens { border: 2px solid var(--oranje); background: #fff8ec; }
+  .stap.mens .nr { color: var(--rood); }
+
+  .verboden { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 12px 0; }
+  .nee { background: #fff; border: 1px solid var(--ijs-rand); border-radius: 10px; padding: 14px; }
+  .nee h4 { color: #b3231a; font-size: .92rem; margin-bottom: 6px; }
+  .nee p { font-size: .82rem; line-height: 1.4; color: var(--inkt-2); }
+
+  .vraag { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+  .vraag .item { background: var(--inkt); color: #eaf1fb; border-radius: 10px; padding: 16px 18px; }
+  .vraag .item b { color: var(--amber); display: block; margin-bottom: 4px; font-size: 1rem; }
+  .vraag .item p { font-size: .86rem; line-height: 1.45; color: #c4d0da; }
+
+  .meter { display: flex; gap: 6px; margin: 8px 0 0; }
+  .meter i { height: 10px; border-radius: 6px; flex: 1; background: #e3e9ee; }
+  .meter i.v { background: linear-gradient(90deg, var(--amber), var(--oranje), var(--rood)); }
+
+  .navigatie { position: fixed; left: 0; right: 0; bottom: 18px; display: flex;
+    justify-content: center; align-items: center; gap: 9px; z-index: 10; }
+  .navigatie button { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid #b8c7d1;
+    background: transparent; cursor: pointer; padding: 0; }
+  .navigatie button.aan { background: var(--oranje); border-color: var(--oranje); }
+  .hint { position: fixed; right: 22px; bottom: 14px; font-family: var(--mono); font-size: .66rem; color: #7f93a2; z-index: 10; }
+  .merk { position: fixed; left: 22px; bottom: 14px; font-family: var(--mono); font-size: .66rem; color: #7f93a2; z-index: 10; }
+</style>
+</head>
+<body>
+<div class="deck">
+
+  <!-- 0 · TITLE -->
+  <section class="scene" data-title="Title">
+    <p class="kicker"><span class="streep"></span> Executive demo · LDT toolbox · October 2026</p>
+    <div style="display:flex; gap:48px; align-items:flex-start; flex:1;">
+      <div style="flex:1.2;">
+        <h1>The Agentic State,<br /><span>an approach for the</span><br />physical living environment</h1>
+        <p class="lede">How AI assistants are reshaping the work of government — and how our toolbox
+        does it <strong>verifiably</strong>: AI proposes, the pipeline decides, and a human keeps the
+        final button. Working today, not on paper.</p>
+        <div class="kaarten c3">
+          <div class="kaart accent"><h3>The frame</h3><p>The whitepaper <em>The Agentic State</em> (Ilves et al., 2025) maps agentic AI across twelve functional layers with an L0–L5 autonomy scale.</p></div>
+          <div class="kaart accent"><h3>The approach</h3><p>We deliberately operate at <strong>L3</strong>: agentic workflows in a bounded domain, with gates and a learning trail as the safety net.</p></div>
+          <div class="kaart blauw"><h3>Today's proof</h3><p>The human–agent boundary is <strong>live</strong>: the assistant pauses, a human decides with a mandatory justification, and the decision feeds the learning loop.</p></div>
+        </div>
+      </div>
+      <div class="zon" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+    <p class="src"><b>Sources:</b> <em>The Agentic State</em> (agenticstate.org, 2025) · Sitra (2026) · <em>docs/AGENTIC_STATE_PLAN.md</em> v1.2 · <em>docs/AGENTIC_STATE_GAP_ANALYSE.md</em>. Navigate with <b>→</b>.</p>
+  </section>
+
+  <!-- 1 · WHY NOW -->
+  <section class="scene" data-title="Why now">
+    <p class="kicker"><span class="streep"></span> 1 · Why now</p>
+    <h2>Agentic AI is the biggest disruption<br />to government <span>since the modern state</span></h2>
+    <p class="lede">Earlier automation repeated existing processes. Agents pursue <strong>outcomes</strong>:
+    they plan, reason and act within boundaries — arriving in weeks rather than decades.
+    The whitepaper is explicit: <em>lead the transformation or be transformed by it</em>.</p>
+    <div class="kaarten c3">
+      <div class="kaart"><h3>The window is narrow</h3><p>ChatGPT reached 100 million users in two months; the telephone took 75 years. Proactive choices must be made now.</p></div>
+      <div class="kaart"><h3>The pressure is national</h3><p>Housing, climate adaptation, energy transition and water demand faster, better-substantiated spatial decisions — with underpinnings that hold up.</p></div>
+      <div class="kaart accent"><h3>Our answer</h3><p>Don't wait for L5. Build at the level that is responsible for this domain — and prove every step.</p></div>
+    </div>
+    <p class="note"><strong>Our position:</strong> the toolbox is no longer an experiment but a reference implementation — anchored in the national Zicht op Netherlands vision, the European DTAS vision and the EDIC reference architecture.</p>
+    <p class="src"><b>Source:</b> Ilves et al. (2025), ch. 1 · <em>nldt/bestuurlijke-samenvatting.md</em>.</p>
+  </section>
+
+  <!-- 2 · THE FRAME -->
+  <section class="scene" data-title="The frame">
+    <p class="kicker"><span class="streep"></span> 2 · The frame</p>
+    <h2>Twelve layers, one scale <span>— L0 to L5</span></h2>
+    <p class="lede">Six implementation layers (where agents deliver value immediately) and six enablement
+    layers (the conditions beneath them). Our score per layer, honestly assessed with evidence:</p>
+    <div class="twaalf">
+      <div class="laag-chip"><span class="score">L2</span><b>1 · Service &amp; UX</b><small>cited answers</small></div>
+      <div class="laag-chip sterk"><span class="score">L3</span><b>2 · Workflows</b><small>full chain + gates</small></div>
+      <div class="laag-chip"><span class="score">L2</span><b>3 · Rule-making</b><small>machine-readable law</small></div>
+      <div class="laag-chip"><span class="score">L2</span><b>4 · Compliance</b><small>V0–V4 + regression</small></div>
+      <div class="laag-chip nul"><span class="score">L0</span><b>5 · Crisis</b><small>deliberately out of scope</small></div>
+      <div class="laag-chip nul"><span class="score">L0–1</span><b>6 · Procurement</b><small>deliberately out of scope</small></div>
+      <div class="laag-chip sterk"><span class="score">L2–3</span><b>7 · Governance</b><small>PROV · learning trail</small></div>
+      <div class="laag-chip sterk"><span class="score">L2–3</span><b>8 · Data</b><small>sources + provenance</small></div>
+      <div class="laag-chip sterk"><span class="score">L2–3</span><b>9 · Tech stack</b><small>kept replaceable</small></div>
+      <div class="laag-chip"><span class="score">L1–2</span><b>10 · Security</b><small>gates + wallet</small></div>
+      <div class="laag-chip nul"><span class="score">L0</span><b>11 · Finance</b><small>process question</small></div>
+      <div class="laag-chip"><span class="score">L2</span><b>12 · People &amp; culture</b><small>doctrine + learning trail</small></div>
+    </div>
+    <div class="meter" aria-hidden="true"><i class="v"></i><i class="v"></i><i class="v"></i><i class="v"></i><i></i><i></i></div>
+    <p class="mono" style="font-size:.7rem; color:#5c6c7a; margin-top:4px;">L0 manual · L1 scripts · L2 process automation · <b>L3 agentic workflows (our level)</b> · L4 semi-autonomous · L5 non-existent</p>
+    <p class="src"><b>Source:</b> <em>docs/AGENTIC_STATE_GAP_ANALYSE.md</em> §4 (30/30 evidence references verified).</p>
+  </section>
+
+  <!-- 3 · OUR PROFILE -->
+  <section class="scene" data-title="Our profile">
+    <p class="kicker"><span class="streep"></span> 3 · Our profile</p>
+    <h2>L3 in a bounded domain — <span>exactly right, not "not there yet"</span></h2>
+    <div class="quote">"A reliable Level 3 system may beat an unpredictable Level 4 in sensitive domains."
+      <small>— The Agentic State (Ilves et al., 2025): a higher autonomy level is not automatically better.</small></div>
+    <div class="kaarten c2">
+      <div class="kaart accent"><h3>Where we are strong</h3><p><strong>Workflows (L3)</strong>: the full chain from question to substantiated dossier, with validation gates. <strong>Governance, data and stack (L2–L3)</strong>: provenance per figure, authoritative sources, swappable models — done right from day one.</p></div>
+      <div class="kaart blauw"><h3>Where the paper still wins</h3><p><strong>Compliance</strong> is periodic, not yet continuous. <strong>Service UX</strong> waits for questions, is not yet proactive. <strong>Security</strong> must be explicitly designed for autonomous systems. That is the roadmap, not a shame.</p></div>
+    </div>
+    <p class="note"><strong>Why this matters to the board:</strong> a reliable L3 system yields predictable, accountable decisions. An unpredictable L4 delivers speed without durability — precisely what objection and judicial review do not survive.</p>
+    <p class="src"><b>Source:</b> gap analysis §4 reading guide · slides <em>Agentic AI in Spatial Planning</em>.</p>
+  </section>
+
+  <!-- 4 · THE METHOD -->
+  <section class="scene" data-title="The method">
+    <p class="kicker"><span class="streep"></span> 4 · The method — Sitra</p>
+    <h2>Redesign before technology: <span>function-first, five gates, learning trail</span></h2>
+    <p class="lede">The Finnish research (Sitra, 2026) provides the method we follow. One shared function —
+    <strong>preparing a spatial assessment</strong> — across municipalities, provinces and water boards.
+    The six PoCs (Utrecht, Breda, Eindhoven, Rijnland, crosstrack, MiniGIM) are instances of that single function.</p>
+    <div class="poorten">
+      <div class="poort"><b>gate 1</b><h4>Public outcome</h4><p>Baseline: what does it cost now, which work disappears?</p></div>
+      <div class="poort"><b>gate 2</b><h4>Shared meaning</h4><p>Authoritative sources — cited or silent.</p></div>
+      <div class="poort"><b>gate 3</b><h4>Legal &amp; human boundary</h4><p>What may the agent do, when does it escalate? <strong>Live today.</strong></p></div>
+      <div class="poort"><b>gate 4</b><h4>Replaceable architecture</h4><p>Models and vendors are swappable.</p></div>
+      <div class="poort"><b>gate 5</b><h4>Evidence &amp; stop conditions</h4><p>Every run replayable; stopping is possible, with evidence.</p></div>
+    </div>
+    <p class="note"><strong>Technology is not the starting point:</strong> redesign work and data first, systems last. The greatest gain may be that a step <em>disappears</em> — not that it speeds up.</p>
+    <p class="src"><b>Source:</b> Sitra working paper (2026) · <em>docs/AGENTIC_STATE_PLAN.md</em> §1 (B1–B14) and §5 phasing.</p>
+  </section>
+
+  <!-- 5 · THE HUMAN–AGENT BOUNDARY IS LIVE -->
+  <section class="scene" data-title="The human–agent boundary is live">
+    <p class="kicker"><span class="streep"></span> 5 · Gate 3, live today</p>
+    <h2>The human–agent boundary <span>works — not on paper</span></h2>
+    <p class="lede">Today this chain completed the full cycle: the assistant wanted to run the
+    zoning-plan conversion (Eindhoven, bp2op) and <strong>had to pause</strong> for a human decision. Here is what happened:</p>
+    <div class="flow">
+      <div class="stap"><span class="nr">step 1 · agent</span><h4>Assistant proposes</h4><p>The agent plans the conversion and invokes the transform — per MC-6: <em>nothing is linked by AI; the jurist decides</em>.</p></div>
+      <div class="stap"><span class="nr">step 2 · gate</span><h4>Schema gate catches it</h4><p>Format and provenance are checked; the state-changing action may not simply pass.</p></div>
+      <div class="stap mens"><span class="nr">step 3 · the human</span><h4>Dashboard: decision</h4><p>The card shows tool + arguments. Approve or reject — <strong>always with a mandatory justification</strong>. No clock that ever auto-approves.</p></div>
+      <div class="stap"><span class="nr">step 4 · resume</span><h4>The run continues safely</h4><p>On approval the transform runs; on rejection it is skipped and the dossier stays with the jurist (V4 pending).</p></div>
+      <div class="stap"><span class="nr">step 5 · learn</span><h4>Learning trail</h4><p>The decision becomes a trail carrying your justification — the input for the learning report across three levels.</p></div>
+    </div>
+    <p class="note"><strong>Why this matters:</strong> this is gate 3 <em>as a mechanism</em>. Every state-changing AI action in this domain now has a demonstrable human button.</p>
+    <p class="src"><b>Source:</b> <em>docs/superpowers/specs/2026-10-07-hitl-mens-agent-grens-design.md</em> · execution status in the implementation plan (16 commits, final review approved).</p>
+  </section>
+
+  <!-- 6 · WHAT REJECT DOES -->
+  <section class="scene" data-title="What rejecting does">
+    <p class="kicker"><span class="streep"></span> 6 · The other side</p>
+    <h2>What happens when you click <span>"reject"</span></h2>
+    <p class="lede">Rejecting is not a malfunction but a first-class decision — and it is visible everywhere:</p>
+    <div class="kaarten c3">
+      <div class="kaart"><h3>The action stays out</h3><p>The transform is not executed. The assistant sees the rejection verdict and continues within its boundaries.</p></div>
+      <div class="kaart"><h3>The dossier stays with the jurist</h3><p>V4 remains pending-by-design: the substantive jurist check never moves to the dashboard button.</p></div>
+      <div class="kaart accent"><h3>It learns</h3><p>Journal, run log and learning trail all carry the rejection with your justification. Rejections are the richest input for the learning report.</p></div>
+    </div>
+    <div class="verboden">
+      <div class="nee"><h4>No silent approval</h4><p>There is no timer that auto-approves an open decision. An open question stays open until a human decides.</p></div>
+      <div class="nee"><h4>No machine masquerade</h4><p>The dev flag for automatic approval (tests) marks itself as machine-made in the register — never visible as a human decision.</p></div>
+      <div class="nee"><h4>No lone decider</h4><p>Every decision carries operator, justification and timestamp. Traceable at objection, review and audit.</p></div>
+    </div>
+    <p class="src"><b>Source:</b> HITL spec §3–§4 · <em>nldt/07-trust-and-governance.md</em> ("no autonomous high-risk or final legal decision").</p>
+  </section>
+
+  <!-- 7 · EVIDENCE -->
+  <section class="scene" data-title="Evidence">
+    <p class="kicker"><span class="streep"></span> 7 · Evidence</p>
+    <h2>No invented numbers <span>— everything replayable</span></h2>
+    <div class="kaarten c4">
+      <div class="kaart accent"><h3 class="mono">33 + 405 + 304</h3><p>tests green across the three suites (deep-agents · nldt · poc); the only skip is the live-LLM test without a local model.</p></div>
+      <div class="kaart accent"><h3 class="mono">12 / 12</h3><p>layers scored in the gap analysis, each with evidence; 30/30 references verified on this workstation.</p></div>
+      <div class="kaart"><h3 class="mono">6 PoCs</h3><p>as instances of one function: Utrecht, Breda, Eindhoven, Rijnland, crosstrack, MiniGIM.</p></div>
+      <div class="kaart"><h3 class="mono">0 keys</h3><p>local open models, open data, replayable runs from disk (exit 0 = pass).</p></div>
+    </div>
+    <p class="note"><strong>The standard is higher than "it works":</strong> every claim in the gap analysis points to an existing file;
+    every agent proposal passed a gate or landed publicly in a rejection ledger; every run is replayable from disk.</p>
+    <p class="src"><b>Source:</b> execution status of the HITL implementation plan · gap analysis §1 (method) · slides <em>Creating Real Value</em> (colophon).</p>
+  </section>
+
+  <!-- 8 · EXAMPLE: PROVINCE OF UTRECHT -->
+  <section class="scene" data-title="Example: Province of Utrecht">
+    <p class="kicker"><span class="streep"></span> 8 · Example — Province of Utrecht</p>
+    <h2>Where can wind, solar and forest go — <span>with every rule cited</span></h2>
+    <p class="lede">The province's question: within which zone may the regional regulation allow what?
+    The answer is an opportunity map in which <strong>every rule is cited</strong> — instrument, article, version,
+    verbatim quote and URL. 24 norm cards per track; the 13 deliberately ambiguous open rules are never
+    guessed and always go to a human.</p>
+    <div class="kaarten c3">
+      <div class="kaart"><h3>The what-if sweep</h3><p>The agent proposes policy variants; the engine computes them deterministically:</p>
+        <p class="mono" style="font-size:.74rem; line-height:1.7; margin-top:8px;">
+        NNN-clause-2 exception → <b>+322.5 km² (+37.5%)</b> wind<br />
+        quiet area as hard exclusion → up to <b>−61%</b><br />
+        Natura 2000 buffer 500 m (hypothetical) → <b>−52.2%</b><br />
+        solar: Natura carve-out at face value → <b>+0.011 km²</b> (symbolic)</p></div>
+      <div class="kaart accent"><h3>What the agent adds</h3><p>The agent finds exactly the variants a policy officer would consider —
+        including the unexpected ones. In the canonical run <strong>10 of 10 scenario proposals were accepted</strong>,
+        every rule id real (local model, temperature 0).</p></div>
+      <div class="kaart blauw"><h3>Who does what</h3><p><strong>The engine</strong> produces the number, <strong>the critic</strong> guards the truth about it
+        (if the agent hallucinates a rule id, it lands in the rejection ledger), <strong>the human</strong> weighs the trade-off.</p></div>
+    </div>
+    <p class="note"><strong>Why this matters to the board:</strong> the trade-off dialogue ("wind here, but then we hit the quiet area")
+    moves from weeks of desk research to one repeatable, fully cited session — with the same numbers for council, province and objector.</p>
+    <p class="src"><b>Source:</b> canonical run <span class="mono">20260830T113234Z-wind</span> (Province of Utrecht) · <span class="mono">poc/</span> · slides <em>Agentic AI in Spatial Planning</em>, PoC-1.</p>
+  </section>
+
+  <!-- 9 · DELIBERATELY NOT -->
+  <section class="scene" data-title="Deliberately not">
+    <p class="kicker"><span class="streep"></span> 9 · Deliberately not</p>
+    <h2>We also say <span>no</span> — and record why</h2>
+    <p class="lede">Three layers score L0 with us: not forgotten, but deliberately out of scope. Recording that
+    is itself part of the approach — a framework that only scores what flatters is an advert, not an analysis.</p>
+    <div class="verboden">
+      <div class="nee"><h4>Layer 5 · Crisis response</h4><p>The toolbox's domain is spatial planning. Machine-speed crisis coordination belongs to a different mandate.</p></div>
+      <div class="nee"><h4>Layer 6 · Procurement &amp; layer 11 · Finance</h4><p>The channel exists (EU marketplace, dataspace offers); autonomous negotiation is not intended. Funding the learning period is a process question for you.</p></div>
+      <div class="nee"><h4>Prescriptive AI, autonomous interventions</h4><p>No AI that rules on legal outcomes or intervenes in physical reality. The recommendation stays with the human — recorded in the EDIC conformity assessment.</p></div>
+    </div>
+    <p class="note"><strong>And about the open flanks:</strong> what we cannot do yet is documented in the gap analysis — continuous supervision (layer 4),
+    proactive service delivery (layer 1) and agent-specific security (layer 10) are the named next gaps.</p>
+    <p class="src"><b>Source:</b> gap analysis §2–§4 (layers 5, 6, 11) · executive summary ("deliberately not").</p>
+  </section>
+
+  <!-- 10 · ASK -->
+  <section class="scene" data-title="Ask of the board">
+    <p class="kicker"><span class="streep"></span> 10 · Ask of the board</p>
+    <h2>What we <span>ask</span></h2>
+    <div class="vraag">
+      <div class="item"><b>1 · Endorse the approach</b><p>"One calculation core, multiple access points, with a demonstrable human–agent boundary" as the guiding principle for AI in spatial planning — alongside the already-endorsed ZoN digital-twin agenda.</p></div>
+      <div class="item"><b>2 · Mandate for the first function</b><p>Scale the shared function "preparing a spatial assessment" to at least three organisational contexts (Utrecht, Breda, Eindhoven, Rijnland are ready) — in line with the five gates.</p></div>
+      <div class="item"><b>3 · Name the function steward</b><p>One driver with a bounded mandate, a decision-point calendar and stop conditions: continue, adjust, pause or stop — always on the basis of evidence.</p></div>
+      <div class="item"><b>4 · Take the learning trail seriously</b><p>Every signal becomes a trail; the learning report is a phase exit, not an option. From now on, the human–agent boundary supplies that report with decisions.</p></div>
+    </div>
+    <p class="note"><strong>Small start, hard edge:</strong> the first two phases take days to a few sprints. The stop conditions are no formality — pausing is an outcome the framework can handle.</p>
+    <p class="src"><b>Source:</b> <em>docs/AGENTIC_STATE_PLAN.md</em> §9 decision points · executive summary §"What we ask of the board".</p>
+  </section>
+
+  <!-- 11 · COLOPHON -->
+  <section class="scene" data-title="Colophon">
+    <p class="kicker"><span class="streep"></span> Colophon &amp; sources</p>
+    <h2>Sources <span>&amp; further reading</span></h2>
+    <div class="kaarten c2">
+      <div class="kaart"><h3>Frame</h3><p><em>The Agentic State</em> — Ilves, Kilian, Parazzoli, Peixoto, Velsberg (2025), agenticstate.org · Sitra, <em>The Next Right Questions…</em> (2026) · WEF/Capgemini readiness framework (2026).</p></div>
+      <div class="kaart"><h3>This work</h3><p><span class="mono">docs/AGENTIC_STATE_PLAN.md</span> v1.2 · <span class="mono">docs/AGENTIC_STATE_GAP_ANALYSE.md</span> · HITL spec + implementation plan + execution status (<span class="mono">docs/superpowers/</span>, October 2026).</p></div>
+      <div class="kaart blauw"><h3>See it yourself</h3><p>Live runner: <span class="mono">python deep-agents/live_server.py</span> → the dashboard shows the pending card as soon as the transform asks for approval. Learning report: <span class="mono">python -m services.memory.report</span>.</p></div>
+      <div class="kaart"><h3>Form</h3><p>Typography and palette as a homage to OpenEuroLLM (navy ink, ice blue, Roboto/mono) with the Mistral stripe motif as accent. Fully offline; no external fonts, no keys. Dutch twin: <a href="agentic-state-bestuurders-demo.html" style="color:var(--oranje-donker)">agentic-state-bestuurders-demo.html</a>.</p></div>
+    </div>
+    <p class="note"><strong>Endless repeatability as a requirement:</strong> all numbers in this demo come from canonical runs and the
+    documents of the toolbox. What you cannot trace, you should not believe — that holds for us and for every agent we build.</p>
+    <p class="src">Navigate with <b>→ / ←</b> or the dots below.</p>
+  </section>
+
+</div>
+
+<div class="navigatie" id="nav"></div>
+<div class="merk">LDT toolbox · agentic-state executive demo</div>
+<div class="hint">→ / ←</div>
+
+<script>
+  var scenes = Array.prototype.slice.call(document.querySelectorAll(".scene"));
+  var nav = document.getElementById("nav");
+  var huidig = 0;
+
+  scenes.forEach(function (s, i) {
+    var b = document.createElement("button");
+    b.title = s.getAttribute("data-title") || ("scene " + (i + 1));
+    b.addEventListener("click", function () { toon(i); });
+    nav.appendChild(b);
+  });
+  var stippen = Array.prototype.slice.call(nav.children);
+
+  function toon(i) {
+    if (i < 0 || i >= scenes.length) return;
+    scenes[huidig].classList.remove("actief");
+    huidig = i;
+    scenes[huidig].classList.add("actief");
+    stippen.forEach(function (d, j) { d.classList.toggle("aan", j === huidig); });
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") toon(huidig + 1);
+    if (e.key === "ArrowLeft" || e.key === "PageUp") toon(huidig - 1);
+    if (e.key === "Home") toon(0);
+    if (e.key === "End") toon(scenes.length - 1);
+  });
+
+  toon(0);
+</script>
+</body>
+</html>
