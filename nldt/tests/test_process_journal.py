@@ -40,6 +40,7 @@ def test_execute_local_journals_success_and_error(tmp_path, monkeypatch) -> None
     lines = (tmp_path / "steps.jsonl").read_text(encoding="utf-8").splitlines()
     ok_entry = json.loads(lines[-1])
     assert ok_entry["kind"] == "process_result" and ok_entry["status"] == "ok"
+    assert "jobId" not in ok_entry  # afwezigheid-case: geen job_id → geen sleutel
 
     with pytest.raises(Exception):
         execute_local("bestaat-niet", {})
@@ -65,14 +66,14 @@ def test_route_execute_journals_job_id(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("NLDT_JOURNAL_PATH", str(tmp_path / "steps.jsonl"))
     from services.process_adapter.router import route_execute
 
-    route_execute("compute-area-statistics", {
+    job_id, _, _ = route_execute("compute-area-statistics", {
         "features": {"type": "FeatureCollection", "features": [
             {"type": "Feature", "properties": {},
              "geometry": {"type": "Polygon", "coordinates": [[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]]]}},
         ]},
     })
     entry = json.loads((tmp_path / "steps.jsonl").read_text(encoding="utf-8").splitlines()[-1])
-    assert entry.get("jobId")  # job-id uit route_execute komt in het journal
+    assert entry["jobId"] == job_id  # exact het job-id van díé run, niet zomaar een truthy waarde
 
 
 def test_journal_schema_matches_deep_agents_writer(tmp_path, monkeypatch) -> None:

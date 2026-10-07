@@ -31,15 +31,11 @@ CANONICAL_RUNS: dict[str, str] = {
     "energietoets": "20261006T171730Z-energietoets",
 }
 
-VOLATILE_SUMMARY_KEYS = ("runId", "requestId", "generatedAt", "durationS")
+VOLATILE_SUMMARY_KEYS = ("runId", "requestId", "generatedAt", "durationS")  # documentatie: deze velden zijn bewust buiten de exact-vergelijking
 
 
 def golden_dir(track: str) -> Path:
     return RUNS_ROOT / CANONICAL_RUNS[track]
-
-
-def normalize_run_summary(summary: dict[str, Any]) -> dict[str, Any]:
-    return {k: v for k, v in summary.items() if k not in VOLATILE_SUMMARY_KEYS}
 
 
 def load_verdicts(summary: dict[str, Any]) -> dict[str, Any]:

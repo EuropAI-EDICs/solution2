@@ -22,7 +22,7 @@ class UCSAdapter:
     def available(self) -> bool:
         return bool(self.base_url)
 
-    def execute(self, process_id: str, inputs: dict[str, Any]) -> dict[str, Any]:
+    def execute(self, process_id: str, inputs: dict[str, Any], job_id: str | None = None) -> dict[str, Any]:
         if not self.available:
             raise RuntimeError("UCS_BASE_URL not configured")
         headers = {}
@@ -36,7 +36,7 @@ class UCSAdapter:
                 headers=headers,
             )
             if resp.status_code == 404:
-                return execute_local(process_id, inputs)
+                return execute_local(process_id, inputs, job_id=job_id)
             resp.raise_for_status()
             data = resp.json()
             return data.get("outputs", data)
@@ -56,7 +56,7 @@ def route_execute(
         if backend == "ucs":
             adapter = UCSAdapter()
             if adapter.available:
-                outputs = adapter.execute(process_id, inputs)
+                outputs = adapter.execute(process_id, inputs, job_id=job_id)
                 backend_used = "ucs"
             else:
                 outputs = execute_local(process_id, inputs, job_id=job_id)

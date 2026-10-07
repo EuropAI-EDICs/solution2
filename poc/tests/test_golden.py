@@ -5,8 +5,6 @@ import json
 import sys
 from pathlib import Path
 
-import pytest
-
 POC_ROOT = Path(__file__).resolve().parents[1]
 if str(POC_ROOT) not in sys.path:
     sys.path.insert(0, str(POC_ROOT))
@@ -40,12 +38,6 @@ def _mini_run(path: Path, verdict: str = "pass", geom=POLY) -> Path:
         '<gml:featureMember><imgeo:Zones gml:id="zones.1"><prop>b</prop></imgeo:Zones></gml:featureMember>'
         "</gml:FeatureCollection>", encoding="utf-8")
     return path
-
-
-def test_normalize_run_summary_strips_volatile() -> None:
-    summary = {"runId": "x", "requestId": "r", "generatedAt": "nu", "durationS": 1.0, "verdict": "pass"}
-    normalized = golden.normalize_run_summary(summary)
-    assert normalized == {"verdict": "pass"}
 
 
 def test_load_verdicts_extracts_exact_fields(tmp_path: Path) -> None:

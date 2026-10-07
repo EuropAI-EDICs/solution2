@@ -32,7 +32,8 @@ def test_norm_seam_comparator_wind() -> None:
 @pytest.mark.skipif(not os.environ.get("LDT_SCENARIO_LLM_ENDPOINT"), reason="LDT_SCENARIO_LLM_ENDPOINT niet gezet — LLM-leg vergt een lokaal open model")
 def test_scenario_author_comparator_wind() -> None:
     """S7: floor/hybrid/llm authors over de laatste wind-run; rc 0 betekent
-    floorIntact en geen gate-rejecties boven de drempels."""
+    precies: floorIntact en geen fatale LLM-fout — gate-rejecties worden
+    gerapporteerd in de comparison.json maar niet op drempel geënfourceerd."""
     import compare_authors
 
     # geen --out-vlag: het script schrijft zelf naar poc/scenario-runs/<ts>-...-authorcmp/
