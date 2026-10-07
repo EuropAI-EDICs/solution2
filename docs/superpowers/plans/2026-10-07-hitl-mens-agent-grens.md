@@ -14,7 +14,8 @@
 
 - Geen cloud-modellen of API-sleutels: alleen lokale Ollama-config via bestaande `models.py`; cloud-tier blijft geweigerd.
 - Tests zijn offline en LLM-vrij (fake model uit `langchain_core.language_models.fake_chat_models`); de volledige agent-loop met echt lokaal LLM is een `llm`-gemarkeerde test en geskipt zonder endpoint.
-- Suites blijven groen: `cd deep-agents && ../nldt/.venv/bin/python -m pytest tests -q`, `cd nldt && .venv/bin/python -m pytest tests -q` (verwacht 390+), `cd poc && ../nldt/.venv/bin/python -m pytest tests -q` (verwacht 304/1).
+- Suites blijven groen: deep-agents-tests draaien met de deep-agents-site-packages op PYTHONPATH (anders pakt de nldt-python zijn eigen oudere deepagents/langgraph): `cd deep-agents && PYTHONPATH=$PWD/.venv/lib/python3.14/site-packages ../nldt/.venv/bin/python -m pytest tests -q` · `cd nldt && .venv/bin/python -m pytest tests -q` (verwacht 390+) · `cd poc && ../nldt/.venv/bin/python -m pytest tests -q` (verwacht 304/1).
+- **`graph.stream()` is lazy** (T1-gevalideerd): een resume-`stream` moet geïtereerd worden (`for _ in …: pass`), anders voert hij niets uit.
 - Taal: code en comments in het Nederlands conform repo-stijl; commit-stijl `feat(deep-agents): …` / `feat(nldt): …`.
 - De mens is de laatste schakel: geen time-out, geen auto-approve behalve de expliciete dev-flag `--auto-approve-hitl`, en auto-approve wordt in journal én ledger gemarkeerd als machinaal.
 - Journal-regime: `steps.jsonl` wordt per run gereset (bestaand gedrag, niet veranderen); alles wat de leerstaat voedt gaat in het append-only `hitl-verdicts.jsonl`.
@@ -539,11 +540,12 @@ en na `answer = run_streamed(...)`:
             "approved": True, "comment": "auto: dev-flag --auto-approve-hitl",
             "operator": "dev-flag", "auto": True,
         })
-        agent.stream(
+        for _ in agent.stream(
             Command(resume=verdict_to_decisions(True, "auto: dev-flag --auto-approve-hitl")),
             config={"configurable": {"thread_id": THREAD_ID}},
             stream_mode=["updates", "messages"], subgraphs=True,
-        )
+        ):
+            pass  # stream is lazy — itereren, anders voert de resume niets uit
 ```
 
 (`HERE`, `THREAD_ID="nldt-live"`, `Command`-import en de bestaande journal-done-afsluiting leest de implementer ter plekke; het contract: **rc=2 en een `hitl_pending`-journal-event bij pending zonder flag; met flag een in-process resume met `"auto": True` in het ledger.**)
@@ -654,8 +656,9 @@ def main() -> int:
         f"{'goedgekeurd' if args.approved else 'afgewezen'}: {tool} — {args_summary({'comment': args.comment.strip()})}",
         kind_event="hitl_verdict", interruptId=intr.id, operator=args.operator,
     )
-    agent.stream(Command(resume=verdict_to_decisions(bool(args.approved), args.comment.strip())),
-                 config=config, stream_mode=["updates", "messages"], subgraphs=True)
+    for _ in agent.stream(Command(resume=verdict_to_decisions(bool(args.approved), args.comment.strip())),
+                          config=config, stream_mode=["updates", "messages"], subgraphs=True):
+        pass  # stream is lazy — itereren, anders voert de resume niets uit
     return 0
 
 
