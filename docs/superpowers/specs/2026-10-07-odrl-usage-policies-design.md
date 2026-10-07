@@ -4,10 +4,10 @@
 |---|---|
 | **Datum** | 7 oktober 2026 |
 | **Status** | ontwerp goedgekeurd in brainstormsessie; wacht op review van dit document |
-| **Scope** | drie vaste ODRL 2.2 Policy-Definitions (één per accessClass) als eerste-klas beleidsartefacten + schema + lader; `build_odrl_offer` embedt echt beleid; EDC-manifest en `http`-backend leveren Policy-Definitions mee; uitgebreid worked example over het **volledige Utrecht-artefactlandschap** (classificatiematrix 13 tracks + scenario/crosstrack/world-scene + live-publicatiegolf van 15 offers) (`nldt/26-odrl-usage-policies.md`, nummer voorlopig) |
+| **Scope** | drie vaste ODRL 2.2 Policy-Definitions (één per accessClass) als eerste-klas beleidsartefacten + schema + lader; `build_odrl_offer` embedt echt beleid; EDC-manifest en `http`-backend leveren Policy-Definitions mee; uitgebreid worked example: **datastoffering van het Utrechtse planproces** (fase × databron × acteur-matrix over design/programming/permission/monitoring, inclusief bron-gaten, + live-publicatiegolf van 15 offers) (`nldt/26-odrl-usage-policies.md`, nummer voorlopig) |
 | **Buiten scope** | enforcement-runtime (afdwingen bij transfer — EDC wanneer live), configureerbare policy-templates (variabelen als verloopdatum/partner-groep), contract-negotiation, DCAT-AP-mapping (volgende dataspace-mijlpaal), wijzigingen aan lake-deny of de HITL-gate |
 | **Bronnen** | [`nldt/13-data-lake-and-space.md`](../../../nldt/13-data-lake-and-space.md) (share plane, accessClass-tabel, "contract negotiation remains with the EDC/DSR stack") · [`nldt/services/lake/publish.py`](../../../nldt/services/lake/publish.py) (`build_odrl_offer` pseudo-ODRL, HITL-gate, deny-lijst) · [`nldt/services/adapters/dataspace_connector.py`](../../../nldt/services/adapters/dataspace_connector.py) (mock/edc-manifest/http; ContractDefinition verwijst naar `policy-{accessClass}` zonder dat die policy bestaat — het gat) · [`nldt/schemas/dataspace-offer.schema.json`](../../../nldt/schemas/dataspace-offer.schema.json) · DSSC-bouwstenen (usage control: van documentair naar machinaal) · ODRL 2.2 informatiemodel (W3C) |
-| **Keuzes uit de sessie** | aanpak: **vaste policy-bibliotheek** (geen configureerbare templates — YAGNI) · beleidsregel heruitgifte: **binnen de groep** — open: use+distribute vrij (CC0); internal: use+distribute binnen nLDT-deelnemers, distribute aan externe partijen verboden; restricted: use only, distribute altijd verboden · Utrecht-voorbeeld expliciet als deliverable |
+| **Keuzes uit de sessie** | aanpak: **vaste policy-bibliotheek** (geen configureerbare templates — YAGNI) · beleidsregel heruitgifte: **binnen de groep** — open: use+distribute vrij (CC0); internal: use+distribute binnen nLDT-deelnemers, distribute aan externe partijen verboden; restricted: use only · Utrecht-voorbeeld = datastoffering van het planproces: **fase × databron × acteur** (op gebruikerscorrectie: niet alleen artefact-uitvoer, maar álle benodigde bronnen per fase en de actortoegang) |
 
 ## Context en doel
 
@@ -36,34 +36,32 @@ Vormgeving conform ODRL 2.2 JSON-LD (context `https://www.w3.org/ns/odrl.jsonld`
 - **`http_register_offer`**: POST Policy-Definition (`POST …/v3/policydefinitions`) vóór de Asset, met dezelfde fallback-naar-manifest als nu.
 - **mock-backend**: register-entry krijgt `"policyId"`-veld; ongewijzigd verder.
 
-## 3. Worked example — volledig Utrecht-artefactlandschap (`nldt/26-odrl-usage-policies.md`)
+## 3. Worked example — datastoffering van het Utrechtse planproces (`nldt/26-odrl-usage-policies.md`)
 
-Utrecht heeft 13 canonieke tracks plus scenario-, crosstrack- en world-scene-artefacten — het voorbeeld behandelt het landschap, niet drie kersen. Twee delen:
+Het voorbeeld organiseert het volledige Utrecht-landschap rond de kernvraag van de dataspace: **welke databronnen zijn in welke fase van het planproces nodig, en welke actoren krijgen daar wel/geen toegang toe, onder welk beleid?** De fasen volgen de bestaande policyStage-vierklap (design → programming → permission → monitoring); de actoren volgen de stakeholder-tabel uit SOLUTIONS_ARCHITECTURE §2, aangevuld met waterschappen en omgevingsdiensten.
 
-**3a. Classificatiematrix** — álle Utrecht-artefactfamilies, voorgestelde `accessClass` + policy + rationale:
+**3a. Fase × databron × acteur-matrix** (het hart van het doc). Per fase de benodigde bronnen — in de repo aanwezig of expliciet als gat benoemd — en het toegangsprofiel per actor:
 
-| Familie | Omvang | Voorgestelde klasse + policy | Rationale |
-|---|---|---|---|
-| Track-zones (zones.geojson/zones.gml van de 13 canonieke runs) | 13 datasets | **open** (policy-open, CC0) | deterministische afleidingen van open overheidsdata (agrest IMOW-mirror, CVDR, ArcGIS Hub); schema-gevalideerd met PROV; herpubliceerbaar |
-| Decision tables + normcard-sets per track | 13×2 | **open** (policy-open) | afgeleide, geciteerde legal mapping; contestability juist waardevol als open artefact |
-| PROV- en ValidationReports (zijsporen) | per run | **open** (policy-open) | provenance is de kern van betwistbaarheid — hoort bij het zone-aanbod |
-| Crosstrack-overlay (multi-track composities) | 1+ | **internal** (policy-internal) | combinatie-inzicht is de meerwaarde voor mede-deelnemers (RES/provincie-overleg), nog niet voor publiek |
-| Scenario-runs (S7-proposals, sweeps) | per run | **internal** (policy-internal) | beleidsvarianten vóór besluitvorming — deelbaar binnen de kring, niet als publiek feit |
-| World-scene-bundels (scenario-copilot) | per run | **restricted** (policy-restricted) | hypothetische scènes, expliciet NIET juridisch gegronde stempel; gebruik alleen, heruitgifte verboden |
-| Input-caches + norm-corpus (poc/data/cache, corpus) | groot | **geen offer** (documentatie in matrix) | bronmateriaal van de provincie/CVDR — herpublicatie niet aan de toolbox; verwijzing naar de autoritatieve bron volstaat |
+| Fase | Databronnen (repo-status) | Provincie | Gemeente/waterschap/OD | RES/ontwikkelaar | Burger |
+|---|---|---|---|---|---|
+| **design** (beleidsvorming, verordening) | Omgevingsvisie + verordening CVDR704250 (✅ corpus); planMER/planologie-bronnen (❌ gat); stilte-/Natura2000-GIO's (✅ caches) | eigenaar: alles | **open** lezen | **open** lezen | **open** inzien (contestability) |
+| **programming** (programmering, RES) | 13 track-analyses + crosstrack (✅ gold); scenario-sweeps (✅); peilgebieden-stream Rijnland (✅ CDC); energienetdata EnergyCast (❌ open seam) | **internal** alles | **internal** (policy-internal: use+distribute binnen deelnemers) | deelprofiel: kanskaarten **open**, scenario-varianten **op verzoek** | samenvattingsniveau |
+| **permission** (vergunning, plan) | DSO omgevingsdocumenten (❌ key-gated, 401-geverifieerd); BAG/BGT via PDOK (❌ nog niet in lake); bp2op plandocumenten Eindhoven (✅ eigen PoC) | eigenaar/beoordelaar | **internal** + specifieke anva-data | eigen aanvraagdata: **restricted-pending** — nog te bouwen klasse; toegang via verzoek | eigen aanvraag inzien; besloten delen niet |
+| **monitoring** (toezicht, herziening) | source-monitor-freshness (✅); DONL-harvest (✅); herzieningsdiffs verordening (🟡 deels) | **internal** | **internal** | samenvattingen | monitoring-dashboard **open** |
 
-De matrix is een **voorstel** (doctrine: AI proposes · human decides); de live-golf hieronder voert hij uit zoals hij staat, zodat het doc een echt gedragen voorbeeld is.
+Legend: policy-open = use+distribute vrij; policy-internal = use+distribute binnen nLDT-deelnemers; restricted = use only. `restricted-pending` is als klasse-in-uitbreiding expliciet benoemd, niet gebouwd.
 
-**3b. Live-publicatiegolf** — gedraaid tegen de echte stack, vastgelegd in het doc met werkelijke artefacten:
+Bronnen die nog níet in de repo zitten (planMER, PDOK-lagen, DSO, energienet) worden in de matrix als **gat met bronvermelding** opgenomen — de matrix is daarmee ook de databehoeftekaart voor het planproces, niet alleen een deelcatalogus.
 
-1. **13 open offers** — per canonieke track de zones.geojson via `sync_local_to_gold` + `publish_dataset(access_class="open", license_="CC0-1.0")`; batch-tabel in het doc (offer-id ↔ track ↔ policy-open).
-2. **1 internal offer** — de crosstrack-overlay (of, als die geen aparte gold-artefact heeft, de nieuwste scenario-sweep-output): use+distribute binnen deelnemers.
-3. **1 restricted offer** — de world-scene-bundel van de nieuwste zon-scenario-run, mét `force_hitl_approved=True`: toont de HITL-gate + use-only.
-4. Drie volledige uitwerkingen in het doc (één per klasse): offer-JSON, EDC-manifest mét Policy-Definition, ValidationReport, uitleg beleidskeuze; afsluitend de tabel offer ↔ policy ↔ wat een ontvangende EDC afdwingt.
+**3b. Live-publicatiegolf** — het aanbod dat de design/programming-kolommen vandaag al dekt, gedraaid tegen de echte stack:
 
-Het doc noteert expliciet: enforcement gebeurt bij de ontvangende EDC zodra live; deze laag levert de beleidsobjecten. En: de matrix is voorstel — per artefactfamilie kan de mens een andere klasse kiezen zonder code-wijziging (alleen het publish-argument).
+1. **13 open offers** — de track-analyses (zones + decision tables + PROV per canonieke run), `license_="CC0-1.0"`: de design-fase-transparantie (contestability voor burgers en ontwikkelaars).
+2. **1 internal offer** — crosstrack/scenario-output: de programming-kring (provincie + gemeenten + waterschap + RES), use+distribute binnen deelnemers.
+3. **1 restricted offer** — world-scene-bundel van de nieuwste zon-scenario-run mét `force_hitl_approved=True`: use-only vóór het besluitvormingsteam; het doc toont de HITL-gate als planproces-moment (besluit ná bestuurlijk overleg → klasse-opwaardering is een menselijke stap).
 
-## 4. Testing
+Drie volledige uitwerkingen (één per klasse): offer-JSON, EDC-manifest mét Policy-Definition, ValidationReport; afsluitend de tabel offer ↔ policy ↔ fase ↔ actoren ↔ wat een ontvangende EDC afdwingt.
+
+Het doc noteert: enforcement bij de ontvangende EDC zodra live; de matrix is voorstel (AI proposes · human decides) — per bron kan een mens de klasse bijstellen zonder code-wijziging; en de gaten-kolom voedt de volgende databronnen-mijlpaal.## 4. Testing
 
 - Policy-bibliotheek: schema-validatie van alle drie; `policy_for` happy + onbekende klasse; ids-referentie-helper.
 - Offer: `build_odrl_offer` embedt prohibition bij internal/restricted, niet bij open; generated offers valideren tegen het uitgebreide offer-schema; bestaande publish-tests groen (return-vorm ongewijzigd).
