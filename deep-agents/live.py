@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parent / ".env")
 
 import journal  # noqa: E402
-from agent import build_agent  # noqa: E402
+from agent import LOCAL_TOOLS, build_agent  # noqa: E402
 from graph_trace import run_streamed  # noqa: E402
 from hitl import (  # noqa: E402
     PENDING,
@@ -66,7 +66,7 @@ def main() -> None:
 
     cp_conn = sqlite3.connect(str(HERE / "runs" / "live" / "checkpoints.sqlite"), check_same_thread=False)
     saver = SqliteSaver(cp_conn)
-    agent = build_agent(checkpointer=saver)
+    agent = build_agent(list(LOCAL_TOOLS), checkpointer=saver)
     try:
         answer = run_streamed(agent, question, thread_id=THREAD_ID)
     except Exception as exc:

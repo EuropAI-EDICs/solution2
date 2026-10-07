@@ -3,6 +3,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from hitl import (
     LEDGER,
     PENDING_EXIT_CODE,
@@ -104,6 +106,38 @@ def test_live_py_help_benoemt_auto_approve_flag():
     )
     assert result.returncode == 0
     assert "--auto-approve-hitl" in result.stdout
+
+
+@pytest.mark.filterwarnings("ignore:laya-mlx:RuntimeWarning")
+def test_live_main_komt_door_build_agent_tot_done(monkeypatch, tmp_path):
+    """Offline rooktest: live.main() moet verder komen dan argparse én build_agent.
+
+    Een startup-TypeError (bijv. vergeten tools-argument op build_agent) mag nooit
+    een groene suite halen; check_ollama/run_streamed zijn gestoopt, journal en
+    checkpoints.sqlite schrijven naar tmp.
+    """
+    import sys
+
+    import journal as journal_mod
+    import live
+
+    calls = []
+    monkeypatch.setattr("live.check_ollama", lambda modellen: None)
+    monkeypatch.setattr("live.run_streamed", lambda agent, vraag, **k: "ok")
+    monkeypatch.setattr(journal_mod, "LIVE_DIR", tmp_path / "runs" / "live")
+    monkeypatch.setattr(journal_mod, "JOURNAL", tmp_path / "runs" / "live" / "steps.jsonl")
+    monkeypatch.setattr(
+        journal_mod, "append",
+        lambda kind, agent, summary, **extra: calls.append((kind, agent, summary)),
+    )
+    monkeypatch.setattr(live, "HERE", tmp_path)  # checkpoints.sqlite ruimt tmp op
+    monkeypatch.setattr(sys, "argv", ["live.py", "offline rooktest"])
+
+    live.main()
+
+    kinds = [k for k, _, _ in calls]
+    assert kinds[0] == "start"   # journal.reset() is gevraagd
+    assert kinds[-1] == "done"   # de run is normaal afgesloten
 
 
 def test_build_agent_geeft_interrupt_en_checkpointer_door(tmp_path):
