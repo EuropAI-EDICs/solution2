@@ -2,6 +2,14 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **Executiestatus (2026-10-07):** alle 6 taken via subagent-driven development geïmplementeerd
+> (implementer + taakreview per taak; Taak 1 had een BLOCKED-ronde op twee plan-defecten —
+> schemanaam moest `"decision-trail.schema.json"` zijn, provenance moest `agent` toestaan —
+> daarna opgelost). Eindverificatie: nldt 390 passed, poc 304/1, golden-kring live bewezen
+> (runner → diff → consolidator; 3 echte trails uit bestaande journal-errors). Gepusht.
+> Eindreview-triage (kan-later): update_trail-param schaduwt trail_id; niet-atomische batch;
+> didItHelp niet naar null terug; XPASS/XFAIL-regex-blindvlek; journal-ruis opruimen/markeren.
+
 **Goal:** De semantic memory-laag: deterministische consolidatie van automatische observaties (journal-errors, HITL-verdicts, ledger-rejects, golden-drift) naar durabele, schema-gedwongen decision-trail-records met de drie leerniveaus, plus idempotente CLI en een leerrapport.
 
 **Architecture:** Nieuw pakket `nldt/services/memory/` met vier gescheiden onderdelen (observations → store → consolidate → report), gelezen op de bestaande episodische laag zonder hot-path-writers. Observatie→trail-mapping via een vaste, citeerbare waardentabel (geen LLM). Trails zijn append-only JSONL per dag; `--handle`/`--promote` herschrijven de dagfile die de trail bevat.
@@ -559,7 +567,7 @@ def to_trail(observation: dict[str, Any]) -> dict[str, Any]:
     )
 ```
 
-Let op: `test_to_trail_fills_b10_defaults` zet NLDT_MEMORY_DIR omdat `make_trail` via `trail_id`/`validate_instance` geen pad gebruikt maar de test-omgeving strak houdt; de env-override in de test voorkomt schrijven naar de echte memory-map.
+Let op: `test_to_trail_fills_b10_defaults` zet géén env — `make_trail` schrijft niets (alleen `append_trails` doet dat), dus de test is zuiver in-memory.
 
 - [ ] **Step 4: Draai, verwacht PASS** — `.venv/bin/python -m pytest tests/test_memory_observations.py -q` → `10 passed`.
 
