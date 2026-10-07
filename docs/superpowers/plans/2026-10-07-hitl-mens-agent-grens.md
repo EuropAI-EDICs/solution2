@@ -884,3 +884,38 @@ Expected: alle drie groen; hitl-tests in beide suites aanwezig.
 git add deep-agents/README.md docs/superpowers/plans/2026-10-07-hitl-mens-agent-grens.md
 git commit -m "docs: hitl eindverificatie groen — README-sectie mens-agent-grens + executiestatus"
 ```
+
+## Executiestatus
+
+Alle tien taken uitgevoerd op `main` (HITL-workstream, 2026-10-07):
+
+| Taak | Commit(s) |
+|------|-----------|
+| T1 — hitl.py (config, ledger, resume-mapping) + tests | da007d5 |
+| T2 — agent.py `interrupt_on` + `build_agent`-contract | 5032d5d |
+| T3 — graph_trace.py vangt `__interrupt__` (journal + ledger-request) | 7f03b72 |
+| T4 — live.py: pending-sentinel, exit 2, SqliteSaver-thread `nldt-live` | c63a27f |
+| T5 — live.py hersteld (bare `build_agent` → LOCAL_TOOLS) + rooktest | 2bf8f98 + f1674b6 |
+| T6 — resume.py CLI (verplichte opmerking, exit 0/3/4) | 73eee48 |
+| T7 — live_server.py hitl-API (pending authoritair, verdict + 409) | b90966b + 4ce0319 + 7de75e6 |
+| T8 — dashboard pending-kaart (verplichte opmerking, 409-alert) | 9cedb15 + 5ba8e7a |
+| T9 — leerstaat leest hitl-ledger (observations + leerrapport) | 9ef8da1 |
+| T10 — documentatie + eindverificatie | deze commit |
+
+Eindverificatie (alle drie groen):
+
+- `deep-agents`: **28 passed** in 8.08s (met `PYTHONPATH=$PWD/.venv/lib/python3.14/site-packages ../nldt/.venv/bin/python -m pytest tests -q`)
+- `nldt`: **404 passed** in 8.73s
+- `poc`: **304 passed, 1 skipped, 15 deselected, 6 subtests passed** in 14.27s
+
+Deviations: (1) T1 — de gemeten contracten (lazy stream, PYTHONPATH) zijn
+teruggedraaid in het plan; (2) T5 — live.py was al vóór HITL kapot (bare
+`build_agent`): LOCAL_TOOLS-fix + rooktest; (3) T7 — state-authoritative
+409-gate i.p.v. ledger-crosscheck (een verlaten ledger-request blokkeerde een
+vers interrupt) + fallback-tak die de tool uit het ledger-request haalt;
+(4) T8 — display-block un-hide: de stylesheet verslaat de lege inline-stijl;
+(5) T9 — decision-trail.schema uitgebreid met optionele threadId/interruptId
+in de provenance (consolidatie crashte anders); (6) deferred:
+JSONDecodeError-guards beide kanten, operator-veld in het dashboard,
+model-env-persist, `/api/run` ziet geen lopende resume, DT-werkstroom moet
+schema-velden reconciliëren.

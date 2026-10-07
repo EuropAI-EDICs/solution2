@@ -76,6 +76,17 @@ Models are env-driven and match `ollama list`: `DEEP_AGENT_MODEL`
 (specialists, default `gemma4:12b-mlx`). Any local tool-calling model works —
 e.g. `qwen3.6:27b-mlx` as a heavier orchestrator or `gemma4:12b` (non-MLX).
 
+### Tests
+
+```bash
+cd deep-agents && PYTHONPATH=$PWD/.venv/lib/python3.14/site-packages ../nldt/.venv/bin/python -m pytest tests -q
+```
+
+De suite draait met de nldt-interpreter en de deep-agents-site-packages op
+`PYTHONPATH`. `langgraph-checkpoint-sqlite` (SqliteSaver voor de
+HITL-checkpointer) staat in `deep-agents/.venv` en niet in de
+requirements-bestanden.
+
 ## Run
 
 One-shot from the CLI:
@@ -154,9 +165,42 @@ pip install laya-mlx   # arm64 macOS only (staat ook in requirements.txt)
 Laya vervangt de orchestrator niet — zero-shot scores zijn beperkt; gebruik het als
 snelle lokale head naast tool-calling LLM’s.
 
+### Human-in-the-loop (HITL) — de mens-agent-grens
+
+`eindhoven-bp2op` volgt MC-6 (VNG-methode): niets wordt door AI gekoppeld, de
+jurist beslist. Het enige interrupt-punt is daarom de tool
+`run_bp2op_transform` (`hitl.py::HITL_TOOLS`, decisions `approve`/`reject`).
+
+- **Live-runner:** bij een interrupt journalt `live.py` een `hitl_pending`-
+  regel en sluit af met exit-code 2. De `SqliteSaver`-checkpointer
+  (`runs/live/checkpoints.sqlite`, thread `nldt-live`) bewaart de run, zodat
+  het menselijke verdict — ook over een procesgrens — de run kan hervatten.
+- **Dashboard:** de poll (700 ms) toont de pending-kaart met de MC-6-
+  toelichting; Goedkeuren/Afkeuren vereist een opmerking (leeg → geweigerd,
+  server bevestigt met 400), een 409 betekent "al beslist of andere
+  interrupt".
+- **Resume:** via de CLI `python resume.py <interruptId> (--approved|
+  --rejected) --comment "…" [--operator naam]` (exit 0/3/4) of via de server:
+  `POST /api/hitl/verdict` schrijft het verdict eerst duurzaam weg en spawnt
+  dan resume.py; `GET /api/hitl/pending` leest authoritair uit de
+  checkpoint-state en overleeft daarmee een serverherstart (ledger als
+  fallback).
+- **Duurzaam ledger:** requests én verdicts landen append-only in
+  `runs/live/hitl-verdicts.jsonl` (dubbelweegschrif-contract: server én
+  resume.py schrijven elk een record; consumers zijn set-based/last-wins).
+- **Dev-flag:** `--auto-approve-hitl` hervat in-process met een machinaal
+  verdict, in het ledger expliciet gemarkeerd als `auto: true` (operator
+  `dev-flag`).
+- **Leerstaat:** pending = open beslis-trail, verdict = afgehandeld met de
+  opmerking als didItHelp-materiaal; rapport:
+  `cd nldt && PYTHONPATH=. .venv/bin/python -m services.memory.report`.
+
+Bewuste beperking: het recipes-invoke-pad (`agent.py`, thread `nldt-recipes`)
+heeft géén checkpointer — interrupts zijn daar niet ondersteund; HITL werkt
+uitsluitend in de live-runner. Volledig ontwerp en contract:
+[2026-10-07-hitl-mens-agent-grens.md](../docs/superpowers/plans/2026-10-07-hitl-mens-agent-grens.md).
+
 ## Next steps
 
 - Wire a `run_recipe` tool to the Cookbook + OGC process backends (per POC).
-- Add HITL interrupts (`interrupt_on`) once execution lands — mandatory for
-  `eindhoven-bp2op` (V4 is always pending).
 - Consider a store/checkpointer for multi-turn sessions with shared POC memory.
