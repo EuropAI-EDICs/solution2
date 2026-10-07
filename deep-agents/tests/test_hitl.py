@@ -140,6 +140,20 @@ def test_live_main_komt_door_build_agent_tot_done(monkeypatch, tmp_path):
     assert kinds[-1] == "done"   # de run is normaal afgesloten
 
 
+def test_resume_argparse_verplicht_comment_bij_beide_uitkomsten(tmp_path):
+    """Zowel reject als approve zonder opmerking wordt bij het argument geweigerd (spec: leerstaat)."""
+    import subprocess, sys
+
+    cwd = Path(__file__).resolve().parents[1]
+    for vlag in ("--rejected", "--approved"):
+        r = subprocess.run(
+            [sys.executable, "resume.py", "i-onbestaand", vlag, "--comment", ""],
+            capture_output=True, text=True, cwd=cwd,
+        )
+        assert r.returncode != 0, f"{vlag} zonder opmerking moet geweigerd worden"
+        assert "opmerking" in (r.stdout + r.stderr).lower()
+
+
 def test_build_agent_geeft_interrupt_en_checkpointer_door(tmp_path):
     """build_agent plakt de interrupt-config op create_deep_agent (offline bewijs)."""
     import inspect
