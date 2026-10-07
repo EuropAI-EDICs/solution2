@@ -16,6 +16,7 @@
 - Tests zijn offline en LLM-vrij (fake model uit `langchain_core.language_models.fake_chat_models`); de volledige agent-loop met echt lokaal LLM is een `llm`-gemarkeerde test en geskipt zonder endpoint.
 - Suites blijven groen: deep-agents-tests draaien met de deep-agents-site-packages op PYTHONPATH (anders pakt de nldt-python zijn eigen oudere deepagents/langgraph): `cd deep-agents && PYTHONPATH=$PWD/.venv/lib/python3.14/site-packages ../nldt/.venv/bin/python -m pytest tests -q` · `cd nldt && .venv/bin/python -m pytest tests -q` (verwacht 390+) · `cd poc && ../nldt/.venv/bin/python -m pytest tests -q` (verwacht 304/1).
 - **`graph.stream()` is lazy** (T1-gevalideerd): een resume-`stream` moet geïtereerd worden (`for _ in …: pass`), anders voert hij niets uit.
+- **NB voor uitvoerders:** de pytest-commando's in de taken hieronder zijn kort genoteerd; voor elke deep-agents-suite geldt steeds de canonieke PYTHONPATH-vorm uit de eerste bullet hierboven (T1-gevalideerd). Zonder de prefix faalt de collectie van `test_hitl_smoke.py` op `langgraph.checkpoint.sqlite`.
 - Taal: code en comments in het Nederlands conform repo-stijl; commit-stijl `feat(deep-agents): …` / `feat(nldt): …`.
 - De mens is de laatste schakel: geen time-out, geen auto-approve behalve de expliciete dev-flag `--auto-approve-hitl`, en auto-approve wordt in journal én ledger gemarkeerd als machinaal.
 - Journal-regime: `steps.jsonl` wordt per run gereset (bestaand gedrag, niet veranderen); alles wat de leerstaat voedt gaat in het append-only `hitl-verdicts.jsonl`.
