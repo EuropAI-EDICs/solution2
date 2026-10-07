@@ -17,6 +17,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from services.adapters.odrl_policies import policy_for, policy_ids_referenced_by  # noqa: E402
+
 NLDT_ROOT = Path(__file__).resolve().parents[2]
 REGISTRY = NLDT_ROOT / "data" / "dataspace" / "connector-registry.json"
 MANIFEST_DIR = NLDT_ROOT / "data" / "dataspace" / "edc-manifests"
@@ -84,14 +86,16 @@ def offer_to_edc_contract_definition(offer: dict[str, Any]) -> dict[str, Any]:
 
 
 def write_edc_manifest(offer: dict[str, Any]) -> dict[str, Any]:
-    """Persist EDC-shaped Asset + ContractDefinition for operator import."""
+    """Persist EDC-shaped Asset + ContractDefinition + PolicyDefinition for operator import."""
     asset = offer_to_edc_asset(offer)
     contract = offer_to_edc_contract_definition(offer)
+    policy = policy_for(str(offer.get("accessClass", "internal")))
     bundle = {
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "participantId": os.environ.get("NLDT_DATASPACE_PARTICIPANT", "nldt-nl-poc"),
         "asset": asset,
         "contractDefinition": contract,
+        "policies": [policy],
         "sourceOffer": {"uid": offer.get("uid"), "datasetId": offer.get("datasetId")},
     }
     path = _manifest_dir() / f"{offer.get('uid')}.edc.json"
@@ -100,6 +104,7 @@ def write_edc_manifest(offer: dict[str, Any]) -> dict[str, Any]:
         "backend": "edc-manifest",
         "manifestPath": str(path),
         "assetId": asset.get("@id"),
+        "policyIds": policy_ids_referenced_by(offer),
         "status": "manifest_written",
     }
 
@@ -118,15 +123,18 @@ def http_register_offer(offer: dict[str, Any]) -> dict[str, Any]:
 
     url = f"{base}/v3/assets"
     try:
+        policy = policy_for(str(offer.get("accessClass", "internal")))
         with httpx.Client(timeout=30.0) as client:
+            policy_resp = client.post(f"{base}/v3/policydefinitions", json=policy)
             resp = client.post(url, json=asset)
             remote = {
                 "backend": "http",
                 "url": url,
                 "httpStatus": resp.status_code,
+                "policyStatus": policy_resp.status_code,
                 "assetId": asset.get("@id"),
             }
-            if resp.status_code >= 400:
+            if resp.status_code >= 400 or policy_resp.status_code >= 400:
                 remote["status"] = "remote_error"
                 remote["body"] = resp.text[:500]
                 remote["fallback"] = write_edc_manifest(offer)
@@ -159,6 +167,7 @@ def mock_register_offer(offer: dict[str, Any]) -> dict[str, Any]:
         "lakeUri": offer.get("lakeUri"),
         "accessClass": offer.get("accessClass"),
         "status": offer.get("status"),
+        "policyId": policy_ids_referenced_by(offer)[0] if policy_ids_referenced_by(offer) else None,
         "registeredAt": datetime.now(timezone.utc).isoformat(),
     }
     reg["offers"] = [o for o in reg.get("offers", []) if o.get("datasetId") != entry["datasetId"]]
@@ -169,6 +178,7 @@ def mock_register_offer(offer: dict[str, Any]) -> dict[str, Any]:
         "backend": "mock",
         "participantId": reg["participantId"],
         "registered": entry,
+        "policyId": entry["policyId"],
         "status": "registered",
     }
 

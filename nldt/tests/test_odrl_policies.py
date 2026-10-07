@@ -62,3 +62,27 @@ def test_build_odrl_offer_open_has_no_prohibition() -> None:
     )
     assert offer["permission"][0]["odrl:action"] == ["odrl:use", "odrl:distribute"]
     assert "prohibition" not in offer
+
+
+def test_edc_manifest_includes_policies(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("NLDT_DATASPACE_CONNECTOR", "edc-manifest")
+    monkeypatch.setenv("NLDT_DATASPACE_REGISTRY", str(tmp_path / "registry.json"))
+    monkeypatch.setenv("NLDT_EDC_MANIFEST_DIR", str(tmp_path / "manifests"))
+    from services.adapters.dataspace_connector import write_edc_manifest
+
+    result = write_edc_manifest({"uid": "offer-abc", "datasetId": "ds", "lakeUri": "lake://x", "accessClass": "internal"})
+    import json as _json
+
+    bundle = _json.loads((tmp_path / "manifests" / "offer-abc.edc.json").read_text(encoding="utf-8"))
+    assert bundle["policies"][0]["@id"] == "policy-internal"
+    assert bundle["contractDefinition"]["accessPolicyId"] == "policy-internal"
+    assert result["policyIds"] == ["policy-internal"]
+
+
+def test_mock_register_records_policy_id(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("NLDT_DATASPACE_CONNECTOR", "mock")
+    monkeypatch.setenv("NLDT_DATASPACE_REGISTRY", str(tmp_path / "registry.json"))
+    from services.adapters.dataspace_connector import mock_register_offer
+
+    result = mock_register_offer({"uid": "offer-xyz", "datasetId": "ds2", "lakeUri": "lake://y", "accessClass": "open", "status": "published"})
+    assert result["policyId"] == "policy-open"
