@@ -45,3 +45,21 @@ def test_args_summary_is_kort_en_deterministisch():
 
 def test_pending_exit_code_is_2():
     assert PENDING_EXIT_CODE == 2
+
+
+def test_build_agent_geeft_interrupt_en_checkpointer_door(tmp_path):
+    """build_agent plakt de interrupt-config op create_deep_agent (offline bewijs)."""
+    import inspect
+
+    import agent as agent_module
+    from hitl import HITL_TOOLS
+
+    src = inspect.getsource(agent_module.build_agent)
+    assert "interrupt_on" in src and "checkpointer" in src
+    assert "run_bp2op_transform" in src or "HITL_TOOLS" in src
+    assert isinstance(HITL_TOOLS, dict) and "run_bp2op_transform" in HITL_TOOLS
+    # Versterking (geen nieuwe deps): keyword-only params + compileerbaarheid.
+    params = inspect.signature(agent_module.build_agent).parameters
+    assert params["checkpointer"].kind is inspect.Parameter.KEYWORD_ONLY
+    assert params["interrupt_on"].kind is inspect.Parameter.KEYWORD_ONLY
+    compile(inspect.getsource(agent_module), str(agent_module.__file__), "exec")

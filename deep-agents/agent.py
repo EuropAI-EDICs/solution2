@@ -32,6 +32,7 @@ from pocs import poc_subagents  # noqa: E402
 from tools.artifacts import submit_formal_rule, submit_norm_cards, submit_request  # noqa: E402
 from tools.laya import laya_advise_request  # noqa: E402
 from laya_router import augment_user_message, laya_enabled  # noqa: E402
+from hitl import HITL_TOOLS  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 
@@ -51,7 +52,11 @@ def _tool_name(t) -> str:
     return getattr(t, "name", getattr(t, "__name__", ""))
 
 
-def build_agent(tools: list):
+def build_agent(tools: list, *, checkpointer=None, interrupt_on: dict | None = None):
+    """Bouw de orchestrator; met checkpointer en HITL-config voor de live-run.
+
+    interrupt_on=None betekent de standaardconfig (HITL_TOOLS); {} schakelt uit.
+    """
     if not laya_enabled():
         tools = [t for t in tools if _tool_name(t) != "laya_advise_request"]
     return create_deep_agent(
@@ -59,6 +64,8 @@ def build_agent(tools: list):
         tools=tools,
         system_prompt=SYSTEM_PROMPT,
         subagents=poc_subagents(mcp_tools=tools),
+        checkpointer=checkpointer,
+        interrupt_on=interrupt_on if interrupt_on is not None else dict(HITL_TOOLS),
     )
 
 
