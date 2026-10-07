@@ -7,9 +7,9 @@
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
   <style>
     :root {
-      --bg: #0f1419; --panel: #1a2332; --border: #2d3a4f;
-      --text: #e6edf3; --muted: #8b9cb3; --accent: #3d8bfd;
-      --pass: #3fb950; --warn: #f0883e; --deny: #f85149;
+      --bg: #0d0d12; --panel: #1a1a23; --border: #2a2a35;
+      --text: #f5f2ec; --muted: #8a857a; --accent: #ff8205;
+      --pass: #59c937; --warn: #ffd800; --deny: #fa500f;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; overflow: hidden; font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); }
@@ -66,7 +66,7 @@
   </style>
 </head>
 <body>
-<div style="padding:0.45rem 1rem;background:#0f1419;border-bottom:1px solid #2d3a4f;font-family:system-ui,sans-serif;font-size:0.75rem"><a href="index.html" style="color:#3d8bfd">← Simulations hub</a> · <a href="poc-utrecht.html" style="color:#8b9cb3">Utrecht story</a> · <a href="poc-mcp-skills.html?poc=utrecht" style="color:#8b9cb3">Architecture tour</a></div>
+<div style="padding:0.45rem 1rem;background:#0d0d12;border-bottom:1px solid #2a2a35;font-family:system-ui,sans-serif;font-size:0.75rem"><a href="index.html" style="color:#ff8205">← Simulations hub</a> · <a href="poc-utrecht.html" style="color:#8a857a">Utrecht story</a> · <a href="poc-mcp-skills.html?poc=utrecht" style="color:#8a857a">Architecture tour</a></div>
 
   <div id="app">
     <header>
@@ -253,7 +253,7 @@
     }
 
     function addRejectedVolume(id, ring, heightM) {
-      const color = Cesium.Color.fromCssColorString('#f85149');
+      const color = Cesium.Color.fromCssColorString('#fa500f');
       const pos = Cesium.Cartesian3.fromDegreesArray(flat(ring));
       const dash = new Cesium.PolylineDashMaterialProperty({ color, dashLength: 14 });
       entities[id + '-line'] = viewer.entities.add({
@@ -319,7 +319,7 @@
         if (B.scenario?.uitbouwAchter?.toegestaan) {
           addVolume(
             'uitbouw', B.uitbouw_wgs84,
-            Cesium.Color.fromCssColorString(v.color || '#3fb950'),
+            Cesium.Color.fromCssColorString(v.color || '#59c937'),
             v.heightM || 4,
             v.alpha ?? 0.65,
           );

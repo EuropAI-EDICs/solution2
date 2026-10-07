@@ -7,8 +7,8 @@
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
   <style>
     :root {
-      --bg: #0f1419; --panel: #1a2332; --border: #2d3a4f;
-      --text: #e6edf3; --muted: #8b9cb3; --accent: #3d8bfd; --pass: #3fb950; --warn: #f0883e;
+      --bg: #0d0d12; --panel: #1a1a23; --border: #2a2a35;
+      --text: #f5f2ec; --muted: #8a857a; --accent: #ff8205; --pass: #59c937; --warn: #ffd800;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; overflow: hidden; font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); }
@@ -80,7 +80,7 @@
   </style>
 </head>
 <body>
-<div style="padding:0.45rem 1rem;background:#0f1419;border-bottom:1px solid #2d3a4f;font-family:system-ui,sans-serif;font-size:0.75rem"><a href="index.html" style="color:#3d8bfd">← Simulations hub</a> · <a href="poc-utrecht.html" style="color:#8b9cb3">Utrecht story</a> · <a href="poc-mcp-skills.html?poc=utrecht" style="color:#8b9cb3">Architecture tour</a></div>
+<div style="padding:0.45rem 1rem;background:#0d0d12;border-bottom:1px solid #2a2a35;font-family:system-ui,sans-serif;font-size:0.75rem"><a href="index.html" style="color:#ff8205">← Simulations hub</a> · <a href="poc-utrecht.html" style="color:#8a857a">Utrecht story</a> · <a href="poc-mcp-skills.html?poc=utrecht" style="color:#8a857a">Architecture tour</a></div>
 
   <div id="app">
     <header>
@@ -117,9 +117,9 @@
           <div class="request-box" id="requestBox">—</div>
           <div class="detail" id="detailBox"><h3>Waiting to start</h3><p>OSM + 3D BAG visible immediately. Overlay colours buildings per zone.</p></div>
           <div class="legend" id="legend">
-            <div><span class="sw classify" style="background:#3d8bfd"></span> Zone A — panden blauw</div>
-            <div><span class="sw classify" style="background:#3fb950"></span> Zone B — panden groen</div>
-            <div><span class="sw classify" style="background:#ff6b00"></span> Intersectie — panden oranje</div>
+            <div><span class="sw classify" style="background:#ff8205"></span> Zone A — panden blauw</div>
+            <div><span class="sw classify" style="background:#59c937"></span> Zone B — panden groen</div>
+            <div><span class="sw classify" style="background:#ff8205"></span> Intersectie — panden oranje</div>
           </div>
           <div class="stats">
             <div class="stat"><div class="lbl">Intersectie</div><div class="val" id="sArea">—</div></div>
@@ -141,9 +141,9 @@
     const RUN = {"runId":"6d4839a2","request":"Analyse the overlap of zone A and B in Rijnsweerd Utrecht","recipeId":"spatial-overlay-analysis","area":"Rijnsweerd, Utrecht","buildingCount":64,"tiles_lod22":"https://data.3dbag.nl/v20250903/cesium3dtiles/lod22/tileset.json","center_wgs84":{"lon":5.154611,"lat":52.089389},"totalAreaM2":10000,"verdict":"pass","validation":{"V0":"pass","V1":"pass","V2":"pass","V3":"not_applicable","V4":"not_applicable"},"graph":[{"id":"catalog_search","label":"Catalog Search","agent":"Catalog Navigator","detail":"Recipe spatial-overlay-analysis found in catalogue","log":"GET /records → recipe match"},{"id":"plan_recipe","label":"Plan Recipe","agent":"Recipe Planner","detail":"4 steps: fetch A/B → intersect → stats","log":"agentPlan · llmUsed: false"},{"id":"validate_plan","label":"Validate Plan","agent":"Critic","detail":"Schema V0 pass · risk: low","log":"critic#plan-validation → pass"},{"id":"execute_steps","label":"Execute","agent":"Executor","detail":"Processes on Rijnsweerd layers","subSteps":[{"stepId":"fetch-layer-a","processId":"fetch-features","jobId":"bbeb6c12…","show3d":["layerA"]},{"stepId":"fetch-layer-b","processId":"fetch-features","jobId":"6ba78eff…","show3d":["layerA","layerB"]},{"stepId":"intersect","processId":"spatial-intersection","jobId":"f891a322…","show3d":["layerA","layerB","intersect"]},{"stepId":"stats","processId":"compute-area-statistics","jobId":"289a88f8…","show3d":["layerA","layerB","intersect"]}]},{"id":"validate_outputs","label":"Validate Outputs","agent":"Critic","detail":"Geo + output checks pass","log":"V0+V1 → pass · 10.000 m²"},{"id":"register_hybrid","label":"Hybrid 3D","agent":"Hybrid Bridge","detail":"Web3D Context export naar viewer","log":"Web3DContext + BAG scene actief"},{"id":"explain","label":"Explain","agent":"Explainer","detail":"Summary for end user","log":"verdict: pass"}]};
 
     const STYLE = {
-      layerA: { color: Cesium.Color.fromCssColorString('#3d8bfd'), alpha: 0.72, h: 75, line: 3 },
-      layerB: { color: Cesium.Color.fromCssColorString('#3fb950'), alpha: 0.72, h: 75, line: 3 },
-      intersect: { color: Cesium.Color.fromCssColorString('#ff6b00'), alpha: 0.92, h: 90, line: 4, pulse: true },
+      layerA: { color: Cesium.Color.fromCssColorString('#ff8205'), alpha: 0.72, h: 75, line: 3 },
+      layerB: { color: Cesium.Color.fromCssColorString('#59c937'), alpha: 0.72, h: 75, line: 3 },
+      intersect: { color: Cesium.Color.fromCssColorString('#ff8205'), alpha: 0.92, h: 90, line: 4, pulse: true },
     };
 
     let data = RUN;
