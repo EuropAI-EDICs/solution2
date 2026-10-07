@@ -283,6 +283,26 @@ is het product, niet één stadsrapportcijfer.
 
 ---
 
+## Positie in het kader van *The Agentic State*
+
+De whitepaper *The Agentic State* (Ilves e.a., 2025) rangschikt agentic AI voor de overheid in
+**twaalf functionele lagen** — zes implementatie, zes enablement — met autonomieschaal L0–L5.
+De toolbox scoort daarop sterk precies waar het in dit domein toe doet:
+
+| Laag | Kern | Toolbox |
+|---|---|---|
+| 2 Workflow | zelf-orchestrerende uitvoering | **L3** — volledige keten met gates & critic |
+| 7 Governance | verantwoordelijkheid & herstel | cite-or-abstain · PROV · leerstaat |
+| 8 Data | gedeelde betekenis & herkomst | bronmonitor · autoritatieve citaten |
+| 4 Compliance | toezicht & bewijs | V0–V4 · golden-regressie |
+
+> **L3 in een begrensd domein** is het niveau dat het paper aanbeveelt voor gevoelige
+> domeinen: *"a reliable Level 3 system may beat an unpredictable Level 4."*
+
+Volledige analyse per laag: `docs/AGENTIC_STATE_GAP_ANALYSE.md` — methode: de Sitra-poorten.
+
+---
+
 ## Slot: Creating *Real* Value
 
 Real value in ruimtelijke ordening is **controleerbaar**:
@@ -310,3 +330,5 @@ nldt/MCP-orchestratie.
 - Citaten congresprogramma: indestad.ai/en/#programme (geraadpleegd 13-9-2026)
 - 185 (Utrecht) + 32 (Eindhoven) + 33 (Rijnland) + 73 (Breda) = **323 offline
   tests**; geen API-sleutels; lokale modellen (qwen3.8 via Ollama)
+- Kader: *The Agentic State* (Ilves e.a., 2025, agenticstate.org) · gap-analyse:
+  `docs/AGENTIC_STATE_GAP_ANALYSE.md`

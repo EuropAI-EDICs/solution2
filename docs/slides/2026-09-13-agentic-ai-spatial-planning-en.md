@@ -572,6 +572,28 @@ the product — never a single city grade.
 
 ---
 
+<!-- _class: track-neutral -->
+
+## Where this sits in *The Agentic State* framework
+
+*The Agentic State* (Ilves et al., 2025) orders government agentic AI across **twelve
+functional layers** — six implementation, six enablement — with an autonomy scale L0–L5.
+The toolbox scores strongest exactly where it matters in this domain:
+
+| Layer | Concern | Toolbox |
+|---|---|---|
+| 2 Workflows | self-orchestrating delivery | **L3** — full chain with gates & critic |
+| 7 Governance | accountability & redress | cite-or-abstain · PROV · learning trail |
+| 8 Data | shared meaning & provenance | source monitor · authoritative citations |
+| 4 Compliance | supervision & assurance | V0–V4 · golden regression |
+
+> **L3 in a bounded domain** is exactly the level the paper recommends for sensitive
+> domains: *"a reliable Level 3 system may beat an unpredictable Level 4."*
+
+Full per-layer analysis: `docs/AGENTIC_STATE_GAP_ANALYSE.md` — method: the Sitra gates.
+
+---
+
 <!-- _class: track-spatial compact -->
 
 ## Next 1 — the scenario seam for the five-value scan
