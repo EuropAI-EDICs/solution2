@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dataspace &amp; ODRL-beleid — bestuurlijke demo · LDT-toolbox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper: #0d0d12; --ink: #f5f2ec; --ink-soft: #c9c4b8; --muted: #8a857a;
+      --teal: #ff8205; --focus: #ffd800; --pass: #59c937; --line: rgba(245,242,236,.14);
+      --panel: #14141b; --card: #1a1a23;
+      --open: #59c937; --internal: #ff8205; --restricted: #fa500f;
+      --grad: linear-gradient(90deg, #ffd800, #ff8205 55%, #fa500f);
+      --font-ui: "Inter", system-ui, sans-serif;
+      --font-display: "Space Grotesk", system-ui, sans-serif;
+      --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: var(--font-ui); color: var(--ink); background: var(--paper);
+      background-image:
+        linear-gradient(rgba(245,242,236,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245,242,236,.035) 1px, transparent 1px),
+        radial-gradient(ellipse 90% 60% at 85% -10%, rgba(255,130,5,.16), transparent 55%),
+        radial-gradient(ellipse 60% 45% at 0% 0%, rgba(255,216,0,.07), transparent 50%);
+      background-size: 24px 24px, 24px 24px, 100% 100%, 100% 100%;
+      display: flex; flex-direction: column; min-height: 100vh; line-height: 1.5;
+    }
+    header {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      padding: .7rem 1.25rem; border-bottom: 1px solid var(--line);
+      background: rgba(13,13,18,.88); backdrop-filter: blur(4px);
+      position: sticky; top: 0; z-index: 5;
+    }
+    .brand { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; text-transform: uppercase; letter-spacing: .04em; }
+    .brand span { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .doctrine { font-size: .74rem; color: var(--muted); font-style: italic; }
+    .dots { margin-left: auto; display: flex; gap: .38rem; align-items: center; }
+    .dots button {
+      width: 11px; height: 11px; border-radius: 50%; border: 1px solid var(--muted);
+      background: transparent; cursor: pointer; padding: 0; transition: .2s;
+    }
+    .dots button.on { background: var(--teal); border-color: var(--teal); box-shadow: 0 0 8px rgba(255,130,5,.7); }
+    main { flex: 1; display: flex; align-items: stretch; }
+    .scene { display: none; width: 100%; max-width: 1080px; margin: 0 auto; padding: 1.6rem 1.5rem 1.2rem; animation: rise .35s ease; }
+    .scene.on { display: block; }
+    @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .kicker { font-family: var(--font-mono); font-size: .68rem; text-transform: uppercase; letter-spacing: .12em; color: var(--teal); font-weight: 600; margin-bottom: .55rem; display: flex; align-items: center; gap: .5rem; }
+    .kicker::before { content: ""; width: 22px; height: 8px; background: var(--grad); flex: none; }
+    h1 { font-family: var(--font-display); font-size: clamp(1.7rem, 4vw, 2.5rem); font-weight: 700; line-height: 1.12; letter-spacing: -.015em; }
+    h1 span { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    h2 { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; margin-bottom: .5rem; letter-spacing: -.01em; }
+    h2 span { color: var(--teal); }
+    .lede { margin: .55rem 0 0; color: var(--ink-soft); font-size: .95rem; max-width: 46rem; }
+    .src { margin-top: .9rem; font-size: .72rem; color: var(--muted); max-width: 52rem; }
+    .src b { color: var(--ink-soft); }
+    .cards { margin-top: 1rem; display: grid; gap: .7rem; }
+    .cards.c3 { grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+    .cards.c2 { grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 2px; padding: .8rem .9rem; font-size: .84rem; border-top: 2px solid transparent; transition: border-color .2s, transform .2s; }
+    .card:hover { border-top-color: var(--teal); transform: translateY(-2px); }
+    .card h3 { font-family: var(--font-display); font-size: .98rem; font-weight: 600; margin-bottom: .3rem; }
+    .card .big { font-family: var(--font-display); font-size: 1.7rem; font-weight: 700; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .card p { color: var(--ink-soft); }
+    .badge { display: inline-block; font-size: .62rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: .1rem .5rem; border-radius: 999px; color: #fff; }
+    .badge.open { background: var(--open); }
+    .badge.internal { background: var(--internal); }
+    .badge.restricted { background: var(--restricted); }
+    .badge.gat { background: var(--muted); }
+    table { width: 100%; border-collapse: collapse; margin-top: .8rem; background: var(--card); font-size: .8rem; border: 1px solid var(--line); border-radius: 2px; }
+    tr:hover td { background: rgba(255,130,5,.06); }
+    th, td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+    tr:last-child td { border-bottom: none; }
+    .tabs { margin-top: .9rem; display: flex; gap: .4rem; flex-wrap: wrap; }
+    .tabs button {
+      font-family: var(--font-mono); font-size: .74rem; font-weight: 600; cursor: pointer;
+      padding: .38rem .8rem; border: 1px solid var(--line); border-radius: 2px;
+      background: var(--card); color: var(--ink-soft); text-transform: uppercase; letter-spacing: .05em;
+    }
+    .tabs button:hover { border-color: var(--teal); color: var(--teal); }
+    .tabs button.on { background: var(--grad); color: #0d0d12; border-color: transparent; }
+    .phasepane { display: none; margin-top: .8rem; }
+    .phasepane.on { display: block; }
+    .offerrow.hidden { display: none; }
+    .flow { margin-top: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .6rem; }
+    .step { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: .65rem .7rem; font-size: .78rem; position: relative; }
+    .step b { display: block; font-family: var(--font-display); font-size: .9rem; margin-bottom: .2rem; }
+    .step .num { position: absolute; top: -.55rem; left: .5rem; background: var(--grad); color: #0d0d12; font-size: .62rem; font-weight: 700; border-radius: 2px; padding: .08rem .45rem; }
+    .verdict { margin-top: .7rem; padding: .7rem .8rem; border-radius: 4px; font-size: .84rem; border: 1px solid var(--line); background: var(--card); }
+    .verdict.approved { border-color: var(--pass); background: rgba(89,201,55,.08); }
+    .verdict.pending { border-color: var(--focus); background: rgba(255,216,0,.06); }
+    footer {
+      display: flex; align-items: center; gap: .9rem; padding: .6rem 1.25rem;
+      border-top: 1px solid var(--line); background: rgba(13,13,18,.88);
+    }
+    .where { font-size: .72rem; color: var(--ink-soft); }
+    footer button {
+      margin-left: auto; font-family: var(--font-ui); font-size: .8rem; font-weight: 600;
+      padding: .45rem 1rem; border: 1px solid var(--line); border-radius: 4px;
+      cursor: pointer; background: var(--card); color: var(--ink);
+    }
+    footer button:hover { border-color: var(--teal); color: var(--teal); }
+    footer button.primary { background: var(--grad); color: #0d0d12; border-color: transparent; font-weight: 700; }
+    footer button.primary:hover { filter: brightness(1.1); color: #0d0d12; }
+    footer button:disabled { opacity: .4; cursor: default; }
+    .keyhint { font-size: .68rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">Dataspace <span>· bestuurlijke demo</span></div>
+  <div class="doctrine">AI stelt voor · de pijplijn beslist · de mens beslist</div>
+  <nav class="dots" id="dots" aria-label="Scènes"></nav>
+</header>
+
+<main>
+
+  <!-- ============ 1 TITEL ============ -->
+  <section class="scene" data-title="Titel">
+    <p class="kicker">Bestuurlijke demo · LDT-toolbox · oktober 2026</p>
+    <h1>Delen zonder machtsoverdracht:<br /><span>datastoffering van het planproces</span></h1>
+    <p class="lede">
+      Het planproces van provincie, gemeenten en waterschap leeft van data — verordeningen, geodata,
+      scenario's, aanvragen. Wie mag wat zien, gebruiken en doorgeven, in welke fase, onder welke
+      voorwaarde? Die vraag is nu <strong>machinaal beleid</strong> geworden: ODRL-toegangsbeleid per
+      dataset, live gepubliceerd in de Europese dataspace-vorm.
+    </p>
+    <div class="cards c3">
+      <div class="card">
+        <h3>Wat is het?</h3>
+        <p>Een toegangsbeleid-laag rond de bestaande toolbox: elke dataset krijgt een <em>voorwaardenlabel</em> (ODRL) dat een ontvangende partij machineleesbaar kan afdwingen.</p>
+      </div>
+      <div class="card">
+        <h3>Wat is er al?</h3>
+        <p><span class="big">15</span> echte aanbiedingen live op Utrecht-data: 13 open kaartanalyses, 1 scenario-overleg-stuk, 1 besloten besluitvormingsbundel.</p>
+      </div>
+      <div class="card">
+        <h3>Wat beslist u?</h3>
+        <p>De matrix van wie-wat-wanneer mag zien is een <em>voorstel</em>. Per bron kan het bestuur de klasse bijstellen — zonder technische aanpassing.</p>
+      </div>
+    </div>
+    <p class="src"><b>Bronnen:</b> <code>nldt/26-odrl-usage-policies.md</code> · spec <code>2026-10-07-odrl-usage-policies-design.md</code> · DSSC-bouwstenen (EU Dataspaces) · ODRL 2.2 (W3C)</p>
+  </section>
+
+  <!-- ============ 2 DE VRAAG ============ -->
+  <section class="scene" data-title="De vraag">
+    <p class="kicker">Aanleiding</p>
+    <h2>Een planproces <span>leeft van data</span> — maar delen voelt als macht delen</h2>
+    <p class="lede">
+      Van verkenning tot vergunning: elke fase trekt op andere bronnen en andere partners. Vandaag
+      gebeurt delen ad hoc — per e-mail, per schijf, per uitzondering. De vraag aan dit demomoment:
+      <strong>kunnen we dat regelen als infrastructuur, met de eigenaar aan de knoppen?</strong>
+    </p>
+    <div class="flow">
+      <div class="step"><span class="num">1</span><b>Design</b>Verordening, visie, GIO's — openly leesbaar, iedereen kan meedoen en betwisten.</div>
+      <div class="step"><span class="num">2</span><b>Programming</b>Track-analyses, scenario's, peildata — de kring onderling, niet de buitenwereld.</div>
+      <div class="step"><span class="num">3</span><b>Permission</b>Aanvraagdata, DSO-documenten — eigenaar blijft eigenaar, aanvragers zien het eigene.</div>
+      <div class="step"><span class="num">4</span><b>Monitoring</b>Freshness, herzieningsdiffs — de kring bewaakt, het dashboard is open.</div>
+    </div>
+    <p class="src"><b>Het Europese antwoord:</b> dataspace-architectuur (DSSC-bouwstenen) — data blijft bij de bron (data plane), ontdekking via catalogus, delen via connectors met <strong>machinaal beleid</strong> (ODRL). Geen credentials delen; voorwaarden reizen mee met de data.</p>
+  </section>
+
+  <!-- ============ 3 HET PRINCIPE ============ -->
+  <section class="scene" data-title="Het principe">
+    <p class="kicker">Doctrines</p>
+    <h2>AI stelt voor · <span>de pijplijn beslist</span> · de mens beslist</h2>
+    <p class="lede">Dezelfde doctrine die de analyses geldig maakt, geldt op het delen: de matrix is een voorstel, de pijplijn valideert (schema + gates), en de mens bepaalt de klasse — en bij besloten data óók de publicatie zelf.</p>
+    <div class="cards c3">
+      <div class="card">
+        <h3>1 · AI stelt voor</h3>
+        <p>De classificatiematrix (fase × bron × acteur) is gegenereerd uit de architectuur en de bronneninventaris — een voorstel, geen vonnis.</p>
+      </div>
+      <div class="card">
+        <h3>2 · Pijplijn beslist</h3>
+        <p>Schema-validatie, deny-lijst, provenance en validation reports lopen automatisch vóór elk aanbod de deur uit gaat.</p>
+      </div>
+      <div class="card">
+        <h3>3 · Mens beslist</h3>
+        <p>Besloten data publiceert nooit automatisch — alleen met expliciete goedkeuring. Opwaarderen is een bestuurlijke stap.</p>
+      </div>
+    </div>
+    <p class="src"><b>Waarom ODRL?</b> Een standaard van het W3C: voorwaarden als machineleesbaar object (mag gebruiken, mag doorgeven, onder welke beperking). Een ontvangende connector kan ze afdwingen — beleid reist mee met de data, los van e-mailafspraken.</p>
+  </section>
+
+  <!-- ============ 4 DRIE KLASSEN ============ -->
+  <section class="scene" data-title="Drie beleidsklassen">
+    <p class="kicker">De bouwstenen</p>
+    <h2>Drie klassen, <span>drie praktijken</span></h2>
+    <p class="lede">Elke dataset krijgt precies één klasse — en daarmee een ODRL-beleid dat de ontvangende partij afdwingbaar krijgt. Gekozen vanuit de planpraktijk, niet vanuit techniek:</p>
+    <div class="cards c3">
+      <div class="card" style="border-top:3px solid var(--open)">
+        <span class="badge open">open</span>
+        <h3 style="margin-top:.5rem">Gebruiken &amp; herpubliceren</h3>
+        <p>CC0. Transparantie en contestability: elke burger en elke ontwikkelaar kan de analyse terugvoeren naar artikel, versie en citaat.</p>
+        <p style="margin-top:.4rem"><em> bijv. de 13 kaartanalyses van de verordening</em></p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--internal)">
+        <span class="badge internal">internal</span>
+        <h3 style="margin-top:.5rem">De kring onderling</h3>
+        <p>Gebruiken en doorgeven binnen de deelnemerskring (provincie, gemeenten, waterschap, omgevingsdienst, RES). Naar buitenstaanders: verboden.</p>
+        <p style="margin-top:.4rem"><em> bijv. het scenario-overleg, crosstrack-analyses</em></p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--restricted)">
+        <span class="badge restricted">restricted</span>
+        <h3 style="margin-top:.5rem">Alleen gebruiken</h3>
+        <p>Geen enkele heruitgifte. Voor het besluitvormingsstadium: het team werkt ermee, de buitenwereld ziet het pas ná het besluit — als de klasse opwaardeert.</p>
+        <p style="margin-top:.4rem"><em> bijv. de world-scene-bundel van scenario's</em></p>
+      </div>
+    </div>
+    <p class="src"><b>Vastgelegd als beleidsobjecten:</b> <code>nldt/schemas/dataspace-policies.json</code> — drie ODRL 2.2-sets, in git, versiebaar als contract.</p>
+  </section>
+
+  <!-- ============ 5 FASE-MATRIX ============ -->
+  <section class="scene" data-title="Het planproces">
+    <p class="kicker">De matrix · klik op een fase</p>
+    <h2>Wie ziet wat, <span>in welke fase</span></h2>
+    <div class="tabs" id="phaseTabs">
+      <button class="on" data-phase="design">Design</button>
+      <button data-phase="programming">Programming</button>
+      <button data-phase="permission">Permission</button>
+      <button data-phase="monitoring">Monitoring</button>
+    </div>
+    <div class="phasepane on" id="pane-design">
+      <table>
+        <tr><th>Bron</th><th>Status</th><th>Klasse</th><th>Wie leest mee</th></tr>
+        <tr><td>Omgevingsverordening + visie (CVDR704250)</td><td>✅ in de toolbox</td><td><span class="badge open">open</span></td><td>iedereen</td></tr>
+        <tr><td>Stiltegebied- &amp; Natura2000-GIO's</td><td>✅ in de toolbox</td><td><span class="badge open">open</span></td><td>iedereen</td></tr>
+        <tr><td>planMER / planologie-onderzoek</td><td><span class="badge gat">gat</span></td><td>—</td><td>te passen bij de databronnen-mijlpaal</td></tr>
+      </table>
+    </div>
+    <div class="phasepane" id="pane-programming">
+      <table>
+        <tr><th>Bron</th><th>Status</th><th>Klasse</th><th>Wie leest mee</th></tr>
+        <tr><td>13 track-analyses (verordening, per thema)</td><td>✅ 15 live aanbiedingen</td><td><span class="badge open">open</span></td><td>iedereen</td></tr>
+        <tr><td>Scenario-overleg &amp; crosstrack-analyses</td><td>✅ live</td><td><span class="badge internal">internal</span></td><td>provincie · gemeenten · waterschap · OD · RES</td></tr>
+        <tr><td>Peilgebieden-stream (Rijnland)</td><td>✅ CDC-stream</td><td><span class="badge internal">internal</span></td><td>de kring</td></tr>
+        <tr><td>Energienetdata (EnergyCast)</td><td><span class="badge gat">gat</span></td><td>—</td><td>open seam; netbeheerder-koppeling volgt</td></tr>
+      </table>
+    </div>
+    <div class="phasepane" id="pane-permission">
+      <table>
+        <tr><th>Bron</th><th>Status</th><th>Klasse</th><th>Wie leest mee</th></tr>
+        <tr><td>DSO omgevingsdocumenten</td><td><span class="badge gat">gat</span></td><td>—</td><td>API is key-gated (401 geverifieerd)</td></tr>
+        <tr><td>BAG / BGT (PDOK)</td><td><span class="badge gat">gat</span></td><td>—</td><td>open, maar nog niet in de lake</td></tr>
+        <tr><td>Plandocumenten bp2op (Eindhoven)</td><td>✅ eigen PoC</td><td><span class="badge internal">internal</span></td><td>de kring</td></tr>
+        <tr><td>Eigen aanvraagdata</td><td>concept</td><td>restricted-pending</td><td>aanvrager ziet het eigene; klasse-in-uitbreiding</td></tr>
+      </table>
+    </div>
+    <div class="phasepane" id="pane-monitoring">
+      <table>
+        <tr><th>Bron</th><th>Status</th><th>Klasse</th><th>Wie leest mee</th></tr>
+        <tr><td>Bronmonitor-freshness</td><td>✅ live</td><td><span class="badge internal">internal</span></td><td>de kring</td></tr>
+        <tr><td>DONL-harvest</td><td>✅ live</td><td><span class="badge open">open</span></td><td>iedereen</td></tr>
+        <tr><td>Herzieningsdiffs verordening</td><td>🟡 deels</td><td><span class="badge internal">internal</span></td><td>de kring</td></tr>
+      </table>
+    </div>
+    <p class="src"><b>Dubbele functie:</b> dit is een deelcatalogus <em>en</em> een databehoeftekaart — elke "gat"-rij is een gedocumenteerde behoefte voor de volgende data-investeringsronde.</p>
+  </section>
+
+  <!-- ============ 6 HET AANBOD ============ -->
+  <section class="scene" data-title="Het aanbod vandaag">
+    <p class="kicker">Live · geen mockup</p>
+    <h2><span>15 aanbiedingen</span> op echte Utrecht-data</h2>
+    <p class="lede">Op 7 oktober 2026 daadwerkelijk gepubliceerd via de pijplijn — elke aanbieding met provenance, validation report en machineleesbaar beleid.</p>
+    <div class="tabs" id="classTabs">
+      <button class="on" data-class="">Alles (15)</button>
+      <button data-class="open">Open (13)</button>
+      <button data-class="internal">Internal (1)</button>
+      <button data-class="restricted">Restricted (1)</button>
+    </div>
+    <table>
+      <tr><th>#</th><th>Dataset</th><th>Fase</th><th>Klasse</th><th>Beleid</th></tr>
+      <tr class="offerrow" data-class="open"><td>1–13</td><td>13 track-analyses: wind · zon · bos · water · bodem · mobiliteit · landschap · landbouw · wonen · werken · recreatie · biomassa · energietoets</td><td>design</td><td><span class="badge open">open</span></td><td>policy-open (CC0)</td></tr>
+      <tr class="offerrow" data-class="internal"><td>14</td><td>Zon-scenario-overleg (S7-rapport)</td><td>programming</td><td><span class="badge internal">internal</span></td><td>policy-internal</td></tr>
+      <tr class="offerrow" data-class="restricted"><td>15</td><td>World-scene-bundel (besluitvormingsweergave)</td><td>programming</td><td><span class="badge restricted">restricted</span></td><td>policy-restricted</td></tr>
+    </table>
+    <p class="src"><b>Waar het leeft:</b> connector-register en EDC-manifesten met Asset + ContractDefinition + <strong>Policy-Definition</strong> per aanbieding — een ontvangende partner importeert het compleet. Zie <code>nldt/26-odrl-usage-policies.md</code>.</p>
+  </section>
+
+  <!-- ============ 7 HET MENSELIJK MOMENT ============ -->
+  <section class="scene" data-title="Het menselijke moment">
+    <p class="kicker">Human-in-the-loop</p>
+    <h2>Besloten blijft besloten, <span>tótdat de mens beslist</span></h2>
+    <p class="lede">De world-scene-bundel (scene 6, rij 15) kon alleen publiceren met expliciete goedkeuring — zonder die vlag weigert de pijplijn. Probeer het hieronder: de pijplijn weigert eerste, de bestuurder keurt af of goed.</p>
+    <div class="verdict pending" id="hitlVerdict">
+      <strong>Pijplijn:</strong> aanbieding "world-scene-bundel" (klasse restricted) → geweigerd zonder menselijke goedkeuring. <em>Wacht op besluit.</em>
+    </div>
+    <div class="tabs" style="margin-top:.7rem">
+      <button id="approveBtn">✅ Goedkeuren (met motivatie)</button>
+      <button id="rejectBtn">❌ Weigeren</button>
+    </div>
+    <p class="src"><b>In de praktijk:</b> opwaardering (bijv. internal → open ná bestuurlijk overleg en Provinciale Staten-instelling) is een besluit van de mens, geen pipeline-stap. Elke overgang is een planproces-moment: dezelfde doctrine die de analyses geldig maakt, stuurt ook het delen.</p>
+  </section>
+
+  <!-- ============ 8 WAT EEN PARTNER ZIET ============ -->
+  <section class="scene" data-title="Wat een partner ziet">
+    <p class="kicker">Aan de ontvangende kant</p>
+    <h2>Vindbaar, <span>leesbaar voorwaarden, afdwingbaar</span></h2>
+    <p class="lede">Een deelnemende gemeente of waterschap ziet geen schijven en geen inlogcodes — maar een connector-aanbod met voorwaarden die de eigen systemen begrijpen:</p>
+    <div class="flow">
+      <div class="step"><span class="num">1</span><b>Zoeken</b>Catalogus (OGC Records): "welke track-analyses zijn er voor de programming-fase?"</div>
+      <div class="step"><span class="num">2</span><b>Lezen</b>Het aanbieding-toonbaar: klasse, licentie, ODRL-beleid — voorwaarden die meereizen met de data.</div>
+      <div class="step"><span class="num">3</span><b>Afdwingen</b>De eigen connector blokkeert verboden acties (bv. heruitgifte van internal naar een extern partij).</div>
+      <div class="step"><span class="num">4</span><b>Gebruiken</b>Data met provenance: elk gebied terug te voeren naar artikel, versie, citaat.</div>
+    </div>
+    <div class="cards c2" style="margin-top:.8rem">
+      <div class="card">
+        <h3>Voor de aanbieder (provincie)</h3>
+        <p>De eigenaar blijft aan de knoppen: klasse per bron aanpasbaar, publicatie gated, elke uitgifte gedocumenteerd. Delen wordt beheersen, niet verliezen.</p>
+      </div>
+      <div class="card">
+        <h3>Voor de afnemer (gemeente/waterschap)</h3>
+        <p>Voorspelbare toegang: dezelfde voorwaarden voor iedereen in de kring, machineleesbaar — geen uitzonderingen per e-mail, geen schijfruil.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 9 EU-ALIGNMENT ============ -->
+  <section class="scene" data-title="Europese alignment">
+    <p class="kicker">Waar dit in het Europese kader staat</p>
+    <h2>De DSSC-bouwstenen, <span>stap voor stap</span></h2>
+    <div class="cards c2">
+      <div class="card"><h3>✅ Data &amp; discovery</h3><p>Medallion-lake (bronze/silver/gold) + OGC-catalogus — brondata blijft bij de bron, producten zijn vindbaar met provenance.</p></div>
+      <div class="card"><h3>✅ Usage control (vandaag)</h3><p>ODRL 2.2-beleidsobjecten, geëmbed in aanbiedingen en meegeleverd in connector-manifesten — van documentair naar machinaal.</p></div>
+      <div class="card"><h3>🟡 Vertrouwensframework</h3><p>Participant-identiteit via Keycloak/wallet is er; binding van het beleidsvocabulair aan verifieerbare deelname-claims is de volgende stap.</p></div>
+      <div class="card"><h3>🟡 Federatieve catalogus (DCAT-AP)</h3><p>Records zijn er; het EU-profiel (DCAT-AP) volgt — dan zijn de aanbiedingen ook in landelijke catalogi vindbaar.</p></div>
+    </div>
+    <p class="src"><b>Alignering:</b> "wrap, don't rebuild" — de toolbox hergebruikt bestaande EU-diensten (LDT Toolbox-catalogus, DONL, PDOK) en voegt alleen de laag toe die ontbreekt: beleid, validatie en provenance.</p>
+  </section>
+
+  <!-- ============ 10 VRAAG AAN HET BESTUUR ============ -->
+  <section class="scene" data-title="Vraag aan het bestuur">
+    <p class="kicker">Beslispunten</p>
+    <h2>Wat er nu <span>van u afhangt</span></h2>
+    <div class="cards c2">
+      <div class="card">
+        <h3>1 · De matrix bekrachtigen</h3>
+        <p>Klassering per bron is een voorstel. Bevestigt u de matrix als uitgangspunt — met per-fase bijstelling als regulier agenda-item?</p>
+      </div>
+      <div class="card">
+        <h3>2 · De deelnemerskring</h3>
+        <p>Welke organisaties ondertekenen de deelname-overeenkomst voor <em>internal</em> (provincie, welke gemeenten, waterschap, OD, RES)? Zonder kring geen internal-klasse.</p>
+      </div>
+      <div class="card">
+        <h3>3 · De gaten investeren</h3>
+        <p>planMER, PDOK-lagen, DSO en energienetdata zijn gedocumenteerde behoeften. Welke fase pakt de volgende ronde op?</p>
+      </div>
+      <div class="card">
+        <h3>4 · Het leeroverleg</h3>
+        <p>De decision-trail (leerstaat) registreert automatisch signalen — afwijzingen, handmatige oordelen, drift. Hoe vaak wil het bestuur die spiegelen (per kwartaal?) en wie signeert de besluiten?</p>
+      </div>
+    </div>
+    <p class="src" style="margin-top:.9rem"><b>Technische staat:</b> live en gereproduceerbaar — 15 aanbiedingen, drie beleidsklassen, compleet manifest per aanbieding; zie <code>nldt/26-odrl-usage-policies.md</code> en de spec. <b>Volgende mijlpalen op dit spoor:</b> DCAT-AP-catalogus · transfer-audit · wallet-binding van het vocabulair.</p>
+  </section>
+
+</main>
+
+<footer>
+  <span class="where" id="where">Scène 1 van 10 · Titel</span>
+  <span class="keyhint">→ / ← of klik op een stip</span>
+  <button id="prevBtn">← Vorige</button>
+  <button id="nextBtn" class="primary" >Volgende →</button>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- scene navigation (patroon agentic-state-demo) ---------- */
+  var scenes = Array.prototype.slice.call(document.querySelectorAll(".scene"));
+  var dotsEl = document.getElementById("dots");
+  var whereEl = document.getElementById("where");
+  var prevBtn = document.getElementById("prevBtn");
+  var nextBtn = document.getElementById("nextBtn");
+  var current = 0;
+
+  scenes.forEach(function (s, i) {
+    var b = document.createElement("button");
+    b.title = (i + 1) + " · " + (s.dataset.title || "");
+    b.addEventListener("click", function () { go(i); });
+    dotsEl.appendChild(b);
+  });
+
+  function go(i) {
+    if (i < 0) i = 0;
+    if (i > scenes.length - 1) i = scenes.length - 1;
+    current = i;
+    scenes.forEach(function (s, j) { s.classList.toggle("on", j === i); });
+    Array.prototype.forEach.call(dotsEl.children, function (d, j) {
+      d.classList.toggle("on", j === i);
+    });
+    whereEl.textContent = "Scène " + (i + 1) + " van " + scenes.length + " · " + (scenes[i].dataset.title || "");
+    prevBtn.disabled = i === 0;
+    nextBtn.disabled = i === scenes.length - 1;
+    if (history.replaceState) history.replaceState(null, "", "#scene-" + (i + 1));
+    window.scrollTo(0, 0);
+  }
+
+  prevBtn.addEventListener("click", function () { go(current - 1); });
+  nextBtn.addEventListener("click", function () { go(current + 1); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight" || e.key === "PageDown") { go(current + 1); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { go(current - 1); }
+    else if (e.key === "Home") { go(0); }
+    else if (e.key === "End") { go(scenes.length - 1); }
+  });
+
+  var m = location.hash.match(/^#scene-(\d+)$/);
+  go(m ? Math.min(Math.max(parseInt(m[1], 10) - 1, 0), scenes.length - 1) : 0);
+
+  /* ---------- scène 5: fase-tabs ---------- */
+  var phaseTabs = document.getElementById("phaseTabs");
+  Array.prototype.forEach.call(phaseTabs.querySelectorAll("button"), function (b) {
+    b.addEventListener("click", function () {
+      Array.prototype.forEach.call(phaseTabs.querySelectorAll("button"), function (x) { x.classList.remove("on"); });
+      b.classList.add("on");
+      Array.prototype.forEach.call(document.querySelectorAll(".phasepane"), function (p) {
+        p.classList.toggle("on", p.id === "pane-" + b.dataset.phase);
+      });
+    });
+  });
+
+  /* ---------- scène 6: klasse-filter ---------- */
+  var classTabs = document.getElementById("classTabs");
+  Array.prototype.forEach.call(classTabs.querySelectorAll("button"), function (b) {
+    b.addEventListener("click", function () {
+      Array.prototype.forEach.call(classTabs.querySelectorAll("button"), function (x) { x.classList.remove("on"); });
+      b.classList.add("on");
+      var cls = b.dataset.class;
+      Array.prototype.forEach.call(document.querySelectorAll(".offerrow"), function (row) {
+        row.classList.toggle("hidden", cls !== "" && row.dataset.class !== cls);
+      });
+    });
+  });
+
+  /* ---------- scène 7: HITL-mock ---------- */
+  var verdictEl = document.getElementById("hitlVerdict");
+  document.getElementById("approveBtn").addEventListener("click", function () {
+    verdictEl.className = "verdict approved";
+    verdictEl.innerHTML = "<strong>Besluit genomen:</strong> aanbieding \"world-scene-bundel\" gepubliceerd onder policy-restricted met <code>hitlApproved: true</code> — gebruik zonder heruitgifte. <em>De opwaardering naar een ruimere klasse is een nieuw besluit, nieuwe aanbieding.</em>";
+  });
+  document.getElementById("rejectBtn").addEventListener("click", function () {
+    verdictEl.className = "verdict pending";
+    verdictEl.innerHTML = "<strong>Geweigerd:</strong> de bundel blijft in de besloten werkruimte. De afwijzing is gelogd in de leerstaat (decision trail) — terugkerende afwijzingen zijn materiaal voor het leeroverleg.";
+  });
+
+  /* ---------- publieke hook ---------- */
+  window.odrlDataspaceDemo = {
+    go: function (n) { go(n - 1); },
+    sceneCount: scenes.length
+  };
+})();
+</script>
+</body>
+</html>

@@ -6,24 +6,24 @@
   <title>Agentic State — executive demo · LDT toolbox</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --paper: #e8e2d6; --ink: #1a2428; --ink-soft: #3d4a50; --muted: #6a757a;
-      --teal: #0d6e6e; --focus: #c45c26; --pass: #2a7a3a; --line: rgba(26,36,40,.18);
-      --panel: #f4efe6; --card: #fffdf8;
-      --font-ui: "DM Sans", system-ui, sans-serif;
-      --font-display: "Fraunces", Georgia, serif;
+      --paper: #0d0d12; --ink: #f5f2ec; --ink-soft: #c9c4b8; --muted: #8a857a;
+      --teal: #ff8205; --focus: #ffd800; --pass: #59c937; --line: rgba(245,242,236,.14);
+      --panel: #14141b; --card: #1a1a23;
+      --font-ui: "Inter", system-ui, sans-serif;
+      --font-display: "Space Grotesk", system-ui, sans-serif;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
     body {
       font-family: var(--font-ui); color: var(--ink); background: var(--paper);
       background-image:
-        linear-gradient(rgba(26,36,40,.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(26,36,40,.03) 1px, transparent 1px),
-        radial-gradient(ellipse 120% 80% at 10% -20%, rgba(13,110,110,.10), transparent 50%),
-        radial-gradient(ellipse 70% 50% at 100% 0%, rgba(196,92,38,.06), transparent 45%);
+        linear-gradient(rgba(245,242,236,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245,242,236,.035) 1px, transparent 1px),
+        radial-gradient(ellipse 120% 80% at 10% -20%, rgba(255,130,5,.16), transparent 50%),
+        radial-gradient(ellipse 70% 50% at 100% 0%, rgba(255,216,0,.07), transparent 45%);
       background-size: 28px 28px, 28px 28px, 100% 100%, 100% 100%;
       display: flex; flex-direction: column; min-height: 100vh; line-height: 1.5;
     }
@@ -31,7 +31,7 @@
     header {
       display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
       padding: .7rem 1.25rem; border-bottom: 1px solid var(--line);
-      background: rgba(232,226,214,.85); backdrop-filter: blur(4px);
+      background: rgba(13,13,18,.88); backdrop-filter: blur(4px);
       position: sticky; top: 0; z-index: 5;
     }
     .brand { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; letter-spacing: -.01em; }
@@ -120,7 +120,7 @@
       padding: .42rem .85rem; border-radius: 4px; border: 1px solid var(--line);
       cursor: pointer; background: var(--card); color: var(--ink);
     }
-    button.act.primary { background: var(--teal); color: #f7f3eb; border-color: var(--teal); }
+    button.act.primary { background: var(--teal); color: #0d0d12; border-color: var(--teal); }
     button.act:hover { border-color: var(--teal); }
     button.act.primary:hover { border-color: #0a5757; }
     .simstat { font-size: .78rem; color: var(--muted); }
@@ -219,7 +219,7 @@
     footer {
       display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
       padding: .65rem 1.25rem; border-top: 1px solid var(--line);
-      background: rgba(232,226,214,.85);
+      background: rgba(13,13,18,.88);
     }
     footer .where { font-size: .76rem; color: var(--muted); margin-right: auto; }
     footer button {
@@ -631,7 +631,7 @@
   <span class="where" id="where">Scene 1 of 10 · Title</span>
   <span class="keyhint">→ / ← or click a dot</span>
   <button id="prevBtn">← Previous</button>
-  <button id="nextBtn" class="primary" style="background:var(--teal);color:#f7f3eb;border-color:var(--teal)">Next →</button>
+  <button id="nextBtn" class="primary" style="background:var(--teal);color:#0d0d12;border-color:var(--teal)">Next →</button>
 </footer>
 
 <script>
@@ -786,19 +786,19 @@
   document.getElementById("mapPanel").innerHTML =
     '<svg viewBox="0 0 360 250" role="img" aria-label="Schematic zone map">' +
     '<rect x="0" y="0" width="360" height="250" fill="#fdfbf6"/>' +
-    '<path id="aoi" d="M30 40 L200 22 L322 60 L338 150 L240 228 L70 216 L22 130 Z" fill="none" stroke="#6a757a" stroke-width="1.4" stroke-dasharray="5 4"/>' +
-    '<text x="36" y="34" font-size="9" fill="#6a757a">area (AOI) 1,259.8 km²</text>' +
+    '<path id="aoi" d="M30 40 L200 22 L322 60 L338 150 L240 228 L70 216 L22 130 Z" fill="none" stroke="#8a857a" stroke-width="1.4" stroke-dasharray="5 4"/>' +
+    '<text x="36" y="34" font-size="9" fill="#8a857a">area (AOI) 1,259.8 km²</text>' +
     '<g class="zone" id="z1">' +
-    '<path d="M60 60 L220 45 L300 80 L305 150 L210 200 L90 190 L50 120 Z" fill="rgba(13,110,110,.18)" stroke="#0d6e6e" stroke-width="1.2"/>' +
-    '<text x="66" y="176" font-size="9" fill="#0d6e6e">wind search area (art. 5.4)</text></g>' +
-    '<g class="excl" id="x1"><ellipse cx="120" cy="90" rx="36" ry="22" fill="rgba(196,92,38,.22)" stroke="#c45c26" stroke-width="1.2" stroke-dasharray="4 3"/>' +
-    '<text x="120" y="93" font-size="9.5" fill="#c45c26" text-anchor="middle">Natura 2000</text></g>' +
-    '<g class="excl" id="x2"><ellipse cx="228" cy="120" rx="31" ry="17" fill="rgba(196,92,38,.22)" stroke="#c45c26" stroke-width="1.2" stroke-dasharray="4 3"/>' +
-    '<text x="228" y="123" font-size="9.5" fill="#c45c26" text-anchor="middle">goose roosts</text></g>' +
-    '<g class="excl" id="x3"><ellipse cx="170" cy="168" rx="30" ry="14" fill="rgba(42,122,58,.16)" stroke="#2a7a3a" stroke-width="1.2" stroke-dasharray="4 3"/>' +
-    '<text x="170" y="150" font-size="9.5" fill="#2a7a3a" text-anchor="middle">NNN (art. 6.3)</text></g>' +
-    '<g class="resultglow" id="rg"><path d="M60 60 L220 45 L300 80 L305 150 L210 200 L90 190 L50 120 Z" fill="none" stroke="#0d6e6e" stroke-width="3"/>' +
-    '<text x="118" y="120" font-size="13" font-weight="700" fill="#0d6e6e">859.5 km²</text></g>' +
+    '<path d="M60 60 L220 45 L300 80 L305 150 L210 200 L90 190 L50 120 Z" fill="rgba(13,110,110,.18)" stroke="#ff8205" stroke-width="1.2"/>' +
+    '<text x="66" y="176" font-size="9" fill="#ff8205">wind search area (art. 5.4)</text></g>' +
+    '<g class="excl" id="x1"><ellipse cx="120" cy="90" rx="36" ry="22" fill="rgba(196,92,38,.22)" stroke="#ffd800" stroke-width="1.2" stroke-dasharray="4 3"/>' +
+    '<text x="120" y="93" font-size="9.5" fill="#ffd800" text-anchor="middle">Natura 2000</text></g>' +
+    '<g class="excl" id="x2"><ellipse cx="228" cy="120" rx="31" ry="17" fill="rgba(196,92,38,.22)" stroke="#ffd800" stroke-width="1.2" stroke-dasharray="4 3"/>' +
+    '<text x="228" y="123" font-size="9.5" fill="#ffd800" text-anchor="middle">goose roosts</text></g>' +
+    '<g class="excl" id="x3"><ellipse cx="170" cy="168" rx="30" ry="14" fill="rgba(42,122,58,.16)" stroke="#59c937" stroke-width="1.2" stroke-dasharray="4 3"/>' +
+    '<text x="170" y="150" font-size="9.5" fill="#59c937" text-anchor="middle">NNN (art. 6.3)</text></g>' +
+    '<g class="resultglow" id="rg"><path d="M60 60 L220 45 L300 80 L305 150 L210 200 L90 190 L50 120 Z" fill="none" stroke="#ff8205" stroke-width="3"/>' +
+    '<text x="118" y="120" font-size="13" font-weight="700" fill="#ff8205">859.5 km²</text></g>' +
     '</svg>';
 
   function clearTimers() { timers.forEach(clearTimeout); timers = []; }
