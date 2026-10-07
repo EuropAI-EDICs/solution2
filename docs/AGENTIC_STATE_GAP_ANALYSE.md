@@ -208,3 +208,13 @@ De drie gaps die het meest opleveren, gescoord op de criteria uit de beslissessi
 fase C/D-demonstrator, heeft de hoogste repo-gereedheid en is het thema dat de whitepaper
 het zwaarst weegt: mensen houden de knoppen, aantoonbaar. Let op: de decision-trail memory
 (taken 2–6) loopt nog; de gekozen stap start als eigen spec/plan ná afronding daarvan.
+
+## 6. Besluit volgende stap (2026-10-07)
+
+**Voorgesteld: a (HITL / mens-agent-grens)** — de beslissessie is voorgelegd aan Marc
+(2026-10-07) maar nog **niet bevestigd**; dit is de aanbeveling uit §5, vastgelegd als
+voorstel zodat het plan verder kan. Bevestiging of een andere keuze wijzigt dit besluit
+én beslispunt 7 in `AGENTIC_STATE_PLAN.md` §9.
+
+**Toelichting:** nog niet ontvangen. De stap doorloopt de eigen spec/plan-cyclus ná
+afronding van de decision-trail memory (taken 2–6).
