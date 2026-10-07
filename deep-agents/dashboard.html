@@ -87,6 +87,13 @@
   .legend { display:inline-flex; align-items:center; gap:4px; margin-right:12px; font-size:11.5px; color:#556; }
   .sw { width:12px; height:12px; border-radius:3px; display:inline-block; }
   .placeholder { display:flex; align-items:center; justify-content:center; height:100%; color:#8895ad; font-size:14px; }
+  #hitl-kaart { display:none; border:2px solid #b91c1c; background:#fdeaea; border-radius:8px; padding:12px; margin:0 0 10px; font-size:12.5px; }
+  #hitl-kaart b { display:block; margin-bottom:4px; }
+  #hitl-kaart code { background:#fff; border:1px solid #f5c9c9; border-radius:4px; padding:1px 5px; }
+  #hitl-args { font-family:ui-monospace, Menlo, monospace; font-size:11px; margin:4px 0 8px; white-space:pre-wrap; word-break:break-word; }
+  #hitl-comment { font-size:12.5px; padding:6px 8px; border:1px solid var(--line); border-radius:6px; width:100%; margin-bottom:8px; }
+  .hitl-btn { border:0; border-radius:6px; padding:7px 14px; font-size:12.5px; font-weight:600; cursor:pointer; color:#fff; margin-right:6px; }
+  .hitl-btn.approve { background:#15803d; } .hitl-btn.reject { background:#b91c1c; }
 </style>
 </head>
 <body>
@@ -109,6 +116,14 @@
 </div>
 <div id="main">
   <div id="timeline">
+    <div id="hitl-kaart">
+      <b>Mens-agent-grens: goedkeuring vereist</b>
+      <div>Tool: <code id="hitl-tool"></code></div>
+      <div id="hitl-args"></div>
+      <input id="hitl-comment" placeholder="opmerking (verplicht — leerstaat)">
+      <button class="hitl-btn approve" onclick="hitlVerdict(true)">Goedkeuren</button>
+      <button class="hitl-btn reject" onclick="hitlVerdict(false)">Afkeuren</button>
+    </div>
     <div id="tl-title">Agent-graf (live)</div>
     <svg id="agentgraph" viewBox="0 0 406 186"></svg>
     <div id="tl-title" style="margin-top:10px;">Agent-stappen (live)</div>
@@ -717,6 +732,35 @@ async function showViz(runId) {
   document.querySelectorAll('.pin').forEach(btn => btn.addEventListener('click', ev => { ev.stopPropagation(); togglePin(base, btn.dataset.scen, btn); }));
 }
 
+// --- HITL: de mens-agent-grens. De poll toont de wachtende interrupt, het verdict
+// gaat naar het duurzame ledger (Task 7-endpoints). tool/argsSummary via textContent,
+// nooit via innerHTML — de args komen uit een model-response.
+async function updateHitl() {
+  let hitl = null;
+  try { hitl = await fetch('/api/hitl/pending?_=' + Date.now()).then(r => r.json()); } catch { return; }
+  const kaart = $('hitl-kaart');
+  if (hitl && hitl.pending) {
+    kaart.style.display = '';
+    $('hitl-tool').textContent = hitl.tool || '';
+    $('hitl-args').textContent = hitl.argsSummary || '';
+    kaart.dataset.interruptId = hitl.interruptId || '';
+  } else {
+    kaart.style.display = 'none';
+  }
+}
+
+async function hitlVerdict(approved) {
+  const kaart = $('hitl-kaart');
+  const comment = $('hitl-comment').value.trim();
+  if (!comment) { alert('Een verdict vereist een opmerking (leerstaat).'); return; }
+  const r = await fetch('/api/hitl/verdict', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({interruptId: kaart.dataset.interruptId, approved, comment}),
+  });
+  if (r.status === 409) { alert('Deze beslissing is al genomen.'); return; }
+  if (r.ok) { $('hitl-comment').value = ''; kaart.style.display = 'none'; }
+}
+
 async function tick() {
   let entries = [];
   try { entries = (await fetch('/api/steps?_=' + Date.now()).then(r => r.text())).trim().split('\n').filter(Boolean).map(l => JSON.parse(l)); } catch {}
@@ -761,6 +805,7 @@ async function tick() {
     else if (st.ever_ran && st.rc !== null && st.rc !== 0) { $('status').textContent = `fout (rc=${st.rc})`; $('status').className = 'error'; $('start').disabled = false; $('stop').style.display = 'none'; }
     else { $('status').textContent = 'idle'; $('status').className = ''; $('start').disabled = false; $('stop').style.display = 'none'; }
   }
+  updateHitl();
 }
 initControls();
 buildGraph();
