@@ -4,7 +4,7 @@
 |---|---|
 | Document | `docs/AGENTIC_STATE_GAP_ANALYSE.md` · v1.0 · 2026-10-07 |
 | Kader | [The Agentic State](https://agenticstate.org/paper.html) (Ilves, Kilian, Parazzoli, Peixoto, Velsberg, 2025): twaalf functionele lagen — zes implementatielagen (1–6) en zes enablement-lagen (7–12) — met een autonomieschaal L0–L5 (naar Bornet e.a. 2025) |
-| Methode-kader | [`docs/AGENTIC_STATE_PLAN.md`](AGENTIC_STATE_PLAN.md) v1.1: Sitra-building-blocks B1–B14 als operationele methode (functie-first, poorten, leerstaat) |
+| Methode-kader | [`docs/AGENTIC_STATE_PLAN.md`](AGENTIC_STATE_PLAN.md) v1.2: Sitra-building-blocks B1–B14 als operationele methode (functie-first, poorten, leerstaat) |
 | Status | gap-analyse ter onderbouwing van het beslispunt "volgende stap" (plan §9) |
 
 ## 1. Methode
@@ -140,7 +140,7 @@ Level 4 in sensitive domains."*
 ### Laag 10 — Cyber Security & Resilience
 
 - **Evidence:** `nldt/SECURITY.md`; trust-policy (`nldt/data/trust-policy.example.json`);
-  wallet-identiteit voor agenten (`nldt/16`); lake-deny (`nldt/data/lake-deny.json`); en de
+  wallet-identiteit voor agenten (`nldt/16-eid-wallet-identity.md`); lake-deny (`nldt/data/lake-deny.json`); en de
   gates zelf als inbrengverdediging (schema-gates vangen vormdrift en manipulatie vóór
   executie; afkeuring gaat naar het ledger, nooit het product in).
 - **Score: L1–L2.** Basismaatregelen (identiteit, beleid, deny-lists, gates) zijn er; het
@@ -162,7 +162,7 @@ Level 4 in sensitive domains."*
 - **Evidence:** doctrine "AI stelt voor · pijplijn beslist · mens beslist"
   (`docs/GENAI_SEAMS.md`); bestuurlijke verhaallijnen (`nldt/bestuurlijke-samenvatting.md`,
   `docs/POC_BESTUURLIJKE_SAMENVATTING.md`); playbooks als procedureel geheugen
-  (`nldt/skills/poc/`); leerstaat/decision-trail in flight (lagen 7); HITL ontworpen
+  (`nldt/skills/poc/`); leerstaat/decision-trail in flight (zie laag 7); HITL ontworpen
   (fase C) maar niet geïmplementeerd.
 - **Score: L2.** De doctrine en de bestuurlijke laag zijn echt en consequent toegepast;
   wat ontbreekt is precies wat het paper de kern van deze laag noemt: de mens-agent-grens
