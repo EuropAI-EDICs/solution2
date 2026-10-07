@@ -47,6 +47,39 @@ def test_pending_exit_code_is_2():
     assert PENDING_EXIT_CODE == 2
 
 
+def test_run_streamed_onderschept_interrupt(monkeypatch, tmp_path):
+    """De stream-lus vangt __interrupt__ en schrijft journal + ledger-request."""
+    import json
+    from types import SimpleNamespace
+
+    import graph_trace
+    from hitl import PENDING
+
+    fake_interrupt = SimpleNamespace(
+        id="i-x",
+        value={"action_requests": [{"name": "run_bp2op_transform", "args": {"useCase": "eindhoven"}}]},
+    )
+    chunks = iter([
+        ((), "updates", ({"__interrupt__": (fake_interrupt,)},)),
+    ])
+
+    class FakeAgent:
+        def stream(self, *_a, **_k):
+            return chunks
+
+    journal_calls = []
+    monkeypatch.setattr(graph_trace.journal, "append", lambda *a, **k: journal_calls.append((a, k)))
+    ledger_file = tmp_path / "hitl-verdicts.jsonl"
+    monkeypatch.setattr("hitl.LEDGER", ledger_file)   # ledger_append leest de module-global in hitl
+
+    result = graph_trace.run_streamed(FakeAgent(), "converteer")
+    assert result == PENDING
+    assert any(k.get("kind") == "hitl_request" for _, k in journal_calls)
+    regels = ledger_file.read_text().splitlines()
+    assert regels and json.loads(regels[0])["kind"] == "request"
+    assert json.loads(regels[0])["tool"] == "run_bp2op_transform"
+
+
 def test_build_agent_geeft_interrupt_en_checkpointer_door(tmp_path):
     """build_agent plakt de interrupt-config op create_deep_agent (offline bewijs)."""
     import inspect

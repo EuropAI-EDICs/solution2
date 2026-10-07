@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Any
 
 import journal
+from hitl import PENDING, args_summary, ledger_append
 
 # Which subagent is running tools (set on task delegate, cleared on task result).
 _active_specialist: str | None = None
@@ -173,6 +174,7 @@ def run_streamed(
 
     config = {"configurable": {"thread_id": thread_id}, "recursion_limit": recursion_limit}
     answer = ""
+    gezien_interrupt = False
 
     for chunk in agent.stream(
         {"messages": [{"role": "user", "content": question}]},
@@ -207,4 +209,32 @@ def run_streamed(
                 if content.strip() and not getattr(msg, "tool_calls", None):
                     answer = content.strip()
 
-    return answer
+        if mode == "updates":
+            items = payload if isinstance(payload, tuple) else [payload]
+            for item in items:
+                if not isinstance(item, dict):
+                    continue
+                for intr in item.get("__interrupt__", ()):
+                    gezien_interrupt = True
+                    value = getattr(intr, "value", {}) or {}
+                    for act in value.get("action_requests", []):
+                        thread_id_cfg = config.get("configurable", {}).get("thread_id", "")
+                        samenvatting = f"{act.get('name')}: {args_summary(act.get('args', {}))}"
+                        journal.append(
+                            kind="hitl_request",
+                            agent="orchestrator",
+                            summary=samenvatting,
+                            kind_event="hitl_request",
+                            interruptId=getattr(intr, "id", ""),
+                            tool=act.get("name", ""),
+                            threadId=thread_id_cfg,
+                        )
+                        ledger_append({
+                            "kind": "request",
+                            "interruptId": getattr(intr, "id", ""),
+                            "threadId": thread_id_cfg,
+                            "tool": act.get("name", ""),
+                            "argsSummary": args_summary(act.get("args", {})),
+                        })
+
+    return PENDING if gezien_interrupt else answer
