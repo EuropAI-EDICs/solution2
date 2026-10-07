@@ -740,7 +740,7 @@ async function updateHitl() {
   try { hitl = await fetch('/api/hitl/pending?_=' + Date.now()).then(r => r.json()); } catch { return; }
   const kaart = $('hitl-kaart');
   if (hitl && hitl.pending) {
-    kaart.style.display = '';
+    kaart.style.display = 'block';   // expliciete waarde: een lege string zou terugvallen op de display:none-regel in de stylesheet
     $('hitl-tool').textContent = hitl.tool || '';
     $('hitl-args').textContent = hitl.argsSummary || '';
     kaart.dataset.interruptId = hitl.interruptId || '';
@@ -753,10 +753,13 @@ async function hitlVerdict(approved) {
   const kaart = $('hitl-kaart');
   const comment = $('hitl-comment').value.trim();
   if (!comment) { alert('Een verdict vereist een opmerking (leerstaat).'); return; }
-  const r = await fetch('/api/hitl/verdict', {
-    method: 'POST', headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({interruptId: kaart.dataset.interruptId, approved, comment}),
-  });
+  let r;
+  try {
+    r = await fetch('/api/hitl/verdict', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({interruptId: kaart.dataset.interruptId, approved, comment}),
+    });
+  } catch { alert('Kon het verdict niet opslaan — server onbereikbaar.'); return; }
   if (r.status === 409) { alert('Deze beslissing is al genomen.'); return; }
   if (r.ok) { $('hitl-comment').value = ''; kaart.style.display = 'none'; }
 }
