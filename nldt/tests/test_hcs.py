@@ -63,3 +63,47 @@ def test_service_block_rejects_unknown_field_and_bad_point():
                          "genAiTestPoints": [{"point": "G9", "description": "bestaat niet"}]}
     with pytest.raises(Exception):
         validate_instance(recipe, "recipe.schema.json")
+
+
+RUN_MIN = {
+    "schemaVersion": "1.0",
+    "runId": "thk-08-move-home-sanne-20261009T000000Z",
+    "generatedAt": "2026-10-09T00:00:00Z",
+    "recipeId": "thk-08-move-home",
+    "processId": "hcs-life-event-run",
+    "mode": "replay",
+    "scenario": "sanne",
+    "steps": [{
+        "stepId": "intake", "title": "Life event & intake", "actor": "agent",
+        "genAiTestPoint": "G1", "dataUsed": ["BRP (Haal Centraal)"],
+        "consent": "n.v.t.", "handover": None, "kpiEvents": [],
+        "prov": {"sources": ["BRP (Haal Centraal)"]},
+    }],
+    "stopConditions": [{"id": "sc-1", "condition": "mens-overnames > 20%", "action": "pauzeer"}],
+    "kpiSnapshot": [{"kpi": "Moves processed without manual handling", "baseline": "", "target": ""}],
+}
+
+
+def test_hcs_run_schema():
+    validate_instance(RUN_MIN, "hcs-run.schema.json")
+    bad = dict(RUN_MIN, steps=[dict(RUN_MIN["steps"][0], actor="robot")])
+    with pytest.raises(Exception):
+        validate_instance(bad, "hcs-run.schema.json")
+    bad2 = dict(RUN_MIN, steps=[dict(RUN_MIN["steps"][0], handover={"reden": "x"})])
+    with pytest.raises(Exception):
+        validate_instance(bad2, "hcs-run.schema.json")  # handover vereist reason+to
+
+
+def test_hcs_baseline_schema():
+    baseline = {
+        "recipeId": "thk-08-move-home",
+        "publicOutcome": "verhuizen is één gesorteerde reis",
+        "disappearingStep": "herhaalde loketbezoeken",
+        "kpis": [{"kpi": "Moves processed without manual handling", "kpiType": "outcome",
+                  "unit": "%", "outcomeLens": "Z"}],
+        "stopConditions": [{"condition": "c", "action": "a"}],
+        "goNoGo": ["accuracy ≥ 95% op testbank-personas"],
+    }
+    validate_instance(baseline, "hcs-baseline.schema.json")
+    with pytest.raises(Exception):
+        validate_instance(dict(baseline, kpis=[{"kpi": "x"}]), "hcs-baseline.schema.json")

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldttoolbox.example/nldt/schemas/hcs-baseline.schema.json",
+  "title": "HCS function baseline (Sitra-poort 1 + 5)",
+  "description": "Baseline vóór technologie: publieke uitkomst, verdwijnende stap, KPI's uit het KPI-framework, stopcondities en go/no-go (docs/AGENTIC_STATE_PLAN.md §3).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["recipeId", "publicOutcome", "disappearingStep", "kpis", "stopConditions", "goNoGo"],
+  "properties": {
+    "recipeId": { "type": "string" },
+    "publicOutcome": { "type": "string" },
+    "disappearingStep": { "type": "string" },
+    "kpis": { "type": "array", "items": { "$ref": "#/$defs/baselineKpi" } },
+    "stopConditions": { "type": "array", "items": { "$ref": "#/$defs/stopConditionLite" } },
+    "goNoGo": { "type": "array", "items": { "type": "string" } }
+  },
+  "$defs": {
+    "baselineKpi": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kpi", "kpiType", "unit", "outcomeLens"],
+      "properties": {
+        "kpi": { "type": "string" },
+        "kpiType": { "enum": ["output", "outcome"] },
+        "unit": { "type": "string" },
+        "outcomeLens": { "enum": ["Z", "L", "W", "—"] },
+        "baseline": { "type": "string" },
+        "target": { "type": "string" },
+        "dataSource": { "type": "string" },
+        "frequency": { "type": "string" },
+        "kviRollup": { "type": "string" }
+      }
+    },
+    "stopConditionLite": {
+      "type": "object", "additionalProperties": false, "required": ["condition", "action"],
+      "properties": { "condition": { "type": "string" }, "action": { "type": "string" } }
+    }
+  }
+}
