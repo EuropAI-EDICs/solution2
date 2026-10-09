@@ -131,7 +131,8 @@ def execute_hcs_recipe_run(inputs: dict[str, Any], *, fixture_dir: Path | None =
         raise KeyError(f"HCS-fixture ontbreekt: {path}")
     fixture = json.loads(path.read_text(encoding="utf-8"))
     run = _build_hcs_run(fixture, inputs.get("scenario") or fixture["scenarios"][0]["id"],
-                         inputs.get("mode") or "replay", "hcs-recipe-run", "scenarios")
+                         inputs.get("mode") or "replay", "hcs-recipe-run", "scenarios",
+                         lang=inputs.get("lang") or "nl")
     return {"run": run}
 
 POC_PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
@@ -564,6 +565,8 @@ POC_PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
                           "schema": {"type": "string"}},
             "scenario": {"title": "Scenario id uit de fixture", "schema": {"type": "string"}},
             "mode": {"title": "replay|execute", "schema": {"type": "string", "default": "replay"}},
+            "lang": {"title": "Taal van de weergaveteksten (nl|en)",
+                     "schema": {"type": "string", "default": "nl"}},
         },
         "outputs": {"run": {"title": "HCS run-artefact", "schema": {"type": "object"}}},
     },

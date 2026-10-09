@@ -66,6 +66,21 @@ def test_service_block_rejects_unknown_field_and_bad_point():
         validate_instance(recipe, "recipe.schema.json")
 
 
+def test_service_type_cargo_enum():
+    recipe = {
+        "id": "probe-cargo", "title": "Cargo-probe", "version": "1.0.0",
+        "inputs": {}, "outputs": {},
+        "steps": [{"id": "s1", "processId": "hcs-recipe-run", "inputs": {}}],
+        "riskLevel": "medium",
+        "service": {"dish": "urban-air-mobility", "lifeEventCode": "UAM-01",
+                    "serviceType": "cargo"},
+    }
+    validate_instance(recipe, "recipe.schema.json")
+    bad = dict(recipe, service={"dish": "urban-air-mobility", "serviceType": "raket"})
+    with pytest.raises(Exception):
+        validate_instance(bad, "recipe.schema.json")
+
+
 RUN_MIN = {
     "schemaVersion": "1.0",
     "runId": "thk-08-move-home-sanne-20261009T000000Z",
@@ -265,6 +280,29 @@ def test_recipe_run_generic_with_tmp_fixture(tmp_path):
                                  fixture_dir=tmp_path)
     validate_instance(out["run"], "hcs-run.schema.json")
     assert out["run"]["processId"] == "hcs-recipe-run"
+
+
+def test_recipe_run_english(tmp_path):
+    city = tmp_path / "city"
+    city.mkdir()
+    (city / "probe-city.json").write_text(json.dumps({
+        "recipeId": "probe-city", "scenarioKind": "city",
+        "scenarios": [{"id": "sc-1", "label": {"nl": "Proef", "en": "Probe"}}],
+        "steps": [{
+            "stepId": "meten", "title": {"nl": "We meten het groen", "en": "We measure the green"},
+            "defaults": {"actor": "agent", "genAiTestPoint": "G2",
+                          "dataUsed": [{"nl": "luchtbeelden", "en": "aerial imagery"}],
+                          "consent": "n.v.t.", "kpiEvents": [],
+                          "prov": {"sources": [{"nl": "remote sensing", "en": "remote sensing"}]}},
+            "perScenario": {}}],
+        "stopConditions": [{"id": "sc-1", "condition": {"nl": "c", "en": "c"},
+                                "action": {"nl": "a", "en": "a"}}],
+        "kpiSnapshot": [{"kpi": "k", "baseline": "", "target": ""}]}))
+    from services.process_adapter.poc_handlers import execute_hcs_recipe_run
+    out = execute_hcs_recipe_run({"recipeId": "probe-city", "scenario": "sc-1",
+                                  "lang": "en"}, fixture_dir=tmp_path)
+    assert out["run"]["steps"][0]["title"] == "We measure the green"
+    assert out["run"]["steps"][0]["dataUsed"] == ["aerial imagery"]
 
 
 RUNS_DIR = HCS_ROOT / "runs"
