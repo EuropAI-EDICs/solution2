@@ -1,0 +1,55 @@
+{
+  "id": "thk-02-having-a-baby",
+  "title": "The Key THK-02 — 'I'm having a baby'",
+  "description": "Life-event recipe (reactive → proactive): zwangerschap start het traject vóór de geboorte; geboorteaangifte binnen 5 dagen; keten naar SVB, Belastingdienst en zorgverzekeraar. G2·G5-testpunten; complexe situaties (erkenning, buitenlandse ouder) → medewerker.",
+  "version": "1.0.0",
+  "tags": ["hcs", "edic", "the-key", "thk-02", "life-event", "proactive"],
+  "requiredProcesses": ["hcs-life-event-run"],
+  "inputs": {
+    "persona": {"type": "string", "description": "persona-id: lot|fatima", "required": false},
+    "mode": {"type": "string", "description": "replay|execute", "required": false}
+  },
+  "outputs": {"run": {"type": "json", "description": "HCS run-artefact (vijf stappen)"}},
+  "steps": [
+    {
+      "id": "life-event",
+      "processId": "hcs-life-event-run",
+      "title": "Vijf-stappen-run 'Ik krijg een kind'",
+      "inputs": {"recipeId": "thk-02-having-a-baby", "persona": "${recipe.inputs.persona}", "mode": "${recipe.inputs.mode}"},
+      "outputs": {"run": "run"},
+      "backend": "local"
+    }
+  ],
+  "riskLevel": "medium",
+  "service": {
+    "dish": "the-key",
+    "lifeEventCode": "THK-02",
+    "serviceType": "proactive",
+    "blueprintSteps": [1, 2, 3, 4, 5],
+    "parties": [
+      {"name": "Gemeente Zoetermeer", "role": "lead — Burgerzaken; Sociaal Domein (PDC-vraag 17)"},
+      {"name": "SVB", "role": "kinderbijslag"},
+      {"name": "Belastingdienst", "role": "toeslagen"},
+      {"name": "Zorgverzekeraar", "role": "verzekering kind"}
+    ],
+    "legalBasis": [
+      {"basis": "Wet BRP", "timeLimit": "melding binnen 5 dagen"},
+      {"basis": "Burgerlijk Wetboek (erkenning, naamgeving)", "timeLimit": "vóór geboorte of bij aangifte"}
+    ],
+    "humanMeasure": {
+      "handover": ["Complexe situaties (erkenning, buitenlandse ouder) → medewerker"],
+      "exceptions": ["erkenning", "gezag", "buitenlandse akten"]
+    },
+    "localVariant": "kraamzorg-matching via gemeentelijke voorkeurslijst",
+    "genAiTestPoints": [
+      {"point": "G2", "description": "Proactief voorstel: verlof, kraamzorg, kinderegelingen", "testCases": ["persona lot"]},
+      {"point": "G3", "description": "Consent per ketenpartij", "testCases": ["toestemming SVB/toeslagen"]},
+      {"point": "G4", "description": "Geboorteaangifte digitaal binnen 5 dagen", "testCases": ["digitale aangifte"]},
+      {"point": "G5", "description": "Proactief signaleren kinderbijslag en toeslagen", "testCases": ["signaal vóór termijn"]}
+    ],
+    "kpis": [
+      {"kpi": "Birth registrations done digitally", "kpiType": "output", "unit": "%", "outcomeLens": "—", "baseline": "", "target": "", "dataSource": "BRP", "frequency": "monthly", "kviRollup": "KVI 5 (Digital) · Zoetermeer business case"}
+    ]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/thk-02-having-a-baby"
+}

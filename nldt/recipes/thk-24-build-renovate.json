@@ -1,0 +1,53 @@
+{
+  "id": "thk-24-build-renovate",
+  "title": "The Key THK-24 — 'I want to build or renovate'",
+  "description": "Life-event recipe: bouwplan → vergunningcheck (Omgevingsloket) → aanvraag → beoordeling door de mens → besluit binnen 8 weken (regulier). De vergunningcheck gebruikt de bestaande MiniGIM-gebiedscheck als ingredient (declaratief: canonieke run; live koppeling in een latere fase). Doctrine: AI stelt voor · mens beslist.",
+  "version": "1.0.0",
+  "tags": ["hcs", "edic", "the-key", "thk-24", "life-event", "omgevingswet"],
+  "requiredProcesses": ["hcs-life-event-run", "minigim-gebiedscheck-run"],
+  "inputs": {
+    "persona": {"type": "string", "description": "persona-id: noor|peter", "required": false},
+    "mode": {"type": "string", "description": "replay|execute", "required": false}
+  },
+  "outputs": {"run": {"type": "json", "description": "HCS run-artefact (vijf stappen)"}},
+  "steps": [
+    {
+      "id": "life-event",
+      "processId": "hcs-life-event-run",
+      "title": "Vijf-stappen-run 'Ik wil bouwen of renoveren'",
+      "inputs": {"recipeId": "thk-24-build-renovate", "persona": "${recipe.inputs.persona}", "mode": "${recipe.inputs.mode}"},
+      "outputs": {"run": "run"},
+      "backend": "local"
+    }
+  ],
+  "riskLevel": "high",
+  "service": {
+    "dish": "the-key",
+    "lifeEventCode": "THK-24",
+    "serviceType": "reactive",
+    "blueprintSteps": [1, 2, 3, 4, 5],
+    "parties": [
+      {"name": "Gemeente", "role": "Vergunningen / Omgevingsloket (PDC-vraag 10)"},
+      {"name": "Omgevingsloket Rijk", "role": "vergunningcheck (SDG)"},
+      {"name": "MiniGIM gebiedscheck", "role": "ingredient — canonieke gebiedsrun"}
+    ],
+    "legalBasis": [
+      {"basis": "Omgevingswet", "timeLimit": "8 weken (regulier) / 26 weken (uitgebreid)"}
+    ],
+    "humanMeasure": {
+      "handover": ["Beoordeling en besluit door vergunningverlener (V4-mens)"],
+      "exceptions": ["beschermd gezicht / monument", "uitgebreide procedure"]
+    },
+    "localVariant": "gemeentelijke welstandscriteria en APV-bepalingen",
+    "genAiTestPoints": [
+      {"point": "G1", "description": "Bouwplan in eigen woorden; aanvullende vragen alleen waar het plan dat vraagt", "testCases": ["persona noor"]},
+      {"point": "G2", "description": "Vergunningcheck vóór de aanvraag (matching plan ↔ regels)", "testCases": ["persona peter (beschermd gezicht)"]},
+      {"point": "G3", "description": "Documentcheck: complete aanvraag bij eerste inzending", "testCases": ["brondocumenten"]},
+      {"point": "G5", "description": "Proactief: bouwtoezicht- en vervolgstappen na besluit", "testCases": ["follow-up na besluit"]}
+    ],
+    "kpis": [
+      {"kpi": "Decision within 8 weeks (regular)", "kpiType": "output", "unit": "%", "outcomeLens": "—", "baseline": "", "target": "", "dataSource": "case system", "frequency": "monthly", "kviRollup": "KVI 5 (Digital) · Zoetermeer business case"}
+    ]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/thk-24-build-renovate"
+}

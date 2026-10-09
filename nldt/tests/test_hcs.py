@@ -168,6 +168,49 @@ def test_life_event_run_unknown_persona_fails():
         execute_hcs_life_event_run({"recipeId": "thk-08-move-home", "persona": "bestaatniet"})
 
 
+THK_IDS = ("thk-08-move-home", "thk-02-having-a-baby", "thk-24-build-renovate")
+
+
+@pytest.mark.parametrize("rid", THK_IDS)
+def test_thk_recipe_valid_with_service(rid):
+    recipe = load_recipe(rid)
+    validate_instance(recipe, "recipe.schema.json")
+    assert recipe["service"]["dish"] == "the-key"
+    assert recipe["service"]["lifeEventCode"] in {"THK-08", "THK-02", "THK-24"}
+    assert recipe["service"]["kpis"], "KPI's uit het framework verplicht"
+
+
+@pytest.mark.parametrize("rid", THK_IDS)
+def test_thk_baseline_valid(rid):
+    baseline = json.loads(
+        (NLDT_ROOT / "recipes" / "baselines" / f"{rid}.baseline.json").read_text())
+    validate_instance(baseline, "hcs-baseline.schema.json")
+    assert baseline["recipeId"] == rid
+    assert baseline["disappearingStep"], "poort 1: verdwijnende stap benoemen (B5)"
+
+
+def test_thk08_run_recipe_offline(monkeypatch):
+    monkeypatch.setenv("NLDT_OFFLINE", "1")
+    from services.recipe_runner import run_recipe
+    result = run_recipe("thk-08-move-home", {"persona": "sanne", "mode": "replay"})
+    run = result["outputs"]["run"]
+    validate_instance(run, "hcs-run.schema.json")
+    assert run["scenario"] == "sanne"
+
+
+def test_thk24_declares_minigim_ingredient():
+    recipe = load_recipe("thk-24-build-renovate")
+    assert "minigim-gebiedscheck-run" in recipe["requiredProcesses"]
+
+
+def test_edic_map_has_thk_entries():
+    from services.common.schema import load_edic_asset_map
+    payload = load_edic_asset_map()
+    ids = {a["id"] for a in payload["assets"]}
+    for rid in THK_IDS:
+        assert f"recipe:{rid}" in ids
+
+
 def test_recipe_run_generic_with_tmp_fixture(tmp_path):
     city = tmp_path / "city"
     city.mkdir()

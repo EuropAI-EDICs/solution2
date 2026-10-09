@@ -1,0 +1,57 @@
+{
+  "id": "thk-08-move-home",
+  "title": "The Key THK-08 — 'I want to move home'",
+  "description": "Life-event recipe uit de Human-Centred Services Blueprint (EDIC): verhuizen als één gesorteerde reis over gemeente, energie, bank, verzekeraar en zorgverzekeraar. Vijf stappen met mens-agent-grens (adresonderzoek → medewerker), G1·G4-testpunten en de KPI's uit het framework. Deterministische replay via hcs-life-event-run.",
+  "version": "1.0.0",
+  "tags": ["hcs", "edic", "the-key", "thk-08", "life-event"],
+  "requiredProcesses": ["hcs-life-event-run"],
+  "inputs": {
+    "persona": {"type": "string", "description": "persona-id: sanne|ahmed|maria|jeroen", "required": false},
+    "mode": {"type": "string", "description": "replay|execute", "required": false}
+  },
+  "outputs": {"run": {"type": "json", "description": "HCS run-artefact (vijf stappen)"}},
+  "steps": [
+    {
+      "id": "life-event",
+      "processId": "hcs-life-event-run",
+      "title": "Vijf-stappen-run 'Ik ga verhuizen'",
+      "inputs": {"recipeId": "thk-08-move-home", "persona": "${recipe.inputs.persona}", "mode": "${recipe.inputs.mode}"},
+      "outputs": {"run": "run"},
+      "backend": "local"
+    }
+  ],
+  "riskLevel": "medium",
+  "service": {
+    "dish": "the-key",
+    "lifeEventCode": "THK-08",
+    "serviceType": "reactive",
+    "blueprintSteps": [1, 2, 3, 4, 5],
+    "parties": [
+      {"name": "Gemeente Zoetermeer", "role": "lead — Burgerzaken (PDC-vraag 8 + 6)"},
+      {"name": "Energie- en netbeheerder", "role": "adres- en levering"},
+      {"name": "Bank", "role": "adresgegevens"},
+      {"name": "Verzekeraar", "role": "polisgegevens"},
+      {"name": "Zorgverzekeraar", "role": "inschrijving"}
+    ],
+    "legalBasis": [
+      {"basis": "Wet BRP", "timeLimit": "redelijke termijn (Awb)"},
+      {"basis": "Wegenverkeerswet / APV (parkeren)", "timeLimit": "8 weken (Awb)"}
+    ],
+    "humanMeasure": {
+      "handover": ["Adresonderzoek bij twijfel → medewerker"],
+      "exceptions": ["adresonderzoek", "bewindsvoering/curatele"]
+    },
+    "localVariant": "gemeentelijk parkeerbeleid en afvalpas-regime",
+    "genAiTestPoints": [
+      {"point": "G1", "description": "Intake-assistent vraagt alleen wat niet in de BRP staat; meertalig, plain language", "testCases": ["persona ahmed (lage geletterdheid)", "persona maria (andere taal)"]},
+      {"point": "G2", "description": "Matching: één samenhangend voorstel uit de PDC", "testCases": ["voorstel bevat alle vijf partijen"]},
+      {"point": "G3", "description": "Consent uitleggen: wie ziet wat, per partij per periode", "testCases": ["persona jeroen (bewindsvoering)"]},
+      {"point": "G4", "description": "Agentic orkestratie over partijen met status-uitleg", "testCases": ["parallelle afhandeling", "attestatie in wallet"]},
+      {"point": "G5", "description": "Proactieve follow-up: rechten zonder nieuwe aanvraag; stuck → mens neemt over", "testCases": ["persona jeroen → wijkteam"]}
+    ],
+    "kpis": [
+      {"kpi": "Moves processed without manual handling", "kpiType": "outcome", "unit": "%", "outcomeLens": "Z", "baseline": "", "target": "", "dataSource": "case system", "frequency": "monthly", "kviRollup": "KVI 5 (Digital) · Zoetermeer business case"}
+    ]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/thk-08-move-home"
+}
