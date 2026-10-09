@@ -375,6 +375,45 @@ class TestKeyDemo:
         assert "alleen vragen wat niet in de BRP staat" not in text  # bronclausule lekt niet door
 
 
+DISH_TEMPLATE = HCS_ROOT / "dish-demo.template.html"
+
+
+def test_dish_template_contract():
+    text = DISH_TEMPLATE.read_text()
+    for marker in ("__DISH_DATA__", "__DISH_ID__", "__BUILD_STAMP__",
+                   "function vizMap", "function vizCanopy", "function vizSeries", "function vizTiers"):
+        assert marker in text
+
+
+def _load_build_runs():
+    """Laadt nldt/simulation/hcs/build_runs.py als losse module (geen package)."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("hcs_build_runs", HCS_ROOT / "build_runs.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def test_dish_generator_mechanics():
+    """Probe voor de fase-2-generators: menu-brug en viz-data-contract.
+
+    De per-dish pagina-tests volgen in Tasks 3–6; hier alleen de mechaniek
+    die al vóór de city-fixtures aantoonbaar werkt.
+    """
+    mod = _load_build_runs()
+    # viz-data wordt per recipe geregistreerd (Tasks 3–6); missend = schone KeyError.
+    with pytest.raises(KeyError):
+        mod._viz_data("probe-zonder-viz")
+    # menu-data.json is gekeyd op de dish-id's uit het recipe-schema; uam is al compleet.
+    sib = mod._menu_siblings("uam")
+    assert [s["code"] for s in sib] == ["UAM-01", "UAM-09"]
+    assert all(s["poc"] for s in sib)  # beide uam-recipes zijn PoC
+    menu = json.loads((HCS_ROOT / "menu-data.json").read_text())
+    assert set(menu) == {"the-key", "urban-air-mobility", "3-30-300",
+                         "circular-neighborhoods", "15-minute-city"}
+    assert len(menu["the-key"]) == 25
+
+
 MENU_HTML = NLDT_ROOT / "simulation" / "hcs-menu-demo.html"
 INDEX_HTML = NLDT_ROOT / "simulation" / "index.html"
 MAPPING_DOC = NLDT_ROOT.parent / "docs" / "HCS_RECIPES_AGENTIC_STATE.md"

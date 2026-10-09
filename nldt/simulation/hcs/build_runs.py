@@ -18,6 +18,7 @@ if str(NLDT_ROOT) not in sys.path:
 from services.common.schema import validate_instance  # noqa: E402
 from services.process_adapter.poc_handlers import (  # noqa: E402
     execute_hcs_life_event_run,
+    execute_hcs_recipe_run,
     localize,
 )
 
@@ -181,16 +182,114 @@ def build_pages(stamp: str) -> None:
         print(f"OK page {target.relative_to(NLDT_ROOT)}")
 
 
+DISH_DEFS = {
+    "uam": {"file": NLDT_ROOT / "simulation" / "hcs-uam-demo.html",
+            "recipes": ["uam-01-medical-logistics", "uam-09-geofencing-zones"],
+            "viz": {"uam-01-medical-logistics": {"kind": "map"},
+                    "uam-09-geofencing-zones": {"kind": "map"}}},
+    "grn": {"file": NLDT_ROOT / "simulation" / "hcs-grn-demo.html",
+            "recipes": ["grn-01-canopy-measure", "grn-03-300m-gaps"],
+            "viz": {"grn-01-canopy-measure": {"kind": "canopy"},
+                    "grn-03-300m-gaps": {"kind": "canopy"}}},
+    "cir": {"file": NLDT_ROOT / "simulation" / "hcs-cir-demo.html",
+            "recipes": ["cir-04-shared-energy", "cir-01-circular-condition"],
+            "viz": {"cir-04-shared-energy": {"kind": "series"},
+                    "cir-01-circular-condition": {"kind": "series"}}},
+    "min": {"file": NLDT_ROOT / "simulation" / "hcs-min-demo.html",
+            "recipes": ["min-01-proximity-analysis", "min-04-hub-network"],
+            "viz": {"min-01-proximity-analysis": {"kind": "tiers"},
+                    "min-04-hub-network": {"kind": "tiers"}}},
+}
+
+DISH_I18N = {
+    "uam": {"eyecatcher": "Human-Centred Services · dish: Urban Air Mobility", "title": "De lucht in — zonder de stad te verstoppen",
+            "lede": "Twee recipes uit deze dish, gedraaid als deterministische replay: wat gebeurt er, wie bepaalt het, en waar komt de informatie vandaan.",
+            "foot": "HCS fase 2 · build {stamp} · runs gevalideerd tegen hcs-run.schema.json · doctrine: AI stelt voor · pijplijn beslist · mens beslist",
+            "testbank": "Wat we hebben getest voordat dit live ging", "tbOk": "go", "tbCheck": "nog niet getoetst", "tbFail": "geen go",
+            "kpiPanel": "Wat we willen bereiken — gemeten vanaf dag één", "kpiSub": "Elke recipe meet of het echt beter wordt.",
+            "kpi": "KPI", "kpiType": "Type", "dataSource": "Bron", "siblings": "De andere recipes in deze dish",
+            "actor": "Wie handelt", "consent": "Toestemming", "handover": "Een mens neemt over", "sources": "Waar deze informatie vandaan komt",
+            "actorNames": {"agent": "het systeem (onder toezicht)", "mens": "een mens", "partij": "de betrokken organisatie"},
+            "consentNames": {"n.v.t.": "niet nodig", "gevraagd": "gevraagd", "gegeven": "gegeven", "geweigerd": "geweigerd"},
+            "vizTarget": "doel:",
+            "axisNames": {"accuracy": "nauwkeurig", "plain language": "gewone taal", "once-only": "één keer vragen",
+                           "explainability": "uitlegbaar", "human handover": "mens neemt over",
+                           "bias": "vooringenomenheid", "AI Act risk class": "AI-wet risicoklasse"}},
+    # grn / cir / min: zelfde structuur met eigen titel/lede; Exacte teksten per dish staan bij Tasks 3–6.
+}
+DISH_I18N["grn"] = dict(DISH_I18N["uam"], title="Groen meten, groen doen",
+                        lede="Twee 3-30-300-recipes: hoeveel bladerdak heeft je wijk, en wie woont verder dan 300 meter van echt goed groen?")
+DISH_I18N["grn"]["eyecatcher"] = "Human-Centred Services · dish: 3-30-300"
+DISH_I18N["cir"] = dict(DISH_I18N["uam"], title="Delen is het nieuwe bezitten",
+                        lede="Twee circular-recipes: gedeelde energie in de buurt en circulariteit als harde eis bij nieuwbouw.")
+DISH_I18N["cir"]["eyecatcher"] = "Human-Centred Services · dish: Circular neighborhoods"
+DISH_I18N["min"] = dict(DISH_I18N["uam"], title="Alles wat je dagelijks nodig hebt, dichtbij",
+                        lede="Twee 15-minute-city-recipes: welke wijk ligt buiten bereik van voorzieningen, en waar komen de hubs?")
+DISH_I18N["min"]["eyecatcher"] = "Human-Centred Services · dish: 15-minute city"
+
+# DISH_DEFS-sleutels ("uam") → dish-id's uit het recipe-schema ("urban-air-mobility"),
+# de sleutels van menu-data.json.
+MENU_DISH = {"uam": "urban-air-mobility", "grn": "3-30-300",
+             "cir": "circular-neighborhoods", "min": "15-minute-city"}
+
+# Viz-data per recipe (zones/routes, canopy-cellen, tijdreeks, hub-tiers); de
+# exacte inhoud registreren de dish-taken (Tasks 3–6) in deze dict.
+_VIZ_DATA: dict[str, dict] = {}
+
+
+def _viz_data(rid: str) -> dict:
+    if rid not in _VIZ_DATA:
+        raise KeyError(f"_viz_data: geen viz-data geregistreerd voor recipe {rid}")
+    return _VIZ_DATA[rid]
+
+
+def _menu_siblings(dish: str) -> list[dict]:
+    rows = json.loads((HCS_ROOT / "menu-data.json").read_text(encoding="utf-8"))[MENU_DISH[dish]]
+    poc = set(DISH_DEFS[dish]["recipes"])
+    return [{"code": r[0], "title": r[1], "mode": r[2], "kpi": r[3], "lens": r[4],
+             "poc": r[5] in poc} for r in rows]
+
+
+def build_dish_pages(stamp: str) -> None:
+    template = (HCS_ROOT / "dish-demo.template.html").read_text(encoding="utf-8")
+    common = json.loads((HCS_ROOT / "fixtures" / "common.json").read_text(encoding="utf-8"))
+    for dish, spec in DISH_DEFS.items():
+        recipes = []
+        for rid in spec["recipes"]:
+            fx = json.loads((HCS_ROOT / "fixtures" / "city" / f"{rid}.json").read_text(encoding="utf-8"))
+            recipe = json.loads((NLDT_ROOT / "recipes" / f"{rid}.json").read_text(encoding="utf-8"))
+            runs, labels = [], []
+            for sc in fx["scenarios"]:
+                out = execute_hcs_recipe_run({"recipeId": rid, "scenario": sc["id"], "mode": "replay"})
+                runs.append(out["run"])
+                labels.append(localize(sc["label"], "nl"))
+            recipes.append({
+                "id": rid, "runs": runs, "scenarioLabels": labels,
+                "service": recipe["service"],
+                "viz": dict(spec["viz"][rid], data=_viz_data(rid)),
+            })
+        data = {"dishId": dish, "recipes": recipes, "common": common,
+                "i18n": DISH_I18N[dish], "siblings": _menu_siblings(dish),
+                "selftestVerdicts": {dish: {"bias": True, "AI Act risk class": True}}}
+        html = (template
+                .replace("__DISH_DATA__", json.dumps(data, ensure_ascii=False))
+                .replace("__DISH_ID__", json.dumps(dish))
+                .replace("__BUILD_STAMP__", stamp))
+        spec["file"].write_text(html, encoding="utf-8")
+        print(f"OK dish {spec['file'].relative_to(NLDT_ROOT)}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stamp", required=True, help="bouw-stamp, bv. 20261009T101500Z")
     parser.add_argument("--outdir", type=Path, default=RUNS_DIR)
     parser.add_argument("--only-runs", action="store_true",
-                        help="alleen runs schrijven (geen pagina's)")
+                        help="alleen runs schrijven (geen pagina's; dish-demo's vallen daar ook onder)")
     args = parser.parse_args()
     build_runs(args.stamp, args.outdir)
     if not args.only_runs:
         build_pages(args.stamp)
+        build_dish_pages(args.stamp)  # faalt netjes totdat de city-fixtures bestaan (Task 3+)
     return 0
 
 
