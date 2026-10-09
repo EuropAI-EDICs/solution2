@@ -239,21 +239,29 @@ RUNS_DIR = HCS_ROOT / "runs"
 
 def test_build_runs_deterministic(tmp_path):
     import subprocess
-    import sys
 
     venv = NLDT_ROOT / ".venv" / "bin" / "python"
     stamp = "20261009T000000Z"
-    cmd = [str(venv), str(HCS_ROOT / "build_runs.py"), "--stamp", stamp,
-           "--outdir", str(tmp_path), "--only-runs"]
-    first = subprocess.run(cmd, capture_output=True, text=True, check=True)
-    second = subprocess.run(cmd, capture_output=True, text=True, check=True)
-    files = sorted(p.name for p in tmp_path.glob("*.json"))
-    assert len(files) == 8, files
-    assert "OK" in first.stdout and "OK" in second.stdout
-    for name in files:
-        a = (tmp_path / name).read_bytes()
-        b = (tmp_path / name).read_bytes()
-        assert a == b  # zelfde stamp → identiek (determinisme binnen één outdir)
-    run = json.loads((tmp_path / "thk-08-move-home_sanne.json").read_text())
+
+    def run_build(outdir: Path) -> str:
+        cmd = [str(venv), str(HCS_ROOT / "build_runs.py"), "--stamp", stamp,
+               "--outdir", str(outdir), "--only-runs"]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        return proc.stdout
+
+    out1 = tmp_path / "run1"
+    out2 = tmp_path / "run2"
+    assert "OK" in run_build(out1)
+    assert "OK" in run_build(out2)
+
+    names1 = sorted(p.name for p in out1.glob("*.json"))
+    names2 = sorted(p.name for p in out2.glob("*.json"))
+    assert names1 == names2, (names1, names2)
+    assert len(names1) == 8, names1
+    for name in names1:
+        a = (out1 / name).read_bytes()
+        b = (out2 / name).read_bytes()
+        assert a == b  # zelfde stamp → byte-identiek over aparte outdirs
+    run = json.loads((out1 / "thk-08-move-home_sanne.json").read_text())
     assert run["generatedAt"].endswith("Z")
     assert run["runId"].endswith(stamp)
