@@ -123,7 +123,7 @@ window.HCS_STAMP = "__BUILD_STAMP__";
     D.fixtures[state.recipe].personas.forEach(function (p) {
       var b = document.createElement("button");
       b.textContent = p.label;
-      if (p.edge) { var s = document.createElement("span"); s.className = "edge"; s.textContent = p.edge; b.appendChild(s); }
+      if (p.edge) { var s = document.createElement("span"); s.className = "edge"; s.textContent = (t.edgeNames && t.edgeNames[p.edge]) || p.edge; b.appendChild(s); }
       if (p.id === state.persona) b.className = "active";
       b.onclick = function () { state.persona = p.id; renderAll(); };
       box.appendChild(b);

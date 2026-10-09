@@ -181,6 +181,8 @@ def test_life_event_run_english():
     # Canonical machine-layer velden blijven onvertaald.
     assert intake["kpiEvents"][0]["kpi"] == "Moves processed without manual handling"
     assert intake["prov"]["sources"][0] == "BRP (Haal Centraal)"
+    # Nederlandse bronclausules worden wel vertaald.
+    assert intake["prov"]["sources"][1] == "The Key × PDC: only ask for what the BRP doesn't already hold"
 
 
 def test_life_event_run_unknown_persona_fails():
@@ -326,10 +328,13 @@ class TestKeyDemo:
         assert "You tell us you're moving" in text     # staptitels volledig vertaald
         assert 'window.HCS_LANG = "en"' in text        # taalvlag
         assert "THK-02 · before and after the birth" in text   # scene-chip in het Engels
+        assert "only ask for what the BRP doesn't already hold" in text  # bronclausule vertaald
+        assert "finds reading hard" in text            # edge-tag via edgeNames
         # De EN-pagina bevat geen Nederlandse stapteksten meer.
         assert "Je geeft aan dat je gaat verhuizen" not in text
         assert "Twijfel over het adres" not in text
         assert "vóór en ná de geboorte" not in text    # scene-chip lekt niet door
+        assert "alleen vragen wat niet in de BRP staat" not in text  # bronclausule lekt niet door
 
 
 MENU_HTML = NLDT_ROOT / "simulation" / "hcs-menu-demo.html"

@@ -52,7 +52,11 @@ def _localize_step(step: dict[str, Any], lang: str) -> dict[str, Any]:
     handover = out.get("handover")
     if isinstance(handover, dict):
         out["handover"] = {k: localize(handover[k], lang) for k in ("reason", "to")}
-    # prov.sources blijven canonieke citaten van registraties/wetten.
+    # prov.sources: canonieke namen van registraties/wetten passeren ongewijzigd
+    # door; Nederlandse clausules ({"nl","en"}) worden naar `lang` opgelost.
+    prov = out.get("prov")
+    if isinstance(prov, dict) and isinstance(prov.get("sources"), list):
+        out["prov"] = dict(prov, sources=[localize(s, lang) for s in prov["sources"]])
     return out
 
 
