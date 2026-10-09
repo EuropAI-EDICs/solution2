@@ -1,0 +1,156 @@
+{
+ "schemaVersion": "1.0",
+ "runId": "thk-24-build-renovate-noor-20261009T120000Z",
+ "generatedAt": "2026-10-09T12:00:00Z",
+ "recipeId": "thk-24-build-renovate",
+ "processId": "hcs-life-event-run",
+ "mode": "replay",
+ "scenario": "noor",
+ "steps": [
+  {
+   "actor": "agent",
+   "genAiTestPoint": "G1",
+   "dataUsed": [
+    "BRP (Haal Centraal): adres, eigendom",
+    "MijnGegevens"
+   ],
+   "consent": "n.v.t.",
+   "kpiEvents": [
+    {
+     "kpi": "Decision within 8 weeks (regular)",
+     "effect": "plan klopt bij intake — geen verkeerde aanvraag"
+    }
+   ],
+   "prov": {
+    "sources": [
+     "BRP (Haal Centraal)"
+    ]
+   },
+   "stepId": "intake",
+   "title": "Life event & intake — bouwplan in eigen woorden",
+   "handover": null
+  },
+  {
+   "actor": "agent",
+   "genAiTestPoint": "G2",
+   "dataUsed": [
+    "Omgevingsloket-vergunningcheck",
+    "canonieke MiniGIM-gebiedscheck (ingredient, replay)"
+   ],
+   "consent": "n.v.t.",
+   "kpiEvents": [
+    {
+     "kpi": "Decision within 8 weeks (regular)",
+     "effect": "check vooraf voorspelt vergunningsvrij of procedure"
+    }
+   ],
+   "prov": {
+    "sources": [
+     "Omgevingsloket (SDG)",
+     "nldt/recipes/minigim-gebiedscheck.json (ingredient)"
+    ]
+   },
+   "stepId": "solution",
+   "title": "Solution — vergunningcheck via het Omgevingsloket",
+   "handover": null
+  },
+  {
+   "actor": "agent",
+   "genAiTestPoint": "G3",
+   "dataUsed": [
+    "Zaken API",
+    "Documenten API",
+    "EUDI-attestatie woonadres"
+   ],
+   "consent": "gevraagd",
+   "kpiEvents": [
+    {
+     "kpi": "Decision within 8 weeks (regular)",
+     "effect": "complete aanvraag bij eerste inzending"
+    }
+   ],
+   "prov": {
+    "sources": [
+     "Zaken API",
+     "Documenten API"
+    ]
+   },
+   "stepId": "contract",
+   "title": "Contract & consent — aanvraag met brondocumenten",
+   "handover": null
+  },
+  {
+   "actor": "mens",
+   "genAiTestPoint": "—",
+   "dataUsed": [
+    "Zaken API: dossier",
+    "V4-menselijke beoordeling (doctrine: AI stelt voor · mens beslist)"
+   ],
+   "consent": "gegeven",
+   "kpiEvents": [
+    {
+     "kpi": "Decision within 8 weeks (regular)",
+     "effect": "besluit binnen 8 weken in de reguliere procedure"
+    }
+   ],
+   "prov": {
+    "sources": [
+     "Omgevingswet (besluittermijn 8 weken regulier)"
+    ]
+   },
+   "stepId": "delivery",
+   "title": "Payment & delivery — beoordeling door de mens",
+   "handover": null
+  },
+  {
+   "actor": "agent",
+   "genAiTestPoint": "G5",
+   "dataUsed": [
+    "Notificatieservice: besluit, bouwtoezicht-momenten, WOZ bij nieuwe woningwaarde"
+   ],
+   "consent": "n.v.t.",
+   "kpiEvents": [
+    {
+     "kpi": "Decision within 8 weeks (regular)",
+     "effect": "proactief: bouwtoezicht- en vervolgstappen aangeboden"
+    }
+   ],
+   "prov": {
+    "sources": [
+     "Notificatieservice"
+    ]
+   },
+   "stepId": "followup",
+   "title": "Follow-up & value — bouw- en woonstappen",
+   "handover": null
+  }
+ ],
+ "stopConditions": [
+  {
+   "id": "sc-thk24-1",
+   "condition": "vergunningcheck wijkt af van de beoordeling in > 10% van de reguliere zaken",
+   "action": "check-model bijstellen; geen auto-aanbevelingen meer (G2)"
+  },
+  {
+   "id": "sc-thk24-2",
+   "condition": "besluiten niet binnen 8 weken",
+   "action": "baseline-analyse proces, geen agent-inzet als verklaring accepteren"
+  }
+ ],
+ "kpiSnapshot": [
+  {
+   "kpi": "Decision within 8 weeks (regular)",
+   "baseline": "",
+   "target": ""
+  }
+ ],
+ "learningState": [
+  {
+   "signal": "checks op dakkapellen scoren beter dan op aanbouwen",
+   "why": "aanbouw raakt vaker aan plekgebonden regels",
+   "change": "G2-voorspelbaarheid per productsoort publiceren in de recipe",
+   "decidesBy": "function steward + Vergunningen",
+   "helped": null
+  }
+ ]
+}

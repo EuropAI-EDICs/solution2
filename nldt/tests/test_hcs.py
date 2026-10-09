@@ -265,3 +265,32 @@ def test_build_runs_deterministic(tmp_path):
     run = json.loads((out1 / "thk-08-move-home_sanne.json").read_text())
     assert run["generatedAt"].endswith("Z")
     assert run["runId"].endswith(stamp)
+
+
+KEY_DEMO = NLDT_ROOT / "simulation" / "hcs-key-demo.html"
+KEY_DEMO_EN = NLDT_ROOT / "simulation" / "hcs-key-demo-en.html"
+
+
+class TestKeyDemo:
+    def test_pages_generated_and_filled(self):
+        for path in (KEY_DEMO, KEY_DEMO_EN):
+            text = path.read_text()
+            assert "window.HCS_DATA" in text
+            assert "id=\"selftest-badge\"" in text
+            for marker in ("__HCS_DATA__", "__LANG__", "__BUILD_STAMP__"):
+                assert marker not in text, f"{marker} niet gevuld in {path.name}"
+
+    def test_nl_content(self):
+        text = KEY_DEMO.read_text()
+        assert '"nl"' in text or "nl" in text
+        assert "Ik ga verhuizen" in text
+        assert "adresonderzoek" in text.lower()
+        assert "Mens-agent-grens" in text
+
+    def test_en_content(self):
+        text = KEY_DEMO_EN.read_text()
+        assert "I want to move home" in text           # i18n-titel
+        assert "Human-agent boundary" in text          # i18n-label
+        assert 'window.HCS_LANG = "en"' in text        # taalvlag
+        # Run-data (staptitels, handover-redenen) blijft in fase 1 Nederlands;
+        # een volledig Engelse run-laag is fase 3-werk (spec §6).

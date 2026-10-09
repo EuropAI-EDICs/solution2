@@ -1,0 +1,166 @@
+{
+ "schemaVersion": "1.0",
+ "runId": "thk-08-move-home-jeroen-20261009T120000Z",
+ "generatedAt": "2026-10-09T12:00:00Z",
+ "recipeId": "thk-08-move-home",
+ "processId": "hcs-life-event-run",
+ "mode": "replay",
+ "scenario": "jeroen",
+ "steps": [
+  {
+   "actor": "agent",
+   "genAiTestPoint": "G1",
+   "dataUsed": [
+    "BRP (Haal Centraal): naam, BSN, huidig adres",
+    "MijnGegevens"
+   ],
+   "consent": "n.v.t.",
+   "kpiEvents": [
+    {
+     "kpi": "Moves processed without manual handling",
+     "effect": "geen formulier nodig — alleen verhuisdatum gevraagd"
+    }
+   ],
+   "prov": {
+    "sources": [
+     "BRP (Haal Centraal)",
+     "The Key × PDC: alleen vragen wat niet in de BRP staat"
+    ]
+   },
+   "stepId": "intake",
+   "title": "Life event & intake",
+   "handover": null
+  },
+  {
+   "actor": "agent",
+   "genAiTestPoint": "G2",
+   "dataUsed": [
+    "Open Producten / PDC (SDG): parkeervergunning, afvalpas, school, energie, bank"
+   ],
+   "consent": "n.v.t.",
+   "kpiEvents": [
+    {
+     "kpi": "Moves processed without manual handling",
+     "effect": "één voorstel in plaats van vijf loketten"
+    }
+   ],
+   "prov": {
+    "sources": [
+     "Open Producten / PDC (SDG)"
+    ]
+   },
+   "stepId": "solution",
+   "title": "Solution — één samenhangend voorstel",
+   "handover": null
+  },
+  {
+   "actor": "agent",
+   "genAiTestPoint": "G3",
+   "dataUsed": [
+    "MijnZaken",
+    "Autorisaties API",
+    "bewindsvoerderschap geverifieerd"
+   ],
+   "consent": "gegeven",
+   "kpiEvents": [
+    {
+     "kpi": "Moves processed without manual handling",
+     "effect": "één toestemming per partij per periode"
+    }
+   ],
+   "prov": {
+    "sources": [
+     "Autorisaties API"
+    ]
+   },
+   "stepId": "contract",
+   "title": "Contract & consent — wie ziet wat",
+   "handover": null
+  },
+  {
+   "actor": "partij",
+   "genAiTestPoint": "G4",
+   "dataUsed": [
+    "Zaken API",
+    "Notificaties API",
+    "EUDI-attestatie woonadres in de wallet"
+   ],
+   "consent": "gegeven",
+   "kpiEvents": [
+    {
+     "kpi": "Moves processed without manual handling",
+     "effect": "gemeente, energie, bank, verzekeraar, zorgverzekeraar parallel afgehandeld"
+    }
+   ],
+   "prov": {
+    "sources": [
+     "Zaken API",
+     "Notificaties API",
+     "BRP (Haal Centraal)"
+    ]
+   },
+   "stepId": "delivery",
+   "title": "Payment & delivery — parallel per partij",
+   "handover": null
+  },
+  {
+   "actor": "agent",
+   "genAiTestPoint": "G5",
+   "dataUsed": [
+    "Notificatieservice",
+    "MijnActies"
+   ],
+   "consent": "n.v.t.",
+   "kpiEvents": [
+    {
+     "kpi": "Moves processed without manual handling",
+     "effect": "proactief: 'je hebt ook recht op…' zonder nieuwe aanvraag"
+    }
+   ],
+   "prov": {
+    "sources": [
+     "Notificatieservice"
+    ]
+   },
+   "stepId": "followup",
+   "title": "Follow-up & value — proactief",
+   "handover": {
+    "reason": "signaal schulden + nieuwe woonlasten",
+    "to": "wijkteam sociaal domein (THK-14)"
+   }
+  }
+ ],
+ "stopConditions": [
+  {
+   "id": "sc-thk08-1",
+   "condition": "mens-overnames bij intake > 20% over vier weken",
+   "action": "pauzeer intake-assistent (G1) — escalatie naar function steward"
+  },
+  {
+   "id": "sc-thk08-2",
+   "condition": "geen unanimous go op testbank-assen (accuracy, plain language, once-only)",
+   "action": "geen go — terug naar design (recipe-cyclus stap 1)"
+  },
+  {
+   "id": "sc-thk08-3",
+   "condition": "AI Act risk class wijzigt naar high-risk",
+   "action": "stop en her-toets mens-agent-grens (poort 3)"
+  }
+ ],
+ "kpiSnapshot": [
+  {
+   "kpi": "Moves processed without manual handling",
+   "baseline": "",
+   "target": ""
+  }
+ ],
+ "learningState": [
+  {
+   "signal": "adresonderzoeken concentreren zich op één wijk",
+   "why": "vermoedelijk verouderde BRP-mutaties in dat deelgebied",
+   "change": "bronhouder BRP-vragen over mutatiekwaliteit; recipe-local variant bijstellen",
+   "decidesBy": "function steward + Burgerzaken",
+   "helped": null
+  }
+ ]
+}
