@@ -21,6 +21,71 @@ POC_RIJNLAND = WORKSPACE / "poc-rijnland"
 POC_BP2OP = WORKSPACE / "poc-bp2op"
 POC_MINIGIM = WORKSPACE / "poc-minigim"
 
+HCS_FIXTURES = NLDT_ROOT / "simulation" / "hcs" / "fixtures"
+
+
+def _load_hcs_fixture(rel: Path) -> dict[str, Any]:
+    path = HCS_FIXTURES / rel
+    if not path.is_file():
+        raise KeyError(f"HCS-fixture ontbreekt: {rel}")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _build_hcs_run(fixture: dict[str, Any], scenario_id: str, mode: str, process_id: str,
+                   scenario_key: str, stamp: str | None = None) -> dict[str, Any]:
+    """Merge defaults met per-scenario overrides en valideer tegen hcs-run.schema.json."""
+    scenarios = {p["id"] for p in fixture.get(scenario_key, [])}
+    if scenario_id not in scenarios:
+        raise KeyError(f"onbekend scenario '{scenario_id}' in {fixture['recipeId']}")
+    override_key = "perPersona" if scenario_key == "personas" else "perScenario"
+    steps: list[dict[str, Any]] = []
+    for step in fixture["steps"]:
+        merged = dict(step["defaults"])
+        merged["stepId"] = step["stepId"]
+        merged["title"] = step["title"]
+        override = step.get(override_key, {}).get(scenario_id, {})
+        merged.update(override)
+        merged.setdefault("handover", None)
+        steps.append(merged)
+    from services.common.schema import validate_instance
+
+    run = {
+        "schemaVersion": "1.0",
+        "runId": f"{fixture['recipeId']}-{scenario_id}",
+        "generatedAt": stamp or "replay",
+        "recipeId": fixture["recipeId"],
+        "processId": process_id,
+        "mode": mode,
+        "scenario": scenario_id,
+        "steps": steps,
+        "stopConditions": fixture["stopConditions"],
+        "kpiSnapshot": fixture["kpiSnapshot"],
+    }
+    if fixture.get("learningState"):
+        run["learningState"] = fixture["learningState"]
+    validate_instance(run, "hcs-run.schema.json")
+    return run
+
+
+def execute_hcs_life_event_run(inputs: dict[str, Any]) -> dict[str, Any]:
+    fixture = _load_hcs_fixture(Path("life-events") / f"{inputs['recipeId']}.json")
+    run = _build_hcs_run(fixture, inputs.get("persona") or fixture["personas"][0]["id"],
+                         inputs.get("mode", "replay"), "hcs-life-event-run", "personas")
+    return {"run": run}
+
+
+def execute_hcs_recipe_run(inputs: dict[str, Any], *, fixture_dir: Path | None = None) -> dict[str, Any]:
+    # fixture_dir is het fixtures-root (test-only); productie-resolutie blijft
+    # HCS_FIXTURES / "city", dus de default base is onveranderd t.o.v. het plan.
+    base = (fixture_dir or HCS_FIXTURES) / "city"
+    path = base / f"{inputs['recipeId']}.json"
+    if not path.is_file():
+        raise KeyError(f"HCS-fixture ontbreekt: {path}")
+    fixture = json.loads(path.read_text(encoding="utf-8"))
+    run = _build_hcs_run(fixture, inputs.get("scenario") or fixture["scenarios"][0]["id"],
+                         inputs.get("mode", "replay"), "hcs-recipe-run", "scenarios")
+    return {"run": run}
+
 POC_PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
     "breda-scan-query": {
         "id": "breda-scan-query",
@@ -414,6 +479,43 @@ POC_PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
         "outputs": {
             "summary": {"title": "Gebiedscheck summary", "schema": {"type": "object"}},
         },
+    },
+    "hcs-life-event-run": {
+        "id": "hcs-life-event-run",
+        "title": "HCS life event run (vijf stappen, EDIC)",
+        "description": (
+            "Deterministic replay of a Human-Centred Services life event "
+            "(The Key): intake, solution, contract, delivery, follow-up — with "
+            "the human-agent boundary, GenAI test points G1-G5, prov sources "
+            "and stop conditions as data (spec 2026-10-09-hcs-recipes-pocs-design)."
+        ),
+        "version": "1.0.0",
+        "keywords": ["hcs", "edic", "the-key", "life-event"],
+        "inputs": {
+            "recipeId": {"title": "Recipe id (fixture in simulation/hcs/fixtures/life-events)",
+                          "schema": {"type": "string"}},
+            "persona": {"title": "Persona id uit de fixture", "schema": {"type": "string"}},
+            "mode": {"title": "replay|execute", "schema": {"type": "string", "default": "replay"}},
+        },
+        "outputs": {"run": {"title": "HCS run-artefact", "schema": {"type": "object"}}},
+    },
+    "hcs-recipe-run": {
+        "id": "hcs-recipe-run",
+        "title": "HCS city recipe run (measure/plan/share/system)",
+        "description": (
+            "Generic deterministic replay for HCS city recipes (UAM, 3-30-300, "
+            "Circular, 15-minute city): steps come from the recipe fixture, "
+            "same run artifact as the life-event process."
+        ),
+        "version": "1.0.0",
+        "keywords": ["hcs", "edic", "city-recipe"],
+        "inputs": {
+            "recipeId": {"title": "Recipe id (fixture in simulation/hcs/fixtures/city)",
+                          "schema": {"type": "string"}},
+            "scenario": {"title": "Scenario id uit de fixture", "schema": {"type": "string"}},
+            "mode": {"title": "replay|execute", "schema": {"type": "string", "default": "replay"}},
+        },
+        "outputs": {"run": {"title": "HCS run-artefact", "schema": {"type": "object"}}},
     },
 }
 
@@ -1042,6 +1144,8 @@ EXECUTORS = {
     "rijnland-peil-whatif": execute_rijnland_peil_whatif,
     "bp2op-transform": execute_bp2op_transform,
     "minigim-gebiedscheck-run": execute_minigim_gebiedscheck_run,
+    "hcs-life-event-run": execute_hcs_life_event_run,
+    "hcs-recipe-run": execute_hcs_recipe_run,
 }
 
 

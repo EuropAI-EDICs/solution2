@@ -34,6 +34,8 @@ def test_poc_processes_registered():
         "rijnland-peil-whatif",
         "bp2op-transform",
         "minigim-gebiedscheck-run",
+        "hcs-life-event-run",
+        "hcs-recipe-run",
     }
     assert expected <= set(PROCESS_DEFINITIONS)
     for pid in expected:

@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from services.common.schema import load_recipe, validate_instance
+from services.process_adapter.handlers import describe_process, execute_local
 
 NLDT_ROOT = Path(__file__).resolve().parents[1]
 HCS_ROOT = NLDT_ROOT / "simulation" / "hcs"
@@ -128,3 +129,63 @@ def test_life_event_fixtures_present_and_consistent():
                 assert pid in persona_ids, f"onbekende persona {pid} in {path.name}"
         assert fx["stopConditions"], "poort 5: stopcondities verplicht"
         assert fx["kpiSnapshot"], "poort 1: KPI-snapshot verplicht"
+
+
+def test_hcs_processes_registered():
+    for pid in ("hcs-life-event-run", "hcs-recipe-run"):
+        assert describe_process(pid)["id"] == pid
+
+
+def test_life_event_run_replay_sanne():
+    out = execute_local("hcs-life-event-run",
+                        {"recipeId": "thk-08-move-home", "persona": "sanne", "mode": "replay"})
+    run = out["run"]
+    validate_instance(run, "hcs-run.schema.json")
+    assert run["scenario"] == "sanne"
+    assert [s["stepId"] for s in run["steps"]] == ["intake", "solution", "contract", "delivery", "followup"]
+    assert all(s["handover"] is None for s in run["steps"])
+    assert run["steps"][0]["genAiTestPoint"] == "G1"
+
+
+def test_life_event_run_edge_cases():
+    ahmed = execute_local("hcs-life-event-run",
+                          {"recipeId": "thk-08-move-home", "persona": "ahmed", "mode": "replay"})["run"]
+    intake = next(s for s in ahmed["steps"] if s["stepId"] == "intake")
+    assert intake["handover"] == {"reason": "Twijfel over het adres (adresonderzoek nodig)",
+                                  "to": "medewerker Burgerzaken"}
+    delivery = next(s for s in ahmed["steps"] if s["stepId"] == "delivery")
+    assert delivery["actor"] == "mens"
+
+    jeroen = execute_local("hcs-life-event-run",
+                           {"recipeId": "thk-08-move-home", "persona": "jeroen", "mode": "replay"})["run"]
+    follow = next(s for s in jeroen["steps"] if s["stepId"] == "followup")
+    assert follow["handover"]["to"].startswith("wijkteam")
+
+
+def test_life_event_run_unknown_persona_fails():
+    from services.process_adapter.poc_handlers import execute_hcs_life_event_run
+    with pytest.raises(KeyError):
+        execute_hcs_life_event_run({"recipeId": "thk-08-move-home", "persona": "bestaatniet"})
+
+
+def test_recipe_run_generic_with_tmp_fixture(tmp_path):
+    city = tmp_path / "city"
+    city.mkdir()
+    (city / "probe-city.json").write_text(json.dumps({
+        "recipeId": "probe-city",
+        "scenarioKind": "city",
+        "scenarios": [{"id": "wijk-01", "label": "Proefwijk"}],
+        "steps": [{
+            "stepId": "measure", "title": "Met de groendak", "blueprintStep": None,
+            "defaults": {"actor": "agent", "genAiTestPoint": "G2", "dataUsed": ["remote sensing"],
+                          "consent": "n.v.t.", "kpiEvents": [], "prov": {"sources": ["remote sensing"]}},
+            "perScenario": {}
+        }],
+        "stopConditions": [{"id": "sc-1", "condition": "c", "action": "a"}],
+        "kpiSnapshot": [{"kpi": "k", "baseline": "", "target": ""}],
+    }))
+    from services.process_adapter.poc_handlers import execute_hcs_recipe_run
+    out = execute_hcs_recipe_run({"recipeId": "probe-city", "scenario": "wijk-01", "mode": "replay"},
+                                 fixture_dir=tmp_path)
+    validate_instance(out["run"], "hcs-run.schema.json")
+    assert out["run"]["processId"] == "hcs-recipe-run"
