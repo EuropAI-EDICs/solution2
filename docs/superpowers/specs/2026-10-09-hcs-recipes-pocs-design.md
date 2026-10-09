@@ -174,6 +174,6 @@ Elke fase levert op zichzelf een demonstrabel resultaat; fase 1 is de smalle dwa
 
 1. **Scope:** in review vastgesteld — meerdere volwaardige PoC's per dish; de verdeling 3/2/2/2/2 met de genoemde elf staat ter bevestiging. Scope-klep bij tijdnood: `min-04` of `cir-01` naar menu-scène.
 2. **G-punten** van de city-recipes en THK-24 zijn in dit ontwerp voorgesteld (de sheet *The Key × PDC* gaf alleen THK-01…THK-10); bij review bevestigen of corrigeren.
-3. **Taal:** NL primair; EN-tweeling alleen voor de The Key-demo (patroon van de bestaande demo's). Andere verdeling is goedkoop te wijzigen.
+3. **Taal:** NL primair; EN-tweeling alleen voor de The Key-demo (patroon van de bestaande demo's). Andere verdeling is goedkoop te wijzigen. *Herziening R1 (9 okt 2026, op verzoek van Marc):* de The Key-demo is volledig tweetalig — de run-laag (staptitels, toelichtingen, overnames) is per taal vertaald via tweetalige fixtures en een `lang`-parameter op `hcs-life-event-run`; én alle zichtbare teksten zijn herschreven in klare inwonertaal (geen systeemnamen in de hoofdtoon; canonieke citaten en KPI-namen blijven de uitzondering).
 4. **`recipes/` in git:** de bron-documenten staan nu untracked; committen is een gebruikersbesluit en valt buiten dit ontwerp.
 5. **Recipe-naming:** `<code>-<slug>` (bv. `thk-08-move-home`); het schema-patroon staat dit toe. Alternatief is pure beschrijving (`move-home`).
