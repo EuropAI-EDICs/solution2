@@ -70,6 +70,7 @@ I18N = {
         "consentNames": {"n.v.t.": "n.v.t.", "gevraagd": "gevraagd", "gegeven": "gegeven", "geweigerd": "geweigerd"},
         "handover": "Mens-agent-grens — overname", "sources": "Bronnen",
         "testbank": "GenAI-testbank (go/no-go per as)", "tbOk": "go", "tbCheck": "toets in uitvoering",
+        "tbFail": "geen go",
         "kpiPanel": "KPI-framework (poort 1: baseline vóór technologie)", "kpi": "KPI", "kpiType": "Type",
         "dataSource": "Bron", "scenes": "De andere The Key-recipes uit deze PoC",
         "learning": "Leerstaat (recipe-cyclus stap 6: measure & improve)",
@@ -85,6 +86,7 @@ I18N = {
         "consentNames": {"n.v.t.": "n/a", "gevraagd": "asked", "gegeven": "given", "geweigerd": "refused"},
         "handover": "Human-agent boundary — handover", "sources": "Sources",
         "testbank": "GenAI test bench (go/no-go per axis)", "tbOk": "go", "tbCheck": "check in progress",
+        "tbFail": "no go",
         "kpiPanel": "KPI framework (gate 1: baseline before technology)", "kpi": "KPI", "kpiType": "Type",
         "dataSource": "Source", "scenes": "The other The Key recipes in this PoC",
         "learning": "Learning state (recipe cycle step 6: measure & improve)",
@@ -136,7 +138,8 @@ def build_pages(stamp: str) -> None:
         html = (template
                 .replace("__HCS_DATA__", payload)
                 .replace("__LANG__", json.dumps(lang))
-                .replace("__BUILD_STAMP__", stamp))
+                .replace("__BUILD_STAMP__", stamp)
+                .replace('<html lang="nl">', f'<html lang="{lang}">'))
         target.write_text(html, encoding="utf-8")
         print(f"OK page {target.relative_to(NLDT_ROOT)}")
 

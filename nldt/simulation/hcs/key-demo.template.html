@@ -157,12 +157,13 @@ window.HCS_STAMP = "__BUILD_STAMP__";
     el("tb-title").textContent = t.testbank;
     el("tb-body").innerHTML = D.common.testbank.map(function (axis) {
       var verdict = selftestAxis(axis);
-      return "<tr><td>" + axis + "</td><td style='color:" + (verdict ? "var(--mint)" : "var(--amber)") + "'>" +
-        (verdict ? t.tbOk : t.tbCheck) + "</td></tr>";
+      var color = verdict === true ? "var(--mint)" : verdict === false ? "var(--rood)" : "var(--amber)";
+      var label = verdict === true ? t.tbOk : verdict === false ? t.tbFail : t.tbCheck;
+      return "<tr><td>" + axis + "</td><td style='color:" + color + "'>" + label + "</td></tr>";
     }).join("");
   }
 
-  function selftestAxis(axis) { return D.selftestVerdicts[state.recipe][axis] !== false; }
+  function selftestAxis(axis) { return D.selftestVerdicts[state.recipe][axis]; }
 
   function renderKpi() {
     el("kpi-title").textContent = t.kpiPanel;
