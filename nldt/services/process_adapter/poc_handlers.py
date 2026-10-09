@@ -31,9 +31,49 @@ def _load_hcs_fixture(rel: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def localize(value: Any, lang: str) -> Any:
+    """Tweedelige weergavetekst ('nl'/'en'-dict) → tekst in `lang` (fallback 'nl').
+
+    Canonieke single strings (ids, KPI-namen, broncitaten) passeren ongewijzigd door.
+    """
+    if isinstance(value, dict):
+        return value.get(lang) or value["nl"]
+    return value
+
+
+def _localize_step(step: dict[str, Any], lang: str) -> dict[str, Any]:
+    """Weergaveteksten van één stap naar `lang`; machine-laag blijft canoniek."""
+    out = dict(step)
+    if isinstance(out.get("dataUsed"), list):
+        out["dataUsed"] = [localize(d, lang) for d in out["dataUsed"]]
+    if isinstance(out.get("kpiEvents"), list):
+        out["kpiEvents"] = [dict(e, effect=localize(e["effect"], lang))
+                            for e in out["kpiEvents"]]
+    handover = out.get("handover")
+    if isinstance(handover, dict):
+        out["handover"] = {k: localize(handover[k], lang) for k in ("reason", "to")}
+    # prov.sources blijven canonieke citaten van registraties/wetten.
+    return out
+
+
+def _localize_conditions(conditions: list[dict[str, Any]], lang: str) -> list[dict[str, Any]]:
+    return [dict(c, condition=localize(c["condition"], lang),
+                 action=localize(c["action"], lang)) for c in conditions]
+
+
+def _localize_learning(entries: list[dict[str, Any]], lang: str) -> list[dict[str, Any]]:
+    return [dict(e, signal=localize(e["signal"], lang), why=localize(e["why"], lang),
+                 change=localize(e["change"], lang),
+                 decidesBy=localize(e["decidesBy"], lang)) for e in entries]
+
+
 def _build_hcs_run(fixture: dict[str, Any], scenario_id: str, mode: str, process_id: str,
-                   scenario_key: str, stamp: str | None = None) -> dict[str, Any]:
-    """Merge defaults met per-scenario overrides en valideer tegen hcs-run.schema.json."""
+                   scenario_key: str, stamp: str | None = None, lang: str = "nl") -> dict[str, Any]:
+    """Merge defaults met per-scenario overrides en valideer tegen hcs-run.schema.json.
+
+    Weergaveteksten worden vóór validatie geresolved via `lang` (default 'nl'),
+    zodat het run-artefact altijd schema-conforme plain strings bevat.
+    """
     scenarios = {p["id"] for p in fixture.get(scenario_key, [])}
     if scenario_id not in scenarios:
         raise KeyError(f"onbekend scenario '{scenario_id}' in {fixture['recipeId']}")
@@ -42,11 +82,11 @@ def _build_hcs_run(fixture: dict[str, Any], scenario_id: str, mode: str, process
     for step in fixture["steps"]:
         merged = dict(step["defaults"])
         merged["stepId"] = step["stepId"]
-        merged["title"] = step["title"]
+        merged["title"] = localize(step["title"], lang)
         override = step.get(override_key, {}).get(scenario_id, {})
         merged.update(override)
         merged.setdefault("handover", None)
-        steps.append(merged)
+        steps.append(_localize_step(merged, lang))
     from services.common.schema import validate_instance
 
     run = {
@@ -58,11 +98,11 @@ def _build_hcs_run(fixture: dict[str, Any], scenario_id: str, mode: str, process
         "mode": mode,
         "scenario": scenario_id,
         "steps": steps,
-        "stopConditions": fixture["stopConditions"],
+        "stopConditions": _localize_conditions(fixture["stopConditions"], lang),
         "kpiSnapshot": fixture["kpiSnapshot"],
     }
     if fixture.get("learningState"):
-        run["learningState"] = fixture["learningState"]
+        run["learningState"] = _localize_learning(fixture["learningState"], lang)
     validate_instance(run, "hcs-run.schema.json")
     return run
 
@@ -70,7 +110,8 @@ def _build_hcs_run(fixture: dict[str, Any], scenario_id: str, mode: str, process
 def execute_hcs_life_event_run(inputs: dict[str, Any]) -> dict[str, Any]:
     fixture = _load_hcs_fixture(Path("life-events") / f"{inputs['recipeId']}.json")
     run = _build_hcs_run(fixture, inputs.get("persona") or fixture["personas"][0]["id"],
-                         inputs.get("mode") or "replay", "hcs-life-event-run", "personas")
+                         inputs.get("mode") or "replay", "hcs-life-event-run", "personas",
+                         lang=inputs.get("lang") or "nl")
     return {"run": run}
 
 
@@ -496,6 +537,8 @@ POC_PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
                           "schema": {"type": "string"}},
             "persona": {"title": "Persona id uit de fixture", "schema": {"type": "string"}},
             "mode": {"title": "replay|execute", "schema": {"type": "string", "default": "replay"}},
+            "lang": {"title": "Taal van de weergaveteksten",
+                     "schema": {"type": "string", "default": "nl"}},
         },
         "outputs": {"run": {"title": "HCS run-artefact", "schema": {"type": "object"}}},
     },

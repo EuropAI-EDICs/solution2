@@ -50,6 +50,7 @@
   .scene p { font-size: .84rem; color: var(--ijs); }
   .scene .chip { display: inline-block; font-family: var(--mono); font-size: .64rem; color: var(--inkt); background: var(--blauw); border-radius: 3px; padding: 1px 6px; margin-top: 8px; }
   .leerstaat { font-size: .84rem; }
+  .panel-sub { font-size: .84rem; color: var(--ijs); margin: -4px 0 10px; }
   .leerstaat .item { border-top: 1px dashed rgba(196,208,218,.3); padding: 8px 0; }
   .leerstaat .vraag { color: var(--hemel); font-family: var(--mono); font-size: .68rem; }
   .voet { font-family: var(--mono); font-size: .66rem; color: #7f93a2; margin-top: 24px; }
@@ -82,6 +83,7 @@
 </section>
 <section class="kvpanel">
   <h2 id="kpi-title"></h2>
+  <p class="panel-sub" id="kpi-sub"></p>
   <table><thead id="kpi-head"></thead><tbody id="kpi-body"></tbody></table>
 </section>
 <section>
@@ -159,7 +161,8 @@ window.HCS_STAMP = "__BUILD_STAMP__";
       var verdict = selftestAxis(axis);
       var color = verdict === true ? "var(--mint)" : verdict === false ? "var(--rood)" : "var(--amber)";
       var label = verdict === true ? t.tbOk : verdict === false ? t.tbFail : t.tbCheck;
-      return "<tr><td>" + axis + "</td><td style='color:" + color + "'>" + label + "</td></tr>";
+      var axisLabel = (t.axisNames && t.axisNames[axis]) || axis;
+      return "<tr><td>" + axisLabel + "</td><td style='color:" + color + "'>" + label + "</td></tr>";
     }).join("");
   }
 
@@ -167,6 +170,7 @@ window.HCS_STAMP = "__BUILD_STAMP__";
 
   function renderKpi() {
     el("kpi-title").textContent = t.kpiPanel;
+    el("kpi-sub").textContent = t.kpiSub || "";
     el("kpi-head").innerHTML = "<tr><th>" + t.kpi + "</th><th>" + t.kpiType + "</th><th>Lens</th><th>" + t.dataSource + "</th><th>KVI</th></tr>";
     var fx = D.fixtures[state.recipe];
     el("kpi-body").innerHTML = fx.service.kpis.map(function (k) {
@@ -200,7 +204,7 @@ window.HCS_STAMP = "__BUILD_STAMP__";
     var ahmed = D.runs["thk-08-move-home"].ahmed;
     checks.push(["ahmed: handover bij intake", !!ahmed.steps[0].handover]);
     checks.push(["ahmed: mens bij delivery", ahmed.steps[3].actor === "mens"]);
-    checks.push(["jeroen: wijkteam bij follow-up", D.runs["thk-08-move-home"].jeroen.steps[4].handover.to.indexOf("wijkteam") === 0]);
+    checks.push(["jeroen: overname bij follow-up", !!D.runs["thk-08-move-home"].jeroen.steps[4].handover]);
     checks.push(["sanne: geen enkele overname", D.runs["thk-08-move-home"].sanne.steps.every(function (s) { return !s.handover; })]);
     checks.push(["G1 bij intake (thk-08)", D.runs["thk-08-move-home"].sanne.steps[0].genAiTestPoint === "G1"]);
     checks.push(["thk-02: proactief (G5) in follow-up", D.runs["thk-02-having-a-baby"].lot.steps[4].genAiTestPoint === "G5"]);

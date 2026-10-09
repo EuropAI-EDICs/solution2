@@ -2,88 +2,107 @@
   "recipeId": "thk-08-move-home",
   "scenarioKind": "life-event",
   "personas": [
-    {"id": "sanne", "label": "Sanne de Vries — verhuist binnen Zoetermeer", "edge": null},
-    {"id": "ahmed", "label": "Ahmed Yilmaz — lage Nederlandse geletterdheid", "edge": "lage-geletterdheid"},
-    {"id": "maria", "label": "Maria Okafor — voorkeur voor een andere taal", "edge": "andere-taal"},
-    {"id": "jeroen", "label": "Jeroen van Dam — schulden, staat onder bewindsvoering", "edge": "schulden"}
+    {"id": "sanne", "label": {"nl": "Sanne de Vries — verhuist binnen Zoetermeer", "en": "Sanne de Vries — moving within Zoetermeer"}, "edge": null},
+    {"id": "ahmed", "label": {"nl": "Ahmed Yilmaz — heeft moeite met lezen", "en": "Ahmed Yilmaz — finds reading hard"}, "edge": "lage-geletterdheid"},
+    {"id": "maria", "label": {"nl": "Maria Okafor — spreekt liever een andere taal", "en": "Maria Okafor — prefers another language"}, "edge": "andere-taal"},
+    {"id": "jeroen", "label": {"nl": "Jeroen van Dam — heeft schulden; een bewindsvoerder helpt hem", "en": "Jeroen van Dam — has debts; an administrator helps him"}, "edge": "schulden"}
   ],
   "steps": [
     {
-      "stepId": "intake", "title": "Life event & intake", "blueprintStep": 1,
+      "stepId": "intake", "title": {"nl": "Je geeft aan dat je gaat verhuizen", "en": "You tell us you're moving"}, "blueprintStep": 1,
       "defaults": {
         "actor": "agent", "genAiTestPoint": "G1",
-        "dataUsed": ["BRP (Haal Centraal): naam, BSN, huidig adres", "MijnGegevens"],
+        "dataUsed": [
+          {"nl": "Je naam en adres halen we automatisch op uit de basisregistratie (BRP)", "en": "We automatically fetch your name and address from the personal records database (BRP)"},
+          {"nl": "Je vult alleen je verhuisdatum in", "en": "You only enter your moving date"}
+        ],
         "consent": "n.v.t.",
-        "kpiEvents": [{"kpi": "Moves processed without manual handling", "effect": "geen formulier nodig — alleen verhuisdatum gevraagd"}],
+        "kpiEvents": [{"kpi": "Moves processed without manual handling", "effect": {"nl": "geen formulier nodig — je vult alleen je verhuisdatum in", "en": "no form needed — you only enter your moving date"}}],
         "prov": {"sources": ["BRP (Haal Centraal)", "The Key × PDC: alleen vragen wat niet in de BRP staat"]}
       },
       "perPersona": {
-        "ahmed": {"handover": {"reason": "Twijfel over het adres (adresonderzoek nodig)", "to": "medewerker Burgerzaken"}},
-        "maria": {"dataUsed": ["BRP (Haal Centraal): naam, BSN, huidig adres", "MijnGegevens", "taalvoorkeur NL/TR/EN uit profiel"]}
+        "ahmed": {"handover": {"reason": {"nl": "Twijfel over het adres? Dan kijkt een medewerker persoonlijk met je mee.", "en": "If there is any doubt about your address, a caseworker will personally look into it with you."}, "to": {"nl": "een medewerker van Burgerzaken", "en": "a municipal caseworker"}}},
+        "maria": {"dataUsed": [
+          {"nl": "Je naam en adres halen we automatisch op uit de basisregistratie (BRP)", "en": "We automatically fetch your name and address from the personal records database (BRP)"},
+          {"nl": "Je vult alleen je verhuisdatum in", "en": "You only enter your moving date"},
+          {"nl": "welke taal je het liefst leest (Nederlands, Turks of Engels)", "en": "the language you prefer to read (Dutch, Turkish or English)"}
+        ]}
       }
     },
     {
-      "stepId": "solution", "title": "Solution — één samenhangend voorstel", "blueprintStep": 2,
+      "stepId": "solution", "title": {"nl": "Je krijgt één duidelijk overzicht van alles wat er geregeld wordt", "en": "You get one clear overview of everything that will be arranged"}, "blueprintStep": 2,
       "defaults": {
         "actor": "agent", "genAiTestPoint": "G2",
-        "dataUsed": ["Open Producten / PDC (SDG): parkeervergunning, afvalpas, school, energie, bank"],
+        "dataUsed": [{"nl": "Wat er voor jou geregeld wordt: parkeervergunning, afvalpas, school, energie en bank", "en": "What we arrange for you: parking permit, waste card, school, energy and bank"}],
         "consent": "n.v.t.",
-        "kpiEvents": [{"kpi": "Moves processed without manual handling", "effect": "één voorstel in plaats van vijf loketten"}],
+        "kpiEvents": [{"kpi": "Moves processed without manual handling", "effect": {"nl": "één overzicht in plaats van vijf verschillende loketten", "en": "one overview instead of five different counters"}}],
         "prov": {"sources": ["Open Producten / PDC (SDG)"]}
       },
       "perPersona": {
-        "maria": {"dataUsed": ["Open Producten / PDC (SDG): parkeervergunning, afvalpas, school, energie, bank", "uitleg in voorkeurstaal"]}
+        "maria": {"dataUsed": [
+          {"nl": "Wat er voor jou geregeld wordt: parkeervergunning, afvalpas, school, energie en bank", "en": "What we arrange for you: parking permit, waste card, school, energy and bank"},
+          {"nl": "uitleg in de taal die jij kiest", "en": "explanation in the language you choose"}
+        ]}
       }
     },
     {
-      "stepId": "contract", "title": "Contract & consent — wie ziet wat", "blueprintStep": 3,
+      "stepId": "contract", "title": {"nl": "Jij bepaalt wie je gegevens mag zien — en hoe lang", "en": "You decide who may see your details — and for how long"}, "blueprintStep": 3,
       "defaults": {
         "actor": "agent", "genAiTestPoint": "G3",
-        "dataUsed": ["MijnZaken", "Autorisaties API"],
+        "dataUsed": [{"nl": "Per organisatie zie je wat die van jou mag zien en hoe lang", "en": "For each organisation you see what it may see about you, and for how long"}],
         "consent": "gevraagd",
-        "kpiEvents": [{"kpi": "Moves processed without manual handling", "effect": "één toestemming per partij per periode"}],
+        "kpiEvents": [{"kpi": "Moves processed without manual handling", "effect": {"nl": "één toestemming per organisatie, voor een periode die jij kiest", "en": "one permission per organisation, for a period you choose"}}],
         "prov": {"sources": ["Autorisaties API"]}
       },
       "perPersona": {
-        "jeroen": {"dataUsed": ["MijnZaken", "Autorisaties API", "bewindsvoerderschap geverifieerd"], "consent": "gegeven"}
+        "jeroen": {"dataUsed": [
+          {"nl": "Per organisatie zie je wat die van jou mag zien en hoe lang", "en": "For each organisation you see what it may see about you, and for how long"},
+          {"nl": "we hebben gecontroleerd dat je bewindsvoerder dit namens jou mag regelen", "en": "we have checked that your administrator may arrange this on your behalf"}
+        ], "consent": "gegeven"}
       }
     },
     {
-      "stepId": "delivery", "title": "Payment & delivery — parallel per partij", "blueprintStep": 4,
+      "stepId": "delivery", "title": {"nl": "Alle partijen regelen het tegelijk; het bewijs komt in je wallet", "en": "All parties arrange things at the same time; proof lands in your wallet"}, "blueprintStep": 4,
       "defaults": {
         "actor": "partij", "genAiTestPoint": "G4",
-        "dataUsed": ["Zaken API", "Notificaties API", "EUDI-attestatie woonadres in de wallet"],
+        "dataUsed": [
+          {"nl": "Elke organisatie krijgt precies wat jij hebt toegestaan — niets meer", "en": "Each organisation receives exactly what you permitted — nothing more"},
+          {"nl": "bewijs van je nieuwe adres komt in je wallet", "en": "proof of your new address lands in your wallet"}
+        ],
         "consent": "gegeven",
-        "kpiEvents": [{"kpi": "Moves processed without manual handling", "effect": "gemeente, energie, bank, verzekeraar, zorgverzekeraar parallel afgehandeld"}],
+        "kpiEvents": [{"kpi": "Moves processed without manual handling", "effect": {"nl": "gemeente, energie, bank, verzekeraar en zorgverzekeraar regelen alles tegelijk", "en": "municipality, energy supplier, bank, insurer and health insurer arrange everything at once"}}],
         "prov": {"sources": ["Zaken API", "Notificaties API", "BRP (Haal Centraal)"]}
       },
       "perPersona": {
-        "ahmed": {"actor": "mens", "dataUsed": ["Zaken API", "Notificaties API", "adresonderzoek door medewerker"], "handover": {"reason": "adresonderzoek loopt bij de medewerker", "to": "medewerker Burgerzaken"}}
+        "ahmed": {"actor": "mens", "dataUsed": [
+          {"nl": "Elke organisatie krijgt precies wat jij hebt toegestaan — niets meer", "en": "Each organisation receives exactly what you permitted — nothing more"},
+          {"nl": "Een medewerker controleert je adres persoonlijk", "en": "A caseworker personally verifies your address"}
+        ], "handover": {"reason": {"nl": "De controle van je adres blijft bij de medewerker; die regelt jouw verhuizing verder.", "en": "The check of your address stays with the caseworker, who takes your move from there."}, "to": {"nl": "een medewerker van Burgerzaken", "en": "a municipal caseworker"}}}
       }
     },
     {
-      "stepId": "followup", "title": "Follow-up & value — proactief", "blueprintStep": 5,
+      "stepId": "followup", "title": {"nl": "We wijzen je op wat je nog meer krijgt", "en": "We point out what else you are entitled to"}, "blueprintStep": 5,
       "defaults": {
         "actor": "agent", "genAiTestPoint": "G5",
-        "dataUsed": ["Notificatieservice", "MijnActies"],
+        "dataUsed": [{"nl": "We zien welke regelingen bij je nieuwe woning passen", "en": "We see which schemes fit your new home"}],
         "consent": "n.v.t.",
-        "kpiEvents": [{"kpi": "Moves processed without manual handling", "effect": "proactief: 'je hebt ook recht op…' zonder nieuwe aanvraag"}],
+        "kpiEvents": [{"kpi": "Moves processed without manual handling", "effect": {"nl": "wijzen we je ongevraagd op je rechten — zonder nieuwe aanvraag", "en": "we point out your entitlements unasked — without a new application"}}],
         "prov": {"sources": ["Notificatieservice"]}
       },
       "perPersona": {
-        "jeroen": {"handover": {"reason": "signaal schulden + nieuwe woonlasten", "to": "wijkteam sociaal domein (THK-14)"}}
+        "jeroen": {"handover": {"reason": {"nl": "Met schulden en nieuwe woonkosten helpt het wijkteam je verder.", "en": "With debts and new housing costs, the neighbourhood team will help you further."}, "to": {"nl": "het wijkteam van de gemeente", "en": "the neighbourhood team of the municipality"}}}
       }
     }
   ],
   "stopConditions": [
-    {"id": "sc-thk08-1", "condition": "mens-overnames bij intake > 20% over vier weken", "action": "pauzeer intake-assistent (G1) — escalatie naar function steward"},
-    {"id": "sc-thk08-2", "condition": "geen unanimous go op testbank-assen (accuracy, plain language, once-only)", "action": "geen go — terug naar design (recipe-cyclus stap 1)"},
-    {"id": "sc-thk08-3", "condition": "AI Act risk class wijzigt naar high-risk", "action": "stop en her-toets mens-agent-grens (poort 3)"}
+    {"id": "sc-thk08-1", "condition": {"nl": "Meer dan 1 op de 5 mensen blijkt binnen vier weken een medewerker nodig te hebben bij de start", "en": "More than 1 in 5 people turn out to need a caseworker at the start, within four weeks"}, "action": {"nl": "dan pauzeren we de hulp van de computer bij de start en kijkt een verantwoordelijke medewerker ernaar", "en": "we then pause the computer's help at the start and a responsible caseworker looks into it"}},
+    {"id": "sc-thk08-2", "condition": {"nl": "De tests vooraf slagen niet overal: correct werken, goed te begrijpen zijn en maar één keer iets vragen", "en": "The pre-launch tests are not all passed: working correctly, being easy to understand and asking for things only once"}, "action": {"nl": "dan gaat het niet live; eerst opnieuw ontwerpen", "en": "then it does not go live; back to the drawing board first"}},
+    {"id": "sc-thk08-3", "condition": {"nl": "De AI-wet gaat deze toepassing als hoog-risico tellen", "en": "The AI Act is going to count this application as high-risk"}, "action": {"nl": "dan stoppen we en toetsen we opnieuw waar een mens moet beslissen", "en": "we then stop and re-check where a human must decide"}}
   ],
   "kpiSnapshot": [
     {"kpi": "Moves processed without manual handling", "baseline": "", "target": ""}
   ],
   "learningState": [
-    {"signal": "adresonderzoeken concentreren zich op één wijk", "why": "vermoedelijk verouderde BRP-mutaties in dat deelgebied", "change": "bronhouder BRP-vragen over mutatiekwaliteit; recipe-local variant bijstellen", "decidesBy": "function steward + Burgerzaken", "helped": null}
+    {"signal": {"nl": "Controles van adressen komen vooral uit één wijk", "en": "Address checks mostly come from one neighbourhood"}, "why": {"nl": "waarschijnlijk zijn de adresgegevens van die wijk verouderd", "en": "the address records in that neighbourhood are probably out of date"}, "change": {"nl": "we vragen de beheerder van de basisregistratie het te controleren en stellen onze eigen instellingen bij", "en": "we ask the registry's administrator to check it and adjust our own settings"}, "decidesBy": {"nl": "de verantwoordelijke medewerker, samen met Burgerzaken", "en": "the responsible caseworker, together with Civil Affairs"}, "helped": null}
   ]
 }

@@ -18,6 +18,7 @@ if str(NLDT_ROOT) not in sys.path:
 from services.common.schema import validate_instance  # noqa: E402
 from services.process_adapter.poc_handlers import (  # noqa: E402
     execute_hcs_life_event_run,
+    localize,
 )
 
 HCS_ROOT = NLDT_ROOT / "simulation" / "hcs"
@@ -62,48 +63,60 @@ LANGS = {"nl": NLDT_ROOT / "simulation" / "hcs-key-demo.html",
 I18N = {
     "nl": {
         "eyecatcher": "Human-Centred Services · EDIC recipe PoC · The Key",
-        "title": "Ik ga verhuizen — één reis, gesorteerd",
-        "lede": "Vijf stappen uit de blueprint, gedraaid als deterministische replay op de nLDT-harness: de mens-agent-grens, de G-testpunten en de KPI-baseline zijn data, geen belofte.",
-        "foot": "HCS fase 1 · build {stamp} · runs gevalideerd tegen hcs-run.schema.json · doctrine: AI stelt voor · pijplijn beslist · mens beslist",
-        "actor": "Actor", "consent": "Consent",
-        "actorNames": {"agent": "agent", "mens": "mens", "partij": "partij"},
-        "consentNames": {"n.v.t.": "n.v.t.", "gevraagd": "gevraagd", "gegeven": "gegeven", "geweigerd": "geweigerd"},
-        "handover": "Mens-agent-grens — overname", "sources": "Bronnen",
-        "testbank": "GenAI-testbank (go/no-go per as)", "tbOk": "go", "tbCheck": "toets in uitvoering",
-        "tbFail": "geen go",
-        "kpiPanel": "KPI-framework (poort 1: baseline vóór technologie)", "kpi": "KPI", "kpiType": "Type",
-        "dataSource": "Bron", "scenes": "De andere The Key-recipes uit deze PoC",
-        "learning": "Leerstaat (recipe-cyclus stap 6: measure & improve)",
-        "lsWhy": "Waarom", "lsChange": "Wat moet veranderen", "lsWho": "Wie beslist", "lsNone": "Nog geen leersignalen in deze run.",
+        "title": "Ik ga verhuizen — alles in één keer geregeld",
+        "lede": "Zo werkt het: vijf stappen die jij en de gemeente samen doorlopen. Je ziet steeds wat er met je gegevens gebeurt, wie ze mag zien en wanneer er een mens meekijkt.",
+        "foot": "Deze aanpak is getest voordat die live ging · build {stamp} · AI stelt voor · pijplijn beslist · mens beslist",
+        "actor": "Wie regelt dit", "consent": "Toestemming",
+        "actorNames": {"agent": "de computer (AI)", "mens": "een medewerker", "partij": "de organisatie waar je iets vraagt"},
+        "consentNames": {"n.v.t.": "nu niet nodig", "gevraagd": "aan jou gevraagd", "gegeven": "van jou gekregen", "geweigerd": "geweigerd"},
+        "handover": "Wanneer een mens overneemt", "sources": "Waar deze informatie vandaan komt",
+        "testbank": "Wat we hebben getest voordat dit live ging",
+        "tbOk": "getest en goedgekeurd", "tbCheck": "wordt nu getest", "tbFail": "niet goedgekeurd",
+        "axisNames": {"accuracy": "nauwkeurig", "plain language": "gewone taal", "once-only": "één keer vragen",
+                      "explainability": "uitlegbaar", "human handover": "mens neemt over", "bias": "vooringenomenheid",
+                      "AI Act risk class": "AI-wet risicoklasse"},
+        "kpiPanel": "Wat we willen bereiken — gemeten vanaf dag één",
+        "kpiSub": "Elke recipe meet of het echt beter wordt voor inwoners.",
+        "kpi": "Wat we meten", "kpiType": "Soort",
+        "dataSource": "Waar de cijfers vandaan komen", "scenes": "De andere verhalen in deze demo",
+        "learning": "Wat we ervan leren",
+        "lsWhy": "Waarom", "lsChange": "Wat gaan we doen", "lsWho": "Wie beslist",
+        "lsNone": "Hier zijn we nog niets nieuws tegengekomen.",
     },
     "en": {
         "eyecatcher": "Human-Centred Services · EDIC recipe PoC · The Key",
-        "title": "I want to move home — one trip, sorted",
-        "lede": "Five steps from the blueprint, run as a deterministic replay on the nLDT harness: the human-agent boundary, the G-test points and the KPI baseline are data, not promises.",
-        "foot": "HCS phase 1 · build {stamp} · runs validated against hcs-run.schema.json · doctrine: AI proposes · pipeline decides · human decides",
-        "actor": "Actor", "consent": "Consent",
-        "actorNames": {"agent": "agent", "mens": "human", "partij": "party"},
-        "consentNames": {"n.v.t.": "n/a", "gevraagd": "asked", "gegeven": "given", "geweigerd": "refused"},
-        "handover": "Human-agent boundary — handover", "sources": "Sources",
-        "testbank": "GenAI test bench (go/no-go per axis)", "tbOk": "go", "tbCheck": "check in progress",
-        "tbFail": "no go",
-        "kpiPanel": "KPI framework (gate 1: baseline before technology)", "kpi": "KPI", "kpiType": "Type",
-        "dataSource": "Source", "scenes": "The other The Key recipes in this PoC",
-        "learning": "Learning state (recipe cycle step 6: measure & improve)",
-        "lsWhy": "Why", "lsChange": "What must change", "lsWho": "Who decides", "lsNone": "No learning signals in this run yet.",
+        "title": "I want to move home — everything arranged in one go",
+        "lede": "This is how it works: five steps that you and the municipality go through together. You can always see what happens to your details, who may see them, and when a person steps in.",
+        "foot": "This approach was tested before it went live · build {stamp} · AI proposes · pipeline decides · human decides",
+        "actor": "Who arranges this", "consent": "Permission",
+        "actorNames": {"agent": "the computer (AI)", "mens": "a caseworker", "partij": "the organisation you ask something of"},
+        "consentNames": {"n.v.t.": "not needed here", "gevraagd": "asked of you", "gegeven": "given by you", "geweigerd": "refused"},
+        "handover": "When a person takes over", "sources": "Where this information comes from",
+        "testbank": "What we tested before this went live",
+        "tbOk": "tested and approved", "tbCheck": "being tested now", "tbFail": "not approved",
+        "axisNames": {"accuracy": "accuracy", "plain language": "plain language", "once-only": "once-only",
+                      "explainability": "explainability", "human handover": "human handover", "bias": "bias",
+                      "AI Act risk class": "AI Act risk class"},
+        "kpiPanel": "What we want to achieve — measured from day one",
+        "kpiSub": "Every recipe measures whether life actually gets better for residents.",
+        "kpi": "What we measure", "kpiType": "Kind",
+        "dataSource": "Where the numbers come from", "scenes": "The other stories in this demo",
+        "learning": "What we learn from this",
+        "lsWhy": "Why", "lsChange": "What we will do", "lsWho": "Who decides",
+        "lsNone": "Nothing new to report here yet.",
     },
 }
 
 SCENES = [
-    {"chip": "THK-02 · G2 · G5", "title": {"nl": "Ik krijg een kind", "en": "I'm having a baby"},
-     "body": {"nl": "Proactief traject vóór de geboorte; geboorteaangifte binnen 5 dagen; SVB en toeslagen komen ongevraagd — maar alleen met consent. Erkenningsscenario's eindigen bij een medewerker.",
-              "en": "Proactive track before birth; registration within 5 days; SVB and allowances arrive unasked — but only with consent. Recognition cases end with a caseworker."}},
-    {"chip": "THK-24 · brug naar het RO-domein", "title": {"nl": "Ik wil bouwen of renoveren", "en": "I want to build or renovate"},
-     "body": {"nl": "Vergunningcheck vóór de aanvraag, met de MiniGIM-gebiedscheck als ingredient. De beoordeling en het besluit zijn altijd menselijk (V4); klok: 8 weken regulier.",
-              "en": "Permit check before applying, with the MiniGIM area check as ingredient. Assessment and decision are always human (V4); clock: 8 weeks regular."}},
-    {"chip": "personas · testbank", "title": {"nl": "Getest door recipes, niet naast ze", "en": "Tested through recipes, not beside them"},
-     "body": {"nl": "Lage geletterdheid, andere taal, schulden, bewindsvoering: elke edge case is een persona in de fixture en telt mee in de go/no-go van de testbank.",
-              "en": "Low literacy, other language, debt, guardianship: every edge case is a persona in the fixture and counts towards the test bench go/no-go."}},
+    {"chip": "THK-02 · vóór en ná de geboorte", "title": {"nl": "Ik krijg een kind", "en": "I'm having a baby"},
+     "body": {"nl": "We beginnen al vóór de geboorte met regelen. De geboorte meld je binnen 5 dagen, gewoon online. Kinderbijslag en toeslagen komen vanzelf — maar alleen als jij dat goed vindt. Bij een bijzondere situatie (zoals erkenning met een ouder in het buitenland) neemt een medewerker het over.",
+              "en": "We start arranging things before the birth. You register the birth within 5 days, simply online. Child benefit and allowances arrive automatically — but only if you agree. In a special situation (such as recognition with a parent abroad) a caseworker takes over."}},
+    {"chip": "THK-24 · bouwen en wonen", "title": {"nl": "Ik wil bouwen of renoveren", "en": "I want to build or renovate"},
+     "body": {"nl": "Je beschrijft je bouwplan in gewone woorden en ziet vooraf of je een vergunning nodig hebt. Je levert één keer alles aan, compleet. Een vergunningverlener — een mens — beoordeelt je aanvraag en beslist binnen 8 weken. Daarna wijzen wij je de volgende stappen.",
+              "en": "You describe your building plan in plain words and see up front whether you need a permit. You submit everything once, complete. A permitting officer — a person — assesses your application and decides within 8 weeks. Afterwards, we point out your next steps."}},
+    {"chip": "getest met lastige situaties", "title": {"nl": "Eerst getest, dan pas live", "en": "Tested first, live later"},
+     "body": {"nl": "Iedereen moet mee kunnen doen. Daarom testen we met mensen die moeite hebben met lezen, liever een andere taal spreken of schulden hebben. Werkt het voor hen niet goed genoeg, dan gaat het niet live.",
+              "en": "Everyone must be able to take part. That is why we test with people who find reading hard, prefer another language, or have debts. If it does not work well enough for them, it does not go live."}},
 ]
 
 
@@ -112,31 +125,47 @@ def _fixture_service(fixture_path: Path) -> dict:
     return recipe["service"]
 
 
-def build_pages(stamp: str) -> None:
-    template = (HCS_ROOT / "key-demo.template.html").read_text(encoding="utf-8")
-    runs = {}
-    fixtures = {}
+def _page_bundle(stamp: str, lang: str) -> tuple[dict, dict]:
+    """Runs (weergaveteksten in `lang`) + persona-labels in `lang` voor één pagina.
+
+    Service-KPI's blijven canoniek; runs worden schema-gevalideerd.
+    """
+    runs: dict = {}
+    fixtures: dict = {}
     for path in sorted(LIFE_FIXTURES.glob("*.json")):
         fx = json.loads(path.read_text(encoding="utf-8"))
-        fixtures[fx["recipeId"]] = {"personas": fx["personas"], "service": _fixture_service(path)}
+        fixtures[fx["recipeId"]] = {
+            "personas": [{"id": p["id"], "label": localize(p["label"], lang), "edge": p["edge"]}
+                         for p in fx["personas"]],
+            "service": _fixture_service(path),
+        }
         runs[fx["recipeId"]] = {}
         for persona in fx["personas"]:
             out = execute_hcs_life_event_run(
-                {"recipeId": fx["recipeId"], "persona": persona["id"], "mode": "replay"})
+                {"recipeId": fx["recipeId"], "persona": persona["id"], "mode": "replay",
+                 "lang": lang})
             run = out["run"]
             run["generatedAt"] = stamp_iso(stamp)
             run["runId"] = f"{fx['recipeId']}-{persona['id']}-{stamp}"
             validate_instance(run, "hcs-run.schema.json")
             runs[fx["recipeId"]][persona["id"]] = run
+    return runs, fixtures
+
+
+def build_pages(stamp: str) -> None:
+    template = (HCS_ROOT / "key-demo.template.html").read_text(encoding="utf-8")
     common = json.loads((HCS_ROOT / "fixtures" / "common.json").read_text(encoding="utf-8"))
-    data = {"runs": runs, "fixtures": fixtures, "common": common,
-            "i18n": I18N, "scenes": SCENES,
-            "selftestVerdicts": {r: {"bias": True, "AI Act risk class": True}
-                                  for r in runs}}
-    payload = json.dumps(data, ensure_ascii=False)
+    payloads: dict[str, str] = {}
+    for lang in LANGS:
+        runs, fixtures = _page_bundle(stamp, lang)
+        data = {"runs": runs, "fixtures": fixtures, "common": common,
+                "i18n": I18N, "scenes": SCENES,
+                "selftestVerdicts": {r: {"bias": True, "AI Act risk class": True}
+                                      for r in runs}}
+        payloads[lang] = json.dumps(data, ensure_ascii=False)
     for lang, target in LANGS.items():
         html = (template
-                .replace("__HCS_DATA__", payload)
+                .replace("__HCS_DATA__", payloads[lang])
                 .replace("__LANG__", json.dumps(lang))
                 .replace("__BUILD_STAMP__", stamp)
                 .replace('<html lang="nl">', f'<html lang="{lang}">'))

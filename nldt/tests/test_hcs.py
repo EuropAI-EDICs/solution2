@@ -151,15 +151,36 @@ def test_life_event_run_edge_cases():
     ahmed = execute_local("hcs-life-event-run",
                           {"recipeId": "thk-08-move-home", "persona": "ahmed", "mode": "replay"})["run"]
     intake = next(s for s in ahmed["steps"] if s["stepId"] == "intake")
-    assert intake["handover"] == {"reason": "Twijfel over het adres (adresonderzoek nodig)",
-                                  "to": "medewerker Burgerzaken"}
+    assert intake["handover"] == {
+        "reason": "Twijfel over het adres? Dan kijkt een medewerker persoonlijk met je mee.",
+        "to": "een medewerker van Burgerzaken"}
     delivery = next(s for s in ahmed["steps"] if s["stepId"] == "delivery")
     assert delivery["actor"] == "mens"
+    assert "Een medewerker controleert je adres persoonlijk" in delivery["dataUsed"]
 
     jeroen = execute_local("hcs-life-event-run",
                            {"recipeId": "thk-08-move-home", "persona": "jeroen", "mode": "replay"})["run"]
     follow = next(s for s in jeroen["steps"] if s["stepId"] == "followup")
-    assert follow["handover"]["to"].startswith("wijkteam")
+    assert follow["handover"]["to"].startswith("het wijkteam")
+
+
+def test_life_event_run_english():
+    """lang=en vertaalt de weergaveteksten volledig; het artefact blijft schema-conform."""
+    out = execute_local("hcs-life-event-run",
+                        {"recipeId": "thk-08-move-home", "persona": "sanne", "lang": "en"})
+    run = out["run"]
+    validate_instance(run, "hcs-run.schema.json")
+    assert run["steps"][0]["title"].startswith("You tell us")
+
+    ahmed = execute_local("hcs-life-event-run",
+                          {"recipeId": "thk-08-move-home", "persona": "ahmed", "lang": "en"})["run"]
+    validate_instance(ahmed, "hcs-run.schema.json")
+    intake = next(s for s in ahmed["steps"] if s["stepId"] == "intake")
+    assert "caseworker" in intake["handover"]["reason"]
+
+    # Canonical machine-layer velden blijven onvertaald.
+    assert intake["kpiEvents"][0]["kpi"] == "Moves processed without manual handling"
+    assert intake["prov"]["sources"][0] == "BRP (Haal Centraal)"
 
 
 def test_life_event_run_unknown_persona_fails():
@@ -294,17 +315,19 @@ class TestKeyDemo:
         text = KEY_DEMO.read_text()
         assert '<html lang="nl">' in text
         assert "Ik ga verhuizen" in text
-        assert "adresonderzoek" in text.lower()
-        assert "Mens-agent-grens" in text
+        assert "Je geeft aan dat je gaat verhuizen" in text      # intake-stap in klare taal
+        assert "Jij bepaalt wie je gegevens mag zien" in text    # contract-stap in klare taal
+        assert "Wanneer een mens overneemt" in text              # plain-language chrome
 
     def test_en_content(self):
         text = KEY_DEMO_EN.read_text()
         assert '<html lang="en">' in text
         assert "I want to move home" in text           # i18n-titel
-        assert "Human-agent boundary" in text          # i18n-label
+        assert "You tell us you're moving" in text     # staptitels volledig vertaald
         assert 'window.HCS_LANG = "en"' in text        # taalvlag
-        # Run-data (staptitels, handover-redenen) blijft in fase 1 Nederlands;
-        # een volledig Engelse run-laag is fase 3-werk (spec §6).
+        # De EN-pagina bevat geen Nederlandse stapteksten meer.
+        assert "Je geeft aan dat je gaat verhuizen" not in text
+        assert "Twijfel over het adres" not in text
 
 
 MENU_HTML = NLDT_ROOT / "simulation" / "hcs-menu-demo.html"

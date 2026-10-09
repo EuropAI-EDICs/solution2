@@ -2,78 +2,84 @@
   "recipeId": "thk-02-having-a-baby",
   "scenarioKind": "life-event",
   "personas": [
-    {"id": "lot", "label": "Lot & Sam — eerste kind, alles regelen vóór de geboorte", "edge": null},
-    {"id": "fatima", "label": "Fatima — erkenning en buitenlandse ouder", "edge": "erkenning-buitenlandse-ouder"}
+    {"id": "lot", "label": {"nl": "Lot & Sam — eerste kind; ze regelen alles vóór de geboorte", "en": "Lot & Sam — first child; they arrange everything before the birth"}, "edge": null},
+    {"id": "fatima", "label": {"nl": "Fatima — erkenning van het kind; een ouder woont in het buitenland", "en": "Fatima — recognition of the child; one parent lives abroad"}, "edge": "erkenning-buitenlandse-ouder"}
   ],
   "steps": [
     {
-      "stepId": "intake", "title": "Life event & intake — zwangerschap aangegeven", "blueprintStep": 1,
+      "stepId": "intake", "title": {"nl": "Je vertelt dat er een baby op komst is", "en": "You tell us a baby is on the way"}, "blueprintStep": 1,
       "defaults": {
         "actor": "agent", "genAiTestPoint": "G2",
-        "dataUsed": ["MijnActies: zwangerschapsverlof, kraamzorg", "BRP (Haal Centraal)"],
+        "dataUsed": [
+          {"nl": "Je zwangerschapsverlof en kraamzorg regelen we alvast voor je", "en": "We arrange your maternity leave and maternity care in advance"},
+          {"nl": "je naam en adres komen uit de basisregistratie (BRP)", "en": "your name and address come from the personal records database (BRP)"}
+        ],
         "consent": "n.v.t.",
-        "kpiEvents": [{"kpi": "Birth registrations done digitally", "effect": "proactief traject gestart vóór de geboorte"}],
+        "kpiEvents": [{"kpi": "Birth registrations done digitally", "effect": {"nl": "we helpen je al vóór de geboorte", "en": "we start helping you before the birth"}}],
         "prov": {"sources": ["BRP (Haal Centraal)"]}
       },
       "perPersona": {
-        "fatima": {"handover": {"reason": "erkenning en buitenlandse ouder — complexe situatie", "to": "medewerker Burgerzaken"}}
+        "fatima": {"handover": {"reason": {"nl": "Een erkenning met een ouder in het buitenland is een bijzondere situatie; dan neemt een medewerker het over.", "en": "Recognition with a parent abroad is a special situation; a caseworker then takes over."}, "to": {"nl": "een medewerker van Burgerzaken", "en": "a municipal caseworker"}}}
       }
     },
     {
-      "stepId": "solution", "title": "Solution — verlof, kraamzorg, kinderegelingen", "blueprintStep": 2,
+      "stepId": "solution", "title": {"nl": "Je krijgt één overzicht: verlof, kraamzorg en geld", "en": "You get one overview: leave, maternity care and money"}, "blueprintStep": 2,
       "defaults": {
         "actor": "agent", "genAiTestPoint": "G2",
-        "dataUsed": ["Open Producten / PDC (SDG): geboorteaangifte, kinderbijslag, toeslagen"],
+        "dataUsed": [{"nl": "Wat er voor jullie geregeld wordt: geboorteaangifte, kinderbijslag en toeslagen", "en": "What we arrange for you: birth registration, child benefit and allowances"}],
         "consent": "n.v.t.",
-        "kpiEvents": [{"kpi": "Birth registrations done digitally", "effect": "één voorstel: verlof, kraamzorg, SVB, toeslagen"}],
+        "kpiEvents": [{"kpi": "Birth registrations done digitally", "effect": {"nl": "één overzicht: verlof, kraamzorg, kinderbijslag en toeslagen", "en": "one overview: leave, maternity care, child benefit and allowances"}}],
         "prov": {"sources": ["Open Producten / PDC (SDG)"]}
       },
       "perPersona": {}
     },
     {
-      "stepId": "contract", "title": "Contract & consent — ketenpartijen", "blueprintStep": 3,
+      "stepId": "contract", "title": {"nl": "Jij bepaalt welke organisaties iets van je mogen zien", "en": "You decide which organisations may see your details"}, "blueprintStep": 3,
       "defaults": {
         "actor": "agent", "genAiTestPoint": "G3",
-        "dataUsed": ["Autorisaties API: SVB, Belastingdienst, zorgverzekeraar"],
+        "dataUsed": [{"nl": "Je geeft per organisatie toestemming: de uitkeringsinstantie (SVB), de belastingdienst en je zorgverzekeraar", "en": "You give permission per organisation: the benefits agency (SVB), the tax office and your health insurer"}],
         "consent": "gevraagd",
-        "kpiEvents": [{"kpi": "Birth registrations done digitally", "effect": "toestemming per ketenpartij"}],
+        "kpiEvents": [{"kpi": "Birth registrations done digitally", "effect": {"nl": "jij geeft elke organisatie apart toestemming", "en": "you give each organisation permission separately"}}],
         "prov": {"sources": ["Autorisaties API"]}
       },
       "perPersona": {}
     },
     {
-      "stepId": "delivery", "title": "Payment & delivery — geboorteaangifte binnen 5 dagen", "blueprintStep": 4,
+      "stepId": "delivery", "title": {"nl": "Je meldt de geboorte — dat moet binnen 5 dagen", "en": "You register the birth — this must happen within 5 days"}, "blueprintStep": 4,
       "defaults": {
         "actor": "partij", "genAiTestPoint": "G4",
-        "dataUsed": ["Zaken API", "EUDI-attestatie geboorte in de wallet"],
+        "dataUsed": [
+          {"nl": "Je meldt de geboorte online", "en": "You register the birth online"},
+          {"nl": "bewijs van de geboorte komt in je wallet", "en": "proof of the birth lands in your wallet"}
+        ],
         "consent": "gegeven",
-        "kpiEvents": [{"kpi": "Birth registrations done digitally", "effect": "melding binnen 5 dagen digitaal afgehandeld"}],
+        "kpiEvents": [{"kpi": "Birth registrations done digitally", "effect": {"nl": "de melding binnen 5 dagen is gewoon online geregeld", "en": "the registration within 5 days is handled online"}}],
         "prov": {"sources": ["Zaken API", "Wet BRP (melding binnen 5 dagen*)"]}
       },
       "perPersona": {
-        "fatima": {"actor": "mens", "handover": {"reason": "erkenning vastgesteld door ambtenaar", "to": "medewerker Burgerzaken"}}
+        "fatima": {"actor": "mens", "handover": {"reason": {"nl": "De erkenning moet officieel door een ambtenaar worden vastgesteld.", "en": "The recognition must be officially established by an officer."}, "to": {"nl": "een medewerker van Burgerzaken", "en": "a municipal caseworker"}}}
       }
     },
     {
-      "stepId": "followup", "title": "Follow-up & value — proactief signaleren", "blueprintStep": 5,
+      "stepId": "followup", "title": {"nl": "We regelen vanzelf wat je nodig hebt", "en": "We arrange what you need, without you asking"}, "blueprintStep": 5,
       "defaults": {
         "actor": "agent", "genAiTestPoint": "G5",
-        "dataUsed": ["Notificatieservice: kinderbijslag, toeslagen, zorgverzekering kind"],
+        "dataUsed": [{"nl": "We melden je kind automatisch aan voor kinderbijslag, toeslagen en de zorgverzekering", "en": "We automatically register your child for child benefit, allowances and health insurance"}],
         "consent": "n.v.t.",
-        "kpiEvents": [{"kpi": "Birth registrations done digitally", "effect": "SVB en toeslagen proactief aangeboden"}],
+        "kpiEvents": [{"kpi": "Birth registrations done digitally", "effect": {"nl": "kinderbijslag en toeslagen krijg je aangeboden zonder aanvraag", "en": "child benefit and allowances are offered without an application"}}],
         "prov": {"sources": ["Notificatieservice"]}
       },
       "perPersona": {}
     }
   ],
   "stopConditions": [
-    {"id": "sc-thk02-1", "condition": "digitale geboorteregistratie < 80% over een maand", "action": "onderzoek naar afhaalmoment; terug naar design"},
-    {"id": "sc-thk02-2", "condition": "proactieve signalen leiden tot klachten over ongevraagde contacten", "action": "proactief-paar af (G5), menselijke tussenstap inbouwen"}
+    {"id": "sc-thk02-1", "condition": {"nl": "Minder dan 8 van de 10 geboortes wordt in een maand online gemeld", "en": "Fewer than 8 out of 10 births in a month are registered online"}, "action": {"nl": "dan zoeken we uit waar het nog te moeilijk blijft en maken het opnieuw eenvoudiger", "en": "we then find out where it stays too difficult and make it simpler again"}},
+    {"id": "sc-thk02-2", "condition": {"nl": "Mensen krijgen ongevraagd bericht en dat stoort ze", "en": "People receive messages they did not ask for, and it bothers them"}, "action": {"nl": "dan zetten we de automatische berichten uit en controleert eerst een mens wat er verstuurd wordt", "en": "we then switch the automatic messages off and a person first checks what gets sent"}}
   ],
   "kpiSnapshot": [
     {"kpi": "Birth registrations done digitally", "baseline": "", "target": ""}
   ],
   "learningState": [
-    {"signal": "ouders starten eerder dan verwacht (tweede trimester)", "why": "verlof- en kraamzorgvragen komen vroeg", "change": "proactieve start verschuiven naar week 24", "decidesBy": "function steward + Sociaal Domein", "helped": null}
+    {"signal": {"nl": "Ouders beginnen eerder met regelen dan we dachten: al tijdens de zwangerschap", "en": "Parents start arranging things earlier than expected: during pregnancy already"}, "why": {"nl": "vragen over verlof en kraamzorg komen vroeg", "en": "questions about leave and maternity care come early"}, "change": {"nl": "we beginnen eerder met helpen: vanaf week 24 van de zwangerschap", "en": "we start helping earlier: from week 24 of the pregnancy"}, "decidesBy": {"nl": "de verantwoordelijke medewerker, samen met het sociaal domein", "en": "the responsible caseworker, together with social services"}, "helped": null}
   ]
 }
