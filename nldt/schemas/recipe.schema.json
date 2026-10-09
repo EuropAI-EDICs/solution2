@@ -51,6 +51,7 @@
       }
     },
     "riskLevel": { "enum": ["low", "medium", "high"] },
+    "service": { "$ref": "#/$defs/serviceBlock" },
     "cookbookUri": {
       "type": "string",
       "format": "uri",
@@ -116,6 +117,62 @@
           "default": "local",
           "description": "Hybrid routing hint for process adapter"
         }
+      }
+    },
+    "serviceBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dish", "serviceType"],
+      "properties": {
+        "dish": { "enum": ["the-key", "urban-air-mobility", "3-30-300", "circular-neighborhoods", "15-minute-city"] },
+        "lifeEventCode": { "type": "string", "pattern": "^(THK|UAM|GRN|CIR|MIN)-[0-9]{2}$" },
+        "serviceType": { "enum": ["reactive", "proactive", "measure", "plan", "share", "system", "infrastructure"] },
+        "blueprintSteps": { "type": "array", "minItems": 1, "items": { "type": "integer", "minimum": 1, "maximum": 5 } },
+        "parties": { "type": "array", "items": { "$ref": "#/$defs/serviceParty" } },
+        "legalBasis": { "type": "array", "items": { "$ref": "#/$defs/legalBasisEntry" } },
+        "humanMeasure": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["handover", "exceptions"],
+          "properties": {
+            "handover": { "type": "array", "items": { "type": "string" } },
+            "exceptions": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "localVariant": { "type": "string" },
+        "genAiTestPoints": { "type": "array", "items": { "$ref": "#/$defs/genAiTestPoint" } },
+        "kpis": { "type": "array", "items": { "$ref": "#/$defs/serviceKpi" } }
+      }
+    },
+    "serviceParty": {
+      "type": "object", "additionalProperties": false, "required": ["name", "role"],
+      "properties": { "name": { "type": "string" }, "role": { "type": "string" } }
+    },
+    "legalBasisEntry": {
+      "type": "object", "additionalProperties": false, "required": ["basis"],
+      "properties": { "basis": { "type": "string" }, "timeLimit": { "type": "string" } }
+    },
+    "genAiTestPoint": {
+      "type": "object", "additionalProperties": false, "required": ["point", "description"],
+      "properties": {
+        "point": { "enum": ["G1", "G2", "G3", "G4", "G5"] },
+        "description": { "type": "string" },
+        "testCases": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "serviceKpi": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kpi", "kpiType", "unit", "outcomeLens"],
+      "properties": {
+        "kpi": { "type": "string" },
+        "kpiType": { "enum": ["output", "outcome"] },
+        "unit": { "type": "string" },
+        "outcomeLens": { "enum": ["Z", "L", "W", "—"] },
+        "baseline": { "type": "string" },
+        "target": { "type": "string" },
+        "dataSource": { "type": "string" },
+        "frequency": { "type": "string" },
+        "kviRollup": { "type": "string" }
       }
     }
   }
