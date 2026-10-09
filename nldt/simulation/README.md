@@ -17,6 +17,23 @@ explainer; replay of the canonical Utrecht wind run `20260830T113234Z-wind`), th
 concrete instances, the five gates, reuse, the learning loop, the phasing, and the ask to the board.
 Design: [`docs/AGENTIC_STATE_PLAN.md`](../../docs/AGENTIC_STATE_PLAN.md).
 
+## Human-Centred Services — EDIC recipe PoC's (fase 1)
+
+[`hcs-key-demo.html`](hcs-key-demo.html) (NL) ·
+[`hcs-key-demo-en.html`](hcs-key-demo-en.html) (EN) — The Key als recipe-PoC: vijf
+blueprint-stappen als deterministische replay (`hcs-life-event-run`), persona-switcher
+met edge cases, GenAI-testbank, KPI-baseline en leerstaat. Ontwerp:
+[`docs/superpowers/specs/2026-10-09-hcs-recipes-pocs-design.md`](../../docs/superpowers/specs/2026-10-09-hcs-recipes-pocs-design.md).
+Herbouwen:
+
+```bash
+nldt/.venv/bin/python nldt/simulation/hcs/build_runs.py --stamp <ISO-stamp>
+```
+
+[`hcs-menu-demo.html`](hcs-menu-demo.html) — het menu: 53 recipes over vijf dishes
+(THK volledig als kaarten; de city-dishes in fase 2), vijf stappen × G1–G5,
+roll-up naar KVI's, recipe-cyclus en scale path.
+
 ## Per PoC
 
 | PoC | Story | Agent flow | Extra demos |

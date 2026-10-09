@@ -294,3 +294,26 @@ class TestKeyDemo:
         assert 'window.HCS_LANG = "en"' in text        # taalvlag
         # Run-data (staptitels, handover-redenen) blijft in fase 1 Nederlands;
         # een volledig Engelse run-laag is fase 3-werk (spec §6).
+
+
+MENU_HTML = NLDT_ROOT / "simulation" / "hcs-menu-demo.html"
+INDEX_HTML = NLDT_ROOT / "simulation" / "index.html"
+MAPPING_DOC = NLDT_ROOT.parent / "docs" / "HCS_RECIPES_AGENTIC_STATE.md"
+
+
+def test_menu_demo_lists_all_thk():
+    text = MENU_HTML.read_text()
+    for code in ("THK-01", "THK-08", "THK-14", "THK-24", "THK-25"):
+        assert code in text
+    assert "fase 2" in text and "UAM" in text and "GRN" in text
+
+
+def test_index_links_hcs():
+    text = INDEX_HTML.read_text()
+    assert 'href="hcs-key-demo.html"' in text and 'href="hcs-menu-demo.html"' in text
+
+
+def test_mapping_doc_exists_with_mapping_table():
+    text = MAPPING_DOC.read_text()
+    for marker in ("B1", "poort 1", "hcs-life-event-run", "baselines"):
+        assert marker in text

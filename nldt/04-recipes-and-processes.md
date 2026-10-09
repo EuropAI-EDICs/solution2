@@ -93,6 +93,13 @@ PoC MCP tools usually alias **one** process. Prefer the **recipe** path (orchest
 [20-poc-mcp-skills.md](20-poc-mcp-skills.md#recipes-cookbook-in-detail) and the
 interactive [Recipes panel](simulation/poc-mcp-skills.html).
 
+### Human-Centred Services recipes (EDIC)
+
+De The Key-life-events uit de [HCS Blueprint](../recipes/01_Human_Centred_Services_Blueprint_EN_A1.pdf)
+landen als gewone recipes met een optioneel `service`-blok (EDIC-anatomy: dish,
+menselijke maat, G1–G5-testpunten, KPI's). Baselines (Sitra-poort 1+5) staan in
+`recipes/baselines/`. Koppeltabel: [`docs/HCS_RECIPES_AGENTIC_STATE.md`](../docs/HCS_RECIPES_AGENTIC_STATE.md).
+
 ### PoC / lake recipe catalogue
 
 | Recipe | risk | Primary process |
@@ -108,6 +115,7 @@ interactive [Recipes panel](simulation/poc-mcp-skills.html).
 | `rijnland-peil-conflict` / `-live` / `rijnland-peil-whatif` | medium / high / high | `rijnland-peil-*` |
 | `eindhoven-bp2op` | high | `bp2op-transform` |
 | `minigim-gebiedscheck` | low | `minigim-gebiedscheck-run` |
+| `thk-08-move-home` / `thk-02-having-a-baby` / `thk-24-build-renovate` | medium / medium / high | `hcs-life-event-run` |
 
 ## Reference recipe: Spatial Overlay Analysis
 
