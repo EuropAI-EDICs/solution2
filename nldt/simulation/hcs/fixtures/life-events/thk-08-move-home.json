@@ -1,0 +1,89 @@
+{
+  "recipeId": "thk-08-move-home",
+  "scenarioKind": "life-event",
+  "personas": [
+    {"id": "sanne", "label": "Sanne de Vries — verhuist binnen Zoetermeer", "edge": null},
+    {"id": "ahmed", "label": "Ahmed Yilmaz — lage Nederlandse geletterdheid", "edge": "lage-geletterdheid"},
+    {"id": "maria", "label": "Maria Okafor — voorkeur voor een andere taal", "edge": "andere-taal"},
+    {"id": "jeroen", "label": "Jeroen van Dam — schulden, staat onder bewindsvoering", "edge": "schulden"}
+  ],
+  "steps": [
+    {
+      "stepId": "intake", "title": "Life event & intake", "blueprintStep": 1,
+      "defaults": {
+        "actor": "agent", "genAiTestPoint": "G1",
+        "dataUsed": ["BRP (Haal Centraal): naam, BSN, huidig adres", "MijnGegevens"],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Moves processed without manual handling", "effect": "geen formulier nodig — alleen verhuisdatum gevraagd"}],
+        "prov": {"sources": ["BRP (Haal Centraal)", "The Key × PDC: alleen vragen wat niet in de BRP staat"]}
+      },
+      "perPersona": {
+        "ahmed": {"handover": {"reason": "Twijfel over het adres (adresonderzoek nodig)", "to": "medewerker Burgerzaken"}},
+        "maria": {"dataUsed": ["BRP (Haal Centraal): naam, BSN, huidig adres", "MijnGegevens", "taalvoorkeur NL/TR/EN uit profiel"]}
+      }
+    },
+    {
+      "stepId": "solution", "title": "Solution — één samenhangend voorstel", "blueprintStep": 2,
+      "defaults": {
+        "actor": "agent", "genAiTestPoint": "G2",
+        "dataUsed": ["Open Producten / PDC (SDG): parkeervergunning, afvalpas, school, energie, bank"],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Moves processed without manual handling", "effect": "één voorstel in plaats van vijf loketten"}],
+        "prov": {"sources": ["Open Producten / PDC (SDG)"]}
+      },
+      "perPersona": {
+        "maria": {"dataUsed": ["Open Producten / PDC (SDG): parkeervergunning, afvalpas, school, energie, bank", "uitleg in voorkeurstaal"]}
+      }
+    },
+    {
+      "stepId": "contract", "title": "Contract & consent — wie ziet wat", "blueprintStep": 3,
+      "defaults": {
+        "actor": "agent", "genAiTestPoint": "G3",
+        "dataUsed": ["MijnZaken", "Autorisaties API"],
+        "consent": "gevraagd",
+        "kpiEvents": [{"kpi": "Moves processed without manual handling", "effect": "één toestemming per partij per periode"}],
+        "prov": {"sources": ["Autorisaties API"]}
+      },
+      "perPersona": {
+        "jeroen": {"dataUsed": ["MijnZaken", "Autorisaties API", "bewindsvoerderschap geverifieerd"], "consent": "gegeven"}
+      }
+    },
+    {
+      "stepId": "delivery", "title": "Payment & delivery — parallel per partij", "blueprintStep": 4,
+      "defaults": {
+        "actor": "partij", "genAiTestPoint": "G4",
+        "dataUsed": ["Zaken API", "Notificaties API", "EUDI-attestatie woonadres in de wallet"],
+        "consent": "gegeven",
+        "kpiEvents": [{"kpi": "Moves processed without manual handling", "effect": "gemeente, energie, bank, verzekeraar, zorgverzekeraar parallel afgehandeld"}],
+        "prov": {"sources": ["Zaken API", "Notificaties API", "BRP (Haal Centraal)"]}
+      },
+      "perPersona": {
+        "ahmed": {"actor": "mens", "dataUsed": ["Zaken API", "Notificaties API", "adresonderzoek door medewerker"], "handover": {"reason": "adresonderzoek loopt bij de medewerker", "to": "medewerker Burgerzaken"}}
+      }
+    },
+    {
+      "stepId": "followup", "title": "Follow-up & value — proactief", "blueprintStep": 5,
+      "defaults": {
+        "actor": "agent", "genAiTestPoint": "G5",
+        "dataUsed": ["Notificatieservice", "MijnActies"],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Moves processed without manual handling", "effect": "proactief: 'je hebt ook recht op…' zonder nieuwe aanvraag"}],
+        "prov": {"sources": ["Notificatieservice"]}
+      },
+      "perPersona": {
+        "jeroen": {"handover": {"reason": "signaal schulden + nieuwe woonlasten", "to": "wijkteam sociaal domein (THK-14)"}}
+      }
+    }
+  ],
+  "stopConditions": [
+    {"id": "sc-thk08-1", "condition": "mens-overnames bij intake > 20% over vier weken", "action": "pauzeer intake-assistent (G1) — escalatie naar function steward"},
+    {"id": "sc-thk08-2", "condition": "geen unanimous go op testbank-assen (accuracy, plain language, once-only)", "action": "geen go — terug naar design (recipe-cyclus stap 1)"},
+    {"id": "sc-thk08-3", "condition": "AI Act risk class wijzigt naar high-risk", "action": "stop en her-toets mens-agent-grens (poort 3)"}
+  ],
+  "kpiSnapshot": [
+    {"kpi": "Moves processed without manual handling", "baseline": "", "target": ""}
+  ],
+  "learningState": [
+    {"signal": "adresonderzoeken concentreren zich op één wijk", "why": "vermoedelijk verouderde BRP-mutaties in dat deelgebied", "change": "bronhouder BRP-vragen over mutatiekwaliteit; recipe-local variant bijstellen", "decidesBy": "function steward + Burgerzaken", "helped": null}
+  ]
+}

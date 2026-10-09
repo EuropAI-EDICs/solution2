@@ -1,0 +1,79 @@
+{
+  "recipeId": "thk-02-having-a-baby",
+  "scenarioKind": "life-event",
+  "personas": [
+    {"id": "lot", "label": "Lot & Sam — eerste kind, alles regelen vóór de geboorte", "edge": null},
+    {"id": "fatima", "label": "Fatima — erkenning en buitenlandse ouder", "edge": "erkenning-buitenlandse-ouder"}
+  ],
+  "steps": [
+    {
+      "stepId": "intake", "title": "Life event & intake — zwangerschap aangegeven", "blueprintStep": 1,
+      "defaults": {
+        "actor": "agent", "genAiTestPoint": "G2",
+        "dataUsed": ["MijnActies: zwangerschapsverlof, kraamzorg", "BRP (Haal Centraal)"],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Birth registrations done digitally", "effect": "proactief traject gestart vóór de geboorte"}],
+        "prov": {"sources": ["BRP (Haal Centraal)"]}
+      },
+      "perPersona": {
+        "fatima": {"handover": {"reason": "erkenning en buitenlandse ouder — complexe situatie", "to": "medewerker Burgerzaken"}}
+      }
+    },
+    {
+      "stepId": "solution", "title": "Solution — verlof, kraamzorg, kinderegelingen", "blueprintStep": 2,
+      "defaults": {
+        "actor": "agent", "genAiTestPoint": "G2",
+        "dataUsed": ["Open Producten / PDC (SDG): geboorteaangifte, kinderbijslag, toeslagen"],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Birth registrations done digitally", "effect": "één voorstel: verlof, kraamzorg, SVB, toeslagen"}],
+        "prov": {"sources": ["Open Producten / PDC (SDG)"]}
+      },
+      "perPersona": {}
+    },
+    {
+      "stepId": "contract", "title": "Contract & consent — ketenpartijen", "blueprintStep": 3,
+      "defaults": {
+        "actor": "agent", "genAiTestPoint": "G3",
+        "dataUsed": ["Autorisaties API: SVB, Belastingdienst, zorgverzekeraar"],
+        "consent": "gevraagd",
+        "kpiEvents": [{"kpi": "Birth registrations done digitally", "effect": "toestemming per ketenpartij"}],
+        "prov": {"sources": ["Autorisaties API"]}
+      },
+      "perPersona": {}
+    },
+    {
+      "stepId": "delivery", "title": "Payment & delivery — geboorteaangifte binnen 5 dagen", "blueprintStep": 4,
+      "defaults": {
+        "actor": "partij", "genAiTestPoint": "G4",
+        "dataUsed": ["Zaken API", "EUDI-attestatie geboorte in de wallet"],
+        "consent": "gegeven",
+        "kpiEvents": [{"kpi": "Birth registrations done digitally", "effect": "melding binnen 5 dagen digitaal afgehandeld"}],
+        "prov": {"sources": ["Zaken API", "Wet BRP (melding binnen 5 dagen*)"]}
+      },
+      "perPersona": {
+        "fatima": {"actor": "mens", "handover": {"reason": "erkenning vastgesteld door ambtenaar", "to": "medewerker Burgerzaken"}}
+      }
+    },
+    {
+      "stepId": "followup", "title": "Follow-up & value — proactief signaleren", "blueprintStep": 5,
+      "defaults": {
+        "actor": "agent", "genAiTestPoint": "G5",
+        "dataUsed": ["Notificatieservice: kinderbijslag, toeslagen, zorgverzekering kind"],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Birth registrations done digitally", "effect": "SVB en toeslagen proactief aangeboden"}],
+        "prov": {"sources": ["Notificatieservice"]}
+      },
+      "perPersona": {}
+    }
+  ],
+  "stopConditions": [
+    {"id": "sc-thk02-1", "condition": "digitale geboorteregistratie < 80% over een maand", "action": "onderzoek naar afhaalmoment; terug naar design"},
+    {"id": "sc-thk02-2", "condition": "proactieve signalen leiden tot klachten over ongevraagde contacten", "action": "proactief-paar af (G5), menselijke tussenstap inbouwen"}
+  ],
+  "kpiSnapshot": [
+    {"kpi": "Birth registrations done digitally", "baseline": "", "target": ""}
+  ],
+  "learningState": [
+    {"signal": "ouders starten eerder dan verwacht (tweede trimester)", "why": "verlof- en kraamzorgvragen komen vroeg", "change": "proactieve start verschuiven naar week 24", "decidesBy": "function steward + Sociaal Domein", "helped": null}
+  ]
+}

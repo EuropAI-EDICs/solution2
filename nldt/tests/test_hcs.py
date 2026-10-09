@@ -107,3 +107,24 @@ def test_hcs_baseline_schema():
     validate_instance(baseline, "hcs-baseline.schema.json")
     with pytest.raises(Exception):
         validate_instance(dict(baseline, kpis=[{"kpi": "x"}]), "hcs-baseline.schema.json")
+
+
+LIFE_FIXTURES = HCS_ROOT / "fixtures" / "life-events"
+EXPECTED_LIFE = {"thk-08-move-home", "thk-02-having-a-baby", "thk-24-build-renovate"}
+
+
+def test_life_event_fixtures_present_and_consistent():
+    common = json.loads((HCS_ROOT / "fixtures" / "common.json").read_text())
+    assert set(common["parties"].keys()) >= {"gemeente", "energie", "bank", "verzekeraar", "zorgverzekeraar"}
+    found = {p.stem for p in LIFE_FIXTURES.glob("*.json")}
+    assert found == EXPECTED_LIFE
+    for path in LIFE_FIXTURES.glob("*.json"):
+        fx = json.loads(path.read_text())
+        persona_ids = {p["id"] for p in fx["personas"]}
+        assert len(persona_ids) >= 2
+        assert len(fx["steps"]) == 5  # de vijf blueprint-stappen
+        for step in fx["steps"]:
+            for pid in step.get("perPersona", {}):
+                assert pid in persona_ids, f"onbekende persona {pid} in {path.name}"
+        assert fx["stopConditions"], "poort 5: stopcondities verplicht"
+        assert fx["kpiSnapshot"], "poort 1: KPI-snapshot verplicht"

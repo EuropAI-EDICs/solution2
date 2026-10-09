@@ -1,0 +1,79 @@
+{
+  "recipeId": "thk-24-build-renovate",
+  "scenarioKind": "life-event",
+  "personas": [
+    {"id": "noor", "label": "Noor Bakker — dakkapel, reguliere procedure", "edge": null},
+    {"id": "peter", "label": "Peter Smit — aanbouw in een beschermd gezicht", "edge": "beschermd-gezicht"}
+  ],
+  "steps": [
+    {
+      "stepId": "intake", "title": "Life event & intake — bouwplan in eigen woorden", "blueprintStep": 1,
+      "defaults": {
+        "actor": "agent", "genAiTestPoint": "G1",
+        "dataUsed": ["BRP (Haal Centraal): adres, eigendom", "MijnGegevens"],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Decision within 8 weeks (regular)", "effect": "plan klopt bij intake — geen verkeerde aanvraag"}],
+        "prov": {"sources": ["BRP (Haal Centraal)"]}
+      },
+      "perPersona": {
+        "peter": {"dataUsed": ["BRP (Haal Centraal): adres, eigendom", "RCE: beschermd gezicht — vlag vooraf"]}
+      }
+    },
+    {
+      "stepId": "solution", "title": "Solution — vergunningcheck via het Omgevingsloket", "blueprintStep": 2,
+      "defaults": {
+        "actor": "agent", "genAiTestPoint": "G2",
+        "dataUsed": ["Omgevingsloket-vergunningcheck", "canonieke MiniGIM-gebiedscheck (ingredient, replay)"],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Decision within 8 weeks (regular)", "effect": "check vooraf voorspelt vergunningsvrij of procedure"}],
+        "prov": {"sources": ["Omgevingsloket (SDG)", "nldt/recipes/minigim-gebiedscheck.json (ingredient)"]}
+      },
+      "perPersona": {
+        "peter": {"handover": {"reason": "beschermd gezicht — uitgebreide procedure (26 weken)", "to": "vergunningverlener Fysiek Domein"}}
+      }
+    },
+    {
+      "stepId": "contract", "title": "Contract & consent — aanvraag met brondocumenten", "blueprintStep": 3,
+      "defaults": {
+        "actor": "agent", "genAiTestPoint": "G3",
+        "dataUsed": ["Zaken API", "Documenten API", "EUDI-attestatie woonadres"],
+        "consent": "gevraagd",
+        "kpiEvents": [{"kpi": "Decision within 8 weeks (regular)", "effect": "complete aanvraag bij eerste inzending"}],
+        "prov": {"sources": ["Zaken API", "Documenten API"]}
+      },
+      "perPersona": {}
+    },
+    {
+      "stepId": "delivery", "title": "Payment & delivery — beoordeling door de mens", "blueprintStep": 4,
+      "defaults": {
+        "actor": "mens", "genAiTestPoint": "—",
+        "dataUsed": ["Zaken API: dossier", "V4-menselijke beoordeling (doctrine: AI stelt voor · mens beslist)"],
+        "consent": "gegeven",
+        "kpiEvents": [{"kpi": "Decision within 8 weeks (regular)", "effect": "besluit binnen 8 weken in de reguliere procedure"}],
+        "prov": {"sources": ["Omgevingswet (besluittermijn 8 weken regulier)"]}
+      },
+      "perPersona": {}
+    },
+    {
+      "stepId": "followup", "title": "Follow-up & value — bouw- en woonstappen", "blueprintStep": 5,
+      "defaults": {
+        "actor": "agent", "genAiTestPoint": "G5",
+        "dataUsed": ["Notificatieservice: besluit, bouwtoezicht-momenten, WOZ bij nieuwe woningwaarde"],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Decision within 8 weeks (regular)", "effect": "proactief: bouwtoezicht- en vervolgstappen aangeboden"}],
+        "prov": {"sources": ["Notificatieservice"]}
+      },
+      "perPersona": {}
+    }
+  ],
+  "stopConditions": [
+    {"id": "sc-thk24-1", "condition": "vergunningcheck wijkt af van de beoordeling in > 10% van de reguliere zaken", "action": "check-model bijstellen; geen auto-aanbevelingen meer (G2)"},
+    {"id": "sc-thk24-2", "condition": "besluiten niet binnen 8 weken", "action": "baseline-analyse proces, geen agent-inzet als verklaring accepteren"}
+  ],
+  "kpiSnapshot": [
+    {"kpi": "Decision within 8 weeks (regular)", "baseline": "", "target": ""}
+  ],
+  "learningState": [
+    {"signal": "checks op dakkapellen scoren beter dan op aanbouwen", "why": "aanbouw raakt vaker aan plekgebonden regels", "change": "G2-voorspelbaarheid per productsoort publiceren in de recipe", "decidesBy": "function steward + Vergunningen", "helped": null}
+  ]
+}
