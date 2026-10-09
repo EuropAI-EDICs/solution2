@@ -329,7 +329,7 @@ class TestKeyDemo:
         assert 'window.HCS_LANG = "en"' in text        # taalvlag
         assert "THK-02 · before and after the birth" in text   # scene-chip in het Engels
         assert "only ask for what the BRP doesn't already hold" in text  # bronclausule vertaald
-        assert "finds reading hard" in text            # edge-tag via edgeNames
+        assert "finds reading hard" in text            # persona-label draagt de situatie (edge-tag is vervallen)
         # De EN-pagina bevat geen Nederlandse stapteksten meer.
         assert "Je geeft aan dat je gaat verhuizen" not in text
         assert "Twijfel over het adres" not in text

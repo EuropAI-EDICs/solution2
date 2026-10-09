@@ -30,7 +30,6 @@
   .personas { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0 18px; }
   .personas button { font: inherit; font-size: .8rem; background: transparent; color: var(--ijs); border: 1px dashed var(--ijs-rand); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
   .personas button.active { border-style: solid; border-color: var(--blauw); color: #fff; background: rgba(43,168,255,.16); }
-  .personas button .edge { color: var(--amber); font-family: var(--mono); font-size: .66rem; margin-left: 6px; }
   section { background: var(--inkt-2); border: 1px solid rgba(196,208,218,.25); border-radius: 4px; padding: 16px 18px; margin: 14px 0; }
   h2 { font-size: 1rem; color: var(--oranje); margin-bottom: 8px; letter-spacing: .02em; }
   .stapmeta { display: flex; flex-wrap: wrap; gap: 10px; font-family: var(--mono); font-size: .72rem; color: var(--hemel); margin-bottom: 10px; }
@@ -123,7 +122,6 @@ window.HCS_STAMP = "__BUILD_STAMP__";
     D.fixtures[state.recipe].personas.forEach(function (p) {
       var b = document.createElement("button");
       b.textContent = p.label;
-      if (p.edge) { var s = document.createElement("span"); s.className = "edge"; s.textContent = (t.edgeNames && t.edgeNames[p.edge]) || p.edge; b.appendChild(s); }
       if (p.id === state.persona) b.className = "active";
       b.onclick = function () { state.persona = p.id; renderAll(); };
       box.appendChild(b);
