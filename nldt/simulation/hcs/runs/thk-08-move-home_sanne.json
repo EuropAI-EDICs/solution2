@@ -11,14 +11,14 @@
    "actor": "agent",
    "genAiTestPoint": "G1",
    "dataUsed": [
-    "BRP (Haal Centraal): naam, BSN, huidig adres",
-    "MijnGegevens"
+    "Je naam en adres halen we automatisch op uit de basisregistratie (BRP)",
+    "Je vult alleen je verhuisdatum in"
    ],
    "consent": "n.v.t.",
    "kpiEvents": [
     {
      "kpi": "Moves processed without manual handling",
-     "effect": "geen formulier nodig — alleen verhuisdatum gevraagd"
+     "effect": "geen formulier nodig — je vult alleen je verhuisdatum in"
     }
    ],
    "prov": {
@@ -28,20 +28,20 @@
     ]
    },
    "stepId": "intake",
-   "title": "Life event & intake",
+   "title": "Je geeft aan dat je gaat verhuizen",
    "handover": null
   },
   {
    "actor": "agent",
    "genAiTestPoint": "G2",
    "dataUsed": [
-    "Open Producten / PDC (SDG): parkeervergunning, afvalpas, school, energie, bank"
+    "Wat er voor jou geregeld wordt: parkeervergunning, afvalpas, school, energie en bank"
    ],
    "consent": "n.v.t.",
    "kpiEvents": [
     {
      "kpi": "Moves processed without manual handling",
-     "effect": "één voorstel in plaats van vijf loketten"
+     "effect": "één overzicht in plaats van vijf verschillende loketten"
     }
    ],
    "prov": {
@@ -50,21 +50,20 @@
     ]
    },
    "stepId": "solution",
-   "title": "Solution — één samenhangend voorstel",
+   "title": "Je krijgt één duidelijk overzicht van alles wat er geregeld wordt",
    "handover": null
   },
   {
    "actor": "agent",
    "genAiTestPoint": "G3",
    "dataUsed": [
-    "MijnZaken",
-    "Autorisaties API"
+    "Per organisatie zie je wat die van jou mag zien en hoe lang"
    ],
    "consent": "gevraagd",
    "kpiEvents": [
     {
      "kpi": "Moves processed without manual handling",
-     "effect": "één toestemming per partij per periode"
+     "effect": "één toestemming per organisatie, voor een periode die jij kiest"
     }
    ],
    "prov": {
@@ -73,22 +72,21 @@
     ]
    },
    "stepId": "contract",
-   "title": "Contract & consent — wie ziet wat",
+   "title": "Jij bepaalt wie je gegevens mag zien — en hoe lang",
    "handover": null
   },
   {
    "actor": "partij",
    "genAiTestPoint": "G4",
    "dataUsed": [
-    "Zaken API",
-    "Notificaties API",
-    "EUDI-attestatie woonadres in de wallet"
+    "Elke organisatie krijgt precies wat jij hebt toegestaan — niets meer",
+    "bewijs van je nieuwe adres komt in je wallet"
    ],
    "consent": "gegeven",
    "kpiEvents": [
     {
      "kpi": "Moves processed without manual handling",
-     "effect": "gemeente, energie, bank, verzekeraar, zorgverzekeraar parallel afgehandeld"
+     "effect": "gemeente, energie, bank, verzekeraar en zorgverzekeraar regelen alles tegelijk"
     }
    ],
    "prov": {
@@ -99,21 +97,20 @@
     ]
    },
    "stepId": "delivery",
-   "title": "Payment & delivery — parallel per partij",
+   "title": "Alle partijen regelen het tegelijk; het bewijs komt in je wallet",
    "handover": null
   },
   {
    "actor": "agent",
    "genAiTestPoint": "G5",
    "dataUsed": [
-    "Notificatieservice",
-    "MijnActies"
+    "We zien welke regelingen bij je nieuwe woning passen"
    ],
    "consent": "n.v.t.",
    "kpiEvents": [
     {
      "kpi": "Moves processed without manual handling",
-     "effect": "proactief: 'je hebt ook recht op…' zonder nieuwe aanvraag"
+     "effect": "wijzen we je ongevraagd op je rechten — zonder nieuwe aanvraag"
     }
    ],
    "prov": {
@@ -122,25 +119,25 @@
     ]
    },
    "stepId": "followup",
-   "title": "Follow-up & value — proactief",
+   "title": "We wijzen je op wat je nog meer krijgt",
    "handover": null
   }
  ],
  "stopConditions": [
   {
    "id": "sc-thk08-1",
-   "condition": "mens-overnames bij intake > 20% over vier weken",
-   "action": "pauzeer intake-assistent (G1) — escalatie naar function steward"
+   "condition": "Meer dan 1 op de 5 mensen blijkt binnen vier weken een medewerker nodig te hebben bij de start",
+   "action": "dan pauzeren we de hulp van de computer bij de start en kijkt een verantwoordelijke medewerker ernaar"
   },
   {
    "id": "sc-thk08-2",
-   "condition": "geen unanimous go op testbank-assen (accuracy, plain language, once-only)",
-   "action": "geen go — terug naar design (recipe-cyclus stap 1)"
+   "condition": "De tests vooraf slagen niet overal: correct werken, goed te begrijpen zijn en maar één keer iets vragen",
+   "action": "dan gaat het niet live; eerst opnieuw ontwerpen"
   },
   {
    "id": "sc-thk08-3",
-   "condition": "AI Act risk class wijzigt naar high-risk",
-   "action": "stop en her-toets mens-agent-grens (poort 3)"
+   "condition": "De AI-wet gaat deze toepassing als hoog-risico tellen",
+   "action": "dan stoppen we en toetsen we opnieuw waar een mens moet beslissen"
   }
  ],
  "kpiSnapshot": [
@@ -152,10 +149,10 @@
  ],
  "learningState": [
   {
-   "signal": "adresonderzoeken concentreren zich op één wijk",
-   "why": "vermoedelijk verouderde BRP-mutaties in dat deelgebied",
-   "change": "bronhouder BRP-vragen over mutatiekwaliteit; recipe-local variant bijstellen",
-   "decidesBy": "function steward + Burgerzaken",
+   "signal": "Controles van adressen komen vooral uit één wijk",
+   "why": "waarschijnlijk zijn de adresgegevens van die wijk verouderd",
+   "change": "we vragen de beheerder van de basisregistratie het te controleren en stellen onze eigen instellingen bij",
+   "decidesBy": "de verantwoordelijke medewerker, samen met Burgerzaken",
    "helped": null
   }
  ]

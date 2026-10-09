@@ -11,14 +11,14 @@
    "actor": "agent",
    "genAiTestPoint": "G1",
    "dataUsed": [
-    "BRP (Haal Centraal): adres, eigendom",
-    "RCE: beschermd gezicht — vlag vooraf"
+    "Je naam en adres (en dat de woning van jou is) halen we automatisch op",
+    "we controleren vooraf of jouw buurt een beschermd gezicht is"
    ],
    "consent": "n.v.t.",
    "kpiEvents": [
     {
      "kpi": "Decision within 8 weeks (regular)",
-     "effect": "plan klopt bij intake — geen verkeerde aanvraag"
+     "effect": "je plan klopt meteen bij de start — geen verkeerde aanvraag"
     }
    ],
    "prov": {
@@ -27,21 +27,21 @@
     ]
    },
    "stepId": "intake",
-   "title": "Life event & intake — bouwplan in eigen woorden",
+   "title": "Je beschrijft je bouwplan in je eigen woorden",
    "handover": null
   },
   {
    "actor": "agent",
    "genAiTestPoint": "G2",
    "dataUsed": [
-    "Omgevingsloket-vergunningcheck",
-    "canonieke MiniGIM-gebiedscheck (ingredient, replay)"
+    "de officiële omgevingscheck: heb je een vergunning nodig?",
+    "de regels die voor jouw straat gelden"
    ],
    "consent": "n.v.t.",
    "kpiEvents": [
     {
      "kpi": "Decision within 8 weeks (regular)",
-     "effect": "check vooraf voorspelt vergunningsvrij of procedure"
+     "effect": "vooraf weet je of het zonder vergunning mag of een procedure krijgt"
     }
    ],
    "prov": {
@@ -51,25 +51,24 @@
     ]
    },
    "stepId": "solution",
-   "title": "Solution — vergunningcheck via het Omgevingsloket",
+   "title": "Je ziet vooraf of je een vergunning nodig hebt",
    "handover": {
-    "reason": "beschermd gezicht — uitgebreide procedure (26 weken)",
-    "to": "vergunningverlener Fysiek Domein"
+    "reason": "In een beschermd gezicht geldt een langere procedure (26 weken); een vergunningverlener neemt het over.",
+    "to": "een vergunningverlener van de gemeente"
    }
   },
   {
    "actor": "agent",
    "genAiTestPoint": "G3",
    "dataUsed": [
-    "Zaken API",
-    "Documenten API",
-    "EUDI-attestatie woonadres"
+    "je aanvraag en je documenten gaan veilig naar de gemeente",
+    "bewijs van je adres komt uit je wallet"
    ],
    "consent": "gevraagd",
    "kpiEvents": [
     {
      "kpi": "Decision within 8 weeks (regular)",
-     "effect": "complete aanvraag bij eerste inzending"
+     "effect": "je aanvraag is meteen compleet bij de eerste keer inzenden"
     }
    ],
    "prov": {
@@ -79,21 +78,21 @@
     ]
    },
    "stepId": "contract",
-   "title": "Contract & consent — aanvraag met brondocumenten",
+   "title": "Je levert één keer alles aan — compleet",
    "handover": null
   },
   {
    "actor": "mens",
    "genAiTestPoint": "—",
    "dataUsed": [
-    "Zaken API: dossier",
-    "V4-menselijke beoordeling (doctrine: AI stelt voor · mens beslist)"
+    "een vergunningverlener — een mens — bekijkt jouw dossier en beslist",
+    "de computer stelt voor; de mens beslist"
    ],
    "consent": "gegeven",
    "kpiEvents": [
     {
      "kpi": "Decision within 8 weeks (regular)",
-     "effect": "besluit binnen 8 weken in de reguliere procedure"
+     "effect": "je krijgt binnen 8 weken een besluit in de normale procedure"
     }
    ],
    "prov": {
@@ -102,20 +101,20 @@
     ]
    },
    "stepId": "delivery",
-   "title": "Payment & delivery — beoordeling door de mens",
+   "title": "Een mens beoordeelt je aanvraag en beslist",
    "handover": null
   },
   {
    "actor": "agent",
    "genAiTestPoint": "G5",
    "dataUsed": [
-    "Notificatieservice: besluit, bouwtoezicht-momenten, WOZ bij nieuwe woningwaarde"
+    "we herinneren je aan het besluit, de bouwcontroles en wat er daarna verandert (zoals de WOZ-waarde van je woning)"
    ],
    "consent": "n.v.t.",
    "kpiEvents": [
     {
      "kpi": "Decision within 8 weeks (regular)",
-     "effect": "proactief: bouwtoezicht- en vervolgstappen aangeboden"
+     "effect": "bouwcontroles en vervolgstappen krijg je vanzelf aangeboden"
     }
    ],
    "prov": {
@@ -124,20 +123,20 @@
     ]
    },
    "stepId": "followup",
-   "title": "Follow-up & value — bouw- en woonstappen",
+   "title": "Na het besluit wijzen we je de volgende stappen",
    "handover": null
   }
  ],
  "stopConditions": [
   {
    "id": "sc-thk24-1",
-   "condition": "vergunningcheck wijkt af van de beoordeling in > 10% van de reguliere zaken",
-   "action": "check-model bijstellen; geen auto-aanbevelingen meer (G2)"
+   "condition": "De vooraf-check is het vaker dan 1 op de 10 keer oneens met de echte beoordeling",
+   "action": "dan verbeteren we de check en geven we geen automatische adviezen meer totdat dat klaar is"
   },
   {
    "id": "sc-thk24-2",
-   "condition": "besluiten niet binnen 8 weken",
-   "action": "baseline-analyse proces, geen agent-inzet als verklaring accepteren"
+   "condition": "Besluiten zijn niet binnen 8 weken klaar",
+   "action": "dan onderzoeken we het proces; 'de computer was traag' accepteren we niet als excuus"
   }
  ],
  "kpiSnapshot": [
@@ -149,10 +148,10 @@
  ],
  "learningState": [
   {
-   "signal": "checks op dakkapellen scoren beter dan op aanbouwen",
-   "why": "aanbouw raakt vaker aan plekgebonden regels",
-   "change": "G2-voorspelbaarheid per productsoort publiceren in de recipe",
-   "decidesBy": "function steward + Vergunningen",
+   "signal": "De vooraf-check werkt beter voor dakkapellen dan voor aanbouwen",
+   "why": "bij een aanbouw spelen vaker regels die per plek verschillen",
+   "change": "we publiceren per soort bouwwerk hoe betrouwbaar de check is",
+   "decidesBy": "de verantwoordelijke medewerker, samen met Vergunningen",
    "helped": null
   }
  ]
