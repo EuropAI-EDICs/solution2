@@ -236,6 +236,24 @@ MENU_DISH = {"uam": "urban-air-mobility", "grn": "3-30-300",
 # exacte inhoud registreren de dish-taken (Tasks 3–6) in deze dict.
 _VIZ_DATA: dict[str, dict] = {}
 
+# Task 3 — Urban Air Mobility (display-only; deterministisch en vast).
+UAM01_VIZ = {
+    "kind": "map", "note": "Schema van de situatie — geen echte kaart: corridors (oranje/blauw) en beschermde zones (rood gestippeld).",
+    "data": {"zones": [{"x": 420, "y": 90, "r": 55}, {"x": 180, "y": 220, "r": 40}],
+             "routes": {"routine": [{"points": [[60, 260], [220, 180], [380, 110], [560, 60]]}],
+                          "spoed": [{"points": [[60, 260], [200, 230], [330, 170], [560, 60]]}]},
+             "labels": [{"x": 470, "y": 95, "text": "no-fly"}, {"x": 70, "y": 250, "text": "ziekenhuis"}, {"x": 520, "y": 50, "text": "lab"}]}}
+
+UAM09_VIZ = {
+    "kind": "map", "note": "Schema: de nieuwe zone (blauw gevuld) tegen corridors (oranje) en bestaande zones (rood gestippeld).",
+    "data": {"zones": [{"x": 150, "y": 100, "r": 45}],
+             "routes": {"ziekenhuis": [{"points": [[320, 270], [320, 160], [320, 60]]}],
+                          "evenement": [{"points": [[320, 270], [240, 190], [180, 130]]}]},
+             "labels": [{"x": 130, "y": 105, "text": "no-fly"}, {"x": 300, "y": 50, "text": "corridor"}]}}
+
+_VIZ_DATA["uam-01-medical-logistics"] = UAM01_VIZ
+_VIZ_DATA["uam-09-geofencing-zones"] = UAM09_VIZ
+
 
 def _viz_data(rid: str) -> dict:
     if rid not in _VIZ_DATA:
@@ -254,27 +272,33 @@ def build_dish_pages(stamp: str) -> None:
     template = (HCS_ROOT / "dish-demo.template.html").read_text(encoding="utf-8")
     common = json.loads((HCS_ROOT / "fixtures" / "common.json").read_text(encoding="utf-8"))
     for dish, spec in DISH_DEFS.items():
-        recipes = []
-        for rid in spec["recipes"]:
-            fx = json.loads((HCS_ROOT / "fixtures" / "city" / f"{rid}.json").read_text(encoding="utf-8"))
-            recipe = json.loads((NLDT_ROOT / "recipes" / f"{rid}.json").read_text(encoding="utf-8"))
-            runs, labels = [], []
-            for sc in fx["scenarios"]:
-                out = execute_hcs_recipe_run({"recipeId": rid, "scenario": sc["id"], "mode": "replay"})
-                runs.append(out["run"])
-                labels.append(localize(sc["label"], "nl"))
-            recipes.append({
-                "id": rid, "runs": runs, "scenarioLabels": labels,
-                "service": recipe["service"],
-                "viz": dict(spec["viz"][rid], data=_viz_data(rid)),
-            })
-        data = {"dishId": dish, "recipes": recipes, "common": common,
-                "i18n": DISH_I18N[dish], "siblings": _menu_siblings(dish),
-                "selftestVerdicts": {dish: {"bias": True, "AI Act risk class": True}}}
-        html = (template
-                .replace("__DISH_DATA__", json.dumps(data, ensure_ascii=False))
-                .replace("__DISH_ID__", json.dumps(dish))
-                .replace("__BUILD_STAMP__", stamp))
+        # SKIP bij een nog niet voltooide dish (fixtures/viz ontbreken in
+        # Tasks 4–6), zodat latere dishes eerdere successen niet maskeren.
+        try:
+            recipes = []
+            for rid in spec["recipes"]:
+                fx = json.loads((HCS_ROOT / "fixtures" / "city" / f"{rid}.json").read_text(encoding="utf-8"))
+                recipe = json.loads((NLDT_ROOT / "recipes" / f"{rid}.json").read_text(encoding="utf-8"))
+                runs, labels = [], []
+                for sc in fx["scenarios"]:
+                    out = execute_hcs_recipe_run({"recipeId": rid, "scenario": sc["id"], "mode": "replay"})
+                    runs.append(out["run"])
+                    labels.append(localize(sc["label"], "nl"))
+                recipes.append({
+                    "id": rid, "runs": runs, "scenarioLabels": labels,
+                    "service": recipe["service"],
+                    "viz": dict(spec["viz"][rid], data=_viz_data(rid)),
+                })
+            data = {"dishId": dish, "recipes": recipes, "common": common,
+                    "i18n": DISH_I18N[dish], "siblings": _menu_siblings(dish),
+                    "selftestVerdicts": {dish: {"bias": True, "AI Act risk class": True}}}
+            html = (template
+                    .replace("__DISH_DATA__", json.dumps(data, ensure_ascii=False))
+                    .replace("__DISH_ID__", json.dumps(dish))
+                    .replace("__BUILD_STAMP__", stamp))
+        except (KeyError, FileNotFoundError) as exc:
+            print(f"SKIP dish {dish}: {exc}")
+            continue
         spec["file"].write_text(html, encoding="utf-8")
         print(f"OK dish {spec['file'].relative_to(NLDT_ROOT)}")
 

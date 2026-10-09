@@ -1,0 +1,26 @@
+{
+  "id": "uam-01-medical-logistics",
+  "title": "Urban Air Mobility UAM-01 — 'I want medical logistics by air'",
+  "description": "City-recipe: ziekenhuis → monster → dronecorridor → lab in minuten. De route wordt getoetst aan beschermde zones; wijkt ze af van de vaste corridor, dan bevestigt een mens de omweg. KPI: tijdswinst ten opzichte van de weg. Deterministische replay via hcs-recipe-run.",
+  "version": "1.0.0",
+  "tags": ["hcs", "edic", "urban-air-mobility", "uam-01", "city-recipe"],
+  "requiredProcesses": ["hcs-recipe-run"],
+  "inputs": {"scenario": {"type": "string", "description": "scenario-id: routine|spoed", "required": false}, "mode": {"type": "string", "description": "replay|execute", "required": false}, "lang": {"type": "string", "description": "nl|en", "required": false}},
+  "outputs": {"run": {"type": "json", "description": "HCS run-artefact"}},
+  "steps": [{"id": "run", "processId": "hcs-recipe-run", "title": "Replay medische logistiek", "inputs": {"recipeId": "uam-01-medical-logistics", "scenario": "${recipe.inputs.scenario}", "mode": "${recipe.inputs.mode}", "lang": "${recipe.inputs.lang}"}, "outputs": {"run": "run"}, "backend": "local"}],
+  "riskLevel": "medium",
+  "service": {
+    "dish": "urban-air-mobility", "lifeEventCode": "UAM-01", "serviceType": "cargo",
+    "parties": [{"name": "Ziekenhuis", "role": "afzender en ontvanger"}, {"name": "Drone-operator", "role": "uitvoering"}, {"name": "Gemeente", "role": "corridor- en zones-beheer"}],
+    "legalBasis": [{"basis": "Omgevingswet / droneswetgeving (U-space)", "timeLimit": "per zending geregistreerd"}],
+    "humanMeasure": {"handover": ["Afwijkende route (buiten de vaste corridor) → mens bevestigt"], "exceptions": ["spoed bij slecht weer", "noodzendingen"]},
+    "localVariant": "corridor-keuze is gemeentelijk beleid",
+    "genAiTestPoints": [
+      {"point": "G2", "description": "Routekiezer stelt alleen routes voor binnen toegestane corridors", "testCases": ["routine-route blijft binnen corridor"]},
+      {"point": "G4", "description": "Status-uitleg naar ziekenhuis en lab", "testCases": ["beide eindpunten zien dezelfde status"]},
+      {"point": "G5", "description": "Tijdswinst wordt geregistreerd en teruggekoppeld", "testCases": ["KPI-effect per zending"]}
+    ],
+    "kpis": [{"kpi": "Delivery-time reduction vs road", "kpiType": "outcome", "unit": "%", "outcomeLens": "W", "baseline": "", "target": "", "dataSource": "logistics logs", "frequency": "monthly", "kviRollup": "KVI 1 (Mobility: clean, shared) · KVI 5 (Digital)"}]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/uam-01-medical-logistics"
+}

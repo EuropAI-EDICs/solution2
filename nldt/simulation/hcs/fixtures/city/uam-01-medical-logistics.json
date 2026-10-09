@@ -1,0 +1,56 @@
+{
+  "recipeId": "uam-01-medical-logistics",
+  "scenarioKind": "city",
+  "scenarios": [
+    {"id": "routine", "label": {"nl": "Vaste route: ziekenhuis → lab via de corridor", "en": "Fixed route: hospital → lab via the corridor"}},
+    {"id": "spoed", "label": {"nl": "Spoedzending buiten de vaste route", "en": "Urgent delivery off the fixed route"}}
+  ],
+  "steps": [
+    {
+      "stepId": "route", "title": {"nl": "De snelste veilige route wordt bepaald", "en": "The fastest safe route is chosen"},
+      "defaults": {"actor": "agent", "genAiTestPoint": "G2",
+        "dataUsed": [{"nl": "de luchtroute van ziekenhuis naar lab", "en": "the air route from hospital to lab"},
+                      {"nl": "actuele weers- en windinformatie", "en": "current weather and wind"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Delivery-time reduction vs road", "effect": {"nl": "de droneweegtijd wordt vergeleken met de routetijd over de weg", "en": "drone travel time is compared with road travel time"}}],
+        "prov": {"sources": [{"nl": "luchtruimregister (geo-registry)", "en": "geo-registry"}, {"nl": "weerdienst", "en": "weather service"}]}},
+      "perScenario": {}
+    },
+    {
+      "stepId": "corridor", "title": {"nl": "De route wordt getoetst aan beschermde zones", "en": "The route is checked against protected zones"},
+      "defaults": {"actor": "agent", "genAiTestPoint": "G2",
+        "dataUsed": [{"nl": "de vaste medische corridor", "en": "the fixed medical corridor"},
+                      {"nl": "zones waar niet gevlogen mag worden", "en": "zones where flying is not allowed"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Delivery-time reduction vs road", "effect": {"nl": "de route blijft binnen de toegestane corridor", "en": "the route stays inside the allowed corridor"}}],
+        "prov": {"sources": [{"nl": "geo-registry: geofencing-zones", "en": "geo-registry: geofencing zones"}]}},
+      "perScenario": {
+        "spoed": {"handover": {"reason": {"nl": "De route wijkt af van de vaste corridor — een mens bevestigt de omweg.", "en": "The route leaves the fixed corridor — a human confirms the detour."},
+                                 "to": {"nl": "de luchtverkeersleider van de gemeente", "en": "the municipal air-traffic operator"}},
+                   "actor": "mens"}
+      }
+    },
+    {
+      "stepId": "status", "title": {"nl": "Ziekenhuis en lab zien de zending live", "en": "Hospital and lab follow the delivery live"},
+      "defaults": {"actor": "partij", "genAiTestPoint": "G4",
+        "dataUsed": [{"nl": "statusmeldingen aan beide ziekenhuispunten", "en": "status updates to both hospital endpoints"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Delivery-time reduction vs road", "effect": {"nl": "ontvangsttijd wordt geregistreerd en vergeleken met de weg", "en": "arrival time is logged and compared with the road"}}],
+        "prov": {"sources": [{"nl": "logistiek-systeem van het ziekenhuis", "en": "hospital logistics system"}]}},
+      "perScenario": {}
+    }
+  ],
+  "stopConditions": [
+    {"id": "sc-uam01-1", "condition": {"nl": "Meer dan 1 op de 20 zendingen heeft een menselijke omweg-bevestiging nodig.", "en": "More than 1 in 20 deliveries needs a human detour confirmation."},
+     "action": {"nl": "Corridor-voorspelbaarheid verbeteren voordat de spoedroute automatisch mag.", "en": "Improve corridor predictability before the urgent route may run automatically."}},
+    {"id": "sc-uam01-2", "condition": {"nl": "Tijdswinst vergeleken met de weg valt weg.", "en": "The time advantage over the road disappears."},
+     "action": {"nl": "Terug naar ontwerp: is de corridor nog de juiste?", "en": "Back to design: is the corridor still the right one?"}}
+  ],
+  "kpiSnapshot": [{"kpi": "Delivery-time reduction vs road", "baseline": "", "target": ""}],
+  "learningState": [
+    {"signal": {"nl": "Spoedzendingen gebeuren vooral bij slecht weer.", "en": "Urgent deliveries cluster in bad weather."},
+     "why": {"nl": "Dan zijn wegambulances trager.", "en": "Road ambulances are slower then."},
+     "change": {"nl": "Weerlimieten per corridor-type publiceren in de recipe.", "en": "Publish weather limits per corridor type in the recipe."},
+     "decidesBy": {"nl": "function steward + ziekenhuislogistiek", "en": "function steward + hospital logistics"}, "helped": null}
+  ]
+}

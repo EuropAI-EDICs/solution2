@@ -1,0 +1,25 @@
+{
+  "id": "uam-09-geofencing-zones",
+  "title": "Urban Air Mobility UAM-09 — 'I want geofencing & security zones'",
+  "description": "City-recipe: beschermde en no-flyzones worden op de drone-kaart vastgelegd, getoetst aan bestaande zones en corridors, en via het U-space-identificatiesysteem automatisch naar drones uitgezonden. Raakt een tijdelijke zone een vaste corridor, dan weegt een mens de belangen. KPI: aantal vastgelegde beschermde zones (geo-registry, per kwartaal). Deterministische replay via hcs-recipe-run.",
+  "version": "1.0.0",
+  "tags": ["hcs", "edic", "urban-air-mobility", "uam-09", "city-recipe"],
+  "requiredProcesses": ["hcs-recipe-run"],
+  "inputs": {"scenario": {"type": "string", "description": "scenario-id: ziekenhuis|evenement", "required": false}, "mode": {"type": "string", "description": "replay|execute", "required": false}, "lang": {"type": "string", "description": "nl|en", "required": false}},
+  "outputs": {"run": {"type": "json", "description": "HCS run-artefact"}},
+  "steps": [{"id": "run", "processId": "hcs-recipe-run", "title": "Replay geofencing-zones", "inputs": {"recipeId": "uam-09-geofencing-zones", "scenario": "${recipe.inputs.scenario}", "mode": "${recipe.inputs.mode}", "lang": "${recipe.inputs.lang}"}, "outputs": {"run": "run"}, "backend": "local"}],
+  "riskLevel": "high",
+  "service": {
+    "dish": "urban-air-mobility", "lifeEventCode": "UAM-09", "serviceType": "infrastructure",
+    "parties": [{"name": "Gemeente", "role": "zone-beheer en publicatie (Openbare Ruimte)"}, {"name": "Drone-operators", "role": "ontvangen zones via het identificatiesysteem"}, {"name": "Handhaver", "role": "opvolgen van zone-schendingen"}],
+    "legalBasis": [{"basis": "Omgevingswet / droneswetgeving (U-space)", "timeLimit": "zones vóór publicatie getoetst"}],
+    "humanMeasure": {"handover": ["Tijdelijke zone die een corridor raakt → mens weegt belangen"], "exceptions": ["handhaving blijft mensenwerk — geen automatische boetes"]},
+    "localVariant": "zone-keuze is gemeentelijk beleid (Openbare Ruimte)",
+    "genAiTestPoints": [
+      {"point": "G2", "description": "Zonetoetser vindt botsingen met corridors en bestaande zones vóór publicatie", "testCases": ["evenementzone raakt corridor → mens weegt belangen"]},
+      {"point": "G5", "description": "Signaal bij zone-schending gaat naar de handhaver; mens beslist over optreden", "testCases": ["schending wordt (op tijd) gemeld"]}
+    ],
+    "kpis": [{"kpi": "Protected / geofenced zones defined", "kpiType": "output", "unit": "#", "outcomeLens": "—", "baseline": "", "target": "", "dataSource": "geo-registry", "frequency": "quarterly", "kviRollup": "KVI 1 (Mobility: clean, shared) · KVI 5 (Digital)"}]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/uam-09-geofencing-zones"
+}

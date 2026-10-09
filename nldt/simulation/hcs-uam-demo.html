@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>HCS · dish-demo</title>
+<style>
+  :root {
+    --papier: #f6f8fb; --inkt: #06121b; --inkt-2: #0d1e2c; --ijs: #dff3ff; --ijs-rand: #c4d0da;
+    --blauw: #2ba8ff; --hemel: #79c9ff; --oranje: #ff9815; --oranje-donker: #ef8700; --amber: #ffc37e;
+    --rood: #e10500; --mint: #1cefa5; --groen: #0f7a4d;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: Roboto, "Helvetica Neue", system-ui, -apple-system, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--inkt); color: var(--papier); font-family: var(--sans); line-height: 1.5; padding: 22px clamp(14px, 4vw, 44px) 60px; }
+  h1 { font-size: clamp(1.5rem, 3.2vw, 2.2rem); } h1 .dish { color: var(--oranje); }
+  .sub { color: var(--hemel); font-family: var(--mono); font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; }
+  #selftest-badge { font-family: var(--mono); font-size: .72rem; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--ijs-rand); color: var(--ijs); }
+  #selftest-badge.ok { border-color: var(--mint); color: var(--mint); }
+  #selftest-badge.fail { border-color: var(--rood); color: var(--rood); font-weight: 700; }
+  .topbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+  section { background: var(--inkt-2); border: 1px solid rgba(196,208,218,.25); border-radius: 4px; padding: 16px 18px; margin: 14px 0; }
+  h2 { font-size: 1rem; color: var(--oranje); margin-bottom: 8px; }
+  h3 { font-size: .92rem; color: var(--hemel); margin: 10px 0 6px; }
+  .scenarios { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 14px; }
+  .scenarios button { font: inherit; font-size: .8rem; background: transparent; color: var(--ijs); border: 1px dashed var(--ijs-rand); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+  .scenarios button.active { border-style: solid; border-color: var(--blauw); color: #fff; background: rgba(43,168,255,.16); }
+  .rail { display: flex; gap: 6px; margin: 10px 0; flex-wrap: wrap; }
+  .rail button { font: inherit; font-size: .82rem; background: var(--inkt-2); color: var(--papier); border: 1px solid var(--ijs-rand); border-radius: 3px; padding: 8px 12px; cursor: pointer; }
+  .rail button.active { background: var(--oranje-donker); border-color: var(--oranje); color: var(--inkt); font-weight: 700; }
+  .rail button .g { font-family: var(--mono); font-size: .66rem; display: block; color: var(--hemel); }
+  .rail button.active .g { color: var(--inkt); }
+  .stapmeta { display: flex; flex-wrap: wrap; gap: 10px; font-family: var(--mono); font-size: .72rem; color: var(--hemel); margin-bottom: 10px; }
+  .stapmeta b { color: var(--papier); }
+  .actor-agent { color: var(--mint); } .actor-mens { color: var(--amber); } .actor-partij { color: var(--blauw); }
+  .handover { border-left: 4px solid var(--amber); background: rgba(255,195,126,.1); padding: 10px 12px; margin: 10px 0; font-size: .9rem; }
+  .handover b { color: var(--amber); }
+  ul.data { list-style: none; font-size: .86rem; }
+  ul.data li { padding: 4px 8px; border-left: 2px solid var(--ijs-rand); margin: 4px 0; }
+  .src { font-family: var(--mono); font-size: .68rem; color: #7f93a2; margin-top: 8px; }
+  .kvpanel table, .testbank table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+  .kvpanel th, .kvpanel td, .testbank th, .testbank td { text-align: left; padding: 5px 8px; border-bottom: 1px solid rgba(196,208,218,.2); }
+  .lens { font-family: var(--mono); font-size: .7rem; padding: 1px 7px; border-radius: 3px; background: rgba(255,152,21,.15); color: var(--oranje); }
+  .viz { background: rgba(223,243,255,.04); border: 1px solid rgba(196,208,218,.2); border-radius: 4px; padding: 10px; margin-top: 12px; }
+  .viz svg { display: block; width: 100%; height: auto; }
+  .viznote { font-family: var(--mono); font-size: .66rem; color: #7f93a2; margin-top: 6px; }
+  .siblings { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; margin-top: 8px; }
+  .card { border: 1px solid rgba(196,208,218,.2); border-radius: 3px; padding: 8px 10px; font-size: .8rem; }
+  .card b { color: var(--oranje); font-family: var(--mono); font-size: .72rem; }
+  .card .kpi { display: block; color: var(--ijs); font-size: .74rem; margin-top: 4px; }
+  .card.poc { border-color: var(--oranje); }
+  .voet { font-family: var(--mono); font-size: .66rem; color: #7f93a2; margin-top: 24px; }
+  a { color: var(--blauw); }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div>
+    <div class="sub" id="eyecatcher"></div>
+    <h1><span class="dish" id="dish-title"></span></h1>
+  </div>
+  <span id="selftest-badge">selftest…</span>
+</div>
+<p class="sub" id="lede"></p>
+<div class="scenarios" id="scenarios"></div>
+<div class="rail" id="rail"></div>
+<section id="step-detail">
+  <h2 id="step-title"></h2>
+  <div class="stapmeta" id="step-meta"></div>
+  <div id="step-handover"></div>
+  <ul class="data" id="step-data"></ul>
+  <div class="src" id="step-src"></div>
+  <div class="viz" id="viz-box"><div id="viz"></div><div class="viznote" id="viz-note"></div></div>
+</section>
+<section class="testbank"><h2 id="tb-title"></h2><table><tbody id="tb-body"></tbody></table></section>
+<section class="kvpanel"><h2 id="kpi-title"></h2><p class="sub" id="kpi-sub"></p><table><thead id="kpi-head"></thead><tbody id="kpi-body"></tbody></table></section>
+<section><h2 id="sib-title"></h2><div class="siblings" id="siblings"></div></section>
+<div class="voet" id="voet"></div>
+<script>
+window.DISH_DATA = {"dishId": "uam", "recipes": [{"id": "uam-01-medical-logistics", "runs": [{"schemaVersion": "1.0", "runId": "uam-01-medical-logistics-routine", "generatedAt": "replay", "recipeId": "uam-01-medical-logistics", "processId": "hcs-recipe-run", "mode": "replay", "scenario": "routine", "steps": [{"actor": "agent", "genAiTestPoint": "G2", "dataUsed": ["de luchtroute van ziekenhuis naar lab", "actuele weers- en windinformatie"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Delivery-time reduction vs road", "effect": "de droneweegtijd wordt vergeleken met de routetijd over de weg"}], "prov": {"sources": ["luchtruimregister (geo-registry)", "weerdienst"]}, "stepId": "route", "title": "De snelste veilige route wordt bepaald", "handover": null}, {"actor": "agent", "genAiTestPoint": "G2", "dataUsed": ["de vaste medische corridor", "zones waar niet gevlogen mag worden"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Delivery-time reduction vs road", "effect": "de route blijft binnen de toegestane corridor"}], "prov": {"sources": ["geo-registry: geofencing-zones"]}, "stepId": "corridor", "title": "De route wordt getoetst aan beschermde zones", "handover": null}, {"actor": "partij", "genAiTestPoint": "G4", "dataUsed": ["statusmeldingen aan beide ziekenhuispunten"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Delivery-time reduction vs road", "effect": "ontvangsttijd wordt geregistreerd en vergeleken met de weg"}], "prov": {"sources": ["logistiek-systeem van het ziekenhuis"]}, "stepId": "status", "title": "Ziekenhuis en lab zien de zending live", "handover": null}], "stopConditions": [{"id": "sc-uam01-1", "condition": "Meer dan 1 op de 20 zendingen heeft een menselijke omweg-bevestiging nodig.", "action": "Corridor-voorspelbaarheid verbeteren voordat de spoedroute automatisch mag."}, {"id": "sc-uam01-2", "condition": "Tijdswinst vergeleken met de weg valt weg.", "action": "Terug naar ontwerp: is de corridor nog de juiste?"}], "kpiSnapshot": [{"kpi": "Delivery-time reduction vs road", "baseline": "", "target": ""}], "learningState": [{"signal": "Spoedzendingen gebeuren vooral bij slecht weer.", "why": "Dan zijn wegambulances trager.", "change": "Weerlimieten per corridor-type publiceren in de recipe.", "decidesBy": "function steward + ziekenhuislogistiek", "helped": null}]}, {"schemaVersion": "1.0", "runId": "uam-01-medical-logistics-spoed", "generatedAt": "replay", "recipeId": "uam-01-medical-logistics", "processId": "hcs-recipe-run", "mode": "replay", "scenario": "spoed", "steps": [{"actor": "agent", "genAiTestPoint": "G2", "dataUsed": ["de luchtroute van ziekenhuis naar lab", "actuele weers- en windinformatie"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Delivery-time reduction vs road", "effect": "de droneweegtijd wordt vergeleken met de routetijd over de weg"}], "prov": {"sources": ["luchtruimregister (geo-registry)", "weerdienst"]}, "stepId": "route", "title": "De snelste veilige route wordt bepaald", "handover": null}, {"actor": "mens", "genAiTestPoint": "G2", "dataUsed": ["de vaste medische corridor", "zones waar niet gevlogen mag worden"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Delivery-time reduction vs road", "effect": "de route blijft binnen de toegestane corridor"}], "prov": {"sources": ["geo-registry: geofencing-zones"]}, "stepId": "corridor", "title": "De route wordt getoetst aan beschermde zones", "handover": {"reason": "De route wijkt af van de vaste corridor — een mens bevestigt de omweg.", "to": "de luchtverkeersleider van de gemeente"}}, {"actor": "partij", "genAiTestPoint": "G4", "dataUsed": ["statusmeldingen aan beide ziekenhuispunten"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Delivery-time reduction vs road", "effect": "ontvangsttijd wordt geregistreerd en vergeleken met de weg"}], "prov": {"sources": ["logistiek-systeem van het ziekenhuis"]}, "stepId": "status", "title": "Ziekenhuis en lab zien de zending live", "handover": null}], "stopConditions": [{"id": "sc-uam01-1", "condition": "Meer dan 1 op de 20 zendingen heeft een menselijke omweg-bevestiging nodig.", "action": "Corridor-voorspelbaarheid verbeteren voordat de spoedroute automatisch mag."}, {"id": "sc-uam01-2", "condition": "Tijdswinst vergeleken met de weg valt weg.", "action": "Terug naar ontwerp: is de corridor nog de juiste?"}], "kpiSnapshot": [{"kpi": "Delivery-time reduction vs road", "baseline": "", "target": ""}], "learningState": [{"signal": "Spoedzendingen gebeuren vooral bij slecht weer.", "why": "Dan zijn wegambulances trager.", "change": "Weerlimieten per corridor-type publiceren in de recipe.", "decidesBy": "function steward + ziekenhuislogistiek", "helped": null}]}], "scenarioLabels": ["Vaste route: ziekenhuis → lab via de corridor", "Spoedzending buiten de vaste route"], "service": {"dish": "urban-air-mobility", "lifeEventCode": "UAM-01", "serviceType": "cargo", "parties": [{"name": "Ziekenhuis", "role": "afzender en ontvanger"}, {"name": "Drone-operator", "role": "uitvoering"}, {"name": "Gemeente", "role": "corridor- en zones-beheer"}], "legalBasis": [{"basis": "Omgevingswet / droneswetgeving (U-space)", "timeLimit": "per zending geregistreerd"}], "humanMeasure": {"handover": ["Afwijkende route (buiten de vaste corridor) → mens bevestigt"], "exceptions": ["spoed bij slecht weer", "noodzendingen"]}, "localVariant": "corridor-keuze is gemeentelijk beleid", "genAiTestPoints": [{"point": "G2", "description": "Routekiezer stelt alleen routes voor binnen toegestane corridors", "testCases": ["routine-route blijft binnen corridor"]}, {"point": "G4", "description": "Status-uitleg naar ziekenhuis en lab", "testCases": ["beide eindpunten zien dezelfde status"]}, {"point": "G5", "description": "Tijdswinst wordt geregistreerd en teruggekoppeld", "testCases": ["KPI-effect per zending"]}], "kpis": [{"kpi": "Delivery-time reduction vs road", "kpiType": "outcome", "unit": "%", "outcomeLens": "W", "baseline": "", "target": "", "dataSource": "logistics logs", "frequency": "monthly", "kviRollup": "KVI 1 (Mobility: clean, shared) · KVI 5 (Digital)"}]}, "viz": {"kind": "map", "data": {"kind": "map", "note": "Schema van de situatie — geen echte kaart: corridors (oranje/blauw) en beschermde zones (rood gestippeld).", "data": {"zones": [{"x": 420, "y": 90, "r": 55}, {"x": 180, "y": 220, "r": 40}], "routes": {"routine": [{"points": [[60, 260], [220, 180], [380, 110], [560, 60]]}], "spoed": [{"points": [[60, 260], [200, 230], [330, 170], [560, 60]]}]}, "labels": [{"x": 470, "y": 95, "text": "no-fly"}, {"x": 70, "y": 250, "text": "ziekenhuis"}, {"x": 520, "y": 50, "text": "lab"}]}}}}, {"id": "uam-09-geofencing-zones", "runs": [{"schemaVersion": "1.0", "runId": "uam-09-geofencing-zones-ziekenhuis", "generatedAt": "replay", "recipeId": "uam-09-geofencing-zones", "processId": "hcs-recipe-run", "mode": "replay", "scenario": "ziekenhuis", "steps": [{"actor": "agent", "genAiTestPoint": "G2", "dataUsed": ["de plek die beschermd moet worden", "bestaande zones in de buurt"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Protected / geofenced zones defined", "effect": "de zone wordt als kaartobject aangemaakt"}], "prov": {"sources": ["geo-registry"]}, "stepId": "definieer", "title": "De zone wordt vastgelegd op de kaart", "handover": null}, {"actor": "agent", "genAiTestPoint": "G2", "dataUsed": ["overlap met bestaande no-flyzones en corridors"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Protected / geofenced zones defined", "effect": "botsingen met corridors worden vóór publicatie gevonden"}], "prov": {"sources": ["geo-registry: corridors en no-flyzones"]}, "stepId": "toets", "title": "De nieuwe zone wordt getoetst aan bestaande zones en regels", "handover": null}, {"actor": "partij", "genAiTestPoint": "—", "dataUsed": ["de zone gaat de lucht in via het identificatiesysteem voor drones"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Protected / geofenced zones defined", "effect": "de zone telt mee in de kwartaaltelling"}], "prov": {"sources": ["U-space identificatiesysteem"]}, "stepId": "publiceer", "title": "Drones krijgen de zone automatisch mee", "handover": null}], "stopConditions": [{"id": "sc-uam09-1", "condition": "Een gepubliceerde zone botst achteraf met een corridor.", "action": "Publiceren stopt tot de toets is bijgesteld."}, {"id": "sc-uam09-2", "condition": "Zone-schendingen worden niet (op tijd) gemeld.", "action": "Handhavingsketen toetsen met de handhaver — geen automatische boetes."}], "kpiSnapshot": [{"kpi": "Protected / geofenced zones defined", "baseline": "", "target": ""}], "learningState": [{"signal": "Tijdelijke zones worden vaker aangevraagd dan verwacht.", "why": "Elk evenement vraagt er een aan.", "change": "Standaard-procedure voor evenementzones opnemen in de recipe.", "decidesBy": "function steward + Openbare Ruimte", "helped": null}]}, {"schemaVersion": "1.0", "runId": "uam-09-geofencing-zones-evenement", "generatedAt": "replay", "recipeId": "uam-09-geofencing-zones", "processId": "hcs-recipe-run", "mode": "replay", "scenario": "evenement", "steps": [{"actor": "agent", "genAiTestPoint": "G2", "dataUsed": ["de plek die beschermd moet worden", "bestaande zones in de buurt"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Protected / geofenced zones defined", "effect": "de zone wordt als kaartobject aangemaakt"}], "prov": {"sources": ["geo-registry"]}, "stepId": "definieer", "title": "De zone wordt vastgelegd op de kaart", "handover": null}, {"actor": "agent", "genAiTestPoint": "G2", "dataUsed": ["overlap met bestaande no-flyzones en corridors"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Protected / geofenced zones defined", "effect": "botsingen met corridors worden vóór publicatie gevonden"}], "prov": {"sources": ["geo-registry: corridors en no-flyzones"]}, "stepId": "toets", "title": "De nieuwe zone wordt getoetst aan bestaande zones en regels", "handover": {"reason": "Een tijdelijke zone raakt een vaste corridor — een mens weegt de belangen.", "to": "de luchtverkeersleider van de gemeente"}}, {"actor": "partij", "genAiTestPoint": "—", "dataUsed": ["de zone gaat de lucht in via het identificatiesysteem voor drones"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Protected / geofenced zones defined", "effect": "de zone telt mee in de kwartaaltelling"}], "prov": {"sources": ["U-space identificatiesysteem"]}, "stepId": "publiceer", "title": "Drones krijgen de zone automatisch mee", "handover": null}], "stopConditions": [{"id": "sc-uam09-1", "condition": "Een gepubliceerde zone botst achteraf met een corridor.", "action": "Publiceren stopt tot de toets is bijgesteld."}, {"id": "sc-uam09-2", "condition": "Zone-schendingen worden niet (op tijd) gemeld.", "action": "Handhavingsketen toetsen met de handhaver — geen automatische boetes."}], "kpiSnapshot": [{"kpi": "Protected / geofenced zones defined", "baseline": "", "target": ""}], "learningState": [{"signal": "Tijdelijke zones worden vaker aangevraagd dan verwacht.", "why": "Elk evenement vraagt er een aan.", "change": "Standaard-procedure voor evenementzones opnemen in de recipe.", "decidesBy": "function steward + Openbare Ruimte", "helped": null}]}], "scenarioLabels": ["Een vaste beschermde zone rond het ziekenhuis", "Een tijdelijke zone boven een evenement"], "service": {"dish": "urban-air-mobility", "lifeEventCode": "UAM-09", "serviceType": "infrastructure", "parties": [{"name": "Gemeente", "role": "zone-beheer en publicatie (Openbare Ruimte)"}, {"name": "Drone-operators", "role": "ontvangen zones via het identificatiesysteem"}, {"name": "Handhaver", "role": "opvolgen van zone-schendingen"}], "legalBasis": [{"basis": "Omgevingswet / droneswetgeving (U-space)", "timeLimit": "zones vóór publicatie getoetst"}], "humanMeasure": {"handover": ["Tijdelijke zone die een corridor raakt → mens weegt belangen"], "exceptions": ["handhaving blijft mensenwerk — geen automatische boetes"]}, "localVariant": "zone-keuze is gemeentelijk beleid (Openbare Ruimte)", "genAiTestPoints": [{"point": "G2", "description": "Zonetoetser vindt botsingen met corridors en bestaande zones vóór publicatie", "testCases": ["evenementzone raakt corridor → mens weegt belangen"]}, {"point": "G5", "description": "Signaal bij zone-schending gaat naar de handhaver; mens beslist over optreden", "testCases": ["schending wordt (op tijd) gemeld"]}], "kpis": [{"kpi": "Protected / geofenced zones defined", "kpiType": "output", "unit": "#", "outcomeLens": "—", "baseline": "", "target": "", "dataSource": "geo-registry", "frequency": "quarterly", "kviRollup": "KVI 1 (Mobility: clean, shared) · KVI 5 (Digital)"}]}, "viz": {"kind": "map", "data": {"kind": "map", "note": "Schema: de nieuwe zone (blauw gevuld) tegen corridors (oranje) en bestaande zones (rood gestippeld).", "data": {"zones": [{"x": 150, "y": 100, "r": 45}], "routes": {"ziekenhuis": [{"points": [[320, 270], [320, 160], [320, 60]]}], "evenement": [{"points": [[320, 270], [240, 190], [180, 130]]}]}, "labels": [{"x": 130, "y": 105, "text": "no-fly"}, {"x": 300, "y": 50, "text": "corridor"}]}}}}], "common": {"parties": {"gemeente": "Gemeente Zoetermeer (Burgerzaken — lead, PDC-vraag 8 + 6)", "energie": "Energie- en netbeheerder", "bank": "Bank", "verzekeraar": "Verzekeraar", "zorgverzekeraar": "Zorgverzekeraar", "svb": "SVB (kinderbijslag)", "belastingdienst": "Belastingdienst (toeslagen)", "omgevingsloket": "Omgevingsloket (vergunningcheck, THK-24)", "minigim": "MiniGIM gebiedscheck (canonieke run, ingredient van THK-24)"}, "attestations": {"woonadres": "EUDI-attestatie woonadres (bron: BRP)", "burgerlijkeStaat": "EUDI-attestatie burgerlijke staat (bron: BRP)", "geboorte": "EUDI-attestatie geboorte (bron: BRP)"}, "myServices": ["MijnGegevens", "MijnZaken", "MijnActies", "Notificatieservice", "MijnProducten", "MijnAgenda", "MijnTaken"], "commonGround": ["Haal Centraal BRP", "EUDI attestations", "Zaken API", "Notificaties API", "Open Producten / PDC (SDG)"], "testbank": ["accuracy", "plain language", "once-only", "explainability", "human handover", "bias", "AI Act risk class"], "leerstaatAssen": ["wat gebeurde", "waarom", "wat moet veranderen", "wie beslist", "hielp het"]}, "i18n": {"eyecatcher": "Human-Centred Services · dish: Urban Air Mobility", "title": "De lucht in — zonder de stad te verstoppen", "lede": "Twee recipes uit deze dish, gedraaid als deterministische replay: wat gebeurt er, wie bepaalt het, en waar komt de informatie vandaan.", "foot": "HCS fase 2 · build {stamp} · runs gevalideerd tegen hcs-run.schema.json · doctrine: AI stelt voor · pijplijn beslist · mens beslist", "testbank": "Wat we hebben getest voordat dit live ging", "tbOk": "go", "tbCheck": "nog niet getoetst", "tbFail": "geen go", "kpiPanel": "Wat we willen bereiken — gemeten vanaf dag één", "kpiSub": "Elke recipe meet of het echt beter wordt.", "kpi": "KPI", "kpiType": "Type", "dataSource": "Bron", "siblings": "De andere recipes in deze dish", "actor": "Wie handelt", "consent": "Toestemming", "handover": "Een mens neemt over", "sources": "Waar deze informatie vandaan komt", "actorNames": {"agent": "het systeem (onder toezicht)", "mens": "een mens", "partij": "de betrokken organisatie"}, "consentNames": {"n.v.t.": "niet nodig", "gevraagd": "gevraagd", "gegeven": "gegeven", "geweigerd": "geweigerd"}, "vizTarget": "doel:", "axisNames": {"accuracy": "nauwkeurig", "plain language": "gewone taal", "once-only": "één keer vragen", "explainability": "uitlegbaar", "human handover": "mens neemt over", "bias": "vooringenomenheid", "AI Act risk class": "AI-wet risicoklasse"}}, "siblings": [{"code": "UAM-01", "title": "Ik wil medische logistiek per lucht", "mode": "cargo", "kpi": "Tijdswinst vergeleken met de weg", "lens": "W", "poc": true}, {"code": "UAM-09", "title": "Ik wil geofencing en beveiligingszones", "mode": "infrastructure · security", "kpi": "Beschermde zones vastgelegd", "lens": "—", "poc": true}], "selftestVerdicts": {"uam": {"bias": true, "AI Act risk class": true}}};
+window.DISH_ID = "uam";
+window.DISH_STAMP = "20261009T120000Z";
+</script>
+<script>
+(function () {
+  "use strict";
+  var D = window.DISH_DATA, t = D.i18n, state = { recipe: 0, scenario: 0, step: 0 };
+  function el(id) { return document.getElementById(id); }
+  function recipe() { return D.recipes[state.recipe]; }
+  function run() { return recipe().runs[state.scenario]; }
+
+  function renderHeader() {
+    el("eyecatcher").textContent = t.eyecatcher;
+    el("dish-title").textContent = t.title;
+    el("lede").textContent = t.lede;
+    el("tb-title").textContent = t.testbank;
+    el("kpi-title").textContent = t.kpiPanel;
+    el("kpi-sub").textContent = t.kpiSub;
+    el("sib-title").textContent = t.siblings;
+    el("voet").textContent = t.foot.replace("{stamp}", window.DISH_STAMP);
+  }
+
+  function renderScenarios() {
+    var box = el("scenarios"); box.innerHTML = "";
+    recipe().scenarioLabels.forEach(function (label, i) {
+      var b = document.createElement("button");
+      b.textContent = label;
+      if (i === state.scenario) b.className = "active";
+      b.onclick = function () { state.scenario = i; state.step = 0; renderAll(); };
+      box.appendChild(b);
+    });
+  }
+
+  function renderRail() {
+    var rail = el("rail"); rail.innerHTML = "";
+    run().steps.forEach(function (s, i) {
+      var b = document.createElement("button");
+      b.innerHTML = (i + 1) + ". " + s.title + '<span class="g">' + s.genAiTestPoint + "</span>";
+      if (i === state.step) b.className = "active";
+      b.onclick = function () { state.step = i; renderRail(); renderStep(); };
+      rail.appendChild(b);
+    });
+  }
+
+  function renderStep() {
+    var s = run().steps[state.step];
+    el("step-title").textContent = s.title;
+    el("step-meta").innerHTML =
+      '<span><b>' + t.actor + ':</b> <span class="actor-' + s.actor + '">' + t.actorNames[s.actor] + "</span></span>" +
+      '<span><b>GenAI:</b> ' + s.genAiTestPoint + "</span>" +
+      '<span><b>' + t.consent + ':</b> ' + t.consentNames[s.consent] + "</span>";
+    el("step-handover").innerHTML = s.handover
+      ? '<div class="handover"><b>' + t.handover + ":</b> " + s.handover.reason + " → " + s.handover.to + "</div>"
+      : "";
+    el("step-data").innerHTML = s.dataUsed.map(function (d) { return "<li>" + d + "</li>"; }).join("");
+    el("step-src").textContent = t.sources + ": " + s.prov.sources.join(" · ");
+    renderViz(s);
+  }
+
+  var VIZ = {
+    map: vizMap, canopy: vizCanopy, series: vizSeries, tiers: vizTiers
+  };
+
+  function renderViz(s) {
+    var v = recipe().viz;
+    var box = el("viz"); box.innerHTML = "";
+    el("viz-note").textContent = v.note || "";
+    if (VIZ[v.kind]) box.innerHTML = VIZ[v.kind](v.data, state.scenario, state.step);
+  }
+
+  function svgOpen(h) { return '<svg viewBox="0 0 640 ' + h + '" xmlns="http://www.w3.org/2000/svg" role="img">'; }
+  function grid(h) {
+    var out = "";
+    for (var x = 0; x < 640; x += 32) out += '<line x1="' + x + '" y1="0" x2="' + x + '" y2="' + h + '" stroke="rgba(196,208,218,.08)"/>';
+    for (var y = 0; y < h; y += 32) out += '<line x1="0" y1="' + y + '" x2="640" y2="' + y + '" stroke="rgba(196,208,218,.08)"/>';
+    return out;
+  }
+
+  function vizMap(data, sc, step) {
+    var h = 300, out = svgOpen(h) + grid(h);
+    data.zones.forEach(function (z) {
+      out += '<circle cx="' + z.x + '" cy="' + z.y + '" r="' + z.r + '" fill="rgba(225,5,0,.14)" stroke="var(--rood)" stroke-dasharray="6 4"/>';
+    });
+    (data.routes[sc] || []).forEach(function (r, i) {
+      var pts = r.points.map(function (p) { return p[0] + "," + p[1]; }).join(" ");
+      out += '<polyline points="' + pts + '" fill="none" stroke="' + (i === 0 ? "var(--oranje)" : "var(--blauw)") + '" stroke-width="3" stroke-linejoin="round"/>';
+      r.points.forEach(function (p) { out += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="5" fill="var(--hemel)"/>'; });
+    });
+    (data.labels || []).forEach(function (l) {
+      out += '<text x="' + l.x + '" y="' + l.y + '" fill="var(--ijs)" font-size="13" font-family="var(--sans)">' + l.text + "</text>";
+    });
+    return out + "</svg>";
+  }
+
+  function vizCanopy(data, sc) {
+    var h = 300, out = svgOpen(h) + grid(h), cell = data.cell;
+    data.cells[sc].forEach(function (c) {
+      out += '<rect x="' + c.x + '" y="' + c.y + '" width="' + cell + '" height="' + cell +
+        '" rx="4" fill="' + (c.cover >= 30 ? "rgba(28,239,165,.55)" : "rgba(255,152,21,.45)") + '"/>' +
+        '<text x="' + (c.x + cell / 2) + '" y="' + (c.y + cell / 2 + 4) + '" text-anchor="middle" font-size="11" fill="var(--inkt)" font-family="var(--mono)">' + c.cover + "%</text>";
+    });
+    return out + "</svg>";
+  }
+
+  function vizSeries(data, sc) {
+    var h = 300, s = data.series[sc], out = svgOpen(h) + grid(h), pts = "";
+    s.points.forEach(function (p, i) {
+      var x = 40 + i * (560 / (s.points.length - 1)), y = 260 - p.value * 2.2;
+      pts += (i ? " " : "") + x + "," + y;
+      if (i % 2 === 0) out += '<text x="' + x + '" y="285" text-anchor="middle" font-size="11" fill="#7f93a2" font-family="var(--mono)">' + p.label + "</text>";
+    });
+    out += '<polyline points="' + pts + '" fill="none" stroke="var(--mint)" stroke-width="3"/>';
+    out += '<line x1="40" y1="' + (260 - s.target * 2.2) + '" x2="600" y2="' + (260 - s.target * 2.2) + '" stroke="var(--oranje)" stroke-dasharray="6 4"/>';
+    out += '<text x="40" y="' + (250 - s.target * 2.2) + '" font-size="12" fill="var(--oranje)" font-family="var(--sans)">' + t.vizTarget + " " + s.target + "%</text>";
+    return out + "</svg>";
+  }
+
+  function vizTiers(data) {
+    var h = 300, out = svgOpen(h) + grid(h), cx = 320, cy = 150;
+    data.tiers.forEach(function (tier, i) {
+      out += '<circle cx="' + cx + '" cy="' + cy + '" r="' + tier.r + '" fill="none" stroke="' +
+        (tier.live > 0 ? "var(--mint)" : "var(--ijs-rand)") + '" stroke-width="2" stroke-dasharray="' + (tier.live > 0 ? "none" : "6 4") + '"/>';
+      out += '<text x="' + cx + '" y="' + (cy - tier.r + 16) + '" text-anchor="middle" font-size="12" fill="var(--ijs)" font-family="var(--sans)">' + tier.name + " · " + tier.live + "/" + tier.plan + "</text>";
+    });
+    out += '<circle cx="' + cx + '" cy="' + cy + '" r="6" fill="var(--oranje)"/>';
+    return out + "</svg>";
+  }
+
+  function renderTestbank() {
+    el("tb-body").innerHTML = D.common.testbank.map(function (axis) {
+      var name = (t.axisNames && t.axisNames[axis]) || axis;
+      var verdict = D.selftestVerdicts[D.dishId][axis];
+      var state = verdict === true ? ["var(--mint)", t.tbOk] : verdict === false ? ["var(--rood)", t.tbFail] : ["var(--amber)", t.tbCheck];
+      return "<tr><td>" + name + "</td><td style='color:" + state[0] + "'>" + state[1] + "</td></tr>";
+    }).join("");
+  }
+
+  function renderKpi() {
+    el("kpi-head").innerHTML = "<tr><th>" + t.kpi + "</th><th>" + t.kpiType + "</th><th>Lens</th><th>" + t.dataSource + "</th><th>KVI</th></tr>";
+    el("kpi-body").innerHTML = recipe().service.kpis.map(function (k) {
+      return "<tr><td>" + k.kpi + "</td><td>" + k.kpiType + "</td><td><span class='lens'>" + k.outcomeLens + "</span></td><td>" + k.dataSource + "</td><td>" + (k.kviRollup || "—") + "</td></tr>";
+    }).join("");
+  }
+
+  function renderSiblings() {
+    el("siblings").innerHTML = D.siblings.map(function (r) {
+      return "<div class='card" + (r.poc ? " poc" : "") + "'><b>" + r.code + "</b> " + r.title +
+        "<span class='kpi'>" + r.kpi + "</span><span class='lens'>" + r.mode + " · lens " + r.lens + "</span></div>";
+    }).join("");
+  }
+
+  function selftest() {
+    var checks = [];
+    checks.push(["recipes aanwezig", D.recipes.length === 2]);
+    checks.push(["runs per recipe", D.recipes.every(function (r) { return r.runs.length >= 1; })]);
+    checks.push(["stappen per run", D.recipes.every(function (r) {
+      return r.runs.every(function (run) { return run.steps.length >= 3; }); })]);
+    checks.push(["viz-config aanwezig", D.recipes.every(function (r) { return r.viz && r.viz.kind; })]);
+    checks.push(["G-punt per stap", D.recipes.every(function (r) {
+      return r.runs[0].steps.every(function (s) { return !!s.genAiTestPoint; }); })]);
+    checks.push(["bron per stap", D.recipes.every(function (r) {
+      return r.runs[0].steps.every(function (s) { return s.prov.sources.length > 0; }); })]);
+    checks.push(["stopcondities (poort 5)", D.recipes.every(function (r) {
+      return r.runs[0].stopConditions.length > 0; })]);
+    checks.push(["KPI's per recipe (poort 1)", D.recipes.every(function (r) {
+      return r.service.kpis.length > 0; })]);
+    checks.push(["sibling-kaarten", D.siblings.length >= 3]);
+    checks.push(["testbank-assen", D.common.testbank.length === 7]);
+    var failed = checks.filter(function (c) { return !c[1]; });
+    var badge = el("selftest-badge");
+    badge.textContent = (failed.length === 0 ? "selftest " : "SELFTEST ") + (checks.length - failed.length) + "/" + checks.length;
+    badge.className = failed.length === 0 ? "ok" : "fail";
+    return failed.length === 0;
+  }
+
+  function renderAll() { renderScenarios(); renderRail(); renderStep(); renderTestbank(); renderKpi(); renderSiblings(); }
+  renderHeader(); renderAll(); selftest();
+})();
+</script>
+</body>
+</html>

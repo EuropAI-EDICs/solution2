@@ -414,6 +414,42 @@ def test_dish_generator_mechanics():
     assert len(menu["the-key"]) == 25
 
 
+CITY_IDS = ("uam-01-medical-logistics", "uam-09-geofencing-zones",
+            "grn-01-canopy-measure", "grn-03-300m-gaps",
+            "cir-04-shared-energy", "cir-01-circular-condition",
+            "min-01-proximity-analysis", "min-04-hub-network")
+CITY_FIXTURES_DIR = HCS_ROOT / "fixtures" / "city"
+
+
+@pytest.mark.parametrize("rid", ["uam-01-medical-logistics", "uam-09-geofencing-zones"])
+def test_city_recipe_and_baseline_valid(rid):
+    recipe = load_recipe(rid)
+    assert recipe["service"]["dish"] == "urban-air-mobility"
+    assert recipe["requiredProcesses"] == ["hcs-recipe-run"]
+    baseline = json.loads((NLDT_ROOT / "recipes" / "baselines" / f"{rid}.baseline.json").read_text())
+    validate_instance(baseline, "hcs-baseline.schema.json")
+    assert baseline["recipeId"] == rid and baseline["disappearingStep"]
+
+
+def test_city_fixtures_bilingual_and_runnable(rid="uam-01-medical-logistics"):
+    fx = json.loads((CITY_FIXTURES_DIR / f"{rid}.json").read_text())
+    sc_ids = {s["id"] for s in fx["scenarios"]}
+    assert len(sc_ids) >= 1
+    for step in fx["steps"]:
+        assert isinstance(step["title"], dict) and set(step["title"]) >= {"nl", "en"}
+    out = execute_local("hcs-recipe-run", {"recipeId": rid, "scenario": sorted(sc_ids)[0]})
+    validate_instance(out["run"], "hcs-run.schema.json")
+
+
+def test_uam_page_generated():
+    text = (NLDT_ROOT / "simulation" / "hcs-uam-demo.html").read_text()
+    assert "window.DISH_DATA" in text and 'window.DISH_ID = "uam"' in text
+    for marker in ("__DISH_DATA__", "__DISH_ID__", "__BUILD_STAMP__"):
+        assert marker not in text
+    assert "UAM-01" in text and "uam-01-medical-logistics" in text
+    assert "selftest-badge" in text
+
+
 MENU_HTML = NLDT_ROOT / "simulation" / "hcs-menu-demo.html"
 INDEX_HTML = NLDT_ROOT / "simulation" / "index.html"
 MAPPING_DOC = NLDT_ROOT.parent / "docs" / "HCS_RECIPES_AGENTIC_STATE.md"

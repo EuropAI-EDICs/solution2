@@ -1,0 +1,54 @@
+{
+  "recipeId": "uam-09-geofencing-zones",
+  "scenarioKind": "city",
+  "scenarios": [
+    {"id": "ziekenhuis", "label": {"nl": "Een vaste beschermde zone rond het ziekenhuis", "en": "A permanent protected zone around the hospital"}},
+    {"id": "evenement", "label": {"nl": "Een tijdelijke zone boven een evenement", "en": "A temporary zone above an event"}}
+  ],
+  "steps": [
+    {
+      "stepId": "definieer", "title": {"nl": "De zone wordt vastgelegd op de kaart", "en": "The zone is drawn on the map"},
+      "defaults": {"actor": "agent", "genAiTestPoint": "G2",
+        "dataUsed": [{"nl": "de plek die beschermd moet worden", "en": "the location that needs protection"},
+                      {"nl": "bestaande zones in de buurt", "en": "existing zones nearby"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Protected / geofenced zones defined", "effect": {"nl": "de zone wordt als kaartobject aangemaakt", "en": "the zone is created as a map object"}}],
+        "prov": {"sources": [{"nl": "geo-registry", "en": "geo-registry"}]}},
+      "perScenario": {}
+    },
+    {
+      "stepId": "toets", "title": {"nl": "De nieuwe zone wordt getoetst aan bestaande zones en regels", "en": "The new zone is checked against existing zones and rules"},
+      "defaults": {"actor": "agent", "genAiTestPoint": "G2",
+        "dataUsed": [{"nl": "overlap met bestaande no-flyzones en corridors", "en": "overlap with existing no-fly zones and corridors"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Protected / geofenced zones defined", "effect": {"nl": "botsingen met corridors worden vóór publicatie gevonden", "en": "conflicts with corridors are found before publishing"}}],
+        "prov": {"sources": [{"nl": "geo-registry: corridors en no-flyzones", "en": "geo-registry: corridors and no-fly zones"}]}},
+      "perScenario": {
+        "evenement": {"handover": {"reason": {"nl": "Een tijdelijke zone raakt een vaste corridor — een mens weegt de belangen.", "en": "A temporary zone touches a fixed corridor — a human weighs the interests."},
+                                     "to": {"nl": "de luchtverkeersleider van de gemeente", "en": "the municipal air-traffic operator"}}}
+      }
+    },
+    {
+      "stepId": "publiceer", "title": {"nl": "Drones krijgen de zone automatisch mee", "en": "Drones receive the zone automatically"},
+      "defaults": {"actor": "partij", "genAiTestPoint": "—",
+        "dataUsed": [{"nl": "de zone gaat de lucht in via het identificatiesysteem voor drones", "en": "the zone is broadcast via the drone identification system"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Protected / geofenced zones defined", "effect": {"nl": "de zone telt mee in de kwartaaltelling", "en": "the zone counts in the quarterly count"}}],
+        "prov": {"sources": [{"nl": "U-space identificatiesysteem", "en": "U-space identification system"}]}},
+      "perScenario": {}
+    }
+  ],
+  "stopConditions": [
+    {"id": "sc-uam09-1", "condition": {"nl": "Een gepubliceerde zone botst achteraf met een corridor.", "en": "A published zone turns out to conflict with a corridor."},
+     "action": {"nl": "Publiceren stopt tot de toets is bijgesteld.", "en": "Publishing stops until the check is fixed."}},
+    {"id": "sc-uam09-2", "condition": {"nl": "Zone-schendingen worden niet (op tijd) gemeld.", "en": "Zone violations are not reported (in time)."},
+     "action": {"nl": "Handhavingsketen toetsen met de handhaver — geen automatische boetes.", "en": "Review the enforcement chain with the enforcer — no automated fines."}}
+  ],
+  "kpiSnapshot": [{"kpi": "Protected / geofenced zones defined", "baseline": "", "target": ""}],
+  "learningState": [
+    {"signal": {"nl": "Tijdelijke zones worden vaker aangevraagd dan verwacht.", "en": "Temporary zones are requested more often than expected."},
+     "why": {"nl": "Elk evenement vraagt er een aan.", "en": "Every event requests one."},
+     "change": {"nl": "Standaard-procedure voor evenementzones opnemen in de recipe.", "en": "Add a standard procedure for event zones to the recipe."},
+     "decidesBy": {"nl": "function steward + Openbare Ruimte", "en": "function steward + Public Space"}, "helped": null}
+  ]
+}
