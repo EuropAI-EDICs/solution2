@@ -108,13 +108,16 @@ I18N = {
 }
 
 SCENES = [
-    {"chip": "THK-02 · vóór en ná de geboorte", "title": {"nl": "Ik krijg een kind", "en": "I'm having a baby"},
+    {"chip": {"nl": "THK-02 · vóór en ná de geboorte", "en": "THK-02 · before and after the birth"},
+     "title": {"nl": "Ik krijg een kind", "en": "I'm having a baby"},
      "body": {"nl": "We beginnen al vóór de geboorte met regelen. De geboorte meld je binnen 5 dagen, gewoon online. Kinderbijslag en toeslagen komen vanzelf — maar alleen als jij dat goed vindt. Bij een bijzondere situatie (zoals erkenning met een ouder in het buitenland) neemt een medewerker het over.",
               "en": "We start arranging things before the birth. You register the birth within 5 days, simply online. Child benefit and allowances arrive automatically — but only if you agree. In a special situation (such as recognition with a parent abroad) a caseworker takes over."}},
-    {"chip": "THK-24 · bouwen en wonen", "title": {"nl": "Ik wil bouwen of renoveren", "en": "I want to build or renovate"},
+    {"chip": {"nl": "THK-24 · bouwen en wonen", "en": "THK-24 · building and living"},
+     "title": {"nl": "Ik wil bouwen of renoveren", "en": "I want to build or renovate"},
      "body": {"nl": "Je beschrijft je bouwplan in gewone woorden en ziet vooraf of je een vergunning nodig hebt. Je levert één keer alles aan, compleet. Een vergunningverlener — een mens — beoordeelt je aanvraag en beslist binnen 8 weken. Daarna wijzen wij je de volgende stappen.",
               "en": "You describe your building plan in plain words and see up front whether you need a permit. You submit everything once, complete. A permitting officer — a person — assesses your application and decides within 8 weeks. Afterwards, we point out your next steps."}},
-    {"chip": "getest met lastige situaties", "title": {"nl": "Eerst getest, dan pas live", "en": "Tested first, live later"},
+    {"chip": {"nl": "getest met lastige situaties", "en": "tested with tricky situations"},
+     "title": {"nl": "Eerst getest, dan pas live", "en": "Tested first, live later"},
      "body": {"nl": "Iedereen moet mee kunnen doen. Daarom testen we met mensen die moeite hebben met lezen, liever een andere taal spreken of schulden hebben. Werkt het voor hen niet goed genoeg, dan gaat het niet live.",
               "en": "Everyone must be able to take part. That is why we test with people who find reading hard, prefer another language, or have debts. If it does not work well enough for them, it does not go live."}},
 ]
@@ -158,8 +161,13 @@ def build_pages(stamp: str) -> None:
     payloads: dict[str, str] = {}
     for lang in LANGS:
         runs, fixtures = _page_bundle(stamp, lang)
+        # Scènes worden per taal gelokaliseerd (zelfs patroon als persona-labels
+        # en runs), zodat de EN-pagina geen Nederlandse scèneteksten bevat.
+        scenes = [{"chip": localize(sc["chip"], lang),
+                   "title": localize(sc["title"], lang),
+                   "body": localize(sc["body"], lang)} for sc in SCENES]
         data = {"runs": runs, "fixtures": fixtures, "common": common,
-                "i18n": I18N, "scenes": SCENES,
+                "i18n": I18N, "scenes": scenes,
                 "selftestVerdicts": {r: {"bias": True, "AI Act risk class": True}
                                       for r in runs}}
         payloads[lang] = json.dumps(data, ensure_ascii=False)

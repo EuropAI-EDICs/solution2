@@ -82,9 +82,12 @@ def _build_hcs_run(fixture: dict[str, Any], scenario_id: str, mode: str, process
     for step in fixture["steps"]:
         merged = dict(step["defaults"])
         merged["stepId"] = step["stepId"]
-        merged["title"] = localize(step["title"], lang)
+        merged["title"] = step["title"]  # sleutelpositie zoals voorheen
         override = step.get(override_key, {}).get(scenario_id, {})
         merged.update(override)
+        # Titel ná de merge lokaliseren, zodat een toekomstige override met een
+        # tweetalige titel niet ongelokaliseerd door kan lekken.
+        merged["title"] = localize(merged["title"], lang)
         merged.setdefault("handover", None)
         steps.append(_localize_step(merged, lang))
     from services.common.schema import validate_instance

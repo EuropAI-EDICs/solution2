@@ -156,7 +156,7 @@ def test_life_event_run_edge_cases():
         "to": "een medewerker van Burgerzaken"}
     delivery = next(s for s in ahmed["steps"] if s["stepId"] == "delivery")
     assert delivery["actor"] == "mens"
-    assert "Een medewerker controleert je adres persoonlijk" in delivery["dataUsed"]
+    assert "een medewerker controleert je adres persoonlijk" in delivery["dataUsed"]
 
     jeroen = execute_local("hcs-life-event-run",
                            {"recipeId": "thk-08-move-home", "persona": "jeroen", "mode": "replay"})["run"]
@@ -325,9 +325,11 @@ class TestKeyDemo:
         assert "I want to move home" in text           # i18n-titel
         assert "You tell us you're moving" in text     # staptitels volledig vertaald
         assert 'window.HCS_LANG = "en"' in text        # taalvlag
+        assert "THK-02 · before and after the birth" in text   # scene-chip in het Engels
         # De EN-pagina bevat geen Nederlandse stapteksten meer.
         assert "Je geeft aan dat je gaat verhuizen" not in text
         assert "Twijfel over het adres" not in text
+        assert "vóór en ná de geboorte" not in text    # scene-chip lekt niet door
 
 
 MENU_HTML = NLDT_ROOT / "simulation" / "hcs-menu-demo.html"
