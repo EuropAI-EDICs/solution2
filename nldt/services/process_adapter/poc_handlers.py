@@ -70,7 +70,7 @@ def _build_hcs_run(fixture: dict[str, Any], scenario_id: str, mode: str, process
 def execute_hcs_life_event_run(inputs: dict[str, Any]) -> dict[str, Any]:
     fixture = _load_hcs_fixture(Path("life-events") / f"{inputs['recipeId']}.json")
     run = _build_hcs_run(fixture, inputs.get("persona") or fixture["personas"][0]["id"],
-                         inputs.get("mode", "replay"), "hcs-life-event-run", "personas")
+                         inputs.get("mode") or "replay", "hcs-life-event-run", "personas")
     return {"run": run}
 
 
@@ -83,7 +83,7 @@ def execute_hcs_recipe_run(inputs: dict[str, Any], *, fixture_dir: Path | None =
         raise KeyError(f"HCS-fixture ontbreekt: {path}")
     fixture = json.loads(path.read_text(encoding="utf-8"))
     run = _build_hcs_run(fixture, inputs.get("scenario") or fixture["scenarios"][0]["id"],
-                         inputs.get("mode", "replay"), "hcs-recipe-run", "scenarios")
+                         inputs.get("mode") or "replay", "hcs-recipe-run", "scenarios")
     return {"run": run}
 
 POC_PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {

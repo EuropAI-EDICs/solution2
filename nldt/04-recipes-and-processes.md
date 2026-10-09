@@ -79,7 +79,7 @@ See [`schemas/recipe.schema.json`](schemas/recipe.schema.json). Important fields
 - `tags` — AppStore / agent discovery (`poc-breda`, `phase-6`, `cdc`, …)
 - `inputs` / `outputs` — typed recipe contract; step inputs wire `${recipe.inputs.*}`
 
-On disk: **`nldt/recipes/<id>.json`** (20 recipes). Process vs recipe vs MCP tool vs skill:
+On disk: **`nldt/recipes/<id>.json`** (24 recipes). Process vs recipe vs MCP tool vs skill:
 
 | Layer | Verb | Example |
 |-------|------|---------|

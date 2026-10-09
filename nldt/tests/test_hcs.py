@@ -198,6 +198,16 @@ def test_thk08_run_recipe_offline(monkeypatch):
     assert run["scenario"] == "sanne"
 
 
+def test_thk08_run_recipe_empty_inputs(monkeypatch):
+    """Ontbrekende optionele inputs (persona/mode=None) mogen niet crashen."""
+    monkeypatch.setenv("NLDT_OFFLINE", "1")
+    from services.recipe_runner import run_recipe
+    result = run_recipe("thk-08-move-home", {})
+    run = result["outputs"]["run"]
+    validate_instance(run, "hcs-run.schema.json")
+    assert run["mode"] == "replay"
+
+
 def test_thk24_declares_minigim_ingredient():
     recipe = load_recipe("thk-24-build-renovate")
     assert "minigim-gebiedscheck-run" in recipe["requiredProcesses"]
@@ -282,13 +292,14 @@ class TestKeyDemo:
 
     def test_nl_content(self):
         text = KEY_DEMO.read_text()
-        assert '"nl"' in text or "nl" in text
+        assert '<html lang="nl">' in text
         assert "Ik ga verhuizen" in text
         assert "adresonderzoek" in text.lower()
         assert "Mens-agent-grens" in text
 
     def test_en_content(self):
         text = KEY_DEMO_EN.read_text()
+        assert '<html lang="en">' in text
         assert "I want to move home" in text           # i18n-titel
         assert "Human-agent boundary" in text          # i18n-label
         assert 'window.HCS_LANG = "en"' in text        # taalvlag
