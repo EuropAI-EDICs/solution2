@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>HCS · dish-demo</title>
+<style>
+  :root {
+    --papier: #f6f8fb; --inkt: #06121b; --inkt-2: #0d1e2c; --ijs: #dff3ff; --ijs-rand: #c4d0da;
+    --blauw: #2ba8ff; --hemel: #79c9ff; --oranje: #ff9815; --oranje-donker: #ef8700; --amber: #ffc37e;
+    --rood: #e10500; --mint: #1cefa5; --groen: #0f7a4d;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: Roboto, "Helvetica Neue", system-ui, -apple-system, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--inkt); color: var(--papier); font-family: var(--sans); line-height: 1.5; padding: 22px clamp(14px, 4vw, 44px) 60px; }
+  h1 { font-size: clamp(1.5rem, 3.2vw, 2.2rem); } h1 .dish { color: var(--oranje); }
+  .sub { color: var(--hemel); font-family: var(--mono); font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; }
+  #selftest-badge { font-family: var(--mono); font-size: .72rem; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--ijs-rand); color: var(--ijs); }
+  #selftest-badge.ok { border-color: var(--mint); color: var(--mint); }
+  #selftest-badge.fail { border-color: var(--rood); color: var(--rood); font-weight: 700; }
+  .topbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+  section { background: var(--inkt-2); border: 1px solid rgba(196,208,218,.25); border-radius: 4px; padding: 16px 18px; margin: 14px 0; }
+  h2 { font-size: 1rem; color: var(--oranje); margin-bottom: 8px; }
+  h3 { font-size: .92rem; color: var(--hemel); margin: 10px 0 6px; }
+  .scenarios { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 14px; }
+  .scenarios button { font: inherit; font-size: .8rem; background: transparent; color: var(--ijs); border: 1px dashed var(--ijs-rand); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+  .scenarios button.active { border-style: solid; border-color: var(--blauw); color: #fff; background: rgba(43,168,255,.16); }
+  .rail { display: flex; gap: 6px; margin: 10px 0; flex-wrap: wrap; }
+  .rail button { font: inherit; font-size: .82rem; background: var(--inkt-2); color: var(--papier); border: 1px solid var(--ijs-rand); border-radius: 3px; padding: 8px 12px; cursor: pointer; }
+  .rail button.active { background: var(--oranje-donker); border-color: var(--oranje); color: var(--inkt); font-weight: 700; }
+  .rail button .g { font-family: var(--mono); font-size: .66rem; display: block; color: var(--hemel); }
+  .rail button.active .g { color: var(--inkt); }
+  .stapmeta { display: flex; flex-wrap: wrap; gap: 10px; font-family: var(--mono); font-size: .72rem; color: var(--hemel); margin-bottom: 10px; }
+  .stapmeta b { color: var(--papier); }
+  .actor-agent { color: var(--mint); } .actor-mens { color: var(--amber); } .actor-partij { color: var(--blauw); }
+  .handover { border-left: 4px solid var(--amber); background: rgba(255,195,126,.1); padding: 10px 12px; margin: 10px 0; font-size: .9rem; }
+  .handover b { color: var(--amber); }
+  ul.data { list-style: none; font-size: .86rem; }
+  ul.data li { padding: 4px 8px; border-left: 2px solid var(--ijs-rand); margin: 4px 0; }
+  .src { font-family: var(--mono); font-size: .68rem; color: #7f93a2; margin-top: 8px; }
+  .kvpanel table, .testbank table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+  .kvpanel th, .kvpanel td, .testbank th, .testbank td { text-align: left; padding: 5px 8px; border-bottom: 1px solid rgba(196,208,218,.2); }
+  .lens { font-family: var(--mono); font-size: .7rem; padding: 1px 7px; border-radius: 3px; background: rgba(255,152,21,.15); color: var(--oranje); }
+  .viz { background: rgba(223,243,255,.04); border: 1px solid rgba(196,208,218,.2); border-radius: 4px; padding: 10px; margin-top: 12px; }
+  .viz svg { display: block; width: 100%; height: auto; }
+  .viznote { font-family: var(--mono); font-size: .66rem; color: #7f93a2; margin-top: 6px; }
+  .siblings { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; margin-top: 8px; }
+  .card { border: 1px solid rgba(196,208,218,.2); border-radius: 3px; padding: 8px 10px; font-size: .8rem; }
+  .card b { color: var(--oranje); font-family: var(--mono); font-size: .72rem; }
+  .card .kpi { display: block; color: var(--ijs); font-size: .74rem; margin-top: 4px; }
+  .card.poc { border-color: var(--oranje); }
+  .voet { font-family: var(--mono); font-size: .66rem; color: #7f93a2; margin-top: 24px; }
+  a { color: var(--blauw); }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div>
+    <div class="sub" id="eyecatcher"></div>
+    <h1><span class="dish" id="dish-title"></span></h1>
+  </div>
+  <span id="selftest-badge">selftest…</span>
+</div>
+<p class="sub" id="lede"></p>
+<div class="scenarios" id="scenarios"></div>
+<div class="rail" id="rail"></div>
+<section id="step-detail">
+  <h2 id="step-title"></h2>
+  <div class="stapmeta" id="step-meta"></div>
+  <div id="step-handover"></div>
+  <ul class="data" id="step-data"></ul>
+  <div class="src" id="step-src"></div>
+  <div class="viz" id="viz-box"><div id="viz"></div><div class="viznote" id="viz-note"></div></div>
+</section>
+<section class="testbank"><h2 id="tb-title"></h2><table><tbody id="tb-body"></tbody></table></section>
+<section class="kvpanel"><h2 id="kpi-title"></h2><p class="sub" id="kpi-sub"></p><table><thead id="kpi-head"></thead><tbody id="kpi-body"></tbody></table></section>
+<section><h2 id="sib-title"></h2><div class="siblings" id="siblings"></div></section>
+<div class="voet" id="voet"></div>
+<script>
+window.DISH_DATA = {"dishId": "grn", "recipes": [{"id": "grn-01-canopy-measure", "runs": [{"schemaVersion": "1.0", "runId": "grn-01-canopy-measure-wijk-noord", "generatedAt": "replay", "recipeId": "grn-01-canopy-measure", "processId": "hcs-recipe-run", "mode": "replay", "scenario": "wijk-noord", "steps": [{"actor": "agent", "genAiTestPoint": "G2", "dataUsed": ["verse luchtfoto's van de wijk", "dezelfde vlieghoogte als vorig jaar, zodat metingen te vergelijken zijn"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Canopy cover per neighbourhood", "effect": "het bladerdak-percentage wordt weer gemeten"}], "prov": {"sources": ["luchtfoto's (remote sensing)"]}, "stepId": "beelden", "title": "Nieuwe luchtfoto's worden opgehaald", "handover": null}, {"actor": "agent", "genAiTestPoint": "G2", "dataUsed": ["de computer herkent bladerdak op de foto's", "een medewerker controleert een steekproef van de stukjes"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Canopy cover per neighbourhood", "effect": "per wijkblok komt een percentage te staan"}], "prov": {"sources": ["meetmethode bladerdak (AI-canopy-map)"]}, "stepId": "canopy", "title": "De computer meet het bladerdak per stukje wijk", "handover": null}, {"actor": "agent", "genAiTestPoint": "G5", "dataUsed": ["groei of krimp van het bladerdak ten opzichte van vorig jaar"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Canopy cover per neighbourhood", "effect": "wijken onder de 30% krijgen proactief een signaal"}], "prov": {"sources": ["KPI-framework 3-30-300"]}, "stepId": "heat-map", "title": "De wijk krijgt een heat-map en een signaal", "handover": null}], "stopConditions": [{"id": "sc-grn01-1", "condition": "De computer meet paalen schaduw als bladerdak — bij meer dan 5% van de steekproef.", "action": "Meetmethode bijstellen vóór de volgende meting."}, {"id": "sc-grn01-2", "condition": "Een wijk daalt twee meetjaren achter elkaar.", "action": "Proactief signaal naar het gebiedsteam, vóór het groeiseizoen."}], "kpiSnapshot": [{"kpi": "Canopy cover per neighbourhood", "baseline": "", "target": ""}], "learningState": [{"signal": "Wijk Noord groeit langzaam maar gestaag.", "why": "De bomen van drie jaar geleden doen het goed.", "change": "Doel per wijk uitsplitsen in de recipe.", "decidesBy": "function steward + groenbeheer", "helped": null}]}, {"schemaVersion": "1.0", "runId": "grn-01-canopy-measure-wijk-zuid", "generatedAt": "replay", "recipeId": "grn-01-canopy-measure", "processId": "hcs-recipe-run", "mode": "replay", "scenario": "wijk-zuid", "steps": [{"actor": "agent", "genAiTestPoint": "G2", "dataUsed": ["verse luchtfoto's van de wijk", "dezelfde vlieghoogte als vorig jaar, zodat metingen te vergelijken zijn"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Canopy cover per neighbourhood", "effect": "het bladerdak-percentage wordt weer gemeten"}], "prov": {"sources": ["luchtfoto's (remote sensing)"]}, "stepId": "beelden", "title": "Nieuwe luchtfoto's worden opgehaald", "handover": null}, {"actor": "agent", "genAiTestPoint": "G2", "dataUsed": ["de computer herkent bladerdak op de foto's", "een medewerker controleert een steekproef van de stukjes"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Canopy cover per neighbourhood", "effect": "per wijkblok komt een percentage te staan"}], "prov": {"sources": ["meetmethode bladerdak (AI-canopy-map)"]}, "stepId": "canopy", "title": "De computer meet het bladerdak per stukje wijk", "handover": null}, {"actor": "agent", "genAiTestPoint": "G5", "dataUsed": ["groei of krimp van het bladerdak ten opzichte van vorig jaar"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Canopy cover per neighbourhood", "effect": "wijken onder de 30% krijgen proactief een signaal"}], "prov": {"sources": ["KPI-framework 3-30-300"]}, "stepId": "heat-map", "title": "De wijk krijgt een heat-map en een signaal", "handover": null}], "stopConditions": [{"id": "sc-grn01-1", "condition": "De computer meet paalen schaduw als bladerdak — bij meer dan 5% van de steekproef.", "action": "Meetmethode bijstellen vóór de volgende meting."}, {"id": "sc-grn01-2", "condition": "Een wijk daalt twee meetjaren achter elkaar.", "action": "Proactief signaal naar het gebiedsteam, vóór het groeiseizoen."}], "kpiSnapshot": [{"kpi": "Canopy cover per neighbourhood", "baseline": "", "target": ""}], "learningState": [{"signal": "Wijk Noord groeit langzaam maar gestaag.", "why": "De bomen van drie jaar geleden doen het goed.", "change": "Doel per wijk uitsplitsen in de recipe.", "decidesBy": "function steward + groenbeheer", "helped": null}]}], "scenarioLabels": ["Wijk Noord — onder de 30%", "Wijk Zuid — ruim boven de 30%"], "service": {"dish": "3-30-300", "lifeEventCode": "GRN-01", "serviceType": "measure", "parties": [{"name": "Gemeente", "role": "groenbeheer (opdrachtgever)"}, {"name": "Gebiedsteam", "role": "ontvangt signalen per wijk"}], "legalBasis": [{"basis": "Omgevingswet (kwaliteit leefomgeving)", "timeLimit": "jaarlijkse meting"}], "humanMeasure": {"handover": ["Steekproefcontrole van de AI-meting door een medewerker", "Wijken onder de 30% → gebiedsteam"], "exceptions": ["meetfouten door schaduw en paalen"]}, "localVariant": "doelstelling per wijk is gemeentelijk groenbeleid", "genAiTestPoints": [{"point": "G2", "description": "De meetmethode herkent bladerdak; een steekproef controleert de uitslag", "testCases": ["steekproef minder dan 5% afwijkend"]}, {"point": "G5", "description": "Proactief signaal bij dalende of te lage wijken", "testCases": ["wijk onder de 30% krijgt signaal"]}], "kpis": [{"kpi": "Canopy cover per neighbourhood", "kpiType": "outcome", "unit": "%", "outcomeLens": ["L", "W"], "baseline": "", "target": "", "dataSource": "remote sensing", "frequency": "yearly", "kviRollup": "KVI 7 (Biodiversity) · KVI 6 (Soil & Water) · KVI 2 (Cooling)"}]}, "viz": {"kind": "canopy", "data": {"kind": "canopy", "note": "Schema per wijkblok: mint = boven de 30% bladerdak, oranje = eronder. Geen echte kaart.", "data": {"cell": 70, "cells": {"wijk-noord": [{"x": 40, "y": 30, "cover": 21}, {"x": 190, "y": 30, "cover": 24}, {"x": 340, "y": 30, "cover": 19}, {"x": 490, "y": 30, "cover": 23}, {"x": 40, "y": 115, "cover": 25}, {"x": 190, "y": 115, "cover": 18}, {"x": 340, "y": 115, "cover": 22}, {"x": 490, "y": 115, "cover": 27}, {"x": 40, "y": 200, "cover": 20}, {"x": 190, "y": 200, "cover": 24}, {"x": 340, "y": 200, "cover": 19}, {"x": 490, "y": 200, "cover": 26}], "wijk-zuid": [{"x": 40, "y": 30, "cover": 38}, {"x": 190, "y": 30, "cover": 44}, {"x": 340, "y": 30, "cover": 41}, {"x": 490, "y": 30, "cover": 47}, {"x": 40, "y": 115, "cover": 33}, {"x": 190, "y": 115, "cover": 42}, {"x": 340, "y": 115, "cover": 36}, {"x": 490, "y": 115, "cover": 48}, {"x": 40, "y": 200, "cover": 39}, {"x": 190, "y": 200, "cover": 45}, {"x": 340, "y": 200, "cover": 40}, {"x": 490, "y": 200, "cover": 35}]}}}}}, {"id": "grn-03-300m-gaps", "runs": [{"schemaVersion": "1.0", "runId": "grn-03-300m-gaps-binnen-norm", "generatedAt": "replay", "recipeId": "grn-03-300m-gaps", "processId": "hcs-recipe-run", "mode": "replay", "scenario": "binnen-norm", "steps": [{"actor": "agent", "genAiTestPoint": "G2", "dataUsed": ["alle adressen in de wijk", "looproutes over de echte paden, niet in vogelvlucht"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Residents within 300 m of quality green", "effect": "het percentage bewoners binnen 300 meter wordt per blok berekend"}], "prov": {"sources": ["voetpaden- en wegenregister"]}, "stepId": "loopafstand", "title": "Van elk adres wordt de loopafstand tot goed groen berekend", "handover": null}, {"actor": "agent", "genAiTestPoint": "G5", "dataUsed": ["blokken waar meer dan 10% van de bewoners verder dan 300 meter woont"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Residents within 300 m of quality green", "effect": "de stad weet precies welke straten buiten bereik vallen"}], "prov": {"sources": ["netwerkanalyse loopafstand"]}, "stepId": "deserts", "title": "Groene woestijnen worden benoemd", "handover": null}, {"actor": "mens", "genAiTestPoint": "G5", "dataUsed": ["de prioriteitenlijst met de groene woestijnen bovenaan"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Residents within 300 m of quality green", "effect": "vergroening komt eerst waar het tekort het grootst is"}], "prov": {"sources": ["begrotingsronde groenbeheer"]}, "handover": null, "stepId": "prioriteer", "title": "Mensen beslissen welke straat eerst vergroent"}], "stopConditions": [{"id": "sc-grn03-1", "condition": "De loopafstand-meting slaat adressen zonder veilig voetpad over.", "action": "Netwerkmethode met veiligheidslaag bijstellen."}, {"id": "sc-grn03-2", "condition": "Het signaal komt te laat voor de begrotingsronde.", "action": "Meetfrequentie verhogen naar halfjaarlijks."}], "kpiSnapshot": [{"kpi": "Residents within 300 m of quality green", "baseline": "", "target": ""}], "learningState": [{"signal": "Bewonerswaardering volgt de 300-meter-norm niet altijd.", "why": "Kwaliteit en onderhoud wegen zwaarder dan afstand.", "change": "Ook kwaliteit van groen meenemen in de recipe.", "decidesBy": "function steward + groenbeheer", "helped": null}]}, {"schemaVersion": "1.0", "runId": "grn-03-300m-gaps-groeidesert", "generatedAt": "replay", "recipeId": "grn-03-300m-gaps", "processId": "hcs-recipe-run", "mode": "replay", "scenario": "groeidesert", "steps": [{"actor": "agent", "genAiTestPoint": "G2", "dataUsed": ["alle adressen in de wijk", "looproutes over de echte paden, niet in vogelvlucht"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Residents within 300 m of quality green", "effect": "het percentage bewoners binnen 300 meter wordt per blok berekend"}], "prov": {"sources": ["voetpaden- en wegenregister"]}, "stepId": "loopafstand", "title": "Van elk adres wordt de loopafstand tot goed groen berekend", "handover": null}, {"actor": "agent", "genAiTestPoint": "G5", "dataUsed": ["blokken waar meer dan 10% van de bewoners verder dan 300 meter woont"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Residents within 300 m of quality green", "effect": "de stad weet precies welke straten buiten bereik vallen"}], "prov": {"sources": ["netwerkanalyse loopafstand"]}, "stepId": "deserts", "title": "Groene woestijnen worden benoemd", "handover": null}, {"actor": "mens", "genAiTestPoint": "G5", "dataUsed": ["de prioriteitenlijst met de groene woestijnen bovenaan"], "consent": "n.v.t.", "kpiEvents": [{"kpi": "Residents within 300 m of quality green", "effect": "vergroening komt eerst waar het tekort het grootst is"}], "prov": {"sources": ["begrotingsronde groenbeheer"]}, "handover": {"reason": "Over welke straat eerst vergroent, beslissen mensen met kennis van de wijk.", "to": "het gebiedsteam met bewoners"}, "stepId": "prioriteer", "title": "Mensen beslissen welke straat eerst vergroent"}], "stopConditions": [{"id": "sc-grn03-1", "condition": "De loopafstand-meting slaat adressen zonder veilig voetpad over.", "action": "Netwerkmethode met veiligheidslaag bijstellen."}, {"id": "sc-grn03-2", "condition": "Het signaal komt te laat voor de begrotingsronde.", "action": "Meetfrequentie verhogen naar halfjaarlijks."}], "kpiSnapshot": [{"kpi": "Residents within 300 m of quality green", "baseline": "", "target": ""}], "learningState": [{"signal": "Bewonerswaardering volgt de 300-meter-norm niet altijd.", "why": "Kwaliteit en onderhoud wegen zwaarder dan afstand.", "change": "Ook kwaliteit van groen meenemen in de recipe.", "decidesBy": "function steward + groenbeheer", "helped": null}]}], "scenarioLabels": ["Wijk waar bijna iedereen binnen 300 meter groen heeft", "Wijk met een groene woestijn"], "service": {"dish": "3-30-300", "lifeEventCode": "GRN-03", "serviceType": "plan", "parties": [{"name": "Gemeente", "role": "groenbeheer en begroting"}, {"name": "Gebiedsteam met bewoners", "role": "prioritering vergroening (mens)"}], "legalBasis": [{"basis": "Omgevingswet (participatie en leefomgevingskwaliteit)", "timeLimit": "jaarlijkse analyse, signalen vóór de begrotingsronde"}], "humanMeasure": {"handover": ["Prioritering van vergroening → gebiedsteam met bewoners (mens)"], "exceptions": ["veilige routes meewegen; adressen zonder voetpad"]}, "localVariant": "norm en prioritering zijn gemeentelijk beleid", "genAiTestPoints": [{"point": "G2", "description": "Loopafstand over echte, veilige paden — niet in vogelvlucht", "testCases": ["adressen zonder veilig voetpad vallen op"]}, {"point": "G5", "description": "Proactief signaal voor wijken onder de norm, vóór de begrotingsronde", "testCases": ["groeidesert staat bovenaan de prioriteitenlijst"]}], "kpis": [{"kpi": "Residents within 300 m of quality green", "kpiType": "outcome", "unit": "%", "outcomeLens": ["Z", "L"], "baseline": "", "target": "", "dataSource": "network analysis", "frequency": "yearly", "kviRollup": "KVI 7 (Biodiversity) · KVI 6 (Soil & Water) · KVI 2 (Cooling)"}]}, "viz": {"kind": "canopy", "data": {"kind": "canopy", "note": "Percentage bewoners binnen 300 meter goed groen per wijkblok (schema).", "data": {"cell": 70, "cells": {"binnen-norm": [{"x": 40, "y": 30, "cover": 88}, {"x": 190, "y": 30, "cover": 92}, {"x": 340, "y": 30, "cover": 85}, {"x": 490, "y": 30, "cover": 90}, {"x": 40, "y": 115, "cover": 79}, {"x": 190, "y": 115, "cover": 94}, {"x": 340, "y": 115, "cover": 87}, {"x": 490, "y": 115, "cover": 91}, {"x": 40, "y": 200, "cover": 83}, {"x": 190, "y": 200, "cover": 89}, {"x": 340, "y": 200, "cover": 95}, {"x": 490, "y": 200, "cover": 86}], "groeidesert": [{"x": 40, "y": 30, "cover": 61}, {"x": 190, "y": 30, "cover": 58}, {"x": 340, "y": 30, "cover": 72}, {"x": 490, "y": 30, "cover": 64}, {"x": 40, "y": 115, "cover": 47}, {"x": 190, "y": 115, "cover": 55}, {"x": 340, "y": 115, "cover": 51}, {"x": 490, "y": 115, "cover": 62}, {"x": 40, "y": 200, "cover": 57}, {"x": 190, "y": 200, "cover": 44}, {"x": 340, "y": 200, "cover": 66}, {"x": 490, "y": 200, "cover": 53}]}}}}}], "common": {"parties": {"gemeente": "Gemeente Zoetermeer (Burgerzaken — lead, PDC-vraag 8 + 6)", "energie": "Energie- en netbeheerder", "bank": "Bank", "verzekeraar": "Verzekeraar", "zorgverzekeraar": "Zorgverzekeraar", "svb": "SVB (kinderbijslag)", "belastingdienst": "Belastingdienst (toeslagen)", "omgevingsloket": "Omgevingsloket (vergunningcheck, THK-24)", "minigim": "MiniGIM gebiedscheck (canonieke run, ingredient van THK-24)"}, "attestations": {"woonadres": "EUDI-attestatie woonadres (bron: BRP)", "burgerlijkeStaat": "EUDI-attestatie burgerlijke staat (bron: BRP)", "geboorte": "EUDI-attestatie geboorte (bron: BRP)"}, "myServices": ["MijnGegevens", "MijnZaken", "MijnActies", "Notificatieservice", "MijnProducten", "MijnAgenda", "MijnTaken"], "commonGround": ["Haal Centraal BRP", "EUDI attestations", "Zaken API", "Notificaties API", "Open Producten / PDC (SDG)"], "testbank": ["accuracy", "plain language", "once-only", "explainability", "human handover", "bias", "AI Act risk class"], "leerstaatAssen": ["wat gebeurde", "waarom", "wat moet veranderen", "wie beslist", "hielp het"]}, "i18n": {"eyecatcher": "Human-Centred Services · dish: 3-30-300", "title": "Groen meten, groen doen", "lede": "Twee 3-30-300-recipes: hoeveel bladerdak heeft je wijk, en wie woont verder dan 300 meter van echt goed groen?", "foot": "HCS fase 2 · build {stamp} · runs gevalideerd tegen hcs-run.schema.json · doctrine: AI stelt voor · pijplijn beslist · mens beslist", "testbank": "Wat we hebben getest voordat dit live ging", "tbOk": "go", "tbCheck": "nog niet getoetst", "tbFail": "geen go", "kpiPanel": "Wat we willen bereiken — gemeten vanaf dag één", "kpiSub": "Elke recipe meet of het echt beter wordt.", "kpi": "KPI", "kpiType": "Type", "dataSource": "Bron", "siblings": "De andere recipes in deze dish", "actor": "Wie handelt", "consent": "Toestemming", "handover": "Een mens neemt over", "sources": "Waar deze informatie vandaan komt", "actorNames": {"agent": "het systeem (onder toezicht)", "mens": "een mens", "partij": "de betrokken organisatie"}, "consentNames": {"n.v.t.": "niet nodig", "gevraagd": "gevraagd", "gegeven": "gegeven", "geweigerd": "geweigerd"}, "vizTarget": "doel:", "axisNames": {"accuracy": "nauwkeurig", "plain language": "gewone taal", "once-only": "één keer vragen", "explainability": "uitlegbaar", "human handover": "mens neemt over", "bias": "vooringenomenheid", "AI Act risk class": "AI-wet risicoklasse"}}, "siblings": [], "selftestVerdicts": {"grn": {"bias": true, "AI Act risk class": true}}};
+window.DISH_ID = "grn";
+window.DISH_STAMP = "20261009T120000Z";
+</script>
+<script>
+(function () {
+  "use strict";
+  var D = window.DISH_DATA, t = D.i18n, state = { recipe: 0, scenario: 0, step: 0 };
+  function el(id) { return document.getElementById(id); }
+  function recipe() { return D.recipes[state.recipe]; }
+  function run() { return recipe().runs[state.scenario]; }
+
+  function renderHeader() {
+    el("eyecatcher").textContent = t.eyecatcher;
+    el("dish-title").textContent = t.title;
+    el("lede").textContent = t.lede;
+    el("tb-title").textContent = t.testbank;
+    el("kpi-title").textContent = t.kpiPanel;
+    el("kpi-sub").textContent = t.kpiSub;
+    el("sib-title").textContent = t.siblings;
+    el("voet").textContent = t.foot.replace("{stamp}", window.DISH_STAMP);
+  }
+
+  function renderScenarios() {
+    var box = el("scenarios"); box.innerHTML = "";
+    recipe().scenarioLabels.forEach(function (label, i) {
+      var b = document.createElement("button");
+      b.textContent = label;
+      if (i === state.scenario) b.className = "active";
+      b.onclick = function () { state.scenario = i; state.step = 0; renderAll(); };
+      box.appendChild(b);
+    });
+  }
+
+  function renderRail() {
+    var rail = el("rail"); rail.innerHTML = "";
+    run().steps.forEach(function (s, i) {
+      var b = document.createElement("button");
+      b.innerHTML = (i + 1) + ". " + s.title + '<span class="g">' + s.genAiTestPoint + "</span>";
+      if (i === state.step) b.className = "active";
+      b.onclick = function () { state.step = i; renderRail(); renderStep(); };
+      rail.appendChild(b);
+    });
+  }
+
+  function renderStep() {
+    var s = run().steps[state.step];
+    el("step-title").textContent = s.title;
+    el("step-meta").innerHTML =
+      '<span><b>' + t.actor + ':</b> <span class="actor-' + s.actor + '">' + t.actorNames[s.actor] + "</span></span>" +
+      '<span><b>GenAI:</b> ' + s.genAiTestPoint + "</span>" +
+      '<span><b>' + t.consent + ':</b> ' + t.consentNames[s.consent] + "</span>";
+    el("step-handover").innerHTML = s.handover
+      ? '<div class="handover"><b>' + t.handover + ":</b> " + s.handover.reason + " → " + s.handover.to + "</div>"
+      : "";
+    el("step-data").innerHTML = s.dataUsed.map(function (d) { return "<li>" + d + "</li>"; }).join("");
+    el("step-src").textContent = t.sources + ": " + s.prov.sources.join(" · ");
+    renderViz(s);
+  }
+
+  var VIZ = {
+    map: vizMap, canopy: vizCanopy, series: vizSeries, tiers: vizTiers
+  };
+
+  function renderViz(s) {
+    var v = recipe().viz;
+    var box = el("viz"); box.innerHTML = "";
+    el("viz-note").textContent = v.note || "";
+    if (VIZ[v.kind]) box.innerHTML = VIZ[v.kind](v.data, state.scenario, state.step);
+  }
+
+  function svgOpen(h) { return '<svg viewBox="0 0 640 ' + h + '" xmlns="http://www.w3.org/2000/svg" role="img">'; }
+  function grid(h) {
+    var out = "";
+    for (var x = 0; x < 640; x += 32) out += '<line x1="' + x + '" y1="0" x2="' + x + '" y2="' + h + '" stroke="rgba(196,208,218,.08)"/>';
+    for (var y = 0; y < h; y += 32) out += '<line x1="0" y1="' + y + '" x2="640" y2="' + y + '" stroke="rgba(196,208,218,.08)"/>';
+    return out;
+  }
+
+  function vizMap(data, sc, step) {
+    var h = 300, out = svgOpen(h) + grid(h);
+    data.zones.forEach(function (z) {
+      out += '<circle cx="' + z.x + '" cy="' + z.y + '" r="' + z.r + '" fill="rgba(225,5,0,.14)" stroke="var(--rood)" stroke-dasharray="6 4"/>';
+    });
+    (data.routes[sc] || []).forEach(function (r, i) {
+      var pts = r.points.map(function (p) { return p[0] + "," + p[1]; }).join(" ");
+      out += '<polyline points="' + pts + '" fill="none" stroke="' + (i === 0 ? "var(--oranje)" : "var(--blauw)") + '" stroke-width="3" stroke-linejoin="round"/>';
+      r.points.forEach(function (p) { out += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="5" fill="var(--hemel)"/>'; });
+    });
+    (data.labels || []).forEach(function (l) {
+      out += '<text x="' + l.x + '" y="' + l.y + '" fill="var(--ijs)" font-size="13" font-family="var(--sans)">' + l.text + "</text>";
+    });
+    return out + "</svg>";
+  }
+
+  function vizCanopy(data, sc) {
+    var h = 300, out = svgOpen(h) + grid(h), cell = data.cell;
+    data.cells[sc].forEach(function (c) {
+      out += '<rect x="' + c.x + '" y="' + c.y + '" width="' + cell + '" height="' + cell +
+        '" rx="4" fill="' + (c.cover >= 30 ? "rgba(28,239,165,.55)" : "rgba(255,152,21,.45)") + '"/>' +
+        '<text x="' + (c.x + cell / 2) + '" y="' + (c.y + cell / 2 + 4) + '" text-anchor="middle" font-size="11" fill="var(--inkt)" font-family="var(--mono)">' + c.cover + "%</text>";
+    });
+    return out + "</svg>";
+  }
+
+  function vizSeries(data, sc) {
+    var h = 300, s = data.series[sc], out = svgOpen(h) + grid(h), pts = "";
+    s.points.forEach(function (p, i) {
+      var x = 40 + i * (560 / (s.points.length - 1)), y = 260 - p.value * 2.2;
+      pts += (i ? " " : "") + x + "," + y;
+      if (i % 2 === 0) out += '<text x="' + x + '" y="285" text-anchor="middle" font-size="11" fill="#7f93a2" font-family="var(--mono)">' + p.label + "</text>";
+    });
+    out += '<polyline points="' + pts + '" fill="none" stroke="var(--mint)" stroke-width="3"/>';
+    out += '<line x1="40" y1="' + (260 - s.target * 2.2) + '" x2="600" y2="' + (260 - s.target * 2.2) + '" stroke="var(--oranje)" stroke-dasharray="6 4"/>';
+    out += '<text x="40" y="' + (250 - s.target * 2.2) + '" font-size="12" fill="var(--oranje)" font-family="var(--sans)">' + t.vizTarget + " " + s.target + "%</text>";
+    return out + "</svg>";
+  }
+
+  function vizTiers(data) {
+    var h = 300, out = svgOpen(h) + grid(h), cx = 320, cy = 150;
+    data.tiers.forEach(function (tier, i) {
+      out += '<circle cx="' + cx + '" cy="' + cy + '" r="' + tier.r + '" fill="none" stroke="' +
+        (tier.live > 0 ? "var(--mint)" : "var(--ijs-rand)") + '" stroke-width="2" stroke-dasharray="' + (tier.live > 0 ? "none" : "6 4") + '"/>';
+      out += '<text x="' + cx + '" y="' + (cy - tier.r + 16) + '" text-anchor="middle" font-size="12" fill="var(--ijs)" font-family="var(--sans)">' + tier.name + " · " + tier.live + "/" + tier.plan + "</text>";
+    });
+    out += '<circle cx="' + cx + '" cy="' + cy + '" r="6" fill="var(--oranje)"/>';
+    return out + "</svg>";
+  }
+
+  function renderTestbank() {
+    el("tb-body").innerHTML = D.common.testbank.map(function (axis) {
+      var name = (t.axisNames && t.axisNames[axis]) || axis;
+      var verdict = D.selftestVerdicts[D.dishId][axis];
+      var state = verdict === true ? ["var(--mint)", t.tbOk] : verdict === false ? ["var(--rood)", t.tbFail] : ["var(--amber)", t.tbCheck];
+      return "<tr><td>" + name + "</td><td style='color:" + state[0] + "'>" + state[1] + "</td></tr>";
+    }).join("");
+  }
+
+  function renderKpi() {
+    el("kpi-head").innerHTML = "<tr><th>" + t.kpi + "</th><th>" + t.kpiType + "</th><th>Lens</th><th>" + t.dataSource + "</th><th>KVI</th></tr>";
+    el("kpi-body").innerHTML = recipe().service.kpis.map(function (k) {
+      return "<tr><td>" + k.kpi + "</td><td>" + k.kpiType + "</td><td><span class='lens'>" + k.outcomeLens + "</span></td><td>" + k.dataSource + "</td><td>" + (k.kviRollup || "—") + "</td></tr>";
+    }).join("");
+  }
+
+  function renderSiblings() {
+    el("siblings").innerHTML = D.siblings.map(function (r) {
+      return "<div class='card" + (r.poc ? " poc" : "") + "'><b>" + r.code + "</b> " + r.title +
+        "<span class='kpi'>" + r.kpi + "</span><span class='lens'>" + r.mode + " · lens " + r.lens + "</span></div>";
+    }).join("");
+  }
+
+  function selftest() {
+    var checks = [];
+    checks.push(["recipes aanwezig", D.recipes.length === 2]);
+    checks.push(["runs per recipe", D.recipes.every(function (r) { return r.runs.length >= 1; })]);
+    checks.push(["stappen per run", D.recipes.every(function (r) {
+      return r.runs.every(function (run) { return run.steps.length >= 3; }); })]);
+    checks.push(["viz-config aanwezig", D.recipes.every(function (r) { return r.viz && r.viz.kind; })]);
+    checks.push(["G-punt per stap", D.recipes.every(function (r) {
+      return r.runs[0].steps.every(function (s) { return !!s.genAiTestPoint; }); })]);
+    checks.push(["bron per stap", D.recipes.every(function (r) {
+      return r.runs[0].steps.every(function (s) { return s.prov.sources.length > 0; }); })]);
+    checks.push(["stopcondities (poort 5)", D.recipes.every(function (r) {
+      return r.runs[0].stopConditions.length > 0; })]);
+    checks.push(["KPI's per recipe (poort 1)", D.recipes.every(function (r) {
+      return r.service.kpis.length > 0; })]);
+    checks.push(["sibling-kaarten", D.siblings.length >= 3]);
+    checks.push(["testbank-assen", D.common.testbank.length === 7]);
+    var failed = checks.filter(function (c) { return !c[1]; });
+    var badge = el("selftest-badge");
+    badge.textContent = (failed.length === 0 ? "selftest " : "SELFTEST ") + (checks.length - failed.length) + "/" + checks.length;
+    badge.className = failed.length === 0 ? "ok" : "fail";
+    return failed.length === 0;
+  }
+
+  function renderAll() { renderScenarios(); renderRail(); renderStep(); renderTestbank(); renderKpi(); renderSiblings(); }
+  renderHeader(); renderAll(); selftest();
+})();
+</script>
+</body>
+</html>

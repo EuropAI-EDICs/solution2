@@ -255,6 +255,31 @@ _VIZ_DATA["uam-01-medical-logistics"] = UAM01_VIZ
 _VIZ_DATA["uam-09-geofencing-zones"] = UAM09_VIZ
 
 
+def _canopy_cells(covers: list[int]) -> list[dict]:
+    """4×3-raster op vaste posities (x = 40 + col*150, y = 30 + row*85, cel 70)."""
+    return [{"x": 40 + (i % 4) * 150, "y": 30 + (i // 4) * 85, "cover": c}
+            for i, c in enumerate(covers)]
+
+
+# Task 4 — 3-30-300 (display-only; deterministisch en vast).
+GRN01_VIZ = {
+    "kind": "canopy",
+    "note": "Schema per wijkblok: mint = boven de 30% bladerdak, oranje = eronder. Geen echte kaart.",
+    "data": {"cell": 70,
+             "cells": {"wijk-noord": _canopy_cells([21, 24, 19, 23, 25, 18, 22, 27, 20, 24, 19, 26]),
+                        "wijk-zuid": _canopy_cells([38, 44, 41, 47, 33, 42, 36, 48, 39, 45, 40, 35])}}}
+
+GRN03_VIZ = {
+    "kind": "canopy",
+    "note": "Percentage bewoners binnen 300 meter goed groen per wijkblok (schema).",
+    "data": {"cell": 70,
+             "cells": {"binnen-norm": _canopy_cells([88, 92, 85, 90, 79, 94, 87, 91, 83, 89, 95, 86]),
+                        "groeidesert": _canopy_cells([61, 58, 72, 64, 47, 55, 51, 62, 57, 44, 66, 53])}}}
+
+_VIZ_DATA["grn-01-canopy-measure"] = GRN01_VIZ
+_VIZ_DATA["grn-03-300m-gaps"] = GRN03_VIZ
+
+
 def _viz_data(rid: str) -> dict:
     if rid not in _VIZ_DATA:
         raise KeyError(f"_viz_data: geen viz-data geregistreerd voor recipe {rid}")

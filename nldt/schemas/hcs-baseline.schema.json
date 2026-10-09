@@ -22,7 +22,12 @@
         "kpi": { "type": "string" },
         "kpiType": { "enum": ["output", "outcome"] },
         "unit": { "type": "string" },
-        "outcomeLens": { "enum": ["Z", "L", "W", "—"] },
+        "outcomeLens": {
+          "oneOf": [
+            { "enum": ["Z", "L", "W", "—"] },
+            { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["Z", "L", "W"] } }
+          ]
+        },
         "baseline": { "type": "string" },
         "target": { "type": "string" },
         "dataSource": { "type": "string" },

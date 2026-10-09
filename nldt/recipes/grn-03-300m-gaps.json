@@ -1,0 +1,25 @@
+{
+  "id": "grn-03-300m-gaps",
+  "title": "3-30-300 GRN-03 — 'I want to close the 300 m gaps'",
+  "description": "City-recipe: loopafstand naar goed groen per adres → groene woestijnen benoemen → het gebiedsteam (mens) prioriteert met bewoners welke straat eerst vergroent. KPI: bewoners binnen 300 meter van goed groen. Deterministische replay via hcs-recipe-run.",
+  "version": "1.0.0",
+  "tags": ["hcs", "edic", "3-30-300", "grn-03", "city-recipe", "plan"],
+  "requiredProcesses": ["hcs-recipe-run"],
+  "inputs": {"scenario": {"type": "string", "description": "scenario-id: binnen-norm|groeidesert", "required": false}, "mode": {"type": "string", "description": "replay|execute", "required": false}, "lang": {"type": "string", "description": "nl|en", "required": false}},
+  "outputs": {"run": {"type": "json", "description": "HCS run-artefact"}},
+  "steps": [{"id": "run", "processId": "hcs-recipe-run", "title": "Replay 300-meter-gaten", "inputs": {"recipeId": "grn-03-300m-gaps", "scenario": "${recipe.inputs.scenario}", "mode": "${recipe.inputs.mode}", "lang": "${recipe.inputs.lang}"}, "outputs": {"run": "run"}, "backend": "local"}],
+  "riskLevel": "low",
+  "service": {
+    "dish": "3-30-300", "lifeEventCode": "GRN-03", "serviceType": "plan",
+    "parties": [{"name": "Gemeente", "role": "groenbeheer en begroting"}, {"name": "Gebiedsteam met bewoners", "role": "prioritering vergroening (mens)"}],
+    "legalBasis": [{"basis": "Omgevingswet (participatie en leefomgevingskwaliteit)", "timeLimit": "jaarlijkse analyse, signalen vóór de begrotingsronde"}],
+    "humanMeasure": {"handover": ["Prioritering van vergroening → gebiedsteam met bewoners (mens)"], "exceptions": ["veilige routes meewegen; adressen zonder voetpad"]},
+    "localVariant": "norm en prioritering zijn gemeentelijk beleid",
+    "genAiTestPoints": [
+      {"point": "G2", "description": "Loopafstand over echte, veilige paden — niet in vogelvlucht", "testCases": ["adressen zonder veilig voetpad vallen op"]},
+      {"point": "G5", "description": "Proactief signaal voor wijken onder de norm, vóór de begrotingsronde", "testCases": ["groeidesert staat bovenaan de prioriteitenlijst"]}
+    ],
+    "kpis": [{"kpi": "Residents within 300 m of quality green", "kpiType": "outcome", "unit": "%", "outcomeLens": ["Z", "L"], "baseline": "", "target": "", "dataSource": "network analysis", "frequency": "yearly", "kviRollup": "KVI 7 (Biodiversity) · KVI 6 (Soil & Water) · KVI 2 (Cooling)"}]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/grn-03-300m-gaps"
+}

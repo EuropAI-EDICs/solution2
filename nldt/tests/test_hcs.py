@@ -421,10 +421,15 @@ CITY_IDS = ("uam-01-medical-logistics", "uam-09-geofencing-zones",
 CITY_FIXTURES_DIR = HCS_ROOT / "fixtures" / "city"
 
 
-@pytest.mark.parametrize("rid", ["uam-01-medical-logistics", "uam-09-geofencing-zones"])
+@pytest.mark.parametrize("rid", ["uam-01-medical-logistics", "uam-09-geofencing-zones",
+                                 "grn-01-canopy-measure", "grn-03-300m-gaps"])
 def test_city_recipe_and_baseline_valid(rid):
+    dish = {"uam-01-medical-logistics": "urban-air-mobility",
+            "uam-09-geofencing-zones": "urban-air-mobility",
+            "grn-01-canopy-measure": "3-30-300",
+            "grn-03-300m-gaps": "3-30-300"}[rid]
     recipe = load_recipe(rid)
-    assert recipe["service"]["dish"] == "urban-air-mobility"
+    assert recipe["service"]["dish"] == dish
     assert recipe["requiredProcesses"] == ["hcs-recipe-run"]
     baseline = json.loads((NLDT_ROOT / "recipes" / "baselines" / f"{rid}.baseline.json").read_text())
     validate_instance(baseline, "hcs-baseline.schema.json")
@@ -439,6 +444,28 @@ def test_city_fixtures_bilingual_and_runnable(rid="uam-01-medical-logistics"):
         assert isinstance(step["title"], dict) and set(step["title"]) >= {"nl", "en"}
     out = execute_local("hcs-recipe-run", {"recipeId": rid, "scenario": sorted(sc_ids)[0]})
     validate_instance(out["run"], "hcs-run.schema.json")
+
+
+def test_city_fixtures_bilingual_and_runnable_grn():
+    test_city_fixtures_bilingual_and_runnable(rid="grn-03-300m-gaps")
+
+
+def test_service_outcomelens_accepts_arrays():
+    """xlsx kent meerdere lenses per KPI (bv. 'L W'); de schema's moeten dat aan kunnen."""
+    recipe = load_recipe("grn-01-canopy-measure")
+    assert recipe["service"]["kpis"][0]["outcomeLens"] == ["L", "W"]
+    baseline = json.loads(
+        (NLDT_ROOT / "recipes" / "baselines" / "grn-01-canopy-measure.baseline.json").read_text())
+    assert baseline["kpis"][0]["outcomeLens"] == ["L", "W"]
+
+
+def test_grn_page_generated():
+    text = (NLDT_ROOT / "simulation" / "hcs-grn-demo.html").read_text()
+    assert "window.DISH_DATA" in text and 'window.DISH_ID = "grn"' in text
+    for marker in ("__DISH_DATA__", "__DISH_ID__", "__BUILD_STAMP__"):
+        assert marker not in text
+    assert "GRN-01" in text and "grn-01-canopy-measure" in text
+    assert "selftest-badge" in text
 
 
 def test_uam_page_generated():

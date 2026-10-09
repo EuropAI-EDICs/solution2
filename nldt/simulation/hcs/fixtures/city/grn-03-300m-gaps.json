@@ -1,0 +1,55 @@
+{
+  "recipeId": "grn-03-300m-gaps",
+  "scenarioKind": "city",
+  "scenarios": [
+    {"id": "binnen-norm", "label": {"nl": "Wijk waar bijna iedereen binnen 300 meter groen heeft", "en": "District where almost everyone has green within 300 m"}},
+    {"id": "groeidesert", "label": {"nl": "Wijk met een groene woestijn", "en": "District with a green desert"}}
+  ],
+  "steps": [
+    {
+      "stepId": "loopafstand", "title": {"nl": "Van elk adres wordt de loopafstand tot goed groen berekend", "en": "For every address the walking distance to quality green is calculated"},
+      "defaults": {"actor": "agent", "genAiTestPoint": "G2",
+        "dataUsed": [{"nl": "alle adressen in de wijk", "en": "all addresses in the district"},
+                      {"nl": "looproutes over de echte paden, niet in vogelvlucht", "en": "walking routes over real paths, not as the crow flies"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Residents within 300 m of quality green", "effect": {"nl": "het percentage bewoners binnen 300 meter wordt per blok berekend", "en": "the share of residents within 300 m is computed per block"}}],
+        "prov": {"sources": [{"nl": "voetpaden- en wegenregister", "en": "footpath and road register"}]}},
+      "perScenario": {}
+    },
+    {
+      "stepId": "deserts", "title": {"nl": "Groene woestijnen worden benoemd", "en": "Green deserts are named"},
+      "defaults": {"actor": "agent", "genAiTestPoint": "G5",
+        "dataUsed": [{"nl": "blokken waar meer dan 10% van de bewoners verder dan 300 meter woont", "en": "blocks where more than 10% of residents live beyond 300 m"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Residents within 300 m of quality green", "effect": {"nl": "de stad weet precies welke straten buiten bereik vallen", "en": "the city knows exactly which streets fall outside reach"}}],
+        "prov": {"sources": [{"nl": "netwerkanalyse loopafstand", "en": "walking-distance network analysis"}]}},
+      "perScenario": {}
+    },
+    {
+      "stepId": "prioriteer", "title": {"nl": "Mensen beslissen welke straat eerst vergroent", "en": "People decide which street is greened first"},
+      "defaults": {"actor": "mens", "genAiTestPoint": "G5",
+        "dataUsed": [{"nl": "de prioriteitenlijst met de groene woestijnen bovenaan", "en": "the priority list with green deserts on top"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Residents within 300 m of quality green", "effect": {"nl": "vergroening komt eerst waar het tekort het grootst is", "en": "greening goes first where the shortfall is largest"}}],
+        "prov": {"sources": [{"nl": "begrotingsronde groenbeheer", "en": "green management budget cycle"}]},
+        "handover": {"reason": {"nl": "Over welke straat eerst vergroent, beslissen mensen met kennis van de wijk.", "en": "People who know the district decide which street is greened first."},
+                      "to": {"nl": "het gebiedsteam met bewoners", "en": "the area team with residents"}}},
+      "perScenario": {
+        "binnen-norm": {"handover": null}
+      }
+    }
+  ],
+  "stopConditions": [
+    {"id": "sc-grn03-1", "condition": {"nl": "De loopafstand-meting slaat adressen zonder veilig voetpad over.", "en": "The walking-distance measurement skips addresses without a safe footpath."},
+     "action": {"nl": "Netwerkmethode met veiligheidslaag bijstellen.", "en": "Retune the network method with a safety layer."}},
+    {"id": "sc-grn03-2", "condition": {"nl": "Het signaal komt te laat voor de begrotingsronde.", "en": "The signal arrives too late for the budget cycle."},
+     "action": {"nl": "Meetfrequentie verhogen naar halfjaarlijks.", "en": "Raise the measurement frequency to twice a year."}}
+  ],
+  "kpiSnapshot": [{"kpi": "Residents within 300 m of quality green", "baseline": "", "target": ""}],
+  "learningState": [
+    {"signal": {"nl": "Bewonerswaardering volgt de 300-meter-norm niet altijd.", "en": "Resident appreciation does not always follow the 300-metre rule."},
+     "why": {"nl": "Kwaliteit en onderhoud wegen zwaarder dan afstand.", "en": "Quality and maintenance weigh heavier than distance."},
+     "change": {"nl": "Ook kwaliteit van groen meenemen in de recipe.", "en": "Include green quality in the recipe as well."},
+     "decidesBy": {"nl": "function steward + groenbeheer", "en": "function steward + green management"}, "helped": null}
+  ]
+}

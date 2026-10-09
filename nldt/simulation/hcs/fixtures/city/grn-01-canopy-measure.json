@@ -1,0 +1,52 @@
+{
+  "recipeId": "grn-01-canopy-measure",
+  "scenarioKind": "city",
+  "scenarios": [
+    {"id": "wijk-noord", "label": {"nl": "Wijk Noord — onder de 30%", "en": "North district — below 30%"}},
+    {"id": "wijk-zuid", "label": {"nl": "Wijk Zuid — ruim boven de 30%", "en": "South district — well above 30%"}}
+  ],
+  "steps": [
+    {
+      "stepId": "beelden", "title": {"nl": "Nieuwe luchtfoto's worden opgehaald", "en": "New aerial images are fetched"},
+      "defaults": {"actor": "agent", "genAiTestPoint": "G2",
+        "dataUsed": [{"nl": "verse luchtfoto's van de wijk", "en": "fresh aerial images of the district"},
+                      {"nl": "dezelfde vlieghoogte als vorig jaar, zodat metingen te vergelijken zijn", "en": "the same flight height as last year, so measurements are comparable"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Canopy cover per neighbourhood", "effect": {"nl": "het bladerdak-percentage wordt weer gemeten", "en": "the canopy percentage is measured again"}}],
+        "prov": {"sources": [{"nl": "luchtfoto's (remote sensing)", "en": "aerial imagery (remote sensing)"}]}},
+      "perScenario": {}
+    },
+    {
+      "stepId": "canopy", "title": {"nl": "De computer meet het bladerdak per stukje wijk", "en": "The computer measures the canopy per patch of the district"},
+      "defaults": {"actor": "agent", "genAiTestPoint": "G2",
+        "dataUsed": [{"nl": "de computer herkent bladerdak op de foto's", "en": "the software recognises canopy in the images"},
+                      {"nl": "een medewerker controleert een steekproef van de stukjes", "en": "a caseworker spot-checks a sample of the patches"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Canopy cover per neighbourhood", "effect": {"nl": "per wijkblok komt een percentage te staan", "en": "every district block gets a percentage"}}],
+        "prov": {"sources": [{"nl": "meetmethode bladerdak (AI-canopy-map)", "en": "canopy measurement (AI canopy map)"}]}},
+      "perScenario": {}
+    },
+    {
+      "stepId": "heat-map", "title": {"nl": "De wijk krijgt een heat-map en een signaal", "en": "The district gets a heat map and a signal"},
+      "defaults": {"actor": "agent", "genAiTestPoint": "G5",
+        "dataUsed": [{"nl": "groei of krimp van het bladerdak ten opzichte van vorig jaar", "en": "canopy growth or loss compared with last year"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Canopy cover per neighbourhood", "effect": {"nl": "wijken onder de 30% krijgen proactief een signaal", "en": "districts below 30% proactively get a signal"}}],
+        "prov": {"sources": [{"nl": "KPI-framework 3-30-300", "en": "3-30-300 KPI framework"}]}},
+      "perScenario": {}
+    }
+  ],
+  "stopConditions": [
+    {"id": "sc-grn01-1", "condition": {"nl": "De computer meet paalen schaduw als bladerdak — bij meer dan 5% van de steekproef.", "en": "The computer counts poles and shadows as canopy — in more than 5% of the sample."},
+     "action": {"nl": "Meetmethode bijstellen vóór de volgende meting.", "en": "Tune the measurement method before the next run."}},
+    {"id": "sc-grn01-2", "condition": {"nl": "Een wijk daalt twee meetjaren achter elkaar.", "en": "A district declines for two measurement years in a row."},
+     "action": {"nl": "Proactief signaal naar het gebiedsteam, vóór het groeiseizoen.", "en": "Proactive signal to the area team, before the growing season."}}
+  ],
+  "kpiSnapshot": [{"kpi": "Canopy cover per neighbourhood", "baseline": "", "target": ""}],
+  "learningState": [
+    {"signal": {"nl": "Wijk Noord groeit langzaam maar gestaag.", "en": "North district grows slowly but steadily."},
+     "why": {"nl": "De bomen van drie jaar geleden doen het goed.", "en": "The trees planted three years ago are doing well."},
+     "change": {"nl": "Doel per wijk uitsplitsen in de recipe.", "en": "Split the target per district in the recipe."},
+     "decidesBy": {"nl": "function steward + groenbeheer", "en": "function steward + green management"}, "helped": null}
+  ]
+}

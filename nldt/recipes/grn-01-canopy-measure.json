@@ -1,0 +1,25 @@
+{
+  "id": "grn-01-canopy-measure",
+  "title": "3-30-300 GRN-01 — 'I want to measure canopy (the 30%)'",
+  "description": "City-recipe: luchtfoto's → AI-bladerdakmeting → heat-map per wijk. Een medewerker controleert een steekproef van de meting; wijken onder de 30% krijgen proactief een signaal. KPI: bladerdak per wijk. Deterministische replay via hcs-recipe-run.",
+  "version": "1.0.0",
+  "tags": ["hcs", "edic", "3-30-300", "grn-01", "city-recipe", "measure"],
+  "requiredProcesses": ["hcs-recipe-run"],
+  "inputs": {"scenario": {"type": "string", "description": "scenario-id: wijk-noord|wijk-zuid", "required": false}, "mode": {"type": "string", "description": "replay|execute", "required": false}, "lang": {"type": "string", "description": "nl|en", "required": false}},
+  "outputs": {"run": {"type": "json", "description": "HCS run-artefact"}},
+  "steps": [{"id": "run", "processId": "hcs-recipe-run", "title": "Replay bladerdakmeting", "inputs": {"recipeId": "grn-01-canopy-measure", "scenario": "${recipe.inputs.scenario}", "mode": "${recipe.inputs.mode}", "lang": "${recipe.inputs.lang}"}, "outputs": {"run": "run"}, "backend": "local"}],
+  "riskLevel": "low",
+  "service": {
+    "dish": "3-30-300", "lifeEventCode": "GRN-01", "serviceType": "measure",
+    "parties": [{"name": "Gemeente", "role": "groenbeheer (opdrachtgever)"}, {"name": "Gebiedsteam", "role": "ontvangt signalen per wijk"}],
+    "legalBasis": [{"basis": "Omgevingswet (kwaliteit leefomgeving)", "timeLimit": "jaarlijkse meting"}],
+    "humanMeasure": {"handover": ["Steekproefcontrole van de AI-meting door een medewerker", "Wijken onder de 30% → gebiedsteam"], "exceptions": ["meetfouten door schaduw en paalen"]},
+    "localVariant": "doelstelling per wijk is gemeentelijk groenbeleid",
+    "genAiTestPoints": [
+      {"point": "G2", "description": "De meetmethode herkent bladerdak; een steekproef controleert de uitslag", "testCases": ["steekproef minder dan 5% afwijkend"]},
+      {"point": "G5", "description": "Proactief signaal bij dalende of te lage wijken", "testCases": ["wijk onder de 30% krijgt signaal"]}
+    ],
+    "kpis": [{"kpi": "Canopy cover per neighbourhood", "kpiType": "outcome", "unit": "%", "outcomeLens": ["L", "W"], "baseline": "", "target": "", "dataSource": "remote sensing", "frequency": "yearly", "kviRollup": "KVI 7 (Biodiversity) · KVI 6 (Soil & Water) · KVI 2 (Cooling)"}]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/grn-01-canopy-measure"
+}
