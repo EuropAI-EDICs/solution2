@@ -421,16 +421,16 @@ CITY_IDS = ("uam-01-medical-logistics", "uam-09-geofencing-zones",
 CITY_FIXTURES_DIR = HCS_ROOT / "fixtures" / "city"
 
 
-@pytest.mark.parametrize("rid", ["uam-01-medical-logistics", "uam-09-geofencing-zones",
-                                 "grn-01-canopy-measure", "grn-03-300m-gaps",
-                                 "cir-04-shared-energy", "cir-01-circular-condition"])
+@pytest.mark.parametrize("rid", CITY_IDS)
 def test_city_recipe_and_baseline_valid(rid):
     dish = {"uam-01-medical-logistics": "urban-air-mobility",
             "uam-09-geofencing-zones": "urban-air-mobility",
             "grn-01-canopy-measure": "3-30-300",
             "grn-03-300m-gaps": "3-30-300",
             "cir-04-shared-energy": "circular-neighborhoods",
-            "cir-01-circular-condition": "circular-neighborhoods"}[rid]
+            "cir-01-circular-condition": "circular-neighborhoods",
+            "min-01-proximity-analysis": "15-minute-city",
+            "min-04-hub-network": "15-minute-city"}[rid]
     recipe = load_recipe(rid)
     assert recipe["service"]["dish"] == dish
     assert recipe["requiredProcesses"] == ["hcs-recipe-run"]
@@ -455,6 +455,10 @@ def test_city_fixtures_bilingual_and_runnable_grn():
 
 def test_city_fixtures_bilingual_and_runnable_cir():
     test_city_fixtures_bilingual_and_runnable(rid="cir-04-shared-energy")
+
+
+def test_city_fixtures_bilingual_and_runnable_min():
+    test_city_fixtures_bilingual_and_runnable(rid="min-04-hub-network")
 
 
 def test_service_outcomelens_accepts_arrays():
@@ -482,6 +486,16 @@ def test_cir_page_generated():
         assert marker not in text
     assert "CIR-04" in text and "cir-04-shared-energy" in text
     assert "selftest-badge" in text
+
+
+def test_dish_pages_exist_and_filled():
+    for dish, recipe_id in (("uam", "uam-01-medical-logistics"), ("grn", "grn-01-canopy-measure"),
+                             ("cir", "cir-04-shared-energy"), ("min", "min-01-proximity-analysis")):
+        text = (NLDT_ROOT / "simulation" / f"hcs-{dish}-demo.html").read_text()
+        assert "window.DISH_DATA" in text and f'window.DISH_ID = "{dish}"' in text
+        for marker in ("__DISH_DATA__", "__DISH_ID__", "__BUILD_STAMP__"):
+            assert marker not in text
+        assert recipe_id in text and "selftest-badge" in text
 
 
 def test_uam_page_generated():

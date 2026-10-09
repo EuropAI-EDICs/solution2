@@ -303,6 +303,29 @@ _VIZ_DATA["cir-04-shared-energy"] = CIR04_VIZ
 _VIZ_DATA["cir-01-circular-condition"] = CIR01_VIZ
 
 
+# Task 6 — 15-minute city (display-only; deterministisch en vast).
+MIN01_VIZ = {
+    "kind": "tiers",
+    "note": "Bereikte voorzieningen per ring (schema) — de randwijk haalt de buitenringen niet.",
+    "data": {"tiers": [
+        {"name": "winkels", "r": 90, "live": 14, "plan": 15},
+        {"name": "zorg", "r": 130, "live": 9, "plan": 10},
+        {"name": "onderwijs", "r": 170, "live": 6, "plan": 8},
+        {"name": "groen", "r": 210, "live": 4, "plan": 6}]}}
+
+MIN04_VIZ = {
+    "kind": "tiers",
+    "note": "De hubladder: live versus gepland per niveau (micro → wijk → stadsdeel → stad).",
+    "data": {"tiers": [
+        {"name": "micro", "r": 80, "live": 11, "plan": 12},
+        {"name": "wijk", "r": 125, "live": 4, "plan": 5},
+        {"name": "stadsdeel", "r": 165, "live": 2, "plan": 3},
+        {"name": "stad", "r": 205, "live": 1, "plan": 1}]}}
+
+_VIZ_DATA["min-01-proximity-analysis"] = MIN01_VIZ
+_VIZ_DATA["min-04-hub-network"] = MIN04_VIZ
+
+
 def _viz_data(rid: str) -> dict:
     if rid not in _VIZ_DATA:
         raise KeyError(f"_viz_data: geen viz-data geregistreerd voor recipe {rid}")

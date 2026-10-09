@@ -1,0 +1,56 @@
+{
+  "recipeId": "min-01-proximity-analysis",
+  "scenarioKind": "city",
+  "scenarios": [
+    {"id": "centrumwijk", "label": {"nl": "Centrumwijk: voorzieningen dichtbij", "en": "Centre district: amenities close by"}},
+    {"id": "randwijk", "label": {"nl": "Randwijk: een servicedesert", "en": "Edge district: a service desert"}}
+  ],
+  "steps": [
+    {
+      "stepId": "voorzieningen", "title": {"nl": "Alle dagelijkse voorzieningen worden op de kaart gezet", "en": "All daily amenities are plotted on the map"},
+      "defaults": {"actor": "agent", "genAiTestPoint": "G2",
+        "dataUsed": [{"nl": "winkels, zorg, scholen en parken met hun locaties", "en": "shops, care, schools and parks with their locations"},
+                      {"nl": "openings- en bereikbaarheidsgegevens", "en": "opening and accessibility details"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Residents within 15 min of daily needs", "effect": {"nl": "het voorzieningenaanbod per wijk is compleet in beeld", "en": "each district's amenity supply is fully mapped"}}],
+        "prov": {"sources": [{"nl": "voorzieningenregister (gemeente/PDOK)", "en": "amenities register (municipality/PDOK)"}]}},
+      "perScenario": {}
+    },
+    {
+      "stepId": "bereik", "title": {"nl": "Van elk adres wordt berekend wat binnen 15 minuten bereikbaar is", "en": "For every address we compute what is reachable within 15 minutes"},
+      "defaults": {"actor": "agent", "genAiTestPoint": "G2",
+        "dataUsed": [{"nl": "lopen en fietsen over de echte routes", "en": "walking and cycling over real routes"},
+                      {"nl": "veilige oversteekplaatsen meegewogen", "en": "safe crossings taken into account"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Residents within 15 min of daily needs", "effect": {"nl": "per adres staat er een bereikbaarheidspercentage", "en": "every address gets an accessibility percentage"}}],
+        "prov": {"sources": [{"nl": "isochronenmodel (loop- en fietsnetwerk)", "en": "isochrone model (walking and cycling network)"}]}},
+      "perScenario": {}
+    },
+    {
+      "stepId": "signaal", "title": {"nl": "Servicedeserts worden benoemd en gemeld", "en": "Service deserts are named and reported"},
+      "defaults": {"actor": "agent", "genAiTestPoint": "G5",
+        "dataUsed": [{"nl": "wijken waar minder dan de norm binnen 15 minuten haalt", "en": "districts below the norm within 15 minutes"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Residents within 15 min of daily needs", "effect": {"nl": "het gebiedsteam krijgt het signaal vóór de begrotingsronde", "en": "the area team gets the signal before the budget cycle"}}],
+        "prov": {"sources": [{"nl": "KPI-framework 15-minute city", "en": "15-minute city KPI framework"}]},
+        "handover": {"reason": {"nl": "Deze wijk scoort onder de norm — het gebiedteam gaat met bewoners in gesprek.", "en": "This district scores below the norm — the area team talks with residents."},
+                      "to": {"nl": "het gebiedteam van de wijk", "en": "the district's area team"}}},
+      "perScenario": {
+        "centrumwijk": {"handover": null}
+      }
+    }
+  ],
+  "stopConditions": [
+    {"id": "sc-min01-1", "condition": {"nl": "Het bereikmodel negeert onveilige routes (bv. ontbrekende oversteekplaatsen).", "en": "The reachability model ignores unsafe routes (e.g. missing crossings)."},
+     "action": {"nl": "Model met veiligheidslaag bijstellen.", "en": "Retune the model with a safety layer."}},
+    {"id": "sc-min01-2", "condition": {"nl": "Het signaal bereikt het gebiedsteam niet vóór de begroting.", "en": "The signal does not reach the area team before the budget."},
+     "action": {"nl": "Signaal koppelen aan de begrotingskalender.", "en": "Link the signal to the budget calendar."}}
+  ],
+  "kpiSnapshot": [{"kpi": "Residents within 15 min of daily needs", "baseline": "", "target": ""}],
+  "learningState": [
+    {"signal": {"nl": "Pakketpunten en zorglocaties tellen zwaarder mee dan gedacht.", "en": "Parcel points and care locations weigh heavier than expected."},
+     "why": {"nl": "Bewoners halen daar ook hun dagelijkse boodschappen.", "en": "Residents combine them with daily errands."},
+     "change": {"nl": "Weegfactoren in de recipe publiceren.", "en": "Publish the weighting factors in the recipe."},
+     "decidesBy": {"nl": "function steward + gebiedsteams", "en": "function steward + area teams"}, "helped": null}
+  ]
+}

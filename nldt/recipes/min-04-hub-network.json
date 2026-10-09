@@ -1,0 +1,25 @@
+{
+  "id": "min-04-hub-network",
+  "title": "15-minute city MIN-04 — 'I want to plan my hub network'",
+  "description": "City-recipe: behoefte per hubniveau (micro → wijk → stadsdeel → stad), een locatievoorstel met opbrengst, en het besluit samen met wijkbewoners en bestuur (mens). KPI: live hubs per niveau. Deterministische replay via hcs-recipe-run.",
+  "version": "1.0.0",
+  "tags": ["hcs", "edic", "15-minute-city", "min-04", "city-recipe", "plan"],
+  "requiredProcesses": ["hcs-recipe-run"],
+  "inputs": {"scenario": {"type": "string", "description": "scenario-id: microhub", "required": false}, "mode": {"type": "string", "description": "replay|execute", "required": false}, "lang": {"type": "string", "description": "nl|en", "required": false}},
+  "outputs": {"run": {"type": "json", "description": "HCS run-artefact"}},
+  "steps": [{"id": "run", "processId": "hcs-recipe-run", "title": "Replay hubladder", "inputs": {"recipeId": "min-04-hub-network", "scenario": "${recipe.inputs.scenario}", "mode": "${recipe.inputs.mode}", "lang": "${recipe.inputs.lang}"}, "outputs": {"run": "run"}, "backend": "local"}],
+  "riskLevel": "low",
+  "service": {
+    "dish": "15-minute-city", "lifeEventCode": "MIN-04", "serviceType": "plan",
+    "parties": [{"name": "Gemeente", "role": "hubregister en voorstel"}, {"name": "Wijkbewoners en college", "role": "besluiten samen (mens)"}],
+    "legalBasis": [{"basis": "Omgevingswet (participatie bij gebiedsontwikkeling)", "timeLimit": "kwartaal updates hubregister"}],
+    "humanMeasure": {"handover": ["Locatiebesluit → wijkavond en college (mens)"], "exceptions": ["leege hubs blokkeren nieuwe plaatsingen"]},
+    "localVariant": "hubnormen per niveau zijn gemeentelijk beleid",
+    "genAiTestPoints": [
+      {"point": "G2", "description": "Voorstel is onderbouwd met loopafstanden en gebruikscijfers", "testCases": ["kandidaat-locatie aan de winkelstraat"]},
+      {"point": "G5", "description": "Het besluit is mensenwerk; het voorstel is alleen input", "testCases": ["wijkavond en college besluiten"]}
+    ],
+    "kpis": [{"kpi": "Hubs live per tier (micro/nbhd/district/city)", "kpiType": "output", "unit": "# per tier", "outcomeLens": "—", "baseline": "", "target": "", "dataSource": "hub register", "frequency": "quarterly", "kviRollup": "KVI 1 (Mobility) · KVI 3 (Housing: mixed-use, density)"}]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/min-04-hub-network"
+}

@@ -1,0 +1,52 @@
+{
+  "recipeId": "min-04-hub-network",
+  "scenarioKind": "city",
+  "scenarios": [
+    {"id": "microhub", "label": {"nl": "Een nieuwe microhub bij de winkelstraat", "en": "A new micro-hub by the shopping street"}}
+  ],
+  "steps": [
+    {
+      "stepId": "behoefte", "title": {"nl": "Per niveau wordt de behoefte opgeteld", "en": "Demand is added up per tier"},
+      "defaults": {"actor": "agent", "genAiTestPoint": "G2",
+        "dataUsed": [{"nl": "de hubladder: micro, wijk, stadsdeel en stad", "en": "the hub ladder: micro, neighbourhood, district and city"},
+                      {"nl": "huidige dekking per niveau", "en": "current coverage per tier"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Hubs live per tier (micro/nbhd/district/city)", "effect": {"nl": "het gat tussen live en gepland hubs wordt zichtbaar", "en": "the gap between live and planned hubs becomes visible"}}],
+        "prov": {"sources": [{"nl": "hubregister", "en": "hub register"}]}},
+      "perScenario": {}
+    },
+    {
+      "stepId": "voorstel", "title": {"nl": "Een voorstel: waar komt de hub en wat levert hij", "en": "A proposal: where the hub goes and what it adds"},
+      "defaults": {"actor": "agent", "genAiTestPoint": "G2",
+        "dataUsed": [{"nl": "loopafstanden en gebruiksprognoses voor de kandidaat-locatie", "en": "walking distances and usage forecasts for the candidate location"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Hubs live per tier (micro/nbhd/district/city)", "effect": {"nl": "het voorstel verhoogt de live-telling op microniveau", "en": "the proposal raises the live count at micro tier"}}],
+        "prov": {"sources": [{"nl": "nabijheidsanalyse (MIN-01)", "en": "proximity analysis (MIN-01)"}]}},
+      "perScenario": {}
+    },
+    {
+      "stepId": "besluit", "title": {"nl": "Wijkbewoners en bestuur beslissen samen", "en": "Residents and the board decide together"},
+      "defaults": {"actor": "mens", "genAiTestPoint": "G5",
+        "dataUsed": [{"nl": "het voorstel met reacties uit de wijk", "en": "the proposal with feedback from the neighbourhood"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Hubs live per tier (micro/nbhd/district/city)", "effect": {"nl": "bij instemming gaat de hub de teller in", "en": "on approval the hub enters the count"}}],
+        "prov": {"sources": [{"nl": "notulen wijkavond en collegebesluit", "en": "neighbourhood meeting minutes and board decision"}]},
+        "handover": {"reason": {"nl": "Over de plek van de hub beslissen wijkbewoners en bestuur samen.", "en": "Residents and the board decide the hub's location together."},
+                      "to": {"nl": "de wijkavond en het college", "en": "the neighbourhood meeting and the board"}}},
+      "perScenario": {}
+    }
+  ],
+  "stopConditions": [
+    {"id": "sc-min04-1", "condition": {"nl": "Een hub staat een halfjaar leeg.", "en": "A hub sits empty for half a year."},
+     "action": {"nl": "Locatie heroverwegen; geen nieuwe hubs tot dan.", "en": "Reconsider the location; no new hubs until then."}},
+    {"id": "sc-min04-2", "condition": {"nl": "De wijkavond mist kwartieren van de wijk.", "en": "The neighbourhood meeting misses whole quarters of the district."},
+     "action": {"nl": "Bereik van de wijkavond verbreden.", "en": "Broaden the reach of the meeting."}}
+  ],
+  "kpiSnapshot": [{"kpi": "Hubs live per tier (micro/nbhd/district/city)", "baseline": "", "target": ""}],
+  "learningState": [
+    {"signal": {"nl": "Microhubs werken het best aan winkelstraten.", "en": "Micro-hubs work best along shopping streets."},
+     "why": {"nl": "Daar is de loopstroom het hoogst.", "en": "Foot traffic is highest there."},
+     "change": {"nl": "Plaatsingsregel in de recipe vastleggen.", "en": "Record the placement rule in the recipe."},
+     "decidesBy": {"nl": "function steward + gebiedsontwikkeling", "en": "function steward + area development"}, "helped": null}
+  ]
+}
