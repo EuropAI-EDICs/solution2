@@ -406,8 +406,9 @@ def test_dish_generator_mechanics():
         mod._viz_data("probe-zonder-viz")
     # menu-data.json is gekeyd op de dish-id's uit het recipe-schema; uam is al compleet.
     sib = mod._menu_siblings("uam")
-    assert [s["code"] for s in sib] == ["UAM-01", "UAM-09"]
-    assert all(s["poc"] for s in sib)  # beide uam-recipes zijn PoC
+    assert [s["code"] for s in sib] == ["UAM-01", "UAM-02", "UAM-03", "UAM-04", "UAM-05",
+                                         "UAM-06", "UAM-07", "UAM-08", "UAM-09"]
+    assert [s["poc"] for s in sib] == [True, False, False, False, False, False, False, False, True]
     menu = json.loads((HCS_ROOT / "menu-data.json").read_text())
     assert set(menu) == {"the-key", "urban-air-mobility", "3-30-300",
                          "circular-neighborhoods", "15-minute-city"}
@@ -516,7 +517,36 @@ def test_menu_demo_lists_all_thk():
     text = MENU_HTML.read_text()
     for code in ("THK-01", "THK-08", "THK-14", "THK-24", "THK-25"):
         assert code in text
-    assert "fase 2" in text and "UAM" in text and "GRN" in text
+    # de elf PoC-kaarten zijn herkenbaar aan hun recipeId in het ingebedde MENU-literal
+    poc_ids = ("thk-08-move-home", "thk-02-having-a-baby", "thk-24-build-renovate",
+               "uam-01-medical-logistics", "uam-09-geofencing-zones",
+               "grn-01-canopy-measure", "grn-03-300m-gaps",
+               "cir-04-shared-energy", "cir-01-circular-condition",
+               "min-01-proximity-analysis", "min-04-hub-network")
+    assert sum(text.count(rid) for rid in poc_ids) >= 11
+
+
+def test_menu_demo_matches_menu_data():
+    text = MENU_HTML.read_text()
+    data = json.loads((HCS_ROOT / "menu-data.json").read_text())
+    assert sum(len(v) for v in data.values()) == 53
+    for dish, rows in data.items():
+        for row in rows:
+            assert row[0] in text, f"{row[0]} ontbreekt in menu-demo"
+            if row[5]:
+                assert row[5] in text, f"recipeId {row[5]} ontbreekt in menu-demo"
+
+
+def test_mapping_doc_city_tables():
+    text = MAPPING_DOC.read_text()
+    for marker in ("UAM-01", "GRN-03", "CIR-04", "MIN-04", "hcs-recipe-run", "B14"):
+        assert marker in text
+
+
+def test_index_links_all_dish_demos():
+    text = INDEX_HTML.read_text()
+    for d in ("uam", "grn", "cir", "min"):
+        assert f'href="hcs-{d}-demo.html"' in text
 
 
 def test_index_links_hcs():

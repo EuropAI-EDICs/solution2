@@ -17,7 +17,7 @@ explainer; replay of the canonical Utrecht wind run `20260830T113234Z-wind`), th
 concrete instances, the five gates, reuse, the learning loop, the phasing, and the ask to the board.
 Design: [`docs/AGENTIC_STATE_PLAN.md`](../../docs/AGENTIC_STATE_PLAN.md).
 
-## Human-Centred Services — EDIC recipe PoC's (fase 1)
+## Human-Centred Services — EDIC recipe PoC's (fase 1 + 2)
 
 [`hcs-key-demo.html`](hcs-key-demo.html) (NL) ·
 [`hcs-key-demo-en.html`](hcs-key-demo-en.html) (EN) — The Key als recipe-PoC: vijf
@@ -30,8 +30,15 @@ Herbouwen:
 nldt/.venv/bin/python nldt/simulation/hcs/build_runs.py --stamp <ISO-stamp>
 ```
 
-[`hcs-menu-demo.html`](hcs-menu-demo.html) — het menu: 53 recipes over vijf dishes
-(THK volledig als kaarten; de city-dishes in fase 2), vijf stappen × G1–G5,
+[`hcs-uam-demo.html`](hcs-uam-demo.html) · [`hcs-grn-demo.html`](hcs-grn-demo.html) ·
+[`hcs-cir-demo.html`](hcs-cir-demo.html) · [`hcs-min-demo.html`](hcs-min-demo.html) —
+de vier city-dishes (fase 2): UAM-01/09, GRN-01/03, CIR-04/01, MIN-01/04 als
+deterministische replays via `hcs-recipe-run`, met scenario-switcher, offline
+SVG-visualisaties (kaartschema, bladerdakraster, tijdreeks, hubladder), testbank
+en KPI-panelen.
+
+[`hcs-menu-demo.html`](hcs-menu-demo.html) — het menu: alle 53 recipes over vijf
+dishes als kaarten (elf met PoC-markering en doorklik), vijf stappen × G1–G5,
 roll-up naar KVI's, recipe-cyclus en scale path.
 
 ## Per PoC

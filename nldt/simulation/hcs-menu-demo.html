@@ -48,18 +48,18 @@
 <p class="sub">Human-Centred Services Blueprint (EDIC-basisplaat) · recipes → KPI's → strategieën → KVI's → outcomes</p>
 
 <section>
-  <h2>De vijf dishes — fase 1: The Key uitgewerkt; fase 2: de vier city-dishes</h2>
+  <h2>De vijf dishes — alle 53 recipes; elf als PoC uitgewerkt</h2>
   <div class="dishes">
     <div class="dish"><h3>The Key</h3><div class="count">25 recipes · human-centred services</div>
       <div class="cards" id="thk-cards"></div></div>
-    <div class="dish next"><h3>Urban Air Mobility</h3><div class="count">9 recipes · drones, U-space</div>
-      <p style="font-size:.78rem;color:var(--ijs)">UAM-01 medische logistiek · UAM-09 geofencing-zones → <span class="fase">fase 2</span></p></div>
-    <div class="dish next"><h3>3-30-300</h3><div class="count">5 recipes · green city, Internet of Nature</div>
-      <p style="font-size:.78rem;color:var(--ijs)">GRN-01 canopy-meting · GRN-03 300-meter-gaten → <span class="fase">fase 2</span></p></div>
-    <div class="dish next"><h3>Circular neighborhoods</h3><div class="count">9 recipes · materiaalbank en deellaag</div>
-      <p style="font-size:.78rem;color:var(--ijs)">CIR-04 gedeelde energie · CIR-01 circulaire voorwaarde → <span class="fase">fase 2</span></p></div>
-    <div class="dish next"><h3>15-minute city</h3><div class="count">5 recipes · alles binnen 15 minuten, hubladder</div>
-      <p style="font-size:.78rem;color:var(--ijs)">MIN-01 nabijheidsanalyse · MIN-04 hubladder → <span class="fase">fase 2</span></p></div>
+    <div class="dish"><h3>Urban Air Mobility</h3><div class="count">9 recipes · drones, U-space</div>
+      <div class="cards" id="cards-urban-air-mobility"></div></div>
+    <div class="dish"><h3>3-30-300</h3><div class="count">5 recipes · green city, Internet of Nature</div>
+      <div class="cards" id="cards-3-30-300"></div></div>
+    <div class="dish"><h3>Circular neighborhoods</h3><div class="count">9 recipes · materiaalbank en deellaag</div>
+      <div class="cards" id="cards-circular-neighborhoods"></div></div>
+    <div class="dish"><h3>15-minute city</h3><div class="count">5 recipes · alles binnen 15 minuten, hubladder</div>
+      <div class="cards" id="cards-15-minute-city"></div></div>
   </div>
 </section>
 
@@ -91,42 +91,456 @@
 
 <p class="voet">HCS fase 1 · bronnen: recipes/01_Human_Centred_Services_Blueprint_EN_A1.pdf · recipes/05_KPI-framework_per-recipe.xlsx · <a href="hcs-key-demo.html">The Key-demo</a> · index: <a href="index.html">nldt/simulation</a></p>
 <script>
-var THK = [
-  ["THK-01","Ik wil trouwen","reactive · publiek-privaat","Lead time aangeef→trouwen geregistreerd","Z"],
-  ["THK-02","Ik krijg een kind","reactive → proactive","Geboorteregistraties digitaal","—"],
-  ["THK-03","Ik wil studeren","reactive · keten","Tijd inschrijving→alles geregeld","Z"],
-  ["THK-04","Ik wil in het buitenland studeren","reactive · keten · cross-border","Bewijsstukken via OOTS uitgewisseld","—"],
-  ["THK-05","Ik wil werk vinden","reactive · publiek-privaat","Uitstroom naar werk binnen 6 maanden","Z"],
-  ["THK-06","Ik wil een bedrijf starten","proactive · publiek-privaat","Doorlooptijd idee→bedrijf operationeel","Z"],
-  ["THK-07","Ik wil een huis kopen","reactive · privaat met publieke stappen","Hypotheekbewijs uit de bron","—"],
-  ["THK-08","Ik ga verhuizen","reactive · publiek-privaat","Verhuizingen zonder handmatige afhandeling","Z"],
-  ["THK-09","Ik wil rijden","reactive · publiek-privaat","Rijbewijsaanvragen digitaal gestart","—"],
-  ["THK-10","Ik wil reizen","reactive · publiek-privaat","Verlopende documenten op tijd gesignaleerd","—"],
-  ["THK-11","Ik wil een ID","reactive · publiek","Aanvragen na proactief signaal","—"],
-  ["THK-12","Ik wil een bankrekening openen","reactive · privaat","Rekeningen geopend met wallet-identificatie","—"],
-  ["THK-13","Ik wil mijn belastingen betalen","reactive · publiek","Automatische kwijtschelding wie daar recht op heeft","Z"],
-  ["THK-14","Ik wil sociale ondersteuning","reactive · publiek · 4 varianten","Non-take-up: recht hebben maar niets ontvangen","Z"],
-  ["THK-15","Ik wil zorg","reactive · publiek-privaat","Doorlooptijd aanvraag→zorg geleverd","Z"],
-  ["THK-16","Ik wil een geschil oplossen","reactive · publiek · 3 varianten","Geschillen informeel opgelost","Z"],
-  ["THK-17","Ik wil stemmen","proactive · publiek","Opkomst","L"],
-  ["THK-18","Ik wil vrijwilligerswerk doen","proactive · publiek-privaat","Actieve vrijwilligers","L Z"],
-  ["THK-19","Ik wil met pensioen","proactive · keten","AOW zonder vertraging aangevraagd","Z"],
-  ["THK-20","Ik wil een afscheid regelen","reactive · publiek-privaat","Partijen geïnformeerd via één notificatie","—"],
-  ["THK-21","Ik wil hier een leven opbouwen","reactive · publiek · nieuw","Nieuwkomers binnen de termijn","Z"],
-  ["THK-22","Ik wil iets organiseren","proactive · publiek · nieuw","Doorlooptijd aanvraag→besluit","—"],
-  ["THK-23","Ik heb een idee voor mijn stad","proactive · publiek · nieuw","Ideeën uitgevoerd","L"],
-  ["THK-24","Ik wil bouwen of renoveren","reactive · publiek-privaat · nieuw","Besluit binnen 8 weken (regulier)","—"],
-  ["THK-25","Ik wil steun bij opvoeden","reactive → proactive · publiek · nieuw","Gezinnen geholpen met lichte steun, zonder doorverwijzing","Z"]
-];
-var POC = {"THK-08":"hcs-key-demo.html","THK-02":"hcs-key-demo.html","THK-24":"hcs-key-demo.html"};
-var box = document.getElementById("thk-cards");
-THK.forEach(function (r) {
-  var d = document.createElement("div");
-  d.className = "card" + (POC[r[0]] ? " poc" : "");
-  d.innerHTML = "<b>" + r[0] + "</b> " + r[1] + "<span class='kpi'>" + r[3] + "</span>" +
-    "<span class='lens'>" + r[2] + " · lens " + r[4] + "</span>" +
-    (POC[r[0]] ? "<br/><a href='" + POC[r[0]] + "'>→ PoC-demo</a>" : "");
-  box.appendChild(d);
+var MENU = {
+ "the-key": [
+  [
+   "THK-01",
+   "Ik wil trouwen",
+   "reactive · publiek-privaat",
+   "Lead time aangeef→trouwen geregistreerd",
+   "Z",
+   ""
+  ],
+  [
+   "THK-02",
+   "Ik krijg een kind",
+   "reactive → proactive",
+   "Geboorteregistraties digitaal",
+   "—",
+   "thk-02-having-a-baby"
+  ],
+  [
+   "THK-03",
+   "Ik wil studeren",
+   "reactive · keten",
+   "Tijd inschrijving→alles geregeld",
+   "Z",
+   ""
+  ],
+  [
+   "THK-04",
+   "Ik wil in het buitenland studeren",
+   "reactive · keten · cross-border",
+   "Bewijsstukken via OOTS uitgewisseld",
+   "—",
+   ""
+  ],
+  [
+   "THK-05",
+   "Ik wil werk vinden",
+   "reactive · publiek-privaat",
+   "Uitstroom naar werk binnen 6 maanden",
+   "Z",
+   ""
+  ],
+  [
+   "THK-06",
+   "Ik wil een bedrijf starten",
+   "proactive · publiek-privaat",
+   "Doorlooptijd idee→bedrijf operationeel",
+   "Z",
+   ""
+  ],
+  [
+   "THK-07",
+   "Ik wil een huis kopen",
+   "reactive · privaat met publieke stappen",
+   "Hypotheekbewijs uit de bron",
+   "—",
+   ""
+  ],
+  [
+   "THK-08",
+   "Ik ga verhuizen",
+   "reactive · publiek-privaat",
+   "Verhuizingen zonder handmatige afhandeling",
+   "Z",
+   "thk-08-move-home"
+  ],
+  [
+   "THK-09",
+   "Ik wil rijden",
+   "reactive · publiek-privaat",
+   "Rijbewijsaanvragen digitaal gestart",
+   "—",
+   ""
+  ],
+  [
+   "THK-10",
+   "Ik wil reizen",
+   "reactive · publiek-privaat",
+   "Verlopende documenten op tijd gesignaleerd",
+   "—",
+   ""
+  ],
+  [
+   "THK-11",
+   "Ik wil een ID",
+   "reactive · publiek",
+   "Aanvragen na proactief signaal",
+   "—",
+   ""
+  ],
+  [
+   "THK-12",
+   "Ik wil een bankrekening openen",
+   "reactive · privaat",
+   "Rekeningen geopend met wallet-identificatie",
+   "—",
+   ""
+  ],
+  [
+   "THK-13",
+   "Ik wil mijn belastingen betalen",
+   "reactive · publiek",
+   "Automatische kwijtschelding wie daar recht op heeft",
+   "Z",
+   ""
+  ],
+  [
+   "THK-14",
+   "Ik wil sociale ondersteuning",
+   "reactive · publiek · 4 varianten",
+   "Non-take-up: recht hebben maar niets ontvangen",
+   "Z",
+   ""
+  ],
+  [
+   "THK-15",
+   "Ik wil zorg",
+   "reactive · publiek-privaat",
+   "Doorlooptijd aanvraag→zorg geleverd",
+   "Z",
+   ""
+  ],
+  [
+   "THK-16",
+   "Ik wil een geschil oplossen",
+   "reactive · publiek · 3 varianten",
+   "Geschillen informeel opgelost",
+   "Z",
+   ""
+  ],
+  [
+   "THK-17",
+   "Ik wil stemmen",
+   "proactive · publiek",
+   "Opkomst",
+   "L",
+   ""
+  ],
+  [
+   "THK-18",
+   "Ik wil vrijwilligerswerk doen",
+   "proactive · publiek-privaat",
+   "Actieve vrijwilligers",
+   "L Z",
+   ""
+  ],
+  [
+   "THK-19",
+   "Ik wil met pensioen",
+   "proactive · keten",
+   "AOW zonder vertraging aangevraagd",
+   "Z",
+   ""
+  ],
+  [
+   "THK-20",
+   "Ik wil een afscheid regelen",
+   "reactive · publiek-privaat",
+   "Partijen geïnformeerd via één notificatie",
+   "—",
+   ""
+  ],
+  [
+   "THK-21",
+   "Ik wil hier een leven opbouwen",
+   "reactive · publiek · nieuw",
+   "Nieuwkomers binnen de termijn",
+   "Z",
+   ""
+  ],
+  [
+   "THK-22",
+   "Ik wil iets organiseren",
+   "proactive · publiek · nieuw",
+   "Doorlooptijd aanvraag→besluit",
+   "—",
+   ""
+  ],
+  [
+   "THK-23",
+   "Ik heb een idee voor mijn stad",
+   "proactive · publiek · nieuw",
+   "Ideeën uitgevoerd",
+   "L",
+   ""
+  ],
+  [
+   "THK-24",
+   "Ik wil bouwen of renoveren",
+   "reactive · publiek-privaat · nieuw",
+   "Besluit binnen 8 weken (regulier)",
+   "—",
+   "thk-24-build-renovate"
+  ],
+  [
+   "THK-25",
+   "Ik wil steun bij opvoeden",
+   "reactive → proactive · publiek · nieuw",
+   "Gezinnen geholpen met lichte steun, zonder doorverwijzing",
+   "Z",
+   ""
+  ]
+ ],
+ "urban-air-mobility": [
+  [
+   "UAM-01",
+   "Ik wil medische logistiek per lucht",
+   "cargo",
+   "Tijdswinst vergeleken met de weg",
+   "W",
+   "uam-01-medical-logistics"
+  ],
+  [
+   "UAM-02",
+   "Ik wil pakjesbezorging over de laatste mile",
+   "cargo",
+   "Pakjes per drone bezorgd",
+   "—",
+   ""
+  ],
+  [
+   "UAM-03",
+   "Ik wil autonome inspectie en monitoring",
+   "cargo (sensor)",
+   "Ginspecteerde objecten",
+   "—",
+   ""
+  ],
+  [
+   "UAM-04",
+   "Ik wil drone-ondersteunde hulpverlening",
+   "service",
+   "Uitruktijd hulpverlening",
+   "W",
+   ""
+  ],
+  [
+   "UAM-05",
+   "Ik wil een air taxi in de stad",
+   "person · innercity",
+   "Passagiersritten",
+   "—",
+   ""
+  ],
+  [
+   "UAM-06",
+   "Ik wil een vliegauto-verbinding tussen steden",
+   "person · intercity",
+   "Live intercity-routes",
+   "—",
+   ""
+  ],
+  [
+   "UAM-07",
+   "Ik wil internationale lucht-mobiliteit",
+   "person + cargo · cross-border",
+   "Live grensoverschrijdende corridors",
+   "—",
+   ""
+  ],
+  [
+   "UAM-08",
+   "Ik wil mijn luchtruim regelen (U-space)",
+   "infrastructure",
+   "Luchtruim onder U-space",
+   "—",
+   ""
+  ],
+  [
+   "UAM-09",
+   "Ik wil geofencing en beveiligingszones",
+   "infrastructure · security",
+   "Beschermde zones vastgelegd",
+   "—",
+   "uam-09-geofencing-zones"
+  ]
+ ],
+ "3-30-300": [
+  [
+   "GRN-01",
+   "Ik wil het bladerdak meten (de 30%)",
+   "measure",
+   "Bladerdak per wijk",
+   "L W",
+   "grn-01-canopy-measure"
+  ],
+  [
+   "GRN-02",
+   "Ik wil een boominventarisatie (de 3)",
+   "measure + plant",
+   "Woningen met zicht op 3 bomen",
+   "L",
+   ""
+  ],
+  [
+   "GRN-03",
+   "Ik wil de 300-meter-gaten dichten",
+   "plan + green",
+   "Bewoners binnen 300 m van goed groen",
+   "Z L",
+   "grn-03-300m-gaps"
+  ],
+  [
+   "GRN-04",
+   "Ik wil een digitale tweeling van mijn vergroening",
+   "digital twin",
+   "Groene objecten in de tweeling",
+   "—",
+   ""
+  ],
+  [
+   "GRN-05",
+   "Ik wil natuurwaarde vastleggen en belonen",
+   "value / revenue",
+   "Geverifieerde CO₂-vastlegging",
+   "W",
+   ""
+  ]
+ ],
+ "circular-neighborhoods": [
+  [
+   "CIR-01",
+   "Ik wil een circulaire ontwikkelingsvoorwaarde",
+   "system",
+   "Circulair/hergebruikt materiaal in de bouw",
+   "W",
+   "cir-01-circular-condition"
+  ],
+  [
+   "CIR-02",
+   "Ik wil materiaalpaspoorten",
+   "system",
+   "Gebouwen met een materiaalpaspoort",
+   "—",
+   ""
+  ],
+  [
+   "CIR-03",
+   "Ik wil circulair inkopen",
+   "system",
+   "Bio-based/hergebruikte inhoud",
+   "W",
+   ""
+  ],
+  [
+   "CIR-04",
+   "Ik wil gedeelde energie",
+   "share · energy",
+   "Lokaal opgewekte energie",
+   "Z W",
+   "cir-04-shared-energy"
+  ],
+  [
+   "CIR-05",
+   "Ik wil gedeelde mobiliteit",
+   "share · mobility",
+   "Gedeelde voertuigen per 1.000 bewoners",
+   "—",
+   ""
+  ],
+  [
+   "CIR-06",
+   "Ik wil gedeeld voedsel",
+   "share · food",
+   "Lokaal geproduceerd voedsel",
+   "—",
+   ""
+  ],
+  [
+   "CIR-07",
+   "Ik wil spullen delen",
+   "share · goods",
+   "Gedeelde/gerepareerde spullen",
+   "—",
+   ""
+  ],
+  [
+   "CIR-08",
+   "Ik wil buurtbijeenkomsten en gemeenschapsleven",
+   "share · community",
+   "Buurtactiviteiten gehouden",
+   "—",
+   ""
+  ],
+  [
+   "CIR-09",
+   "Ik wil dat bewoners de buurt medebesturen",
+   "governance",
+   "Beslissingen samen met bewoners genomen",
+   "—",
+   ""
+  ]
+ ],
+ "15-minute-city": [
+  [
+   "MIN-01",
+   "Ik wil een nabijheidsanalyse",
+   "measure",
+   "Bewoners binnen 15 min van dagelijkse voorzieningen",
+   "Z L",
+   "min-01-proximity-analysis"
+  ],
+  [
+   "MIN-02",
+   "Ik wil functiemenging in de wijk",
+   "regulate",
+   "Functiemengingsindex",
+   "L",
+   ""
+  ],
+  [
+   "MIN-03",
+   "Ik wil actieve mobiliteit",
+   "build",
+   "Aandeel lopen en fietsen",
+   "L Z",
+   ""
+  ],
+  [
+   "MIN-04",
+   "Ik wil mijn hubnetwerk plannen",
+   "plan · hub ladder",
+   "Live hubs per niveau",
+   "—",
+   "min-04-hub-network"
+  ],
+  [
+   "MIN-05",
+   "Ik wil straatruimte herverdelen",
+   "build",
+   "Teruggeëiste straatruimte voor mensen",
+   "—",
+   ""
+  ]
+ ]
+};
+var DISH_DEMO = {"the-key": "hcs-key-demo.html", "urban-air-mobility": "hcs-uam-demo.html",
+                 "3-30-300": "hcs-grn-demo.html", "circular-neighborhoods": "hcs-cir-demo.html",
+                 "15-minute-city": "hcs-min-demo.html"};
+Object.keys(MENU).forEach(function (dish) {
+  var box = document.getElementById("cards-" + dish);
+  if (!box) return;
+  MENU[dish].forEach(function (r) {
+    var d = document.createElement("div");
+    d.className = "card" + (r[5] ? " poc" : "");
+    d.innerHTML = "<b>" + r[0] + "</b> " + r[1] + "<span class='kpi'>" + r[3] + "</span>" +
+      "<span class='lens'>" + r[2] + " · lens " + r[4] + "</span>" +
+      (r[5] ? "<br/><a href='" + DISH_DEMO[dish] + "'>→ PoC-demo</a>" : "");
+    box.appendChild(d);
+  });
 });
 </script>
 </body>

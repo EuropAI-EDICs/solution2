@@ -79,7 +79,7 @@ See [`schemas/recipe.schema.json`](schemas/recipe.schema.json). Important fields
 - `tags` — AppStore / agent discovery (`poc-breda`, `phase-6`, `cdc`, …)
 - `inputs` / `outputs` — typed recipe contract; step inputs wire `${recipe.inputs.*}`
 
-On disk: **`nldt/recipes/<id>.json`** (24 recipes). Process vs recipe vs MCP tool vs skill:
+On disk: **`nldt/recipes/<id>.json`** (32 recipes). Process vs recipe vs MCP tool vs skill:
 
 | Layer | Verb | Example |
 |-------|------|---------|
@@ -116,6 +116,10 @@ menselijke maat, G1–G5-testpunten, KPI's). Baselines (Sitra-poort 1+5) staan i
 | `eindhoven-bp2op` | high | `bp2op-transform` |
 | `minigim-gebiedscheck` | low | `minigim-gebiedscheck-run` |
 | `thk-08-move-home` / `thk-02-having-a-baby` / `thk-24-build-renovate` | medium / medium / high | `hcs-life-event-run` |
+| `uam-01-medical-logistics` / `uam-09-geofencing-zones` | medium / high | `hcs-recipe-run` |
+| `grn-01-canopy-measure` / `grn-03-300m-gaps` | low | `hcs-recipe-run` |
+| `cir-04-shared-energy` / `cir-01-circular-condition` | medium | `hcs-recipe-run` |
+| `min-01-proximity-analysis` / `min-04-hub-network` | low | `hcs-recipe-run` |
 
 ## Reference recipe: Spatial Overlay Analysis
 
