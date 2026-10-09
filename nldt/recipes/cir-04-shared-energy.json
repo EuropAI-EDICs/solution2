@@ -1,0 +1,27 @@
+{
+  "id": "cir-04-shared-energy",
+  "title": "Circular neighborhoods CIR-04 — 'I want shared energy'",
+  "description": "City-recipe: bewoners-eigen opwekking wordt gekoppeld aan verbruik, de verdeling wordt voorgesteld en door iedereen bevestigd; op de piekavond schikt de energiecoöperatie (mens). KPI: lokaal opgewekte energie. Deterministische replay via hcs-recipe-run.",
+  "version": "1.0.0",
+  "tags": ["hcs", "edic", "circular-neighborhoods", "cir-04", "city-recipe", "share"],
+  "requiredProcesses": ["hcs-recipe-run"],
+  "inputs": {"scenario": {"type": "string", "description": "scenario-id: overproductie|piek", "required": false}, "mode": {"type": "string", "description": "replay|execute", "required": false}, "lang": {"type": "string", "description": "nl|en", "required": false}},
+  "outputs": {"run": {"type": "json", "description": "HCS run-artefact"}},
+  "steps": [{"id": "run", "processId": "hcs-recipe-run", "title": "Replay gedeelde energie", "inputs": {"recipeId": "cir-04-shared-energy", "scenario": "${recipe.inputs.scenario}", "mode": "${recipe.inputs.mode}", "lang": "${recipe.inputs.lang}"}, "outputs": {"run": "run"}, "backend": "local"}],
+  "riskLevel": "medium",
+  "service": {
+    "dish": "circular-neighborhoods", "lifeEventCode": "CIR-04", "serviceType": "share",
+    "parties": [{"name": "Energiecoöperatie", "role": "verdeling en geschillen (mens)"}, {"name": "Netbeheerder", "role": "meterdata"}, {"name": "Buurtleden", "role": "leveren en verbruiken met toestemming"}],
+    "legalBasis": [{"basis": "Energiewet / AVG (meterdata met toestemming)", "timeLimit": "maandelijkse afrekening"}],
+    "humanMeasure": {"handover": ["Belangen op de piekavond → energiecoöperatie schikt (mens)"], "exceptions": ["leden die niet meedoen aan de verdeling", "meteruitval"]},
+    "localVariant": "verdelingsregel is van de coöperatie, niet van de gemeente",
+    "genAiTestPoints": [
+      {"point": "G2", "description": "Balans tussen opwek en verbruik, alleen over deelnemende meters", "testCases": ["niet-deelnemende meters blijven buiten beeld"]},
+      {"point": "G3", "description": "Iedereen bevestigt zijn eigen deel; niets wordt verdeeld zonder bevestiging", "testCases": ["weigerende deelname telt als signaal (stopconditie)"]},
+      {"point": "G4", "description": "Verdelingsvoorstel met uitleg per lid", "testCases": ["iedereen ziet zijn eigen deel"]},
+      {"point": "G5", "description": "Piekpatronen worden leermomenten voor de batterij", "testCases": ["batterij-inzet bijgesteld op piekpatroon"]}
+    ],
+    "kpis": [{"kpi": "Energy generated locally", "kpiType": "outcome", "unit": "%", "outcomeLens": ["Z", "W"], "baseline": "", "target": "", "dataSource": "grid/meter data", "frequency": "monthly", "kviRollup": "KVI 3 (Housing: circular) · KVI 8 (Circular economy) · KVI 4"}]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/cir-04-shared-energy"
+}

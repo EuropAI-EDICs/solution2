@@ -1,0 +1,63 @@
+{
+  "recipeId": "cir-04-shared-energy",
+  "scenarioKind": "city",
+  "scenarios": [
+    {"id": "overproductie", "label": {"nl": "De buurt wekt meer stroom op dan ze verbruikt", "en": "The neighbourhood generates more power than it uses"}},
+    {"id": "piek", "label": {"nl": "Koude piekavond: iedereen tegelijk", "en": "Cold peak evening: everyone at once"}}
+  ],
+  "steps": [
+    {
+      "stepId": "koppel", "title": {"nl": "Opwek en verbruik van alle buurtleden worden gekoppeld", "en": "Generation and usage of all members are linked"},
+      "defaults": {"actor": "agent", "genAiTestPoint": "G2",
+        "dataUsed": [{"nl": "de slimme meters van de deelnemers (geanonimiseerd)", "en": "the smart meters of participants (anonymised)"},
+                      {"nl": "wie levert er dit uur en wie verbruikt", "en": "who supplies this hour and who consumes"}],
+        "consent": "gegeven",
+        "kpiEvents": [{"kpi": "Energy generated locally", "effect": {"nl": "de buurtbalans wordt per uur berekend", "en": "the neighbourhood balance is computed hourly"}}],
+        "prov": {"sources": [{"nl": "energiemeters (met toestemming)", "en": "energy meters (with consent)"}]}},
+      "perScenario": {}
+    },
+    {
+      "stepId": "verdeel", "title": {"nl": "De verdeling wordt voorgesteld", "en": "The sharing plan is proposed"},
+      "defaults": {"actor": "agent", "genAiTestPoint": "G4",
+        "dataUsed": [{"nl": "wie levert, wie verbruikt en wat naar de buurtbatterij gaat", "en": "who supplies, who consumes and what goes to the community battery"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Energy generated locally", "effect": {"nl": "iedereen ziet zijn eigen deel van de verdeling", "en": "everyone sees their own share of the plan"}}],
+        "prov": {"sources": [{"nl": "verdelingsregel van de energiecoöperatie", "en": "the energy co-op's sharing rule"}]}},
+      "perScenario": {}
+    },
+    {
+      "stepId": "akkoord", "title": {"nl": "Iedereen ziet en bevestigt zijn eigen deel", "en": "Everyone reviews and confirms their own share"},
+      "defaults": {"actor": "agent", "genAiTestPoint": "G3",
+        "dataUsed": [{"nl": "een persoonlijk overzicht van geleverde en ontvangen energie", "en": "a personal overview of energy supplied and received"}],
+        "consent": "gevraagd",
+        "kpiEvents": [{"kpi": "Energy generated locally", "effect": {"nl": "geen deel wordt verdeeld zonder bevestiging", "en": "no share is settled without confirmation"}}],
+        "prov": {"sources": [{"nl": "melding met de verdeling", "en": "the share notification"}]}},
+      "perScenario": {
+        "piek": {"handover": {"reason": {"nl": "Belangen lopen op de piekavond uiteen — de energiecoöperatie schikt.", "en": "Interests diverge on the peak evening — the energy co-op mediates."},
+                                 "to": {"nl": "de energiecoöperatie (mens)", "en": "the energy co-op (human)"}}}
+      }
+    },
+    {
+      "stepId": "leer", "title": {"nl": "De piek wordt een leermoment voor de batterij", "en": "The peak becomes a learning moment for the battery"},
+      "defaults": {"actor": "agent", "genAiTestPoint": "G5",
+        "dataUsed": [{"nl": "het verloop van vraag en aanbod deze dag", "en": "today's supply and demand curve"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Energy generated locally", "effect": {"nl": "de batterij-inzet wordt bijgesteld op het piekpatroon", "en": "battery deployment is tuned to the peak pattern"}}],
+        "prov": {"sources": [{"nl": "meterdata (geanonimiseerd)", "en": "meter data (anonymised)"}]}},
+      "perScenario": {}
+    }
+  ],
+  "stopConditions": [
+    {"id": "sc-cir04-1", "condition": {"nl": "Meer dan 5% van de leden weigert de voorgestelde verdeling.", "en": "More than 5% of members reject the proposed sharing plan."},
+     "action": {"nl": "Verdelingsregel herzien met de coöperatie.", "en": "Revise the sharing rule with the co-op."}},
+    {"id": "sc-cir04-2", "condition": {"nl": "De buurtbatterij haalt twee winters achter elkaar de piek niet.", "en": "The community battery misses the peak two winters in a row."},
+     "action": {"nl": "Capaciteitsbesluit terug naar de ledenvergadering.", "en": "Take the capacity decision back to the members' meeting."}}
+  ],
+  "kpiSnapshot": [{"kpi": "Energy generated locally", "baseline": "", "target": ""}],
+  "learningState": [
+    {"signal": {"nl": "Piekuren schuiven door zonnepanelen naar de avond.", "en": "Solar panels push peak hours into the evening."},
+     "why": {"nl": "De zon staat midden op de dag, de vraag 's avonds.", "en": "The sun peaks at noon, demand peaks in the evening."},
+     "change": {"nl": "Verdelingsregel per seizoen bijstellen.", "en": "Tune the sharing rule per season."},
+     "decidesBy": {"nl": "function steward + energiecoöperatie", "en": "function steward + energy co-op"}, "helped": null}
+  ]
+}

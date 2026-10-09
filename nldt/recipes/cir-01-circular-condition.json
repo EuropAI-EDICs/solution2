@@ -1,0 +1,25 @@
+{
+  "id": "cir-01-circular-condition",
+  "title": "Circular neighborhoods CIR-01 — 'I want a circular development condition'",
+  "description": "City-recipe: bij gronduitgifte staat circulariteit als harde eis; het materiaalpaspoort levert het bewijs, en bij oplevering beoordeelt een mens of de eis echt is gehaald. KPI: circulair/hergebruikt materiaal in de bouw. Deterministische replay via hcs-recipe-run.",
+  "version": "1.0.0",
+  "tags": ["hcs", "edic", "circular-neighborhoods", "cir-01", "city-recipe", "system"],
+  "requiredProcesses": ["hcs-recipe-run"],
+  "inputs": {"scenario": {"type": "string", "description": "scenario-id: tender", "required": false}, "mode": {"type": "string", "description": "replay|execute", "required": false}, "lang": {"type": "string", "description": "nl|en", "required": false}},
+  "outputs": {"run": {"type": "json", "description": "HCS run-artefact"}},
+  "steps": [{"id": "run", "processId": "hcs-recipe-run", "title": "Replay circulaire voorwaarde", "inputs": {"recipeId": "cir-01-circular-condition", "scenario": "${recipe.inputs.scenario}", "mode": "${recipe.inputs.mode}", "lang": "${recipe.inputs.lang}"}, "outputs": {"run": "run"}, "backend": "local"}],
+  "riskLevel": "medium",
+  "service": {
+    "dish": "circular-neighborhoods", "lifeEventCode": "CIR-01", "serviceType": "system",
+    "parties": [{"name": "Gemeente", "role": "gronduitgifte en voorwaarde"}, {"name": "Ontwikkelaar", "role": "levert materiaalpaspoort"}, {"name": "Beoordelaar", "role": "menselijke toets bij oplevering"}],
+    "legalBasis": [{"basis": "Omgevingswet / Grondwet art. 21 (grondslag voorwaarde bij gronduitgifte)", "timeLimit": "per project, bij oplevering"}],
+    "humanMeasure": {"handover": ["Toets bij oplevering is mensenwerk"], "exceptions": ["paspoort ontbreekt → geen eindoplevering"]},
+    "localVariant": "drempelwaarde per gebied is gemeentelijk beleid",
+    "genAiTestPoints": [
+      {"point": "G2", "description": "De voorwaarde staat expliciet en toetsbaar in de tender", "testCases": ["drempelpercentage is terug te vinden"]},
+      {"point": "G3", "description": "Bewijs via materiaalpaspoort, niet via verklaringen", "testCases": ["hergebruik is aantoonbaar per onderdeel"]}
+    ],
+    "kpis": [{"kpi": "Circular / reused material in build", "kpiType": "outcome", "unit": "%", "outcomeLens": "W", "baseline": "", "target": "", "dataSource": "material ledger", "frequency": "per project", "kviRollup": "KVI 3 (Housing: circular) · KVI 8 (Circular economy) · KVI 4"}]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/cir-01-circular-condition"
+}

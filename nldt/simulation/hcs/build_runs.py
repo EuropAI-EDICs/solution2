@@ -280,6 +280,29 @@ _VIZ_DATA["grn-01-canopy-measure"] = GRN01_VIZ
 _VIZ_DATA["grn-03-300m-gaps"] = GRN03_VIZ
 
 
+# Task 5 — Circular neighborhoods (display-only; deterministisch en vast).
+CIR04_VIZ = {
+    "kind": "series",
+    "note": "Lokale opwek als % van het verbruik (schema) — de oranje stippellijn is het doel.",
+    "data": {"series": {
+        "overproductie": {"target": 50, "points": [{"label": "jan", "value": 45}, {"label": "feb", "value": 52},
+                                                     {"label": "mrt", "value": 60}, {"label": "apr", "value": 68},
+                                                     {"label": "mei", "value": 62}, {"label": "jun", "value": 55}]},
+        "piek": {"target": 30, "points": [{"label": "jan", "value": 22}, {"label": "feb", "value": 25},
+                                            {"label": "mrt", "value": 30}, {"label": "apr", "value": 28},
+                                            {"label": "mei", "value": 26}, {"label": "jun", "value": 24}]}}}}
+
+CIR01_VIZ = {
+    "kind": "series",
+    "note": "Circulair/hergebruikt materiaal als % van het bouwmateriaal (schema) per projectfase.",
+    "data": {"series": {
+        "tender": {"target": 50, "points": [{"label": "start", "value": 20}, {"label": "ontwerp", "value": 35},
+                                              {"label": "bouw", "value": 55}, {"label": "oplevering", "value": 68}]}}}}
+
+_VIZ_DATA["cir-04-shared-energy"] = CIR04_VIZ
+_VIZ_DATA["cir-01-circular-condition"] = CIR01_VIZ
+
+
 def _viz_data(rid: str) -> dict:
     if rid not in _VIZ_DATA:
         raise KeyError(f"_viz_data: geen viz-data geregistreerd voor recipe {rid}")

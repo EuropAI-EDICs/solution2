@@ -1,0 +1,49 @@
+{
+  "recipeId": "cir-01-circular-condition",
+  "scenarioKind": "city",
+  "scenarios": [
+    {"id": "tender", "label": {"nl": "Grond uitgegeven met circulariteit als harde eis", "en": "Land issued with circularity as a hard requirement"}}
+  ],
+  "steps": [
+    {
+      "stepId": "voorwaarde", "title": {"nl": "In de tender staat hoeveel hergebruik het gebouw minimaal bevat", "en": "The tender states the minimum share of reused material"},
+      "defaults": {"actor": "agent", "genAiTestPoint": "G2",
+        "dataUsed": [{"nl": "de circulaire ontwikkelingsvoorwaarde bij de gronduitgifte", "en": "the circular development condition attached to the land"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Circular / reused material in build", "effect": {"nl": "circulariteit is een harde eis, geen wens", "en": "circularity is a hard requirement, not a wish"}}],
+        "prov": {"sources": [{"nl": "circulaire ontwikkelingsvoorwaarde (gemeente)", "en": "circular development condition (municipality)"}]}},
+      "perScenario": {}
+    },
+    {
+      "stepId": "bewijs", "title": {"nl": "Het materiaalpaspoort laat zien wat er in het gebouw zit", "en": "The material passport shows what went into the building"},
+      "defaults": {"actor": "agent", "genAiTestPoint": "G3",
+        "dataUsed": [{"nl": "het materiaalpaspoort per bouwonderdeel", "en": "the material passport per building component"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Circular / reused material in build", "effect": {"nl": "hergebruikt materiaal is aantoonbaar, niet aangenomen", "en": "reused material is evidenced, not assumed"}}],
+        "prov": {"sources": [{"nl": "materiaalregister (bv. Madaster)", "en": "material register (e.g. Madaster)"}]}},
+      "perScenario": {}
+    },
+    {
+      "stepId": "toets", "title": {"nl": "Bij oplevering beoordeelt een mens of de eis echt is gehaald", "en": "At completion a human assesses whether the requirement is truly met"},
+      "defaults": {"actor": "mens", "genAiTestPoint": "—",
+        "dataUsed": [{"nl": "het dossier: paspoort, keuringen en foto's", "en": "the dossier: passport, inspections and photos"}],
+        "consent": "n.v.t.",
+        "kpiEvents": [{"kpi": "Circular / reused material in build", "effect": {"nl": "het percentage circulair materiaal wordt per project vastgesteld", "en": "the circular-material percentage is settled per project"}}],
+        "prov": {"sources": [{"nl": "Omgevingswet (grondslag voorwaarde)", "en": "Spatial Planning Act (basis of the condition)"}]}},
+      "perScenario": {}
+    }
+  ],
+  "stopConditions": [
+    {"id": "sc-cir01-1", "condition": {"nl": "Het materiaalpaspoort ontbreekt bij oplevering.", "en": "The material passport is missing at completion."},
+     "action": {"nl": "Geen eindoplevering tot het bewijs er is.", "en": "No final completion until the evidence is there."}},
+    {"id": "sc-cir01-2", "condition": {"nl": "Circulariteit blijkt alleen op papier.", "en": "Circularity turns out to exist only on paper."},
+     "action": {"nl": "Inkoopvoorwaarden aanscherpen en het gesprek met leveranciers aangaan.", "en": "Tighten procurement conditions and engage suppliers."}}
+  ],
+  "kpiSnapshot": [{"kpi": "Circular / reused material in build", "baseline": "", "target": ""}],
+  "learningState": [
+    {"signal": {"nl": "Hergebruik scoort beter bij staal- en gevelonderdelen.", "en": "Reuse scores better on steel and facade components."},
+     "why": {"nl": "Die zijn standaardmaat en makkelijk te demonteren.", "en": "They are standard-sized and easy to disassemble."},
+     "change": {"nl": "De voorwaarde differentiëren per bouwonderdeel.", "en": "Differentiate the condition per building component."},
+     "decidesBy": {"nl": "function steward + grondbeleid", "en": "function steward + land policy"}, "helped": null}
+  ]
+}
