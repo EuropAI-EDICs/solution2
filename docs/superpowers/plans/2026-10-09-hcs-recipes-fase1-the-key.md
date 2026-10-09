@@ -2241,3 +2241,9 @@ Als `git status --short` leeg is voor deze paden: geen commit nodig.
 ## Buiten dit plan (fase 2, eigen plan)
 
 De acht city-recipes (UAM-01/09, GRN-01/03, CIR-01/04, MIN-01/04) met city-fixtures, `hcs-recipe-run` in productie, de vier dish-demo's, de volledige menu-demo en de volledige mappingdoc — conform spec §6 fase 2, te plannen na oplevering en review van fase 1.
+
+---
+
+## Executiestatus (9 oktober 2026)
+
+Fase 1 is uitgevoerd en afgerond: 10 commits `3fded7a..c337eef` op main, alle negen taken door subagent-implementatie met per-taak review en een whole-branch-eindreview (verdict **Ready** na fixwave `c337eef`). Suite 432 passed; visuele gate 4/4. Gedocumenteerde deviaties op het plan: (1) `readiness` in de EDIC-entries `"hybrid"` i.p.v. `"demo"` — de schema-enum kent alleen mock|hybrid|live; (2) `execute_hcs_recipe_run` resolveert de fixture-map als `(fixture_dir or HCS_FIXTURES) / "city"` — de brief was intern inconsistent, productiepad onveranderd; (3) determinisme-test vergelijkt twee runs over aparte outdirs (plan-voorbeeldtest vergeleek een bestand met zichzelf — Global Constraint gouverneert); (4) testbank rendert tri-state go / nog-niet-getoetst / geen-go i.p.v. default-go; (5) EN-pagina `lang="en"` via generator; (6) kleine correcties op brief-typo's (thk-02-JSON-haakje, `relative_to`-fallback, G-range-beschrijvingen). Deferred minors staan in `.superpowers/sdd/progress.md`. Fase 2 (city dishes) krijgt een eigen plan.
