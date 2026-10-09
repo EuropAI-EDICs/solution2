@@ -232,3 +232,28 @@ def test_recipe_run_generic_with_tmp_fixture(tmp_path):
                                  fixture_dir=tmp_path)
     validate_instance(out["run"], "hcs-run.schema.json")
     assert out["run"]["processId"] == "hcs-recipe-run"
+
+
+RUNS_DIR = HCS_ROOT / "runs"
+
+
+def test_build_runs_deterministic(tmp_path):
+    import subprocess
+    import sys
+
+    venv = NLDT_ROOT / ".venv" / "bin" / "python"
+    stamp = "20261009T000000Z"
+    cmd = [str(venv), str(HCS_ROOT / "build_runs.py"), "--stamp", stamp,
+           "--outdir", str(tmp_path), "--only-runs"]
+    first = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    second = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    files = sorted(p.name for p in tmp_path.glob("*.json"))
+    assert len(files) == 8, files
+    assert "OK" in first.stdout and "OK" in second.stdout
+    for name in files:
+        a = (tmp_path / name).read_bytes()
+        b = (tmp_path / name).read_bytes()
+        assert a == b  # zelfde stamp → identiek (determinisme binnen één outdir)
+    run = json.loads((tmp_path / "thk-08-move-home_sanne.json").read_text())
+    assert run["generatedAt"].endswith("Z")
+    assert run["runId"].endswith(stamp)
