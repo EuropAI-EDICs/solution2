@@ -60,6 +60,7 @@
     <h1><span class="dish" id="dish-title"></span></h1>
   </div>
   <span id="selftest-badge">selftest…</span>
+  <span class="sub" id="lang-switch"></span>
 </div>
 <p class="sub" id="lede"></p>
 <div class="scenarios" id="scenarios"></div>
@@ -79,6 +80,7 @@
 <script>
 window.DISH_DATA = __DISH_DATA__;
 window.DISH_ID = __DISH_ID__;
+window.DISH_LANG = __DISH_LANG__;
 window.DISH_STAMP = "__BUILD_STAMP__";
 </script>
 <script>
@@ -90,6 +92,9 @@ window.DISH_STAMP = "__BUILD_STAMP__";
   function run() { return recipe().runs[state.scenario]; }
 
   function renderHeader() {
+    el("lang-switch").innerHTML = window.DISH_LANG === "nl"
+      ? 'NL · <a href="hcs-' + window.DISH_ID + '-demo-en.html">EN</a>'
+      : '<a href="hcs-' + window.DISH_ID + '-demo.html">NL</a> · EN';
     el("eyecatcher").textContent = t.eyecatcher;
     el("dish-title").textContent = t.title;
     el("lede").textContent = t.lede;

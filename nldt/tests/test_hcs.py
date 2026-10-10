@@ -496,9 +496,39 @@ def test_dish_pages_exist_and_filled():
                              ("cir", "cir-04-shared-energy"), ("min", "min-01-proximity-analysis")):
         text = (NLDT_ROOT / "simulation" / f"hcs-{dish}-demo.html").read_text()
         assert "window.DISH_DATA" in text and f'window.DISH_ID = "{dish}"' in text
-        for marker in ("__DISH_DATA__", "__DISH_ID__", "__BUILD_STAMP__"):
+        for marker in ("__DISH_DATA__", "__DISH_ID__", "__DISH_LANG__", "__BUILD_STAMP__"):
             assert marker not in text
         assert recipe_id in text and "selftest-badge" in text
+
+
+DISH_EN_PAGES = {d: NLDT_ROOT / "simulation" / f"hcs-{d}-demo-en.html"
+                 for d in ("uam", "grn", "cir", "min")}
+DISH_EN_STEP = {"uam": "The fastest safe route is chosen",
+                "grn": "New aerial images are fetched",
+                "cir": "Generation and usage of all members are linked",
+                "min": "All daily amenities are plotted on the map"}
+DISH_NL_STEP = {"uam": "De snelste veilige route wordt bepaald",
+                "grn": "Nieuwe luchtfoto's worden opgehaald",
+                "cir": "Opwek en verbruik van alle buurtleden worden gekoppeld",
+                "min": "Alle dagelijkse voorzieningen worden op de kaart gezet"}
+
+
+def test_dish_en_pages_generated_and_dutch_free():
+    for d, path in DISH_EN_PAGES.items():
+        text = path.read_text()
+        assert 'window.DISH_LANG = "en"' in text, d
+        assert '<html lang="en">' in text, d
+        for marker in ("__DISH_DATA__", "__DISH_ID__", "__DISH_LANG__", "__BUILD_STAMP__"):
+            assert marker not in text, f"{marker} in {d}-en"
+        assert DISH_EN_STEP[d] in text, d
+        assert DISH_NL_STEP[d] not in text, f"Nederlandse staptekst lekt in {d}-en"
+
+
+def test_menu_data_has_english_columns():
+    data = json.loads((HCS_ROOT / "menu-data.json").read_text())
+    for dish, rows in data.items():
+        for row in rows:
+            assert len(row) == 8 and row[6] and row[7], f"{row[0]} mist EN-kolommen"
 
 
 def test_uam_page_generated():

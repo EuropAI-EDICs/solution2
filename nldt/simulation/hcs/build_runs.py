@@ -184,48 +184,77 @@ def build_pages(stamp: str) -> None:
 
 DISH_DEFS = {
     "uam": {"file": NLDT_ROOT / "simulation" / "hcs-uam-demo.html",
+            "file-en": NLDT_ROOT / "simulation" / "hcs-uam-demo-en.html",
             "recipes": ["uam-01-medical-logistics", "uam-09-geofencing-zones"],
             "viz": {"uam-01-medical-logistics": {"kind": "map"},
                     "uam-09-geofencing-zones": {"kind": "map"}}},
     "grn": {"file": NLDT_ROOT / "simulation" / "hcs-grn-demo.html",
+            "file-en": NLDT_ROOT / "simulation" / "hcs-grn-demo-en.html",
             "recipes": ["grn-01-canopy-measure", "grn-03-300m-gaps"],
             "viz": {"grn-01-canopy-measure": {"kind": "canopy"},
                     "grn-03-300m-gaps": {"kind": "canopy"}}},
     "cir": {"file": NLDT_ROOT / "simulation" / "hcs-cir-demo.html",
+            "file-en": NLDT_ROOT / "simulation" / "hcs-cir-demo-en.html",
             "recipes": ["cir-04-shared-energy", "cir-01-circular-condition"],
             "viz": {"cir-04-shared-energy": {"kind": "series"},
                     "cir-01-circular-condition": {"kind": "series"}}},
     "min": {"file": NLDT_ROOT / "simulation" / "hcs-min-demo.html",
+            "file-en": NLDT_ROOT / "simulation" / "hcs-min-demo-en.html",
             "recipes": ["min-01-proximity-analysis", "min-04-hub-network"],
             "viz": {"min-01-proximity-analysis": {"kind": "tiers"},
                     "min-04-hub-network": {"kind": "tiers"}}},
 }
 
+_DISH_I18N_UAM_NL = {
+    "eyecatcher": "Human-Centred Services · dish: Urban Air Mobility", "title": "De lucht in — zonder de stad te verstoppen",
+    "lede": "Twee recipes uit deze dish, gedraaid als deterministische replay: wat gebeurt er, wie bepaalt het, en waar komt de informatie vandaan.",
+    "foot": "HCS fase 2 · build {stamp} · runs gevalideerd tegen hcs-run.schema.json · doctrine: AI stelt voor · pijplijn beslist · mens beslist",
+    "testbank": "Wat we hebben getest voordat dit live ging", "tbOk": "go", "tbCheck": "nog niet getoetst", "tbFail": "geen go",
+    "kpiPanel": "Wat we willen bereiken — gemeten vanaf dag één", "kpiSub": "Elke recipe meet of het echt beter wordt.",
+    "kpi": "KPI", "kpiType": "Type", "dataSource": "Bron", "siblings": "De andere recipes in deze dish",
+    "actor": "Wie handelt", "consent": "Toestemming", "handover": "Een mens neemt over", "sources": "Waar deze informatie vandaan komt",
+    "actorNames": {"agent": "het systeem (onder toezicht)", "mens": "een mens", "partij": "de betrokken organisatie"},
+    "consentNames": {"n.v.t.": "niet nodig", "gevraagd": "gevraagd", "gegeven": "gegeven", "geweigerd": "geweigerd"},
+    "vizTarget": "doel:",
+    "axisNames": {"accuracy": "nauwkeurig", "plain language": "gewone taal", "once-only": "één keer vragen",
+                   "explainability": "uitlegbaar", "human handover": "mens neemt over",
+                   "bias": "vooringenomenheid", "AI Act risk class": "AI-wet risicoklasse"}}
+_DISH_I18N_UAM_EN = {
+    "eyecatcher": "Human-Centred Services · dish: Urban Air Mobility", "title": "Into the air — without clogging the city",
+    "lede": "Two recipes from this dish, run as a deterministic replay: what happens, who decides, and where the information comes from.",
+    "foot": "HCS phase 2 · build {stamp} · runs validated against hcs-run.schema.json · doctrine: AI proposes · pipeline decides · human decides",
+    "testbank": "What we tested before this went live", "tbOk": "go", "tbCheck": "not yet tested", "tbFail": "no go",
+    "kpiPanel": "What we aim to achieve — measured from day one", "kpiSub": "Every recipe measures whether life actually gets better.",
+    "kpi": "KPI", "kpiType": "Type", "dataSource": "Source", "siblings": "Other recipes in this dish",
+    "actor": "Who acts", "consent": "Consent", "handover": "A human takes over", "sources": "Where this information comes from",
+    "actorNames": {"agent": "the system (under supervision)", "mens": "a human", "partij": "the organisation involved"},
+    "consentNames": {"n.v.t.": "not needed", "gevraagd": "asked", "gegeven": "given", "geweigerd": "refused"},
+    "vizTarget": "target:",
+    "axisNames": {"accuracy": "accuracy", "plain language": "plain language", "once-only": "ask only once",
+                   "explainability": "explainable", "human handover": "human takes over",
+                   "bias": "bias", "AI Act risk class": "AI Act risk class"}}
+
 DISH_I18N = {
-    "uam": {"eyecatcher": "Human-Centred Services · dish: Urban Air Mobility", "title": "De lucht in — zonder de stad te verstoppen",
-            "lede": "Twee recipes uit deze dish, gedraaid als deterministische replay: wat gebeurt er, wie bepaalt het, en waar komt de informatie vandaan.",
-            "foot": "HCS fase 2 · build {stamp} · runs gevalideerd tegen hcs-run.schema.json · doctrine: AI stelt voor · pijplijn beslist · mens beslist",
-            "testbank": "Wat we hebben getest voordat dit live ging", "tbOk": "go", "tbCheck": "nog niet getoetst", "tbFail": "geen go",
-            "kpiPanel": "Wat we willen bereiken — gemeten vanaf dag één", "kpiSub": "Elke recipe meet of het echt beter wordt.",
-            "kpi": "KPI", "kpiType": "Type", "dataSource": "Bron", "siblings": "De andere recipes in deze dish",
-            "actor": "Wie handelt", "consent": "Toestemming", "handover": "Een mens neemt over", "sources": "Waar deze informatie vandaan komt",
-            "actorNames": {"agent": "het systeem (onder toezicht)", "mens": "een mens", "partij": "de betrokken organisatie"},
-            "consentNames": {"n.v.t.": "niet nodig", "gevraagd": "gevraagd", "gegeven": "gegeven", "geweigerd": "geweigerd"},
-            "vizTarget": "doel:",
-            "axisNames": {"accuracy": "nauwkeurig", "plain language": "gewone taal", "once-only": "één keer vragen",
-                           "explainability": "uitlegbaar", "human handover": "mens neemt over",
-                           "bias": "vooringenomenheid", "AI Act risk class": "AI-wet risicoklasse"}},
-    # grn / cir / min: zelfde structuur met eigen titel/lede; Exacte teksten per dish staan bij Tasks 3–6.
+    "uam": {"nl": _DISH_I18N_UAM_NL, "en": _DISH_I18N_UAM_EN},
+    "grn": {"nl": dict(_DISH_I18N_UAM_NL, title="Groen meten, groen doen",
+                       lede="Twee 3-30-300-recipes: hoeveel bladerdak heeft je wijk, en wie woont verder dan 300 meter van echt goed groen?",
+                       eyecatcher="Human-Centred Services · dish: 3-30-300"),
+            "en": dict(_DISH_I18N_UAM_EN, title="Measure the green, then grow it",
+                       lede="Two 3-30-300 recipes: how much canopy does your district have, and who lives further than 300 metres from truly good green?",
+                       eyecatcher="Human-Centred Services · dish: 3-30-300")},
+    "cir": {"nl": dict(_DISH_I18N_UAM_NL, title="Delen is het nieuwe bezitten",
+                       lede="Twee circular-recipes: gedeelde energie in de buurt en circulariteit als harde eis bij nieuwbouw.",
+                       eyecatcher="Human-Centred Services · dish: Circular neighborhoods"),
+            "en": dict(_DISH_I18N_UAM_EN, title="Sharing is the new owning",
+                       lede="Two circular recipes: shared energy in the neighbourhood and circularity as a hard requirement for new build.",
+                       eyecatcher="Human-Centred Services · dish: Circular neighborhoods")},
+    "min": {"nl": dict(_DISH_I18N_UAM_NL, title="Alles wat je dagelijks nodig hebt, dichtbij",
+                       lede="Twee 15-minute-city-recipes: welke wijk ligt buiten bereik van voorzieningen, en waar komen de hubs?",
+                       eyecatcher="Human-Centred Services · dish: 15-minute city"),
+            "en": dict(_DISH_I18N_UAM_EN, title="Everything you need daily, close by",
+                       lede="Two 15-minute-city recipes: which district falls outside reach of amenities, and where do the hubs go?",
+                       eyecatcher="Human-Centred Services · dish: 15-minute city")},
 }
-DISH_I18N["grn"] = dict(DISH_I18N["uam"], title="Groen meten, groen doen",
-                        lede="Twee 3-30-300-recipes: hoeveel bladerdak heeft je wijk, en wie woont verder dan 300 meter van echt goed groen?")
-DISH_I18N["grn"]["eyecatcher"] = "Human-Centred Services · dish: 3-30-300"
-DISH_I18N["cir"] = dict(DISH_I18N["uam"], title="Delen is het nieuwe bezitten",
-                        lede="Twee circular-recipes: gedeelde energie in de buurt en circulariteit als harde eis bij nieuwbouw.")
-DISH_I18N["cir"]["eyecatcher"] = "Human-Centred Services · dish: Circular neighborhoods"
-DISH_I18N["min"] = dict(DISH_I18N["uam"], title="Alles wat je dagelijks nodig hebt, dichtbij",
-                        lede="Twee 15-minute-city-recipes: welke wijk ligt buiten bereik van voorzieningen, en waar komen de hubs?")
-DISH_I18N["min"]["eyecatcher"] = "Human-Centred Services · dish: 15-minute city"
 
 # DISH_DEFS-sleutels ("uam") → dish-id's uit het recipe-schema ("urban-air-mobility"),
 # de sleutels van menu-data.json.
@@ -332,10 +361,11 @@ def _viz_data(rid: str) -> dict:
     return _VIZ_DATA[rid]
 
 
-def _menu_siblings(dish: str) -> list[dict]:
+def _menu_siblings(dish: str, lang: str = "nl") -> list[dict]:
     rows = json.loads((HCS_ROOT / "menu-data.json").read_text(encoding="utf-8"))[MENU_DISH[dish]]
     poc = set(DISH_DEFS[dish]["recipes"])
-    return [{"code": r[0], "title": r[1], "mode": r[2], "kpi": r[3], "lens": r[4],
+    title_col, kpi_col = (1, 3) if lang == "nl" else (6, 7)
+    return [{"code": r[0], "title": r[title_col], "mode": r[2], "kpi": r[kpi_col], "lens": r[4],
              "poc": r[5] in poc} for r in rows]
 
 
@@ -343,37 +373,43 @@ def build_dish_pages(stamp: str) -> None:
     template = (HCS_ROOT / "dish-demo.template.html").read_text(encoding="utf-8")
     common = json.loads((HCS_ROOT / "fixtures" / "common.json").read_text(encoding="utf-8"))
     for dish, spec in DISH_DEFS.items():
-        # SKIP bij een nog niet voltooide dish (fixtures/viz ontbreken in
-        # Tasks 4–6), zodat latere dishes eerdere successen niet maskeren.
+        # SKIP bij een nog niet voltooide dish (fixtures/viz ontbreken), zodat
+        # latere dishes eerdere successen niet maskeren.
         try:
-            recipes = []
+            recipes_by_lang = {"nl": [], "en": []}
             for rid in spec["recipes"]:
                 fx = json.loads((HCS_ROOT / "fixtures" / "city" / f"{rid}.json").read_text(encoding="utf-8"))
                 recipe = json.loads((NLDT_ROOT / "recipes" / f"{rid}.json").read_text(encoding="utf-8"))
-                runs, labels = [], []
-                for sc in fx["scenarios"]:
-                    out = execute_hcs_recipe_run({"recipeId": rid, "scenario": sc["id"], "mode": "replay"})
-                    runs.append(out["run"])
-                    labels.append(localize(sc["label"], "nl"))
                 vz = _viz_data(rid)
-                recipes.append({
-                    "id": rid, "runs": runs, "scenarioLabels": labels,
-                    "service": recipe["service"],
-                    # _viz_data levert {kind, note, data}; vlak dat af tot één niveau.
-                    "viz": {"kind": vz["kind"], "note": vz.get("note", ""), "data": vz["data"]},
-                })
-            data = {"dishId": dish, "recipes": recipes, "common": common,
-                    "i18n": DISH_I18N[dish], "siblings": _menu_siblings(dish),
-                    "selftestVerdicts": {dish: {"bias": True, "AI Act risk class": True}}}
-            html = (template
-                    .replace("__DISH_DATA__", json.dumps(data, ensure_ascii=False))
-                    .replace("__DISH_ID__", json.dumps(dish))
-                    .replace("__BUILD_STAMP__", stamp))
+                for lang in ("nl", "en"):
+                    runs, labels = [], []
+                    for sc in fx["scenarios"]:
+                        out = execute_hcs_recipe_run({"recipeId": rid, "scenario": sc["id"],
+                                                      "mode": "replay", "lang": lang})
+                        runs.append(out["run"])
+                        labels.append(localize(sc["label"], lang))
+                    recipes_by_lang[lang].append({
+                        "id": rid, "runs": runs, "scenarioLabels": labels,
+                        "service": recipe["service"],
+                        # _viz_data levert {kind, note, data}; vlak dat af tot één niveau.
+                        "viz": {"kind": vz["kind"], "note": vz.get("note", ""), "data": vz["data"]},
+                    })
+            for lang in ("nl", "en"):
+                data = {"dishId": dish, "recipes": recipes_by_lang[lang], "common": common,
+                        "i18n": DISH_I18N[dish][lang], "siblings": _menu_siblings(dish, lang),
+                        "selftestVerdicts": {dish: {"bias": True, "AI Act risk class": True}}}
+                html = (template
+                        .replace("__DISH_DATA__", json.dumps(data, ensure_ascii=False))
+                        .replace("__DISH_ID__", json.dumps(dish))
+                        .replace("__DISH_LANG__", json.dumps(lang))
+                        .replace("__BUILD_STAMP__", stamp)
+                        .replace('<html lang="nl">', f'<html lang="{lang}">'))
+                target = spec["file"] if lang == "nl" else spec["file-en"]
+                target.write_text(html, encoding="utf-8")
+                print(f"OK dish {target.relative_to(NLDT_ROOT)} [{lang}]")
         except (KeyError, FileNotFoundError) as exc:
             print(f"SKIP dish {dish}: {exc}")
             continue
-        spec["file"].write_text(html, encoding="utf-8")
-        print(f"OK dish {spec['file'].relative_to(NLDT_ROOT)}")
 
 
 def main() -> int:
