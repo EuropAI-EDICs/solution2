@@ -918,3 +918,9 @@ git commit -m "docs(nldt): menu volledig (53 recipes), dish-links, README/04-rij
 ## Buiten dit plan
 
 EN-tweelingen van de dish-demo's (fixture-tweetaligheid maakt dit goedkoop) · echte Leaflet/PDOK-kaarten · bestuurdersdemo-scène · echte LLM-intake — fase 3-opties volgens spec §6.
+
+---
+
+## Executiestatus (10 oktober 2026)
+
+Fase 2 is uitgevoerd en afgerond: 8 commits `375757b..11b9fba` op main, suite 457 groen, visuele gate 6/6 (controller-inspectie na herhaalde subagent-timeouts). Gedocumenteerde deviaties op het plan: (1) `outcomeLens` accepteert lens-arrays (xlsx kent "L W" e.d.) — additief in serviceKpi + baselineKpi; (2) `MENU_DISH`-brug tussen DISH_DEFS- en schema-dish-keys; (3) `build_dish_pages` vlakt de viz-data af tot één niveau (`{kind, note, data}`) en geeft het scenario-id (niet de index) aan de renderers — beide gevonden door de visuele gate; (4) menu-rendering vanuit ingebed `MENU`-literal met `cards-the-key`-container-id; (5) hubladder-viewport 440px. Deferred minors: lang-title-unificatie processen, vizSeries één-punt-NaN, DISH_ID kort vs schema-id. Fase 3-opties (EN-dish-demo's, echte kaarten, bestuurdersdemo-scène, LLM-intake) staan in de spec.
