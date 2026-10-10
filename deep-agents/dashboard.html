@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="nl">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>nLDT deep-agent simulatie</title>
+<title>nLDT deep-agent simulation</title>
 <link rel="stylesheet" href="/assets/leaflet.css"/>
 <style>
   :root {
@@ -105,8 +105,8 @@
 <body>
 <header>
   <div>
-    <div class="sub">deep-agents · live simulatie</div>
-    <h1 id="demo-title">Agent-flow <span class="dish">op de kaart</span></h1>
+    <div class="sub">deep-agents · live simulation</div>
+    <h1 id="demo-title">Agent flow <span class="dish">on the map</span></h1>
   </div>
   <span id="status">idle</span>
   <span class="models" id="models"></span>
@@ -115,25 +115,25 @@
 <div id="controls">
   <div><label>POC</label><select id="poc"></select></div>
   <div id="scenario-wrap"><label>Scenario (Utrecht / Crosstrack)</label><select id="scenario"></select><div id="scenario-hint" class="hint"></div></div>
-  <div><label>Prompting / modus</label><select id="mode"></select></div>
+  <div><label>Prompting mode</label><select id="mode"></select></div>
   <div><label>Orchestrator model</label><select id="model"></select></div>
   <div><label>Specialist model</label><select id="submodel"></select></div>
-  <div><label>Laya routing (MLX)</label><select id="use_laya"><option value="1">aan — lokaal advies vóór run</option><option value="0">uit</option></select></div>
-  <button id="start">▶ Start simulatie</button>
+  <div><label>Laya routing (MLX)</label><select id="use_laya"><option value="1">on — local advice before the run</option><option value="0">off</option></select></div>
+  <button id="start">▶ Start simulation</button>
   <button id="stop">■ Stop</button>
 </div>
 <div id="main">
   <div id="timeline">
     <div id="hitl-kaart">
-      <b>Mens-agent-grens: goedkeuring vereist</b>
+      <b>Human-agent boundary: approval required</b>
       <div>Tool: <code id="hitl-tool"></code></div>
       <div id="hitl-args"></div>
-      <input id="hitl-comment" placeholder="opmerking (verplicht — leerstaat)">
-      <button class="hitl-btn approve" onclick="hitlVerdict(true)">Goedkeuren</button>
-      <button class="hitl-btn reject" onclick="hitlVerdict(false)">Afkeuren</button>
+      <input id="hitl-comment" placeholder="comment (required — learning state)">
+      <button class="hitl-btn approve" onclick="hitlVerdict(true)">Approve</button>
+      <button class="hitl-btn reject" onclick="hitlVerdict(false)">Reject</button>
     </div>
-    <div class="paneltitle">Agent-flow <b>(live)</b> — brief → specialist → poorten → resultaat</div>
-    <div id="steps"><div class="placeholder">Nog geen run — druk op “Start simulatie”.</div></div>
+    <div class="paneltitle">Agent flow <b>(live)</b> — brief → specialist → gates → result</div>
+    <div id="steps"><div class="placeholder">No run yet — press “Start simulation”.</div></div>
   </div>
   <div id="viz">
     <div id="viz-static">
@@ -142,16 +142,16 @@
     </div>
     <div id="viz-world">
       <div id="viz-header">
-        <span class="legend"><span class="sw" style="background:var(--inkt-2);border:2px solid var(--blauw)"></span>control-grens</span>
-        <span class="legend"><span class="sw" style="background:#dc2626"></span>verandert t.o.v. vigerend</span>
-        <span class="legend"><span class="sw" style="background:#16a34a"></span>nieuw gebied</span>
-        <span class="legend"><span class="sw" style="background:#ea580c;opacity:.55"></span>gepind</span>
-        <span id="viz-note">de kaart bouwt mee met de agentstappen</span>
-        <button id="autobtn" class="on" title="kaart volgt automatisch de geo-stappen van de agents">▶ auto-volgen</button>
+        <span class="legend"><span class="sw" style="background:var(--inkt-2);border:2px solid var(--blauw)"></span>control boundary</span>
+        <span class="legend"><span class="sw" style="background:#dc2626"></span>changes vs. adopted policy</span>
+        <span class="legend"><span class="sw" style="background:#16a34a"></span>new area</span>
+        <span class="legend"><span class="sw" style="background:#ea580c;opacity:.55"></span>pinned</span>
+        <span id="viz-note">the map builds up with the agent steps</span>
+        <button id="autobtn" class="on" title="the map follows the agents' geo steps automatically">▶ auto-follow</button>
         <span id="pinlegend"></span>
       </div>
       <div id="viz-body">
-        <div id="cards"><div class="placeholder">Visualisatie verschijnt zodra de agents de world scene bouwen.</div></div>
+        <div id="cards"><div class="placeholder">The visualization appears once the agents build the world scene.</div></div>
         <div id="map"></div>
       </div>
     </div>
@@ -222,34 +222,34 @@ function plainTitle(scenId, reportName) {
   if (reportName && !/^SC-|^WSS-/.test(reportName)) return reportName;
   const id = scenId.replace(/^SC-[WZB]-/, '').replace(/^WSS-SC-[WZB]-/, '');
   const map = [
-    [/stilte/i, 'Stiltegebieden worden hard uitgesloten'],
-    [/aandacht-?3000/i, 'Aandachtsgebied met 3.000 m afstandseis'],
-    [/aandacht-?1500/i, 'Aandachtsgebied met 1.500 m afstandseis'],
-    [/aandacht-?500/i, 'Aandachtsgebied met 500 m afstandseis'],
-    [/nnn-exception/i, 'NNN-uitzondering (regel vervalt)'],
-    [/natura-?setback/i, 'Extra afstand tot Natura 2000'],
-    [/groene-?contour/i, 'Groene contour als harde grens'],
-    [/geen-?natura-?carve/i, 'Geen Natura-uitzondering meer'],
-    [/oude-?bos/i, 'Oud bos hard beschermd'],
-    [/expand-?1?km/i, 'Uitbreiding met 1 km zone'],
+    [/stilte/i, 'Silence areas are hard-excluded'],
+    [/aandacht-?3000/i, 'Attention area with a 3,000 m setback'],
+    [/aandacht-?1500/i, 'Attention area with a 1,500 m setback'],
+    [/aandacht-?500/i, 'Attention area with a 500 m setback'],
+    [/nnn-exception/i, 'NNN exception (rule dropped)'],
+    [/natura-?setback/i, 'Extra setback from Natura 2000'],
+    [/groene-?contour/i, 'Green contour as a hard boundary'],
+    [/geen-?natura-?carve/i, 'No more Natura exception'],
+    [/oude-?bos/i, 'Old forest hard-protected'],
+    [/expand-?1?km/i, 'Expanded by a 1 km zone'],
   ];
   for (const [re, phrase] of map) if (re.test(id)) return phrase;
   return id.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 }
 function plainMutation(mutationSummary, deltaKm2) {
   const richting = deltaKm2 < -0.05
-    ? `→ ${(Math.abs(deltaKm2)).toFixed(1)} km² minder ruimte`
+    ? `→ ${(Math.abs(deltaKm2)).toFixed(1)} km² less space`
     : deltaKm2 > 0.05
-      ? `→ +${deltaKm2.toFixed(1)} km² extra ruimte`
-      : '→ gebied blijft vrijwel gelijk';
+      ? `→ +${deltaKm2.toFixed(1)} km² extra space`
+      : '→ area stays virtually the same';
   const s = mutationSummary || '';
-  let act = 'Het beleid voor dit gebied verandert';
+  let act = 'The policy for this area changes';
   let m;
-  if ((m = s.match(/semantics\s*→\s*exclusion/i))) act = 'Dit gebied wordt uitgesloten voor nieuwe ontwikkeling';
-  else if ((m = s.match(/semantics\s*→\s*(\w+)/i))) act = `Het regime van dit gebied wordt "${m[1]}"`;
-  else if ((m = s.match(/drop\s+(FR-[\w-]+)/i))) act = `Regel ${m[1]} vervalt: het gebied opent voor ontwikkeling`;
-  else if ((m = s.match(/buffer\s*→\s*([\d.]+)\s*m/i))) act = `De afstandseis wordt ${Number(m[1]).toFixed(0)} meter`;
-  else if ((m = s.match(/(FR-[\w-]+)\s*→\s*exclusion/i))) act = `Regel ${m[1]} wordt een uitsluiting`;
+  if ((m = s.match(/semantics\s*→\s*exclusion/i))) act = 'This area becomes excluded from new development';
+  else if ((m = s.match(/semantics\s*→\s*(\w+)/i))) act = `This area's regime becomes "${m[1]}"`;
+  else if ((m = s.match(/drop\s+(FR-[\w-]+)/i))) act = `Rule ${m[1]} is dropped: the area opens up for development`;
+  else if ((m = s.match(/buffer\s*→\s*([\d.]+)\s*m/i))) act = `The setback requirement becomes ${Number(m[1]).toFixed(0)} metres`;
+  else if ((m = s.match(/(FR-[\w-]+)\s*→\s*exclusion/i))) act = `Rule ${m[1]} becomes an exclusion`;
   return `${act} ${richting}`;
 }
 
@@ -285,7 +285,7 @@ function renderStaticPanel(poc) {
   links.innerHTML = '';
   const pages = poc.simulationPages || [];
   if (!pages.length) {
-    links.innerHTML = '<span style="font-size:12px;color:#8a857a">Geen lokale referentie-demo — timeline toont agent-output.</span>';
+    links.innerHTML = '<span style="font-size:12px;color:#8a857a">No local reference demo — the timeline shows agent output.</span>';
     $('poc-ref').src = 'about:blank';
     return;
   }
@@ -393,10 +393,10 @@ $('start').addEventListener('click', async () => {
   $('stop').style.display = 'inline-block';
   const res = await fetch('/api/run', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) });
   if (!res.ok) {
-    const detail = (await res.json().catch(() => ({}))).detail || 'run geweigerd';
+    const detail = (await res.json().catch(() => ({}))).detail || 'run refused';
     $('steps').innerHTML = `<div class="placeholder">${escapeHtml(String(detail))}</div>`;
     $('start').disabled = false; $('stop').style.display = 'none';
-    $('status').textContent = 'fout'; $('status').className = 'error';
+    $('status').textContent = 'error'; $('status').className = 'error';
     return;
   }
   const r = await res.json();
@@ -516,7 +516,7 @@ async function focusScen(base, control, scenId, el) {
     L.geoJSON(diff.lost, { style: { color: '#7f1d1d', weight: .6, fillColor: '#dc2626', fillOpacity: 1 } }).addTo(newLayer);
     L.geoJSON(diff.gained, { style: { color: '#14532d', weight: .6, fillColor: '#16a34a', fillOpacity: 1 } }).addTo(newLayer);
     $('viz-note').textContent =
-      `${plainTitle(scenId, "")}: ${diff.lostKm2.toFixed(1)} km² ziet er anders uit dan het vigerende beleid (rood) · ${diff.gainedKm2.toFixed(1)} km² is nieuw (groen) · ${diff.unchanged} gebieden ongewijzigd`;
+      `${plainTitle(scenId, "")}: ${diff.lostKm2.toFixed(1)} km² looks different from the adopted policy (red) · ${diff.gainedKm2.toFixed(1)} km² is new (green) · ${diff.unchanged} areas unchanged`;
   } else {
     let scen = control;
     try { scen = await fetch(`${base}/scenarios/${scenId}.geojson`).then(r => r.json()); } catch {}
@@ -543,7 +543,7 @@ function updatePinLegend() {
   const el = document.getElementById('pinlegend');
   if (!el) return;
   el.innerHTML = pinned.size
-    ? 'vergelijk: ' + [...pinned.entries()].map(([id, p]) =>
+    ? 'compare: ' + [...pinned.entries()].map(([id, p]) =>
         `<span class="legend"><span class="sw" style="background:${p.color}"></span>${escapeHtml(plainTitle(id, scenNames[id]).slice(0, 34))}</span>`).join('')
     : '';
 }
@@ -622,7 +622,7 @@ function geoSteps(entries) {
 $('autobtn').addEventListener('click', () => {
   autoFollow = !autoFollow;
   $('autobtn').classList.toggle('on', autoFollow);
-  $('autobtn').textContent = autoFollow ? '▶ auto-volgen' : '⏸ handmatig';
+  $('autobtn').textContent = autoFollow ? '▶ auto-follow' : '⏸ manual';
 });
 async function showViz(runId) {
   if (runId === vizRunId) return;
@@ -639,15 +639,15 @@ async function showViz(runId) {
     for (const sc of report.scenarios || []) reportNames[sc.scenarioId] = sc.name;
     scenNames = reportNames;
   } catch {}
-  $('cards').innerHTML = `<div class="hint">Klik een kaart = het verschil op de kaart · 👁 = extra laag aan/uit</div>` + bundle.specs.map(s => `
+  $('cards').innerHTML = `<div class="hint">Click a card = its difference on the map · 👁 = toggle extra layer</div>` + bundle.specs.map(s => `
     <div class="card" data-scen="${s.scenarioId}">
       <button class="pin" data-scen="${s.scenarioId}">👁 laag</button>
       <div class="ctitle">${escapeHtml(plainTitle(s.scenarioId, reportNames[s.scenarioId]))}</div>
       <div class="delta ${s.headlineDeltaKm2 < 0 ? 'neg' : 'pos'}">${s.headlineDeltaKm2 > 0 ? '+' : ''}${s.headlineDeltaKm2.toFixed(2)} km² (${s.headlineDeltaPct > 0 ? '+' : ''}${s.headlineDeltaPct.toFixed(2)}%)</div>
       <div class="what">${escapeHtml(plainMutation(s.mutationSummary, s.headlineDeltaKm2))}</div>
-      <details><summary>Wat betekent dit? (normkaart ${s.provenanceBasis.normCardId || '?'} · ${s.provenanceBasis.type})</summary>
+      <details><summary>What does this mean? (norm card ${s.provenanceBasis.normCardId || '?'} · ${s.provenanceBasis.type})</summary>
         <div class="note">${escapeHtml(s.provenanceBasis.provenanceNote || s.mutationSummary || '')}</div>
-        <div class="note">Mutatie: ${escapeHtml(s.mutationSummary || '')} · grounding: ${s.groundingStamp}</div>
+        <div class="note">Mutation: ${escapeHtml(s.mutationSummary || '')} · grounding: ${s.groundingStamp}</div>
       </details>
       <details><summary>Render-prompt (afgeschermd)</summary><div class="note">${escapeHtml(s.marblePrompt)}</div></details>
     </div>`).join('');
@@ -680,7 +680,7 @@ async function updateHitl() {
 async function hitlVerdict(approved) {
   const kaart = $('hitl-kaart');
   const comment = $('hitl-comment').value.trim();
-  if (!comment) { alert('Een verdict vereist een opmerking (leerstaat).'); return; }
+  if (!comment) { alert('A verdict requires a comment (learning state).'); return; }
   // dubbel-submit dicht: na de eerste klik kan een tweede POST niet eens vertrekken;
   // bij 409/foutmelding worden de knoppen weer actief (de kaart blijft dan staan).
   const knoppen = kaart.querySelectorAll('.hitl-btn');
@@ -692,8 +692,8 @@ async function hitlVerdict(approved) {
         method: 'POST', headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({interruptId: kaart.dataset.interruptId, approved, comment}),
       });
-    } catch { alert('Kon het verdict niet opslaan — server onbereikbaar.'); return; }
-    if (r.status === 409) { alert('Deze beslissing is al genomen.'); return; }
+    } catch { alert('Could not save the verdict — server unreachable.'); return; }
+    if (r.status === 409) { alert('This decision has already been made.'); return; }
     if (r.ok) { $('hitl-comment').value = ''; kaart.style.display = 'none'; }
   } finally {
     knoppen.forEach(b => b.disabled = false);
@@ -741,7 +741,7 @@ async function tick() {
   if (st) {
     if (st.running) { $('status').textContent = 'running'; $('status').className = 'running'; $('start').disabled = true; $('stop').style.display = 'inline-block'; }
     else if (st.ever_ran && st.rc === 0) { $('status').textContent = 'done'; $('status').className = 'done'; $('start').disabled = false; $('stop').style.display = 'none'; }
-    else if (st.ever_ran && st.rc !== null && st.rc !== 0) { $('status').textContent = `fout (rc=${st.rc})`; $('status').className = 'error'; $('start').disabled = false; $('stop').style.display = 'none'; }
+    else if (st.ever_ran && st.rc !== null && st.rc !== 0) { $('status').textContent = `error (rc=${st.rc})`; $('status').className = 'error'; $('start').disabled = false; $('stop').style.display = 'none'; }
     else { $('status').textContent = 'idle'; $('status').className = ''; $('start').disabled = false; $('stop').style.display = 'none'; }
   }
   updateHitl();
