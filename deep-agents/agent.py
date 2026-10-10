@@ -32,6 +32,7 @@ from pocs import poc_subagents  # noqa: E402
 from tools.artifacts import submit_formal_rule, submit_norm_cards, submit_request  # noqa: E402
 from tools.laya import laya_advise_request  # noqa: E402
 from laya_router import augment_user_message, laya_enabled  # noqa: E402
+from message_normalizer import MessageNormalizerMiddleware  # noqa: E402
 from hitl import HITL_TOOLS  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
@@ -63,6 +64,7 @@ def build_agent(tools: list, *, checkpointer=None, interrupt_on: dict | None = N
         model=ollama_model(orchestrator_model_name()),
         tools=tools,
         system_prompt=SYSTEM_PROMPT,
+        middleware=[MessageNormalizerMiddleware()],
         subagents=poc_subagents(mcp_tools=tools),
         checkpointer=checkpointer,
         interrupt_on=interrupt_on if interrupt_on is not None else dict(HITL_TOOLS),

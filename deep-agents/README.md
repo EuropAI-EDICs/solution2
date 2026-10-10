@@ -222,6 +222,18 @@ Artefacts: `runs/hcs-intake/<stamp>-<persona>.json` (gate-rapport inbegrepen).
 De HCS-demo's blijven deterministische replays; dit is de aanzet van benadering C
 (echte LLM-stappen achter de poorten).
 
+## Bericht-normalizer (thinking-blokken vs. de gedeelde draad)
+
+Reasoning-modellen (gemma4-familie) antwoorden met inhoudsblokken
+(`[thinking, tool_use, text]`). Die blokken komen in de gedeelde
+checkpoint-draad (`thread_id='nldt-live'`) terecht, en langchain-ollama
+weigert bij het afspelen van de geschiedenis elke inhoud die geen
+`text`/`image_url` is — elke volgende run op de draard stierf daardoor
+1 seconde na de start. [`message_normalizer.py`](message_normalizer.py)
+plattert de berichten vóór élke model-aanroep (`wrap_model_call`-middleware,
+ingebouwd in `build_agent`): `text`-blokken samengevoegd, `thinking`
+gestript, `tool_use` blijft via `AIMessage.tool_calls`.
+
 ## Next steps
 
 - Wire a `run_recipe` tool to the Cookbook + OGC process backends (per POC).
