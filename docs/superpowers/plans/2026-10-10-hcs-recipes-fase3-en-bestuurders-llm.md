@@ -252,3 +252,9 @@ git commit -m "feat(deep-agents): HCS-LLM-intake — LLM stelt vragen voor, dete
 ## Buiten dit plan
 
 Echte Leaflet/PDOK-kaarten i.p.v. SVG-schema's · HITL-interrupt koppelen aan de intake-handover (de infra bestaat: `deep-agents/hitl.py` + live-server) · uitbreiding naar meer persona's/recipes in de LLM-intake.
+
+---
+
+## Executiestatus (10 oktober 2026)
+
+Fase 3 is uitgevoerd en afgerond: commits `a714fda..d2a722b` op main. (A) EN-tweelingen van de vier dish-demo's — menu-data 8-koloms (EN-titel/KPI per rij), DISH_I18N tweetalig, `_menu_siblings(dish, lang)`, acht pagina's met taalkruislink en `lang`-attribuut; de viz-laag (notities, kaartlabels, maandlabels, tiernamen) is ook gelokaliseerd. (B) scène 10 "De functie als recipe" in de bestuurdersdemo (13 scènes, Vraag→11). (C) `deep-agents/hcs_intake.py`: LLM-intake met deterministische poort-3-gate (offline gate-tests 6/6; llm-marker-test groen met echt model; eerlijke her-run zonder context-lek: sanne GO, ahmed/maria/jeroen GEEN GO — de gate vangt het modelgedrag zwart-op-wit, artefacts in `deep-agents/runs/hcs-intake/`, git-ignored). Deviaties: (1) directe model-invoke i.p.v. create_deep_agent (strikte JSON-uitvoer, geen tools — doctrine LLM-stelt-voor/gate-beslist intact); (2) visuele gate controller-inspectie na subagent-timeouts (EN-pagina's 4/4 pass, bestuurdersdemo via DOM-check + markers). Suites: nldt 460, deep-agents 39+2skipped (llm apart groen).
