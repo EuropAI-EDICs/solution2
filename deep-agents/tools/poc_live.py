@@ -138,6 +138,17 @@ def run_poc_live(poc: str) -> dict:
     if panel_html_src != work / "panel.html":
         (work / "panel.html").write_bytes(panel_html_src.read_bytes())
 
+    # rijnland: H3-hex-flow-data voor de dashboard-flow (naast de iframe-kaart)
+    if poc == "rijnland":
+        export = HERE / "tools" / "rijnland_hex_export.py"
+        hexresult = subprocess.run(
+            [sys.executable, str(export), "--out", str(work / "hex-flow.json")],
+            capture_output=True, text=True, timeout=ENGINE_TIMEOUT_S, cwd=str(spec["cwd"]),
+            env={**os.environ},
+        )
+        if hexresult.returncode != 0:
+            print(f"[poc_live] WARNING hex-flow export faalde: {hexresult.stderr[-200:]}", file=sys.stderr)
+
     cards = spec["cards"](work)
     panel = {"poc": poc, "title": spec["title"], "iframe": "panel.html", "cards": cards}
     (work / "panel.json").write_text(json.dumps(panel, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
