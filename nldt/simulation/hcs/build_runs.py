@@ -355,10 +355,12 @@ def build_dish_pages(stamp: str) -> None:
                     out = execute_hcs_recipe_run({"recipeId": rid, "scenario": sc["id"], "mode": "replay"})
                     runs.append(out["run"])
                     labels.append(localize(sc["label"], "nl"))
+                vz = _viz_data(rid)
                 recipes.append({
                     "id": rid, "runs": runs, "scenarioLabels": labels,
                     "service": recipe["service"],
-                    "viz": dict(spec["viz"][rid], data=_viz_data(rid)),
+                    # _viz_data levert {kind, note, data}; vlak dat af tot één niveau.
+                    "viz": {"kind": vz["kind"], "note": vz.get("note", ""), "data": vz["data"]},
                 })
             data = {"dishId": dish, "recipes": recipes, "common": common,
                     "i18n": DISH_I18N[dish], "siblings": _menu_siblings(dish),

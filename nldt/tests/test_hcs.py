@@ -1,5 +1,7 @@
 """Tests voor de HCS-recipes (spec 2026-10-09-hcs-recipes-pocs-design, fase 1)."""
 import json
+import re
+
 from pathlib import Path
 
 import pytest
@@ -506,6 +508,11 @@ def test_uam_page_generated():
         assert marker not in text
     assert "UAM-01" in text and "uam-01-medical-logistics" in text
     assert "selftest-badge" in text
+    # payload-pin: viz.data moet op het juiste niveau zitten (geen dubbele nesting)
+    data = json.loads(re.search(r"window.DISH_DATA = (\{.*?\});\n", text, re.S).group(1))
+    viz = data["recipes"][0]["viz"]
+    assert viz["kind"] == "map" and isinstance(viz["data"], dict) and "zones" in viz["data"]
+    assert "note" in viz
 
 
 MENU_HTML = NLDT_ROOT / "simulation" / "hcs-menu-demo.html"

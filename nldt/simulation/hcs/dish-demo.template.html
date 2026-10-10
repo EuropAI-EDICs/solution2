@@ -145,7 +145,7 @@ window.DISH_STAMP = "__BUILD_STAMP__";
     var v = recipe().viz;
     var box = el("viz"); box.innerHTML = "";
     el("viz-note").textContent = v.note || "";
-    if (VIZ[v.kind]) box.innerHTML = VIZ[v.kind](v.data, state.scenario, state.step);
+    if (VIZ[v.kind]) box.innerHTML = VIZ[v.kind](v.data, run().scenario, state.step);
   }
 
   function svgOpen(h) { return '<svg viewBox="0 0 640 ' + h + '" xmlns="http://www.w3.org/2000/svg" role="img">'; }
@@ -196,7 +196,7 @@ window.DISH_STAMP = "__BUILD_STAMP__";
   }
 
   function vizTiers(data) {
-    var h = 300, out = svgOpen(h) + grid(h), cx = 320, cy = 150;
+    var h = 440, out = svgOpen(h) + grid(h), cx = 320, cy = 220;
     data.tiers.forEach(function (tier, i) {
       out += '<circle cx="' + cx + '" cy="' + cy + '" r="' + tier.r + '" fill="none" stroke="' +
         (tier.live > 0 ? "var(--mint)" : "var(--ijs-rand)") + '" stroke-width="2" stroke-dasharray="' + (tier.live > 0 ? "none" : "6 4") + '"/>';
