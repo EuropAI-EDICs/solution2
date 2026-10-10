@@ -344,7 +344,7 @@ def simulation_assets(path: str) -> FileResponse:
     target = (SIMULATION_DIR / path).resolve()
     if not str(target).startswith(str(SIMULATION_DIR.resolve())) or not target.is_file():
         raise HTTPException(404, "not found")
-    return FileResponse(target)
+    return _fresh(FileResponse(target))
 
 
 @app.get("/{path:path}")
@@ -352,7 +352,19 @@ def files(path: str) -> FileResponse:
     target = (RUNS / path).resolve()
     if not str(target).startswith(str(RUNS.resolve())) or not target.is_file():
         raise HTTPException(404, "not found")
-    return FileResponse(target)
+    return _fresh(FileResponse(target))
+
+
+# Live-dashboard: nooit uit de browser-cache serveren — de artefacts en de
+# dashboard-pagina veranderen per run (anders blijft een oude flow/panel staan).
+def _fresh(response: FileResponse) -> FileResponse:
+    response.headers["Cache-Control"] = "no-store"
+    return response
+
+
+@app.get("/")
+def dashboard() -> FileResponse:
+    return _fresh(FileResponse(DASHBOARD))
 
 
 if __name__ == "__main__":

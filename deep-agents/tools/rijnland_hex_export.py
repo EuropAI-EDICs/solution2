@@ -31,6 +31,9 @@ for p in (str(ROOT.parent / "poc"), str(ROOT)):
 
 from rijnland import flow as flow_mod          # noqa: E402
 from rijnland import hexmap_time               # noqa: E402
+from rijnland.hexmap_time import _to_wgs       # noqa: E402
+from shapely.geometry import mapping, shape    # noqa: E402
+from shapely.ops import unary_union            # noqa: E402
 # h3step leeft in poc/pipeline en wordt pas ná de sys.path-insert geïmporteerd
 from pipeline import h3step                    # noqa: E402
 
@@ -68,13 +71,37 @@ def build_hex_flow(archive_path: Path, with_flow: bool = True) -> dict:
         med = statistics.median([d["median"] for d in days.values()])
         values = [round((days[d]["median"] - med) * 100.0, 1) if d in days else None
                   for d in days_all]
-        locs.append({"x": rec["x"], "y": rec["y"], "values": values})
+        locs.append({"x": rec["x"], "y": rec["y"], "values": values,
+                     "name": rec.get("name"), "classification": rec.get("classification"),
+                     "layer": rec.get("layer")})
 
     bundle = hexmap_time.build_cell_steps(
         locations=locs, resolution=8,
         call=lambda pid, inputs: h3step.call(pid, inputs))
     if not bundle:
         raise SystemExit("geen cel-bundel: h3-bridge of locaties ontbreken")
+
+    # stations per cel: zelfde join als de bridge, nu met namen en classificatie
+    pts_wgs = [_to_wgs(l["x"], l["y"]) for l in locs]
+    points_fc = {"type": "FeatureCollection", "features": [
+        {"type": "Feature", "properties": {"i": i},
+         "geometry": {"type": "Point", "coordinates": [round(x, 6), round(y, 6)]}}
+        for i, (x, y) in enumerate(pts_wgs)]}
+    hull = unary_union([shape(f["geometry"]) for f in points_fc["features"]]).convex_hull
+    hull_fc = {"type": "FeatureCollection", "features": [
+        {"type": "Feature", "properties": {}, "geometry": mapping(hull)}]}
+    join = h3step.call("h3-spatial-join-points",
+                       {"points": points_fc, "polygon": hull_fc,
+                        "resolution": 8})["join"]
+    st_cell = {r["index"]: r["cell"] for r in join.get("perPoint", [])
+               if r.get("inCells")}
+    from collections import Counter
+    cell_stations = Counter(st_cell.values())
+    cell_station_name = {}
+    for i, cell in st_cell.items():
+        nm = locs[i].get("name")
+        if nm and cell not in cell_station_name:
+            cell_station_name[cell] = nm
 
     values = {cell: _interpolate(series)
               for cell, series in bundle["values"].items()}
@@ -101,7 +128,52 @@ def build_hex_flow(archive_path: Path, with_flow: bool = True) -> dict:
         except Exception as exc:                     # stroomgraad is decision support
             print(f"[hex-flow] WARNING stroomgraad overgeslagen: {exc}", file=sys.stderr)
 
-    steps = [d[-5:] for d in days_all]               # MM-DD leesbaar kort
+    # per-cel statistieken (op de geïnterpoleerde reeks)
+    cell_meta = {}
+    for cell, series in values.items():
+        known = [v for v in series if v is not None]
+        meta_cell = {
+            "stations": cell_stations.get(cell, 0),
+            "stationExample": cell_station_name.get(cell),
+            "mean": round(statistics.mean(known), 1) if known else None,
+            "min": round(min(known), 1) if known else None,
+            "max": round(max(known), 1) if known else None,
+            "trend": round(known[-1] - known[0], 1) if len(known) >= 2 else None,
+            "derived": cell in derived,
+        }
+        pg = cell_pg.get(cell)
+        if pg:
+            meta_cell["peilgebied"] = pg.get("name")
+            meta_cell["peil"] = pg.get("peil")
+        cell_meta[cell] = meta_cell
+
+    # per-dag tellingen: hoeveel cellen zitten ver van hun mediane peil
+    day_stats = []
+    for d_i, d in enumerate(days_all):
+        lows, highs, known_vals = 0, 0, []
+        worst_low, worst_high = None, None
+        for cell, series in values.items():
+            v = series[d_i]
+            if v is None:
+                continue
+            known_vals.append(v)
+            if v <= -2:
+                lows += 1
+                if worst_low is None or v < worst_low["v"]:
+                    worst_low = {"cell": cell, "v": v}
+            elif v >= 2:
+                highs += 1
+                if worst_high is None or v > worst_high["v"]:
+                    worst_high = {"cell": cell, "v": v}
+        day_stats.append({
+            "date": d,
+            "nLager": lows, "nHoger": highs,
+            "nNear": len(known_vals) - lows - highs,
+            "meanDev": round(statistics.mean(known_vals), 1) if known_vals else None,
+            "mostLager": worst_low, "mostHoger": worst_high,
+        })
+
+    steps = [d[5:] for d in days_all]                # MM-DD leesbaar kort
     return {
         "steps": steps,
         "cells_fc": bundle["cells_fc"],
@@ -110,12 +182,15 @@ def build_hex_flow(archive_path: Path, with_flow: bool = True) -> dict:
                           for cell, series in bundle["values"].items()},
         "derived": derived,
         "cellPg": cell_pg,
+        "cellMeta": cell_meta,
+        "dayStats": day_stats,
         "meta": {
             "unit": "cm t.o.v. mediane peil",
             "nStations": len(locs),
             "nCells": len(bundle["values"]),
             "nDerived": len(derived),
             "window": [days_all[0], days_all[-1]],
+            "nearBandCm": 2,
             "stops": "rood = lager/droger · blauw = hoger/natter",
         },
     }
