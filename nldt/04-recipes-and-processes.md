@@ -99,6 +99,8 @@ De The Key-life-events uit de [HCS Blueprint](../recipes/01_Human_Centred_Servic
 landen als gewone recipes met een optioneel `service`-blok (EDIC-anatomy: dish,
 menselijke maat, G1–G5-testpunten, KPI's). Baselines (Sitra-poort 1+5) staan in
 `recipes/baselines/`. Koppeltabel: [`docs/HCS_RECIPES_AGENTIC_STATE.md`](../docs/HCS_RECIPES_AGENTIC_STATE.md).
+De LLM-intake-aanzet (benadering C: het model stelt voor, de deterministische
+gate beslist) staat in `deep-agents/hcs_intake.py`.
 
 ### PoC / lake recipe catalogue
 

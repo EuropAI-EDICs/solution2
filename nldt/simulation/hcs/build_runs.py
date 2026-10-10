@@ -267,18 +267,25 @@ _VIZ_DATA: dict[str, dict] = {}
 
 # Task 3 — Urban Air Mobility (display-only; deterministisch en vast).
 UAM01_VIZ = {
-    "kind": "map", "note": "Schema van de situatie — geen echte kaart: corridors (oranje/blauw) en beschermde zones (rood gestippeld).",
+    "kind": "map",
+    "note": {"nl": "Schema van de situatie — geen echte kaart: corridors (oranje/blauw) en beschermde zones (rood gestippeld).",
+             "en": "Schematic view — not a real map: corridors (orange/blue) and protected zones (red dashed)."},
     "data": {"zones": [{"x": 420, "y": 90, "r": 55}, {"x": 180, "y": 220, "r": 40}],
              "routes": {"routine": [{"points": [[60, 260], [220, 180], [380, 110], [560, 60]]}],
                           "spoed": [{"points": [[60, 260], [200, 230], [330, 170], [560, 60]]}]},
-             "labels": [{"x": 470, "y": 95, "text": "no-fly"}, {"x": 70, "y": 250, "text": "ziekenhuis"}, {"x": 520, "y": 50, "text": "lab"}]}}
+             "labels": [{"x": 470, "y": 95, "text": "no-fly"},
+                         {"x": 70, "y": 250, "text": {"nl": "ziekenhuis", "en": "hospital"}},
+                         {"x": 520, "y": 50, "text": {"nl": "lab", "en": "lab"}}]}}
 
 UAM09_VIZ = {
-    "kind": "map", "note": "Schema: de nieuwe zone (blauw gevuld) tegen corridors (oranje) en bestaande zones (rood gestippeld).",
+    "kind": "map",
+    "note": {"nl": "Schema: de nieuwe zone (blauw gevuld) tegen corridors (oranje) en bestaande zones (rood gestippeld).",
+             "en": "Schematic: the new zone (blue) against corridors (orange) and existing zones (red dashed)."},
     "data": {"zones": [{"x": 150, "y": 100, "r": 45}],
              "routes": {"ziekenhuis": [{"points": [[320, 270], [320, 160], [320, 60]]}],
                           "evenement": [{"points": [[320, 270], [240, 190], [180, 130]]}]},
-             "labels": [{"x": 130, "y": 105, "text": "no-fly"}, {"x": 300, "y": 50, "text": "corridor"}]}}
+             "labels": [{"x": 130, "y": 105, "text": "no-fly"},
+                         {"x": 300, "y": 50, "text": {"nl": "corridor", "en": "corridor"}}]}}
 
 _VIZ_DATA["uam-01-medical-logistics"] = UAM01_VIZ
 _VIZ_DATA["uam-09-geofencing-zones"] = UAM09_VIZ
@@ -293,14 +300,16 @@ def _canopy_cells(covers: list[int]) -> list[dict]:
 # Task 4 — 3-30-300 (display-only; deterministisch en vast).
 GRN01_VIZ = {
     "kind": "canopy",
-    "note": "Schema per wijkblok: mint = boven de 30% bladerdak, oranje = eronder. Geen echte kaart.",
+    "note": {"nl": "Schema per wijkblok: mint = boven de 30% bladerdak, oranje = eronder. Geen echte kaart.",
+             "en": "Schematic per district block: mint = above 30% canopy, orange = below. Not a real map."},
     "data": {"cell": 70,
              "cells": {"wijk-noord": _canopy_cells([21, 24, 19, 23, 25, 18, 22, 27, 20, 24, 19, 26]),
                         "wijk-zuid": _canopy_cells([38, 44, 41, 47, 33, 42, 36, 48, 39, 45, 40, 35])}}}
 
 GRN03_VIZ = {
     "kind": "canopy",
-    "note": "Percentage bewoners binnen 300 meter goed groen per wijkblok (schema).",
+    "note": {"nl": "Percentage bewoners binnen 300 meter goed groen per wijkblok (schema).",
+             "en": "Share of residents within 300 metres of quality green per district block (schematic)."},
     "data": {"cell": 70,
              "cells": {"binnen-norm": _canopy_cells([88, 92, 85, 90, 79, 94, 87, 91, 83, 89, 95, 86]),
                         "groeidesert": _canopy_cells([61, 58, 72, 64, 47, 55, 51, 62, 57, 44, 66, 53])}}}
@@ -312,21 +321,23 @@ _VIZ_DATA["grn-03-300m-gaps"] = GRN03_VIZ
 # Task 5 — Circular neighborhoods (display-only; deterministisch en vast).
 CIR04_VIZ = {
     "kind": "series",
-    "note": "Lokale opwek als % van het verbruik (schema) — de oranje stippellijn is het doel.",
+    "note": {"nl": "Lokale opwek als % van het verbruik (schema) — de oranje stippellijn is het doel.",
+             "en": "Local generation as % of usage (schematic) — the orange dashed line is the target."},
     "data": {"series": {
-        "overproductie": {"target": 50, "points": [{"label": "jan", "value": 45}, {"label": "feb", "value": 52},
-                                                     {"label": "mrt", "value": 60}, {"label": "apr", "value": 68},
-                                                     {"label": "mei", "value": 62}, {"label": "jun", "value": 55}]},
-        "piek": {"target": 30, "points": [{"label": "jan", "value": 22}, {"label": "feb", "value": 25},
-                                            {"label": "mrt", "value": 30}, {"label": "apr", "value": 28},
-                                            {"label": "mei", "value": 26}, {"label": "jun", "value": 24}]}}}}
+        "overproductie": {"target": 50, "points": [{"label": {"nl": "jan", "en": "Jan"}, "value": 45}, {"label": {"nl": "feb", "en": "Feb"}, "value": 52},
+                                                     {"label": {"nl": "mrt", "en": "Mar"}, "value": 60}, {"label": {"nl": "apr", "en": "Apr"}, "value": 68},
+                                                     {"label": {"nl": "mei", "en": "May"}, "value": 62}, {"label": {"nl": "jun", "en": "Jun"}, "value": 55}]},
+        "piek": {"target": 30, "points": [{"label": {"nl": "jan", "en": "Jan"}, "value": 22}, {"label": {"nl": "feb", "en": "Feb"}, "value": 25},
+                                            {"label": {"nl": "mrt", "en": "Mar"}, "value": 30}, {"label": {"nl": "apr", "en": "Apr"}, "value": 28},
+                                            {"label": {"nl": "mei", "en": "May"}, "value": 26}, {"label": {"nl": "jun", "en": "Jun"}, "value": 24}]}}}}
 
 CIR01_VIZ = {
     "kind": "series",
-    "note": "Circulair/hergebruikt materiaal als % van het bouwmateriaal (schema) per projectfase.",
+    "note": {"nl": "Circulair/hergebruikt materiaal als % van het bouwmateriaal (schema) per projectfase.",
+             "en": "Circular/reused material as % of build material (schematic) per project phase."},
     "data": {"series": {
-        "tender": {"target": 50, "points": [{"label": "start", "value": 20}, {"label": "ontwerp", "value": 35},
-                                              {"label": "bouw", "value": 55}, {"label": "oplevering", "value": 68}]}}}}
+        "tender": {"target": 50, "points": [{"label": {"nl": "start", "en": "start"}, "value": 20}, {"label": {"nl": "ontwerp", "en": "design"}, "value": 35},
+                                              {"label": {"nl": "bouw", "en": "build"}, "value": 55}, {"label": {"nl": "oplevering", "en": "completion"}, "value": 68}]}}}}
 
 _VIZ_DATA["cir-04-shared-energy"] = CIR04_VIZ
 _VIZ_DATA["cir-01-circular-condition"] = CIR01_VIZ
@@ -335,21 +346,23 @@ _VIZ_DATA["cir-01-circular-condition"] = CIR01_VIZ
 # Task 6 — 15-minute city (display-only; deterministisch en vast).
 MIN01_VIZ = {
     "kind": "tiers",
-    "note": "Bereikte voorzieningen per ring (schema) — de randwijk haalt de buitenringen niet.",
+    "note": {"nl": "Bereikte voorzieningen per ring (schema) — de randwijk haalt de buitenringen niet.",
+             "en": "Reached amenities per ring (schematic) — the edge district misses the outer rings."},
     "data": {"tiers": [
-        {"name": "winkels", "r": 90, "live": 14, "plan": 15},
-        {"name": "zorg", "r": 130, "live": 9, "plan": 10},
-        {"name": "onderwijs", "r": 170, "live": 6, "plan": 8},
-        {"name": "groen", "r": 210, "live": 4, "plan": 6}]}}
+        {"name": {"nl": "winkels", "en": "shops"}, "r": 90, "live": 14, "plan": 15},
+        {"name": {"nl": "zorg", "en": "care"}, "r": 130, "live": 9, "plan": 10},
+        {"name": {"nl": "onderwijs", "en": "education"}, "r": 170, "live": 6, "plan": 8},
+        {"name": {"nl": "groen", "en": "green"}, "r": 210, "live": 4, "plan": 6}]}}
 
 MIN04_VIZ = {
     "kind": "tiers",
-    "note": "De hubladder: live versus gepland per niveau (micro → wijk → stadsdeel → stad).",
+    "note": {"nl": "De hubladder: live versus gepland per niveau (micro → wijk → stadsdeel → stad).",
+             "en": "The hub ladder: live versus planned per tier (micro → neighbourhood → district → city)."},
     "data": {"tiers": [
-        {"name": "micro", "r": 80, "live": 11, "plan": 12},
-        {"name": "wijk", "r": 125, "live": 4, "plan": 5},
-        {"name": "stadsdeel", "r": 165, "live": 2, "plan": 3},
-        {"name": "stad", "r": 205, "live": 1, "plan": 1}]}}
+        {"name": {"nl": "micro", "en": "micro"}, "r": 80, "live": 11, "plan": 12},
+        {"name": {"nl": "wijk", "en": "neighbourhood"}, "r": 125, "live": 4, "plan": 5},
+        {"name": {"nl": "stadsdeel", "en": "district"}, "r": 165, "live": 2, "plan": 3},
+        {"name": {"nl": "stad", "en": "city"}, "r": 205, "live": 1, "plan": 1}]}}
 
 _VIZ_DATA["min-01-proximity-analysis"] = MIN01_VIZ
 _VIZ_DATA["min-04-hub-network"] = MIN04_VIZ
@@ -359,6 +372,19 @@ def _viz_data(rid: str) -> dict:
     if rid not in _VIZ_DATA:
         raise KeyError(f"_viz_data: geen viz-data geregistreerd voor recipe {rid}")
     return _VIZ_DATA[rid]
+
+
+def _localize_viz_data(data: dict, lang: str) -> dict:
+    """Weergaveteksten in de viz-data (labels, tier-namen, serie-labels) naar `lang`."""
+    out = json.loads(json.dumps(data))  # deep-copy zonder gedeelde referenties
+    for label in out.get("labels", []):
+        label["text"] = localize(label["text"], lang)
+    for tier in out.get("tiers", []):
+        tier["name"] = localize(tier["name"], lang)
+    for series in out.get("series", {}).values():
+        for point in series["points"]:
+            point["label"] = localize(point["label"], lang)
+    return out
 
 
 def _menu_siblings(dish: str, lang: str = "nl") -> list[dict]:
@@ -391,8 +417,10 @@ def build_dish_pages(stamp: str) -> None:
                     recipes_by_lang[lang].append({
                         "id": rid, "runs": runs, "scenarioLabels": labels,
                         "service": recipe["service"],
-                        # _viz_data levert {kind, note, data}; vlak dat af tot één niveau.
-                        "viz": {"kind": vz["kind"], "note": vz.get("note", ""), "data": vz["data"]},
+                        # _viz_data levert {kind, note, data}; vlak dat af tot één niveau
+                        # en lokaliseer de weergaveteksten (note, labels, tier-namen).
+                        "viz": {"kind": vz["kind"], "note": localize(vz.get("note", ""), lang),
+                                "data": _localize_viz_data(vz["data"], lang)},
                     })
             for lang in ("nl", "en"):
                 data = {"dishId": dish, "recipes": recipes_by_lang[lang], "common": common,

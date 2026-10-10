@@ -31,11 +31,12 @@ nldt/.venv/bin/python nldt/simulation/hcs/build_runs.py --stamp <ISO-stamp>
 ```
 
 [`hcs-uam-demo.html`](hcs-uam-demo.html) · [`hcs-grn-demo.html`](hcs-grn-demo.html) ·
-[`hcs-cir-demo.html`](hcs-cir-demo.html) · [`hcs-min-demo.html`](hcs-min-demo.html) —
-de vier city-dishes (fase 2): UAM-01/09, GRN-01/03, CIR-04/01, MIN-01/04 als
-deterministische replays via `hcs-recipe-run`, met scenario-switcher, offline
-SVG-visualisaties (kaartschema, bladerdakraster, tijdreeks, hubladder), testbank
-en KPI-panelen.
+[`hcs-cir-demo.html`](hcs-cir-demo.html) · [`hcs-min-demo.html`](hcs-min-demo.html)
+(NL, met EN-switch; fase 3) — de vier city-dishes: UAM-01/09, GRN-01/03, CIR-04/01,
+MIN-01/04 als deterministische replays via `hcs-recipe-run`, met scenario-switcher,
+offline SVG-visualisaties (kaartschema, bladerdakraster, tijdreeks, hubladder),
+testbank en KPI-panelen. De fixtures zijn tweetalig — elke demo heeft een
+[`-en.html`](hcs-uam-demo-en.html)-tweeling.
 
 [`hcs-menu-demo.html`](hcs-menu-demo.html) — het menu: alle 53 recipes over vijf
 dishes als kaarten (elf met PoC-markering en doorklik), vijf stappen × G1–G5,

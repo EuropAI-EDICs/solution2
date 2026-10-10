@@ -522,6 +522,9 @@ def test_dish_en_pages_generated_and_dutch_free():
             assert marker not in text, f"{marker} in {d}-en"
         assert DISH_EN_STEP[d] in text, d
         assert DISH_NL_STEP[d] not in text, f"Nederlandse staptekst lekt in {d}-en"
+        # viz-laag ook gelokaliseerd: notitie en tier-namen
+        assert "geen echte kaart" not in text, f"Nederlandse viz-notitie lekt in {d}-en"
+        assert "schematic" in text.lower(), d
 
 
 def test_menu_data_has_english_columns():
