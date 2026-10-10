@@ -18,6 +18,7 @@ from tools.intake import request_template, validate_request
 from tools.norms import search_norms
 from tools.recipes import get_recipe, list_recipes
 from tools.utrecht import render_world_scene_demo, run_world_scene
+from tools.breda import run_breda_scan
 from tools.validate import validate_world_scene
 
 PROMPTS_DIR = Path(__file__).resolve().parent / "prompts" / "poc"
@@ -169,6 +170,7 @@ def poc_subagents(mcp_tools: list | None = None) -> list[dict[str, Any]]:
     mcp_utrecht = _mcp(mcp_tools, UTRECHT_OPS_MCP)
     extra_tools = {
         "utrecht": [run_world_scene, render_world_scene_demo] + mcp_utrecht,
+        "breda": [run_breda_scan],
     }
 
     def spec_to_subagent(spec: dict[str, Any], prompt_dir: Path, base_tools: list) -> dict[str, Any]:

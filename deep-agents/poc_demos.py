@@ -84,7 +84,7 @@ POC_DEMOS: list[dict[str, Any]] = [
         "label": "Breda",
         "subtitle": "Plane A — five-value scan & scan QA (S4)",
         "requiresScenario": False,
-        "viz": "static",
+        "viz": "breda-scan",
         "highlightRecipes": ["breda-five-value-scan", "breda-scan-qa"],
         "simulationPages": [
             {"title": "Flow demo", "path": "breda-flow-demo.html"},
@@ -98,6 +98,16 @@ POC_DEMOS: list[dict[str, Any]] = [
                 "template": (
                     "Delegeer naar breda: geef een concreet run plan voor recipe "
                     "breda-five-value-scan — inputs, stappen, process ids, outputs, risico."
+                ),
+            },
+            {
+                "id": "scan_execute",
+                "label": "Execute — five-value scan (map)",
+                "template": (
+                    "Delegeer naar breda: voer de vijf-waardenscan uit met de tool "
+                    "run_breda_scan en vat de uitslag samen — verdict, de rollup per "
+                    "waarde (top/bottom) en de zwakste buurten. Vermeld dat de kaart "
+                    "in het rechterpaneel staat."
                 ),
             },
             {

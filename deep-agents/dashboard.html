@@ -266,7 +266,7 @@ function fullReset() {
 
 function setVizLayout(viz) {
   const world = $('viz-world'), stat = $('viz-static');
-  if (viz === 'worldscene') {
+  if (viz === 'worldscene' || viz === 'breda-scan') {
     world.style.display = 'flex';
     world.style.flexDirection = 'column';
     world.style.flex = '1';
@@ -660,6 +660,68 @@ async function showViz(runId) {
   document.querySelectorAll('.pin').forEach(btn => btn.addEventListener('click', ev => { ev.stopPropagation(); togglePin(base, btn.dataset.scen, btn); }));
 }
 
+// --- Breda live: de five-value scan uit de run zelf, gekleurd op de zwakste waarde
+let bredaVizRunId = null;
+
+async function showBredaScan(runId) {
+  if (runId === bredaVizRunId) return;
+  const base = `/${runId}-breda-scan`;
+  let geo, summary, scan;
+  try {
+    [geo, summary, scan] = await Promise.all([
+      fetch(`${base}/geo-buurten.wgs84.geojson`).then(r => r.json()),
+      fetch(`${base}/run_summary.json`).then(r => r.json()),
+      fetch(`${base}/value-scan.json`).then(r => r.json()),
+    ]);
+  } catch (e) { $('viz-note').textContent = 'Breda: artifacts not served yet (' + e.message + ')'; return; }
+  try {
+    ensureMap();
+    const worst = f => {
+      const s = (f.properties && f.properties.s) || {};
+      const vals = Object.values(s).filter(v => typeof v === 'number');
+      return vals.length ? Math.min(...vals) : null;
+    };
+    // Leaflet-attributen begrijpen geen var(--…): letterlijke hex uit het palet
+    const color = v => v === null ? '#7f93a2' : v >= 75 ? '#1cefa5' : v >= 50 ? '#ffc37e' : '#e10500';
+    const layer = L.geoJSON(geo, {
+      style: f => {
+        const v = worst(f);
+        return { color: '#06121b', weight: .8, fillColor: color(v),
+                 fillOpacity: v === null ? .15 : .6 };
+      },
+      onEachFeature: (f, ly) => {
+        const p = f.properties || {};
+        const s = p.s || {};
+        const rows = Object.entries(s).map(([k, v]) =>
+          `<tr><td>${k}</td><td style='text-align:right'>${typeof v === 'number' ? v.toFixed(1) : '—'}</td></tr>`).join('');
+        ly.bindPopup(`<b>${escapeHtml(p.naam || p.code || 'buurt')}</b>${p.water === 'JA' ? ' (water)' : ''}` +
+          `<table style='font-size:11px'>${rows}</table>`);
+      },
+    }).addTo(map);
+    try { map.fitBounds(layer.getBounds().pad(0.05)); } catch {}
+    const vals = scan.values || {};
+    const roll = scan.rollup || {};
+    $('viz-note').textContent =
+      `Breda five-value scan — verdict ${summary.verdict} · ${summary.nBuurten} neighborhoods · ` +
+      `color = weakest value score (green ≥ 75, amber ≥ 50, red < 50)`;
+    $('cards').innerHTML =
+      `<div class="card"><div class="ctitle">Scan verdict: ${escapeHtml(String(summary.verdict))}</div>` +
+      `<div class="note">${summary.nBuurten} neighborhoods · ${summary.nLandBuurten || '?'} land · ` +
+      `${summary.degradations || 0} degradation(s)</div></div>` +
+      Object.keys(roll).map(v => {
+        const label = (vals[v] && vals[v].label) || v;
+        const line = rows => rows.map(([n, sc]) => `${escapeHtml(String(n))} (${Number(sc).toFixed(1)})`).join(' · ');
+        return `<div class="card"><div class="ctitle">${escapeHtml(label)}</div>` +
+          `<div class="note">top: ${line(roll[v].top || [])}</div>` +
+          `<div class="note">bottom: ${line(roll[v].bottom || [])}</div></div>`;
+      }).join('');
+    bredaVizRunId = runId;   // pas na een volledige render vastzetten
+  } catch (e) {
+    window.__bredaStack = e.stack;
+    $('viz-note').textContent = 'Breda render error: ' + e.message;
+  }
+}
+
 // --- HITL: de mens-agent-grens. De poll toont de wachtende interrupt, het verdict
 // gaat naar het duurzame ledger (Task 7-endpoints). tool/argsSummary via textContent,
 // nooit via innerHTML — de args komen uit een model-response.
@@ -710,18 +772,21 @@ async function tick() {
     lastRunId = st.run_id;
   }
   renderSteps(entries);
-  const vizEntry = [...entries].reverse().find(e => e.viz && e.viz.kind === 'worldscene');
-  if (vizEntry && currentPoc && currentPoc.viz === 'worldscene') showViz(vizEntry.viz.runId);
+  const vizEntries = [...entries].reverse().filter(e => e.viz);
+  const wsEntry = vizEntries.find(e => e.viz.kind === 'worldscene');
+  const bredaEntry = vizEntries.find(e => e.viz.kind === 'breda-scan');
+  if (wsEntry && currentPoc && currentPoc.viz === 'worldscene') showViz(wsEntry.viz.runId);
+  if (bredaEntry && currentPoc && currentPoc.viz === 'breda-scan') showBredaScan(bredaEntry.viz.runId);
   // the map is built up step by step: control after the build, one crossfade per geo-step
   mapEvents = [];
-  if (vizEntry) mapEvents.push({ type: 'control' });
+  if (wsEntry) mapEvents.push({ type: 'control' });
   for (const s of geoSteps(entries)) mapEvents.push({ type: 'focus', scen: s });
   const demoDone = entries.some(e => /demo.html rendered/.test(e.summary || ''));
   if (demoDone && mapEvents.length === 1) {
     const firstCard = document.querySelector('.card[data-scen]');
     if (firstCard) mapEvents.push({ type: 'focus', scen: firstCard.dataset.scen });
   }
-  if (vizRunId && autoFollow && pinned.size === 0 && mapEvents.length > mapPlayed && Date.now() - lastMapPlay > 1200) {
+  if (wsEntry && vizRunId && autoFollow && pinned.size === 0 && mapEvents.length > mapPlayed && Date.now() - lastMapPlay > 1200) {
     const ev = mapEvents[mapPlayed];
     const base = `/${vizRunId}-worldscene`;
     const control = await fetch(`${base}/scenarios/CONTROL.geojson`).then(r => r.json()).catch(() => null);
