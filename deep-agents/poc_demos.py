@@ -133,7 +133,7 @@ POC_DEMOS: list[dict[str, Any]] = [
         "label": "Rijnland",
         "subtitle": "Peil conflict, what-if & live freshness (H3)",
         "requiresScenario": False,
-        "viz": "static",
+        "viz": "rijnland-viz",
         "highlightRecipes": [
             "rijnland-peil-conflict",
             "rijnland-peil-whatif",
@@ -145,6 +145,16 @@ POC_DEMOS: list[dict[str, Any]] = [
         ],
         "modes": [
             {
+                "id": "execute_live",
+                "label": "Execute — peilen what-if (live kaart)",
+                "template": (
+                    "Delegeer naar rijnland: voer de peilen what-if uit met de tool "
+                    "run_rijnland_live en vat samen — aantal stations, het venster en "
+                    "wat de geanimeerde kaart laat zien."
+                ),
+            },
+            
+                {
                 "id": "conflict_plan",
                 "label": "Run plan — peil conflict",
                 "template": (
@@ -222,11 +232,21 @@ POC_DEMOS: list[dict[str, Any]] = [
         "label": "MiniGIM",
         "subtitle": "Gebiedscheck — Lijst-v0.91 (74 items)",
         "requiresScenario": False,
-        "viz": "static",
+        "viz": "minigim-viz",
         "highlightRecipes": ["minigim-gebiedscheck", "beleidskompas-omgevingsanalyse"],
         "simulationPages": [],
         "modes": [
             {
+                "id": "execute_live",
+                "label": "Execute — gebiedscheck (live rapport)",
+                "template": (
+                    "Delegeer naar minigim: voer de gebiedscheck uit met de tool "
+                    "run_minigim_live en vat samen — verdict, de checklist-binding "
+                    "(manual/auto/partial) en het rapport in het rechterpaneel."
+                ),
+            },
+            
+                {
                 "id": "gebiedscheck_plan",
                 "label": "Run plan — gebiedscheck",
                 "template": (
@@ -250,7 +270,7 @@ POC_DEMOS: list[dict[str, Any]] = [
         "label": "Eindhoven bp2op",
         "subtitle": "Bestemmingsplan → omgevingsplan (V4 HITL)",
         "requiresScenario": False,
-        "viz": "static",
+        "viz": "eindhoven-viz",
         "highlightRecipes": ["eindhoven-bp2op"],
         "simulationPages": [
             {"title": "Flow demo", "path": "eindhoven-flow-demo.html"},
@@ -258,6 +278,16 @@ POC_DEMOS: list[dict[str, Any]] = [
         ],
         "modes": [
             {
+                "id": "execute_live",
+                "label": "Execute — bp2op-omzetting (live rapport)",
+                "template": (
+                    "Delegeer naar eindhoven: voer de bp2op-omzetting uit met de tool "
+                    "run_eindhoven_live en vat samen — verdict, de counts en de "
+                    "V4-mens-status (pending by design)."
+                ),
+            },
+            
+                {
                 "id": "bp2op_plan",
                 "label": "Run plan — bp2op conversie",
                 "template": (

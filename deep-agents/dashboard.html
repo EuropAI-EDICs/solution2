@@ -153,6 +153,7 @@
       <div id="value-chips" style="display:flex;flex-wrap:wrap;gap:5px;padding:6px 14px;border-bottom:1px solid rgba(196,208,218,.25);background:var(--inkt-2)"></div>
       <div id="viz-body">
         <div id="cards"><div class="placeholder">The visualization appears once the agents build the world scene.</div></div>
+        <iframe id="live-frame" title="Live PoC panel" sandbox="allow-scripts allow-same-origin" style="display:none;flex:1;border:0"></iframe>
         <div id="map"></div>
       </div>
     </div>
@@ -163,6 +164,7 @@
 <script>
 const $ = id => document.getElementById(id);
 let vizRunId = null, map = null, controlLayer = null, scenarioLayer = null, controlDrawn = false;
+let pocLiveRunId = null;
 let lastRunId = null, autoFollow = true;
 let pocCatalog = [], currentPoc = null;
 let mapEvents = [], mapPlayed = 0, lastMapPlay = 0;
@@ -267,7 +269,7 @@ function fullReset() {
 
 function setVizLayout(viz) {
   const world = $('viz-world'), stat = $('viz-static');
-  if (viz === 'worldscene' || viz === 'breda-scan') {
+  if (viz === 'worldscene' || viz === 'breda-scan' || /-viz$/.test(viz)) {
     world.style.display = 'flex';
     world.style.flexDirection = 'column';
     world.style.flex = '1';
@@ -310,6 +312,7 @@ async function onPocChange() {
   currentPoc = pocCatalog.find(p => p.id === id) || null;
   localStorage.setItem('sim-poc', id);
   if (currentPoc) {
+    pocLiveRunId = null;
     setVizLayout(currentPoc.viz);
     renderStaticPanel(currentPoc);
     $('scenario-wrap').style.display = currentPoc.requiresScenario ? '' : 'none';
@@ -427,6 +430,17 @@ function renderSteps(entries) {
   });
 }
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function showMapArea() {
+  $('map').style.display = 'flex';
+  $('live-frame').style.display = 'none';
+}
+function showLiveFrame(src) {
+  $('map').style.display = 'none';
+  const f = $('live-frame');
+  f.style.display = 'flex';
+  if (f.src !== src) f.src = src;
+}
 
 function ensureMap() {
   if (map) return;
@@ -632,6 +646,7 @@ async function showViz(runId) {
   try { bundle = await fetch(`${base}/world-scene-specs.json`).then(r => r.json()); }
   catch { return; }
   vizRunId = runId;
+  showMapArea();
   ensureMap();
   const control = await fetch(`${base}/scenarios/CONTROL.geojson`).then(r => r.json());
   let reportNames = {};
@@ -710,6 +725,7 @@ async function showBredaScan(runId) {
   } catch (e) { $('viz-note').textContent = 'Breda: artifacts not served yet (' + e.message + ')'; return; }
   try {
     ensureMap();
+    showMapArea();
     bredaValue = 'weakest';
     // Leaflet-attributen begrijpen geen var(--…): letterlijke hex uit het palet
     const color = v => v === null ? '#7f93a2' : v >= 75 ? '#1cefa5' : v >= 50 ? '#ffc37e' : '#e10500';
@@ -748,6 +764,21 @@ async function showBredaScan(runId) {
     window.__bredaStack = e.stack;
     $('viz-note').textContent = 'Breda render error: ' + e.message;
   }
+}
+
+// --- generieke live-panelen: Rijnland / MiniGIM / Eindhoven (iframe + kaarten)
+async function showPocLive(viz) {
+  if (pocLiveRunId === viz.runId) return;
+  let panel;
+  try { panel = await fetch(`/${viz.runId}/panel.json`).then(r => r.json()); }
+  catch (e) { $('viz-note').textContent = viz.poc + ': panel not ready (' + e.message + ')'; return; }
+  pocLiveRunId = viz.runId;
+  $('viz-note').textContent = panel.title;
+  showLiveFrame(`/${viz.runId}/panel.html`);
+  $('cards').innerHTML = (panel.cards || []).map(c =>
+    `<div class="card"><div class="ctitle">${escapeHtml(c.title)}</div>` +
+    (c.lines || []).map(l => `<div class="note">${escapeHtml(l)}</div>`).join('') + `</div>`
+  ).join('') || '<div class="placeholder">No summary.</div>';
 }
 
 // --- HITL: de mens-agent-grens. De poll toont de wachtende interrupt, het verdict
@@ -803,8 +834,10 @@ async function tick() {
   const vizEntries = [...entries].reverse().filter(e => e.viz);
   const wsEntry = vizEntries.find(e => e.viz.kind === 'worldscene');
   const bredaEntry = vizEntries.find(e => e.viz.kind === 'breda-scan');
+  const liveEntry = vizEntries.find(e => typeof e.viz.kind === 'string' && e.viz.kind.endsWith('-viz') && e.viz.kind !== 'breda-scan');
   if (wsEntry && currentPoc && currentPoc.viz === 'worldscene') showViz(wsEntry.viz.runId);
   if (bredaEntry && currentPoc && currentPoc.viz === 'breda-scan') showBredaScan(bredaEntry.viz.runId);
+  if (liveEntry && currentPoc && currentPoc.viz === liveEntry.viz.poc + '-viz') showPocLive(liveEntry.viz);
   // the map is built up step by step: control after the build, one crossfade per geo-step
   mapEvents = [];
   if (wsEntry) mapEvents.push({ type: 'control' });
