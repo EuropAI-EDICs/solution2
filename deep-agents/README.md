@@ -202,6 +202,26 @@ heeft géén checkpointer — interrupts zijn daar niet ondersteund; HITL werkt
 uitsluitend in de live-runner. Volledig ontwerp en contract:
 [2026-10-07-hitl-mens-agent-grens.md](../docs/superpowers/plans/2026-10-07-hitl-mens-agent-grens.md).
 
+## HCS LLM-intake (fase 3, benadering C-aanzet)
+
+[`hcs_intake.py`](hcs_intake.py) — het LLM stelt intake-vragen voor voor een persona
+uit de THK-08-fixture ("ik ga verhuizen"); een deterministische gate toetst de
+poort-3-regels uit de HCS-blueprint: alleen vragen wat niet in de BRP staat,
+gewone taal, en overname door een medewerker bij edge-cases. Uitslagen zijn
+go/no-go als data: een rode gate is een geldig resultaat, geen defect.
+
+```bash
+../nldt/.venv/bin/python hcs_intake.py --all                # alle persona's (default: gemma4:31b-mlx)
+PYTHONPATH=$PWD/.venv/lib/python3.14/site-packages ../nldt/.venv/bin/python \
+  -m pytest tests/test_hcs_intake.py -q                     # gate-tests (offline)
+LDT_DEEP_AGENTS_ENDPOINT=http://localhost:11434 PYTHONPATH=$PWD/.venv/lib/python3.14/site-packages \
+  ../nldt/.venv/bin/python -m pytest tests/test_hcs_intake.py -m llm -q   # met echt model
+```
+
+Artefacts: `runs/hcs-intake/<stamp>-<persona>.json` (gate-rapport inbegrepen).
+De HCS-demo's blijven deterministische replays; dit is de aanzet van benadering C
+(echte LLM-stappen achter de poorten).
+
 ## Next steps
 
 - Wire a `run_recipe` tool to the Cookbook + OGC process backends (per POC).
