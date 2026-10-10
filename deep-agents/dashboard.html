@@ -150,6 +150,7 @@
         <button id="autobtn" class="on" title="the map follows the agents' geo steps automatically">▶ auto-follow</button>
         <span id="pinlegend"></span>
       </div>
+      <div id="value-chips" style="display:flex;flex-wrap:wrap;gap:5px;padding:6px 14px;border-bottom:1px solid rgba(196,208,218,.25);background:var(--inkt-2)"></div>
       <div id="viz-body">
         <div id="cards"><div class="placeholder">The visualization appears once the agents build the world scene.</div></div>
         <div id="map"></div>
@@ -660,8 +661,41 @@ async function showViz(runId) {
   document.querySelectorAll('.pin').forEach(btn => btn.addEventListener('click', ev => { ev.stopPropagation(); togglePin(base, btn.dataset.scen, btn); }));
 }
 
-// --- Breda live: de five-value scan uit de run zelf, gekleurd op de zwakste waarde
-let bredaVizRunId = null;
+// --- Breda live: de five-value scan uit de run zelf, gekleurd per waardekeuze
+let bredaVizRunId = null, bredaLayer = null, bredaValue = 'weakest';
+const BREDA_VALUES = ['weakest', 'democratic', 'spatial', 'economic', 'social'];
+
+function bredaScoreFor(f, mode) {
+  const s = (f.properties && f.properties.s) || {};
+  const vals = Object.values(s).filter(v => typeof v === 'number');
+  if (mode === 'weakest') return vals.length ? Math.min(...vals) : null;
+  const v = s[mode];
+  return typeof v === 'number' ? v : null;
+}
+
+function bredaRenderChips() {
+  const host = document.getElementById('value-chips');
+  if (!host) return;
+  host.innerHTML = BREDA_VALUES.map(v =>
+    `<span class="chip${v === bredaValue ? ' active' : ''}" data-value="${v}" style="cursor:pointer">${v === 'weakest' ? 'weakest value' : v}</span>`
+  ).join('');
+  host.querySelectorAll('.chip').forEach(chip => chip.addEventListener('click', () => {
+    bredaValue = chip.dataset.value;
+    bredaRecolor();
+    bredaRenderChips();
+  }));
+}
+
+function bredaRecolor() {
+  if (!bredaLayer) return;
+  const color = v => v === null ? '#7f93a2' : v >= 75 ? '#1cefa5' : v >= 50 ? '#ffc37e' : '#e10500';
+  bredaLayer.eachLayer(ly => {
+    const v = bredaScoreFor(ly.feature, bredaValue);
+    ly.setStyle({ fillColor: color(v), fillOpacity: v === null ? .15 : .6 });
+  });
+  const label = bredaValue === 'weakest' ? 'weakest value score (green ≥ 75, amber ≥ 50, red < 50)' : `value: ${bredaValue} (green ≥ 75, amber ≥ 50, red < 50)`;
+  $('viz-note').textContent = `Breda five-value scan — coloring by ${label}`;
+}
 
 async function showBredaScan(runId) {
   if (runId === bredaVizRunId) return;
@@ -676,16 +710,12 @@ async function showBredaScan(runId) {
   } catch (e) { $('viz-note').textContent = 'Breda: artifacts not served yet (' + e.message + ')'; return; }
   try {
     ensureMap();
-    const worst = f => {
-      const s = (f.properties && f.properties.s) || {};
-      const vals = Object.values(s).filter(v => typeof v === 'number');
-      return vals.length ? Math.min(...vals) : null;
-    };
+    bredaValue = 'weakest';
     // Leaflet-attributen begrijpen geen var(--…): letterlijke hex uit het palet
     const color = v => v === null ? '#7f93a2' : v >= 75 ? '#1cefa5' : v >= 50 ? '#ffc37e' : '#e10500';
-    const layer = L.geoJSON(geo, {
+    bredaLayer = L.geoJSON(geo, {
       style: f => {
-        const v = worst(f);
+        const v = bredaScoreFor(f, bredaValue);
         return { color: '#06121b', weight: .8, fillColor: color(v),
                  fillOpacity: v === null ? .15 : .6 };
       },
@@ -698,12 +728,10 @@ async function showBredaScan(runId) {
           `<table style='font-size:11px'>${rows}</table>`);
       },
     }).addTo(map);
-    try { map.fitBounds(layer.getBounds().pad(0.05)); } catch {}
+    try { map.fitBounds(bredaLayer.getBounds().pad(0.05)); } catch {}
     const vals = scan.values || {};
     const roll = scan.rollup || {};
-    $('viz-note').textContent =
-      `Breda five-value scan — verdict ${summary.verdict} · ${summary.nBuurten} neighborhoods · ` +
-      `color = weakest value score (green ≥ 75, amber ≥ 50, red < 50)`;
+    bredaRenderChips();
     $('cards').innerHTML =
       `<div class="card"><div class="ctitle">Scan verdict: ${escapeHtml(String(summary.verdict))}</div>` +
       `<div class="note">${summary.nBuurten} neighborhoods · ${summary.nLandBuurten || '?'} land · ` +
