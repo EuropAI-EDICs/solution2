@@ -580,6 +580,15 @@ def test_mapping_doc_city_tables():
         assert marker in text
 
 
+def test_bestuurdersdemo_hcs_scene():
+    text = (NLDT_ROOT / "simulation" / "agentic-state-bestuurders-demo.html").read_text()
+    assert 'data-title="De functie als recipe"' in text
+    assert "11 · Vraag aan het bestuur" in text
+    for rid in ("thk-08-move-home", "grn-01-canopy-measure", "hcs-recipe-run"):
+        assert rid in text
+    assert text.count('class="scene"') == 13
+
+
 def test_index_links_all_dish_demos():
     text = INDEX_HTML.read_text()
     for d in ("uam", "grn", "cir", "min"):
