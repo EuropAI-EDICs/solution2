@@ -171,7 +171,7 @@ def poc_subagents(mcp_tools: list | None = None) -> list[dict[str, Any]]:
     mcp_catalog = _mcp(mcp_tools, POC_CATALOG_MCP)
     mcp_utrecht = _mcp(mcp_tools, UTRECHT_OPS_MCP)
     extra_tools = {
-        "utrecht": [run_world_scene, render_world_scene_demo] + mcp_utrecht,
+        "utrecht": [run_world_scene, render_world_scene_demo, run_crosstrack_overlay] + mcp_utrecht,
         "breda": [run_breda_scan],
         "rijnland": [run_rijnland_live],
         "minigim": [run_minigim_live],
