@@ -20,6 +20,7 @@ from tools.recipes import get_recipe, list_recipes
 from tools.utrecht import render_world_scene_demo, run_world_scene
 from tools.breda import run_breda_scan
 from tools.poc_live import run_eindhoven_live, run_minigim_live, run_rijnland_live
+from tools.crosstrack import run_crosstrack_overlay
 from tools.validate import validate_world_scene
 
 PROMPTS_DIR = Path(__file__).resolve().parent / "prompts" / "poc"
@@ -175,6 +176,7 @@ def poc_subagents(mcp_tools: list | None = None) -> list[dict[str, Any]]:
         "rijnland": [run_rijnland_live],
         "minigim": [run_minigim_live],
         "eindhoven": [run_eindhoven_live],
+        "crosstrack": [run_crosstrack_overlay],
     }
 
     def spec_to_subagent(spec: dict[str, Any], prompt_dir: Path, base_tools: list) -> dict[str, Any]:

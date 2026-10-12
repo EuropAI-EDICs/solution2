@@ -269,7 +269,7 @@ function fullReset() {
 
 function setVizLayout(viz) {
   const world = $('viz-world'), stat = $('viz-static');
-  if (viz === 'worldscene' || viz === 'breda-scan' || /-viz$/.test(viz)) {
+  if (viz === 'worldscene' || viz === 'breda-scan' || /-viz$/.test(viz)) {  // incl. crosstrack-viz
     world.style.display = 'flex';
     world.style.flexDirection = 'column';
     world.style.flex = '1';
@@ -961,6 +961,110 @@ async function showPocLive(viz) {
   ).join('') || '<div class="placeholder">No summary.</div>';
 }
 
+// --- Crosstrack (Utrecht Plane C): de lagen afpellen op de kaart
+let xtrackVizRunId = null, xtrackLayer = null, xtrackPlaying = false, xtrackIdx = 0;
+let xtrackLayers = [], xtrackReport = null;
+
+const XT_STYLE = {
+  'control-wind': { color: '#2ba8ff', fillColor: '#2ba8ff', fillOpacity: .22, weight: 1.5 },
+  'control-zon': { color: '#ffc37e', fillColor: '#ffc37e', fillOpacity: .22, weight: 1.5 },
+  'control-bos': { color: '#1cefa5', fillColor: '#1cefa5', fillOpacity: .22, weight: 1.5 },
+  'conflict-wind-x-zon': { color: '#e10500', fillColor: '#e10500', fillOpacity: .5, weight: 1 },
+  'conflict-wind-x-bos': { color: '#e10500', fillColor: '#e10500', fillOpacity: .5, weight: 1 },
+  'conflict-zon-x-bos': { color: '#e10500', fillColor: '#e10500', fillOpacity: .5, weight: 1 },
+  'shared-groene': { color: '#ff9815', fillColor: '#ff9815', fillOpacity: .3, weight: 2, dashArray: '6 4' },
+};
+
+async function showCrosstrackViz(viz) {
+  if (xtrackVizRunId === viz.runId) return;
+  xtrackPlaying = false;
+  const base = `/${viz.runId}`;
+  let report;
+  try { report = await fetch(`${base}/crosstrack-report.json`).then(r => r.json()); }
+  catch (e) { $('viz-note').textContent = 'Crosstrack: report not ready (' + e.message + ')'; return; }
+  xtrackVizRunId = viz.runId;
+  xtrackReport = report;
+  showMapArea();
+  ensureMap();
+
+  const tracks = report.tracks || [];
+  xtrackLayers = [];
+  tracks.forEach(t => xtrackLayers.push({
+    id: 'control-' + t.useCase,
+    title: 'Track control — ' + t.useCase,
+    urls: [`${base}/controls/${t.useCase}.geojson`],
+    style: XT_STYLE['control-' + t.useCase] || XT_STYLE['control-wind'],
+    stats: `final ${Number(t.finalAreaKm2).toFixed(1)} km²`,
+  }));
+  (report.conflicts || []).forEach(c => xtrackLayers.push({
+    id: 'conflict-' + c.pair.join('-x-'),
+    title: 'Conflict — ' + c.pair.join(' × '),
+    urls: [`${base}/${c.geometryFile}`],
+    style: XT_STYLE['conflict-wind-x-zon'],
+    stats: `${Number(c.areaKm2).toFixed(1)} km² overlap`,
+  }));
+  (report.sharedZones || []).forEach(z => xtrackLayers.push({
+    id: 'shared-' + z.zoneId,
+    title: 'Shared — ' + z.zoneId + ' (Groene contour)',
+    urls: (z.perTrack || []).map(pt => `${base}/shared/${z.zoneId}/${pt.useCase}.geojson`),
+    style: XT_STYLE['shared-groene'],
+    stats: `${Number(z.areaKm2).toFixed(1)} km² — ` + (z.perTrack || []).map(pt => pt.useCase + ' ' + Number(pt.shareOfZone).toFixed(0) + '%').join(' · '),
+  }));
+
+  $('cards').innerHTML =
+    `<div class="hint">▶ afpellen = de lagen één voor één op de kaart · klik een kaart voor die laag</div>` +
+    xtrackLayers.map((l, i) =>
+      `<div class="card" data-layer="${i}"><div class="ctitle">${escapeHtml(l.title)}</div>` +
+      `<div class="note">${escapeHtml(l.stats)}</div></div>`).join('');
+  document.querySelectorAll('#cards .card').forEach(el => el.addEventListener('click', () => focusXtrackLayer(Number(el.dataset.layer))));
+  $('play-btn-x') && 0;
+  const play = document.createElement('button');
+  play.id = 'afpel-btn';
+  play.className = 'pin';
+  play.style.cssText = 'float:none;margin-left:10px';
+  play.textContent = '▶ afpellen';
+  play.addEventListener('click', xtrackTogglePlay);
+  $('viz-header').appendChild(play);
+  renderXtrackDay();
+}
+
+function renderXtrackDay() {
+  const lbl = document.getElementById('day-label');
+  if (lbl) lbl.textContent = xtrackPlaying ? 'afpellen…' : 'klaar — ▶ afpellen';
+}
+
+function focusXtrackLayer(i) {
+  const l = xtrackLayers[i];
+  if (!l) return;
+  xtrackIdx = i;
+  document.querySelectorAll('#cards .card').forEach((el, j) => el.classList.toggle('active', j === i));
+  ensureMap();
+  if (xtrackLayer) map.removeLayer(xtrackLayer);
+  xtrackLayer = L.featureGroup();
+  let loaded = 0;
+  l.urls.forEach(u => {
+    fetch(u).then(r => r.json()).then(fc => {
+      L.geoJSON(fc, { style: () => l.style }).addTo(xtrackLayer);
+      if (++loaded === l.urls.length) { try { map.fitBounds(xtrackLayer.getBounds().pad(0.05)); } catch {} }
+    });
+  });
+  $('viz-note').textContent = l.title + ' — ' + l.stats;
+}
+
+function xtrackTogglePlay() {
+  xtrackPlaying = !xtrackPlaying;
+  const btn = document.getElementById('afpel-btn');
+  if (btn) btn.textContent = xtrackPlaying ? '⏸ pauze' : '▶ afpellen';
+  if (xtrackPlaying) {
+    (function advance() {
+      if (!xtrackPlaying) return;
+      focusXtrackLayer(xtrackIdx);
+      xtrackIdx = (xtrackIdx + 1) % xtrackLayers.length;
+      setTimeout(advance, 1600);
+    })();
+  }
+}
+
 // --- HITL: de mens-agent-grens. De poll toont de wachtende interrupt, het verdict
 // gaat naar het duurzame ledger (Task 7-endpoints). tool/argsSummary via textContent,
 // nooit via innerHTML — de args komen uit een model-response.
@@ -1020,6 +1124,8 @@ async function tick() {
   if (bredaEntry && currentPoc && currentPoc.viz === 'breda-scan') showBredaScan(bredaEntry.viz.runId);
   const rijEntry = vizEntries.find(e => e.viz.kind === 'rijnland-viz');
   if (rijEntry && currentPoc && currentPoc.viz === 'rijnland-viz') showRijnlandHex(rijEntry.viz);
+  const xtrackEntry = vizEntries.find(e => e.viz.kind === 'crosstrack-viz');
+  if (xtrackEntry && currentPoc && currentPoc.viz === 'crosstrack-viz') showCrosstrackViz(xtrackEntry.viz);
   if (liveEntry && currentPoc && currentPoc.viz === liveEntry.viz.poc + '-viz') showPocLive(liveEntry.viz);
   // the map is built up step by step: control after the build, one crossfade per geo-step
   mapEvents = [];
