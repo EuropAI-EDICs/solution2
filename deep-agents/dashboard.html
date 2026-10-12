@@ -141,6 +141,7 @@
       <iframe id="poc-ref" title="POC referentie-demo" sandbox="allow-scripts allow-same-origin"></iframe>
     </div>
     <div id="viz-world">
+      <div id="utrecht-view-chips" style="display:none;flex-wrap:wrap;gap:5px;padding:6px 14px;background:var(--inkt-2);border-bottom:1px solid rgba(196,208,218,.25)"></div>
       <div id="viz-header">
         <span class="legend"><span class="sw" style="background:var(--inkt-2);border:2px solid var(--blauw)"></span>control boundary</span>
         <span class="legend"><span class="sw" style="background:#dc2626"></span>changes vs. adopted policy</span>
@@ -674,6 +675,7 @@ async function showViz(runId) {
     });
   }));
   document.querySelectorAll('.pin').forEach(btn => btn.addEventListener('click', ev => { ev.stopPropagation(); togglePin(base, btn.dataset.scen, btn); }));
+  if (currentPoc && currentPoc.id === 'utrecht') renderUtrechtChips('world');
 }
 
 // --- Breda live: de five-value scan uit de run zelf, gekleurd per waardekeuze
@@ -975,18 +977,35 @@ const XT_STYLE = {
   'shared-groene': { color: '#ff9815', fillColor: '#ff9815', fillOpacity: .3, weight: 2, dashArray: '6 4' },
 };
 
-async function showCrosstrackViz(viz) {
-  if (xtrackVizRunId === viz.runId) return;
-  xtrackPlaying = false;
-  const base = `/${viz.runId}`;
+let utrechtMode = null, utrechtWsRunId = null, utrechtXtRunId = null;
+
+function renderUtrechtChips(active) {
+  const host = document.getElementById('utrecht-view-chips');
+  if (!host) return;
+  host.style.display = 'flex';
+  host.innerHTML =
+    `<span class="chip${active === 'world' ? ' active' : ''}" data-v="world" style="cursor:pointer">World scene</span>` +
+    `<span class="chip${active === 'xtrack' ? ' active' : ''}" data-v="xtrack" style="cursor:pointer">Crosstrack overlay (Plane C)</span>`;
+  host.querySelectorAll('.chip').forEach(ch => ch.addEventListener('click', () => {
+    if (utrechtMode === ch.dataset.v) return;
+    utrechtMode = ch.dataset.v;
+    renderUtrechtChips(utrechtMode);
+    if (utrechtMode === 'xtrack') showCrosstrackView();
+    else if (utrechtWsRunId) { vizRunId = null; showViz(utrechtWsRunId); }
+  }));
+}
+
+async function showCrosstrackView() {
+  const runId = utrechtXtRunId;
+  if (!runId) return;
+  const base = `/${runId}`;
   let report;
-  try { report = await fetch(`${base}/crosstrack-report.json`).then(r => r.json()); }
+  try { report = await fetch(`${base}/crosstrack-report.json?cb=${Date.now()}`).then(r => r.json()); }
   catch (e) { $('viz-note').textContent = 'Crosstrack: report not ready (' + e.message + ')'; return; }
-  xtrackVizRunId = viz.runId;
   xtrackReport = report;
   showMapArea();
   ensureMap();
-
+  if (xtrackLayer) { map.removeLayer(xtrackLayer); xtrackLayer = null; }
   const tracks = report.tracks || [];
   xtrackLayers = [];
   tracks.forEach(t => xtrackLayers.push({
@@ -1010,22 +1029,20 @@ async function showCrosstrackViz(viz) {
     style: XT_STYLE['shared-groene'],
     stats: `${Number(z.areaKm2).toFixed(1)} km² — ` + (z.perTrack || []).map(pt => pt.useCase + ' ' + Number(pt.shareOfZone).toFixed(0) + '%').join(' · '),
   }));
-
   $('cards').innerHTML =
     `<div class="hint">▶ afpellen = de lagen één voor één op de kaart · klik een kaart voor die laag</div>` +
     xtrackLayers.map((l, i) =>
       `<div class="card" data-layer="${i}"><div class="ctitle">${escapeHtml(l.title)}</div>` +
       `<div class="note">${escapeHtml(l.stats)}</div></div>`).join('');
   document.querySelectorAll('#cards .card').forEach(el => el.addEventListener('click', () => focusXtrackLayer(Number(el.dataset.layer))));
-  $('play-btn-x') && 0;
+  const btn = document.getElementById('afpel-btn');
+  if (btn) { btn.textContent = xtrackPlaying ? '⏸ pauze' : '▶ afpellen'; return; }
   const play = document.createElement('button');
   play.id = 'afpel-btn';
   play.className = 'pin';
   play.style.cssText = 'float:none;margin-left:10px';
   play.textContent = '▶ afpellen';
   play.addEventListener('click', xtrackTogglePlay);
-  $('viz-header').appendChild(play);
-  renderXtrackDay();
 }
 
 function renderXtrackDay() {
@@ -1124,8 +1141,16 @@ async function tick() {
   if (bredaEntry && currentPoc && currentPoc.viz === 'breda-scan') showBredaScan(bredaEntry.viz.runId);
   const rijEntry = vizEntries.find(e => e.viz.kind === 'rijnland-viz');
   if (rijEntry && currentPoc && currentPoc.viz === 'rijnland-viz') showRijnlandHex(rijEntry.viz);
-  const xtrackEntry = vizEntries.find(e => e.viz.kind === 'crosstrack-viz');
-  if (xtrackEntry && currentPoc && currentPoc.viz === 'crosstrack-viz') showCrosstrackViz(xtrackEntry.viz);
+  // utrecht: world scene én crosstrack-overlay als twee weergaven van één PoC
+  const xtEntry = vizEntries.find(e => e.viz.kind === 'crosstrack-viz');
+  if (currentPoc && currentPoc.id === 'utrecht') {
+    if (xtEntry) { utrechtXtRunId = xtEntry.viz.runId; window.__utrechtXtReport = xtrackReport || window.__utrechtXtReport || null; }
+    if (!utrechtWsRunId) utrechtWsRunId = '20260831T175842Z-zon-scen';   // canonieke Utrecht-world scene
+    if (utrechtMode === null) utrechtMode = (!wsEntry && utrechtXtRunId) ? 'xtrack' : 'world';
+    if (utrechtMode === 'xtrack' && utrechtXtRunId) showCrosstrackView();
+    else if (utrechtWsRunId) showViz(utrechtWsRunId);
+    renderUtrechtChips();
+  }
   if (liveEntry && currentPoc && currentPoc.viz === liveEntry.viz.poc + '-viz') showPocLive(liveEntry.viz);
   // the map is built up step by step: control after the build, one crossfade per geo-step
   mapEvents = [];

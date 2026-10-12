@@ -199,45 +199,6 @@ POC_DEMOS: list[dict[str, Any]] = [
         "modes": _UTRECHT_MODES,
     },
     {
-        "id": "crosstrack",
-        "label": "Crosstrack",
-        "subtitle": "Plane C — wind × solar × forest overlay (Utrecht-familie)",
-        "requiresScenario": True,
-        "viz": "crosstrack-viz",
-        "highlightRecipes": ["multi-track-crosstrack", "spatial-overlay-analysis"],
-        "simulationPages": [{"title": "Mock overlay", "path": "mock-overlay-demo.html"}],
-        "modes": [
-            {
-                "id": "execute_live",
-                "label": "Execute — multi-track overlay (live kaart)",
-                "template": (
-                    "Delegeer naar crosstrack: voer de multi-track overlay uit met de tool "
-                    "run_crosstrack_overlay en vat samen — de drie track-controles, de drie "
-                    "conflictparen (met km2) en de gedeelde Groene contour. Vermeld dat de "
-                    "lagen in het rechterpaneel afgepeld kunnen worden."
-                ),
-            },
-            {
-                "id": "overlay_plan",
-                "label": "Run plan — multi-track overlay",
-                "template": (
-                    "Delegeer naar crosstrack: run plan voor multi-track-crosstrack met "
-                    "scenario-run {rid} als context — welke baselines (wind/zon/bos), stappen, "
-                    "outputs op Plane C."
-                ),
-            },
-            {
-                "id": "overlay_explain",
-                "label": "Overlay uitleggen (Plane C)",
-                "template": (
-                    "Delegeer naar crosstrack: leg uit hoe Plane C de overlay vormt over "
-                    "wind-, solar- en forest-baselines voor run {rid}; noem grootste "
-                    "conflicten/spatial overlaps (conceptueel, geen verzonnen run-ids)."
-                ),
-            },
-        ],
-    },
-    {
         "id": "minigim",
         "label": "MiniGIM",
         "subtitle": "Gebiedscheck — Lijst-v0.91 (74 items)",
