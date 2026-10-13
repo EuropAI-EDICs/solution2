@@ -1,0 +1,52 @@
+{
+  "id": "SSET-landbouw-utrecht-uitdagingen",
+  "useCase": "landbouw",
+  "description": "Uitdagingen-curation (Landelijk Gebied & Natuur): stabiliserings-versoepeling, bedrijfsgebied-verstrakking en het glastuinbouw-tegenbeeld.",
+  "scenarios": [
+    {
+      "id": "SC-LB-STABILISERING-OPEN",
+      "name": "Landbouwstabiliseringsgebied no longer excluded",
+      "description": "Drops FR-LB-03 (art. 8.3, 246.8 km²) — expansion of niet-grondgebonden farm plots becomes possible in the stabiliseringsgebied again.",
+      "objectType": "agricultural_expansion",
+      "basis": {
+        "type": "policy_variant",
+        "normCardId": "NC-LB-03",
+        "provenanceNote": "NC-LB-03 (art. 8.3) refuses expansion of niet-grondgebonden plots in the Landbouwstabiliseringsgebied; this variant documents the reconsideration reading by dropping the exclusion."
+      },
+      "mutations": [
+        {"ruleId": "FR-LB-03", "action": "drop"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    },
+    {
+      "id": "SC-LB-BEDRIJVEN-HARD",
+      "name": "Gebied agrarische bedrijven treated as hard exclusion",
+      "description": "FR-LB-01 (art. 8.1, verbod nieuwe bouwpercelen + 1,5 ha-voorschrift) is a kan-mits conditional; the strictest reading excludes the agrarische bedrijven designation for agricultural expansion.",
+      "objectType": "agricultural_expansion",
+      "basis": {
+        "type": "policy_variant",
+        "normCardId": "NC-LB-01",
+        "provenanceNote": "NC-LB-01 (art. 8.1) conditions agrarische bedrijven via a verbod plus voorschrift; this variant executes the strictest protective reading as a hard exclusion."
+      },
+      "mutations": [
+        {"ruleId": "FR-LB-01", "action": "set_semantics", "zoneSemantics": "exclusion"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    },
+    {
+      "id": "SC-LB-GLASTUIN-OVERAL",
+      "name": "Glastuinbouw designation taken at face value (no kassenconcentraties limit)",
+      "description": "Drops FR-LB-05 (art. 8.6, 1557.8 km² designation) — glasshouse horticulture everywhere except the remaining two exclusions; the dramatic counterfactual.",
+      "objectType": "agricultural_expansion",
+      "basis": {
+        "type": "hypothetical",
+        "rationale": "Art. 8.6 explicitly refuses glasshouse expansion outside the kassenconcentraties (except the Ronde Venen relocation); ignoring it is not a defensible reading — it isolates how much area the concentration policy actually reserves.",
+        "provenanceNote": "NOT legally grounded as a reading of the verordening: the designation (NC-LB-05, art. 8.6) is cited; dropping it is purely analytical."
+      },
+      "mutations": [
+        {"ruleId": "FR-LB-05", "action": "drop"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    }
+  ]
+}

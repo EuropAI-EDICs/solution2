@@ -1,0 +1,53 @@
+{
+  "id": "SSET-recreatie-utrecht-uitdagingen",
+  "useCase": "recreatie",
+  "description": "Uitdagingen-curation (Landelijk Gebied & Natuur): compositie-verscherping, uitbreidingsband en de aandachts-tegenbeeld op een pure-inclusion-track.",
+  "scenarios": [
+    {
+      "id": "SC-RC-ALLEEN-DAGRECREATIE",
+      "name": "Only bovenlokale dagrecreatieterreinen remain open",
+      "description": "Drops FR-RC-02 (art. 9.23, recreatiezone 136.3 km²) from the inclusion composition — strict programming limited to art. 9.22.",
+      "objectType": "recreation_development",
+      "basis": {
+        "type": "policy_variant",
+        "normCardId": "NC-RC-02",
+        "provenanceNote": "NC-RC-02 (art. 9.23) opens the recreatiezone 'in afwijking van artikel 9.3'; this variant documents the strictest programming reading by dropping it from the composition."
+      },
+      "mutations": [
+        {"ruleId": "FR-RC-02", "action": "drop"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    },
+    {
+      "id": "SC-RC-DAGRECREATIE-BUFFER-500",
+      "name": "Dagrecreatieterrein designation expanded by a 500 m band",
+      "description": "Buffers the art. 9.22 inclusion (FR-RC-01, 81.8 km²) outward by 500 m — an expansion-band variant.",
+      "objectType": "recreation_development",
+      "basis": {
+        "type": "norm_variance",
+        "normCardId": "NC-RC-01",
+        "variedAspect": "inclusion zone widened by an added 500 m buffer; the designation is cited, the 500 m band is the scenario's own parameter",
+        "provenanceNote": "NC-RC-01 (art. 9.22) carries the dagrecreatieterrein designation; the 500 m band is not cited and is the scenario's own parameter."
+      },
+      "mutations": [
+        {"ruleId": "FR-RC-01", "action": "set_buffer_distance_m", "bufferDistanceM": 500}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    },
+    {
+      "id": "SC-RC-DAGRECREATIE-ALLEEN-AANDACHT",
+      "name": "Dagrecreatieterrein opening demoted to attention marker",
+      "description": "FR-RC-01 re-read as an attention marker instead of an inclusion — measures what the art.-9.22 opening itself is worth (−81.8 km²).",
+      "objectType": "recreation_development",
+      "basis": {
+        "type": "policy_variant",
+        "normCardId": "NC-RC-01",
+        "provenanceNote": "NC-RC-01 (art. 9.22) opens the designation 'in afwijking van artikel 9.3'; this variant documents the counter-reading in which no spatial opening follows, only attention."
+      },
+      "mutations": [
+        {"ruleId": "FR-RC-01", "action": "set_semantics", "zoneSemantics": "attention"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    }
+  ]
+}
