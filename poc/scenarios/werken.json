@@ -1,0 +1,52 @@
+{
+  "id": "SSET-werken-utrecht-uitdagingen",
+  "useCase": "werken",
+  "description": "Uitdagingen-curation (Wonen & Werken): de WN-03-les als variant, streng stedelijk-alleen en een uitbreidingsband.",
+  "scenarios": [
+    {
+      "id": "SC-WE-DETAILHANDEL-HARD",
+      "name": "Detailhandel verbod executed over the whole object",
+      "description": "FR-WE-06 (art. 9.20) refuses detailhandel buiten bestaand winkelgebied but is sub-class-scoped (markers never eliminate area for bedrijventerreinen); this variant executes the over-broad reading that nullified the 9.16/9.18 openings in the pipeline's first run (WN-03 lesson) — now as an explicit scenario.",
+      "objectType": "business_development",
+      "basis": {
+        "type": "policy_variant",
+        "normCardId": "NC-WE-06",
+        "provenanceNote": "NC-WE-06 (art. 9.20) is sub-class-scoped to detailhandel; the over-broad area exclusion was re-adjudicated (WN-03). This variant makes that strict reading an explicit, visible policy choice."
+      },
+      "mutations": [
+        {"ruleId": "FR-WE-06", "action": "set_semantics", "zoneSemantics": "exclusion"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    },
+    {
+      "id": "SC-WE-ALLEEN-STEDELIJK",
+      "name": "Business development only within existing urban area",
+      "description": "Drops FR-WE-03 (art. 9.16, uitbreiding bedrijventerrein onder voorwaarden, 703.4 km²) — companies remain limited to the stedelijk gebied opening (art. 9.18).",
+      "objectType": "business_development",
+      "basis": {
+        "type": "policy_variant",
+        "normCardId": "NC-WE-03",
+        "provenanceNote": "NC-WE-03 (art. 9.16) is the conditioned bedrijventerrein-uitbreiding exception; this variant documents dropping that lever (strictest anti-expansion reading)."
+      },
+      "mutations": [
+        {"ruleId": "FR-WE-03", "action": "drop"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    },
+    {
+      "id": "SC-WE-BEDRIJVENTERREIN-BUFFER-500",
+      "name": "Bedrijventerrein designation expanded by a 500 m band",
+      "description": "Buffers the art. 9.16 inclusion (FR-WE-03) outward by 500 m — an expansion-band variant.",
+      "objectType": "business_development",
+      "basis": {
+        "type": "hypothetical",
+        "rationale": "The designation envelope is a programming area; a 500 m band is not cited anywhere — this hypothetical measures what it would add.",
+        "provenanceNote": "NOT legally grounded: the designation (NC-WE-03, art. 9.16) is cited, the 500 m band is the scenario's own parameter."
+      },
+      "mutations": [
+        {"ruleId": "FR-WE-03", "action": "set_buffer_distance_m", "bufferDistanceM": 500}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    }
+  ]
+}

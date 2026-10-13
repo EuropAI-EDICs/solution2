@@ -1,0 +1,57 @@
+{
+  "id": "SSET-wonen-utrecht-uitdagingen",
+  "useCase": "wonen",
+  "description": "Uitdagingen-curation (Wonen & Werken): streng stedelijk-alleen, flexwoningen dicht en de stilte-tegenbeeld.",
+  "scenarios": [
+    {
+      "id": "SC-WN-ALLEEN-STEDELIJK",
+      "name": "Housing only within existing urban area",
+      "description": "Drops the exception composition — kernrandzone (FR-WN-04) and the three uitbreiding-woningbouw rules (FR-WN-07/08/09) — leaving only the stedelijk gebied opening: the strictest anti-verstedelijking reading.",
+      "objectType": "housing_development",
+      "basis": {
+        "type": "policy_variant",
+        "normCardId": "NC-WN-01",
+        "provenanceNote": "NC-WN-01 (art. 9.3) carries the verstedelijkingsverbod of het Landelijk gebied; its tenzij-structure is operationalized by the inclusion composition, which this variant removes (strictest reading)."
+      },
+      "mutations": [
+        {"ruleId": "FR-WN-04", "action": "drop"},
+        {"ruleId": "FR-WN-07", "action": "drop"},
+        {"ruleId": "FR-WN-08", "action": "drop"},
+        {"ruleId": "FR-WN-09", "action": "drop"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    },
+    {
+      "id": "SC-WN-FLEXWONINGEN-DICHT",
+      "name": "Flexwoningen route closed",
+      "description": "Drops FR-WN-08 (art. 9.14a, one-time temporary expansion up to 50 flexwoningen per kern) — the temporary-housing lever disappears.",
+      "objectType": "housing_development",
+      "basis": {
+        "type": "policy_variant",
+        "normCardId": "NC-WN-08",
+        "provenanceNote": "NC-WN-08 (art. 9.14a) is the flexwoningen exception; this variant documents dropping that specific lever."
+      },
+      "mutations": [
+        {"ruleId": "FR-WN-08", "action": "drop"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    },
+    {
+      "id": "SC-WN-STILTE-1KM",
+      "name": "Stiltegebied protection widened: markers hard, attention at 1 km",
+      "description": "Executes FR-WN-11 (stiltegebied) and FR-WN-12 (aandachtsgebied) as hard exclusions and widens the attention zone by 1 km — a hypothetical quietness-buffer for housing.",
+      "objectType": "housing_development",
+      "basis": {
+        "type": "hypothetical",
+        "rationale": "Arts. 9.27/9.29 are rekening-houden markers without spatial consequence in the baseline; a 1 km housing buffer around stiltegebieden is not cited anywhere — this hypothetical measures its cost.",
+        "provenanceNote": "NOT legally grounded: the stiltegebied designations (NC-WN-11/NC-WN-12) are cited, the hard enforcement and the 1 km widening are the scenario's own parameters."
+      },
+      "mutations": [
+        {"ruleId": "FR-WN-11", "action": "set_semantics", "zoneSemantics": "exclusion"},
+        {"ruleId": "FR-WN-12", "action": "set_semantics", "zoneSemantics": "exclusion"},
+        {"ruleId": "FR-WN-12", "action": "set_buffer_distance_m", "bufferDistanceM": 1000}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    }
+  ]
+}
