@@ -3,11 +3,17 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 UJV = ROOT / "scenarios" / "uitdagingen.json"
+
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from pipeline import contracts  # noqa: E402
 
 ALLE_TRACKS = {
     "wind", "zon", "bos", "water", "bodem", "mobiliteit", "landschap",
@@ -51,3 +57,82 @@ def test_wind_set_bevat_hetzelfde_drietal():
     s = json.loads((ROOT / "scenarios" / "wind.json").read_text(encoding="utf-8"))
     assert [sc["id"] for sc in s["scenarios"]] == [
         "SC-W-NNN-EXCEPTION", "SC-W-STILTE-HARD", "SC-W-NATURA-SETBACK"]
+
+
+# --------------------------------------------------------------------------- #
+# Curation-contract: id-resolutie t.o.v. de baseline-runs, basis-verdeling en
+# de featured pass-runs in uitdagingen.json::scenarioRuns.
+# --------------------------------------------------------------------------- #
+
+BASELINES = {
+    "wind": "20260830T113234Z-wind", "zon": "20260830T142439Z-zon",
+    "bos": "20260830T142446Z-bos", "water": "20261004T185116Z-water",
+    "bodem": "20261004T185509Z-bodem", "mobiliteit": "20261005T072839Z-mobiliteit",
+    "landschap": "20261005T070621Z-landschap", "landbouw": "20261005T094244Z-landbouw",
+    "wonen": "20261005T100258Z-wonen", "werken": "20261006T121921Z-werken",
+    "recreatie": "20261006T114934Z-recreatie", "biomassa": "20261006T120133Z-biomassa",
+    "energietoets": "20261006T171730Z-energietoets",
+}
+
+
+def test_elke_basis_normcardid_resolvet_in_baseline():
+    for track in ALLE_TRACKS:
+        cards = json.loads(
+            (ROOT / "runs" / BASELINES[track] / "normcards.json")
+            .read_text(encoding="utf-8"))
+        cards = cards if isinstance(cards, list) else cards.get("normCards", [])
+        card_ids = {c["id"] for c in cards}
+        s = json.loads((ROOT / "scenarios" / f"{track}.json").read_text(encoding="utf-8"))
+        for sc in s["scenarios"]:
+            nc = sc["basis"].get("normCardId")
+            if nc:
+                assert nc in card_ids, f"{sc['id']}: {nc} niet in baseline {track}"
+
+
+def test_elke_mutation_ruleid_resolvet_in_baseline():
+    for track in ALLE_TRACKS:
+        rules = json.loads(
+            (ROOT / "runs" / BASELINES[track] / "formalrules.json")
+            .read_text(encoding="utf-8"))
+        rules = rules.get("formalRules", rules) if isinstance(rules, dict) else rules
+        rule_ids = {r["id"] for r in rules}
+        s = json.loads((ROOT / "scenarios" / f"{track}.json").read_text(encoding="utf-8"))
+        for sc in s["scenarios"]:
+            for m in sc["mutations"]:
+                assert m["ruleId"] in rule_ids, f"{sc['id']}: {m['ruleId']} niet in baseline {track}"
+
+
+def test_basis_verdeling_volgt_curation_principe():
+    for track in ALLE_TRACKS:
+        s = json.loads((ROOT / "scenarios" / f"{track}.json").read_text(encoding="utf-8"))
+        types = [sc["basis"]["type"] for sc in s["scenarios"]]
+        assert types.count("policy_variant") >= 1, track
+        assert types.count("hypothetical") >= 1 or types.count("policy_variant") >= 2, track
+        for sc in s["scenarios"]:
+            b = sc["basis"]
+            if b["type"] == "hypothetical":
+                assert "NOT legally grounded" in b["provenanceNote"], sc["id"]
+
+
+def test_scenarioRuns_wijzen_naar_bestaande_pass_runs():
+    for track, run in _load()["scenarioRuns"].items():
+        assert run is not None, track
+        rep = json.loads(
+            (ROOT / "scenario-runs" / run / "scenario-report.json")
+            .read_text(encoding="utf-8"))
+        assert rep["verdict"] == "pass", track
+
+
+def test_scenarioRuns_shape_dekt_alle_tracks():
+    runs = _load()["scenarioRuns"]
+    assert set(runs.keys()) == ALLE_TRACKS
+    for track, run in runs.items():
+        assert run is None or isinstance(run, str), track
+
+
+def test_set_bestanden_valideren_tegen_contract_schemas():
+    for track in ALLE_TRACKS:
+        s = json.loads((ROOT / "scenarios" / f"{track}.json").read_text(encoding="utf-8"))
+        contracts.validate(s, "scenario-set")
+        for sc in s["scenarios"]:
+            contracts.validate(sc, "scenario-spec")
