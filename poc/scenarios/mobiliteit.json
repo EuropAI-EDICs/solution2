@@ -1,0 +1,52 @@
+{
+  "id": "SSET-mobiliteit-utrecht-uitdagingen",
+  "useCase": "mobiliteit",
+  "description": "Uitdagingen-curation (Landschap & Infrastructuur): drie marker-enforcement-varianten op een all-marker-track — geluid, weg en luchtvaart.",
+  "scenarios": [
+    {
+      "id": "SC-MO-GELUID-HARD",
+      "name": "Geluidcontouren treated as hard exclusion for roadside development",
+      "description": "FR-MO-02 (art. 4.71, 37.3 km² combined contours) is a conditional marker; this variant excludes new geluidgevoelige roadside development in the contours.",
+      "objectType": "roadside_development",
+      "basis": {
+        "type": "policy_variant",
+        "normCardId": "NC-MO-02",
+        "provenanceNote": "NC-MO-02 (art. 4.71) gates geluidgevoelige gebouwen on dB Lden thresholds; this variant executes the strictest reading as a hard exclusion of the contours."
+      },
+      "mutations": [
+        {"ruleId": "FR-MO-02", "action": "set_semantics", "zoneSemantics": "exclusion"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    },
+    {
+      "id": "SC-MO-WEG-HARD",
+      "name": "Beperkingengebied provinciale weg treated as hard exclusion",
+      "description": "FR-MO-01 (art. 4.7, 7.0 km²) is a kan-mits conditional; this variant excludes roadside development in the beperkingengebied outright.",
+      "objectType": "roadside_development",
+      "basis": {
+        "type": "policy_variant",
+        "normCardId": "NC-MO-01",
+        "provenanceNote": "NC-MO-01 (art. 4.7) conditions construction in the beperkingengebied; this variant executes the strictest reading as a hard exclusion."
+      },
+      "mutations": [
+        {"ruleId": "FR-MO-01", "action": "set_semantics", "zoneSemantics": "exclusion"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    },
+    {
+      "id": "SC-MO-LUCHTVAART-ONVOORWAARDELIJK",
+      "name": "Luchtvaartverbod executed without its activity scope",
+      "description": "FR-MO-05 (art. 4.65, 1014 km²) is a conditional marker because the verbod is activity-scoped to aviation; the letter 'verbod' executed unconditionally would exclude the luchtvaartterrein zone for the whole roadside object — the scoping lesson as a scenario.",
+      "objectType": "roadside_development",
+      "basis": {
+        "type": "policy_variant",
+        "normCardId": "NC-MO-05",
+        "provenanceNote": "NC-MO-05 (art. 4.65) is an unconditional verbod of the non-permission family but activity-scoped (nieuwvestiging luchtvaartterrein); this variant measures what the unscoped letter reading would cost."
+      },
+      "mutations": [
+        {"ruleId": "FR-MO-05", "action": "set_semantics", "zoneSemantics": "exclusion"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    }
+  ]
+}

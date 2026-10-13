@@ -1,0 +1,53 @@
+{
+  "id": "SSET-landschap-utrecht-uitdagingen",
+  "useCase": "landschap",
+  "description": "Uitdagingen-curation (Landschap & Infrastructuur): CHS- en aardkundige-verstrakking plus een UNESCO-buffer.",
+  "scenarios": [
+    {
+      "id": "SC-LS-CHS-HARD",
+      "name": "Cultuurhistorische hoofdstructuur treated as hard exclusion",
+      "description": "FR-LS-04 (art. 7.9 op de CHS-umbrella, 847 km²) is a conditional marker; the strictest heritage reading excludes new landscape intervention there.",
+      "objectType": "landscape_intervention",
+      "basis": {
+        "type": "policy_variant",
+        "normCardId": "NC-LS-04",
+        "provenanceNote": "NC-LS-04 (art. 7.9) conditions intervention on the cultuurhistorische hoofdstructuur; this variant executes the strictest protective reading as a hard exclusion."
+      },
+      "mutations": [
+        {"ruleId": "FR-LS-04", "action": "set_semantics", "zoneSemantics": "exclusion"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    },
+    {
+      "id": "SC-LS-AARDKUNDIG-HARD",
+      "name": "Aardkundige waarden treated as hard exclusion",
+      "description": "FR-LS-06 (art. 7.12, 99 km²) is a conditional marker; this variant protects aardkundige waarden by exclusion.",
+      "objectType": "landscape_intervention",
+      "basis": {
+        "type": "policy_variant",
+        "normCardId": "NC-LS-06",
+        "provenanceNote": "NC-LS-06 (art. 7.12) conditions intervention on aardkundige waarden; this variant executes the protective reading as a hard exclusion."
+      },
+      "mutations": [
+        {"ruleId": "FR-LS-06", "action": "set_semantics", "zoneSemantics": "exclusion"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    },
+    {
+      "id": "SC-LS-LIMES-BUFFER-100",
+      "name": "Limes kernzone exclusion widened by a 100 m band",
+      "description": "Buffers the art.-7.3a Neder-Germaanse Limes kernzone exclusion (FR-LS-02) outward by 100 m — a UNESCO-buffer-margins variant.",
+      "objectType": "landscape_intervention",
+      "basis": {
+        "type": "norm_variance",
+        "normCardId": "NC-LS-02",
+        "variedAspect": "exclusion zone widened by an added 100 m buffer; the kernzone designation is cited (the separate bufferzone exists), the 100 m widening is the scenario's own parameter",
+        "provenanceNote": "NC-LS-02 (art. 7.3a) carries the kernzone exclusion; the added 100 m band is not cited and is the scenario's own parameter."
+      },
+      "mutations": [
+        {"ruleId": "FR-LS-02", "action": "set_buffer_distance_m", "bufferDistanceM": 100}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    }
+  ]
+}
