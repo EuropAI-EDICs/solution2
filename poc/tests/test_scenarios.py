@@ -451,6 +451,25 @@ class EmptyFinalOutcomeTests(unittest.TestCase):
         self.assertEqual(report["verdict"], "fail")
         self.assertEqual(validation["levels"]["V1"]["status"], "fail")
 
+    def test_surviving_final_with_execution_degradation_stays_degraded(self):
+        """Safety semantics on the non-None-final branch (characterisation).
+
+        The `final is None` branch above has its own test; this pins the
+        sibling path: a scenario whose execution degraded but that still
+        yields a final zone keeps `status` degraded and `geometryValid`
+        False (the engine flags the measured-empty geometry invalid, and a
+        degraded run may never launder that into a valid outcome), and the
+        report verdict is not pass.
+        """
+        seeded = [{"kind": "layer-cache-missing", "scenarioId": "SC-T-EMPTY",
+                   "error": "zone 'excl': cache file absent"}]
+        report, _ = self._sweep_empty_final(extra_degradations=seeded)
+        row = report["scenarios"][0]
+        self.assertEqual(row["status"], "degraded")
+        self.assertFalse(row["geometryValid"])
+        self.assertNotEqual(report["verdict"], "pass")
+        contracts.validate(report, "scenario-report")
+
 
 class ShippedSetTests(unittest.TestCase):
     """The shipped demo sets must ground in the canonical runs' artifacts."""

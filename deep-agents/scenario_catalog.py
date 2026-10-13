@@ -83,8 +83,11 @@ def describe_scenario_run(
     uitdaging: dict[str, str] | None = None
     featured = False
     utd_order = ""
-    # _fixture-runs zijn ontwikkelmateriaal: geen uitdaging-groepering
-    if utd_doc and not run_id.startswith("_fixture"):
+    # _fixture-runs zijn ontwikkelmateriaal; authorcmp-runs zijn oude
+    # authoring-vs-engine-vergelijkingen — beide vallen onder "Overig"
+    # (spec §5), dus geen uitdaging-groepering
+    if (utd_doc and not run_id.startswith("_fixture")
+            and "authorcmp" not in run_id):
         for i, utd in enumerate(utd_doc.get("uitdagingen", [])):
             if track_key and track_key in utd.get("tracks", []):
                 uitdaging = {"id": utd["id"], "titel": utd["titel"]}

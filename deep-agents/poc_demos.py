@@ -78,11 +78,13 @@ _UTRECHT_MODES: list[dict[str, str]] = [
     },
     {
         "id": "uitdaging_overzicht",
-        "label": "Uitdaging-overzicht (5 opgaven × 3 scenario's)",
+        "label": "Uitdaging-overzicht (5 opgaven × 3 scenario's per track;"
+                 " energietoets: 2 tot plan 2)",
         "template": (
             "Delegeer naar utrecht: geef het uitdaging-overzicht — lees "
             "poc/scenarios/uitdagingen.json en geef per uitdaging (5 stuks): de titel, "
-            "de tracks, en per track de 3 scenario's met de headline-delta "
+            "de tracks, en per track de 3 scenario's (energietoets: 2 tot plan 2) "
+            "met de headline-delta "
             "(deltaVsControlPct uit scenario-report.json van de run in scenarioRuns). "
             "Sluit af met per uitdaging de grootste hefboom (grootste |delta|)."
         ),

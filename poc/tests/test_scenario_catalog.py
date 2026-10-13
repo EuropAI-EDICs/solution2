@@ -37,11 +37,17 @@ def test_uitdaging_groepering_wind():
 def test_uitdaging_volgt_trackkey():
     rows = list_scenario_runs(RUNS)
     for r in rows:
-        if r["trackKey"] is None or r["id"].startswith("_fixture"):
+        if (r["trackKey"] is None or r["id"].startswith("_fixture")
+                or "authorcmp" in r["id"]):
             assert r["uitdaging"] is None, r["id"]
         else:
             assert r["uitdaging"] is not None, r["id"]
             assert r["uitdaging"]["titel"], r["id"]
+    # spec §5: oude authorcmp-runs vallen onder "Overig", niet onder een
+    # uitdaging — de track-token in de naam mag niet groeperen
+    row = describe_scenario_run(RUNS / "20260831T162437Z-zon-authorcmp")
+    assert row["trackKey"] == "zon"
+    assert row["uitdaging"] is None
 
 
 def test_scenarioRuns_uit_uitdagingen_json_zijn_featured():
