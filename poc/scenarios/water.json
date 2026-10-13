@@ -1,0 +1,53 @@
+{
+  "id": "SSET-water-utrecht-uitdagingen",
+  "useCase": "water",
+  "description": "Uitdagingen-curation (Water & Bodem): drie beleidsknoppen voor riparian development — twee marker-enforcement-varianten en één buffer-variatie.",
+  "scenarios": [
+    {
+      "id": "SC-WA-OVERSTROOMBAAR-HARD",
+      "name": "Overstroombaar gebied treated as hard exclusion",
+      "description": "FR-WA-03 (art. 2.16, overstroombaar gebied, 1207 km²) is a conditional marker in the baseline; the strictest water-safety reading excludes new riparian development there entirely.",
+      "objectType": "riparian_development",
+      "basis": {
+        "type": "policy_variant",
+        "normCardId": "NC-WA-03",
+        "provenanceNote": "NC-WA-03 (art. 2.16) conditions development on differentiating binnendijks/buitendijks; this variant executes the strictest reading as a hard exclusion of the overstroombaar gebied."
+      },
+      "mutations": [
+        {"ruleId": "FR-WA-03", "action": "set_semantics", "zoneSemantics": "exclusion"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    },
+    {
+      "id": "SC-WA-VRIJWARING-HARD",
+      "name": "Vrijwaringszone regionale waterkering treated as hard exclusion",
+      "description": "FR-WA-01 (art. 2.14, 28 km²) is a conditional marker; this variant protects the waterkering function by excluding development in the vrijwaringszone.",
+      "objectType": "riparian_development",
+      "basis": {
+        "type": "policy_variant",
+        "normCardId": "NC-WA-01",
+        "provenanceNote": "NC-WA-01 (art. 2.14) requires plans to protect the waterkering's function; this variant executes the protective reading as a hard exclusion."
+      },
+      "mutations": [
+        {"ruleId": "FR-WA-01", "action": "set_semantics", "zoneSemantics": "exclusion"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    },
+    {
+      "id": "SC-WA-WATERBERGING-BUFFER-500",
+      "name": "Waterbergingsgebied exclusion widened by a 500 m band",
+      "description": "Buffers the art.-2.15 waterbergingsgebied exclusion (FR-WA-02) outward by 500 m — a hydrological-safety-margin variant.",
+      "objectType": "riparian_development",
+      "basis": {
+        "type": "norm_variance",
+        "normCardId": "NC-WA-02",
+        "variedAspect": "exclusion zone widened by an added 500 m buffer; the exclusion itself is cited, the 500 m margin is the scenario's own parameter",
+        "provenanceNote": "NC-WA-02 (art. 2.15) rules out new development in the waterbergingsgebied; the 500 m widening is not cited and is the scenario's own parameter."
+      },
+      "mutations": [
+        {"ruleId": "FR-WA-02", "action": "set_buffer_distance_m", "bufferDistanceM": 500}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    }
+  ]
+}

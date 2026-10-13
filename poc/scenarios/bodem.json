@@ -1,0 +1,54 @@
+{
+  "id": "SSET-bodem-utrecht-uitdagingen",
+  "useCase": "bodem",
+  "description": "Uitdagingen-curation (Water & Bodem): versoepeling zonder verboden, stortplaats-verstrakking en een buffer op de grondwaterbeschermingszone.",
+  "scenarios": [
+    {
+      "id": "SC-BO-ALLEEN-REKENING-HOUDEN",
+      "name": "Groundwater-protection umbrella enforced only as 'rekening houden met'",
+      "description": "Drops the two hard exclusions of the grondwaterbeschermingszone umbrella (FR-BO-01 art. 3.7 winning-risk, FR-BO-03 art. 3.9 burial facilities), leaving only the art.-3.10 take-into-account condition — the weakest reading.",
+      "objectType": "soil_activity",
+      "basis": {
+        "type": "policy_variant",
+        "normCardId": "NC-BO-04",
+        "provenanceNote": "NC-BO-04 (art. 3.10) deliberately stays a conditional 'rekening houden met' marker; this variant re-adjudicates NC-BO-01/NC-BO-03 from hard exclusions to that weakest reading, returning ~701 km²."
+      },
+      "mutations": [
+        {"ruleId": "FR-BO-01", "action": "drop"},
+        {"ruleId": "FR-BO-03", "action": "drop"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    },
+    {
+      "id": "SC-BO-STORTPLAATS-HARD",
+      "name": "Gesloten stortplaats treated as hard exclusion",
+      "description": "FR-BO-05 (art. 3.108, 0.373 km²) is a context marker; this variant excludes the closed-landfill footprint for new soil activity.",
+      "objectType": "soil_activity",
+      "basis": {
+        "type": "policy_variant",
+        "normCardId": "NC-BO-05",
+        "provenanceNote": "NC-BO-05 (art. 3.108) carries the gesloten stortplaats as a context marker of provincial jurisdiction; this variant executes the protective reading as a hard exclusion."
+      },
+      "mutations": [
+        {"ruleId": "FR-BO-05", "action": "set_semantics", "zoneSemantics": "exclusion"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    },
+    {
+      "id": "SC-BO-GWB-BUFFER-500",
+      "name": "Grondwaterbeschermingszone exclusion widened by a 500 m band",
+      "description": "Buffers the art.-3.7 exclusion (FR-BO-01) outward by 500 m — a protection-margin variant for the winning zone.",
+      "objectType": "soil_activity",
+      "basis": {
+        "type": "norm_variance",
+        "normCardId": "NC-BO-01",
+        "variedAspect": "exclusion zone widened by an added 500 m buffer; the exclusion itself is cited, the 500 m margin is the scenario's own parameter",
+        "provenanceNote": "NC-BO-01 (art. 3.7) carries the winning-risk exclusion; the 500 m widening is not cited and is the scenario's own parameter."
+      },
+      "mutations": [
+        {"ruleId": "FR-BO-01", "action": "set_buffer_distance_m", "bufferDistanceM": 500}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    }
+  ]
+}
