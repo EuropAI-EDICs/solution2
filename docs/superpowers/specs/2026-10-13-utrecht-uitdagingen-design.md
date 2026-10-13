@@ -88,9 +88,10 @@ all-marker):
    blokkeerde.
 2. *Drempel "minder dan 10 woningen" verlaagd naar 0* (`norm_variance`) —
    alle woningbouwlocaties telling mee.
-3. *Provinciale netcongestie-zones* (`hypothetical`) — niet-bestaande,
-   niet-geciteerde zone-laag waar netcapaciteit de ruimtelijke keuze
-   blokkeert.
+3. *Provinciale netcongestie-zones* (`hypothetical`) — zone uit de
+   netbeheerder-congestiekaart (data-gegrond, niet juridisch onderbouwd);
+   zie [2026-10-13-utrecht-data-kalibratie-design.md](2026-10-13-utrecht-data-kalibratie-design.md)
+   §4 voor de `dataGrounding`-extensie.
 
 ### 4.2 Wonen & Werken
 
@@ -230,8 +231,11 @@ gedragsregels nodig.
 
 ## 8. Out of scope
 
-- Geen wijzigingen aan engine (`pipeline/engine.py`), scenario-contract-schema,
-  Norm Analyst, crosstrack-algoritme of LLM-seams.
+- Geen wijzigingen aan engine (`pipeline/engine.py`), Norm Analyst,
+  crosstrack-algoritme of LLM-seams. Het scenario-contract-schema wijzigt
+  uitsluitend met de optionele `basis.dataGrounding`-extensie uit
+  [2026-10-13-utrecht-data-kalibratie-design.md](2026-10-13-utrecht-data-kalibratie-design.md)
+  (§4); verder geen schema-wijzigingen.
 - Geen uitbreiding van crosstrack naar meer track-paren.
 - Geen eerste-class "uitdaging"-concept in `poc/schemas/` of de deep-agents
   recipes — dat is Aanpak B en wordt pas overwogen als de demo hier om vraagt.
