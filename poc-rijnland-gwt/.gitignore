@@ -1,0 +1,20 @@
+# Root .gitignore ignores `data/` and `sources.json` at any depth.
+# Re-include the registry and the seeded GWT archive (provenance-carrying,
+# like PoC-3's peilen archive); keep caches and runs/ untracked.
+!data/
+data/*
+!data/sources.json
+!data/gwt/
+data/gwt/*
+!data/gwt/gwt.json
+!data/cache/
+data/cache/*
+!data/cache/.gitignore
+!data/rain/
+data/rain/*
+!data/rain/.gitignore
+
+# runs: keep only the canonical full-network run (referenced in the README);
+# demo/smoke runs stay local.
+runs/*
+!runs/20261013T182234Z-gwt-twin

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Rijnland GWT twin — 20261013T182234Z-gwt-twin (rood = ondiep / indringingsrisico)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<style>
+  body { margin: 0; font: 14px/1.45 "Segoe UI", system-ui, sans-serif; color: #1a2330; }
+  #map { height: 100vh; }
+  .panel { position: absolute; z-index: 1000; left: 12px; right: 12px; top: 12px;
+            max-width: 460px; background: rgba(255,255,255,.95); padding: 10px 12px;
+            border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,.22); }
+  .panel h1 { margin: 0 0 4px; font-size: 15px; font-weight: 650; }
+  .panel .step { font-size: 17px; font-weight: 700; color: #2563eb; margin: 2px 0 6px; }
+  .panel input[type=range] { width: 100%; accent-color: #2563eb; }
+  .panel .row { display: flex; gap: 10px; align-items: center; }
+  .panel button { font: inherit; font-weight: 600; color: #2563eb; background: #fff;
+                   border: 1px solid #c6cdd6; border-radius: 6px; padding: 4px 10px;
+                   cursor: pointer; }
+  .legend { background: rgba(255,255,255,.96); padding: 10px 12px; border-radius: 8px;
+             box-shadow: 0 1px 6px rgba(0,0,0,.22); min-width: 220px; }
+  .legend .title { font-weight: 650; margin-bottom: 4px; }
+  .legend .row { display: flex; align-items: flex-start; gap: 8px; margin: 3px 0; font-size: 12px; }
+  .legend .swatch { flex: 0 0 16px; width: 16px; height: 16px; border-radius: 3px;
+                     box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
+  .legend .note { margin-top: 6px; font-size: 11px; color: #5b6472; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class="panel">
+  <h1>Rijnland GWT twin — 20261013T182234Z-gwt-twin (rood = ondiep / indringingsrisico)</h1>
+  <div class="step" id="step-label"></div>
+  <div class="row">
+    <button id="play" title="Speel de tijdstappen af">&#9654; Afspelen</button>
+    <input type="range" id="slider" min="0" max="34" value="0" step="1">
+  </div>
+  <label id="derived-wrap" style="display:none;font-size:12px;color:#1a2330;
+         margin-top:2px">
+    <input type="checkbox" id="show-derived"> Toon afgeleide cellen
+    (opgevuld via afwateringsgraad)</label>
+</div>
+<script type="application/json" id="cells-data">{"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {"cell": "877ab4493ffffff", "resolution": 7}, "geometry": {"type": "Polygon", "coordinates": [[[52.18761667858159, 4.398763417529467], [52.18709893791113, 4.410352664580583], [52.17707799721416, 4.416986395398923], [52.167572939072656, 4.412031250741728], [52.168089792943874, 4.400440517618556], [52.178112591917916, 4.393806415156626], [52.18761667858159, 4.398763417529467]]]}}, {"type": "Feature", "properties": {"cell": "877ab44d2ffffff", "resolution": 7}, "geometry": {"type": "Polygon", "coordinates": [[[52.07037281652538, 4.4088253421446], [52.069860406259345, 4.420423491613181], [52.05982562994667, 4.427061530626778], [52.05030140754861, 4.422101796055472], [52.050812927173105, 4.410502166130351], [52.060849559998985, 4.403863751163251], [52.07037281652538, 4.4088253421446]]]}}, {"type": "Feature", "properties": {"cell": "877ab6140ffffff", "resolution": 7}, "geometry": {"type": "Polygon", "coordinates": [[[52.212644982293234, 4.707710117265671], [52.21212684540547, 4.719255667537525], [52.2021231529901, 4.725887558675872], [52.19263574427468, 4.72097428483777], [52.19315299771045, 4.709427263107862], [52.20315854347508, 4.702794986603513], [52.212644982293234, 4.707710117265671]]]}}, {"type": "Feature", "properties": {"cell": "877ab6143ffffff", "resolution": 7}, "geometry": {"type": "Polygon", "coordinates": [[[52.2021231529901, 4.725887558675872], [52.2016055339472, 4.7374315681761345], [52.19160138968411, 4.744063773986782], [52.182113011723835, 4.739152356779952], [52.182629747110134, 4.727606877202144], [52.19263574427468, 4.72097428483777], [52.2021231529901, 4.725887558675872]]]}}, {"type": "Feature", "properties": {"cell": "877ab6161ffffff", "resolution": 7}, "geometry": {"type": "Polygon", "coordinates": [[[52.20522993424893, 4.656591648149106], [52.20471201031149, 4.668144755443784], [52.19470506266831, 4.674777096998199], [52.18521418500237, 4.669856714401364], [52.185731224824686, 4.658302133357794], [52.19574002658961, 4.651669408589724], [52.20522993424893, 4.656591648149106]]]}}, {"type": "Feature", "properties": {"cell": "877ab6324ffffff", "resolution": 7}, "geometry": {"type": "Polygon", "coordinates": [[[52.02495622129647, 4.776025910254618], [52.02444672839259, 4.7875785429673305], [52.01442331150619, 4.794216916128664], [52.004907538038495, 4.789303051095443], [52.00541614178157, 4.7777489585111415], [52.01544140831401, 4.771110190757669], [52.02495622129647, 4.776025910254618]]]}}, {"type": "Feature", "properties": {"cell": "877ab6326ffffff", "resolution": 7}, "geometry": {"type": "Polygon", "coordinates": [[[52.03395932227738, 4.792491638055051], [52.033449460201865, 4.804041251743182], [52.02342789280747, 4.810679229840122], [52.013914338157456, 4.8057679892393095], [52.01442331150619, 4.794216916128664], [52.02444672839259, 4.7875785429673305], [52.03395932227738, 4.792491638055051]]]}}, {"type": "Feature", "properties": {"cell": "877ab68e8ffffff", "resolution": 7}, "geometry": {"type": "Polygon", "coordinates": [[[52.24889036698404, 4.549151077464449], [52.24837021751775, 4.560714826629178], [52.23836368189692, 4.567345904442907], [52.2288754393813, 4.562413609777507], [52.229394705323905, 4.550848379515176], [52.2394030974677, 4.544216924947294], [52.24889036698404, 4.549151077464449]]]}}, {"type": "Feature", "properties": {"cell": "877ab68e9ffffff", "resolution": 7}, "geometry": {"type": "Polygon", "coordinates": [[[52.229394705323905, 4.550848379515176], [52.2288754393813, 4.562413609777507], [52.218866593093146, 4.569045400511192], [52.20937515666994, 4.564112338379642], [52.209893538448846, 4.5525456279448795], [52.21990424097651, 4.545913459745224], [52.229394705323905, 4.550848379515176]]]}}, {"type": "Feature", "properties": {"cell": "877ab68ebffffff", "resolution": 7}, "geometry": {"type": "Polygon", "coordinates": [[[52.23836368189692, 4.567345904442907], [52.23784405063293, 4.578908132101567], [52.22783706042064, 4.585539544883167], [52.21834784555831, 4.580609107889299], [52.218866593093146, 4.569045400511192], [52.2288754393813, 4.562413609777507], [52.23836368189692, 4.567345904442907]]]}}, {"type": "Feature", "properties": {"cell": "877ab6a85ffffff", "resolution": 7}, "geometry": {"type": "Polygon", "coordinates": [[[52.067088634507456, 4.703249333185315], [52.06657706365153, 4.714808178386552], [52.05655541651943, 4.721445349716157], [52.04704348893844, 4.716524065625519], [52.04755417144353, 4.704963755017891], [52.05757767004159, 4.698326193834616], [52.067088634507456, 4.703249333185315]]]}}, {"type": "Feature", "properties": {"cell": "877ab6b04ffffff", "resolution": 7}, "geometry": {"type": "Polygon", "coordinates": [[[52.09739089196737, 4.458479842134166], [52.09687737430896, 4.470068997429812], [52.086848166593384, 4.476705905668664], [52.07733062065641, 4.47175403595232], [52.077843248980976, 4.460163401524158], [52.0878743127381, 4.453526115874937], [52.09739089196737, 4.458479842134166]]]}}, {"type": "Feature", "properties": {"cell": "877ab6b06ffffff", "resolution": 7}, "geometry": {"type": "Polygon", "coordinates": [[[52.10639172860668, 4.4750201014758595], [52.10587784233596, 4.486606257106159], [52.095850490503985, 4.493242787449543], [52.08633516922086, 4.488293539988175], [52.086848166593384, 4.476705905668664], [52.09687737430896, 4.470068997429812], [52.10639172860668, 4.4750201014758595]]]}}, {"type": "Feature", "properties": {"cell": "877ab6b21ffffff", "resolution": 7}, "geometry": {"type": "Polygon", "coordinates": [[[52.07938143660317, 4.425382461342949], [52.078868656946995, 4.436977613560898], [52.068835736990714, 4.443615276135124], [52.05931374049601, 4.4386581628609205], [52.05982562994667, 4.427061530626778], [52.069860406259345, 4.420423491613181], [52.07938143660317, 4.425382461342949]]]}}, {"type": "Feature", "properties": {"cell": "877ab6b23ffffff", "resolution": 7}, "geometry": {"type": "Polygon", "coordinates": [[[52.088387461525045, 4.441933961715674], [52.0878743127381, 4.453526115874937], [52.077843248980976, 4.460163401524158], [52.06832347797338, 4.4552089098692305], [52.068835736990714, 4.443615276135124], [52.078868656946995, 4.436977613560898], [52.088387461525045, 4.441933961715674]]]}}, {"type": "Feature", "properties": {"cell": "877ab6b25ffffff", "resolution": 7}, "geometry": {"type": "Polygon", "coordinates": [[[52.08992721083254, 4.407148470092056], [52.089413910564886, 4.418745138164745], [52.07938143660317, 4.425382461342949], [52.069860406259345, 4.420423491613181], [52.07037281652538, 4.4088253421446], [52.08040714729871, 4.402187643732141], [52.08992721083254, 4.407148470092056]]]}}, {"type": "Feature", "properties": {"cell": "877ab6b2effffff", "resolution": 7}, "geometry": {"type": "Polygon", "coordinates": [[[52.068835736990714, 4.443615276135124], [52.06832347797338, 4.4552089098692305], [52.05829011270883, 4.461846909035395], [52.04876715072257, 4.456891652040572], [52.049278519330706, 4.445296539670371], [52.05931374049601, 4.4386581628609205], [52.068835736990714, 4.443615276135124]]]}}, {"type": "Feature", "properties": {"cell": "877ab6b94ffffff", "resolution": 7}, "geometry": {"type": "Polygon", "coordinates": [[[52.197810564177075, 4.605435868580188], [52.19729285354361, 4.616996522366362], [52.18728264891238, 4.6236293048587775], [52.1777883001818, 4.618701814550367], [52.178305126036385, 4.607139684728638], [52.188317185562084, 4.600506521181027], [52.197810564177075, 4.605435868580188]]]}}], "properties": {"computedBy": "nldt-h3kit/1.0", "h3Version": "4.5.0"}}</script>
+<script type="application/json" id="anim-meta">{"steps": ["2026-09-13", "2026-09-14", "2026-09-15", "2026-09-16", "2026-09-17", "2026-09-18", "2026-09-19", "2026-09-20", "2026-09-21", "2026-09-22", "2026-09-23", "2026-09-24", "2026-09-25", "2026-09-26", "2026-09-27", "2026-09-28", "2026-09-29", "2026-09-30", "2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09", "2026-10-10", "2026-10-11", "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16", "2026-10-17"], "cells": {"877ab6b23ffffff": [0.314, 0.4945, 0.786, 0.7845, 0.5065, 0.4255, 0.5735, 0.855, 0.92, 0.9755, 0.963, 0.95, 0.949, 0.9625, 0.959, 0.908, 0.734, 0.7115, 0.67, 0.8135, 0.8405, 0.9485, 0.9485, 0.9025, 0.846, 0.7255, 0.15, 0.15, 0.15, 0.385, null, null, null, null, null], "877ab6b04ffffff": [0.433, 0.6095, 0.8245, 0.8265, 0.5715, 0.505, 0.64, 0.89, 0.9515, 1.007, 0.996, 0.9965, 0.998, 1.0175, 1.018, 0.969, 0.841, 0.7675, 0.725, 0.8745, 0.9255, 1.0205, 1.0225, 0.9825, 0.9205, 0.751, 0.15, 0.15, 0.15, 0.572, null, null, null, null, null], "877ab6b94ffffff": [0.524, 0.669, 0.858, 0.8665, 0.6435, 0.6105, 0.7245, 0.961, 1.0295, 1.081, 1.073, 1.0655, 1.0675, 1.086, 1.0885, 1.058, 0.9235, 0.869, 0.816, 0.952, 1.0025, 1.116, 1.121, 1.0815, 1.0175, 0.8905, 0.3845, 0.285, 0.279, 0.706, null, null, null, null, null], "877ab6b06ffffff": [0.3395, 0.49, 0.672, 0.679, 0.463, 0.413, 0.5225, 0.7725, 0.853, 0.9135, 0.902, 0.898, 0.9005, 0.92, 0.9215, 0.8615, 0.71, 0.6665, 0.6245, 0.757, 0.8105, 0.929, 0.933, 0.884, 0.808, 0.666, 0.178, 0.15, 0.15, 0.514, null, null, null, null, null], "877ab6b21ffffff": [0.4405, 0.636, 0.854, 0.856, 0.646, 0.5485, 0.706, 0.9305, 0.9745, 1.035, 1.026, 1.0225, 1.0225, 1.0335, 1.03, 1.0035, 0.86, 0.8135, 0.776, 0.925, 0.9555, 1.0395, 1.0415, 1.0175, 0.96, 0.851, 0.162, 0.15, 0.15, 0.4475, null, null, null, null, null], "877ab6b25ffffff": [0.331, 0.491, 0.773, 0.7695, 0.4985, 0.447, 0.5825, 0.868, 0.9305, 0.9975, 0.988, 0.9895, 0.989, 1.0035, 0.9995, 0.9135, 0.728, 0.686, 0.6345, 0.818, 0.861, 0.994, 0.994, 0.953, 0.865, 0.7265, 0.161, 0.15, 0.15, 0.3535, null, null, null, null, null], "877ab6143ffffff": [0.375, 0.5085, 0.7535, 0.7545, 0.522, 0.486, 0.596, 0.851, 0.9125, 0.9825, 0.9755, 0.9705, 0.972, 0.988, 0.9875, 0.917, 0.761, 0.726, 0.6845, 0.846, 0.8875, 1.0005, 1.005, 0.974, 0.8995, 0.787, 0.296, 0.1775, 0.15, 0.4925, null, null, null, null, null], "877ab6161ffffff": [0.28, 0.433, 0.653, 0.652, 0.441, 0.374, 0.479, 0.738, 0.787, 0.85, 0.846, 0.843, 0.847, 0.861, 0.862, 0.778, 0.626, 0.624, 0.575, 0.731, 0.772, 0.885, 0.89, 0.868, 0.804, 0.665, 0.151, 0.15, 0.15, 0.379, null, null, null, null, null], "877ab6140ffffff": [0.201, 0.346, 0.617, 0.616, 0.358, 0.294, 0.414, 0.7, 0.758, 0.819, 0.812, 0.807, 0.808, 0.823, 0.823, 0.726, 0.566, 0.551, 0.506, 0.672, 0.714, 0.837, 0.837, 0.813, 0.737, 0.586, 0.15, 0.15, 0.15, 0.294, null, null, null, null, null], "877ab68ebffffff": [0.3685, 0.543, 0.8615, 0.861, 0.5665, 0.5015, 0.6675, 0.9355, 0.9775, 1.0295, 1.0265, 1.0325, 1.035, 1.048, 1.048, 0.997, 0.847, 0.802, 0.763, 0.918, 0.9555, 1.0605, 1.0655, 1.034, 0.9485, 0.8515, 0.2305, 0.15, 0.15, 0.491, null, null, null, null, null], "877ab68e9ffffff": [0.31, 0.474, 0.7655, 0.763, 0.4795, 0.4455, 0.584, 0.857, 0.921, 0.991, 0.98, 0.981, 0.979, 0.9915, 0.989, 0.92, 0.728, 0.663, 0.61, 0.804, 0.852, 0.9945, 0.997, 0.9575, 0.864, 0.7165, 0.15, 0.15, 0.15, 0.326, null, null, null, null, null], "877ab68e8ffffff": [0.4805, 0.618, 0.8625, 0.8595, 0.625, 0.595, 0.712, 0.9565, 1.0115, 1.0695, 1.0615, 1.0455, 1.045, 1.058, 1.0565, 1.0135, 0.855, 0.8085, 0.755, 0.915, 0.9535, 1.0695, 1.0715, 1.0365, 0.961, 0.8695, 0.339, 0.213, 0.15, 0.5215, null, null, null, null, null], "877ab4493ffffff": [0.264, 0.342, 0.653, 0.652, 0.3545, 0.316, 0.455, 0.77, 0.84, 0.917, 0.907, 0.8905, 0.8905, 0.905, 0.902, 0.8415, 0.64, 0.584, 0.519, 0.719, 0.7685, 0.915, 0.9175, 0.877, 0.78, 0.659, 0.159, 0.15, 0.15, 0.255, null, null, null, null, null], "877ab6a85ffffff": [0.4495, 0.6225, 0.923, 0.9245, 0.641, 0.57, 0.705, 1.03, 1.0995, 1.175, 1.168, 1.18, 1.182, 1.198, 1.199, 1.094, 0.8935, 0.871, 0.8205, 1.0115, 1.06, 1.201, 1.203, 1.1555, 1.0645, 0.9175, 0.2755, 0.15, 0.15, 0.5425, null, null, null, null, null], "877ab6b2effffff": [0.511, 0.6685, 0.8845, 0.8835, 0.68, 0.632, 0.7575, 0.9825, 1.042, 1.1065, 1.0965, 1.0905, 1.0895, 1.101, 1.098, 1.0195, 0.888, 0.8405, 0.8075, 0.931, 0.971, 1.104, 1.1055, 1.0705, 0.9875, 0.8945, 0.2925, 0.201, 0.15, 0.549, null, null, null, null, null], "877ab44d2ffffff": [0.4435, 0.5925, 0.8385, 0.8375, 0.6035, 0.58, 0.699, 0.9175, 0.9725, 1.033, 1.0265, 1.0405, 1.0415, 1.0545, 1.0525, 1.0005, 0.841, 0.776, 0.743, 0.903, 0.9425, 1.0505, 1.0525, 1.02, 0.945, 0.8455, 0.369, 0.2965, 0.2125, 0.5215, null, null, null, null, null], "877ab6326ffffff": [0.4835, 0.648, 0.929, 0.926, 0.6575, 0.596, 0.735, 1.048, 1.112, 1.174, 1.1625, 1.1625, 1.159, 1.172, 1.1685, 1.079, 0.9, 0.869, 0.8095, 0.994, 1.0355, 1.1625, 1.163, 1.1215, 1.0445, 0.909, 0.2865, 0.1545, 0.15, 0.5285, null, null, null, null, null], "877ab6324ffffff": [0.303, 0.4605, 0.696, 0.6955, 0.467, 0.4335, 0.5625, 0.767, 0.8175, 0.8735, 0.8665, 0.8805, 0.88, 0.8915, 0.89, 0.8035, 0.674, 0.644, 0.595, 0.7495, 0.7845, 0.8825, 0.884, 0.853, 0.7815, 0.6765, 0.154, 0.15, 0.15, 0.357, null, null, null, null, null]}, "min": 0.15, "max": 2.6, "invert": true, "unit": "m -mv"}</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+(function () {
+  var mapEl = document.getElementById('map');
+  if (typeof L === 'undefined') {
+    mapEl.innerHTML = '<div style="padding:24px;color:#5b6472;font-size:14px">' +
+      'Leaflet kon niet geladen worden (CDN onbereikbaar); de per-cel waarden '
+      'staan in het JSON-artefact.</div>';
+    mapEl.style.height = 'auto'; return;
+  }
+  var fc = JSON.parse(document.getElementById('cells-data').textContent);
+  var meta = JSON.parse(document.getElementById('anim-meta').textContent);
+  var steps = meta.steps;
+  var cells = meta.cells;
+  var span = (meta.max - meta.min) || 1;
+  function ramp (v) {
+    if (v === null || v === undefined) return '#d8dde3';
+    var t = Math.max(0, Math.min(1, (v - meta.min) / span));
+    if (meta.invert) t = 1 - t;
+    return 'hsl(' + Math.round(110 * (1 - t)) + ', 72%, 46%)';
+  }
+  var map = L.map('map', {zoomSnap: 0.25});
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18, attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+  var layer = L.geoJSON(fc, {
+    style: function (f) { return {color: ramp(null), weight: 0, fillOpacity: 0.85}; },
+    onEachFeature: function (f, lyr) {
+      lyr.bindPopup('<b>cel ' + f.properties.cell + '</b><br>' +
+        '<span id="pv-' + f.properties.cell + '"></span>');
+    }
+  }).addTo(map);
+  if (fc.features && fc.features.length) map.fitBounds(layer.getBounds().pad(0.08));
+
+  var slider = document.getElementById('slider');
+  var label = document.getElementById('step-label');
+  var showDerived = document.getElementById('show-derived');
+  var derivedWrap = document.getElementById('derived-wrap');
+  if (meta.derived) derivedWrap.style.display = '';
+  function setStep (i) {
+    layer.eachLayer(function (lyr) {
+      var cell = lyr.feature.properties.cell;
+      var v = cells[cell] ? cells[cell][i] : null;
+      var d = null;
+      if (v === null && meta.derived && showDerived.checked &&
+          meta.derived[cell]) d = meta.derived[cell][i];
+      var pv = document.getElementById('pv-' + cell);
+      if (d !== null && d !== undefined) {
+        lyr.setStyle({fillColor: ramp(d), fillOpacity: 0.5,
+                       color: '#3d4a5c', weight: 0.8, dashArray: '3,3'});
+        if (pv) pv.textContent = steps[i] + ': afgeleid — ' +
+          ((meta.derivedNote || {})[cell] || 'stroomopwaartse metingen') +
+          ' (' + d + ' ' + meta.unit + ')';
+      } else {
+        lyr.setStyle({fillColor: ramp(v), fillOpacity: v === null ? 0.25 : 0.85,
+                       color: '#d8dde3', weight: 0, dashArray: ''});
+        if (pv) pv.textContent = steps[i] + ': ' +
+          (v === null ? 'geen meting' : v + ' ' + meta.unit);
+      }
+      if (pv && (meta.cellPg || {})[cell])
+        pv.textContent += ' \u00b7 peilgebied ' + meta.cellPg[cell].name;
+    });
+    label.textContent = steps[i];
+    slider.value = i;
+  }
+  slider.addEventListener('input', function () { stop(); setStep(+slider.value); });
+  showDerived.addEventListener('change', function () {
+    stop();
+    // lui lookup: de statische legenda staat ná dit script in de pagina
+    var el = document.getElementById('derived-legend-note');
+    if (el) el.style.display = showDerived.checked ? '' : 'none';
+    setStep(+slider.value);
+  });
+
+  var playBtn = document.getElementById('play');
+  var timer = null;
+  function stop () {
+    if (timer) { clearInterval(timer); timer = null; }
+    playBtn.innerHTML = '&#9654; Afspelen';
+  }
+  playBtn.addEventListener('click', function () {
+    if (timer) { stop(); return; }
+    playBtn.innerHTML = '&#9632; Stoppen';
+    var i = +slider.value;
+    timer = setInterval(function () {
+      i = (i + 1) % steps.length;
+      setStep(i);
+    }, 700);
+  });
+
+  setStep(0);
+})();
+</script>
+<div class="legend" style="position:absolute;z-index:1000;right:12px;bottom:20px;"><div class="title">Grondwaterdiepte</div><div class="row"><span class="swatch" style="background:hsl(0, 72%, 46%)"></span><span>Laag</span></div><div class="row"><span class="swatch" style="background:hsl(55, 72%, 46%)"></span><span>Midden</span></div><div class="row"><span class="swatch" style="background:hsl(110, 72%, 46%)"></span><span>Hoog</span></div><div class="note">Kleur = waarde per cel per tijdstap (mediaan over meetlocaties in de cel); grijze cellen hebben die stap geen meting.</div></div></body>
+</html>

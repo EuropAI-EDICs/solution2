@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Rijnland GWT twin — 20261013T182234Z-gwt-twin</title>
+<style>
+ body{font-family:-apple-system,'Segoe UI',sans-serif;margin:2rem auto;
+      max-width:60rem;padding:0 1rem;color:#1a1a2e}
+ h1{font-size:1.4rem} h2{font-size:1.1rem;margin-top:1.6rem}
+ table{border-collapse:collapse;width:100%;font-size:.85rem}
+ th,td{border:1px solid #d5d5de;padding:.25rem .5rem;text-align:left}
+ th{background:#eef1f6}
+ .caveat{background:#fff3cd;border:1px solid #e0c36a;border-radius:.4rem;
+      padding:.6rem .9rem;font-size:.85rem}
+ .kpis{display:flex;flex-wrap:wrap;gap:.8rem;margin:1rem 0}
+ .kpi{border:1px solid #d5d5de;border-radius:.4rem;padding:.5rem .9rem;
+      min-width:8rem}
+ .kpi-value{font-size:1.3rem;font-weight:600}
+ .kpi-label{font-size:.72rem;color:#555}
+ .kpi-note{font-size:.68rem;color:#777}
+ td.on,th.on{color:#a11212} td.off{color:#12508a}
+ td.gap{color:#8a5a00;font-weight:600}
+ footer{margin-top:2rem;font-size:.75rem;color:#666;border-top:1px solid
+      #ddd;padding-top:.6rem}
+</style></head><body>
+<h1>PoC-6 Rijnland GWT digital twin — 20261013T182234Z-gwt-twin</h1>
+<p><em>Where will the groundwater table in the Rijnland beheergebied cross drought/ingress thresholds in the coming days — and which gemaal action (aan / uit / vasthouden) is advised?</em></p>
+<div class="caveat">PROVENANCE — the depth series in this run are a deterministic seed (documented formula from open sensor metadata + open-meteo rain): no open Rijnland groundwater series resolves today (BRO / Lizard are credential-gated). Prediction numbers are relative (model vs persistence), thresholds are defaults — not board policy. See README + design doc.</div>
+<div class="kpis">
+<div class="kpi"><div class="kpi-value">252</div><div class="kpi-label">Groundwater loggers</div><div class="kpi-note">Rijnland open ArcGIS</div></div>
+<div class="kpi"><div class="kpi-value">5</div><div class="kpi-label">Forecast days</div><div class="kpi-note">recursive day-ahead</div></div>
+<div class="kpi"><div class="kpi-value">0.0081 m²</div><div class="kpi-label">Median holdout MSE</div><div class="kpi-note">n=252 loggers</div></div>
+<div class="kpi"><div class="kpi-value">0.71</div><div class="kpi-label">Median skill vs persistence</div><div class="kpi-note">&gt;0 beats persistence</div></div>
+<div class="kpi"><div class="kpi-value">258</div><div class="kpi-label">Commands (5 d)</div><div class="kpi-note">14 without gemaal in reach</div></div>
+</div>
+<p>Animated twin map (history → forecast, red = shallow/ ingress risk): <a href="gwt-twin-hexmap.html">gwt-twin-hexmap.html</a></p>
+<h2>Forecast + trigger counts</h2>
+<table><tr><th>date</th><th>mean depth</th><th class="on">WaterpumpON</th>
+<th class="off">WaterpumpOFF</th><th>Monitor</th><th>gaps</th></tr>
+<tr><td>2026-10-13</td><td>0.64 m</td><td class="on">64</td><td class="off">2</td><td>186</td><td class="gap">3</td></tr><tr><td>2026-10-14</td><td>0.95 m</td><td class="on">4</td><td class="off">57</td><td>191</td><td class="gap">4</td></tr><tr><td>2026-10-15</td><td>0.96 m</td><td class="on">4</td><td class="off">57</td><td>191</td><td class="gap">4</td></tr><tr><td>2026-10-16</td><td>0.90 m</td><td class="on">8</td><td class="off">31</td><td>213</td><td class="gap">1</td></tr><tr><td>2026-10-17</td><td>0.81 m</td><td class="on">18</td><td class="off">13</td><td>221</td><td class="gap">2</td></tr></table>
+
+<h2>Scenario — cloudburst 30.0 mm on day +1</h2>
+<p>Same archive and models, forecast rain replaced by a flat cloudburst
+(what-if, thesis “visualise the possible scenario”).</p>
+<table><tr><th>date</th><th>mean depth</th><th>ON</th><th>OFF</th>
+<th>gaps</th></tr><tr><td>2026-10-13</td><td>0.23 m</td><td class="on">230</td><td class="off">0</td><td>14</td></tr><tr><td>2026-10-14</td><td>0.23 m</td><td class="on">230</td><td class="off">0</td><td>14</td></tr><tr><td>2026-10-15</td><td>0.23 m</td><td class="on">230</td><td class="off">0</td><td>14</td></tr><tr><td>2026-10-16</td><td>0.90 m</td><td class="on">8</td><td class="off">31</td><td>1</td></tr><tr><td>2026-10-17</td><td>0.81 m</td><td class="on">18</td><td class="off">13</td><td>2</td></tr></table>
+<h2>Command preview (first 25 of 258)</h2>
+<table><tr><th>date</th><th>event</th><th>logger</th><th>polder</th>
+<th>depth</th><th>nearest gemaal</th><th>gap</th></tr>
+<tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>026-105-00007_GH1</td><td>Drooggemaakte Grote Polder</td><td>0.22 m</td><td>024-036-00021 (725 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>026-105-00008_TWG</td><td>Drooggemaakte Grote Polder</td><td>0.33 m</td><td>024-036-00021 (682 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>026-105-00009_GH1</td><td>Drooggemaakte Grote Polder</td><td>0.37 m</td><td>024-036-00021 (655 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>095-105-00003_TWG</td><td>Noordeind- en Geerpolder</td><td>0.34 m</td><td>147-036-00027 (746 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>095-105-00006_GWS1</td><td>Noordeind- en Geerpolder</td><td>0.29 m</td><td>147-036-00027 (974 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="off">WaterpumpOFF</td><td>095-105-00006_SHG2</td><td>Noordeind- en Geerpolder</td><td>1.27 m</td><td>147-036-00027 (974 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>131-105-00001_BVPERC0032TM0048MINMV</td><td>Rijnsaterwoudschepolder</td><td>0.29 m</td><td>150-036-00050 (565 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>131-105-00001_BVPERC0048TM0064MINMV</td><td>Rijnsaterwoudschepolder</td><td>0.37 m</td><td>150-036-00050 (565 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>131-105-00001_BVPERC0080TM0096MINMV</td><td>Rijnsaterwoudschepolder</td><td>0.17 m</td><td>150-036-00050 (565 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>131-105-00001_GWS1</td><td>Rijnsaterwoudschepolder</td><td>0.15 m</td><td>150-036-00050 (565 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>131-105-00001_GWST1</td><td>Rijnsaterwoudschepolder</td><td>0.36 m</td><td>150-036-00050 (565 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>131-105-00001_TB0030MINMV</td><td>Rijnsaterwoudschepolder</td><td>0.34 m</td><td>150-036-00050 (565 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>131-105-00001_TB0080MINMV</td><td>Rijnsaterwoudschepolder</td><td>0.15 m</td><td>150-036-00050 (565 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>131-105-00001_TB0090MINMV</td><td>Rijnsaterwoudschepolder</td><td>0.29 m</td><td>150-036-00050 (565 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>131-105-00001_TB0100MINMV</td><td>Rijnsaterwoudschepolder</td><td>0.29 m</td><td>150-036-00050 (565 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>161-105-00003_GWS1</td><td>Wassenaarschepolder</td><td>0.22 m</td><td>161-036-00045 (837 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>161-105-00003_TWG1</td><td>Wassenaarschepolder</td><td>0.15 m</td><td>161-036-00045 (837 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>161-105-00003_TWG2</td><td>Wassenaarschepolder</td><td>0.37 m</td><td>161-036-00045 (837 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>161-105-00004_GWS1</td><td>Wassenaarschepolder</td><td>0.15 m</td><td>161-036-00045 (857 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>161-105-00004_HP1</td><td>Wassenaarschepolder</td><td>0.28 m</td><td>161-036-00045 (857 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>161-105-00004_HP2</td><td>Wassenaarschepolder</td><td>0.27 m</td><td>161-036-00045 (857 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>161-105-00004_TWG1</td><td>Wassenaarschepolder</td><td>0.15 m</td><td>161-036-00045 (857 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>161-105-00004_TWG2</td><td>Wassenaarschepolder</td><td>0.30 m</td><td>161-036-00045 (857 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>167-105-00004_GH1</td><td>Zoetermeerse Meerpolder</td><td>0.34 m</td><td>024-036-00021 (1156 m)</td><td class="gap"></td></tr><tr><td>2026-10-13</td><td class="on">WaterpumpON</td><td>167-105-00006_GH1</td><td>Zoetermeerse Meerpolder</td><td>0.36 m</td><td>024-036-00021 (676 m)</td><td class="gap"></td></tr>
+</table>
+<footer>
+Framework: Morales Ortega (2023), <i>A Digital Twin for Ground Water Table
+Monitoring</i>, MSc thesis ITC Twente — translated to Rijnland on the nLDT
+stack (design: docs/superpowers/specs/2026-10-13-rijnland-gwt-digital-twin-design.md).
+Sensors: rijnland-meetlocatie-waterkwantiteit (open ArcGIS); rain: open-meteo;
+pumps: rijnland-gemaal. Seed formula: depth = base + amp*sin(2π(doy-45)/365 + φ) − response*rain3 + 0.02*noise(code,date), clamped 0.15–2.6; base/amp/φ/response hashed from the logger code (crc32).<br>
+Aggregate alerts only — no address-level detail (thesis Annex M governance).
+</footer>
+</body></html>

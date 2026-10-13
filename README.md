@@ -26,6 +26,12 @@ verbatim quote + URL per claim, schema-validated artifacts, PROV provenance).
   auto-filled from keyless open data + draft ILS v0.8 gebiedsindeling
   (IfcExportAs/EPset_minigim); pilot Breda-Teteringen, IFC/GREX is phase 2
   (see [`docs/MINIGIM.md`](docs/MINIGIM.md)).
+- [`poc-rijnland-gwt/`](poc-rijnland-gwt/README.md) — **PoC-6**: Rijnland
+  groundwater-table digital twin from the Morales (2023, ITC Twente) thesis
+  framework — 252 open depth loggers + open-meteo rain → per-logger decision
+  tree forecast → Waterpump ON/OFF commands with nearest-gemaal/gap advice →
+  animated H3 twin map (history → forecast); seeded archive with provenance
+  until a BRO/Lizard series fetch lands.
 - [`simulation/`](simulation/README.md) — animated step-through simulation of
   both PoCs, replayed from their canonical run artifacts
   (`python3 simulation/build_simulation.py`, then open `simulation.html`).
@@ -42,3 +48,5 @@ Ollama qwen3.8), and the cross-track conflict overlay quantifies the
 energy-vs-nature overlaps: `python3 poc/crosstrack/run.py` — see
 [`docs/GENAI_SEAMS.md`](docs/GENAI_SEAMS.md). PoC-3 (Rijnland peil-conflict)
 uses live/cached ArcGIS + H3: `nldt/.venv/bin/python poc-rijnland/run.py`.
+PoC-6 (Rijnland GWT twin, thesis-driven) runs on the same stack:
+`nldt/.venv/bin/python poc-rijnland-gwt/run.py --full --rain-scenario-mm 30`.
