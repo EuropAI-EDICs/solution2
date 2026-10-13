@@ -15,6 +15,7 @@ import json
 import sys
 import unittest
 from pathlib import Path
+from unittest import mock
 
 POC_ROOT = Path(__file__).resolve().parents[1]
 if str(POC_ROOT) not in sys.path:
@@ -348,6 +349,107 @@ class ScenarioSweepTests(unittest.TestCase):
         self.assertIn("SC-T-H", md)
         self.assertIn("not legally grounded", md)
         self.assertIn("control", md.lower())
+
+
+class EmptyFinalOutcomeTests(unittest.TestCase):
+    """A deliberately empty final zone is a measured 0 km2 / -100% outcome.
+
+    When the rule set executes cleanly and the emptiness follows from pure
+    exclusion semantics (e.g. the energietoets SC-ET-TOETS-HARD: a whole-AOI
+    scope executed as exclusion — "the toets has no spatial differentiation"),
+    the outcome row is valid (`geometryValid`: the geometry is absent, not
+    false) and `status` ok. When the scenario's execution degraded (broken
+    layer, dropped rules), the old safety semantics hold: scenario-empty
+    degradation, `geometryValid` False, `status` degraded.
+    """
+
+    def _sweep_empty_final(self, extra_degradations=None):
+        """Sweep one scenario whose execution yields an empty final zone.
+
+        FR-T-01 is the inclusion covering the whole AOI (INCL_BOX == AOI_BOX),
+        so executing that scope as exclusion leaves exactly 0 opportunity km2.
+        """
+        spec = _spec(
+            "SC-T-EMPTY",
+            {"type": "policy_variant", "normCardId": "NC-01", "provenanceNote": "n"},
+            [{"ruleId": "FR-T-01", "action": "set_semantics",
+              "zoneSemantics": "exclusion"}])
+        report = scenarios.run_scenario_set(
+            baseline=_baseline(), layers=LAYERS, specs=[spec],
+            scenario_set_id="SSET-empty", report_id="SR-empty-0001",
+            degradations=list(extra_degradations or []))
+        validation = report.pop("_validation")
+        report.pop("_control_rich")
+        return report, validation
+
+    def _sweep_null_final(self, extra_degradations=None):
+        """Sweep one scenario whose execution produces NO final zone at all.
+
+        Both executable rules are dropped so the engine receives an empty rule
+        set; a stub returns no zones for that (the defensive `final is None`
+        branch the real engine cannot reach — it always emits a final).
+        """
+        spec = _spec(
+            "SC-T-NULL",
+            {"type": "hypothetical", "rationale": "parameter exploration",
+             "provenanceNote": "n"},
+            [{"ruleId": "FR-T-01", "action": "drop"},
+             {"ruleId": "FR-T-02", "action": "drop"}])
+        real_execute = scenarios.engine.execute_rules
+
+        def no_zones_for_empty_ruleset(rules, *args, **kwargs):
+            if not rules:
+                return []
+            return real_execute(rules, *args, **kwargs)
+
+        with mock.patch.object(scenarios.engine, "execute_rules",
+                               new=no_zones_for_empty_ruleset):
+            report = scenarios.run_scenario_set(
+                baseline=_baseline(), layers=LAYERS, specs=[spec],
+                scenario_set_id="SSET-null", report_id="SR-null-0001",
+                degradations=list(extra_degradations or []))
+        validation = report.pop("_validation")
+        report.pop("_control_rich")
+        return report, validation
+
+    def test_measured_empty_final_is_a_valid_outcome(self):
+        report, _ = self._sweep_empty_final()
+        row = report["scenarios"][0]
+        self.assertAlmostEqual(row["finalAreaKm2"], 0.0, places=9)
+        self.assertAlmostEqual(row["deltaVsControlKm2"], -CONTROL_KM2, places=6)
+        self.assertAlmostEqual(row["deltaVsControlPct"], -100.0, places=6)
+        self.assertTrue(row["geometryValid"])
+        self.assertEqual(row["status"], "ok")
+        self.assertEqual(report["degradations"], [])
+        self.assertEqual(report["verdict"], "pass")
+        contracts.validate(report, "scenario-report")
+
+    def test_null_final_without_degradations_is_measured_outcome(self):
+        report, validation = self._sweep_null_final()
+        row = report["scenarios"][0]
+        self.assertEqual(row["finalAreaKm2"], 0.0)
+        self.assertAlmostEqual(row["deltaVsControlKm2"], -CONTROL_KM2, places=6)
+        self.assertAlmostEqual(row["deltaVsControlPct"], -100.0, places=6)
+        self.assertTrue(row["geometryValid"])
+        self.assertEqual(row["status"], "ok")
+        self.assertEqual(row["geometryFile"], "")
+        self.assertEqual(report["degradations"], [])  # no scenario-empty record
+        self.assertEqual(report["verdict"], "pass")
+        self.assertEqual(validation["levels"]["V1"]["status"], "pass")
+        contracts.validate(report, "scenario-report")
+
+    def test_null_final_with_execution_degradation_stays_degraded(self):
+        seeded = [{"kind": "layer-cache-missing", "scenarioId": "SC-T-NULL",
+                   "error": "zone 'incl': cache file absent"}]
+        report, validation = self._sweep_null_final(extra_degradations=seeded)
+        row = report["scenarios"][0]
+        self.assertEqual(row["status"], "degraded")
+        self.assertFalse(row["geometryValid"])
+        self.assertTrue(any(d["kind"] == "scenario-empty"
+                            and d.get("scenarioId") == "SC-T-NULL"
+                            for d in report["degradations"]))
+        self.assertEqual(report["verdict"], "fail")
+        self.assertEqual(validation["levels"]["V1"]["status"], "fail")
 
 
 class ShippedSetTests(unittest.TestCase):

@@ -472,9 +472,15 @@ def run_scenario_set(
             eligible_rules(mutated), layers, aoi, sources,
             scenario_id=sid, degradations=degradations)
         final, incl = final_and_inclusion(rich)
+        # count only degradations that exist BEFORE this block appends anything
+        # of its own: a deliberately empty final (pure exclusion semantics, e.g.
+        # the energietoets whole-AOI scope executed as exclusion) is a measured
+        # 0 km2 / -100% outcome, while a rule/layer failure stays an error
+        scen_degraded = any(d.get("scenarioId") == sid for d in degradations)
         if final is None:
-            degradations.append({"kind": "scenario-empty", "scenarioId": sid,
-                                 "error": "execution produced no final zone"})
+            if scen_degraded:
+                degradations.append({"kind": "scenario-empty", "scenarioId": sid,
+                                     "error": "execution produced no final zone"})
             outcomes.append({
                 "scenarioId": sid, "name": spec["name"],
                 "basis": spec["basis"], "proposedBy": spec["proposedBy"],
@@ -482,17 +488,23 @@ def run_scenario_set(
                 "rulesTotal": len(eligible_rules(mutated)), "rulesExecuted": len(executed),
                 "finalAreaKm2": 0.0, "inclusionIntersectAoiKm2": None,
                 "deltaVsControlKm2": -control_area, "deltaVsControlPct": -100.0,
-                "iouVsControl": 0.0, "geometryValid": False, "geometryFile": "",
-                "status": "degraded",
+                "iouVsControl": 0.0,
+                # clean run: nothing to validate — the geometry is absent,
+                # not false; a degraded run keeps the safety semantics
+                "geometryValid": not scen_degraded, "geometryFile": "",
+                "status": "degraded" if scen_degraded else "ok",
             })
             continue
         geom = _rd_from_payload(final["geometry"]["payload"])
         delta = float(final["areaKm2"]) - control_area
         pct = (delta / control_area * 100.0) if control_area else None
+        # the engine marks an empty final geometryValid=False merely because
+        # there is no geometry; measured emptiness under a clean execution is
+        # the scenario's outcome, not a validity failure
+        measured_empty = bool(geom.is_empty)
         geom_file = ""
         if on_scenario_geojson is not None:
             geom_file = on_scenario_geojson(sid, rich)
-        scen_degraded = any(d.get("scenarioId") == sid for d in degradations)
         if h3_metrics is not None:
             try:
                 m = h3_metrics(final["geometry"]["payload"], control_cells)
@@ -519,7 +531,8 @@ def run_scenario_set(
             "deltaVsControlKm2": round(delta, 9),
             "deltaVsControlPct": (round(pct, 6) if pct is not None else None),
             "iouVsControl": round(engine.iou(control_geom, geom), 9),
-            "geometryValid": bool(final.get("geometryValid")),
+            "geometryValid": (bool(final.get("geometryValid"))
+                              or (measured_empty and not scen_degraded)),
             "geometryFile": geom_file,
             "status": "degraded" if scen_degraded else "ok",
             **({"h3": outcome_h3} if outcome_h3 is not None else {}),
