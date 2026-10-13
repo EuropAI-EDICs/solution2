@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Geen wijzigingen aan `poc/pipeline/engine.py`, `poc/pipeline/scenarios.py`, `poc/pipeline/scenario_author.py` of schema's onder `poc/schemas/` (de `dataGrounding`-extensie hoort bij plan 2).
+- Geen wijzigingen aan `poc/pipeline/engine.py`, `poc/pipeline/scenarios.py`, `poc/pipeline/scenario_author.py` of schema's onder `poc/schemas/` (de `dataGrounding`-extensie hoort bij plan 2). **Geaccepteerde enabling-uitzondering (Task 3, gecontroleerd):** de objectType/track-enums in de scenario-schema's zijn uitgebreid naar de 13 tracks/objectTypes — zonder die extensie valideren de sweeps van de nieuwe tracks niet; en baseline-`layers.json`-cachePaden die naar een verwijderde worktree wezen zijn gerepareerd (V3-reproductie exact 0). Beide worden in Task 12 in de spec vastgelegd.
 - Elke scenario-set valideert tegen `poc/schemas/scenario-set.schema.json` én elke spec tegen `poc/schemas/scenario-spec.schema.json` (`additionalProperties: false` — geen extra velden).
 - Basis-verdeling per track volgt spec §3: ≥1 `policy_variant`, ≤1 `norm_variance`, ≥1 `hypothetical` **of** derde `policy_variant` (mobiliteit/energietoets-uitzondering).
 - Elke `normCardId` in een `basis` moet voorkomen in de `normcards.json` van de canonieke baseline-run van de track; elke mutation-`ruleId` in de `formalrules.json`.
