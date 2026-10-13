@@ -368,12 +368,23 @@ applied/skipped), `scenario-narrative.md` (with `--narrate`), `scenarios/
 also `proposals.json` + `proposals-rejected.json` (the author's
 cite-or-abstain ledger: schema-invalid or hallucinated ids are recorded and
 never executed). Exit code 0 only on verdict `pass`. Demo sets:
-`poc/scenarios/{wind,zon,bos}.json` — headline findings: the NNN lid-2
-exception is the largest wind lever (+322.5 km², +37.5%), silence-area
-strictness up to −61%, the zon Natura carve is negligible (+0.011 km²), a 1 km
-bos zoekgebied band would grow it 16.5×; `--author auto` adds: a hypothetical
-500 m NNN buffer costs −52.2%, and hard-enforcing the NNN *conditional*
-overlay changes nothing (it is subsumed by the default exclusion).
+`poc/scenarios/<track>.json` — **5 uitdagingen × 13 tracks × 3 scenario's
+per track** (energietoets telt er nu 2; #3 volgt in plan 2; curation-contract
+in `poc/scenarios/uitdagingen.json`, getest in `tests/test_uitdagingen.py`):
+
+| uitdaging | tracks | per track 3 scenario's, o.a. |
+|---|---|---|
+| Energietransitie | wind, zon, biomassa, energietoets | NNN-uitzondering +322,5 km²; zon Natura-carve verwaarloosbaar (+0,01 km²); biomassa-vestigingsgebied landelijk hard −1245,8 km²; energietoets is ruimtelijk blind (−100% bij handhaving) |
+| Wonen & Werken | wonen, werken | alleen-stedelijk-tegenbeelden (wonen −828,7 km², werken −703,4 km²); detailhandel-verbod over het hele object (WN-03-les als variant, −1007,8 km²) |
+| Water & Bodem | water, bodem | overstroombaar gebied hard −1202,1 km²; grondwaterbeschermingsversoepeling +701,1 km² |
+| Landschap & Infrastructuur | landschap, mobiliteit | CHS hard −780,7 km²; luchtvaartverbod zonder activity-scope −1014,5 km² |
+| Landelijk Gebied & Natuur | bos, landbouw, recreatie | glastuinbouw-tegenbeeld +1121,6 km²; bos-zoekgebied in een 1 km-band +371,5 km² (16,5×); alleen bovenlokale dagrecreatie −104,9 km² |
+
+Elke track toont drie beleidsknoppen: een gedocumenteerde keuze omgedraaid
+(`policy_variant`), een geciteerde parameter gevarieerd (`norm_variance`) en
+een expliciet niet-juridisch tegenbeeld (`hypothetical`). Run-ids van de
+featured runs staan in `uitdagingen.json::scenarioRuns`; de wind/zon/bos-runs
+zijn nog de oorspronkelijke 2026-08-31-runs (hersweep volgt in plan 2).
 
 A Phase-B LLM ScenarioAuthor may only do what the deterministic author does
 today — emit `ScenarioSpec` proposals (`proposedBy: "llm-proposal#…"`, stamped

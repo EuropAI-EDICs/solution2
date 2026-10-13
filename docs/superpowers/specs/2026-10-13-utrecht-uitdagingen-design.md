@@ -241,3 +241,48 @@ gedragsregels nodig.
   recipes — dat is Aanpak B en wordt pas overwogen als de demo hier om vraagt.
 - H3-overlays en Urban Strategy-schermen blijven werken zoals ze zijn (per
   sweep, automatisch mee).
+
+## 9. Vastlegging uitvoering (2026-10-13)
+
+De scenario-keuzes van §4 zijn bij implementatie vastgelegd op de
+ruleIds/mutaties in `docs/superpowers/plans/2026-10-13-utrecht-uitdagingen.md`
+(tabel "Vastgelegde scenario-keuzes"). Afwijkingen t.o.v. de §4-intenties, met
+reden (de sweep muteert alleen regels uit de eigen baseline-run van de track —
+lagen die daar niet in zitten, zijn niet muteerbaar):
+
+- **bos #2** "beperkt tot 500 m-zone rond NNN" → SC-B-COMPENSATIE-HARD
+  (FR-B-02 als uitsluiting): de bos-baseline heeft geen NNN-laag.
+- **landbouw #2** "250 m-buffer rond concentratiegebied" → SC-LB-BEDRIJVEN-HARD
+  (FR-LB-01 als uitsluiting): buffer op een conditional-marker levert Δ0.
+- **werken #3** "500 m-zone rond NNN" → buffer FR-WE-03 +500 m: geen NNN-laag.
+- **recreatie #3** "250 m-zone rond NNN" → SC-RC-DAGRECREATIE-ALLEEN-AANDACHT:
+  geen NNN-laag; de aandachts-tegenbeeld meet de opening zelf.
+- **biomassa #2** "Groene contour als harde uitsluiting" → SC-BM-STEDELIJK-HARD:
+  de biomassa-baseline heeft geen contour-rule.
+- **energietoets #3** (netcongestie, data-gegrond) volgt in
+  2026-10-13-utrecht-data-kalibratie-design.md; de set telt nu 2 scenario's.
+
+### Geaccepteerde enabling-uitzonderingen
+
+- **Schema-enums uitgebreid** naar de 13 tracks/objectTypes (commit
+  `be160a7`): zonder die extensie valideren de sweeps van de nieuwe tracks
+  niet tegen `scenario-set.schema.json`/`scenario-spec.schema.json`.
+- **Baseline-`layers.json`-cachePaden gerepareerd** (verwijzingen naar
+  verwijderde worktrees vf1–vf5), per taak in een eigen commit; de
+  V3-reproductie is daarmee exact 0.
+- **Sweeps gedraaid met `--no-h3`**: de h3-module ontbreekt structureel in de
+  nldt-runtime; conform de Global Constraint "cache-first, `--no-h3` bij
+  ontbreken" uit het plan.
+- **Lege-final-fix** in `poc/pipeline/scenarios.py` (commit `aecda97`): een
+  bewust-lege final door zuivere uitsluiting telt als gemeten −100%-uitkomst
+  (status `ok`, `geometryValid: true`); een final mét executie-degradaties
+  blijft `degraded`. SC-ET-TOETS-HARD (energietoets, handhaving art. 5.10) is
+  daarmee een pass-run op −100% (−1560,1 km² t.o.v. control).
+
+### Featured runs
+
+De featured wind/zon/bos-runs in `uitdagingen.json::scenarioRuns` wijzen nog
+naar de oorspronkelijke 2026-08-31-runs; de bos-featured run meet daardoor
+nog 2 scenario's (SC-B-COMPENSATIE-HARD is nog niet in een featured run
+gemeten). Dit is de beoogde staat tot plan 2; een hersweep van deze drie
+tracks volgt daar.
