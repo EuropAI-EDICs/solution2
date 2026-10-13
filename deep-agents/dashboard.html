@@ -327,12 +327,21 @@ async function onPocChange() {
   $('mode').innerHTML = modes.map(m => `<option value="${m.id}">${m.label}</option>`).join('');
   const scenIds = scen.map(s => (typeof s === 'string' ? s : s.id));
   if (scen.length) {
-    $('scenario').innerHTML = scen.map(s => {
+    const opt = s => {
       const id = typeof s === 'string' ? s : s.id;
       const label = typeof s === 'string' ? s : (s.label || id);
       const hint = typeof s === 'object' && s.hint ? s.hint : '';
       return `<option value="${escapeHtml(id)}" data-hint="${escapeHtml(hint)}">${escapeHtml(label)}</option>`;
-    }).join('');
+    };
+    const groups = new Map();
+    for (const s of scen) {
+      const titel = (typeof s === 'object' && s.uitdaging) ? s.uitdaging.titel : 'Overig';
+      if (!groups.has(titel)) groups.set(titel, []);
+      groups.get(titel).push(opt(s));
+    }
+    $('scenario').innerHTML = [...groups.entries()]
+      .map(([titel, opts]) => `<optgroup label="${escapeHtml(titel)}">${opts.join('')}</optgroup>`)
+      .join('');
     const saved = localStorage.getItem('sim-scenario');
     const featured = scen.find(s => typeof s === 'object' && s.featured);
     if (saved && scenIds.includes(saved)) $('scenario').value = saved;
