@@ -25,3 +25,26 @@ def test_featured_runs_sort_first():
     rows = list_scenario_runs(RUNS)
     assert rows[0]["featured"] is True
     assert any(r["id"].endswith("wind-scen") for r in rows[:3])
+
+
+def test_uitdaging_groepering_wind():
+    row = describe_scenario_run(RUNS / "20260831T074521Z-wind-scen")
+    u = row.get("uitdaging")
+    assert u is not None and u["id"] == "energietransitie" and u["titel"] == "Energietransitie"
+    assert row["trackKey"] == "wind"
+
+
+def test_uitdaging_volgt_trackkey():
+    rows = list_scenario_runs(RUNS)
+    for r in rows:
+        if r["trackKey"] is None or r["id"].startswith("_fixture"):
+            assert r["uitdaging"] is None, r["id"]
+        else:
+            assert r["uitdaging"] is not None, r["id"]
+            assert r["uitdaging"]["titel"], r["id"]
+
+
+def test_scenarioRuns_uit_uitdagingen_json_zijn_featured():
+    rows = list_scenario_runs(RUNS)
+    featured = [r for r in rows if r["featured"]]
+    assert len(featured) >= 13
