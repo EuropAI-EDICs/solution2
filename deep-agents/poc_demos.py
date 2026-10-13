@@ -76,6 +76,17 @@ _UTRECHT_MODES: list[dict[str, str]] = [
             "crosscheck_formal_rule. STOP daarna."
         ),
     },
+    {
+        "id": "uitdaging_overzicht",
+        "label": "Uitdaging-overzicht (5 opgaven × 3 scenario's)",
+        "template": (
+            "Delegeer naar utrecht: geef het uitdaging-overzicht — lees "
+            "poc/scenarios/uitdagingen.json en geef per uitdaging (5 stuks): de titel, "
+            "de tracks, en per track de 3 scenario's met de headline-delta "
+            "(deltaVsControlPct uit scenario-report.json van de run in scenarioRuns). "
+            "Sluit af met per uitdaging de grootste hefboom (grootste |delta|)."
+        ),
+    },
 ]
 
 POC_DEMOS: list[dict[str, Any]] = [
