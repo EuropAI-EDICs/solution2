@@ -1,0 +1,52 @@
+{
+  "id": "SSET-biomassa-utrecht-uitdagingen",
+  "useCase": "biomassa",
+  "description": "Uitdagingen-curation (Energietransitie): marker-enforcement op de twee vestigingsgebieden plus een buffer-tegenbeeld.",
+  "scenarios": [
+    {
+      "id": "SC-BM-LANDELIJK-HARD",
+      "name": "Vestigingsgebied landelijk treated as hard exclusion",
+      "description": "FR-BM-01 (art. 5.6, gebied energie uit biomassa landelijk) is a conditional marker; this variant excludes the rural designation for biomass installations.",
+      "objectType": "biomass_installation",
+      "basis": {
+        "type": "policy_variant",
+        "normCardId": "NC-BM-01",
+        "provenanceNote": "NC-BM-01 (art. 5.6) conditions biomass siting in the landelijk designation; this variant executes the strictest reading as a hard exclusion."
+      },
+      "mutations": [
+        {"ruleId": "FR-BM-01", "action": "set_semantics", "zoneSemantics": "exclusion"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    },
+    {
+      "id": "SC-BM-STEDELIJK-HARD",
+      "name": "Vestigingsgebied stedelijk treated as hard exclusion",
+      "description": "FR-BM-02 (art. 5.7, gebied energie uit biomassa stedelijk) is a conditional marker; this variant excludes the urban designation — biomass remains a rural-only option.",
+      "objectType": "biomass_installation",
+      "basis": {
+        "type": "policy_variant",
+        "normCardId": "NC-BM-02",
+        "provenanceNote": "NC-BM-02 (art. 5.7) conditions biomass siting in the stedelijk designation; this variant executes the strictest reading as a hard exclusion."
+      },
+      "mutations": [
+        {"ruleId": "FR-BM-02", "action": "set_semantics", "zoneSemantics": "exclusion"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    },
+    {
+      "id": "SC-BM-BUFFER-500",
+      "name": "Rural designation exclusion widened by a 500 m band",
+      "description": "Buffers the FR-BM-01 designation outward by 500 m as exclusion — a living-environment-margin variant.",
+      "objectType": "biomass_installation",
+      "basis": {
+        "type": "hypothetical",
+        "rationale": "No instrument text supports a 500 m siting margin for biomass installations (distance norms are abstained topics); this hypothetical measures what such a margin would carve from the province-wide opportunity zone.",
+        "provenanceNote": "NOT legally grounded: the designation (NC-BM-01, art. 5.6) is cited, the 500 m margin is the scenario's own parameter."
+      },
+      "mutations": [
+        {"ruleId": "FR-BM-01", "action": "set_buffer_distance_m", "bufferDistanceM": 500}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    }
+  ]
+}

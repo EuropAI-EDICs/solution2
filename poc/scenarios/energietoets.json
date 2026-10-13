@@ -1,0 +1,37 @@
+{
+  "id": "SSET-energietoets-utrecht-uitdagingen",
+  "useCase": "energietoets",
+  "description": "Uitdagingen-curation (Energietransitie): marker-enforcement op de afdeling-5.3-markers — de track is ruimtelijk blind (zone = AOI), precies dat is het verhaal. Derde scenario (netcongestie, data-gegrond) volgt in plan 2.",
+  "scenarios": [
+    {
+      "id": "SC-ET-TOETS-HARD",
+      "name": "Art. 5.10 scope executed as spatial blockage",
+      "description": "FR-ET-01 (afdeling 5.3 scope over de hele AOI) is a conditional marker; enforcing it as exclusion would block the entire province — the toets has no spatial differentiation, and that is the policy point.",
+      "objectType": "energy_storage",
+      "basis": {
+        "type": "policy_variant",
+        "normCardId": "NC-ET-01",
+        "provenanceNote": "NC-ET-01 (art. 5.10) applies to new functions that can overload the grid, province-wide and without a GIO; this variant executes the strictest reading as a hard exclusion of the AOI."
+      },
+      "mutations": [
+        {"ruleId": "FR-ET-01", "action": "set_semantics", "zoneSemantics": "exclusion"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    },
+    {
+      "id": "SC-ET-GEEN-MOTIVATIE",
+      "name": "Art. 5.11 motivation duty dropped",
+      "description": "Drops FR-ET-03 (art. 5.11, energy paragraph with reporting duty) — an all-marker lesson: dropping a procedural marker changes no area at all.",
+      "objectType": "energy_storage",
+      "basis": {
+        "type": "policy_variant",
+        "normCardId": "NC-ET-03",
+        "provenanceNote": "NC-ET-03 (art. 5.11) requires an energy paragraph in the plan motivation; this variant documents that the duty is procedural by dropping it — expected delta zero."
+      },
+      "mutations": [
+        {"ruleId": "FR-ET-03", "action": "drop"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    }
+  ]
+}
