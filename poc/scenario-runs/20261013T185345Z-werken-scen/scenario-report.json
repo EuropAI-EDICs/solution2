@@ -1,0 +1,114 @@
+{
+ "id": "SR-20261006T121921Z-werken-20261013T185345Z",
+ "scenarioSetId": "SSET-werken-utrecht-uitdagingen",
+ "baselineRunId": "20261006T121921Z-werken",
+ "requestId": "6916a94b-e9d1-441a-9d88-28e2effa0b27",
+ "objectType": "business_development",
+ "generatedAt": "2026-10-13T18:53:55Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 1017.613538059,
+  "inclusionIntersectAoiKm2": 1017.613538059,
+  "baselineFinalAreaKm2": 1017.613538059,
+  "baselineInclusionKm2": 1017.613538059,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-WE-DETAILHANDEL-HARD",
+   "name": "Detailhandel verbod executed over the whole object",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-WE-06",
+    "provenanceNote": "NC-WE-06 (art. 9.20) is sub-class-scoped to detailhandel; the over-broad area exclusion was re-adjudicated (WN-03). This variant makes that strict reading an explicit, visible policy choice."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-WE-06",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "conditional -> exclusion"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 6,
+   "rulesExecuted": 6,
+   "finalAreaKm2": 9.830306481,
+   "inclusionIntersectAoiKm2": 1017.613538059,
+   "deltaVsControlKm2": -1007.783231578,
+   "deltaVsControlPct": -99.033984,
+   "iouVsControl": 0.009660123,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WE-DETAILHANDEL-HARD.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-WE-ALLEEN-STEDELIJK",
+   "name": "Business development only within existing urban area",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-WE-03",
+    "provenanceNote": "NC-WE-03 (art. 9.16) is the conditioned bedrijventerrein-uitbreiding exception; this variant documents dropping that lever (strictest anti-expansion reading)."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-WE-03",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 5,
+   "rulesExecuted": 5,
+   "finalAreaKm2": 314.241650109,
+   "inclusionIntersectAoiKm2": 314.241650109,
+   "deltaVsControlKm2": -703.37188795,
+   "deltaVsControlPct": -69.119746,
+   "iouVsControl": 0.308802046,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WE-ALLEEN-STEDELIJK.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-WE-BEDRIJVENTERREIN-BUFFER-500",
+   "name": "Bedrijventerrein designation expanded by a 500 m band",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "The designation envelope is a programming area; a 500 m band is not cited anywhere — this hypothetical measures what it would add.",
+    "provenanceNote": "NOT legally grounded: the designation (NC-WE-03, art. 9.16) is cited, the 500 m band is the scenario's own parameter."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-WE-03",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500.0,
+     "note": "bufferDistanceM None -> 500.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 6,
+   "rulesExecuted": 6,
+   "finalAreaKm2": 1386.075379974,
+   "inclusionIntersectAoiKm2": 1386.075379974,
+   "deltaVsControlKm2": 368.461841915,
+   "deltaVsControlPct": 36.208426,
+   "iouVsControl": 0.734168477,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WE-BEDRIJVENTERREIN-BUFFER-500.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

@@ -1,0 +1,140 @@
+{
+ "id": "SR-20261005T100258Z-wonen-20261013T185323Z",
+ "scenarioSetId": "SSET-wonen-utrecht-uitdagingen",
+ "baselineRunId": "20261005T100258Z-wonen",
+ "requestId": "22ca237f-761c-46b3-8d88-3ca25824adf5",
+ "objectType": "housing_development",
+ "generatedAt": "2026-10-13T18:53:38Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 1142.989820617,
+  "inclusionIntersectAoiKm2": 1142.989820617,
+  "baselineFinalAreaKm2": 1142.989820617,
+  "baselineInclusionKm2": 1142.989820617,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-WN-ALLEEN-STEDELIJK",
+   "name": "Housing only within existing urban area",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-WN-01",
+    "provenanceNote": "NC-WN-01 (art. 9.3) carries the verstedelijkingsverbod of het Landelijk gebied; its tenzij-structure is operationalized by the inclusion composition, which this variant removes (strictest reading)."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-WN-04",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    },
+    {
+     "ruleId": "FR-WN-07",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    },
+    {
+     "ruleId": "FR-WN-08",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    },
+    {
+     "ruleId": "FR-WN-09",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 8,
+   "rulesExecuted": 8,
+   "finalAreaKm2": 314.241650109,
+   "inclusionIntersectAoiKm2": 314.241650109,
+   "deltaVsControlKm2": -828.748170508,
+   "deltaVsControlPct": -72.507047,
+   "iouVsControl": 0.274929239,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WN-ALLEEN-STEDELIJK.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-WN-FLEXWONINGEN-DICHT",
+   "name": "Flexwoningen route closed",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-WN-08",
+    "provenanceNote": "NC-WN-08 (art. 9.14a) is the flexwoningen exception; this variant documents dropping that specific lever."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-WN-08",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 11,
+   "rulesExecuted": 11,
+   "finalAreaKm2": 1142.989820617,
+   "inclusionIntersectAoiKm2": 1142.989820617,
+   "deltaVsControlKm2": 0.0,
+   "deltaVsControlPct": 0.0,
+   "iouVsControl": 1.0,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WN-FLEXWONINGEN-DICHT.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-WN-STILTE-1KM",
+   "name": "Stiltegebied protection widened: markers hard, attention at 1 km",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Arts. 9.27/9.29 are rekening-houden markers without spatial consequence in the baseline; a 1 km housing buffer around stiltegebieden is not cited anywhere — this hypothetical measures its cost.",
+    "provenanceNote": "NOT legally grounded: the stiltegebied designations (NC-WN-11/NC-WN-12) are cited, the hard enforcement and the 1 km widening are the scenario's own parameters."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-WN-11",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "conditional -> exclusion"
+    },
+    {
+     "ruleId": "FR-WN-12",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "conditional -> exclusion"
+    },
+    {
+     "ruleId": "FR-WN-12",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 1000.0,
+     "note": "bufferDistanceM None -> 1000.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 12,
+   "rulesExecuted": 12,
+   "finalAreaKm2": 918.937822516,
+   "inclusionIntersectAoiKm2": 1142.989820617,
+   "deltaVsControlKm2": -224.051998101,
+   "deltaVsControlPct": -19.602274,
+   "iouVsControl": 0.803977647,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WN-STILTE-1KM.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

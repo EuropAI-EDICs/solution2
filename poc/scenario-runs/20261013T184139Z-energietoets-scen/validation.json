@@ -1,0 +1,80 @@
+{
+ "id": "VR-scenario-run",
+ "artifactId": "SR-20261006T171730Z-energietoets-20261013T184139Z",
+ "artifactType": "scenario-report",
+ "levels": {
+  "V0": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v0-scenario-report-schema",
+     "status": "pass",
+     "detail": "scenario-report validated against scenario-report.schema.json"
+    }
+   ]
+  },
+  "V1": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v1-final-geometry-sc-et-toets-hard",
+     "status": "pass",
+     "detail": "final zone geometryValid=True, status=ok",
+     "evidenceRefs": [
+      "scenarios/SC-ET-TOETS-HARD.geojson"
+     ]
+    },
+    {
+     "id": "v1-final-geometry-sc-et-geen-motivatie",
+     "status": "pass",
+     "detail": "final zone geometryValid=True, status=ok",
+     "evidenceRefs": [
+      "scenarios/SC-ET-GEEN-MOTIVATIE.geojson"
+     ]
+    }
+   ]
+  },
+  "V2": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v2-mutation-rule-ids",
+     "status": "pass",
+     "detail": "every mutation ruleId resolved in the baseline formalrules set (skipped mutations carry recorded reasons)"
+    },
+    {
+     "id": "v2-basis-normcard-ids",
+     "status": "pass",
+     "detail": "every norm_variance/policy_variant normCardId resolved in the baseline run's normcards.json"
+    }
+   ]
+  },
+  "V3": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v3-control-reproduction",
+     "status": "pass",
+     "detail": "control final 1560.053846303 km2 vs baseline 1560.053846303 km2 (rel delta 0.0, tolerance 0.001); 3 rules executed"
+    }
+   ]
+  },
+  "V4": {
+   "status": "pending",
+   "notes": "scenario choice remains a human decision; this report is decision support, never a decision"
+  }
+ },
+ "verdict": "pass",
+ "evidence": [
+  {
+   "ref": "scenario-report.json",
+   "note": "the swept report this verdict gates"
+  },
+  {
+   "ref": "validation.json",
+   "note": "this report"
+  }
+ ],
+ "evaluatorRun": "scenario-critic#poc-v0.1",
+ "evaluatedAt": "2026-10-13T18:41:39Z"
+}

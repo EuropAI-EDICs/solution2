@@ -1,0 +1,115 @@
+{
+ "id": "SR-20261005T072839Z-mobiliteit-20261013T150114Z",
+ "scenarioSetId": "SSET-mobiliteit-utrecht-uitdagingen",
+ "baselineRunId": "20261005T072839Z-mobiliteit",
+ "requestId": "8c757a77-de47-40f2-afce-58b10eaf0052",
+ "objectType": "roadside_development",
+ "generatedAt": "2026-10-13T15:01:23Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 1560.053846303,
+  "inclusionIntersectAoiKm2": null,
+  "baselineFinalAreaKm2": 1560.053846303,
+  "baselineInclusionKm2": null,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-MO-GELUID-HARD",
+   "name": "Geluidcontouren treated as hard exclusion for roadside development",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-MO-02",
+    "provenanceNote": "NC-MO-02 (art. 4.71) gates geluidgevoelige gebouwen on dB Lden thresholds; this variant executes the strictest reading as a hard exclusion of the contours."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-MO-02",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "conditional -> exclusion"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 5,
+   "rulesExecuted": 5,
+   "finalAreaKm2": 1522.785316929,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": -37.268529374,
+   "deltaVsControlPct": -2.388926,
+   "iouVsControl": 0.976110845,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-MO-GELUID-HARD.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-MO-WEG-HARD",
+   "name": "Beperkingengebied provinciale weg treated as hard exclusion",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-MO-01",
+    "provenanceNote": "NC-MO-01 (art. 4.7) conditions construction in the beperkingengebied; this variant executes the strictest reading as a hard exclusion."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-MO-01",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "conditional -> exclusion"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 5,
+   "rulesExecuted": 5,
+   "finalAreaKm2": 1553.051326457,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": -7.002519846,
+   "deltaVsControlPct": -0.448864,
+   "iouVsControl": 0.995511211,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-MO-WEG-HARD.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-MO-LUCHTVAART-ONVOORWAARDELIJK",
+   "name": "Luchtvaartverbod executed without its activity scope",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-MO-05",
+    "provenanceNote": "NC-MO-05 (art. 4.65) is an unconditional verbod of the non-permission family but activity-scoped (nieuwvestiging luchtvaartterrein); this variant measures what the unscoped letter reading would cost."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-MO-05",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "conditional -> exclusion"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 5,
+   "rulesExecuted": 5,
+   "finalAreaKm2": 545.590184021,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": -1014.463662282,
+   "deltaVsControlPct": -65.027477,
+   "iouVsControl": 0.349725121,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-MO-LUCHTVAART-ONVOORWAARDELIJK.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

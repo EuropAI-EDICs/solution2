@@ -1,0 +1,85 @@
+{
+ "id": "SR-20261006T171730Z-energietoets-20261013T184139Z",
+ "scenarioSetId": "SSET-energietoets-utrecht-uitdagingen",
+ "baselineRunId": "20261006T171730Z-energietoets",
+ "requestId": "3f6b23ef-258c-4617-9cf2-9480895f5988",
+ "objectType": "energy_storage",
+ "generatedAt": "2026-10-13T18:41:39Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 1560.053846303,
+  "inclusionIntersectAoiKm2": null,
+  "baselineFinalAreaKm2": 1560.053846303,
+  "baselineInclusionKm2": null,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-ET-TOETS-HARD",
+   "name": "Art. 5.10 scope executed as spatial blockage",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-ET-01",
+    "provenanceNote": "NC-ET-01 (art. 5.10) applies to new functions that can overload the grid, province-wide and without a GIO; this variant executes the strictest reading as a hard exclusion of the AOI."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-ET-01",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "conditional -> exclusion"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 3,
+   "rulesExecuted": 3,
+   "finalAreaKm2": 0.0,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": -1560.053846303,
+   "deltaVsControlPct": -100.0,
+   "iouVsControl": 0.0,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-ET-TOETS-HARD.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-ET-GEEN-MOTIVATIE",
+   "name": "Art. 5.11 motivation duty dropped",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-ET-03",
+    "provenanceNote": "NC-ET-03 (art. 5.11) requires an energy paragraph in the plan motivation; this variant documents that the duty is procedural by dropping it — expected delta zero."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-ET-03",
+     "action": "drop",
+     "note": "dropped conditional rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 2,
+   "rulesExecuted": 2,
+   "finalAreaKm2": 1560.053846303,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": 0.0,
+   "deltaVsControlPct": 0.0,
+   "iouVsControl": 1.0,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-ET-GEEN-MOTIVATIE.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

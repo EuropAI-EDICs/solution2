@@ -1,0 +1,115 @@
+{
+ "id": "SR-20261006T114934Z-recreatie-20261013T180757Z",
+ "scenarioSetId": "SSET-recreatie-utrecht-uitdagingen",
+ "baselineRunId": "20261006T114934Z-recreatie",
+ "requestId": "e2acea27-5253-4571-80ef-89f972d87f68",
+ "objectType": "recreation_development",
+ "generatedAt": "2026-10-13T18:07:57Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 186.617571493,
+  "inclusionIntersectAoiKm2": 186.617571493,
+  "baselineFinalAreaKm2": 186.617571493,
+  "baselineInclusionKm2": 186.617571493,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-RC-ALLEEN-DAGRECREATIE",
+   "name": "Only bovenlokale dagrecreatieterreinen remain open",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-RC-02",
+    "provenanceNote": "NC-RC-02 (art. 9.23) opens the recreatiezone 'in afwijking van artikel 9.3'; this variant documents the strictest programming reading by dropping it from the composition."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-RC-02",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 81.691718647,
+   "inclusionIntersectAoiKm2": 81.691718647,
+   "deltaVsControlKm2": -104.925852846,
+   "deltaVsControlPct": -56.225066,
+   "iouVsControl": 0.437749439,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-RC-ALLEEN-DAGRECREATIE.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-RC-DAGRECREATIE-BUFFER-500",
+   "name": "Dagrecreatieterrein designation expanded by a 500 m band",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-RC-01",
+    "variedAspect": "inclusion zone widened by an added 500 m buffer; the designation is cited, the 500 m band is the scenario's own parameter",
+    "provenanceNote": "NC-RC-01 (art. 9.22) carries the dagrecreatieterrein designation; the 500 m band is not cited and is the scenario's own parameter."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-RC-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500.0,
+     "note": "bufferDistanceM None -> 500.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 2,
+   "rulesExecuted": 2,
+   "finalAreaKm2": 267.206829729,
+   "inclusionIntersectAoiKm2": 267.206829729,
+   "deltaVsControlKm2": 80.589258236,
+   "deltaVsControlPct": 43.184175,
+   "iouVsControl": 0.698401577,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-RC-DAGRECREATIE-BUFFER-500.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-RC-DAGRECREATIE-ALLEEN-AANDACHT",
+   "name": "Dagrecreatieterrein opening demoted to attention marker",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-RC-01",
+    "provenanceNote": "NC-RC-01 (art. 9.22) opens the designation 'in afwijking van artikel 9.3'; this variant documents the counter-reading in which no spatial opening follows, only attention."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-RC-01",
+     "action": "set_semantics",
+     "zoneSemantics": "attention",
+     "note": "inclusion -> attention"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 2,
+   "rulesExecuted": 2,
+   "finalAreaKm2": 136.346329771,
+   "inclusionIntersectAoiKm2": 136.346329771,
+   "deltaVsControlKm2": -50.271241722,
+   "deltaVsControlPct": -26.938107,
+   "iouVsControl": 0.730618501,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-RC-DAGRECREATIE-ALLEEN-AANDACHT.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

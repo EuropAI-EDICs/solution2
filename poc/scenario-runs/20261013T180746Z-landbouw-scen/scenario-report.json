@@ -1,0 +1,113 @@
+{
+ "id": "SR-20261005T094244Z-landbouw-20261013T180746Z",
+ "scenarioSetId": "SSET-landbouw-utrecht-uitdagingen",
+ "baselineRunId": "20261005T094244Z-landbouw",
+ "requestId": "23a6c916-576d-4be2-9583-49e98eaf4e00",
+ "objectType": "agricultural_expansion",
+ "generatedAt": "2026-10-13T18:07:51Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 2.259951313,
+  "inclusionIntersectAoiKm2": null,
+  "baselineFinalAreaKm2": 2.259951313,
+  "baselineInclusionKm2": null,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-LB-STABILISERING-OPEN",
+   "name": "Landbouwstabiliseringsgebied no longer excluded",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-LB-03",
+    "provenanceNote": "NC-LB-03 (art. 8.3) refuses expansion of niet-grondgebonden plots in the Landbouwstabiliseringsgebied; this variant documents the reconsideration reading by dropping the exclusion."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-LB-03",
+     "action": "drop",
+     "note": "dropped exclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 5,
+   "rulesExecuted": 5,
+   "finalAreaKm2": 2.259951313,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": 0.0,
+   "deltaVsControlPct": 0.0,
+   "iouVsControl": 1.0,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-LB-STABILISERING-OPEN.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-LB-BEDRIJVEN-HARD",
+   "name": "Gebied agrarische bedrijven treated as hard exclusion",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-LB-01",
+    "provenanceNote": "NC-LB-01 (art. 8.1) conditions agrarische bedrijven via a verbod plus voorschrift; this variant executes the strictest protective reading as a hard exclusion."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-LB-01",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "conditional -> exclusion"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 6,
+   "rulesExecuted": 6,
+   "finalAreaKm2": 0.002021555,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": -2.257929758,
+   "deltaVsControlPct": -99.910549,
+   "iouVsControl": 0.00091107,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-LB-BEDRIJVEN-HARD.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-LB-GLASTUIN-OVERAL",
+   "name": "Glastuinbouw designation taken at face value (no kassenconcentraties limit)",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Art. 8.6 explicitly refuses glasshouse expansion outside the kassenconcentraties (except the Ronde Venen relocation); ignoring it is not a defensible reading — it isolates how much area the concentration policy actually reserves.",
+    "provenanceNote": "NOT legally grounded as a reading of the verordening: the designation (NC-LB-05, art. 8.6) is cited; dropping it is purely analytical."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-LB-05",
+     "action": "drop",
+     "note": "dropped exclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 5,
+   "rulesExecuted": 5,
+   "finalAreaKm2": 1123.90179091,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": 1121.641839597,
+   "deltaVsControlPct": 49631.239096,
+   "iouVsControl": 0.002010866,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-LB-GLASTUIN-OVERAL.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

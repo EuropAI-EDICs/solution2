@@ -1,0 +1,120 @@
+{
+ "id": "SR-20261004T185509Z-bodem-20261013T143011Z",
+ "scenarioSetId": "SSET-bodem-utrecht-uitdagingen",
+ "baselineRunId": "20261004T185509Z-bodem",
+ "requestId": "8a7e1c4d-3f5b-4a92-b8d6-5c0f2e9a7b61",
+ "objectType": "soil_activity",
+ "generatedAt": "2026-10-13T14:30:14Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 858.927392782,
+  "inclusionIntersectAoiKm2": null,
+  "baselineFinalAreaKm2": 858.927392782,
+  "baselineInclusionKm2": null,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-BO-ALLEEN-REKENING-HOUDEN",
+   "name": "Groundwater-protection umbrella enforced only as 'rekening houden met'",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-BO-04",
+    "provenanceNote": "NC-BO-04 (art. 3.10) deliberately stays a conditional 'rekening houden met' marker; this variant re-adjudicates NC-BO-01/NC-BO-03 from hard exclusions to that weakest reading, returning ~701 km²."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-BO-01",
+     "action": "drop",
+     "note": "dropped exclusion rule"
+    },
+    {
+     "ruleId": "FR-BO-03",
+     "action": "drop",
+     "note": "dropped exclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 2,
+   "rulesExecuted": 2,
+   "finalAreaKm2": 1560.053846303,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": 701.126453521,
+   "deltaVsControlPct": 81.62814,
+   "iouVsControl": 0.550575168,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-BO-ALLEEN-REKENING-HOUDEN.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-BO-STORTPLAATS-HARD",
+   "name": "Gesloten stortplaats treated as hard exclusion",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-BO-05",
+    "provenanceNote": "NC-BO-05 (art. 3.108) carries the gesloten stortplaats as a context marker of provincial jurisdiction; this variant executes the protective reading as a hard exclusion."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-BO-05",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "conditional -> exclusion"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 4,
+   "rulesExecuted": 4,
+   "finalAreaKm2": 858.554552866,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": -0.372839916,
+   "deltaVsControlPct": -0.043408,
+   "iouVsControl": 0.999565914,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-BO-STORTPLAATS-HARD.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-BO-GWB-BUFFER-500",
+   "name": "Grondwaterbeschermingszone exclusion widened by a 500 m band",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-BO-01",
+    "variedAspect": "exclusion zone widened by an added 500 m buffer; the exclusion itself is cited, the 500 m margin is the scenario's own parameter",
+    "provenanceNote": "NC-BO-01 (art. 3.7) carries the winning-risk exclusion; the 500 m widening is not cited and is the scenario's own parameter."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-BO-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500.0,
+     "note": "bufferDistanceM None -> 500.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 4,
+   "rulesExecuted": 4,
+   "finalAreaKm2": 596.705366156,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": -262.222026626,
+   "deltaVsControlPct": -30.52901,
+   "iouVsControl": 0.694709501,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-BO-GWB-BUFFER-500.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}
