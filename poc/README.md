@@ -383,8 +383,9 @@ in `poc/scenarios/uitdagingen.json`, getest in `tests/test_uitdagingen.py`):
 Elke track toont drie beleidsknoppen: een gedocumenteerde keuze omgedraaid
 (`policy_variant`), een geciteerde parameter gevarieerd (`norm_variance`) en
 een expliciet niet-juridisch tegenbeeld (`hypothetical`). Run-ids van de
-featured runs staan in `uitdagingen.json::scenarioRuns`; de wind/zon/bos-runs
-zijn nog de oorspronkelijke 2026-08-31-runs (hersweep volgt in plan 2).
+featured runs staan in `uitdagingen.json::scenarioRuns`; alle 13 tracks
+hebben verse featured runs met de hercurreerde sets (wind/zon/bos nagedraaid
+op 2026-10-13).
 
 A Phase-B LLM ScenarioAuthor may only do what the deterministic author does
 today — emit `ScenarioSpec` proposals (`proposedBy: "llm-proposal#…"`, stamped

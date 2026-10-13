@@ -281,8 +281,9 @@ lagen die daar niet in zitten, zijn niet muteerbaar):
 
 ### Featured runs
 
-De featured wind/zon/bos-runs in `uitdagingen.json::scenarioRuns` wijzen nog
-naar de oorspronkelijke 2026-08-31-runs; de bos-featured run meet daardoor
-nog 2 scenario's (SC-B-COMPENSATIE-HARD is nog niet in een featured run
-gemeten). Dit is de beoogde staat tot plan 2; een hersweep van deze drie
-tracks volgt daar.
+Alle 13 tracks hebben verse featured runs met de hercurreerde sets
+(`uitdagingen.json::scenarioRuns`): de wind/zon/bos-sweeps zijn nagedraaid op
+2026-10-13 (`20261013T193408Z-wind-scen`, `20261013T193437Z-zon-scen`,
+`20261013T193449Z-bos-scen`, alle drie verdict `pass`), zodat ook
+SC-Z-ZONE-BUFFER-500 en SC-B-COMPENSATIE-HARD in een featured run gemeten
+zijn — per track 3 scenario's.
