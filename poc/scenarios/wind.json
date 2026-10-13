@@ -34,56 +34,6 @@
    "proposedBy": "deterministic-scenario-author#poc-v0"
   },
   {
-   "id": "SC-W-AANDACHT-500",
-   "name": "Aandachtsgebied stiltegebied enforced as 500 m exclusion",
-   "description": "FR-W-10 (art. 9.25 lid 2 attention buffer, 1500 m) is reclassified as a hard exclusion and narrowed to 500 m — enforcing the attention marker as a ban at a reduced distance.",
-   "objectType": "wind_turbine",
-   "basis": {
-    "type": "norm_variance",
-    "normCardId": "NC-W-10",
-    "variedAspect": "buffer_distance 1500 m -> 500 m, attention marker -> hard exclusion",
-    "provenanceNote": "NC-W-10 (art. 9.25 lid 2) fixes a 1500 m attention buffer around Stiltegebieden; the 1500 m figure is cited, the 500 m variant and the hard-exclusion enforcement are the scenario's own parameters."
-   },
-   "mutations": [
-    {"ruleId": "FR-W-10", "action": "set_semantics", "zoneSemantics": "exclusion"},
-    {"ruleId": "FR-W-10", "action": "set_buffer_distance_m", "bufferDistanceM": 500}
-   ],
-   "proposedBy": "deterministic-scenario-author#poc-v0"
-  },
-  {
-   "id": "SC-W-AANDACHT-1500",
-   "name": "Aandachtsgebied stiltegebied enforced as 1500 m exclusion",
-   "description": "Same reclassification at the cited distance: the art. 9.25 lid 2 buffer exactly as written, but enforced as a hard exclusion instead of an attention marker.",
-   "objectType": "wind_turbine",
-   "basis": {
-    "type": "policy_variant",
-    "normCardId": "NC-W-10",
-    "provenanceNote": "NC-W-10 (art. 9.25 lid 2) cites the 1500 m figure itself; only the enforcement choice (attention marker -> hard exclusion) varies."
-   },
-   "mutations": [
-    {"ruleId": "FR-W-10", "action": "set_semantics", "zoneSemantics": "exclusion"},
-    {"ruleId": "FR-W-10", "action": "set_buffer_distance_m", "bufferDistanceM": 1500}
-   ],
-   "proposedBy": "deterministic-scenario-author#poc-v0"
-  },
-  {
-   "id": "SC-W-AANDACHT-3000",
-   "name": "Aandachtsgebied stiltegebied enforced as 3000 m exclusion",
-   "description": "Same reclassification, doubled distance: a stress test of how sensitive the opportunity zone is to silence-area strictness.",
-   "objectType": "wind_turbine",
-   "basis": {
-    "type": "norm_variance",
-    "normCardId": "NC-W-10",
-    "variedAspect": "buffer_distance 1500 m -> 3000 m, attention marker -> hard exclusion",
-    "provenanceNote": "NC-W-10 (art. 9.25 lid 2) cites 1500 m; the 3000 m variant and hard-exclusion enforcement are the scenario's own parameters."
-   },
-   "mutations": [
-    {"ruleId": "FR-W-10", "action": "set_semantics", "zoneSemantics": "exclusion"},
-    {"ruleId": "FR-W-10", "action": "set_buffer_distance_m", "bufferDistanceM": 3000}
-   ],
-   "proposedBy": "deterministic-scenario-author#poc-v0"
-  },
-  {
    "id": "SC-W-NATURA-SETBACK",
    "name": "500 m setback around Natura 2000 / ganzenrustgebieden",
    "description": "Adds a 500 m buffer around the hard exclusions of FR-W-08. Setback/tip-height distances are in the cite-or-abstain ledger (no verified provincial citation), so this is explicitly hypothetical.",
