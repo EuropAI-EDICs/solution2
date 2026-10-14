@@ -1,0 +1,77 @@
+[
+ {
+  "id": "FR-WIND-01",
+  "normCardId": "NC-WIND-01",
+  "status": "ambiguous",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "instrumentType": "omgevingsverordening-nl",
+  "jurisdictie": "nl",
+  "appliesTo": {
+   "objectType": "wind_turbine",
+   "contextTags": [
+    "inclusion_windenergie_concentratielocatie",
+    "tiphoogte_gt_21m",
+    "zone_loos_gedocumenteerd",
+    "v4_human_review"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-task6",
+  "formalizedAt": "2026-10-14",
+  "reason": "Zone-loze inclusion (gedocumenteerd): art. 18.17 lid 1 staat nieuwe windturbines >21 m toe binnen een 'globaal aangegeven windenergie concentratielocatie' (bijlage XIV), maar die zone heeft geen alias in ZONE_SOURCES (taak 9: natura2000-nl/natura2000-be/gebouwen-be) en de geometrie van bijlage XIV is niet gepind; routeeert naar V4."
+ },
+ {
+  "id": "FR-WIND-02",
+  "normCardId": "NC-WIND-01",
+  "status": "ambiguous",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "instrumentType": "omgevingsverordening-nl",
+  "jurisdictie": "nl",
+  "appliesTo": {
+   "objectType": "wind_turbine",
+   "contextTags": [
+    "replacement_bar_outside_locations",
+    "siting_conditions_infra_business_park",
+    "cluster_min_3_turbines",
+    "zone_loos_gedocumenteerd",
+    "v4_human_review"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-task6",
+  "formalizedAt": "2026-10-14",
+  "reason": "Zone-loze conditional (gedocumenteerd): art. 18.17 lid 2 verbiedt vervanging boven bestaande tiphoogte buiten concentratielocaties en lid 3-4 stellen locatie- en motiveringseisen (infrastructuurlijn, bedrijventerrein, cluster >=3); deze regels zijn locatie-afhankelijk maar zonder zone-alias niet uitvoerbaar; routeeert naar V4."
+ },
+ {
+  "id": "FR-WIND-03",
+  "normCardId": "NC-WIND-02",
+  "status": "formalized",
+  "ruleType": "zone_exclusion",
+  "zoneSemantics": "exclusion",
+  "instrumentType": "omgevingsverordening-nl",
+  "jurisdictie": "nl",
+  "appliesTo": {
+   "objectType": "wind_turbine",
+   "contextTags": [
+    "exclusion_natura2000_nl",
+    "interpretive_bridge_18_38",
+    "national_geometry_pdok"
+   ]
+  },
+  "executableRef": "engine.zone.exclude_within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-task6",
+  "formalizedAt": "2026-10-14",
+  "zoneSelector": {
+   "zoneIds": [
+    "natura2000-nl"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Exclusion-zone via PDOK OGC API (alias natura2000-nl, taak 9 ZONE_SOURCES); landelijke geometrie (geen provinciale GIO); koppeling art. 18.38 -> Natura 2000 is interpretief (natuurnetwerk Nederland vs Natura 2000) en gedraagt zich als marker voor het besluit-document."
+  },
+  "conditions": [],
+  "rationale": "Art. 18.18/18.17 noemen Natura 2000 niet, maar art. 18.38 verplicht omgevingsplannen over bestaande natuur de kwaliteit, oppervlakte en samenhang van het natuurnetwerk Nederland te beschermen; conform ZONE_SOURCES (taak 9) routeert de NL-Natura2000-zone (pdok-natura2000) als exclusion voor wind - zelfde interpretieve brug als PoC-1 FR-W-08."
+ }
+]
