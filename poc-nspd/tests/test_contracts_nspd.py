@@ -1,3 +1,4 @@
+import json
 import sys
 from pathlib import Path
 
@@ -10,7 +11,15 @@ _MIN_NORMCARD = {
     "id": "NC-WIND-01",
     "evidenceId": "EVW-01",
     "claim": "Windturbines zijn opgijkrachtig toegelaten binnen de door de provincie aangewezen windgebieden.",
-    "source": {"documentUrl": "https://lokaleregelgeving.overheid.nl/CVDR709135", "locator": "art. 1"},
+    "source": {
+        "docId": "S01",
+        "article": "Artikel 18.17",
+        "version": "CVDR709135, geldend van 02-06-2026 t/m heden",
+        "quote": "Een omgevingsplan kan voorzien in de realisatie van een nieuwe windturbine, met een hogere tiphoogte dan 21 meter, binnen een globaal aangegeven windenergie concentratielocatie",
+        "quoteLanguage": "nl",
+        "uri": "https://lokaleregelgeving.overheid.nl/CVDR709135",
+        "retrievedAt": "2026-10-14",
+    },
     "instrument": "Omgevingsverordening Zeeland (CVDR709135)",
     "instrumentType": "omgevingsverordening-nl",
     "jurisdictie": "nl",
@@ -18,9 +27,9 @@ _MIN_NORMCARD = {
     "theme": "energy:wind",
     "confidence": 0.95,
     "verified": True,
-    "extractedBy": {"agent": "curator", "session": "poc-nspd-task6"},
-    "extractedAt": "2026-10-14T00:00:00Z",
-    "appliesTo": {"track": "wind"},
+    "extractedBy": "curator#poc-nspd-task4",
+    "extractedAt": "2026-10-14",
+    "appliesTo": {"objectType": "wind_turbine"},
 }
 
 
@@ -48,3 +57,24 @@ def test_normcard_verkeerde_instrumenttype_faalt():
         pass
     else:
         raise AssertionError("nl-kaart met rup-be moet door jurisdictie-check falen")
+
+
+_SOURCES = json.loads((ROOT / "corpus" / "sources.json").read_text(encoding="utf-8"))
+
+
+def test_voorbeeld_docids_bestaan_in_register():
+    def _doc_ids(node):
+        if isinstance(node, dict):
+            for key, value in node.items():
+                if key == "docId":
+                    yield value
+                else:
+                    yield from _doc_ids(value)
+        elif isinstance(node, list):
+            for item in node:
+                yield from _doc_ids(item)
+
+    ids = set(_doc_ids(_MIN_NORMCARD))
+    assert ids, "voorbeeld bevat geen docId's"
+    for doc_id in ids:
+        assert doc_id in _SOURCES, f"docId {doc_id} ontbreekt in corpus/sources.json"
