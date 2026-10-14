@@ -85,6 +85,7 @@ def create_app() -> FastAPI:
             for dl in data_layers.values()
         ]
         layers_js = json.dumps(layers)
+        layers_js = layers_js.replace("</", "<\\/")  # voorkom </script>-uitbraak in inline JSON
         html = """<!doctype html>
 <html><head><meta charset="utf-8"><title>toolbox-sim Play &amp; Visualise kaart</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -102,7 +103,7 @@ for (const layer of LAYERS) {
   const cb = document.createElement('input');
   cb.type = 'checkbox'; cb.checked = true;
   fetch(layer.url).then(r => r.json()).then(fc => {
-    const g = L.geoJSON(fc, {onEachFeature: (f, popup) => popup.bindPopup(JSON.stringify(f.properties || {}, null, 1))});
+    const g = L.geoJSON(fc, {onEachFeature: (f, popup) => popup.bindPopup(document.createTextNode(JSON.stringify(f.properties || {}, null, 1)))});
     g.addTo(map); cb.addEventListener('change', () => cb.checked ? map.addLayer(g) : map.removeLayer(g));
     label.textContent = ' ' + layer.name;
   }).catch(() => { label.textContent = ' ' + layer.name + ' (bron onbereikbaar)'; });
