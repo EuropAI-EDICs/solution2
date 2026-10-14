@@ -45,6 +45,17 @@
      "type": "string",
      "minLength": 1,
      "description": "Human-readable grounding note: for norm_variance/policy_variant, how it relates to the cited card; for hypothetical, an explicit 'not legally grounded' statement."
+    },
+    "dataGrounding": {
+     "type": "object",
+     "description": "Optional non-legal grounding: a national data source that parameterises this hypothetical. Never a legal claim.",
+     "additionalProperties": false,
+     "required": ["sourceId", "retrieved"],
+     "properties": {
+      "sourceId": {"type": "string", "minLength": 1},
+      "retrieved": {"type": "string", "format": "date"},
+      "note": {"type": "string"}
+     }
     }
    },
    "allOf": [

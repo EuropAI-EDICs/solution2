@@ -712,3 +712,42 @@ class H3MetricsTests(unittest.TestCase):
                             for d in report["degradations"]))
         self.assertEqual(report["verdict"], "pass")  # decision support only
         contracts.validate(report, "scenario-report")
+
+
+class DataGroundingSchemaTests(unittest.TestCase):
+    """V0 gate: optional basis.dataGrounding — non-legal data grounding.
+
+    The validator only sees the shape: sourceId + retrieved required, no
+    extra keys. Whether dataGrounding is appropriate for a given basis.type
+    is the pipeline's business (V2 check, kalibratie plan 2 task 2), not the
+    schema's.
+    """
+
+    def test_data_grounding_is_toegestaan_op_hypothetical_basis(self):
+        spec = {
+            "id": "SC-T-DG", "name": "test", "objectType": "energy_storage",
+            "basis": {
+                "type": "hypothetical",
+                "rationale": "data-grounded variant",
+                "provenanceNote": "NOT legally grounded: data-grounded only.",
+                "dataGrounding": {"sourceId": "netbeheerder-netcongestie",
+                                  "retrieved": "2026-10-13"},
+            },
+            "mutations": [{"ruleId": "FR-ET-01", "action": "drop"}],
+            "proposedBy": "a#b",
+        }
+        contracts.validate(spec, "scenario-spec")  # moet door de V0-gate
+
+    def test_data_grounding_verplicht_retrieved(self):
+        spec = {
+            "id": "SC-T-DG2", "name": "test", "objectType": "energy_storage",
+            "basis": {
+                "type": "hypothetical",
+                "provenanceNote": "NOT legally grounded.",
+                "dataGrounding": {"sourceId": "netbeheerder-netcongestie"},
+            },
+            "mutations": [{"ruleId": "FR-ET-01", "action": "drop"}],
+            "proposedBy": "a#b",
+        }
+        with self.assertRaises(contracts.ContractError):
+            contracts.validate(spec, "scenario-spec")
