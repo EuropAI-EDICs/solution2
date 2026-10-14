@@ -121,5 +121,36 @@ class TestFormalizer(unittest.TestCase):
         )
 
 
+class TestWriter(unittest.TestCase):
+    def test_yaml_schema_valid_and_53_has_mr(self):
+        import yaml
+        from jsonschema import Draft202012Validator
+        from align_evidence import align
+        from formalize_to_rr import formalize
+        from write_instrument_yaml import write_instrument_yaml
+
+        arts = split_instrument("utrecht")
+        al, orphans = align("utrecht", arts)
+        form, report = formalize("utrecht", arts, al, orphans)
+        path = write_instrument_yaml(
+            "utrecht", arts, form, stamp="2026-10-14T00:00:00Z", report=report
+        )
+        doc = yaml.safe_load(path.read_text())
+        schema = json.loads(
+            (
+                ROOT / "nldt/simulation/regelrecht/schema/regelrecht-v0.7.1.schema.json"
+            ).read_text()
+        )
+        Draft202012Validator(schema).validate(doc)
+        art53 = next(a for a in doc["articles"] if a["number"] == "5.3")
+        self.assertIn("machine_readable", art53)
+        ambiguous_nums = {
+            r["number"] for r in report["articles"] if r["status"] == "ambiguous"
+        }
+        for a in doc["articles"]:
+            if a["number"] in ambiguous_nums:
+                self.assertNotIn("machine_readable", a)
+
+
 if __name__ == "__main__":
     unittest.main()
