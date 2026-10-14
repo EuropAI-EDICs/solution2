@@ -1,32 +1,185 @@
-# poc-nspd — North Sea Port District (grensoverschrijdend scenario-POC + Leia-viewer)
+# poc-nspd — North Sea Port District (grensoverschrijdend scenario-POC + Leia 3D-viewer)
 
 Spec: `docs/superpowers/specs/2026-10-14-poc-nspd-design.md` · Plan: `docs/superpowers/plans/2026-10-14-poc-nspd.md`
-Status: **in aanbouw (fase 1)**. Pipeline: kopie/adapt van `poc/`; jurisdicties nl+be; viewer: Leia-submodule (`viewer/`, MIT, zie viewer/README.md).
 
-## viewer/ — Leia (git-submodule, ongepatched)
+**Status: fase 1 afgerond** — het succescriterium (§1) is aantoonbaar werkend voor de
+demo-tracks wind/zon/energietoets aan beide zijden van de grens: 6 runs PASS, 43 tests
+groen (39 offline + 4 golden-regressie), controle-run reproduceerbaar op 0,000 % en de
+grensvergelijkende wind-demo end-to-end (xborder-rapport + Leia-config).
 
-Upstream: https://github.com/leia-project/viewer (MIT) · Gepind op commit: 73510022e708bc1042a4fd0e88cec27e4857434d
-Start: `npm install && npm run dev -- --port 5173` (of Docker volgens upstream-README).
-Config: Leia leest `?url=http://localhost:8000/nspd.config.json` — viewer-data/ wordt door
-`make_viewer_config.py` geschreven en geserveerd met
-`python3 -m http.server 8000 -d ../viewer-data` (vanuit viewer/).
-Deze POC wijzigt géén Leia-broncode; alleen JSON-config + laagbestanden.
-(pin-info hier in poc-nspd/README.md omdat viewer/ een onaangetaste submodule is —
-zie viewer/README.md daar voor de upstream-documentatie)
+## Doel en succescriterium (spec §1)
 
-## 3D-context: BE-gebouwen (GRB) — extrusie-beslispunt (taak 12)
+Planningsvragen voor het hele **North Sea Port District** beantwoorden met de
+vraag-gedreven, gegevens­gedragen machinerie van PoC-1 (`poc/`, Utrecht), maar dan
+**grensoverschrijdend**. Het succescriterium is de *grensvergelijkende scan*: één vraag
+produceert in één run —
 
-Besluit: **GRB-gebouwen als vlakke laag** (geen DHM-extrusie). Vastgelegd in
-`data/grb_extrusie_besluit.json` (besloten in plan 2026-10-14-poc-nspd taak 12).
+1. zones aan beide zijden van de grens, als één geojson met per feature het attribuut
+   `land` (`nl`|`be`) en de normherkomst;
+2. één rapport met per-land secties (NL ∣ BE) en per claim letterlijk citaat +
+   instrument + artikel + versie + URL uit het **eigen** rechtssysteem;
+3. één Leia-scène waarin die zones, samen met 3D-gebouwcontext, direct zichtbaar zijn.
 
-- DescribeFeatureType `GRB:ADP` (2026-10-14, HTTP 200) toont géén `h_dak_50`-achtig
-  hoogteveld — velden: UIDN, OIDN, VERSIE, BEGINDATUM, VERSDATUM, CAPAKEY, CANU,
-  NISCODE, FISCDATUM, BHRDR, LBLBHRDR, BGNINV, LBLBGNINV, SHAPE. BHRDR is een
-  bronhouder-code (enum met label), geen hoogte in meters.
-- Extrusie zou dus per gebouw DHMV-sampling (DHMV-II via WMS) vergen; dat valt buiten
-  de POC-tijd. Herbeoordeling in fase 2.
-- Gevolg in `make_viewer_config.py`: laag `grb-gebouwen` ("GRB gebouwen (BE, vlak)",
-  groupId `d3`, `defaultOn: false`, attribution "GRB via Geopunt, vrije open
-  data-modellicentie") naar `layers/grb-gebouwen-be.geojson`, alleen wanneer het
-  besluit-bestand bestaat. Het laagbestand zelf wordt bij de echte demo-run
-  gegenereerd (taak 13: WFS-fetch cache-first).
+Fase 1 doet dit aantoonbaar voor de demo-tracks (wind, zon, energietoets × nl/be);
+fase 2 porteert de overige 10 tracks (zie onderaan).
+
+## Jurisdicties en pinnen
+
+Rechtsbronnen (`corpus/sources.json`, documentregister; `retrievedAt` 2026-10-14):
+
+| land | docId | instrument | versie-pin |
+|---|---|---|---|
+| nl | S01 | Omgevingsverordening Zeeland | CVDR709135, geldend 02-06-2026 t/m heden |
+| be | S02 | GRUP afbakening zeehavengebied Gent — fase 2 (Bijlage II SV) | RUP 2.12_00358_00001 |
+| be | S03 | GRUP uitbreiding papierproducerend bedrijf (Bijlage III SV) | RUP zeehavengebied Gent |
+| be | S04 | Aanvullende SV gewestplannen (o.a. Gentse en Kanaalzone 08) | toestand 1 jan 2002 |
+| be | S05 | VCRO geconsolideerd | geldend 14/10/2026 |
+
+Geo-bronnen (`data/sources.json`, registry v2.0; live-geprobeerd 2026-10-14):
+
+| id | land | type | rol in fase 1 |
+|---|---|---|---|
+| `pdok-natura2000` | nl | OGC API (`api.pdok.nl/rvo/natura2000`) | exclusion — enige gepinde laag die de zone-algebra fetching |
+| `geopunt-grb-wfs` (`GRB:ADP`) | be | WFS | gebouwcontext (vlakke laag in de viewer, zie besluit hieronder) |
+| `mercator-sbz-wms` | be | WMS | geregistreerd als exclusion-alias, door geen fase-1-regel gebruikt |
+| `pdok-brt-achtergrondkaart` | nl | WMTS | achtergrondkaart viewer |
+| `3dbag-lod22-cesium` | nl | 3D Tiles | 3D gebouwcontext viewer |
+| `geopunt-dhmv-wms` | be | WMS | context (DHM-extrusie: zie beslispunt fase 2) |
+
+AOI: NSPD-bbox 3.45–3.88°E / 51.02–51.48°N (`bbox.py`), gesplitst op 3.73°E in een
+NL- en BE-helft (`use-cases/make_aoi.py`, EPSG:28992). Leia-submodule `viewer/` (MIT,
+onaangetast) gepind op commit `73510022e708bc1042a4fd0e88cec27e4857434d`.
+
+## Architectuur
+
+```
+use-cases/*.json          corpus/normcards-<land>-<track>.json     (curatie, taak 6/7)
+        │                 corpus/formal-rules-<land>-<track>.json
+        ▼                          ▼
+┌─────────────────────────────────────────────────┐
+│ run.py  (per track: <wind|zon|energietoets>-<nl|be>)│   runs/<ts>-<track>/
+│ intake → NormAnalyst → NormFormalizer (+FR-AOI-01)  │   ├ request/normcards/formalrules.json
+│ → V2b jurisdictie-gate → GeoAnalyst (cache-first)   │   ├ layers/zones.json → zones.geojson/.gml
+│ → zone-engine → Cartographer → Critic V0–V3 (+V4)   │   ├ decision-table.{json,md}, validation/
+│ → Explainer → HTML-rapport → run_summary.json       │   └ prov.json, report.html, run_summary.json
+└─────────────────────────────────────────────────┘
+        │  zones.json + decision-table.json per land
+        ▼
+┌─────────────────────────────────────────────────┐
+│ pipeline/xborder.py  (merge + naast-elkaar-rapport) │   xborder-runs/<track>/
+│ load_run → merge_xborder → write_xborder_report     │   ├ zones-<track>-nspd.geojson  (land=nl|be)
+└─────────────────────────────────────────────────┘   └ report-xborder.html (NL ∣ BE-secties)
+        │  zones-<track>-nspd.geojson
+        ▼
+┌─────────────────────────────────────────────────┐
+│ make_viewer_config.py  (run-output → Leia-config)   │   viewer-data/  (git-ignored)
+│ per-land zonelagen + BRT/Geopunt + 3D BAG + GRB     │   ├ nspd.config.json
+└─────────────────────────────────────────────────┘   └ layers/*.geojson
+        │  ?url=http://localhost:8000/nspd.config.json
+        ▼
+   viewer/ (Leia, SvelteKit + Cesium)  ←  python3 -m http.server 8000 -d viewer-data
+```
+
+Zone-semantiek fase 1 (taak 9): alle inclusion-regels van de fase-1-shards zijn zone-loos
+(V4-markers). De run gebruikt daarom de request-AOI als inclusion-union via de
+deterministische orchestrator-basisrule **FR-AOI-01** (`run_summary.inclusionBasis=aoi`);
+alleen de gepinde exclusions worden uitgevoerd (NL: natura2000-nl via PDOK; BE: geen
+gepinde exclusies → finale zone = BE-AOI). FR-AOI-01 is een uitvoeringsconstructie, geen
+inhoudelijke norm, en telt bewust mee in de golden-tellingen (zie teststrategie).
+
+3D-context BE-gebouwen (taak-12-besluit, `data/grb_extrusie_besluit.json`): GRB-gebouwen
+als **vlakke laag** (DescribeFeatureType `GRB:ADP` heeft geen hoogteveld; DHM-extrusie
+vergeert de POC-tijd) — laag `grb-gebouwen`, `defaultOn: false`, herbeoordeling fase 2.
+
+## Curatie-flow (taak 6/7-patroon)
+
+Per land + track bestaat een corpus-trio: `corpus/normcards-<land>-<track>.json`
+(cite-or-abstain NormCards met letterlijk citaat, instrument, versie, URL, confidence),
+`corpus/formal-rules-<land>-<track>.json` (executable FormalRules met `normCardId`-
+koppeling en `zoneSelector`) en `corpus/evidence-<land>-<track>.json` (extractie-bewijs).
+Afwijzingen uit de analysefase staan in `corpus/normcards-rejected-<land>.json`.
+Bronnen eerst vastleggen in `corpus/sources.json` (documentregister, met `retrievedAt`)
+en `data/sources.json` (geo-registry, met probe-bewijs in `data/probe_*.json`); zone-
+aliases die een FormalRule gebruikt moeten in `run.py`:`ZONE_SOURCES` op een gepinde
+registry-bron staan (acceptatie-eis taken 6/7). Een nieuwe track = nieuw corpus-trio +
+`TRACKS`-regel in `run.py` + use-case via `use-cases/make_aoi.py`.
+
+## Opdrachten
+
+Interpreter: `poc-nspd/.venv` (`python3` = `.venv/bin/python` hieronder). Werk vanaf
+`poc-nspd/`. Alle fetches zijn cache-first (`data/cache/`); `--refresh` forceert
+opnieuw downloaden.
+
+```bash
+# 1. run — één track end-to-end (exit 0 = Critic-verdict pass)
+python3 run.py --use-case wind-nl            # --out <dir> voor een vaste doelmap
+python3 run.py --use-case wind-be
+#    tracks: {wind,zon,energietoets}-{nl,be}; --bbox voor een clip; --refresh voor live
+
+# 2. xborder-merge + naast-elkaar-rapport (twee runs van één track, NL + BE)
+python3 -m pipeline.xborder runs/<ts>-wind-nl runs/<ts>-wind-be xborder-runs/wind --track wind
+
+# 3. Leia-config + lagen
+python3 make_viewer_config.py --track wind --run-dir xborder-runs/wind
+
+# 4. viewer starten (aparte terminals; viewer/ is de onaangetaste Leia-submodule)
+(cd viewer && npm install && npm run dev -- --port 5173)
+python3 -m http.server 8000 -d viewer-data
+#    open: http://localhost:5173/?url=http://localhost:8000/nspd.config.json
+```
+
+Demo-artefacten van fase 1 zitten in de repo: de zes smoke-runs onder `runs/20261014T*`
+en de wind-xborder-merge onder `xborder-runs/wind/` (`report-xborder.html` + 
+`zones-wind-nspd.geojson`). `viewer-data/` wordt lokaal gegenereerd en is git-ignored.
+
+## Teststrategie
+
+```bash
+.venv/bin/python -m pytest            # 39 offline tests (fixtures, geen netwerk)
+.venv/bin/python -m pytest -m golden  # 4 golden-regressie-tests (cache-first, traag)
+```
+
+- **Offline suite** (`pytest.ini`: `-m "not golden and not llm"`): contracts, corpus-,
+  gate-, engine-, xborder- en viewer-config-tests — allemaal op fixtures/tmp.
+- **Golden-regressie** (`tests/test_golden_nspd.py`, marker `golden`): draait de
+  volledige pipeline voor wind-nl, wind-be, zon-nl, zon-be en vergelijkt een bewust
+  beperkte veldset tegen `pipeline/goldens-nspd/<track>.json`: `verdict`
+  (run_summary), `output_rules` / `formalized` / `rejected` (tellingen uit
+  formalrules.json — inclusief **+1 orchestrator-constructie FR-AOI-01** in
+  `output_rules` én `formalized`), en `v2bStatus` (apart hard op `pass` geëist).
+  Vluchtige velden (o.a. FR-AOI-01's dag-stamp `formalizedAt`, runId, generatedAt,
+  hashes) staan bewust buiten de vergelijking.
+- **Freezen of her-frozen** na een bewuste gedragswijziging:
+  `NSPD_GOLDEN_FREEZE=1 .venv/bin/python -m pytest -m golden` — zonder die env-var
+  faalt een ontbrekende golden hard (TDD: eerst rood, dan freeze, dan groen).
+- **Reproduceerbaarheid**: tweemaal `wind-nl` draaien geeft identiek
+  `headline.finalOpportunityKm2` (gecontroleerd: 852,177 km², verschil 0,000 %,
+  eis ≤ 0,1 %). De tweede run raakt het netwerk niet: `geodata.fetch_layer` is
+  cache-first (geldige cache → geen registry-consultatie), daarom heeft `run.py`
+  bewust geen `--offline`-vlag nodig.
+
+## Beperkingen (spec §7 + fase-1-runbeperkingen)
+
+- BE-zonering beperkt tot het havenrelevante deel van Gent/Zelzate (haven + kanaalzone),
+  niet heel Gent.
+- Geen Vlaamse vergunningspraktijk (Omgevingsvergunning-assemblage), geen
+  Vlarem-detaillijsten tot op emissiegrenswaarden, geen realtime/sensordata.
+- Screening-artifact op programmeerfase: geen operationele vergunningstool; per-locatie
+  toetsing blijft nodig; de Leia-instantie van virtueel.zeeland.nl blijft 3D-verkenning.
+- Fase-1-zone-semantiek: inclusion = request-AOI (`inclusionBasis=aoi`, FR-AOI-01); de
+  provinciale GIO/DSO-downloadketen en de BE RUP-deelgebieden/gewestplan-SZ-geometrieën
+  zijn niet aan de zone-algebra gekoppeld (geen gepinde open-data-alias) → V4.
+- Rapport-kaartgeometrie is display-versimpeld (Douglas-Peucker, tolerance in
+  `run_summary.tunings`); autoritatieve geometrie: `zones.geojson`/`zones.gml`.
+- Herdraai de juridische recon én de pipeline na een nieuwe consolidatie van de genoemde
+  instrumenten (NL: CVDR709135; BE: RUP/gewestplan/VCRO).
+- `poc/` (Utrecht) blijft onaangeroerd: hergebruik via kopie/adapt (poc-*-conventie).
+
+## Fase 2 (knop voor na acceptatie fase 1)
+
+- **Overige 10 tracks porteren** op dezelfde machinerie: bos, water, bodem, mobiliteit,
+  landschap, landbouw, wonen, werken, recreatie, biomassa (normcuratie per land, zelfde
+  curatie-flow als hierboven; energietoets bestaat al maar zit buiten de goldens).
+- **Scenario-sweep** met `basis.dataGrounding` (spec §4.6, fase-2-deel).
+- **Optioneel**: crosstrack-conflictoverlay over de grens (`poc/crosstrack/`-patroon)
+  en DHM-extrusie van BE-gebouwen (herbeoordeling taak-12-besluit).
