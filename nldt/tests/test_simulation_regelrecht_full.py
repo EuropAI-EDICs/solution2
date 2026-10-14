@@ -152,5 +152,17 @@ class TestWriter(unittest.TestCase):
                 self.assertNotIn("machine_readable", a)
 
 
+class TestDemoBuild(unittest.TestCase):
+    def test_demo_contains_index_and_coverage(self):
+        from build_full_demo import build_demo
+
+        build_demo(stamp="2026-10-14T00:00:00Z")
+        html = (ROOT / "nldt/simulation/regelrecht-demo.html").read_text()
+        self.assertNotIn("__INDEX_UTRECHT__", html)
+        self.assertIn("article-select", html)
+        self.assertIn("formalized", html.lower())
+        self.assertIn('"number": "5.3"', html)
+
+
 if __name__ == "__main__":
     unittest.main()

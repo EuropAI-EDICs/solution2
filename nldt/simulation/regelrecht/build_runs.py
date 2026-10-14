@@ -265,6 +265,17 @@ def main(argv=None) -> int:
     )
     print(f"OK golden set cases={len(cases)}")
 
+    # Prefer volle-instrument demo when formalization reports exist.
+    full_out = DIR / "full_export" / "out"
+    if (full_out / "utrecht-formalization-report.json").exists() and (
+        full_out / "eindhoven-formalization-report.json"
+    ).exists():
+        sys.path.insert(0, str(DIR / "full_export"))
+        from build_full_demo import build_demo  # noqa: WPS433
+
+        build_demo(stamp=args.stamp)
+        return 0
+
     template = (DIR / "regelrecht-demo.template.html").read_text(encoding="utf-8")
     engine_js = (DIR / "engine" / "mini-engine.js").read_text(encoding="utf-8")
     golden = (engine_dir / "engine-cases.json").read_text(encoding="utf-8")
@@ -275,6 +286,14 @@ def main(argv=None) -> int:
         .replace("__GOLDEN__", golden)
         .replace("__ENGINE_JS__", engine_js)
         .replace("__BUILD_STAMP__", args.stamp)
+        .replace("__INDEX_UTRECHT__", "[]")
+        .replace("__INDEX_EINDHOVEN__", "[]")
+        .replace("__REPORT_UTRECHT__", '{"formalized":0,"ambiguous":0,"unmatched":0,"rejected":0}')
+        .replace("__REPORT_EINDHOVEN__", '{"formalized":0,"ambiguous":0,"unmatched":0,"rejected":0}')
+        .replace("__ARTICLES_UTRECHT__", "{}")
+        .replace("__ARTICLES_EINDHOVEN__", "{}")
+        .replace("__BASE_GOLDEN_COUNT__", "16")
+        .replace("__CAP_GOLDEN_COUNT__", "0")
     )
     out_html = outdir.parent / "regelrecht-demo.html" if outdir == DIR else outdir / "regelrecht-demo.html"
     out_html.write_text(page, encoding="utf-8")

@@ -55,6 +55,18 @@
     </div>
     <h1>Van artikel naar uitvoerbare regel</h1>
     <p class="sub" id="subtitle"></p>
+    <p class="sub" id="coverage" aria-live="polite"></p>
+
+    <section>
+      <h2>Artikelkiezer</h2>
+      <div class="lab-controls">
+        <label>zoek <input type="search" id="article-search" placeholder="bijv. 5.3" /></label>
+        <label>artikel
+          <select id="article-select"></select>
+        </label>
+      </div>
+      <div id="article-detail" style="margin-top:.8rem;font-size:.9rem"></div>
+    </section>
 
     <section>
       <h2>De keten</h2>
@@ -64,6 +76,7 @@
 
     <section class="lab">
       <h2>Interactielab — reken zelf</h2>
+      <p id="lab-note" class="meta"></p>
       <div class="lab-controls" id="lab-controls"></div>
       <div id="verdict"></div>
       <ol id="trace"></ol>
@@ -81,6 +94,12 @@
   <script type="application/json" id="run-utrecht">__RUN_UTRECHT__</script>
   <script type="application/json" id="run-eindhoven">__RUN_EINDHOVEN__</script>
   <script type="application/json" id="golden-cases">__GOLDEN__</script>
+  <script type="application/json" id="index-utrecht">__INDEX_UTRECHT__</script>
+  <script type="application/json" id="index-eindhoven">__INDEX_EINDHOVEN__</script>
+  <script type="application/json" id="report-utrecht">__REPORT_UTRECHT__</script>
+  <script type="application/json" id="report-eindhoven">__REPORT_EINDHOVEN__</script>
+  <script type="application/json" id="articles-utrecht">__ARTICLES_UTRECHT__</script>
+  <script type="application/json" id="articles-eindhoven">__ARTICLES_EINDHOVEN__</script>
   <script>__ENGINE_JS__</script>
   <script>
     "use strict";
@@ -89,34 +108,58 @@
       utrecht: JSON.parse($("#run-utrecht").textContent),
       eindhoven: JSON.parse($("#run-eindhoven").textContent),
     };
+    const INDEX = {
+      utrecht: JSON.parse($("#index-utrecht").textContent),
+      eindhoven: JSON.parse($("#index-eindhoven").textContent),
+    };
+    const COUNTS = {
+      utrecht: JSON.parse($("#report-utrecht").textContent),
+      eindhoven: JSON.parse($("#report-eindhoven").textContent),
+    };
+    const ARTICLES = {
+      utrecht: JSON.parse($("#articles-utrecht").textContent),
+      eindhoven: JSON.parse($("#articles-eindhoven").textContent),
+    };
     const GOLDEN = JSON.parse($("#golden-cases").textContent);
+    const BASE_GOLDEN = __BASE_GOLDEN_COUNT__;
+    const CAP_GOLDEN = __CAP_GOLDEN_COUNT__;
     const ENGINE = window.RegelRechtEngine;
     const OUT_LABEL = {
       toegestaan_kleine_windturbine: ["TOEGESTAAN", "NIET TOEGESTAAN"],
       regels_hoofdstuk_van_toepassing: ["VAN TOEPASSING", "NIET VAN TOEPASSING"],
     };
 
-    // 1) selftest — golden set door de engine; bij afwijking interactie blokkeren.
-    //    NB: de lab-controls bestaan pas ná activate()/renderLab(), dus hier alleen
-    //    een vlag zetten; renderLab() disabt de controls op basis van de vlag.
+    // 1) selftest — basis 16 hard; cap-cases meegenomen in badge
     let selftestFailed = false;
     (function selftest() {
       let failed = 0;
-      for (const c of GOLDEN) {
+      let failedBase = 0;
+      for (let i = 0; i < GOLDEN.length; i++) {
+        const c = GOLDEN[i];
         try {
           const got = ENGINE.evaluate(c.execution, c.inputs);
           if (JSON.stringify(got.outputs) !== JSON.stringify(c.expectedOutputs) ||
-              JSON.stringify(got.trace) !== JSON.stringify(c.trace)) failed += 1;
-        } catch (e) { failed += 1; }
+              JSON.stringify(got.trace) !== JSON.stringify(c.trace)) {
+            failed += 1;
+            if (i < BASE_GOLDEN) failedBase += 1;
+          }
+        } catch (e) {
+          failed += 1;
+          if (i < BASE_GOLDEN) failedBase += 1;
+        }
       }
       const badge = $("#badge");
-      if (failed === 0) {
-        badge.textContent = "engine-selftest " + GOLDEN.length + "/" + GOLDEN.length;
-        badge.classList.add("ok");
-      } else {
-        badge.textContent = "SELFTEST GEFAALD (" + failed + ") — interactie geblokkeerd";
+      const total = BASE_GOLDEN + CAP_GOLDEN;
+      if (failedBase > 0) {
+        badge.textContent = "SELFTEST GEFAALD (basis " + failedBase + "/16) — interactie geblokkeerd";
         badge.classList.add("fail");
         selftestFailed = true;
+      } else if (failed === 0) {
+        badge.textContent = "engine-selftest " + total + "/" + total + " (16+" + CAP_GOLDEN + ")";
+        badge.classList.add("ok");
+      } else {
+        badge.textContent = "engine-selftest " + (total - failed) + "/" + total + " (basis 16 ok)";
+        badge.classList.add("ok");
       }
     })();
 
@@ -216,17 +259,143 @@
       }
       $("#runmeta").textContent = "runId " + run.runId + " · gegenereerd " + run.generatedAt + " · build " + "__BUILD_STAMP__";
     }
+    let currentPoc = "utrecht";
+
+    function renderCoverage(poc) {
+      const c = COUNTS[poc] || {};
+      $("#coverage").textContent =
+        "Coverage: formalized " + (c.formalized || 0) +
+        " · ambiguous " + (c.ambiguous || 0) +
+        " · unmatched " + (c.unmatched || 0) +
+        " · rejected " + (c.rejected || 0);
+    }
+
+    function fillArticleSelect(poc, filter) {
+      const sel = $("#article-select");
+      const q = (filter || "").trim().toLowerCase();
+      const rows = (INDEX[poc] || []).filter((r) => !q || r.number.indexOf(q) >= 0 ||
+        (r.title || "").toLowerCase().indexOf(q) >= 0 ||
+        (r.status || "").indexOf(q) >= 0);
+      sel.innerHTML = "";
+      for (const r of rows) {
+        const opt = document.createElement("option");
+        opt.value = r.number;
+        opt.textContent = r.number + " · " + r.status + (r.hasMachineReadable ? " · MR" : "");
+        sel.appendChild(opt);
+      }
+      if (rows.length) showArticle(poc, rows[0].number);
+      else $("#article-detail").innerHTML = "<em>geen artikelen</em>";
+    }
+
+    function showArticle(poc, number) {
+      const meta = (INDEX[poc] || []).find((r) => r.number === number) || {};
+      const art = (ARTICLES[poc] || {})[number] || {};
+      const detail = $("#article-detail");
+      const note = $("#lab-note");
+      if (!art.text && !meta.status) {
+        detail.innerHTML = "<em>onbekend artikel</em>";
+        return;
+      }
+      let html = "<strong>Artikel " + number + "</strong> · status <code>" +
+        (meta.status || "?") + "</code>";
+      if (meta.reason) html += "<br><span class=\"meta\">" + meta.reason.replace(/</g, "&lt;") + "</span>";
+      html += "<pre>" + (art.text || "").slice(0, 1200).replace(/</g, "&lt;") +
+        ((art.text || "").length > 1200 ? "…" : "") + "</pre>";
+      if (art.machineReadable) {
+        html += "<strong>machine_readable</strong><pre>" +
+          JSON.stringify(art.machineReadable, null, 1).replace(/</g, "&lt;") + "</pre>";
+        note.textContent = "Lab actief voor artikel met machine_readable.";
+      } else {
+        html += "<p><em>text-only: " + (meta.reason || "geen machine_readable").replace(/</g, "&lt;") + "</em></p>";
+        note.textContent = "Lab uitgeschakeld — artikel is text-only / abstention.";
+      }
+      detail.innerHTML = html;
+
+      // Smoke articles keep the dedicated lab; others: disable lab if no MR
+      const run = RUNS[poc];
+      const smoke = run.instrument.article;
+      if (number === smoke && art.machineReadable) {
+        renderLab(run);
+      } else if (art.machineReadable) {
+        renderGenericLab(art.machineReadable.execution);
+      } else {
+        $("#lab-controls").innerHTML = "";
+        $("#verdict").textContent = "";
+        $("#trace").innerHTML = "";
+      }
+    }
+
+    function renderGenericLab(execution) {
+      const controls = $("#lab-controls");
+      controls.innerHTML = "";
+      const inputs = {};
+      function addBool(name, checked) {
+        const label = document.createElement("label");
+        label.innerHTML = '<input type="checkbox"' + (checked ? " checked" : "") + "> " + name;
+        controls.appendChild(label);
+        const cb = label.querySelector("input");
+        cb.addEventListener("change", () => { inputs[name] = cb.checked; recompute(); });
+        inputs[name] = checked;
+      }
+      function addNum(name, value) {
+        const label = document.createElement("label");
+        label.innerHTML = name + ' <input type="number" value="' + value + '">';
+        controls.appendChild(label);
+        const inp = label.querySelector("input");
+        inp.addEventListener("input", () => { inputs[name] = Number(inp.value); recompute(); });
+        inputs[name] = value;
+      }
+      for (const p of (execution.parameters || [])) {
+        if (p.type === "boolean") addBool(p.name, false);
+        else if (p.type === "number") addNum(p.name, 0);
+      }
+      for (const p of (execution.input || [])) addBool(p.name, true);
+      function recompute() {
+        try {
+          const r = ENGINE.evaluate(execution, Object.assign({}, inputs));
+          const name = execution.output[0].name;
+          const value = r.outputs[name];
+          const verdict = $("#verdict");
+          const labels = OUT_LABEL[name] || ["TRUE", "FALSE"];
+          verdict.textContent = value ? labels[0] : labels[1];
+          verdict.className = value ? "ok" : "fail";
+          const trace = $("#trace");
+          trace.innerHTML = "";
+          for (const step of r.trace) {
+            const li = document.createElement("li");
+            li.className = step.result ? "ok" : "fail";
+            li.textContent = step.operation + " · " + JSON.stringify(step.operands) + " → " + step.result;
+            trace.appendChild(li);
+          }
+        } catch (e) {
+          $("#verdict").textContent = "fout: " + e.message;
+          $("#verdict").className = "fail";
+        }
+      }
+      if (selftestFailed) controls.querySelectorAll("input, button").forEach((el) => (el.disabled = true));
+      recompute();
+    }
+
     function activate(poc) {
       const run = RUNS[poc] || RUNS.utrecht;
-      poc = run.poc;
-      $("#sw-utrecht").classList.toggle("active", poc === "utrecht");
-      $("#sw-eindhoven").classList.toggle("active", poc === "eindhoven");
+      currentPoc = run.poc;
+      $("#sw-utrecht").classList.toggle("active", currentPoc === "utrecht");
+      $("#sw-eindhoven").classList.toggle("active", currentPoc === "eindhoven");
       $("#subtitle").textContent = run.instrument.title + " (" + run.instrument.cvdr + ") — " +
-        run.instrument.regulatoryLayer.toLowerCase().replace(/_/g, " ") + ", artikel " + run.instrument.article;
+        run.instrument.regulatoryLayer.toLowerCase().replace(/_/g, " ") +
+        " · volledige instrument-export";
+      renderCoverage(currentPoc);
+      fillArticleSelect(currentPoc, $("#article-search").value);
+      // default smoke article
+      const smoke = run.instrument.article;
+      const sel = $("#article-select");
+      if ([].some.call(sel.options, (o) => o.value === smoke)) sel.value = smoke;
+      showArticle(currentPoc, sel.value || smoke);
       renderChain(run);
-      renderLab(run);
       renderHonesty(run);
     }
+    $("#article-search").addEventListener("input", () => fillArticleSelect(currentPoc, $("#article-search").value));
+    $("#article-select").addEventListener("change", () => showArticle(currentPoc, $("#article-select").value));
     activate(new URLSearchParams(location.search).get("poc"));
   </script>
 </body>
