@@ -46,6 +46,8 @@ async def main(argv: list[str] | None = None) -> None:
     from app.ucs import create_app as ucs_app
 
     entities_by_tenant, provenance = _load_batches()
+    temporal_path = FIXTURES / "dp-temporal.jsonld"
+    temporal = json.loads(temporal_path.read_text()) if temporal_path.exists() else None
     ucs_processes = json.loads((FIXTURES / "ucs-processes.json").read_text())
     apps = {
         "identity": identity_app(),
@@ -54,6 +56,7 @@ async def main(argv: list[str] | None = None) -> None:
             provenance_by_tenant=provenance,
             include_proxy=True,
             include_trino=True,
+            temporal=temporal,
         ),
         "pv": pv_app(),
         "ucs": ucs_app(ucs_processes),
