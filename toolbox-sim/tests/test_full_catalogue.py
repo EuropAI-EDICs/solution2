@@ -136,3 +136,39 @@ def test_federated_learning_round():
     assert update["metric"]["mean_waterstand_m"] < 0  # echte peilen zijn onder NAP
     result = client.get(f"/rounds/{rnd['id']}/result", headers=auth).json()
     assert result["participants"] == 1 and "mean_waterstand_m" in result["aggregate"]
+
+
+def test_ai_notebook_pipeline_run():
+    from app.ai_notebook import create_app as ain_app
+
+    client = TestClient(ain_app(lake_root=SIM_ROOT.parent / "nldt" / "data" / "lake" / "nldt-poc-lake"))
+    auth = {"Authorization": "Bearer sim-toolbox-token"}
+    nb = client.post("/notebooks", headers=auth, json={"name": "analyse"}).json()
+    assert nb["id"].startswith("nb-")
+    run = client.post("/pipelines/runs", headers=auth,
+                      json={"notebookId": nb["id"], "pipeline": "inventory-count"}).json()
+    assert run["state"] == "SUCCEEDED"
+    assert run["outputs"]["inventoryDatasets"] > 0
+    again = client.get(f"/pipelines/runs/{run['id']}", headers=auth).json()
+    assert again == run  # deterministisch
+
+
+def test_data_modeller_registry_en_validatie():
+    from app.data_modeller import create_app as dm_app
+
+    schema = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "required": ["id"],
+        "properties": {"id": {"type": "string"}},
+    }
+    client = TestClient(dm_app({"Address": schema}))
+    auth = {"Authorization": "Bearer sim-toolbox-token"}
+    models = client.get("/models", headers=auth).json()
+    assert "Address" in models["data"]
+    ok = client.post("/models/Address/validate", headers=auth, json={"id": "adr-1"}).json()
+    assert ok["valid"] is True and ok["findings"] == []
+    bad = client.post("/models/Address/validate", headers=auth, json={"nope": 1}).json()
+    assert bad["valid"] is False and bad["findings"]
+    missing = client.post("/models/Onbekend/validate", headers=auth, json={})
+    assert missing.status_code == 404 and missing.json()["error"] == "model-not-found"
