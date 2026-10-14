@@ -19,7 +19,7 @@ TARGETS = {
     "mercator-ruimtelijk-beleid": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows?service=WFS&version=2.0.0&request=GetCapabilities",
 }
 
-INTEREST = re.compile(r"(?i)(adp|gebouw|gewestplan|rup|ruimtelijk|sbz|natura)")
+INTEREST = re.compile(r"(?i)(adp|gebouw|gewestplan|rup|ruimtelijk|sbz|natura|dhmv|3dgrb)")
 
 
 def _probe(url: str) -> dict:
@@ -35,7 +35,7 @@ def _probe(url: str) -> dict:
         "url": url,
         "status": status,
         "bytes": len(body),
-        "interestingNames": [n for n in names if INTEREST.search(n)][:60],
+        "interestingNames": [n for n in names if INTEREST.search(n)][:200],
     }
 
 
