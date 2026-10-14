@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Start de toolbox-sim (9191–9195; --eubd voegt 9196 toe).
+# Start de toolbox-sim (9191–9195; --eubd voegt 9196 toe; --full voegt 9197–9204 toe).
 set -euo pipefail
 cd "$(dirname "$0")"
 if [ -x ".venv/bin/python" ]; then PY=".venv/bin/python"
