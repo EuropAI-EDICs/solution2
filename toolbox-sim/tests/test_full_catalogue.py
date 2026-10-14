@@ -74,3 +74,31 @@ def test_missing_ground():
 def test_unknown_model():
     with pytest.raises(KeyError):
         run_model("bestaat-niet", {}, Ground())
+
+
+def test_edc_stub_flow():
+    from app.dataspace_ready import create_app as dsr_app
+
+    offer = {"uid": "offer-test1", "datasetId": "gold-x.geojson",
+             "lakeUri": "lake://nldt-poc-lake/gold/x.geojson", "accessClass": "open", "license": "CC0-1.0"}
+    client = TestClient(dsr_app([offer], lake_root=SIM_ROOT.parent / "nldt" / "data" / "lake"))
+    auth = {"Authorization": "Bearer sim-toolbox-token"}
+
+    asset = client.post("/v3/assets", headers=auth, json={"@id": "asset-test1"})
+    assert asset.status_code == 201
+    catalog = client.post("/v2/catalog/request", headers=auth, json={}).json()
+    assert any(o["uid"] == "offer-test1" for o in catalog["offers"])
+
+    cn = client.post("/v2/contractnegotiations", headers=auth, json={"offerUid": "offer-test1"}).json()
+    assert cn["state"] == "REQUESTED"
+    assert client.get(f"/v2/contractnegotiations/{cn['id']}", headers=auth).json()["state"] == "CONFIRMED"
+
+    tp = client.post("/v2/transferprocesses", headers=auth,
+                     json={"negotiationId": cn["id"], "offerUid": "offer-test1"}).json()
+    assert tp["state"] == "STARTED"
+    done = client.get(f"/v2/transferprocesses/{tp['id']}", headers=auth).json()
+    assert done["state"] == "COMPLETED"
+    assert done["offerUid"] == "offer-test1"
+
+    missing = client.post("/v2/contractnegotiations", headers=auth, json={"offerUid": "ontbreekt"})
+    assert missing.status_code == 404 and missing.json()["error"] == "offer-not-found"
