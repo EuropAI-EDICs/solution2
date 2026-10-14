@@ -11,6 +11,7 @@ from typing import Any
 
 REPO = Path(__file__).resolve().parents[1]
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
+LAKE = REPO / "nldt" / "data" / "lake" / "nldt-poc-lake"
 
 CANONICAL_RUNS: dict[str, Path] = {
     "utrecht-wind": REPO / "poc" / "runs" / "20260830T113234Z-wind",
@@ -242,10 +243,75 @@ def build_eubd_batch(dsn: str, limit: int = 2000) -> list[dict]:
     return entities
 
 
+def build_dp_temporal() -> dict:
+    """NGSI-LD temporele entiteiten uit echte lake-silver-reeksen (KNMI + peilen)."""
+    import duckdb
+
+    entities: dict[str, Any] = {}
+
+    knmi_dir = LAKE / "silver" / "timeseries" / "knmi-daily-neerslag-260"
+    instances = []
+    for line in (knmi_dir / "year=2024" / "observations.jsonl").read_text().splitlines():
+        obs = json.loads(line)
+        instances.append({"observedAt": obs["observedAt"], "value": obs["value"], "unitCode": obs["unit"]})
+    entities["urn:ngsi-ld:WeatherObserved:knmi-260"] = {
+        "id": "urn:ngsi-ld:WeatherObserved:knmi-260",
+        "type": "WeatherObserved",
+        "attribute": "rainfall",
+        "provenance": "lake://nldt-poc-lake/silver/timeseries/knmi-daily-neerslag-260 (KNMI daggegevens, CC BY 4.0)",
+        "instances": sorted(instances, key=lambda i: i["observedAt"]),
+    }
+
+    peilen_path = LAKE / "silver" / "rijnland" / "peilen_latest" / "peilen_latest.parquet"
+    rows = duckdb.connect().execute(
+        f"SELECT peilgebied_id, waterstand_m, measured_at FROM read_parquet('{peilen_path.as_posix()}') ORDER BY peilgebied_id"
+    ).fetchall()
+    entities["urn:ngsi-ld:WaterObserved:rijnland-peilen-latest"] = {
+        "id": "urn:ngsi-ld:WaterObserved:rijnland-peilen-latest",
+        "type": "WaterObserved",
+        "attribute": "waterLevel",
+        "provenance": "lake://nldt-poc-lake/silver/rijnland/peilen_latest/peilen_latest.parquet",
+        "instances": [
+            {"observedAt": measured_at.isoformat().replace("+00:00", "") + "Z",
+             "value": waterstand, "unit": "mNAP", "datasetId": peilgebied_id}
+            for peilgebied_id, waterstand, measured_at in rows
+        ],
+    }
+    return entities
+
+
+def copy_recipes() -> dict[str, dict]:
+    """Alle nldt-recipes als gecombineerde dict (fixtures/recipes.json)."""
+    return {
+        path.stem: json.loads(path.read_text())
+        for path in sorted((REPO / "nldt" / "recipes").glob("*.json"))
+    }
+
+
+def build_participate_seed() -> dict:
+    """Participate-seed: voorstellen/meetings herleidbaar naar canonieke runs."""
+    return {
+        "proposals": [
+            {"id": "prop-1", "title": "Zonneweide Noorderpark: 15 ha", "area": "utrecht",
+             "state": "open", "provenance": "canonical replay: poc/runs/20260830T142439Z-zon"},
+            {"id": "prop-2", "title": "Boscompensatie Leersum: 40 ha", "area": "utrecht",
+             "state": "open", "provenance": "canonical replay: poc/runs/20260830T142446Z-bos"},
+            {"id": "prop-3", "title": "BP2OP-omzettingsvoorstel: 232 voorgestelde regels",
+             "area": "eindhoven", "state": "closed",
+             "provenance": "canonical replay: poc-bp2op/runs/20260830-124515-eindhoven"},
+        ],
+        "meetings": [
+            {"id": "meet-1", "title": "Gebiedssessie Utrecht energy-vs-nature", "area": "utrecht"},
+        ],
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--eubd", metavar="DSN", help="PostgreSQL DSN van de exposure-database")
     parser.add_argument("--eubd-limit", type=int, default=2000)
+    parser.add_argument("--catalogue-extras", action="store_true",
+                        help="schrijf ook dp-temporal/recipes/participate-seed (catalogus-sim)")
     args = parser.parse_args(argv)
     if args.eubd is not None and not args.eubd.strip():
         raise SystemExit(
@@ -328,6 +394,15 @@ def main(argv: list[str] | None = None) -> int:
         + "\n",
         encoding="utf-8",
     )
+    if args.catalogue_extras:
+        extras = {}
+        (FIXTURES / "dp-temporal.jsonld").write_text(json.dumps(build_dp_temporal(), indent=1))
+        extras["dp-temporal"] = _sha(FIXTURES / "dp-temporal.jsonld")
+        (FIXTURES / "recipes.json").write_text(json.dumps(copy_recipes(), indent=1))
+        extras["recipes"] = _sha(FIXTURES / "recipes.json")
+        (FIXTURES / "participate-seed.json").write_text(json.dumps(build_participate_seed(), indent=1))
+        extras["participate-seed"] = _sha(FIXTURES / "participate-seed.json")
+        manifest["extras"] = extras
     manifest_path.write_text(
         json.dumps(manifest, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8"
     )
