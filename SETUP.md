@@ -61,6 +61,40 @@ this release.
 `sum(number::double precision)` = 11,320,734.17, identical to the source sum;
 consumer (read-only) can run spatial queries.
 
+### Rebuild: the conversion is committed
+
+The original conversion ran manually; it is now reproduced as
+[`sql/tools/convert_gfz_spatialite_to_postgis.py`](sql/tools/convert_gfz_spatialite_to_postgis.py)
+(reconstructed 2026-10-14, stdlib + psycopg3 from `nldt/.venv`; parses the GAIA
+geometry blobs in pure Python). A full rebuild into a scratch database was
+verified against the live database: all row counts, binary geometry identity
+(`ST_AsEWKB` md5), an entity_assets content hash over ~200k rows,
+district_assets values, the 11,320,734.17 grand total and the 129,193-point
+`NLD` boundary are exact. One of the 111 legacy sum values differs by ±0.01
+(tax 7229 `sum_structural`: 29688834695.43 vs …42 originally) — float
+summation-order noise from the original engine; the script's fsum is the
+correctly-rounded value.
+
+Full rebuild sequence:
+
+```sh
+PGBIN=/Applications/Postgres.app/Contents/Versions/18/bin
+$PGBIN/createdb -h localhost exposure
+$PGBIN/psql -h localhost -U marc -d exposure -f sql/00000_prepare_database.sql
+$PGBIN/psql -h localhost -U contributor -d exposure -f sql/00001_create_initial_structure_exposure.sql
+$PGBIN/psql -h localhost -U contributor -d exposure -f sql/00002_create_initial_structure_source.sql
+nldt/.venv/bin/python sql/tools/convert_gfz_spatialite_to_postgis.py \
+  --dsn "host=localhost port=5432 dbname=exposure user=contributor"
+# post-import grants (manual §2.5.2; 00000's defaults only cover its own objects):
+$PGBIN/psql -h localhost -U contributor -d exposure -c \
+  "GRANT SELECT ON ALL TABLES IN SCHEMA exposure, sources TO read_only;
+   GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA exposure, sources TO read_only;"
+```
+
+The script refuses to touch non-empty tables unless `--truncate` is passed,
+runs in a single transaction, verifies counts/sums against the source
+afterwards, and supports `--dry-run` (source-side only, no psycopg needed).
+
 ### Known deviations from the official schema
 
 1. **`entities_quadkey_check` dropped** — the official schema requires
