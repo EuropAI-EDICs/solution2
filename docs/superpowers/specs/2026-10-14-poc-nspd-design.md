@@ -223,11 +223,23 @@ en wordt door Leia geladen via `?url=` (een kleine static server of
 11. optioneel: crosstrack-conflictoverlay over de grens heen (poc/
     `crosstrack/`-patroon).
 
-## 9. Open punten (bewust, vast te pinnen in fase 1 taak 1)
+## 9. Open punten → gepind (update 2026-10-14, via de Datavindplaats-statusspoor)
 
-- Exacte open publicatiekanalen/endpoints van de Vlaamse RUP-teksten
-  (kandidaat: Vlaams Omgevingsloket/ruimtelijke plannen-metadata); tot de
-  pinning luidt de regel: luid falen, nooit still zwijgen.
-- Exacte NSPD-bbox-coördinaten (kader: haven Gent/Zelzate → Vlissingen/Borsele).
-- Haalbaarheid DHM-extrusie voor BE-gebouwen in Leia binnen POC-tijd
-  (fallback: vlakke gebouwen, beslispunt taak 8).
+- **Vlaamse geo-diensten: gepind en live geverifieerd (2026-10-14).** De oude host
+  `geoservices.informatievlaanderen.be` is vervallen (geen DNS). Actueel:
+  `geo.api.vlaanderen.be` (GRB WFS HTTP 200; DHMV WMS HTTP 200 met lagen DHMV-I/II;
+  3DGRB WMS) en `www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows`
+  (HTTP 200; SBZ-lagen `nz:nz_n_gevoelige_habitats_sbz_2025` geverifieerd).
+  Vinderinstrument: [Datavindplaats](https://www.vlaanderen.be/datavindplaats/catalogus);
+  geverifieerde bronlijst: [Geopunt-statuspagina geo-webdiensten](https://www.geopunt.be/status-geo-webdiensten.html).
+  Exacte WFS-typeNames volgen in implementatieplan taak 5 (probe-script).
+- **Juridische NL-bron: gepind.** Omgevingsverordening Zeeland = CVDR709135
+  (lokaleregelgeving.overheid.nl/CVDR709135); consolideerdatum wordt bij het ophalen
+  vastgelegd in `corpus/nl/CVDR709135/META.json`.
+- **NSPD-werkbbox: gepind.** WGS84 `(3.45, 51.02, 3.88, 51.48)` (haven Gent/Zelzate →
+  Vlissingen/Borsele), als constante `bbox.NSPD_BBOX_WGS84`, met RD/Lambert72-afgeleiden
+  via pyproj.
+- **Haalbaarheid DHM-extrusie voor BE-gebouwen**: blijft een beslispunt in
+  implementatieplan taak 12, met vlakke GRB-voetafdrukken als gedocumenteerde fallback.
+
+Implementatieplan: `docs/superpowers/plans/2026-10-14-poc-nspd.md` (fase 1).
