@@ -26,7 +26,8 @@ POC_USECASES = Path(__file__).resolve().parents[2] / "poc" / "use-cases"
 # op 3.73°E — haven Gent/Zelzate ligt oostelijk, Terneuzen/Vlissingen westelijk)
 SPLIT_LON = 3.73
 
-TRACKS = ("wind", "zon", "energietoets")
+TRACKS = ("wind", "zon", "energietoets", "bos", "water", "bodem", "mobiliteit",
+          "landschap", "landbouw", "wonen", "werken", "recreatie", "biomassa")
 
 
 def _ring(bbox):

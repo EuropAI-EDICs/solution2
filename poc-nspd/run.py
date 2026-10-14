@@ -112,10 +112,51 @@ _NSPD_TRACKS: list[Dict[str, str]] = [
      "Energy-transition screening for the Dutch part of the NSPD"),
     ("energietoets-be", "be", "DT-energietoets-be-nspd",
      "Energy-transition screening for the Flemish part of the NSPD"),
+    # fase 2: overige 10 tracks (plan 2026-10-14-poc-nspd-fase2)
+    ("bos-nl", "nl", "DT-bos-nl-nspd",
+     "Where can forest planting occur in the Dutch part of the NSPD?"),
+    ("bos-be", "be", "DT-bos-be-nspd",
+     "Where can forest planting occur in the Flemish part of the NSPD?"),
+    ("water-nl", "nl", "DT-water-nl-nspd",
+     "Where can riparian development occur in the Dutch part of the NSPD?"),
+    ("water-be", "be", "DT-water-be-nspd",
+     "Where can riparian development occur in the Flemish part of the NSPD?"),
+    ("bodem-nl", "nl", "DT-bodem-nl-nspd",
+     "Where can soil activity occur in the Dutch part of the NSPD?"),
+    ("bodem-be", "be", "DT-bodem-be-nspd",
+     "Where can soil activity occur in the Flemish part of the NSPD?"),
+    ("mobiliteit-nl", "nl", "DT-mobiliteit-nl-nspd",
+     "Where can roadside development occur in the Dutch part of the NSPD?"),
+    ("mobiliteit-be", "be", "DT-mobiliteit-be-nspd",
+     "Where can roadside development occur in the Flemish part of the NSPD?"),
+    ("landschap-nl", "nl", "DT-landschap-nl-nspd",
+     "Where can landscape intervention occur in the Dutch part of the NSPD?"),
+    ("landschap-be", "be", "DT-landschap-be-nspd",
+     "Where can landscape intervention occur in the Flemish part of the NSPD?"),
+    ("landbouw-nl", "nl", "DT-landbouw-nl-nspd",
+     "Where can agricultural expansion occur in the Dutch part of the NSPD?"),
+    ("landbouw-be", "be", "DT-landbouw-be-nspd",
+     "Where can agricultural expansion occur in the Flemish part of the NSPD?"),
+    ("wonen-nl", "nl", "DT-wonen-nl-nspd",
+     "Where can housing development occur in the Dutch part of the NSPD?"),
+    ("wonen-be", "be", "DT-wonen-be-nspd",
+     "Where can housing development occur in the Flemish part of the NSPD?"),
+    ("werken-nl", "nl", "DT-werken-nl-nspd",
+     "Where can business development occur in the Dutch part of the NSPD?"),
+    ("werken-be", "be", "DT-werken-be-nspd",
+     "Where can business development occur in the Flemish part of the NSPD?"),
+    ("recreatie-nl", "nl", "DT-recreatie-nl-nspd",
+     "Where can recreation development occur in the Dutch part of the NSPD?"),
+    ("recreatie-be", "be", "DT-recreatie-be-nspd",
+     "Where can recreation development occur in the Flemish part of the NSPD?"),
+    ("biomassa-nl", "nl", "DT-biomassa-nl-nspd",
+     "Where can biomass installations be sited in the Dutch part of the NSPD?"),
+    ("biomassa-be", "be", "DT-biomassa-be-nspd",
+     "Where can biomass installations be sited in the Flemish part of the NSPD?"),
 ]
 
 _LAND_LABEL = {"nl": "NL", "be": "BE"}
-_TRACK_SHARD = {"wind": "wind", "zon": "zon", "energietoets": "energietoets"}
+_TRACK_SHARD = {key.split("-")[0]: key.split("-")[0] for key, _, _, _ in _NSPD_TRACKS}
 
 TRACKS: Dict[str, Dict[str, Any]] = {
     key: {
@@ -437,10 +478,9 @@ def count_repairs(steps: Sequence[str]) -> int:
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--use-case", default="wind-nl",
-                    choices=["wind-nl", "wind-be", "zon-nl", "zon-be",
-                             "energietoets-nl", "energietoets-be"],
-                    help="use case id (default: wind-nl; <track>-<nl|be> over de drie "
-                         "fase-1-tracks wind/zon/energietoets per jurisdictie)")
+                    choices=sorted(TRACKS),
+                    help="use case id (default: wind-nl; <track>-<nl|be> over alle "
+                         "13 tracks per jurisdictie)")
     ap.add_argument("--refresh", action="store_true", help="ignore the layer cache and re-download live layers")
     ap.add_argument("--bbox", default=None,
                     help="optional clip xmin,ymin,xmax,ymax in EPSG:28992 applied to the AOI "
