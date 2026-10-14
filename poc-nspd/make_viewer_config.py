@@ -74,6 +74,8 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path) -> Path:
     # 3D-context BE-gebouwen: vlakke GRB-laag zodra het extrusie-besluit (taak 12)
     # bestaat — besluitdocument: data/grb_extrusie_besluit.json (keuze "vlak": GRB:ADP
     # heeft geen h_dak_50-achtig hoogteveld; DHM-extrusie niet in POC-scope).
+    # NB: het laagbestand grb-gebouwen-be.geojson wordt (voorlopig) níét gegenereerd;
+    # generatie of schrapping van deze laagverwijzing is fase 2 (eindreview-bevinding).
     if (ROOT / "data" / "grb_extrusie_besluit.json").is_file():
         json.loads((ROOT / "data" / "grb_extrusie_besluit.json").read_text(encoding="utf-8"))
         cfg["layers"].append({

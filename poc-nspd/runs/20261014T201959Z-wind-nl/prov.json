@@ -1,0 +1,589 @@
+{
+ "flavour": "W3C PROV-O terms (agent/entity/activity/wasGeneratedBy/wasDerivedFrom) serialised as plain JSON",
+ "namespace": "ldttoolbox:poc-nspd:wind-nl:",
+ "runId": "20261014T201959Z-wind-nl",
+ "requestId": "93c2a803-4bb4-52e1-b415-e547d0f14725",
+ "generatedAt": "2026-10-14T20:20:00Z",
+ "generatedBy": "explainer#deterministic-poc1",
+ "agent": [
+  {
+   "id": "orchestrator",
+   "name": "run.py orchestrator",
+   "version": "poc-nspd-run/1.0",
+   "role": "plan -> dispatch -> verify -> synthesize (plan section 3.2 agent #1)"
+  },
+  {
+   "id": "legal-recon-agent",
+   "name": "NormAnalyst",
+   "version": "curator#poc-nspd-task6",
+   "role": "curated NormCard corpus load (taak 6/7; agent #3 seam)"
+  },
+  {
+   "id": "norm-formalizer",
+   "name": "NormFormalizer",
+   "version": "norm-formalizer#poc-nspd-task6, run-orchestrator#poc-nspd-task9-aoi-basis",
+   "role": "curated FormalRule shard load + orchestrator AOI-basisrule FR-AOI-01 (agent #4 seam)"
+  },
+  {
+   "id": "jurisdictie-gate",
+   "name": "V2b jurisdictie-gate",
+   "version": "jurisdictie-gate#poc-nspd-task8",
+   "role": "V2b jurisdictie-match incl. V2B-BRON documentregister: pass"
+  },
+  {
+   "id": "geo-connector",
+   "name": "GeoData connector",
+   "version": "ldttoolbox-geoconnector/0.1",
+   "role": "registry fetch (ArcGIS REST / OGC API Features), cache-first (agent #5 tool)"
+  },
+  {
+   "id": "zone-engine",
+   "name": "FormalRule zone engine",
+   "version": "poc-zone-engine/0.1",
+   "role": "deterministic execution + validation repair provenance (agent #5)"
+  },
+  {
+   "id": "cartographer",
+   "name": "Cartographer",
+   "version": "poc-cartographer/0.1",
+   "role": "GeoJSON/GML serialization (agent #6)"
+  },
+  {
+   "id": "critic-validator",
+   "name": "Critic/Validator",
+   "version": "critic-validator#deterministic-v0-v3-poc1",
+   "role": "V0-V3 deterministic checks, V4 pending (agent #7)"
+  },
+  {
+   "id": "explainer",
+   "name": "Explainer",
+   "version": "explainer#deterministic-poc1",
+   "role": "decision table + PROV (agent #8)"
+  },
+  {
+   "id": "report",
+   "name": "HTML report renderer",
+   "version": "poc-report/1.0",
+   "role": "single-file report (agent #6 view tier)"
+  }
+ ],
+ "entity": [
+  {
+   "id": "request.json",
+   "type": "OpportunityMapRequest",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/request.json",
+   "sha256": "da727d104c457267952f85ea54d2a940ad2a697873ba1d922ba4f884927d209c"
+  },
+  {
+   "id": "formal-rules-nl-wind.json",
+   "type": "evidence shard",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/corpus/formal-rules-nl-wind.json",
+   "sha256": "d6bd5a0caeaae3ecf3534f2beb3f262ee0db9bbe730ed3e774bd75fb299ea1de"
+  },
+  {
+   "id": "sources.json",
+   "type": "document source registry",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/corpus/sources.json",
+   "sha256": "09cf6db6e839c2e2d6258e10d15b08d8bc77e2f7b02570e1d5cd7560be36ff46"
+  },
+  {
+   "id": "sources.json",
+   "type": "geo source registry",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/data/sources.json",
+   "sha256": "6a175908ff9a91590627ff003f5ae9a8530c2324f240b9f06105d5e20c1cbca0"
+  },
+  {
+   "id": "normcards.json",
+   "type": "NormCard[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/normcards.json",
+   "sha256": "3ad00e117ad96b0d509ffbd71b3f71b37164f9c1f6c05785357e23767cfb3ee7"
+  },
+  {
+   "id": "normcards-rejected.json",
+   "type": "cite-or-abstain ledger",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/normcards-rejected.json",
+   "sha256": "080496160e3a05b2786e91db7e088527aa8b1c09234396782f3589fe5c0b6ea0"
+  },
+  {
+   "id": "formalrules.json",
+   "type": "FormalRule[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/formalrules.json",
+   "sha256": "91f40c32a217d444c9de20196b05da89c993b53f2209660cf24020e21668c6b3"
+  },
+  {
+   "id": "layers.json",
+   "type": "layer manifest",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/layers.json",
+   "sha256": "ace0722b24e06f04f55885bd4bd403ab73aaa844fa9363874feb4ba8c9350782"
+  },
+  {
+   "id": "zones.json",
+   "type": "ZoneResult[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/zones.json",
+   "sha256": "8040bac8b10f8ed410073e3bbb6e172e7fc8dad7b14aa0c4f5098a0a9c83cc1a"
+  },
+  {
+   "id": "rule-stats.json",
+   "type": "per-rule footprint stats",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/rule-stats.json",
+   "sha256": "be20693d2c2300ed8f99c9644bf795fe9ed2a15d617c6a283765ae56efccc446"
+  },
+  {
+   "id": "zones.geojson",
+   "type": "zones GeoJSON (RFC 7946)",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/zones.geojson",
+   "sha256": "6f08299896379a1424cb23ff1dfd66dd1bd1388c1e44ecf6dc7dbb8eebe8e096"
+  },
+  {
+   "id": "report_input.json",
+   "type": "cartographer report input",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/report_input.json",
+   "sha256": "2626daf41c06bbba032e9bd08bf599cbc2858924b30ff168e78d1937a6047539"
+  },
+  {
+   "id": "decision-table.json",
+   "type": "DecisionTable",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/decision-table.json",
+   "sha256": "8174b90227928badde58ffae1c77c81422b6dade5c6ef7659d39d623c12f344e"
+  },
+  {
+   "id": "decision-table.md",
+   "type": "DecisionTable (markdown)",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/decision-table.md",
+   "sha256": "0ef17b6a8ebdb0c6cc71ab280dc2292889f2bbec071556ac4d2a9da3a03836c1"
+  },
+  {
+   "id": "v2b.json",
+   "type": "V2b jurisdictie-gate result",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/v2b.json",
+   "sha256": "a3c37f18ba43e0382d61a0ac2cc7b263583e03d5f812b95789c77f7973cf1adf"
+  },
+  {
+   "id": "validation.json",
+   "type": "ValidationReport[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/validation.json",
+   "sha256": "fc2ffc9bc777adb8acf452b8668c897eb7ea1ad77d61e1646aa5fe5e6eb9fcd8"
+  },
+  {
+   "id": "zones.gml",
+   "type": "zones GML 3.2",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/zones.gml",
+   "sha256": "1f3916b0c544faf84ba18b4a52c57d776f5f58c7c498ae8248a858ad3beb1a9a"
+  },
+  {
+   "id": "pdok-natura2000.28992.geojson",
+   "type": "layer cache (EPSG:28992)",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/data/cache/pdok-natura2000.28992.geojson",
+   "sha256": "af86ddee665db0165197cc6725d51a31c72e220e7f4c43fdd162d9c2b7f45904",
+   "zone": "natura2000-nl",
+   "sourceId": "pdok-natura2000"
+  },
+  {
+   "id": "use-cases/wind-nl.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "corpus/normcards-nl-wind.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "corpus/sources.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "corpus/formal-rules-nl-wind.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "data/sources.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "validation/opportunity-map-request.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/validation/opportunity-map-request.json",
+   "sha256": "8e134e13c2e5da20c04f701aa0648a24b5c91dae8b7476514a9ff14233d4f22e"
+  },
+  {
+   "id": "validation/norm-card-set.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/validation/norm-card-set.json",
+   "sha256": "06f6d45671c5296753b710318f4edec55de372a99a849188052ac28cf49d0e51"
+  },
+  {
+   "id": "validation/formal-rule-set.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/validation/formal-rule-set.json",
+   "sha256": "0071eec37f2e09618deeaf4d4c6315edfd9870c73e91a3170609739e05b0272b"
+  },
+  {
+   "id": "validation/zone-result-set.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/validation/zone-result-set.json",
+   "sha256": "1828d4e0a337600c51cf6a84c113cb533a3df32f3a3e3e49a2eeda9b8e84b601"
+  },
+  {
+   "id": "validation/decision-table.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/validation/decision-table.json",
+   "sha256": "ad9ab29b1edf0afd93a1084a0654d4ad436d8ce89d6de71806fcc2f627ccdc55"
+  },
+  {
+   "id": "validation/pipeline-run.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/validation/pipeline-run.json",
+   "sha256": "c3da5ad385733f0f68397dd4b617d73ecb65fb6010430082615c0dce7074d123"
+  },
+  {
+   "id": "zones.xsd",
+   "type": "zones GML 3.2 XML schema",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/zones.xsd",
+   "sha256": "e7bdbf18913890795b151d1cf49bb7e8bcf3543876b20bd899b7c1cfc10f7f63"
+  },
+  {
+   "id": "report.html",
+   "type": "single-file HTML report",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/report.html",
+   "sha256": "b9a9514c30c4b49252a5b96238c2b43eb272c64aef5ed41f048f3a9a5af6452c"
+  },
+  {
+   "id": "prov.json",
+   "type": "PROV bundle (this file)",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/prov.json",
+   "note": "self-referential; integrity via run_summary.json artifact hashes"
+  },
+  {
+   "id": "run_summary.json",
+   "type": "run summary (headline, tunings, artifact hashes)",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T201959Z-wind-nl/run_summary.json",
+   "note": "written after prov.json; its sha256 lives in its own artifacts list"
+  }
+ ],
+ "activity": [
+  {
+   "id": "intake",
+   "label": "Intake: load + validate OpportunityMapRequest",
+   "type": "intake",
+   "agent": "run.py-orchestrator",
+   "startedAt": "2026-10-14T20:19:59Z",
+   "endedAt": "2026-10-14T20:19:59Z",
+   "durationS": 0.007,
+   "used": [
+    "use-cases/wind-nl.json"
+   ],
+   "generated": [
+    "request.json"
+   ]
+  },
+  {
+   "id": "norm-analyst",
+   "label": "Norm Analyst: load curated NormCards (taak 6/7 corpus)",
+   "type": "norm-analyst",
+   "agent": "legal-recon-agent",
+   "startedAt": "2026-10-14T20:19:59Z",
+   "endedAt": "2026-10-14T20:19:59Z",
+   "durationS": 0.009,
+   "used": [
+    "corpus/normcards-nl-wind.json",
+    "corpus/sources.json"
+   ],
+   "generated": [
+    "normcards.json",
+    "normcards-rejected.json"
+   ]
+  },
+  {
+   "id": "norm-formalizer",
+   "label": "Norm Formalizer: load curated FormalRules (taak 6/7 shards)",
+   "type": "norm-formalizer",
+   "agent": "norm-formalizer",
+   "startedAt": "2026-10-14T20:19:59Z",
+   "endedAt": "2026-10-14T20:19:59Z",
+   "durationS": 0.008,
+   "used": [
+    "corpus/formal-rules-nl-wind.json"
+   ],
+   "generated": [
+    "formalrules.json"
+   ]
+  },
+  {
+   "id": "v2b-jurisdictie",
+   "label": "V2b: jurisdictie-match (geen claim over de grens)",
+   "type": "v2b-jurisdictie",
+   "agent": "jurisdictie-gate",
+   "startedAt": "2026-10-14T20:19:59Z",
+   "endedAt": "2026-10-14T20:19:59Z",
+   "durationS": 0.001,
+   "used": [
+    "corpus/normcards-nl-wind.json",
+    "corpus/formal-rules-nl-wind.json",
+    "corpus/sources.json",
+    "data/sources.json"
+   ],
+   "generated": [
+    "v2b.json"
+   ]
+  },
+  {
+   "id": "geo-analyst-fetch",
+   "label": "Geo Analyst: fetch zone layers (cache-first, registry sources)",
+   "type": "geo-analyst-fetch",
+   "agent": "ldttoolbox-geoconnector/0.1",
+   "startedAt": "2026-10-14T20:19:59Z",
+   "endedAt": "2026-10-14T20:19:59Z",
+   "durationS": 0.007,
+   "used": [
+    "data/sources.json"
+   ],
+   "generated": [
+    "layers.json"
+   ]
+  },
+  {
+   "id": "zone-engine",
+   "label": "Geo Analyst: deterministic FormalRule execution (shapely path)",
+   "type": "zone-engine",
+   "agent": "zone-engine",
+   "startedAt": "2026-10-14T20:19:59Z",
+   "endedAt": "2026-10-14T20:19:59Z",
+   "durationS": 0.032,
+   "used": [
+    "formalrules.json",
+    "layers.json"
+   ],
+   "generated": [
+    "zones.json"
+   ]
+  },
+  {
+   "id": "cartographer",
+   "label": "Cartographer: zones.geojson + GML + report input",
+   "type": "cartographer",
+   "agent": "poc-cartographer/0.1",
+   "startedAt": "2026-10-14T20:19:59Z",
+   "endedAt": "2026-10-14T20:19:59Z",
+   "durationS": 0.437,
+   "used": [
+    "zones.json"
+   ],
+   "generated": [
+    "zones.geojson",
+    "zones.gml"
+   ]
+  },
+  {
+   "id": "critic",
+   "label": "Critic/Validator: V0-V3 deterministic + V4 pending",
+   "type": "critic",
+   "agent": "critic-validator",
+   "startedAt": "2026-10-14T20:19:59Z",
+   "endedAt": "2026-10-14T20:20:00Z",
+   "durationS": 0.354,
+   "used": [
+    "request.json",
+    "normcards.json",
+    "formalrules.json",
+    "zones.json",
+    "decision-table.json"
+   ],
+   "generated": [
+    "validation.json"
+   ]
+  },
+  {
+   "id": "explainer",
+   "label": "Explainer: decision table + PROV bundle",
+   "type": "explainer",
+   "agent": "explainer",
+   "startedAt": "2026-10-14T20:20:00Z",
+   "endedAt": "2026-10-14T20:20:00Z",
+   "durationS": 0.042,
+   "used": [
+    "normcards.json",
+    "formalrules.json",
+    "zones.json"
+   ],
+   "generated": [
+    "decision-table.json",
+    "decision-table.md",
+    "prov.json"
+   ]
+  },
+  {
+   "id": "report",
+   "label": "Report: single-file HTML with Leaflet map + tables",
+   "type": "report",
+   "agent": "poc-report/1.0",
+   "startedAt": "2026-10-14T20:20:00Z",
+   "endedAt": "2026-10-14T20:20:00Z",
+   "durationS": 0.124,
+   "used": [
+    "zones.geojson",
+    "decision-table.json",
+    "validation.json",
+    "normcards.json",
+    "prov.json"
+   ],
+   "generated": [
+    "report.html"
+   ]
+  }
+ ],
+ "wasGeneratedBy": [
+  {
+   "entity": "request.json",
+   "activity": "intake",
+   "time": "2026-10-14T20:19:59Z"
+  },
+  {
+   "entity": "normcards.json",
+   "activity": "norm-analyst",
+   "time": "2026-10-14T20:19:59Z"
+  },
+  {
+   "entity": "normcards-rejected.json",
+   "activity": "norm-analyst",
+   "time": "2026-10-14T20:19:59Z"
+  },
+  {
+   "entity": "formalrules.json",
+   "activity": "norm-formalizer",
+   "time": "2026-10-14T20:19:59Z"
+  },
+  {
+   "entity": "v2b.json",
+   "activity": "v2b-jurisdictie",
+   "time": "2026-10-14T20:19:59Z"
+  },
+  {
+   "entity": "layers.json",
+   "activity": "geo-analyst-fetch",
+   "time": "2026-10-14T20:19:59Z"
+  },
+  {
+   "entity": "zones.json",
+   "activity": "zone-engine",
+   "time": "2026-10-14T20:19:59Z"
+  },
+  {
+   "entity": "zones.geojson",
+   "activity": "cartographer",
+   "time": "2026-10-14T20:19:59Z"
+  },
+  {
+   "entity": "zones.gml",
+   "activity": "cartographer",
+   "time": "2026-10-14T20:19:59Z"
+  },
+  {
+   "entity": "validation.json",
+   "activity": "critic",
+   "time": "2026-10-14T20:20:00Z"
+  },
+  {
+   "entity": "validation/opportunity-map-request.json",
+   "activity": "critic",
+   "time": "2026-10-14T20:20:00Z"
+  },
+  {
+   "entity": "validation/norm-card-set.json",
+   "activity": "critic",
+   "time": "2026-10-14T20:20:00Z"
+  },
+  {
+   "entity": "validation/formal-rule-set.json",
+   "activity": "critic",
+   "time": "2026-10-14T20:20:00Z"
+  },
+  {
+   "entity": "validation/zone-result-set.json",
+   "activity": "critic",
+   "time": "2026-10-14T20:20:00Z"
+  },
+  {
+   "entity": "validation/decision-table.json",
+   "activity": "critic",
+   "time": "2026-10-14T20:20:00Z"
+  },
+  {
+   "entity": "validation/pipeline-run.json",
+   "activity": "critic",
+   "time": "2026-10-14T20:20:00Z"
+  },
+  {
+   "entity": "zones.xsd",
+   "activity": "cartographer",
+   "time": "2026-10-14T20:20:00Z"
+  },
+  {
+   "entity": "report.html",
+   "activity": "report",
+   "time": "2026-10-14T20:20:00Z"
+  },
+  {
+   "entity": "prov.json",
+   "activity": "explainer",
+   "time": "2026-10-14T20:20:00Z"
+  }
+ ],
+ "wasDerivedFrom": [
+  {
+   "generatedEntity": "formalrules.json",
+   "usedEntity": "formal-rules-nl-wind.json",
+   "note": "curated FormalRule shard + orchestrator AOI-basisrule FR-AOI-01"
+  },
+  {
+   "generatedEntity": "normcards.json",
+   "usedEntity": "normcards-nl-wind.json",
+   "note": "curated NormCard corpus load (cite-or-abstain)"
+  },
+  {
+   "generatedEntity": "v2b.json",
+   "usedEntity": "normcards.json",
+   "note": "V2b jurisdictie-gate over normcards + formal rules"
+  },
+  {
+   "generatedEntity": "zones.json",
+   "usedEntity": "formalrules.json",
+   "note": "engine executed FormalRules over fetched layers"
+  },
+  {
+   "generatedEntity": "decision-table.json",
+   "usedEntity": "normcards.json",
+   "note": "every row links a normCardId"
+  },
+  {
+   "generatedEntity": "validation.json",
+   "usedEntity": "zones.json",
+   "note": "V0-V3 over the artifact tree"
+  }
+ ],
+ "hadPrimarySource": [
+  {
+   "zone": "aoi",
+   "sourceId": "request-aoi",
+   "service": "None/None",
+   "lastChecked": null,
+   "fetchedAt": null,
+   "features": 1,
+   "aliasFor": "none",
+   "authoritative": true
+  },
+  {
+   "zone": "natura2000-nl",
+   "sourceId": "pdok-natura2000",
+   "service": "https://api.pdok.nl/rvo/natura2000/ogc/v1/None",
+   "lastChecked": "2026-10-14",
+   "fetchedAt": "2026-10-14T18:52:23Z",
+   "features": 3,
+   "aliasFor": null,
+   "authoritative": true
+  }
+ ]
+}

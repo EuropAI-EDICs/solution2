@@ -1,0 +1,571 @@
+{
+ "flavour": "W3C PROV-O terms (agent/entity/activity/wasGeneratedBy/wasDerivedFrom) serialised as plain JSON",
+ "namespace": "ldttoolbox:poc-nspd:energietoets-nl:",
+ "runId": "20261014T202015Z-energietoets-nl",
+ "requestId": "3fa256c8-9383-5afd-b3c9-fafd2455a95f",
+ "generatedAt": "2026-10-14T20:20:16Z",
+ "generatedBy": "explainer#deterministic-poc1",
+ "agent": [
+  {
+   "id": "orchestrator",
+   "name": "run.py orchestrator",
+   "version": "poc-nspd-run/1.0",
+   "role": "plan -> dispatch -> verify -> synthesize (plan section 3.2 agent #1)"
+  },
+  {
+   "id": "legal-recon-agent",
+   "name": "NormAnalyst",
+   "version": "curator#poc-nspd-task6",
+   "role": "curated NormCard corpus load (taak 6/7; agent #3 seam)"
+  },
+  {
+   "id": "norm-formalizer",
+   "name": "NormFormalizer",
+   "version": "norm-formalizer#poc-nspd-task6, run-orchestrator#poc-nspd-task9-aoi-basis",
+   "role": "curated FormalRule shard load + orchestrator AOI-basisrule FR-AOI-01 (agent #4 seam)"
+  },
+  {
+   "id": "jurisdictie-gate",
+   "name": "V2b jurisdictie-gate",
+   "version": "jurisdictie-gate#poc-nspd-task8",
+   "role": "V2b jurisdictie-match incl. V2B-BRON documentregister: pass"
+  },
+  {
+   "id": "geo-connector",
+   "name": "GeoData connector",
+   "version": "ldttoolbox-geoconnector/0.1",
+   "role": "registry fetch (ArcGIS REST / OGC API Features), cache-first (agent #5 tool)"
+  },
+  {
+   "id": "zone-engine",
+   "name": "FormalRule zone engine",
+   "version": "poc-zone-engine/0.1",
+   "role": "deterministic execution + validation repair provenance (agent #5)"
+  },
+  {
+   "id": "cartographer",
+   "name": "Cartographer",
+   "version": "poc-cartographer/0.1",
+   "role": "GeoJSON/GML serialization (agent #6)"
+  },
+  {
+   "id": "critic-validator",
+   "name": "Critic/Validator",
+   "version": "critic-validator#deterministic-v0-v3-poc1",
+   "role": "V0-V3 deterministic checks, V4 pending (agent #7)"
+  },
+  {
+   "id": "explainer",
+   "name": "Explainer",
+   "version": "explainer#deterministic-poc1",
+   "role": "decision table + PROV (agent #8)"
+  },
+  {
+   "id": "report",
+   "name": "HTML report renderer",
+   "version": "poc-report/1.0",
+   "role": "single-file report (agent #6 view tier)"
+  }
+ ],
+ "entity": [
+  {
+   "id": "request.json",
+   "type": "OpportunityMapRequest",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/request.json",
+   "sha256": "5fed924725ddd59490607c0efa6a5e3b252ef481671c2fd348635f34ba88a7e4"
+  },
+  {
+   "id": "formal-rules-nl-energietoets.json",
+   "type": "evidence shard",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/corpus/formal-rules-nl-energietoets.json",
+   "sha256": "0b363648a27cc6a00305a1f3036ae781d4a54311e5dfd5522722c55540c90a89"
+  },
+  {
+   "id": "sources.json",
+   "type": "document source registry",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/corpus/sources.json",
+   "sha256": "09cf6db6e839c2e2d6258e10d15b08d8bc77e2f7b02570e1d5cd7560be36ff46"
+  },
+  {
+   "id": "sources.json",
+   "type": "geo source registry",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/data/sources.json",
+   "sha256": "6a175908ff9a91590627ff003f5ae9a8530c2324f240b9f06105d5e20c1cbca0"
+  },
+  {
+   "id": "normcards.json",
+   "type": "NormCard[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/normcards.json",
+   "sha256": "bbaf71a5d1acd660ee36699b021abfbabb16473543c2cd262917b21e9107d830"
+  },
+  {
+   "id": "normcards-rejected.json",
+   "type": "cite-or-abstain ledger",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/normcards-rejected.json",
+   "sha256": "080496160e3a05b2786e91db7e088527aa8b1c09234396782f3589fe5c0b6ea0"
+  },
+  {
+   "id": "formalrules.json",
+   "type": "FormalRule[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/formalrules.json",
+   "sha256": "ca5921a719ea072468e604ee4c3db734b90a34c430b09e4723e4103c343e1281"
+  },
+  {
+   "id": "layers.json",
+   "type": "layer manifest",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/layers.json",
+   "sha256": "17dd8c8cd9ed9c87d7c45b1d1024ba278dab3c923419b0d78ec592f73ac112d9"
+  },
+  {
+   "id": "zones.json",
+   "type": "ZoneResult[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/zones.json",
+   "sha256": "382ac0ee4aff16c468b5fcdcf7ca1d40f35fb5c43f575c71c1a3653f45c131f9"
+  },
+  {
+   "id": "rule-stats.json",
+   "type": "per-rule footprint stats",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/rule-stats.json",
+   "sha256": "08274f52a7f2a72cb5cebd988688bbb705d66001a01d34ea7b81d28541a609c7"
+  },
+  {
+   "id": "zones.geojson",
+   "type": "zones GeoJSON (RFC 7946)",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/zones.geojson",
+   "sha256": "f81290eba8db5af5102c8a84e234851ddec04e68ef9e667808486bae21d7602b"
+  },
+  {
+   "id": "report_input.json",
+   "type": "cartographer report input",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/report_input.json",
+   "sha256": "2adcdbb7d1b40efde57b69a4687ca97c9a37a3b1d0cf26fceb52d9813dc58917"
+  },
+  {
+   "id": "decision-table.json",
+   "type": "DecisionTable",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/decision-table.json",
+   "sha256": "42be24011f14f4354c9a2b0a06e5805b590e8c6e30456e13e029b3935e0d135d"
+  },
+  {
+   "id": "decision-table.md",
+   "type": "DecisionTable (markdown)",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/decision-table.md",
+   "sha256": "94bfe0411bcce976bb7d6b8400f25b22fbf78ccd3f298f11f8b3f6c0dfc9d1cd"
+  },
+  {
+   "id": "v2b.json",
+   "type": "V2b jurisdictie-gate result",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/v2b.json",
+   "sha256": "a3c37f18ba43e0382d61a0ac2cc7b263583e03d5f812b95789c77f7973cf1adf"
+  },
+  {
+   "id": "validation.json",
+   "type": "ValidationReport[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/validation.json",
+   "sha256": "ef8b08c959dcdf6b0c02328ce277bff3fe8155f49a78bfa6c5865cbf5dfa18ef"
+  },
+  {
+   "id": "zones.gml",
+   "type": "zones GML 3.2",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/zones.gml",
+   "sha256": "11e076756637e34a98550a7f484182976cf10f0eab42c342a7e555dda29e2914"
+  },
+  {
+   "id": "use-cases/energietoets-nl.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "corpus/normcards-nl-energietoets.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "corpus/sources.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "corpus/formal-rules-nl-energietoets.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "data/sources.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "validation/opportunity-map-request.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/validation/opportunity-map-request.json",
+   "sha256": "fc81668375e3cad744e908857f85eb30427c12e4a915f88b225512fc2a26fcf3"
+  },
+  {
+   "id": "validation/norm-card-set.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/validation/norm-card-set.json",
+   "sha256": "8fa22e09d20637fbeda528d802b1ca11af92ccac630ecb62238699354f616bf9"
+  },
+  {
+   "id": "validation/formal-rule-set.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/validation/formal-rule-set.json",
+   "sha256": "e9090e4c020062c903aa1d9e0924a4b3751c92e8154ff9882c065fcd04f48bb3"
+  },
+  {
+   "id": "validation/zone-result-set.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/validation/zone-result-set.json",
+   "sha256": "15480e7681bd3e2dc6cfde6b844ccba1c991af89a065733f515e775b4cd3011c"
+  },
+  {
+   "id": "validation/decision-table.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/validation/decision-table.json",
+   "sha256": "594bb21b2b216d16dd1cf67f374acb229bf8d25068c1d1c9884887f1505ae7b2"
+  },
+  {
+   "id": "validation/pipeline-run.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/validation/pipeline-run.json",
+   "sha256": "45ca354c909735f0a23687481f41f27d648084975c4916eaf68edf588491c93c"
+  },
+  {
+   "id": "zones.xsd",
+   "type": "zones GML 3.2 XML schema",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/zones.xsd",
+   "sha256": "ae528e886d80fb99255d769c5a92e3d2c7a5716adac6828272feca875cf3741f"
+  },
+  {
+   "id": "report.html",
+   "type": "single-file HTML report",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/report.html",
+   "sha256": "70838056b567c3ce1b9032505a2369691160539396f93a4e7dae681794928f30"
+  },
+  {
+   "id": "prov.json",
+   "type": "PROV bundle (this file)",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/prov.json",
+   "note": "self-referential; integrity via run_summary.json artifact hashes"
+  },
+  {
+   "id": "run_summary.json",
+   "type": "run summary (headline, tunings, artifact hashes)",
+   "path": "/Users/marc/Projecten/ldttoolbox-poc-nspd-fix/poc-nspd/runs/20261014T202015Z-energietoets-nl/run_summary.json",
+   "note": "written after prov.json; its sha256 lives in its own artifacts list"
+  }
+ ],
+ "activity": [
+  {
+   "id": "intake",
+   "label": "Intake: load + validate OpportunityMapRequest",
+   "type": "intake",
+   "agent": "run.py-orchestrator",
+   "startedAt": "2026-10-14T20:20:15Z",
+   "endedAt": "2026-10-14T20:20:15Z",
+   "durationS": 0.006,
+   "used": [
+    "use-cases/energietoets-nl.json"
+   ],
+   "generated": [
+    "request.json"
+   ]
+  },
+  {
+   "id": "norm-analyst",
+   "label": "Norm Analyst: load curated NormCards (taak 6/7 corpus)",
+   "type": "norm-analyst",
+   "agent": "legal-recon-agent",
+   "startedAt": "2026-10-14T20:20:15Z",
+   "endedAt": "2026-10-14T20:20:15Z",
+   "durationS": 0.012,
+   "used": [
+    "corpus/normcards-nl-energietoets.json",
+    "corpus/sources.json"
+   ],
+   "generated": [
+    "normcards.json",
+    "normcards-rejected.json"
+   ]
+  },
+  {
+   "id": "norm-formalizer",
+   "label": "Norm Formalizer: load curated FormalRules (taak 6/7 shards)",
+   "type": "norm-formalizer",
+   "agent": "norm-formalizer",
+   "startedAt": "2026-10-14T20:20:15Z",
+   "endedAt": "2026-10-14T20:20:15Z",
+   "durationS": 0.01,
+   "used": [
+    "corpus/formal-rules-nl-energietoets.json"
+   ],
+   "generated": [
+    "formalrules.json"
+   ]
+  },
+  {
+   "id": "v2b-jurisdictie",
+   "label": "V2b: jurisdictie-match (geen claim over de grens)",
+   "type": "v2b-jurisdictie",
+   "agent": "jurisdictie-gate",
+   "startedAt": "2026-10-14T20:20:15Z",
+   "endedAt": "2026-10-14T20:20:15Z",
+   "durationS": 0.0,
+   "used": [
+    "corpus/normcards-nl-energietoets.json",
+    "corpus/formal-rules-nl-energietoets.json",
+    "corpus/sources.json",
+    "data/sources.json"
+   ],
+   "generated": [
+    "v2b.json"
+   ]
+  },
+  {
+   "id": "geo-analyst-fetch",
+   "label": "Geo Analyst: fetch zone layers (cache-first, registry sources)",
+   "type": "geo-analyst-fetch",
+   "agent": "ldttoolbox-geoconnector/0.1",
+   "startedAt": "2026-10-14T20:20:15Z",
+   "endedAt": "2026-10-14T20:20:15Z",
+   "durationS": 0.0,
+   "used": [
+    "data/sources.json"
+   ],
+   "generated": [
+    "layers.json"
+   ]
+  },
+  {
+   "id": "zone-engine",
+   "label": "Geo Analyst: deterministic FormalRule execution (shapely path)",
+   "type": "zone-engine",
+   "agent": "zone-engine",
+   "startedAt": "2026-10-14T20:20:15Z",
+   "endedAt": "2026-10-14T20:20:15Z",
+   "durationS": 0.008,
+   "used": [
+    "formalrules.json",
+    "layers.json"
+   ],
+   "generated": [
+    "zones.json"
+   ]
+  },
+  {
+   "id": "cartographer",
+   "label": "Cartographer: zones.geojson + GML + report input",
+   "type": "cartographer",
+   "agent": "poc-cartographer/0.1",
+   "startedAt": "2026-10-14T20:20:15Z",
+   "endedAt": "2026-10-14T20:20:16Z",
+   "durationS": 0.336,
+   "used": [
+    "zones.json"
+   ],
+   "generated": [
+    "zones.geojson",
+    "zones.gml"
+   ]
+  },
+  {
+   "id": "critic",
+   "label": "Critic/Validator: V0-V3 deterministic + V4 pending",
+   "type": "critic",
+   "agent": "critic-validator",
+   "startedAt": "2026-10-14T20:20:16Z",
+   "endedAt": "2026-10-14T20:20:16Z",
+   "durationS": 0.288,
+   "used": [
+    "request.json",
+    "normcards.json",
+    "formalrules.json",
+    "zones.json",
+    "decision-table.json"
+   ],
+   "generated": [
+    "validation.json"
+   ]
+  },
+  {
+   "id": "explainer",
+   "label": "Explainer: decision table + PROV bundle",
+   "type": "explainer",
+   "agent": "explainer",
+   "startedAt": "2026-10-14T20:20:16Z",
+   "endedAt": "2026-10-14T20:20:16Z",
+   "durationS": 0.03,
+   "used": [
+    "normcards.json",
+    "formalrules.json",
+    "zones.json"
+   ],
+   "generated": [
+    "decision-table.json",
+    "decision-table.md",
+    "prov.json"
+   ]
+  },
+  {
+   "id": "report",
+   "label": "Report: single-file HTML with Leaflet map + tables",
+   "type": "report",
+   "agent": "poc-report/1.0",
+   "startedAt": "2026-10-14T20:20:16Z",
+   "endedAt": "2026-10-14T20:20:16Z",
+   "durationS": 0.113,
+   "used": [
+    "zones.geojson",
+    "decision-table.json",
+    "validation.json",
+    "normcards.json",
+    "prov.json"
+   ],
+   "generated": [
+    "report.html"
+   ]
+  }
+ ],
+ "wasGeneratedBy": [
+  {
+   "entity": "request.json",
+   "activity": "intake",
+   "time": "2026-10-14T20:20:15Z"
+  },
+  {
+   "entity": "normcards.json",
+   "activity": "norm-analyst",
+   "time": "2026-10-14T20:20:15Z"
+  },
+  {
+   "entity": "normcards-rejected.json",
+   "activity": "norm-analyst",
+   "time": "2026-10-14T20:20:15Z"
+  },
+  {
+   "entity": "formalrules.json",
+   "activity": "norm-formalizer",
+   "time": "2026-10-14T20:20:15Z"
+  },
+  {
+   "entity": "v2b.json",
+   "activity": "v2b-jurisdictie",
+   "time": "2026-10-14T20:20:15Z"
+  },
+  {
+   "entity": "layers.json",
+   "activity": "geo-analyst-fetch",
+   "time": "2026-10-14T20:20:15Z"
+  },
+  {
+   "entity": "zones.json",
+   "activity": "zone-engine",
+   "time": "2026-10-14T20:20:15Z"
+  },
+  {
+   "entity": "zones.geojson",
+   "activity": "cartographer",
+   "time": "2026-10-14T20:20:16Z"
+  },
+  {
+   "entity": "zones.gml",
+   "activity": "cartographer",
+   "time": "2026-10-14T20:20:16Z"
+  },
+  {
+   "entity": "validation.json",
+   "activity": "critic",
+   "time": "2026-10-14T20:20:16Z"
+  },
+  {
+   "entity": "validation/opportunity-map-request.json",
+   "activity": "critic",
+   "time": "2026-10-14T20:20:16Z"
+  },
+  {
+   "entity": "validation/norm-card-set.json",
+   "activity": "critic",
+   "time": "2026-10-14T20:20:16Z"
+  },
+  {
+   "entity": "validation/formal-rule-set.json",
+   "activity": "critic",
+   "time": "2026-10-14T20:20:16Z"
+  },
+  {
+   "entity": "validation/zone-result-set.json",
+   "activity": "critic",
+   "time": "2026-10-14T20:20:16Z"
+  },
+  {
+   "entity": "validation/decision-table.json",
+   "activity": "critic",
+   "time": "2026-10-14T20:20:16Z"
+  },
+  {
+   "entity": "validation/pipeline-run.json",
+   "activity": "critic",
+   "time": "2026-10-14T20:20:16Z"
+  },
+  {
+   "entity": "zones.xsd",
+   "activity": "cartographer",
+   "time": "2026-10-14T20:20:16Z"
+  },
+  {
+   "entity": "report.html",
+   "activity": "report",
+   "time": "2026-10-14T20:20:16Z"
+  },
+  {
+   "entity": "prov.json",
+   "activity": "explainer",
+   "time": "2026-10-14T20:20:16Z"
+  }
+ ],
+ "wasDerivedFrom": [
+  {
+   "generatedEntity": "formalrules.json",
+   "usedEntity": "formal-rules-nl-energietoets.json",
+   "note": "curated FormalRule shard + orchestrator AOI-basisrule FR-AOI-01"
+  },
+  {
+   "generatedEntity": "normcards.json",
+   "usedEntity": "normcards-nl-energietoets.json",
+   "note": "curated NormCard corpus load (cite-or-abstain)"
+  },
+  {
+   "generatedEntity": "v2b.json",
+   "usedEntity": "normcards.json",
+   "note": "V2b jurisdictie-gate over normcards + formal rules"
+  },
+  {
+   "generatedEntity": "zones.json",
+   "usedEntity": "formalrules.json",
+   "note": "engine executed FormalRules over fetched layers"
+  },
+  {
+   "generatedEntity": "decision-table.json",
+   "usedEntity": "normcards.json",
+   "note": "every row links a normCardId"
+  },
+  {
+   "generatedEntity": "validation.json",
+   "usedEntity": "zones.json",
+   "note": "V0-V3 over the artifact tree"
+  }
+ ],
+ "hadPrimarySource": [
+  {
+   "zone": "aoi",
+   "sourceId": "request-aoi",
+   "service": "None/None",
+   "lastChecked": null,
+   "fetchedAt": null,
+   "features": 1,
+   "aliasFor": "none",
+   "authoritative": true
+  }
+ ]
+}
