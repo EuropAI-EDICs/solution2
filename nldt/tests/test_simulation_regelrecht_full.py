@@ -46,5 +46,37 @@ class TestArticleSplitter(unittest.TestCase):
             self.assertEqual(len(data["articles"]), 3)
 
 
+class TestEvidenceAligner(unittest.TestCase):
+    def test_utrecht_5_3_links_nc_w_03_and_fr_w_03(self):
+        from align_evidence import align
+
+        arts = split_instrument("utrecht")
+        by_num, orphans = align("utrecht", arts)
+        a = by_num["5.3"]
+        nc_ids = {c["id"] for c in a["normCards"]}
+        fr_ids = {r["id"] for r in a["formalRules"]}
+        self.assertIn("NC-W-03", nc_ids)
+        self.assertIn("FR-W-03", fr_ids)
+
+    def test_eindhoven_10_2_links_doelregel(self):
+        from align_evidence import align
+
+        arts = split_instrument("eindhoven")
+        by_num, _ = align("eindhoven", arts)
+        self.assertTrue(
+            any(
+                d.get("locator", {}).get("artikel") == "10.2"
+                for d in by_num["10.2"]["doelRegels"]
+            )
+        )
+
+    def test_normalize_article_ref(self):
+        from align_evidence import normalize_article_ref
+
+        self.assertEqual(normalize_article_ref("art. 5.3, eerste lid"), "5.3")
+        self.assertEqual(normalize_article_ref("Artikel 22.1"), "22.1")
+        self.assertIsNone(normalize_article_ref("par. Duurzame energie"))
+
+
 if __name__ == "__main__":
     unittest.main()

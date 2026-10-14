@@ -36,3 +36,22 @@ INSTRUMENTS = {
         "publication_date": "2026-06-29",
     },
 }
+
+# Canonieke Utrecht-runs (normcards + formalrules per track)
+UTRECHT_TRACK_RUNS = [
+    ("wind", ROOT / "poc/runs/20260830T113234Z-wind"),
+    ("zon", ROOT / "poc/runs/20260830T142439Z-zon"),
+    ("bos", ROOT / "poc/runs/20260830T142446Z-bos"),
+    ("water", ROOT / "poc/runs/20261004T185116Z-water"),
+    ("bodem", ROOT / "poc/runs/20261004T185509Z-bodem"),
+    ("landschap", ROOT / "poc/runs/20261005T070621Z-landschap"),
+    ("mobiliteit", ROOT / "poc/runs/20261005T072839Z-mobiliteit"),
+    ("landbouw", ROOT / "poc/runs/20261005T094244Z-landbouw"),
+    ("wonen", ROOT / "poc/runs/20261005T100258Z-wonen"),
+    ("recreatie", ROOT / "poc/runs/20261006T114934Z-recreatie"),
+    ("biomassa", ROOT / "poc/runs/20261006T120133Z-biomassa"),
+    ("werken", ROOT / "poc/runs/20261006T121921Z-werken"),
+    ("energietoets", ROOT / "poc/runs/20261006T171730Z-energietoets"),
+]
+
+EINDHOVEN_RUN = ROOT / "poc-bp2op/runs/20260830-124515-eindhoven"
