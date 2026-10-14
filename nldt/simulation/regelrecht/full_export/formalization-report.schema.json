@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldttoolbox.local/formalization-report/v1",
+  "title": "RegelRecht formalization report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "poc",
+    "generatedAt",
+    "sourceSha256",
+    "counts",
+    "articles",
+    "orphanedFormalRules"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "1"},
+    "poc": {"enum": ["utrecht", "eindhoven"]},
+    "generatedAt": {"type": "string", "minLength": 1},
+    "sourceSha256": {"type": "string", "minLength": 64, "maxLength": 64},
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["formalized", "ambiguous", "rejected", "unmatched"],
+      "properties": {
+        "formalized": {"type": "integer", "minimum": 0},
+        "ambiguous": {"type": "integer", "minimum": 0},
+        "rejected": {"type": "integer", "minimum": 0},
+        "unmatched": {"type": "integer", "minimum": 0}
+      }
+    },
+    "articles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["number", "status", "reason"],
+        "properties": {
+          "number": {"type": "string"},
+          "status": {
+            "enum": ["formalized", "ambiguous", "rejected", "unmatched"]
+          },
+          "reason": {"type": "string"},
+          "normCardId": {"type": ["string", "null"]},
+          "formalRuleId": {"type": ["string", "null"]},
+          "source": {"type": "string"},
+          "omzetRowIds": {
+            "type": "array",
+            "items": {"type": "string"}
+          }
+        }
+      }
+    },
+    "orphanedFormalRules": {
+      "type": "array",
+      "items": {"type": "object"}
+    }
+  }
+}

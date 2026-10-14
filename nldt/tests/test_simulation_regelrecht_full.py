@@ -78,5 +78,48 @@ class TestEvidenceAligner(unittest.TestCase):
         self.assertIsNone(normalize_article_ref("par. Duurzame energie"))
 
 
+class TestFormalizer(unittest.TestCase):
+    def test_fr_w_03_produces_machine_readable(self):
+        from align_evidence import align
+        from formalize_to_rr import formalize
+
+        arts = split_instrument("utrecht")
+        al, orphans = align("utrecht", arts)
+        by_num, report = formalize("utrecht", arts, al, orphans)
+        self.assertEqual(by_num["5.3"]["status"], "formalized")
+        self.assertIsNotNone(by_num["5.3"]["machineReadable"])
+        self.assertIn(
+            "toegestaan_kleine_windturbine",
+            str(by_num["5.3"]["machineReadable"]),
+        )
+
+    def test_ambiguous_has_no_mr(self):
+        from align_evidence import align
+        from formalize_to_rr import formalize
+
+        arts = split_instrument("utrecht")
+        al, orphans = align("utrecht", arts)
+        by_num, report = formalize("utrecht", arts, al, orphans)
+        self.assertGreaterEqual(
+            report["counts"]["ambiguous"] + report["counts"]["unmatched"], 1
+        )
+        for art in report["articles"]:
+            if art["status"] in ("ambiguous", "rejected", "unmatched"):
+                self.assertIsNone(by_num[art["number"]].get("machineReadable"))
+
+    def test_report_counts_sum_to_articles(self):
+        from align_evidence import align
+        from formalize_to_rr import formalize
+
+        arts = split_instrument("utrecht")
+        al, orphans = align("utrecht", arts)
+        _, report = formalize("utrecht", arts, al, orphans)
+        c = report["counts"]
+        self.assertEqual(
+            sum(c[k] for k in ("formalized", "ambiguous", "rejected", "unmatched")),
+            len(arts),
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
