@@ -164,5 +164,35 @@ class TestDemoBuild(unittest.TestCase):
         self.assertIn('"number": "5.3"', html)
 
 
+class TestBuildAll(unittest.TestCase):
+    def test_idempotent_stamp(self):
+        import subprocess
+
+        cmd = [
+            str(ROOT / "nldt/.venv/bin/python"),
+            str(FULL / "build_all.py"),
+            "--stamp",
+            "2026-10-14T12:00:00Z",
+        ]
+        subprocess.check_call(cmd, cwd=ROOT)
+        u1 = (FULL / "out/utrecht-cvdr704250.yaml").read_bytes()
+        subprocess.check_call(cmd, cwd=ROOT)
+        u2 = (FULL / "out/utrecht-cvdr704250.yaml").read_bytes()
+        self.assertEqual(u1, u2)
+
+    def test_smoke_articles_still_in_legacy_runs(self):
+        import subprocess
+
+        subprocess.check_call(
+            [
+                str(ROOT / "nldt/.venv/bin/python"),
+                str(ROOT / "nldt/simulation/regelrecht/build_runs.py"),
+                "--stamp",
+                "2026-10-14T12:00:00Z",
+            ],
+            cwd=ROOT,
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

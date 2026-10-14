@@ -209,6 +209,15 @@ PY
 ```
 
 Beide: `VALID` (draft 2020-12, schema v0.7.1, 2026-09-29). De voorbeelden
-zijn demonstratoren: één artikel( paar) per bestand, met de exacte
-publicatiedatum nog uit de CVDR-metadata te halen — de volledige export is
-een generatie-stap boven op de bestaande run-artefacten.
+zijn demonstratoren: één artikel(paar) per bestand.
+
+### Fase 1 volledig — instrument-export
+
+De volledige Omgevingsverordening Utrecht (CVDR704250) en het Omgevingsplan
+Eindhoven (CVDR696400) worden geëxporteerd als één RegelRecht-YAML per
+instrument, met FormalizerPass per artikel (deterministische templates +
+onthouding). Pipeline en demo:
+
+- Spec: [`docs/superpowers/specs/2026-10-14-regelrecht-full-instrument-export-design.md`](superpowers/specs/2026-10-14-regelrecht-full-instrument-export-design.md)
+- Build: `nldt/.venv/bin/python nldt/simulation/regelrecht/full_export/build_all.py --stamp <ISO>`
+- Artefacten: `nldt/simulation/regelrecht/full_export/out/`

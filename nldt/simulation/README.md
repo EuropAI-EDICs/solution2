@@ -54,17 +54,29 @@ roll-up naar KVI's, recipe-cyclus en scale path.
 ## RegelRecht-demo (Utrecht & Eindhoven)
 
 [`regelrecht-demo.html`](regelrecht-demo.html) — de keten artikel → YAML → schema →
-executie → trace, live rekenend op de echte voorbeeld-YAML's en run-artefacten,
-met engine-selftest (16/16), onthoudingen-paneel en de altijd openstaande
-jurittoets. Herbouwen:
+executie → trace over het **volledige instrument** (artikelkiezer + coverage),
+live rekenend waar `machine_readable` bestaat, met engine-selftest (16+K),
+onthoudingen-paneel en de altijd openstaande jurittoets.
+
+### Volle-instrument export
+
+```bash
+nldt/.venv/bin/python nldt/simulation/regelrecht/full_export/build_all.py --stamp <ISO-timestamp>
+```
+
+Schrijft `regelrecht/full_export/out/{utrecht,eindhoven}-cvdr*.yaml`,
+`*-formalization-report.json`, `*-articles.json` en herbouwt de demo.
+Ontwerp: `docs/superpowers/specs/2026-10-14-regelrecht-full-instrument-export-design.md`.
+
+Smoke-runs (art. 5.3 / 10.2) blijven herbouwbaar via:
 
 ```bash
 nldt/.venv/bin/python nldt/simulation/regelrecht/build_runs.py --stamp <ISO-timestamp>
 ```
 
-gegenereerde onderdelen: `regelrecht/runs/*.json`, `regelrecht/engine/engine-cases.json`,
-de single-file pagina zelf. Contract: `regelrecht/simulation-run.schema.json`;
-ontwerp: `docs/superpowers/specs/2026-09-29-simulation-regelrecht-design.md`.
+(roept de volle demo aan zodra formalization-reports aanwezig zijn).
+Contract: `regelrecht/simulation-run.schema.json`;
+fase-1-ontwerp: `docs/superpowers/specs/2026-09-29-simulation-regelrecht-design.md`.
 
 ## Architecture tour
 
