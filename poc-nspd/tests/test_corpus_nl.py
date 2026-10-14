@@ -16,6 +16,7 @@ def test_corpus_nl_aanwezig_en_verifieerbaar():
     assert meta["cvdrId"] == "CVDR709135"
     assert meta["titel"].lower().startswith("omgevingsverordening")
     assert meta["consolidatieDatum"], "geldende versie-datum moet vastgelegd zijn"
+    assert meta["consolidatieDatum"] != "ONBEKEND-ZOEK-HANDMATIG", "sentinel in META.json: consolidatiedatum niet gedetecteerd (zet handmatig)"
     html = (base / "index.html").read_bytes()
     assert hashlib.sha256(html).hexdigest() == meta["sha256Html"]
     tekst = (base / "tekst.txt").read_text(encoding="utf-8")
