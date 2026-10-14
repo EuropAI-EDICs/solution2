@@ -39,6 +39,10 @@ class UCSAdapter:
                 return execute_local(process_id, inputs, job_id=job_id)
             resp.raise_for_status()
             data = resp.json()
+            if isinstance(data, dict) and "model" in data and "outputs" in data:
+                # Model-run-envelope (toolbox-sim --full): outputs + model/deterministic
+                # vlak retourneren zodat de aanvrager de model-identiteit ziet.
+                return {**data["outputs"], **{k: v for k, v in data.items() if k != "outputs"}}
             return data.get("outputs", data)
 
 

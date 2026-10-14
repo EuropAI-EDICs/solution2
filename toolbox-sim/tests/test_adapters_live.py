@@ -80,6 +80,28 @@ def test_broker_live_subscription_outbox(live_sim):
     assert payload["subscriptionId"] == sid and payload["data"]
 
 
+def test_edc_live_flow(live_sim):
+    import httpx
+    import pytest
+
+    from services.adapters import dataspace_connector
+
+    os.environ.setdefault("NLDT_EDC_MANAGEMENT_URL", "http://127.0.0.1:9197")
+    os.environ.setdefault("NLDT_EDC_MANAGEMENT_TOKEN", "sim-toolbox-token")
+    offer_files = sorted((REPO / "nldt" / "data" / "dataspace" / "offers").glob("*.json"))
+    if not offer_files:  # zonder lake-offers in de repo: fixture-pad afdwingen
+        pytest.skip("geen offers in nldt/data/dataspace/offers")
+    offer_uid = json.loads(offer_files[0].read_text(encoding="utf-8"))["uid"]
+    try:
+        result = dataspace_connector.negotiate_and_transfer(offer_uid)
+    except httpx.HTTPError:  # connectiefout of status != 200
+        pytest.skip("EDC-stub draait niet (start sim met --full)")
+    assert result["backend"] == "http"
+    assert result["negotiationState"] == "CONFIRMED"
+    assert result["transferState"] == "COMPLETED"
+    assert result["offerUid"] == offer_uid
+
+
 def test_broker_live_temporal(live_sim):
     body = data_platform.get_temporal_entity(
         "urn:ngsi-ld:WeatherObserved:knmi-260",
