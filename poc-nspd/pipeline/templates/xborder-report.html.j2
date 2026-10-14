@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="nl">
+<head><meta charset="utf-8"><title>NSPD grensvergelijkende scan — {{ track }}</title>
+<style>body{font-family:system-ui;margin:2rem}table{border-collapse:collapse;width:100%}
+td,th{border:1px solid #ccc;padding:.4rem .6rem;text-align:left;vertical-align:top}
+h2{margin-bottom:.3rem}td:not(:first-child){max-width:34rem}</style></head>
+<body>
+<h1>NSPD grensvergelijkende scan — {{ track }}</h1>
+<p>Les de zones van beide zijden in 3D: open de Leia-scène met
+<code>viewer-data/nspd.config.json</code> (laag <code>{{ geojsonName }}</code>).</p>
+{% for naam, code in [("Nederland", "nl"), ("Vlaanderen", "be")] %}
+{% set land_rows = rows | selectattr("land", "equalto", code) | list %}
+<h2>{{ naam }} ({{ code|upper }}) — {{ land_rows|length }} regels</h2>
+<table>
+<tr><th>rule</th><th>norm</th><th>zone-effect</th><th>notitie</th></tr>
+{% for r in land_rows %}<tr class="{{ code }}"><td>{{ r.get('ruleId', r.get('id', '')) }}</td><td>{{ r.get('norm', '') }}</td><td>{{ r.get('zone effect', '') }}</td><td>{{ r.get('note', '') }}</td></tr>
+{% else %}<tr><td colspan="4">geen regels</td></tr>{% endfor %}
+</table>
+{% endfor %}
+</body></html>
