@@ -45,6 +45,18 @@ def main() -> None:
     for land, bbox in delen.items():
         for track in TRACKS:
             bron = json.loads((POC_USECASES / f"{track}.json").read_text(encoding="utf-8"))
+            parameters = dict(bron.get("parameters") or {})
+            # AOI-provenance is hier niet de Utrecht-provinciegrens-dienst maar de
+            # deterministische NSPD-werkbbox-deel; overschrijf de 1-op-1
+            # overgenomen aoi-*-velden (review-fix taak 9).
+            for k in ("aoiSourceId", "aoiServiceUrl", "aoiLayerId",
+                      "aoiLastChecked", "aoiNote"):
+                parameters.pop(k, None)
+            parameters["aoiSourceId"] = "poc-nspd-bbox"
+            parameters["aoiNote"] = (
+                "NSPD-werkbbox-deel (jurisdictie), bbox.py NSPD_BBOX_WGS84, "
+                "deterministisch gegenereerd"
+            )
             req = {
                 "id": str(uuid.uuid5(uuid.NAMESPACE_URL, f"poc-nspd-{track}-{land}")),
                 "objectType": bron["objectType"],
@@ -55,9 +67,8 @@ def main() -> None:
                 "effortBudget": bron["effortBudget"],
                 "requestedAt": bron["requestedAt"],
                 "requestedBy": bron.get("requestedBy", "poc-nspd"),
+                "parameters": parameters,
             }
-            if bron.get("parameters"):
-                req["parameters"] = bron["parameters"]
             (HIER / f"{track}-{land}.json").write_text(
                 json.dumps(req, ensure_ascii=False, indent=1), encoding="utf-8")
             print(f"{track}-{land}.json geschreven (objectType={bron['objectType']})")

@@ -853,6 +853,31 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             generated_at=utcnow(), prov_narrative=prov_narrative,
             table_id=track_cfg["decision_table_id"], title=track_cfg["decision_table_title"],
         )
+        # Review-fix (taak 9): FR-AOI-01 is een orchestrator-constructie en leent
+        # géén citaat van de bijgaande normcard (cards[0] was anders zichtbaar
+        # als criterium/norm/bron — foute juridische attributie). De kolommen die
+        # naar de bron wijzen krijgen constructie-inhoud; "zone effect" blijft de
+        # schema-enumwaarde "included" en draagt het aoi-basis-label in de noot
+        # (het decision-table-schema staat geen andere waarde toe). normCardId
+        # blijft gevuld — schema-verplicht (NC-patroon) én vereist door
+        # v2-decision-table-linkage — maar er wordt geen kaartcitaat meer getoond.
+        for row in dt.get("rows", []):
+            if row.get("ruleId") == "FR-AOI-01":
+                row["criterion"] = "orchestrator-basis: request-AOI (constructie, geen norm)"
+                row["norm"] = (
+                    "run.py orchestrator FR-AOI-01 \u2014 geen rechtsbron "
+                    "[uitvoeringsconstructie]"
+                )
+                row["source"] = (
+                    f"use-cases/{args.use_case}.json (bbox.py NSPD_BBOX_WGS84, "
+                    "EPSG:28992); geen document"
+                )
+                row["note"] = (
+                    "included (aoi-basis) \u2014 geen bijgaande kaart geciteerd: geen "
+                    "inclusion-regel in deze shard is executabel (zone-loos, V4); de "
+                    "request-AOI is de conservatieve inclusion-union "
+                    "(run_summary.inclusionBasis=aoi). " + (row.get("note") or "")
+                ).strip()
         dump_json(run_dir / "decision-table.json", dt, indent=1)
         (run_dir / "decision-table.md").write_text(expl.decision_table_markdown(dt), encoding="utf-8")
 
