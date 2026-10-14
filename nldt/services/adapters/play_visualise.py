@@ -28,6 +28,11 @@ def _api(path: str) -> str:
     return f"{base}/api/{path.lstrip('/')}"
 
 
+def map_url() -> str:
+    """URL van de sim-kaartviewer (leeg in mock zonder NLDT_PV_BASE_URL)."""
+    return f"{PV_BASE_URL}/ui/map" if PV_BASE_URL else ""
+
+
 def create_data_source(
     *,
     name: str,

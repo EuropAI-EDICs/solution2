@@ -2,7 +2,10 @@
 """EU LDT Play & Visualise-sim: dataSources + dataLayers (SCENARIO)."""
 from __future__ import annotations
 
+import json
+
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
 from app.guards import add_provenance, require_bearer
@@ -68,5 +71,44 @@ def create_app() -> FastAPI:
         if dl_id not in data_layers:
             raise HTTPException(status_code=404, detail={"error": "dataLayerNotFound", "description": dl_id})
         return data_layers[dl_id]
+
+    @app.get("/ui/map", response_class=HTMLResponse)
+    def ui_map():
+        """Leesbare kaartviewer over de geregistreerde layers (browser-target, zonder auth)."""
+        layers = [
+            {
+                "id": dl["id"],
+                "name": dl["name"],
+                "dataSource": dl["dataSource"],
+                "url": data_sources.get(dl["dataSource"], {}).get("sourceConfiguration", {}).get("url", ""),
+            }
+            for dl in data_layers.values()
+        ]
+        layers_js = json.dumps(layers)
+        html = """<!doctype html>
+<html><head><meta charset="utf-8"><title>toolbox-sim Play &amp; Visualise kaart</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>#map{height:100vh} .layerbox{position:absolute;top:8px;right:8px;z-index:1000;background:#fff;padding:8px;border-radius:6px;font:13px sans-serif}</style>
+</head><body><div id="map"></div><div class="layerbox" id="layers"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const LAYERS = __LAYERS__;
+const map = L.map('map').setView([52.09, 5.12], 8);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: 'Leaflet | OSM'}).addTo(map);
+const box = document.getElementById('layers');
+for (const layer of LAYERS) {
+  const label = document.createElement('label');
+  label.style.display = 'block';
+  const cb = document.createElement('input');
+  cb.type = 'checkbox'; cb.checked = true;
+  fetch(layer.url).then(r => r.json()).then(fc => {
+    const g = L.geoJSON(fc, {onEachFeature: (f, popup) => popup.bindPopup(JSON.stringify(f.properties || {}, null, 1))});
+    g.addTo(map); cb.addEventListener('change', () => cb.checked ? map.addLayer(g) : map.removeLayer(g));
+    label.textContent = ' ' + layer.name;
+  }).catch(() => { label.textContent = ' ' + layer.name + ' (bron onbereikbaar)'; });
+  label.prepend(cb); box.appendChild(label);
+}
+</script></body></html>"""
+        return HTMLResponse(content=html.replace("__LAYERS__", layers_js))
 
     return app

@@ -37,3 +37,20 @@ def test_datasource_requires_url_422():
 
 def test_requires_bearer():
     assert client.post("/api/dataSources", json=DS_PAYLOAD).status_code == 401
+
+
+def test_ui_map_toont_geregistreerde_lagen():
+    ds = client.post("/api/dataSources", headers=AUTH, json={
+        "name": "zones", "type": "GeoJSON",
+        "sourceConfiguration": {"type": "GeoJSON", "url": "http://localhost:9192/ngsi-ld/v1/entities", "headers": []},
+        "securityConfiguration": {"type": "none", "headers": []},
+    }).json()
+    dl = client.post("/api/dataLayers", headers=AUTH, json={
+        "name": "opportunity-zones", "dataSource": ds["id"], "type": "GeoJSON", "configuration": {},
+    }).json()
+    page = client.get("/ui/map")
+    assert page.status_code == 200
+    assert "text/html" in page.headers["content-type"]
+    assert "Leaflet" in page.text
+    assert "opportunity-zones" in page.text
+    assert dl["dataSource"] in page.text
