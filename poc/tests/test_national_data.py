@@ -10,6 +10,7 @@ Landgebruik is via PDOK 'existinglanduse' gepind (zie module-docstring).
 from __future__ import annotations
 
 import sys
+import urllib.parse
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -127,3 +128,90 @@ def test_fetch_landgebruik_wrapper(tmp_path, monkeypatch):
     assert "/cbs/landuse/ogc/v1/collections/existinglanduse/items" in calls[0]
     # geen celcode in deze bron: records vallen samen met de properties
     assert out["records"] == [page["features"][0]["properties"]]
+
+
+def test_fetch_wfs_filtert_bbox_en_cache(tmp_path, monkeypatch):
+    monkeypatch.setattr(nd, "CACHE", tmp_path)
+    payload = nd.json.loads((FIXTURES / "wfs_sample.json").read_text())
+
+    def transport(url: str) -> dict:
+        assert "bbox=" in url
+        return payload
+
+    out = nd.fetch_wfs(
+        service_url="https://example/wfs", type_name="test:laag",
+        bbox_rd=nd.UTRECHT_BBOX_RD, cache_name="test-wfs.json",
+        refresh=True, transport=transport,
+        source_id="rce-monumenten")
+    assert out["sourceId"] == "rce-monumenten"
+    assert out["records"]["type"] == "FeatureCollection"
+    calls = []
+
+    def transport2(url: str) -> dict:
+        calls.append(url)
+        return payload
+
+    nd.fetch_wfs(service_url="https://example/wfs", type_name="test:laag",
+                 bbox_rd=nd.UTRECHT_BBOX_RD, cache_name="test-wfs.json",
+                 refresh=False, transport=transport2, source_id="rce-monumenten")
+    assert calls == []
+
+
+def test_fetch_wfs_url_vorm(tmp_path, monkeypatch):
+    monkeypatch.setattr(nd, "CACHE", tmp_path)
+    payload = nd.json.loads((FIXTURES / "wfs_sample.json").read_text())
+    calls = []
+
+    def transport(url: str) -> dict:
+        calls.append(url)
+        return payload
+
+    nd.fetch_wfs(service_url="https://example/wfs", type_name="test:laag",
+                 bbox_rd=nd.UTRECHT_BBOX_RD, cache_name="url-vorm.json",
+                 refresh=True, transport=transport, source_id="test-bron")
+    url = calls[0]
+    assert url.startswith("https://example/wfs?")
+    assert "service=WFS" in url
+    assert "version=2.0.0" in url
+    assert "request=GetFeature" in url
+    assert "typeNames=test%3Alaag" in url
+    assert "outputFormat=application/json" in url
+    assert "bbox=130000.0%2C440000.0%2C160000.0%2C470000.0%2Curn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A28992" in url
+
+
+def test_wrappers_gebruiken_gepinde_lagen(tmp_path, monkeypatch):
+    monkeypatch.setattr(nd, "CACHE", tmp_path)
+    payload = nd.json.loads((FIXTURES / "wfs_sample.json").read_text())
+    calls = []
+
+    def transport(url: str) -> dict:
+        calls.append(url)
+        return payload
+
+    rce = nd.fetch_rce_erfgoed(refresh=True, transport=transport)
+    assert sorted(rce) == ["iam-archeologie", "monumenten"]
+    assert rce["monumenten"]["sourceId"] == "rce-monumenten"
+    assert rce["iam-archeologie"]["sourceId"] == "rce-iam-archeologie"
+    assert nd.RCE_WFS in calls[0] and nd.RCE_WFS in calls[1]
+    assert "typeNames=" + urllib.parse.quote(nd.RCE_MONUMENTEN_TYPENAME, safe="") in calls[0]
+    assert "typeNames=" + urllib.parse.quote(nd.RCE_ARCHEOLOGIE_TYPENAME, safe="") in calls[1]
+
+    calls.clear()
+    infra = nd.fetch_infra(refresh=True, transport=transport)
+    assert sorted(infra) == ["spoor", "wegen"]
+    assert infra["wegen"]["sourceId"] == "rws-nwb-wegen"
+    assert infra["spoor"]["sourceId"] == "prorail-spoor"
+    assert nd.NWB_WFS in calls[0] and nd.PRORAIL_WFS in calls[1]
+
+
+def test_fetch_dino_ondergrond_faalt_luid_zonder_gepind_endpoint(tmp_path, monkeypatch):
+    monkeypatch.setattr(nd, "CACHE", tmp_path)
+    if nd.DINO_WFS and nd.DINO_TYPENAME:
+        # endpoint wel gepind: alleen de normale cache-route testen
+        payload = nd.json.loads((FIXTURES / "wfs_sample.json").read_text())
+        out = nd.fetch_dino_ondergrond(refresh=True, transport=lambda url: payload)
+        assert out["sourceId"] == "dino-bro-ondergrond"
+        return
+    import pytest
+    with pytest.raises(RuntimeError, match="dino"):
+        nd.fetch_dino_ondergrond()

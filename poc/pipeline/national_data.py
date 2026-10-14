@@ -189,3 +189,103 @@ def fetch_landgebruik(refresh: bool = False, transport: Transport | None = None)
         cell_column=None,  # geen celcodes in deze bron; bbox al server-side
         service_url=CBS_LANDUSE_SERVICE,
     )
+
+
+# --------------------------------------------------------------------------- #
+# WFS 2.0-contextlagen (plan-2 task 5) — endpoints gepind 2026-10-13
+# --------------------------------------------------------------------------- #
+
+RCE_WFS = "https://data.geo.cultureelerfgoed.nl/openbaar/wfs"
+RCE_MONUMENTEN_TYPENAME = "openbaar:rijksmonumentpunten"
+# IAM zelf heeft geen open WFS (geen 'iam'/'indicatief' in de capabilities van
+# data.geo.cultureelerfgoed.nl of services.rce.geovoorziening.nl); substituut
+# is de Archeologische Monumentenkaart 2014 op dezelfde dienst (zie sources.json).
+RCE_ARCHEOLOGIE_TYPENAME = "openbaar:Archeologische_Monumentenkaart_2014"
+DINO_WFS = ""            # DINOloket: geen open WFS meer (asgs-wfs/regionaal 404)
+DINO_TYPENAME = ""
+NWB_WFS = "https://service.pdok.nl/rws/nwbwegen/wfs/v1_0"
+NWB_TYPENAME = "nwbwegen:wegvakken"
+PRORAIL_WFS = "https://service.pdok.nl/prorail/spoorwegen/wfs/v1_0"
+PRORAIL_TYPENAME = "spoorwegen:trace"
+_WFS_COUNT_LIMIT = "5000"
+
+
+def fetch_wfs(
+    *,
+    service_url: str,
+    type_name: str,
+    bbox_rd: tuple[float, float, float, float],
+    cache_name: str,
+    source_id: str,
+    refresh: bool = False,
+    transport: Transport | None = None,
+) -> dict:
+    """WFS 2.0 GetFeature (GeoJSON), begrensd op de Utrecht-bbox (RD).
+
+    Cache-first onder CACHE/<cache_name>; returnvorm als fetch_cbs_dataset.
+    Een niet-gepinde laag (lege service_url/type_name) faalt luid.
+    """
+    if not service_url or not type_name:
+        raise ValueError(
+            f"WFS niet gepind voor {source_id}: endpoint of typeName ontbreekt "
+            f"(zie de note bij deze bron in poc/data/sources.json)")
+    t = transport or _default_transport
+    cache = CACHE / cache_name
+    if cache.is_file() and not refresh:
+        return json.loads(cache.read_text(encoding="utf-8"))
+    x0, y0, x1, y1 = bbox_rd
+    url = (f"{service_url}?service=WFS&version=2.0.0&request=GetFeature"
+           f"&typeNames={urllib.parse.quote(type_name, safe='')}"
+           f"&outputFormat=application/json&count={_WFS_COUNT_LIMIT}"
+           f"&bbox={urllib.parse.quote(f'{x0},{y0},{x1},{y1},urn:ogc:def:crs:EPSG::28992', safe='')}")
+    fc = t(url)
+    payload = {
+        "sourceId": source_id,
+        "retrieved": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "records": fc,
+    }
+    CACHE.mkdir(parents=True, exist_ok=True)
+    cache.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+    return payload
+
+
+def fetch_rce_erfgoed(refresh: bool = False, transport: Transport | None = None) -> dict:
+    """Erfgoedcontext (RCE WFS): rijksmonumentpunten + archeologische monumenten.
+
+    De IAM-substitutie (AMK-2014 voor de Indicatieve Archeologische Waarden)
+    staat gedocumenteerd in de sources.json-note bij rce-iam-archeologie.
+    """
+    return {"monumenten": fetch_wfs(
+                service_url=RCE_WFS, type_name=RCE_MONUMENTEN_TYPENAME,
+                bbox_rd=UTRECHT_BBOX_RD, cache_name="rce-monumenten.json",
+                source_id="rce-monumenten", refresh=refresh, transport=transport),
+            "iam-archeologie": fetch_wfs(
+                service_url=RCE_WFS, type_name=RCE_ARCHEOLOGIE_TYPENAME,
+                bbox_rd=UTRECHT_BBOX_RD, cache_name="rce-iam-archeologie.json",
+                source_id="rce-iam-archeologie", refresh=refresh, transport=transport)}
+
+
+def fetch_dino_ondergrond(refresh: bool = False, transport: Transport | None = None) -> dict:
+    """DINOloket-ondergrond — alleen aanroepbaar als een endpoint is gepind.
+
+    Stand 2026-10-13: DINOloket biedt geen open WFS meer (asgs-wfs/regionaal
+    404) en BRO-REST is auth-plichtig; vervolgstip in de sources.json-note.
+    Zolang DINO_WFS/DINO_TYPENAME leeg zijn, faalt dit luid (RuntimeError).
+    """
+    if not DINO_WFS or not DINO_TYPENAME:
+        raise RuntimeError(
+            "dino-bro-ondergrond NIET gepind: DINOloket biedt geen open WFS meer "
+            "(zie poc/data/sources.json) — pin BRO-REST of INSPIRE Geology-download")
+    return fetch_wfs(service_url=DINO_WFS, type_name=DINO_TYPENAME,
+                     bbox_rd=UTRECHT_BBOX_RD, cache_name="dino-bro-ondergrond.json",
+                     source_id="dino-bro-ondergrond", refresh=refresh, transport=transport)
+
+
+def fetch_infra(refresh: bool = False, transport: Transport | None = None) -> dict:
+    """NWB-wegen + ProRail-spoor (beide PDOK WFS) — contextlaag infrastructuur."""
+    return {"wegen": fetch_wfs(service_url=NWB_WFS, type_name=NWB_TYPENAME,
+                               bbox_rd=UTRECHT_BBOX_RD, cache_name="rws-nwb-wegen.json",
+                               source_id="rws-nwb-wegen", refresh=refresh, transport=transport),
+            "spoor": fetch_wfs(service_url=PRORAIL_WFS, type_name=PRORAIL_TYPENAME,
+                               bbox_rd=UTRECHT_BBOX_RD, cache_name="prorail-spoor.json",
+                               source_id="prorail-spoor", refresh=refresh, transport=transport)}
