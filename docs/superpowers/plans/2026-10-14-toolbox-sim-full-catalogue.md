@@ -271,7 +271,7 @@ def test_subscription_lifecycle(broker_client):
     r = broker_client.post("/ngsi-ld/v1/subscriptions/", json=SUB, headers=AUTH)
     assert r.status_code == 201
     sid = r.headers["Location"].rsplit("/", 1)[-1]
-    assert r.json() == {}  # 201 zonder body
+    assert r.text == ""  # 201 zonder body, alleen Location-header
     listing = broker_client.get("/ngsi-ld/v1/subscriptions/", headers=AUTH)
     assert any(s["id"] == sid for s in listing.json())
     assert listing.json()[0]["status"] == "active"
