@@ -16,9 +16,11 @@ poc-minigim/data/cache/
 poc-minigim/runs/
 
 # PoC NSPD: zelfde principe — sources-registry + probe-bewijs horen bij de repo
-# (data-root terug aan; cachesubtree opnieuw weg)
+# (data-root terug aan; cachesubtree opnieuw weg). Zonder trailing slash, zodat
+# óók de worktree-symlinks (.venv, data/cache -> hoofdcheckout) matchen.
 !poc-nspd/data/
-poc-nspd/data/cache/
+poc-nspd/data/cache
+poc-nspd/.venv
 # gegenereerde viewer-output (make_viewer_config, task 11) blijft lokaal; de
 # e2e-test schrijft naar tmp_path. Geen negatie nodig: geen eerdere regel matcht
 # viewer-data/ (de data/-regel hierboven matcht alleen mappen die letterlijk

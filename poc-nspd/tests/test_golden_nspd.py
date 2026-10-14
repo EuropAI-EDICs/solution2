@@ -92,7 +92,7 @@ def test_golden_track(track, tmp_path):
     if not golden.is_file():  # eerste keer: freeze (alleen met expliciete env-var)
         if os.environ.get(FREEZE_ENV) != "1":
             pytest.fail(
-                f"golden ontbreekt: {golden} — freeze bewust met "
+                f"golden ontbrekt: {golden} — freeze bewust met "
                 f"{FREEZE_ENV}=1 .venv/bin/python -m pytest -m golden"
             )
         golden.parent.mkdir(parents=True, exist_ok=True)
@@ -106,3 +106,21 @@ def test_golden_track(track, tmp_path):
     assert not gedrift, f"{track}: golden gedrift: {gedrift}"
     # V2b jurisdictie-gate: geen claim over de grens — altijd pass
     assert samenvatting["v2bStatus"] == "pass", f"{track}: v2b niet pass"
+
+
+def test_controle_run_reproduceerbaarheid(tmp_path):
+    """Spec-controle-run: wind-nl tweemaal → identieke uitkomst (≤0,1%, hier 0%).
+
+    De golden-veldset hierboven vergelijkt bewust géén zone-geometrie (task-9-
+    bevindingen: vluchtige velden uitgesloten). Deze test bewijst de reproduceer-
+    baarheid van het eindoppervlak zelf: twee cache-first runs van dezelfde
+    track moeten exact dezelfde ``headline.finalOpportunityKm2`` opleveren.
+    """
+    uitkomsten = []
+    for i in (1, 2):
+        run_dir = _run("wind-nl", tmp_path / f"c{i}")
+        summary = json.loads(
+            (run_dir / "run_summary.json").read_text(encoding="utf-8")
+        )
+        uitkomsten.append(summary["headline"]["finalOpportunityKm2"])
+    assert uitkomsten[0] == uitkomsten[1], uitkomsten

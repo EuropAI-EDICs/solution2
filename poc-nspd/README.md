@@ -45,6 +45,10 @@ Geo-bronnen (`data/sources.json`, registry v2.0; live-geprobeerd 2026-10-14):
 | `pdok-brt-achtergrondkaart` | nl | WMTS | achtergrondkaart viewer |
 | `3dbag-lod22-cesium` | nl | 3D Tiles | 3D gebouwcontext viewer |
 | `geopunt-dhmv-wms` | be | WMS | context (DHM-extrusie: zie beslispunt fase 2) |
+| `cvdr709135-ov-zeeland` | nl | document | juridische pin — NL-rechtsbron (consolideerdatum in `corpus/nl/CVDR709135/META.json`; zie S01 hierboven) |
+| `cbs-grid-kerncijfers-100m` | nl | OGC API | scenario-basis (`basis.dataGrounding`, kalibratie plan 2 task 4; niet door fase-1-regels gebruikt) |
+| `mercator-ruimtelijk-beleid` | be | WMS | kandidaat RUP/gewestplan-zonering — géén bruikbare coveragelaag als één typeName (probe 2026-10-14) → V4, RUP-zonering via corpus-gebindde AOI |
+| `be-rup-corpus` | be | document | juridische pin — Vlaamse RUP-teksten haven Gent/Zelzate (documenten, sha256+META, taak 3) |
 
 AOI: NSPD-bbox 3.45–3.88°E / 51.02–51.48°N (`bbox.py`), gesplitst op 3.73°E in een
 NL- en BE-helft (`use-cases/make_aoi.py`, EPSG:28992). Leia-submodule `viewer/` (MIT,
@@ -169,6 +173,11 @@ en de wind-xborder-merge onder `xborder-runs/wind/` (`report-xborder.html` +
 - Fase-1-zone-semantiek: inclusion = request-AOI (`inclusionBasis=aoi`, FR-AOI-01); de
   provinciale GIO/DSO-downloadketen en de BE RUP-deelgebieden/gewestplan-SZ-geometrieën
   zijn niet aan de zone-algebra gekoppeld (geen gepinde open-data-alias) → V4.
+- Het xborder-rapport heeft bewust geen Leaflet-kaart: elke rij/feature draagt `land`;
+  het 3D-overzicht loopt via de Leia-scène (spec §4.4-interpretatie).
+- Havenbedrijven/energie-infrastructuur-themalagen (spec §4.5) zijn niet opgenomen: geen
+  open, pinbare geobron beschikbaar; bewuste gap — `make_viewer_config.py --track`
+  werkt voor elke track.
 - Rapport-kaartgeometrie is display-versimpeld (Douglas-Peucker, tolerance in
   `run_summary.tunings`); autoritatieve geometrie: `zones.geojson`/`zones.gml`.
 - Herdraai de juridische recon én de pipeline na een nieuwe consolidatie van de genoemde

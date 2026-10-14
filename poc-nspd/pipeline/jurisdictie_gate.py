@@ -22,8 +22,14 @@ def run_v2b(
     strict: bool = False,
     document_registry: Mapping[str, Any] | None = None,
 ) -> dict:
+    if jurisdictie not in _BE_NL_TYPES:
+        # harde wiring-fout, géén data-check: altijd luid falen (ook zonder
+        # strict), met een duidelijke melding i.p.v. een kale KeyError uit
+        # de _BE_NL_TYPES-lookup (fase-2-reviewfix)
+        raise JurisdictieError(
+            f"onbekende jurisdictie {jurisdictie!r}: geldig zijn "
+            f"{', '.join(sorted(_BE_NL_TYPES))}")
     reg = sources_registry.get("sources", [])
-    bron_jur: dict[str, str] = {s.get("id", ""): s.get("jurisdictie", "") for s in reg}
     checks: list[dict] = []
     for k in normcards:
         if k.get("jurisdictie") != jurisdictie:

@@ -18,9 +18,11 @@ def test_bbox_constanten_en_volgorde():
 def test_rd_en_l72_transformaties():
     rd = nspd_bbox_rd()
     assert all(isinstance(v, float) for v in rd)
-    # RD van de NSPD-bbox moet binnen het NL-kanaal vallen (grof checkpunt:
-    # Vlissingen ligt rond RD (35000, 420000))
-    assert rd[0] < 50000 < rd[2] or rd[0] < 60000
+    # RD van de NSPD-bbox: deterministische transformatie van de WGS84-hoeken
+    # geeft x-min ≈ 19081.3 (westrand bij Vlissingen/Borsele) en x-max ≈
+    # 50304.2 (oostrand bij haven Gent/Zelzate); strakke marge ±2000 m
+    assert 17000 < rd[0] < 21000, rd
+    assert 48000 < rd[2] < 52000, rd
     l72 = nspd_bbox_l72()
     assert all(isinstance(v, float) for v in l72)
     # Lambert72 van haven Gent ligt rond (105000, 193000)

@@ -280,6 +280,13 @@ def fetch_layers(
             continue
         sid = spec["sourceId"]
         source_of_zone[zone] = sid
+        if sid in by_source and by_source[sid] is None:
+            # eerder gefaalde fetch voor deze sourceId (cache van de mislukking):
+            # degradeer deze zone ook — nooit een crash op de gecachte None
+            # (fase-2-reviewfix: tweede zone op dezelfde bron)
+            degradations.append({"kind": "layer-fetch", "zone": zone, "sourceId": sid,
+                                 "error": "cached fetch failure for sourceId"})
+            continue
         if sid in by_source:
             layers[zone] = by_source[sid]
         else:
@@ -873,10 +880,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                     "EPSG:28992); geen document"
                 )
                 row["note"] = (
+                    # dedup (fase-2 docronde): de inclusionBasis=aoi-zin staat
+                    # al in de rationale van de constructieregel (hieronder als
+                    # bestaande note toegevoegd) — hier alleen de nieuwe info
                     "included (aoi-basis) \u2014 geen bijgaande kaart geciteerd: geen "
-                    "inclusion-regel in deze shard is executabel (zone-loos, V4); de "
-                    "request-AOI is de conservatieve inclusion-union "
-                    "(run_summary.inclusionBasis=aoi). " + (row.get("note") or "")
+                    "inclusion-regel in deze shard is executabel (zone-loos, V4). "
+                    + (row.get("note") or "")
                 ).strip()
         dump_json(run_dir / "decision-table.json", dt, indent=1)
         (run_dir / "decision-table.md").write_text(expl.decision_table_markdown(dt), encoding="utf-8")

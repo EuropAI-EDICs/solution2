@@ -7,6 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from bbox import NSPD_BBOX_WGS84  # noqa: E402
+from pyproj import Transformer  # noqa: E402
 
 
 def _aoi_use_case(land: str) -> dict:
@@ -29,12 +30,19 @@ def test_use_cases_bestaan_en_aoi_in_landing():
         else:
             assert all(35000 < x < 60000 for x in xs)
         assert req["areaOfInterest"]["crs"] == "EPSG:28992"
-    # de helften delen de split-meridiaanrand: de RD-projectie van 3.73°E is een
-    # schuin segment, beide hoekpunten daarvan zitten in beide ringen
-    nl_xs = {p[0] for p in _aoi_use_case("nl")["areaOfInterest"]["geometry"]["coordinates"][0]}
-    be_xs = {p[0] for p in _aoi_use_case("be")["areaOfInterest"]["geometry"]["coordinates"][0]}
-    gedeeld = nl_xs & be_xs
-    assert len(gedeeld) == 2 and gedeeld == (nl_xs & be_xs)
+    # de helften delen alléén de split-meridiaanrand: make_aoi.py splitst op
+    # SPLIT_LON=3.73°E, waarvan de RD-projectie een schuin segment is — de twee
+    # hoekpunten daarvan (op de zuid- en noordrand van de bbox, RD-x ≈ 38724.26
+    # en ≈ 39885.87) zijn precies de gedeelde punten, en beide ringen zijn
+    # gesloten (eerste == laatste punt)
+    nl_ring = _aoi_use_case("nl")["areaOfInterest"]["geometry"]["coordinates"][0]
+    be_ring = _aoi_use_case("be")["areaOfInterest"]["geometry"]["coordinates"][0]
+    assert nl_ring[0] == nl_ring[-1], "NL-ring niet gesloten"
+    assert be_ring[0] == be_ring[-1], "BE-ring niet gesloten"
+    _t = Transformer.from_crs("EPSG:4326", "EPSG:28992", always_xy=True)
+    split_x = {round(_t.transform(3.73, y)[0], 3) for y in (NSPD_BBOX_WGS84[1], NSPD_BBOX_WGS84[3])}
+    gedeeld = {round(p[0], 3) for p in nl_ring} & {round(p[0], 3) for p in be_ring}
+    assert gedeeld == split_x, gedeeld
 
 
 def test_make_aoi_schrijft_zes_use_cases(tmp_path):

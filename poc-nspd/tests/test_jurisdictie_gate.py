@@ -53,3 +53,16 @@ def test_v2b_bron_overgeslagen_zonder_documentregister():
                   sources_registry=_REGISTRY, jurisdictie="nl")
     assert out["status"] == "pass"
     assert not any(c["id"] == "V2B-BRON" for c in out["checks"])
+
+
+def test_v2b_onbekende_jurisdictie_faalt_luid_niet_met_kale_keyerror():
+    """Onbekende jurisdictie (bijv. "de") → JurisdictieError met duidelijke
+    melding i.p.v. een kale KeyError uit _BE_NL_TYPES (task 8-review-minor,
+    fase-2 hardening); ook zonder strict — verkeerde wiring faalt altijd luid."""
+    with pytest.raises(JurisdictieError) as exc:
+        run_v2b(normcards=[_KAART], formal_rules=[_FR],
+                sources_registry=_REGISTRY, jurisdictie="de")
+    melding = str(exc.value)
+    assert "de" in melding
+    assert "nl" in melding and "be" in melding  # de geldige waarden staan erbij
+    assert not isinstance(exc.value, KeyError)
