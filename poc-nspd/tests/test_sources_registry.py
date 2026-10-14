@@ -18,7 +18,7 @@ def test_elke_bron_heeft_jurisdictie_en_status():
         assert s["jurisdictie"] in ("nl", "be"), s["id"]
         assert s["status"] in ("pinned", "candidate"), s["id"]
         assert s["endpointType"] in (
-            "ogc-api", "wfs", "wms", "arcgis-rest", "document", "3dtiles"), s["id"]
+            "ogc-api", "wfs", "wms", "wmts", "arcgis-rest", "document", "3dtiles"), s["id"]
         if s["status"] == "pinned":
             assert s.get("lastChecked"), s["id"]
             assert s.get("probeEvidence"), s["id"]
