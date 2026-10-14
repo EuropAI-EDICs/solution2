@@ -27,4 +27,4 @@ Branch: `verordening-fase4` · Worktree: `../ldttoolbox-vf4` · Plan: `docs/supe
 - [x] Task 5 — energietoets-recon
 - [x] Task 6 — energietoets formalisering + run
 - [x] Task 7 — docs + regressie
-- [ ] Task 7 — merge (parent)
+- [x] Task 7 — merge (parent) — `04b54cd` op main (fusie met fase 5: 13 tracks)
