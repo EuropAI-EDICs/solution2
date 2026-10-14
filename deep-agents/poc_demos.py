@@ -208,6 +208,11 @@ POC_DEMOS: list[dict[str, Any]] = [
         "simulationPages": [
             {"title": "What-if demo", "path": "utrecht-whatif-demo.html"},
             {"title": "Flow demo", "path": "utrecht-flow-demo.html"},
+            {"title": "Context — Energietransitie", "path": "utrecht-context-energietransitie.html"},
+            {"title": "Context — Wonen & Werken", "path": "utrecht-context-wonen-werken.html"},
+            {"title": "Context — Water & Bodem", "path": "utrecht-context-water-bodem.html"},
+            {"title": "Context — Landschap & Infrastructuur", "path": "utrecht-context-landschap-infra.html"},
+            {"title": "Context — Landelijk Gebied", "path": "utrecht-context-landelijk-gebied.html"},
         ],
         "modes": _UTRECHT_MODES,
     },
