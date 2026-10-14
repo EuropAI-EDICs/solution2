@@ -19,8 +19,16 @@ _OBJECT_TO_TRACK = {
     "wind_turbine": "wind",
     "solar_field": "zon",
     "forest_planting": "bos",
-    "biomass_installation": "wind",
-    "energy_storage": "zon",
+    "biomass_installation": "biomassa",
+    "energy_storage": "energietoets",
+    "riparian_development": "water",
+    "soil_activity": "bodem",
+    "roadside_development": "mobiliteit",
+    "landscape_intervention": "landschap",
+    "agricultural_expansion": "landbouw",
+    "housing_development": "wonen",
+    "business_development": "werken",
+    "recreation_development": "recreatie",
 }
 
 

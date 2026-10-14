@@ -67,3 +67,18 @@ def test_engine_and_critic_do_not_import_marble():
     for path in (engine_path, critic_path):
         text = path.read_text(encoding="utf-8")
         assert "marble" not in text.lower()
+
+
+def test_alle_uitdaging_runs_bouwen_valide_specs():
+    """Regressie (plan-1/2): world-scene-spec-schema's moeten alle 13 tracks
+    dekken — eerder faalden nieuwe tracks op de oude 5-waarden enums."""
+    uj = json.loads((POC_ROOT / "scenarios" / "uitdagingen.json").read_text(encoding="utf-8"))
+    schema = json.loads(
+        (POC_ROOT / "schemas" / "world-scene-spec.schema.json").read_text(encoding="utf-8"))
+    assert set(schema["properties"]["track"]["enum"]) == set(uj["scenarioRuns"])
+    for track, run_id in uj["scenarioRuns"].items():
+        run_dir = POC_ROOT / "scenario-runs" / run_id
+        assert run_dir.is_dir(), run_id
+        for spec in world_scene.build_specs_from_run_dir(run_dir):
+            contracts.validate(spec, "world-scene-spec")
+            assert spec["track"] == track
