@@ -1,0 +1,20 @@
+{
+ "keuze": "vlak",
+ "motivering": "POC-scope: GRB-voetafdrukken als vlakke laag; extrusie via DHMV vraagt per-gebouw DHM-sampling die de POC-tijd overschrijdt. Herbeoordeling in fase 2.",
+ "hogeAttribuutGevonden": null,
+ "toelichting": "DescribeFeatureType GRB:ADP (2026-10-14, HTTP 200) bevat géén h_dak_50-achtig hoogteveld. Veldnamenlijst: UIDN, OIDN, VERSIE, BEGINDATUM, VERSDATUM, CAPAKEY, CANU, NISCODE, FISCDATUM, BHRDR (int, bronhoudercode), LBLBHRDR, BGNINV, LBLBGNINV, SHAPE (gml:Polygon). BHRDR is een bronhouder-code (enum-paar met LBLBHRDR), geen hoogte in meters — dus geen bruikbaar numeriek hoogteveld voor extrusie; vlakke laag volgt het beslispunt uit de spec.",
+ "probe": {
+  "endpoint": "https://geo.api.vlaanderen.be/GRB/wfs?service=WFS&version=2.0.0&request=DescribeFeatureType&typeNames=GRB:ADP&outputFormat=application/json",
+  "datum": "2026-10-14",
+  "typeNames": "GRB:ADP",
+  "velden": ["UIDN", "OIDN", "VERSIE", "BEGINDATUM", "VERSDATUM", "CAPAKEY", "CANU", "NISCODE", "FISCDATUM", "BHRDR", "LBLBHRDR", "BGNINV", "LBLBGNINV", "SHAPE"]
+ },
+ "laag": {
+  "id": "grb-gebouwen",
+  "title": "GRB gebouwen (BE, vlak)",
+  "url": "layers/grb-gebouwen-be.geojson",
+  "defaultOn": false,
+  "note": "Laagbestand wordt gegenereerd bij de echte demo-run (taak 13: WFS-fetch cache-first); deze taak levert alleen de config-verwijzing."
+ },
+ "beslotenIn": "plan 2026-10-14-poc-nspd taak 12"
+}

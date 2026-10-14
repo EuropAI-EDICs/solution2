@@ -71,6 +71,20 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path) -> Path:
         ],
         "tools": {"layermanager": {"enabled": True}, "featureinfo": {"enabled": True}},
     }
+    # 3D-context BE-gebouwen: vlakke GRB-laag zodra het extrusie-besluit (taak 12)
+    # bestaat — besluitdocument: data/grb_extrusie_besluit.json (keuze "vlak": GRB:ADP
+    # heeft geen h_dak_50-achtig hoogteveld; DHM-extrusie niet in POC-scope).
+    if (ROOT / "data" / "grb_extrusie_besluit.json").is_file():
+        json.loads((ROOT / "data" / "grb_extrusie_besluit.json").read_text(encoding="utf-8"))
+        cfg["layers"].append({
+            "id": "grb-gebouwen",
+            "type": "geojson",
+            "title": "GRB gebouwen (BE, vlak)",
+            "groupId": "d3",
+            "defaultOn": False,
+            "attribution": "GRB via Geopunt, vrije open data-modellicentie",
+            "settings": {"url": "layers/grb-gebouwen-be.geojson"},
+        })
     uit = out_dir / "nspd.config.json"
     uit.write_text(json.dumps(cfg, ensure_ascii=False, indent=1), encoding="utf-8")
     return uit

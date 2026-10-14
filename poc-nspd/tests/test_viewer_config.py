@@ -21,3 +21,19 @@ def test_config_valid_en_lagen_aanwezig(tmp_path):
     for vereist in ("3D BAG", "Zones wind NL", "Zones wind BE"):
         assert vereist in titels
     assert (pad.parent / "layers" / "zones-wind-nspd.geojson").is_file()
+
+
+def test_grb_laag_en_besluit_vermeld():
+    cfg_pad = ROOT / "viewer-data" / "nspd.config.json"
+    if not cfg_pad.is_file():
+        return  # pas na eerste echte run-generatie; besluit-test moet altijd draaien
+    cfg = json.loads(cfg_pad.read_text(encoding="utf-8"))
+    assert "GRB gebouwen" in json.dumps(cfg["layers"])
+
+
+def test_dhm_beslispunt_gedocumenteerd():
+    besluit = ROOT / "data" / "grb_extrusie_besluit.json"
+    assert besluit.is_file()
+    b = json.loads(besluit.read_text(encoding="utf-8"))
+    assert b["keuze"] in ("vlak", "extrusie")
+    assert b["motivering"] and b["beslotenIn"] == "plan 2026-10-14-poc-nspd taak 12"
