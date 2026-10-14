@@ -60,6 +60,22 @@ cd poc-minigim && ../nldt/.venv/bin/python -m unittest discover -s tests
 cd poc-minigim && python3 -m unittest tests.test_convert
 ```
 
+## Literatuur-indicatoren (referentielens, additief)
+
+Naast de 74-item Lijst kan per sector een literatuurreferentielens uit de
+globale datasect [`planning_indicators/`](../planning_indicators/README.md)
+(Urban Indicators: Drinking Water · Urban Heat · Housing Provision, ITC
+Twente, v1.2, CC BY-NC-SA) worden gegenereerd — elk indicator met definitie,
+eenheid, berekening en de bronpublicaties waaruit hij is geëxtraheerd,
+inclusief prov (DOI, upstream-commit, sha256 per CSV):
+
+```bash
+python3 poc-minigim/tools/indicator_refs.py --sector heat   # water|heat|housing
+# → runs/indicator-refs/indicator-refs-heat.json
+```
+
+Additief-only: raakt de canonieke run-artefacten niet aan.
+
 ## Bronregisters (recon 21-9-2026, allemaal sleutelloos)
 
 - Gepinde snapshots: `sources/MiniGIM-omgevingsanalyse-lijst-v0.91.xlsx` en
@@ -96,7 +112,8 @@ cd poc-minigim && python3 -m unittest tests.test_convert
 ```
 poc-minigim/
 ├── sources/          gepinde MiniGIM-xlsx'en (v0.91 Lijst, v0.8 ILS)
-├── tools/            convert_minigim_xlsx.py (build-time, openpyxl)
+├── tools/            convert_minigim_xlsx.py (build-time, openpyxl),
+│                     indicator_refs.py (literatuurlens, planning_indicators)
 ├── registry/         gegenereerde registries + lijst-bindings.json (74/74)
 ├── schemas/          5 JSON-schema's (registers, bindings, artefacten)
 ├── data/             sources.json (11 bronnen + quirks), probe-script + bewijs

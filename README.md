@@ -36,6 +36,12 @@ verbatim quote + URL per claim, schema-validated artifacts, PROV provenance).
   both PoCs, replayed from their canonical run artifacts
   (`python3 simulation/build_simulation.py`, then open `simulation.html`).
 - [`3d-viewer/`](3d-viewer) — 3D BAG LOD22 tile mirror/viewer experiment.
+- [`planning_indicators/`](planning_indicators/README.md) — **shared global
+  asset for all PoCs**: the *Urban Indicators Dataset* (Drinking Water ·
+  Urban Heat · Housing Provision — Cardenas-Leon et al., ITC Twente, v1.2,
+  CC BY-NC-SA) vendored with a stdlib loader (joins, search, PK/FK
+  integrity tests, provenance constants). First consumer: PoC-5
+  `poc-minigim/tools/indicator_refs.py` (literature lens, additive).
 - [`SETUP.md`](SETUP.md) — environment setup; [`sql/`](sql) — database scratchpad.
 
 PoC-1 and PoC-2 run offline, corpus-first: `python3 poc/run.py` (tracks:
