@@ -35,6 +35,7 @@ def extract_candidates(
     trefwoorden: tuple[str, ...],
     jurisdictie: str,
     source_url: str,
+    bron_label: str = "",
 ) -> list[dict]:
     ev_prefix = _EVID_PREFIX[track]
     kandidaten: list[dict] = []
@@ -43,7 +44,7 @@ def extract_candidates(
         laag = blok.lower()
         if any(tw.lower() in laag for tw in trefwoorden):
             quote = " ".join(blok.split())[:600]
-            kandidaten.append({
+            record = {
                 "id": f"{ev_prefix}-{len(kandidaten) + 1:02d}",
                 "jurisdictie": jurisdictie,
                 "track": track,
@@ -52,5 +53,20 @@ def extract_candidates(
                 "sourceUrl": source_url,
                 "retrieved": datetime.now(timezone.utc).isoformat(timespec="seconds"),
                 "verified": False,  # curator-promotie zet deze op true
-            })
+            }
+            if bron_label:
+                record["bron"] = bron_label
+            kandidaten.append(record)
     return kandidaten
+
+
+def merge_brondocumenten(meta_path: Path) -> list[tuple[str, str, str]]:
+    """Geeft [(instrumentId, titel, tekst)] voor alle .txt in corpus/be."""
+    import json as _json
+    meta = _json.loads(meta_path.read_text(encoding="utf-8"))
+    uit = []
+    for ins in meta["instrumenten"]:
+        txt = meta_path.parent / ins["bestand"].replace(".pdf", ".txt")
+        if txt.is_file():
+            uit.append((ins["id"], ins["titel"], txt.read_text(encoding="utf-8", errors="replace")))
+    return uit
