@@ -104,7 +104,9 @@ def create_broker_app(
     def get_subscription(sid: str, _: dict = Depends(require_bearer)):
         sub = subscriptions.get(sid)
         if sub is None:
-            raise HTTPException(status_code=404, detail={"error": "NotFound", "description": sid})
+            # Taak-4-precedent: top-level {"error": ...} teruggeven; HTTPException-detail
+            # wordt in {"detail": ...} gewrapped, tests asserten r.json()["error"].
+            return JSONResponse(status_code=404, content={"error": "NotFound", "description": sid})
         return sub
 
     @app.delete("/ngsi-ld/v1/subscriptions/{sid}", status_code=204)
@@ -117,7 +119,9 @@ def create_broker_app(
     def trigger_notify(sid: str, x_tenant: str = Header(default="ldt", alias="NGSILD-Tenant"), _: dict = Depends(require_bearer)):
         sub = subscriptions.get(sid)
         if sub is None:
-            raise HTTPException(status_code=404, detail={"error": "NotFound", "description": sid})
+            # Taak-4-precedent: top-level {"error": ...} teruggeven; HTTPException-detail
+            # wordt in {"detail": ...} gewrapped, tests asserten r.json()["error"].
+            return JSONResponse(status_code=404, content={"error": "NotFound", "description": sid})
         watched = [(e.get("id"), e.get("type")) for e in sub.get("entities", [])]
         tenant = _tenant(x_tenant)
         matched = [
@@ -135,7 +139,9 @@ def create_broker_app(
     @app.get("/ngsi-ld/v1/subscriptions/{sid}/notifications")
     def list_subscription_notifications(sid: str, _: dict = Depends(require_bearer)):
         if sid not in subscriptions:
-            raise HTTPException(status_code=404, detail={"error": "NotFound", "description": sid})
+            # Taak-4-precedent: top-level {"error": ...} teruggeven; HTTPException-detail
+            # wordt in {"detail": ...} gewrapped, tests asserten r.json()["error"].
+            return JSONResponse(status_code=404, content={"error": "NotFound", "description": sid})
         return {"data": subscription_notifications.get(sid, [])}
 
     @app.post("/ngsi-ld/v1/registrations/", status_code=201)

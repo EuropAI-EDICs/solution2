@@ -108,6 +108,12 @@ def test_subscription_lifecycle(broker_client):
     assert broker_client.get(f"/ngsi-ld/v1/subscriptions/{sid}", headers=AUTH).status_code == 404
 
 
+def test_subscription_onbekend_top_level_error(broker_client):  # review F1: foutcontract is top-level
+    r = broker_client.get("/ngsi-ld/v1/subscriptions/urn:ngsi-ld:Subscription:onbekend", headers=AUTH)
+    assert r.status_code == 404 and r.json()["error"] == "NotFound"
+    assert r.json()["description"] == "urn:ngsi-ld:Subscription:onbekend"
+
+
 def test_subscription_validatie(broker_client):
     r = broker_client.post("/ngsi-ld/v1/subscriptions/", json={"type": "Subscription"}, headers=AUTH)
     assert r.status_code == 400 and r.json()["error"] == "BadRequest"
