@@ -1,0 +1,127 @@
+{
+ "registryVersion": "2.0",
+ "generatedBy": "poc-nspd taak 1 (plan 2026-10-14-poc-nspd)",
+ "generatedAt": "2026-10-14T00:00:00Z",
+ "probeEvidenceNote": "Live-verificatie 2026-10-14: geo.api.vlaanderen.be/GRB/wfs HTTP 200 (184KB), DHMV/wms HTTP 200 (lagen DHMV-I/II), mercator raadpleegdienstenmercatorpubliek/ows HTTP 200 (2.9MB, nz:nz_n_gevoelige_habitats_sbz_2025 gezien), geopunt.be/status-geo-webdiensten.html HTTP 200. Host geoservices.informatievlaanderen.be: DNS vervallen.",
+ "sources": [
+  {
+   "id": "cvdr709135-ov-zeeland",
+   "title": "Omgevingsverordening Zeeland (CVDR709135)",
+   "jurisdictie": "nl",
+   "endpointType": "document",
+   "serviceUrl": "https://lokaleregelgeving.overheid.nl/CVDR709135",
+   "status": "pinned",
+   "lastChecked": "2026-10-14",
+   "probeEvidence": "webverificatie plan taak 1; consolideerdatum vastgelegd in corpus/nl/CVDR709135/META.json (taak 2)",
+   "role": "legal",
+   "authoritative": true
+  },
+  {
+   "id": "pdok-brt-achtergrondkaart",
+   "title": "PDOK BRT Achtergrondkaart (WMTS)",
+   "jurisdictie": "nl",
+   "endpointType": "wms",
+   "serviceUrl": "https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0?",
+   "status": "pinned",
+   "lastChecked": "2026-10-14",
+   "probeEvidence": "Leia example.config.json laag 1 (leia-project/viewer static/example.config.json)",
+   "role": "context",
+   "authoritative": true
+  },
+  {
+   "id": "3dbag-lod22-cesium",
+   "title": "3D BAG LoD2.2 cesium3dtiles (NL-gebouwen)",
+   "jurisdictie": "nl",
+   "endpointType": "3dtiles",
+   "serviceUrl": "https://data.3dbag.nl/v20250903/cesium3dtiles/lod22/tileset.json",
+   "status": "pinned",
+   "lastChecked": "2026-10-14",
+   "probeEvidence": "3d-viewer/index.html:31 (bestaand experiment, werkend geladen)",
+   "role": "context",
+   "authoritative": true
+  },
+  {
+   "id": "cbs-grid-kerncijfers-100m",
+   "title": "CBS Vierkantstatistieken 100m (PDOK OGC API)",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/cbs/vierkantstatistieken100m/ogc/v1",
+   "collection": "vierkant100",
+   "status": "pinned",
+   "lastChecked": "2026-10-14",
+   "probeEvidence": "poc/pipeline/national_data.py (kalibratie plan 2 task 4, in productie bij PoC-1)",
+   "role": "scenario-basis",
+   "authoritative": true
+  },
+  {
+   "id": "pdok-natura2000",
+   "title": "Natura 2000-gebieden (PDOK OGC API)",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/het/cdnat2000/ogc/v1",
+   "collection": "natura2000gebied",
+   "status": "candidate",
+   "pinnedInTask": "taak 5 stap 4 (live-probe, collectie-id bevestigen)",
+   "role": "exclusion",
+   "authoritative": true
+  },
+  {
+   "id": "geopunt-grb-wfs",
+   "title": "GRB (Grootschalig ReferentieBestand) WFS",
+   "jurisdictie": "be",
+   "endpointType": "wfs",
+   "serviceUrl": "https://geo.api.vlaanderen.be/GRB/wfs",
+   "status": "pinned",
+   "lastChecked": "2026-10-14",
+   "probeEvidence": "data/probe_2026-10-14.json (GetCapabilities HTTP 200, 184KB); exacte typeNames via probe-script",
+   "role": "inclusion",
+   "authoritative": true
+  },
+  {
+   "id": "geopunt-dhmv-wms",
+   "title": "DHM Vlaanderen (hoogte, WMS)",
+   "jurisdictie": "be",
+   "endpointType": "wms",
+   "serviceUrl": "https://geo.api.vlaanderen.be/DHMV/wms",
+   "status": "pinned",
+   "lastChecked": "2026-10-14",
+   "probeEvidence": "data/probe_2026-10-14.json (HTTP 200; lagen DHMV-I, DHMV-II, DHMV)",
+   "role": "context",
+   "authoritative": true
+  },
+  {
+   "id": "mercator-sbz-wms",
+   "title": "SBZ/Natura2000-Vlaanderen (Mercator publiek OWS)",
+   "jurisdictie": "be",
+   "endpointType": "wms",
+   "serviceUrl": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
+   "status": "pinned",
+   "lastChecked": "2026-10-14",
+   "probeEvidence": "data/probe_2026-10-14.json (HTTP 200; laag nz:nz_n_gevoelige_habitats_sbz_2025)",
+   "role": "exclusion",
+   "authoritative": true
+  },
+  {
+   "id": "mercator-ruimtelijk-beleid",
+   "title": "Ruimtelijk beleid Vlaanderen (RUP/Gewestplan-zones, Mercator)",
+   "jurisdictie": "be",
+   "endpointType": "wfs",
+   "serviceUrl": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
+   "status": "candidate",
+   "pinnedInTask": "taak 5 stap 4 (exacte typeNames voor RUP/gewestplan via probe-script + Datavindplaats)",
+   "role": "inclusion",
+   "authoritative": true
+  },
+  {
+   "id": "be-rup-corpus",
+   "title": "Vlaamse RUP-teksten haven Gent/Zelzate (documenten)",
+   "jurisdictie": "be",
+   "endpointType": "document",
+   "serviceUrl": "https://www.vlaanderen.be/datavindplaats/catalogus (zoek: ruimtelijk uitvoeringsplan haven Gent)",
+   "status": "candidate",
+   "pinnedInTask": "taak 3 (documenten downloaden + sha256 + META)",
+   "role": "legal",
+   "authoritative": true
+  }
+ ]
+}
