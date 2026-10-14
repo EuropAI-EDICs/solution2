@@ -1,0 +1,285 @@
+{
+ "id": "SR-20261005T070621Z-landschap-20261013T144938Z",
+ "scenarioSetId": "SSET-landschap-utrecht-uitdagingen",
+ "baselineRunId": "20261005T070621Z-landschap",
+ "requestId": "9beb3f34-77bc-4922-bc0f-c9aeaef4bb65",
+ "objectType": "landscape_intervention",
+ "generatedAt": "2026-10-13T14:49:38Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 1560.053846303,
+  "inclusionIntersectAoiKm2": null,
+  "baselineFinalAreaKm2": 1425.95873722,
+  "baselineInclusionKm2": null,
+  "reproductionDeltaKm2": 134.095109083,
+  "reproductionRelDelta": 0.094038561974,
+  "reproductionWithinTolerance": false
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-LS-CHS-HARD",
+   "name": "Cultuurhistorische hoofdstructuur treated as hard exclusion",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-LS-04",
+    "provenanceNote": "NC-LS-04 (art. 7.9) conditions intervention on the cultuurhistorische hoofdstructuur; this variant executes the strictest protective reading as a hard exclusion."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-LS-04",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "conditional -> exclusion"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 6,
+   "rulesExecuted": 0,
+   "finalAreaKm2": 1560.053846303,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": 0.0,
+   "deltaVsControlPct": 0.0,
+   "iouVsControl": 1.0,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-LS-CHS-HARD.geojson",
+   "status": "degraded"
+  },
+  {
+   "scenarioId": "SC-LS-AARDKUNDIG-HARD",
+   "name": "Aardkundige waarden treated as hard exclusion",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-LS-06",
+    "provenanceNote": "NC-LS-06 (art. 7.12) conditions intervention on aardkundige waarden; this variant executes the protective reading as a hard exclusion."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-LS-06",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "conditional -> exclusion"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 6,
+   "rulesExecuted": 0,
+   "finalAreaKm2": 1560.053846303,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": 0.0,
+   "deltaVsControlPct": 0.0,
+   "iouVsControl": 1.0,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-LS-AARDKUNDIG-HARD.geojson",
+   "status": "degraded"
+  },
+  {
+   "scenarioId": "SC-LS-LIMES-BUFFER-100",
+   "name": "Limes kernzone exclusion widened by a 100 m band",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-LS-02",
+    "variedAspect": "exclusion zone widened by an added 100 m buffer; the kernzone designation is cited (the separate bufferzone exists), the 100 m widening is the scenario's own parameter",
+    "provenanceNote": "NC-LS-02 (art. 7.3a) carries the kernzone exclusion; the added 100 m band is not cited and is the scenario's own parameter."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-LS-02",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 100.0,
+     "note": "bufferDistanceM None -> 100.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 6,
+   "rulesExecuted": 0,
+   "finalAreaKm2": 1560.053846303,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": 0.0,
+   "deltaVsControlPct": 0.0,
+   "iouVsControl": 1.0,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-LS-LIMES-BUFFER-100.geojson",
+   "status": "degraded"
+  }
+ ],
+ "verdict": "fail",
+ "validationReportFile": "validation.json",
+ "degradations": [
+  {
+   "kind": "layer-cache-missing",
+   "error": "zone 'gebied_aardkundige_waarden': cache file '/Users/marc/Projecten/ldttoolbox-vf2/poc/data/cache/agrest-ov-gebied-aardkundige-waarden.28992.geojson' absent — rules referencing it will be dropped this run"
+  },
+  {
+   "kind": "layer-cache-missing",
+   "error": "zone 'gebied_cultuurhistorische_hoofdstructuur': cache file '/Users/marc/Projecten/ldttoolbox-vf2/poc/data/cache/agrest-ov-gebied-cultuurhistorische-hoofdstructuur.28992.geojson' absent — rules referencing it will be dropped this run"
+  },
+  {
+   "kind": "layer-cache-missing",
+   "error": "zone 'landschap': cache file '/Users/marc/Projecten/ldttoolbox-vf2/poc/data/cache/agrest-ov-landschap.28992.geojson' absent — rules referencing it will be dropped this run"
+  },
+  {
+   "kind": "layer-cache-missing",
+   "error": "zone 'unesco_werelderfgoed_hollandse_waterlinies': cache file '/Users/marc/Projecten/ldttoolbox-vf2/poc/data/cache/agrest-ov-unesco-werelderfgoed-hollandse-waterlinies.28992.geojson' absent — rules referencing it will be dropped this run"
+  },
+  {
+   "kind": "layer-cache-missing",
+   "error": "zone 'unesco_werelderfgoed_neder_germaanse_limes_bufferzone': cache file '/Users/marc/Projecten/ldttoolbox-vf2/poc/data/cache/agrest-ov-unesco-werelderfgoed-neder-germaanse-limes-bufferzone.28992.geojson' absent — rules referencing it will be dropped this run"
+  },
+  {
+   "kind": "layer-cache-missing",
+   "error": "zone 'unesco_werelderfgoed_neder_germaanse_limes_kernzone': cache file '/Users/marc/Projecten/ldttoolbox-vf2/poc/data/cache/agrest-ov-unesco-werelderfgoed-neder-germaanse-limes-kernzone.28992.geojson' absent — rules referencing it will be dropped this run"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "CONTROL",
+   "rule": "FR-LS-01",
+   "error": "zone layer(s) unavailable this run: unesco_werelderfgoed_hollandse_waterlinies"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "CONTROL",
+   "rule": "FR-LS-02",
+   "error": "zone layer(s) unavailable this run: unesco_werelderfgoed_neder_germaanse_limes_kernzone"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "CONTROL",
+   "rule": "FR-LS-03",
+   "error": "zone layer(s) unavailable this run: unesco_werelderfgoed_neder_germaanse_limes_bufferzone"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "CONTROL",
+   "rule": "FR-LS-04",
+   "error": "zone layer(s) unavailable this run: gebied_cultuurhistorische_hoofdstructuur"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "CONTROL",
+   "rule": "FR-LS-05",
+   "error": "zone layer(s) unavailable this run: landschap"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "CONTROL",
+   "rule": "FR-LS-06",
+   "error": "zone layer(s) unavailable this run: gebied_aardkundige_waarden"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "SC-LS-CHS-HARD",
+   "rule": "FR-LS-01",
+   "error": "zone layer(s) unavailable this run: unesco_werelderfgoed_hollandse_waterlinies"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "SC-LS-CHS-HARD",
+   "rule": "FR-LS-02",
+   "error": "zone layer(s) unavailable this run: unesco_werelderfgoed_neder_germaanse_limes_kernzone"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "SC-LS-CHS-HARD",
+   "rule": "FR-LS-03",
+   "error": "zone layer(s) unavailable this run: unesco_werelderfgoed_neder_germaanse_limes_bufferzone"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "SC-LS-CHS-HARD",
+   "rule": "FR-LS-04",
+   "error": "zone layer(s) unavailable this run: gebied_cultuurhistorische_hoofdstructuur"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "SC-LS-CHS-HARD",
+   "rule": "FR-LS-05",
+   "error": "zone layer(s) unavailable this run: landschap"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "SC-LS-CHS-HARD",
+   "rule": "FR-LS-06",
+   "error": "zone layer(s) unavailable this run: gebied_aardkundige_waarden"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "SC-LS-AARDKUNDIG-HARD",
+   "rule": "FR-LS-01",
+   "error": "zone layer(s) unavailable this run: unesco_werelderfgoed_hollandse_waterlinies"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "SC-LS-AARDKUNDIG-HARD",
+   "rule": "FR-LS-02",
+   "error": "zone layer(s) unavailable this run: unesco_werelderfgoed_neder_germaanse_limes_kernzone"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "SC-LS-AARDKUNDIG-HARD",
+   "rule": "FR-LS-03",
+   "error": "zone layer(s) unavailable this run: unesco_werelderfgoed_neder_germaanse_limes_bufferzone"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "SC-LS-AARDKUNDIG-HARD",
+   "rule": "FR-LS-04",
+   "error": "zone layer(s) unavailable this run: gebied_cultuurhistorische_hoofdstructuur"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "SC-LS-AARDKUNDIG-HARD",
+   "rule": "FR-LS-05",
+   "error": "zone layer(s) unavailable this run: landschap"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "SC-LS-AARDKUNDIG-HARD",
+   "rule": "FR-LS-06",
+   "error": "zone layer(s) unavailable this run: gebied_aardkundige_waarden"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "SC-LS-LIMES-BUFFER-100",
+   "rule": "FR-LS-01",
+   "error": "zone layer(s) unavailable this run: unesco_werelderfgoed_hollandse_waterlinies"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "SC-LS-LIMES-BUFFER-100",
+   "rule": "FR-LS-02",
+   "error": "zone layer(s) unavailable this run: unesco_werelderfgoed_neder_germaanse_limes_kernzone"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "SC-LS-LIMES-BUFFER-100",
+   "rule": "FR-LS-03",
+   "error": "zone layer(s) unavailable this run: unesco_werelderfgoed_neder_germaanse_limes_bufferzone"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "SC-LS-LIMES-BUFFER-100",
+   "rule": "FR-LS-04",
+   "error": "zone layer(s) unavailable this run: gebied_cultuurhistorische_hoofdstructuur"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "SC-LS-LIMES-BUFFER-100",
+   "rule": "FR-LS-05",
+   "error": "zone layer(s) unavailable this run: landschap"
+  },
+  {
+   "kind": "rule-dropped",
+   "scenarioId": "SC-LS-LIMES-BUFFER-100",
+   "rule": "FR-LS-06",
+   "error": "zone layer(s) unavailable this run: gebied_aardkundige_waarden"
+  }
+ ],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

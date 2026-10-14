@@ -1,0 +1,115 @@
+{
+ "id": "SR-20261006T120133Z-biomassa-20261013T184149Z",
+ "scenarioSetId": "SSET-biomassa-utrecht-uitdagingen",
+ "baselineRunId": "20261006T120133Z-biomassa",
+ "requestId": "91ae7dfc-2c8b-4fcc-9136-48d6418bfd4b",
+ "objectType": "biomass_installation",
+ "generatedAt": "2026-10-13T18:41:51Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 1560.053846303,
+  "inclusionIntersectAoiKm2": null,
+  "baselineFinalAreaKm2": 1560.053846303,
+  "baselineInclusionKm2": null,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-BM-LANDELIJK-HARD",
+   "name": "Vestigingsgebied landelijk treated as hard exclusion",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-BM-01",
+    "provenanceNote": "NC-BM-01 (art. 5.6) conditions biomass siting in the landelijk designation; this variant executes the strictest reading as a hard exclusion."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-BM-01",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "conditional -> exclusion"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 2,
+   "rulesExecuted": 2,
+   "finalAreaKm2": 314.244849569,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": -1245.808996734,
+   "deltaVsControlPct": -79.856795,
+   "iouVsControl": 0.201431976,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-BM-LANDELIJK-HARD.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-BM-STEDELIJK-HARD",
+   "name": "Vestigingsgebied stedelijk treated as hard exclusion",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-BM-02",
+    "provenanceNote": "NC-BM-02 (art. 5.7) conditions biomass siting in the stedelijk designation; this variant executes the strictest reading as a hard exclusion."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-BM-02",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "conditional -> exclusion"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 2,
+   "rulesExecuted": 2,
+   "finalAreaKm2": 1245.812196194,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": -314.241650109,
+   "deltaVsControlPct": -20.143,
+   "iouVsControl": 0.79857013,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-BM-STEDELIJK-HARD.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-BM-BUFFER-500",
+   "name": "Rural designation exclusion widened by a 500 m band",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "No instrument text supports a 500 m siting margin for biomass installations (distance norms are abstained topics); this hypothetical measures what such a margin would carve from the province-wide opportunity zone.",
+    "provenanceNote": "NOT legally grounded: the designation (NC-BM-01, art. 5.6) is cited, the 500 m margin is the scenario's own parameter."
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-BM-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500.0,
+     "note": "bufferDistanceM None -> 500.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 2,
+   "rulesExecuted": 2,
+   "finalAreaKm2": 1560.053846303,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": 0.0,
+   "deltaVsControlPct": 0.0,
+   "iouVsControl": 1.0,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-BM-BUFFER-500.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

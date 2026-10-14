@@ -1,0 +1,89 @@
+{
+ "id": "VR-scenario-run",
+ "artifactId": "SR-20261005T070621Z-landschap-20261013T144938Z",
+ "artifactType": "scenario-report",
+ "levels": {
+  "V0": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v0-scenario-report-schema",
+     "status": "pass",
+     "detail": "scenario-report validated against scenario-report.schema.json"
+    }
+   ]
+  },
+  "V1": {
+   "status": "fail",
+   "checks": [
+    {
+     "id": "v1-final-geometry-sc-ls-chs-hard",
+     "status": "fail",
+     "detail": "final zone geometryValid=True, status=degraded",
+     "evidenceRefs": [
+      "scenarios/SC-LS-CHS-HARD.geojson"
+     ]
+    },
+    {
+     "id": "v1-final-geometry-sc-ls-aardkundig-hard",
+     "status": "fail",
+     "detail": "final zone geometryValid=True, status=degraded",
+     "evidenceRefs": [
+      "scenarios/SC-LS-AARDKUNDIG-HARD.geojson"
+     ]
+    },
+    {
+     "id": "v1-final-geometry-sc-ls-limes-buffer-100",
+     "status": "fail",
+     "detail": "final zone geometryValid=True, status=degraded",
+     "evidenceRefs": [
+      "scenarios/SC-LS-LIMES-BUFFER-100.geojson"
+     ]
+    }
+   ],
+   "notes": "degraded scenario executions: SC-LS-CHS-HARD, SC-LS-AARDKUNDIG-HARD, SC-LS-LIMES-BUFFER-100"
+  },
+  "V2": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v2-mutation-rule-ids",
+     "status": "pass",
+     "detail": "every mutation ruleId resolved in the baseline formalrules set (skipped mutations carry recorded reasons)"
+    },
+    {
+     "id": "v2-basis-normcard-ids",
+     "status": "pass",
+     "detail": "every norm_variance/policy_variant normCardId resolved in the baseline run's normcards.json"
+    }
+   ]
+  },
+  "V3": {
+   "status": "fail",
+   "checks": [
+    {
+     "id": "v3-control-reproduction",
+     "status": "fail",
+     "detail": "control final 1560.053846303 km2 vs baseline 1425.95873722 km2 (rel delta 0.094038561974, tolerance 0.001); 0 rules executed"
+    }
+   ]
+  },
+  "V4": {
+   "status": "pending",
+   "notes": "scenario choice remains a human decision; this report is decision support, never a decision"
+  }
+ },
+ "verdict": "fail",
+ "evidence": [
+  {
+   "ref": "scenario-report.json",
+   "note": "the swept report this verdict gates"
+  },
+  {
+   "ref": "validation.json",
+   "note": "this report"
+  }
+ ],
+ "evaluatorRun": "scenario-critic#poc-v0.1",
+ "evaluatedAt": "2026-10-13T14:49:38Z"
+}
