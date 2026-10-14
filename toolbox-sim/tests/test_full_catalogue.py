@@ -172,3 +172,31 @@ def test_data_modeller_registry_en_validatie():
     assert bad["valid"] is False and bad["findings"]
     missing = client.post("/models/Onbekend/validate", headers=auth, json={})
     assert missing.status_code == 404 and missing.json()["error"] == "model-not-found"
+
+
+def test_integrated_environment_portal():
+    from app.integrated_environment import create_app as ie_app
+
+    solutions = [{"name": "identity", "port": 9191, "status": "simulated"}]
+    client = TestClient(ie_app(solutions, inventory_path=SIM_ROOT.parent / "nldt" / "data" / "lake-inventory.json"))
+    auth = {"Authorization": "Bearer sim-toolbox-token"}
+    listed = client.get("/solutions", headers=auth).json()
+    assert listed["data"][0]["name"] == "identity" and listed["total"] == 1
+    metrics = client.get("/metrics", headers=auth)
+    assert metrics.status_code == 200 and "solutions_total 1" in metrics.text
+    catalogue = client.get("/catalogue", headers=auth).json()
+    assert catalogue["total"] >= 50  # lake-inventaris telt ruim honderd datasets
+
+
+def test_cip_scenarios_en_contributions():
+    from app.cip import create_app as cip_app
+
+    client = TestClient(cip_app())
+    auth = {"Authorization": "Bearer sim-toolbox-token"}
+    scenario = client.post("/scenarios", headers=auth, json={"name": "energietransitie"}).json()
+    assert scenario["id"].startswith("scen-")
+    contribution = client.post(f"/scenarios/{scenario['id']}/contributions", headers=auth,
+                               json={"author": "buurtgroep", "text": "meer groen"}).json()
+    assert contribution["id"].startswith("contrib-")
+    listed = client.get(f"/scenarios/{scenario['id']}/contributions", headers=auth).json()
+    assert listed["total"] == 1
