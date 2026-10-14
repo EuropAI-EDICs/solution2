@@ -64,3 +64,25 @@ def test_marketplace_live_publish(live_sim):
     assert result["offeringId"].startswith("sim-offering-")
     assert result["mock"] is False
     assert result["marketplaceLink"]
+
+
+SUB = {
+    "type": "Subscription",
+    "entities": [{"type": "ldt:OpportunityZone"}],
+    "notification": {"endpoint": {"uri": "http://localhost:1/none"}},
+}
+
+
+def test_broker_live_subscription_outbox(live_sim):
+    sid = data_platform.create_subscription(SUB)
+    assert sid.startswith("urn:ngsi-ld:Subscription:sim-")
+    payload = data_platform.trigger_notify(sid)
+    assert payload["subscriptionId"] == sid and payload["data"]
+
+
+def test_broker_live_temporal(live_sim):
+    body = data_platform.get_temporal_entity(
+        "urn:ngsi-ld:WeatherObserved:knmi-260",
+        timerel="after", time="2024-01-20T00:00:00Z",
+    )
+    assert body["rainfall"][0]["instances"]
