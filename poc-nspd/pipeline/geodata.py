@@ -50,13 +50,14 @@ import time
 from pathlib import Path
 
 import requests
-from shapely.geometry import MultiPolygon, Polygon, mapping
+from shapely.geometry import MultiPolygon, Polygon, mapping, shape
 
 try:  # pyproj is available per toolchain check; kept optional for parsing-only use
     from pyproj import Transformer
     from shapely.ops import transform as _shp_transform
 
     _RD_TO_WGS84 = Transformer.from_crs("EPSG:28992", "EPSG:4326", always_xy=True)
+    _WGS84_TO_RD = Transformer.from_crs("EPSG:4326", "EPSG:28992", always_xy=True)
 
     def _to_wgs84(geom):
         if geom is None or geom.is_empty:
@@ -65,8 +66,16 @@ try:  # pyproj is available per toolchain check; kept optional for parsing-only 
             lambda x, y, z=None: _RD_TO_WGS84.transform(x, y), geom
         )
 
+    def _to_rd(geom):
+        if geom is None or geom.is_empty:
+            return geom
+        return _shp_transform(
+            lambda x, y, z=None: _WGS84_TO_RD.transform(x, y), geom
+        )
+
 except Exception:  # pragma: no cover - only hit on a broken toolchain
     _to_wgs84 = None
+    _to_rd = None
 
 __all__ = [
     "GeoDataError",
@@ -392,6 +401,92 @@ def _query_url(src):
     return f"{base}/{layer_id}/query"
 
 
+# --------------------------------------------------------------------------- #
+# OGC API - Features dialect (poc-nspd taak 9): pdok-natura2000 is als
+# ``endpointType: "ogc-api"`` gepind op een items-query binnen de NSPD-bbox
+# (probe-evidentie data/probe_pdok_natura2000_2026-10-14.json: bbox-crs CRS84,
+# HTTP 200). Antwoorden zijn GeoJSON in CRS84 en worden client-side naar
+# EPSG:28992 gereprojecteerd zodat de cache-contracten
+# (<sourceId>.28992.geojson / .4326.geojson) onveranderd blijven.
+# --------------------------------------------------------------------------- #
+
+_CRS84 = "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
+
+
+def _bbox_str_crs84(bbox):
+    """RD-bbox -> 'minLon,minLat,maxLon,maxLat' (CRS84-asvolgorde), via pyproj."""
+    if _to_wgs84 is None:
+        raise GeoDataError("pyproj/shapely unavailable: cannot transform bbox to CRS84")
+    from shapely.geometry import box as _box
+
+    env = _to_wgs84(_box(*_bbox_vals(bbox)))
+    minx, miny, maxx, maxy = env.bounds
+    return f"{repr(minx)},{repr(miny)},{repr(maxx)},{repr(maxy)}"
+
+
+def _bbox_vals(bbox):
+    if isinstance(bbox, str):
+        vals = [float(p.strip()) for p in bbox.split(",")]
+    else:
+        vals = [float(v) for v in bbox]
+    if len(vals) != 4:
+        raise GeoDataError(f"bbox must have 4 values xmin,ymin,xmax,ymax, got {bbox!r}")
+    if not (vals[0] < vals[2] and vals[1] < vals[3]):
+        raise GeoDataError(f"bbox has zero/negative size: {vals}")
+    return vals
+
+
+def fetch_ogc_api_features(session, src, bbox=None, simplify_m=None, timeout=120.0):
+    """Fetch an OGC API - Features items endpoint; returns ([features], pages).
+
+    Features are returned as GeoJSON geometries in EPSG:28992 (reprojected
+    from the CRS84 server default). ``simplify_m`` is accepted for fingerprint
+    parity but has no OGC-API equivalent here (server-side maxAllowableOffset
+    is not part of the pinned probe contract).
+
+    Paging: de gepinde PDOK-dienst (probe taak 5) ondersteunt géén
+    paging-parameters ('offset' én 'startIndex' -> HTTP 400); er is dus één
+    items-request. Wordt het pagina-plafond gehaald (numberReturned == limit),
+    dan luid falen — stilletjes truncated geometrie weggeschreven in de cache
+    is erger dan een harde fout."""
+    del simplify_m  # probe-contract: geen server-side simplificatie
+    collection = src.get("collection")
+    if not collection:
+        raise GeoDataError(
+            f"ogc-api source {src.get('id')!r} has no collection — cannot query"
+        )
+    base = (src.get("serviceUrl") or "").rstrip("/")
+    if not base:
+        raise GeoDataError(f"source {src.get('id')!r} has no serviceUrl")
+    url = f"{base}/collections/{collection}/items"
+    limit = 500  # PDOK default page ceiling for this service family
+    params = {"f": "json", "limit": limit}
+    if bbox is not None:
+        params["bbox"] = _bbox_str_crs84(bbox)
+        params["bbox-crs"] = _CRS84
+    body = _fetch_page(session, url, params, timeout)
+    raw = body.get("features", []) if isinstance(body, dict) else []
+    feats = []
+    for f in raw:
+        if isinstance(f, dict) and f.get("geometry") is not None:
+            g = shape(f["geometry"])
+            f = dict(f)
+            f["geometry"] = mapping(_to_rd(g))
+            feats.append(f)
+    returned = body.get("numberReturned", len(raw)) if isinstance(body, dict) else len(raw)
+    if isinstance(returned, int) and returned >= limit:
+        raise GeoDataError(
+            f"{src.get('id')}: ogc-api items response hit the page limit "
+            f"({returned} >= {limit}) and the pinned service exposes no paging "
+            "parameter — refusing to cache truncated geometry"
+        )
+    if len(feats) > MAX_FEATURES_HARD_CAP:
+        raise GeoDataError(
+            f"{src.get('id')}: exceeded hard cap of {MAX_FEATURES_HARD_CAP} features; aborting"
+        )
+    return feats, 1
+
+
 def _fetch_page(session, url, params, timeout):
     try:
         resp = session.get(url, params=params, timeout=timeout)
@@ -486,36 +581,41 @@ def fetch_layer(
         session = requests.Session()
     session.headers["User-Agent"] = USER_AGENT
 
-    url = _query_url(src)
-    _, use_geojson = build_query_params(src, 0, bbox=bbox, simplify_m=simplify_m, where=where)
-    offset, feats, pages = 0, [], 0
-    expected = src.get("featureCount")
-    while True:
-        params, _ = build_query_params(src, offset, bbox=bbox, simplify_m=simplify_m, where=where)
-        body = _fetch_page(session, url, params, timeout)
-        raw = body.get("features", []) if isinstance(body, dict) else []
-        for i, f in enumerate(raw):
-            if use_geojson:
-                if isinstance(f, dict) and f.get("geometry") is not None:
-                    feats.append(f)
-            else:
-                gf = esri_feature_to_geojson(f, index=offset + i)
-                if gf is not None:
-                    feats.append(gf)
-        pages += 1
-        page_size = params["resultRecordCount"]
-        got = len(raw)
-        exceeded = bool(body.get("exceededTransferLimit")) if isinstance(body, dict) else False
-        offset += got
-        if got == 0 or (not exceeded and got < page_size):
-            break
-        if isinstance(expected, (int, float)) and expected > 0 and offset >= int(expected):
-            break
-        if len(feats) > MAX_FEATURES_HARD_CAP:
-            raise GeoDataError(
-                f"{source_id}: exceeded hard cap of {MAX_FEATURES_HARD_CAP} features; aborting"
-            )
-        time.sleep(PAGE_DELAY_S)
+    if src.get("endpointType") == "ogc-api":
+        feats, pages = fetch_ogc_api_features(
+            session, src, bbox=bbox, simplify_m=simplify_m, timeout=timeout
+        )
+    else:
+        url = _query_url(src)
+        _, use_geojson = build_query_params(src, 0, bbox=bbox, simplify_m=simplify_m, where=where)
+        offset, feats, pages = 0, [], 0
+        expected = src.get("featureCount")
+        while True:
+            params, _ = build_query_params(src, offset, bbox=bbox, simplify_m=simplify_m, where=where)
+            body = _fetch_page(session, url, params, timeout)
+            raw = body.get("features", []) if isinstance(body, dict) else []
+            for i, f in enumerate(raw):
+                if use_geojson:
+                    if isinstance(f, dict) and f.get("geometry") is not None:
+                        feats.append(f)
+                else:
+                    gf = esri_feature_to_geojson(f, index=offset + i)
+                    if gf is not None:
+                        feats.append(gf)
+            pages += 1
+            page_size = params["resultRecordCount"]
+            got = len(raw)
+            exceeded = bool(body.get("exceededTransferLimit")) if isinstance(body, dict) else False
+            offset += got
+            if got == 0 or (not exceeded and got < page_size):
+                break
+            if isinstance(expected, (int, float)) and expected > 0 and offset >= int(expected):
+                break
+            if len(feats) > MAX_FEATURES_HARD_CAP:
+                raise GeoDataError(
+                    f"{source_id}: exceeded hard cap of {MAX_FEATURES_HARD_CAP} features; aborting"
+                )
+            time.sleep(PAGE_DELAY_S)
 
     props = dict(src.get("properties") or {})
     fc = {
