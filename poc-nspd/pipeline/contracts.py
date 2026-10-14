@@ -41,6 +41,7 @@ SCHEMA_NAMES = (
     "crosstrack-report",
     "h3coverage",
     "world-scene-spec",
+    "leia-config",
 )
 
 #: domains where these contracts are deliberately strict (see schema files)
