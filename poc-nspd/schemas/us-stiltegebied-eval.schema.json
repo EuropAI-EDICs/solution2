@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nldt.local/schemas/us-stiltegebied-eval.schema.json",
+  "title": "UsStiltegebiedEval",
+  "description": "Output of us-stiltegebied-noise-eval: art. 9.26 receptor exceedance screening over Urban Strategy noise fields. Mirrored into poc/schemas/; keep both copies identical.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "thresholds",
+    "counts",
+    "perZone",
+    "receptors",
+    "exceedances",
+    "crs",
+    "normCardId",
+    "formalRuleId",
+    "caveats"
+  ],
+  "properties": {
+    "thresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stilleKernDb", "bufferzoneDb", "legalBasis"],
+      "properties": {
+        "stilleKernDb": {"type": "number"},
+        "bufferzoneDb": {"type": "number"},
+        "legalBasis": {"type": "string"}
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receptorsTotal",
+        "inStilleKern",
+        "inBufferzone",
+        "outside",
+        "exceedancesStilleKern",
+        "exceedancesBufferzone",
+        "exceedancesTotal"
+      ],
+      "properties": {
+        "receptorsTotal": {"type": "integer", "minimum": 0},
+        "inStilleKern": {"type": "integer", "minimum": 0},
+        "inBufferzone": {"type": "integer", "minimum": 0},
+        "outside": {"type": "integer", "minimum": 0},
+        "exceedancesStilleKern": {"type": "integer", "minimum": 0},
+        "exceedancesBufferzone": {"type": "integer", "minimum": 0},
+        "exceedancesTotal": {"type": "integer", "minimum": 0}
+      }
+    },
+    "perZone": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stille_kern", "bufferzone", "outside"],
+      "properties": {
+        "stille_kern": {"$ref": "#/$defs/zoneStats"},
+        "bufferzone": {"$ref": "#/$defs/zoneStats"},
+        "outside": {"$ref": "#/$defs/zoneStats"}
+      }
+    },
+    "receptors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "lAeq", "zone", "exceeds"],
+        "properties": {
+          "id": {"type": ["string", "null"]},
+          "lAeq": {"type": "number"},
+          "iLden": {"type": "number"},
+          "zone": {"type": "string", "enum": ["stille_kern", "bufferzone", "outside"]},
+          "thresholdDb": {"type": ["number", "null"]},
+          "exceeds": {"type": "boolean"}
+        }
+      }
+    },
+    "exceedances": {
+      "type": "object",
+      "required": ["type", "features"],
+      "properties": {
+        "type": {"const": "FeatureCollection"},
+        "features": {"type": "array"}
+      }
+    },
+    "crs": {"const": "geometry-EPSG:4326-pip-EPSG:28992"},
+    "normCardId": {"const": "NC-W-11"},
+    "formalRuleId": {"const": "FR-W-11"},
+    "caveats": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "zoneStats": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["count", "max", "p95"],
+      "properties": {
+        "count": {"type": "integer", "minimum": 0},
+        "max": {"type": ["number", "null"]},
+        "p95": {"type": ["number", "null"]}
+      }
+    }
+  }
+}
