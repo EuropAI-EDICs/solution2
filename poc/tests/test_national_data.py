@@ -227,3 +227,13 @@ def test_load_netcongestie_leest_cache(tmp_path, monkeypatch):
     assert out["records"]["features"][0]["properties"]["netgebied"] == "Utrecht-Stad"
     # retrieved afgeleid van de cache-mtime, ISO met timezone
     assert out["retrieved"].endswith("+00:00")
+
+
+def test_load_netcongestie_refresh_maakt_submap_aan(tmp_path, monkeypatch):
+    # verse cache-map zónder netcongestie/-submap: refresh moet die zelf aanmaken
+    # (task-6-review: CACHE.mkdir volstond niet voor het geneste cache-pad)
+    monkeypatch.setattr(nd, "CACHE", tmp_path)
+    fixture = nd.json.loads((FIXTURES / "netcongestie_sample.json").read_text())
+    out = nd.load_netcongestie(refresh=True, transport=lambda _url: fixture)
+    assert (tmp_path / "netcongestie" / "netcongestie.geojson").is_file()
+    assert out["records"]["features"][0]["properties"]["netgebied"] == "Utrecht-Stad"

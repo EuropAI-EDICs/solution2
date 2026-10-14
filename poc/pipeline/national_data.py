@@ -320,7 +320,7 @@ def load_netcongestie(refresh: bool = False, transport: Transport | None = None)
             raise FileNotFoundError(
                 "netcongestie-cache ontbreekt; download volgens sources.json")
         if refresh:
-            CACHE.mkdir(parents=True, exist_ok=True)
+            cache.parent.mkdir(parents=True, exist_ok=True)  # genest pad: netcongestie/
             cache.write_text(json.dumps(transport("netcongestie"), ensure_ascii=False),
                              encoding="utf-8")
     payload = {
