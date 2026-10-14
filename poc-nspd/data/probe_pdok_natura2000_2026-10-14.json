@@ -1,0 +1,29 @@
+{
+ "generatedAt": "2026-10-14T15:40:00+00:00",
+ "generatedBy": "poc-nspd taak 5 stap 4 (live-probe pdok-natura2000, handmatige curl-verificatie)",
+ "verificaties": [
+  {
+   "kandidaatServiceUrl": "https://api.pdok.nl/het/cdnat2000/ogc/v1",
+   "resultaat": "404 Not Found (nginx) — endpoint bestaat niet; kandidaat vervangen"
+  },
+  {
+   "serviceUrl": "https://api.pdok.nl/rvo/natura2000/ogc/v1",
+   "httpStatus": 200,
+   "collections": ["natura2000"],
+   "collectionGepind": "natura2000",
+   "itemsCheck": {
+    "url": "https://api.pdok.nl/rvo/natura2000/ogc/v1/collections/natura2000/items?f=json&limit=5&bbox=3.45,51.02,3.88,51.48&bbox-crs=http://www.opengis.net/def/crs/OGC/1.3/CRS84",
+    "httpStatus": 200,
+    "featuresReturned": 3,
+    "namen": ["Canisvliet", "Groote Gat", "Westerschelde & Saeftinghe"]
+   }
+  },
+  {
+   "serviceUrl": "https://api.pdok.nl/rvo/natura2000-geharmoniseerd/ogc/v1",
+   "httpStatus": 200,
+   "collections": ["protectedsite"],
+   "opmerking": "INSPIRE-geharmoniseerd alternatief; niet gekozen — rauwe gebiedsgrenzen (rvo/natura2000) matcht de exclusie-rol direct"
+  }
+ ],
+ "conclusie": "pdok-natura2000 gepind op serviceUrl https://api.pdok.nl/rvo/natura2000/ogc/v1, collectie natura2000; 3 N2000-gebieden binnen NSPD_BBOX_WGS84 (exclusion-bron taak 9)."
+}

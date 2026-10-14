@@ -1,0 +1,380 @@
+"""Landelijke (NL) + Vlaamse (BE) context/scenario-basis bronnen — cache-first fetchers.
+
+Rollen (zie poc-nspd/data/sources.json): 'context' (rapportage, nooit zone-bepalend)
+en 'scenario-basis' (onderbouwt basis.dataGrounding van een hypothetical).
+Cache: NL onder poc-nspd/data/cache/national/, BE onder poc-nspd/data/cache/be/;
+offline replays via cache of fixture-transport. Geen enkele functie hier
+schrijft juridische claims.
+
+Live-pinning (plan-2 task 4, stap 1, 2026-10-14): de verwachte CBS
+OData-tabellen bestaan niet (meer) — een volledige scan van de StatLine-
+catalogus (5983 tabellen, filter op Title geverifieerd werkend) bevat geen
+enkele 'vierkant'/'100m'/'landgebruik'-titel; 84583NED blijkt "Kerncijfers
+wijken en buurten 2019". De opvolgers zijn PDOK OGC API's:
+
+- Kerncijfers per vierkant (100m): https://api.pdok.nl/cbs/
+  vierkantstatistieken100m/ogc/v1, collectie ``vierkant100`` (CBS
+  Vierkantstatistieken 100m, jaargang 2024). Cel-kolom: ``crs28992res100m``,
+  formaat "E1300N4400" = RD-hoek (130000, 440000), cel 100x100 m. Jaartal
+  via CQL2-filter (``jaarcode=2024``); bbox-filter server-side in RD.
+- Landgebruik: https://api.pdok.nl/cbs/landuse/ogc/v1, collectie
+  ``existinglanduse`` (CBS Existing Land Use, INSPIRE geharmoniseerd,
+  BBG2017). Er is géén 100m-vierkant-tabel meer; de features zijn
+  geometry-zware vectoren — deze fetcher houdt alleen de properties vast.
+
+Daarom paging over OGC API Features (``links`` met rel="next") in plaats
+van OData TypedDataSet. Legacy CBS-celcodes ("b13004400") blijven leesbaar.
+"""
+
+from __future__ import annotations
+
+import json
+import re
+import sys
+import urllib.parse
+import urllib.request
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Callable
+
+# module-standalone (idem tests): bbox.py leeft op poc-nspd-root
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from bbox import nspd_bbox_rd as _NSPD_BBOX_RD  # noqa: E402  (zie sys.path-insert hierboven)
+
+CACHE = Path(__file__).resolve().parents[1] / "data" / "cache"
+
+# In plan-2 task 4 stap 1 live gepinde waarden; hier bijgewerkt houden.
+CBS_ODATA = "https://opendata.cbs.nl/ODataApi/odata"  # statline OData (geen vierkant-tabellen meer)
+CBS_GRID_SERVICE = "https://api.pdok.nl/cbs/vierkantstatistieken100m/ogc/v1"
+CBS_GRID_DATASET = "vierkant100"        # CBS Vierkantstatistieken 100m, collectie-id
+CBS_GRID_FILTER = "jaarcode=2024"       # laatste jaargang in de dienst (CQL2)
+CBS_LANDUSE_SERVICE = "https://api.pdok.nl/cbs/landuse/ogc/v1"
+CBS_LANDUSE_DATASET = "existinglanduse"  # INSPIRE Existing Land Use (BBG2017)
+SOURCE_BY_CACHE = {
+    "test-grid.json": "cbs-grid-kerncijfers-100m",  # test-fixture
+    "cbs-grid-kerncijfers-100m.json": "cbs-grid-kerncijfers-100m",
+    "cbs-landgebruik-100m.json": "cbs-landgebruik-100m",
+}
+
+Transport = Callable[[str], dict]
+
+_RD_CRS = "http://www.opengis.net/def/crs/EPSG/0/28992"
+_OGC_PAGE_LIMIT = "1000"
+_MAX_OGC_PAGES = 5000  # cyclus-bewaking op rel="next"
+
+# live celcode 'E1300N4400' (x/100, y/100); 1-4 cijfers per deel getolereerd
+_CELL_EN_RE = re.compile(r"^E(\d{1,4})N(\d{1,4})$")
+
+
+def _default_transport(url: str) -> dict:
+    req = urllib.request.Request(url, headers={"User-Agent": "nLDT-toolbox-poc/1.0"})
+    with urllib.request.urlopen(req, timeout=120) as r:
+        return json.loads(r.read().decode("utf-8"))
+
+
+def _cell_rd(key: str) -> tuple[float, float] | None:
+    """CBS 100m-celcode → RD-middelpunt (x+50, y+50).
+
+    Live formaat 'E1300N4400' (hoek = x*100, y*100 in meters). Legacy
+    formaat 'b13004400' ('b' + x-m/100 + y-m/100) blijft leesbaar voor
+    oudere CBS-caches. Onbekende codes → None.
+    """
+    m = _CELL_EN_RE.match(key)
+    if m:
+        x = int(m.group(1)) * 100
+        y = int(m.group(2)) * 100
+        return (x + 50.0, y + 50.0)
+    if key.startswith("b") and key[1:].isdigit() and len(key[1:]) == 8:
+        x = int(key[1:5]) * 100
+        y = int(key[5:9]) * 100
+        return (x + 50.0, y + 50.0)
+    return None
+
+
+def record_in_bbox(
+    rec: dict,
+    bbox_rd: tuple[float, float, float, float],
+    cell_key: str = "crs28992res100m",
+) -> bool:
+    xy = _cell_rd(str(rec.get(cell_key, "")))
+    if xy is None:
+        return False
+    x0, y0, x1, y1 = bbox_rd
+    return x0 <= xy[0] <= x1 and y0 <= xy[1] <= y1
+
+
+def fetch_cbs_dataset(
+    *,
+    dataset_id: str,
+    cache_name: str,
+    refresh: bool = False,
+    transport: Transport | None = None,
+    cell_column: str | None = "crs28992res100m",
+    service_url: str = CBS_GRID_SERVICE,
+    cql_filter: str | None = None,
+    bbox_rd: tuple[float, float, float, float] = _NSPD_BBOX_RD(),
+) -> dict:
+    """Paged OGC-API-Features-download, gefilterd op de NSPD-bbox (RD).
+
+    De bbox staat server-side in de request (RD); met ``cell_column``
+    komt daar een exact client-side cel-middenpunt-filter bij. Zonder
+    ``cell_column`` (bijv. landgebruik, geen celcodes) blijven alle
+    records van de server-bbox staan. Records zijn feature-properties;
+    geometry wordt niet vastgehouden (100m-cellen zijn reconstrueerbaar
+    uit de celcode). Cache-first via ``poc-nspd/data/cache/national/``.
+    """
+    t = transport or _default_transport
+    cache = CACHE / "national" / cache_name
+    if cache.is_file() and not refresh:
+        return json.loads(cache.read_text(encoding="utf-8"))
+    params = {
+        "f": "json",
+        "limit": _OGC_PAGE_LIMIT,
+        "bbox": ",".join(f"{v:g}" for v in bbox_rd),
+        "bbox-crs": _RD_CRS,
+        "crs": _RD_CRS,
+    }
+    if cql_filter:
+        params["filter"] = cql_filter
+    url: str | None = (
+        f"{service_url}/collections/{dataset_id}/items?"
+        + urllib.parse.urlencode(params)
+    )
+    records: list[dict] = []
+    pages = 0
+    while url:
+        page = t(url)
+        for feat in page.get("features", []):
+            props = dict(feat.get("properties") or {})
+            if cell_column is None or record_in_bbox(props, bbox_rd, cell_column):
+                records.append(props)
+        url = next(
+            (
+                link.get("href")
+                for link in page.get("links", [])
+                if link.get("rel") == "next"
+            ),
+            None,
+        )
+        pages += 1
+        if pages > _MAX_OGC_PAGES:
+            raise RuntimeError(f"te veel OGC-API-pagina's ({_MAX_OGC_PAGES}); paging lijkt niet te eindigen")
+    payload = {
+        "sourceId": SOURCE_BY_CACHE.get(cache_name, cache_name),
+        "retrieved": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "records": records,
+    }
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    cache.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+    return payload
+
+
+def fetch_kerncijfers(refresh: bool = False, transport: Transport | None = None) -> dict:
+    """Kerncijfers per vierkant (100m), jaargang 2024, NSPD-bbox (RD)."""
+    return fetch_cbs_dataset(
+        dataset_id=CBS_GRID_DATASET,
+        cache_name="cbs-grid-kerncijfers-100m.json",
+        refresh=refresh,
+        transport=transport,
+        cell_column="crs28992res100m",
+        service_url=CBS_GRID_SERVICE,
+        cql_filter=CBS_GRID_FILTER,
+    )
+
+
+def fetch_landgebruik(refresh: bool = False, transport: Transport | None = None) -> dict:
+    """Landgebruik-context (PDOK existinglanduse, INSPIRE/BBG2017).
+
+    Let op: geometry-zware bron — alleen feature-properties komen in de
+    cache; er is geen 100m-vierkant-tabel meer (zie module-docstring).
+    """
+    assert CBS_LANDUSE_DATASET, "dataset-id pinnen (plan-2 task 4 stap 1)"
+    return fetch_cbs_dataset(
+        dataset_id=CBS_LANDUSE_DATASET,
+        cache_name="cbs-landgebruik-100m.json",
+        refresh=refresh,
+        transport=transport,
+        cell_column=None,  # geen celcodes in deze bron; bbox al server-side
+        service_url=CBS_LANDUSE_SERVICE,
+    )
+
+
+# --------------------------------------------------------------------------- #
+# WFS 2.0-contextlagen (plan-2 task 5) — endpoints gepind 2026-10-13
+# --------------------------------------------------------------------------- #
+
+RCE_WFS = "https://data.geo.cultureelerfgoed.nl/openbaar/wfs"
+RCE_MONUMENTEN_TYPENAME = "openbaar:rijksmonumentpunten"
+# IAM zelf heeft geen open WFS (geen 'iam'/'indicatief' in de capabilities van
+# data.geo.cultureelerfgoed.nl of services.rce.geovoorziening.nl); substituut
+# is de Archeologische Monumentenkaart 2014 op dezelfde dienst (zie sources.json).
+RCE_ARCHEOLOGIE_TYPENAME = "openbaar:Archeologische_Monumentenkaart_2014"
+DINO_WFS = ""            # DINOloket: geen open WFS meer (asgs-wfs/regionaal 404)
+DINO_TYPENAME = ""
+NWB_WFS = "https://service.pdok.nl/rws/nwbwegen/wfs/v1_0"
+NWB_TYPENAME = "nwbwegen:wegvakken"
+PRORAIL_WFS = "https://service.pdok.nl/prorail/spoorwegen/wfs/v1_0"
+PRORAIL_TYPENAME = "spoorwegen:trace"
+_WFS_COUNT_LIMIT = "5000"
+
+
+def fetch_wfs(
+    *,
+    service_url: str,
+    type_name: str,
+    bbox_rd: tuple[float, float, float, float],
+    cache_name: str,
+    source_id: str,
+    refresh: bool = False,
+    transport: Transport | None = None,
+) -> dict:
+    """WFS 2.0 GetFeature (GeoJSON), begrensd op de NSPD-bbox (RD).
+
+    Cache-first onder CACHE/national/<cache_name>; returnvorm als
+    fetch_cbs_dataset. Een niet-gepinde laag (lege service_url/type_name)
+    faalt luid.
+    """
+    if not service_url or not type_name:
+        raise ValueError(
+            f"WFS niet gepind voor {source_id}: endpoint of typeName ontbreekt "
+            f"(zie de note bij deze bron in poc-nspd/data/sources.json)")
+    t = transport or _default_transport
+    cache = CACHE / "national" / cache_name
+    if cache.is_file() and not refresh:
+        return json.loads(cache.read_text(encoding="utf-8"))
+    x0, y0, x1, y1 = bbox_rd
+    url = (f"{service_url}?service=WFS&version=2.0.0&request=GetFeature"
+           f"&typeNames={urllib.parse.quote(type_name, safe='')}"
+           f"&outputFormat=application/json&count={_WFS_COUNT_LIMIT}"
+           f"&bbox={urllib.parse.quote(f'{x0},{y0},{x1},{y1},urn:ogc:def:crs:EPSG::28992', safe='')}")
+    fc = t(url)
+    payload = {
+        "sourceId": source_id,
+        "retrieved": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "records": fc,
+    }
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    cache.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+    return payload
+
+
+def fetch_geopunt_wfs(
+    *,
+    service_url: str,
+    type_name: str,
+    bbox_l72: tuple[float, float, float, float],
+    cache_name: str,
+    source_id: str,
+    refresh: bool = False,
+    transport: Transport | None = None,
+) -> dict:
+    """WFS 2.0 GetFeature (GeoJSON) voor Vlaanderen, begrensd op Lambert72.
+
+    Cache-first onder CACHE/be/<cache_name>; niet-gepinde laag faalt luid.
+    """
+    if not service_url or not type_name:
+        raise ValueError(
+            f"WFS niet gepind voor {source_id}: endpoint of typeName ontbreekt "
+            f"(zie de note bij deze bron in poc-nspd/data/sources.json)")
+    t = transport or _default_transport
+    cache = CACHE / "be" / cache_name
+    if cache.is_file() and not refresh:
+        return json.loads(cache.read_text(encoding="utf-8"))
+    x0, y0, x1, y1 = bbox_l72
+    url = (f"{service_url}?service=WFS&version=2.0.0&request=GetFeature"
+           f"&typeNames={urllib.parse.quote(type_name, safe='')}"
+           f"&outputFormat=application/json&count={_WFS_COUNT_LIMIT}"
+           f"&srsName=urn:ogc:def:crs:EPSG::31370"
+           f"&bbox={urllib.parse.quote(f'{x0},{y0},{x1},{y1},urn:ogc:def:crs:EPSG::31370', safe='')}")
+    fc = t(url)
+    payload = {
+        "sourceId": source_id,
+        "retrieved": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "records": fc,
+    }
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    cache.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+    return payload
+
+
+def fetch_rce_erfgoed(refresh: bool = False, transport: Transport | None = None) -> dict:
+    """Erfgoedcontext (RCE WFS): rijksmonumentpunten + archeologische monumenten.
+
+    De IAM-substitutie (AMK-2014 voor de Indicatieve Archeologische Waarden)
+    staat gedocumenteerd in de sources.json-note bij rce-iam-archeologie.
+    """
+    return {"monumenten": fetch_wfs(
+                service_url=RCE_WFS, type_name=RCE_MONUMENTEN_TYPENAME,
+                bbox_rd=_NSPD_BBOX_RD(), cache_name="rce-monumenten.json",
+                source_id="rce-monumenten", refresh=refresh, transport=transport),
+            "iam-archeologie": fetch_wfs(
+                service_url=RCE_WFS, type_name=RCE_ARCHEOLOGIE_TYPENAME,
+                bbox_rd=_NSPD_BBOX_RD(), cache_name="rce-iam-archeologie.json",
+                source_id="rce-iam-archeologie", refresh=refresh, transport=transport)}
+
+
+def fetch_dino_ondergrond(refresh: bool = False, transport: Transport | None = None) -> dict:
+    """DINOloket-ondergrond — alleen aanroepbaar als een endpoint is gepind.
+
+    Stand 2026-10-13: DINOloket biedt geen open WFS meer (asgs-wfs/regionaal
+    404) en BRO-REST is auth-plichtig; vervolgstip in de sources.json-note.
+    Zolang DINO_WFS/DINO_TYPENAME leeg zijn, faalt dit luid (RuntimeError).
+    """
+    if not DINO_WFS or not DINO_TYPENAME:
+        raise RuntimeError(
+            "dino-bro-ondergrond NIET gepind: DINOloket biedt geen open WFS meer "
+            "(zie poc-nspd/data/sources.json) — pin BRO-REST of INSPIRE Geology-download")
+    return fetch_wfs(service_url=DINO_WFS, type_name=DINO_TYPENAME,
+                     bbox_rd=_NSPD_BBOX_RD(), cache_name="dino-bro-ondergrond.json",
+                     source_id="dino-bro-ondergrond", refresh=refresh, transport=transport)
+
+
+def fetch_infra(refresh: bool = False, transport: Transport | None = None) -> dict:
+    """NWB-wegen + ProRail-spoor (beide PDOK WFS) — contextlaag infrastructuur."""
+    return {"wegen": fetch_wfs(service_url=NWB_WFS, type_name=NWB_TYPENAME,
+                               bbox_rd=_NSPD_BBOX_RD(), cache_name="rws-nwb-wegen.json",
+                               source_id="rws-nwb-wegen", refresh=refresh, transport=transport),
+            "spoor": fetch_wfs(service_url=PRORAIL_WFS, type_name=PRORAIL_TYPENAME,
+                               bbox_rd=_NSPD_BBOX_RD(), cache_name="prorail-spoor.json",
+                               source_id="prorail-spoor", refresh=refresh, transport=transport)}
+
+
+# --------------------------------------------------------------------------- #
+# Netcongestie (plan-2 task 6) — scenario-basis voor SC-ET-NETCONGESTIE
+# --------------------------------------------------------------------------- #
+
+NETCONGESTIE_SERVICE = (
+    "https://services.arcgis.com/nSZVuSZjHpEZZbRo/arcgis/rest/services/"
+    "Capaciteitskaart_elektriciteitsnet_v2_afname/FeatureServer/0")
+
+
+def load_netcongestie(refresh: bool = False, transport: Transport | None = None) -> dict:
+    """Netcongestie-cache (handmatige of API-download) als scenario-basis.
+
+    Leest ``poc-nspd/data/cache/national/netcongestie/netcongestie.geojson``
+    (FeatureCollection, WGS84/CRS84): de Landelijke Capaciteitskaart
+    'afname' van Netbeheer Nederland (voedingsgebied-polygonen; code
+    ``afname``: 0=beschikbaar, 1=beperkt, 2=in onderzoek, 3=tekort met
+    wachtrij — zie de note bij netbeheerder-netcongestie in sources.json).
+    De export is een momentopname (document-download), geen stabiele API:
+    verversen gebeurt via de gedocumenteerde serviceUrl, met ``transport``
+    als injectiepunt voor offline replays.
+    """
+    cache = CACHE / "national" / "netcongestie" / "netcongestie.geojson"
+    if not cache.is_file() or refresh:
+        # De netbeheerder-export is een document-download, geen stabiele API:
+        # verversen gebeurt via de gedocumenteerde download-URL in sources.json.
+        if refresh and transport is None:
+            raise FileNotFoundError(
+                "netcongestie-cache ontbreekt; download volgens sources.json")
+        if refresh:
+            cache.parent.mkdir(parents=True, exist_ok=True)  # genest pad: netcongestie/
+            cache.write_text(json.dumps(transport("netcongestie"), ensure_ascii=False),
+                             encoding="utf-8")
+    payload = {
+        "sourceId": "netbeheerder-netcongestie",
+        "retrieved": datetime.fromtimestamp(
+            cache.stat().st_mtime, tz=timezone.utc).isoformat(timespec="seconds"),
+        "records": json.loads(cache.read_text(encoding="utf-8")),
+    }
+    return payload
