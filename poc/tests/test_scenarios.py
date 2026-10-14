@@ -743,6 +743,7 @@ class DataGroundingSchemaTests(unittest.TestCase):
             "id": "SC-T-DG2", "name": "test", "objectType": "energy_storage",
             "basis": {
                 "type": "hypothetical",
+                "rationale": "data-grounded variant",
                 "provenanceNote": "NOT legally grounded.",
                 "dataGrounding": {"sourceId": "netbeheerder-netcongestie"},
             },
@@ -751,3 +752,31 @@ class DataGroundingSchemaTests(unittest.TestCase):
         }
         with self.assertRaises(contracts.ContractError):
             contracts.validate(spec, "scenario-spec")
+
+
+class DataGroundingV2CheckTests(unittest.TestCase):
+    """V2: elk basis.dataGrounding-blok moet resolvend zijn — de sourceId
+    bestaat in de sources-registry met role 'scenario-basis' en retrieved
+    is een ISO-datum. (Kalibratie plan 2 task 2.)"""
+
+    def test_v2_data_grounding_berekent_fouten(self):
+        from pipeline.scenarios import _data_grounding_errors
+        src = {"netbeheerder-netcongestie": {"id": "netbeheerder-netcongestie",
+                                             "role": "scenario-basis"}}
+        assert _data_grounding_errors(src, {"sourceId": "netbeheerder-netcongestie",
+                                            "retrieved": "2026-10-13"}) == []
+        # geen dataGrounding-blok -> geen fouten (sets zonder grounding
+        # moeten de V2-check op pass houden)
+        assert _data_grounding_errors(src, {}) == []
+        assert _data_grounding_errors(src, None) == []
+        assert "onbekende sourceId" in _data_grounding_errors(
+            src, {"sourceId": "bestaat-niet", "retrieved": "2026-10-13"})[0]
+        # verkeerde registry-role -> "role"-fout (de brief-assert gaf hier
+        # een IndexError op een lege foutenlijst; de context-role-variant
+        # hieronder is de werkende bedoeling)
+        assert "role" in _data_grounding_errors(
+            {"netbeheerder-netcongestie": {"id": "x", "role": "context"}},
+            {"sourceId": "netbeheerder-netcongestie",
+             "retrieved": "2026-10-13"})[0]
+        assert "ISO" in _data_grounding_errors(
+            src, {"sourceId": "netbeheerder-netcongestie", "retrieved": "gisteren"})[0]

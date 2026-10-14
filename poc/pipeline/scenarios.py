@@ -45,7 +45,7 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 from shapely.geometry import shape
 from shapely.ops import transform as _shp_transform
 
-from pipeline import cartographer, contracts, engine
+from pipeline import cartographer, contracts, engine, geodata
 
 try:
     from pyproj import Transformer
@@ -454,6 +454,16 @@ def run_scenario_set(
 
     v2_unknown: List[str] = []
     v2_normcard_missing: List[str] = []
+    v2_datagrounding: List[str] = []
+    # de sweep-scope ``sources`` is de engine-provenance (zone -> serviceUrl),
+    # níet de bronnen-registry — laad die apart voor de V2-dataGrounding-
+    # resolutie. Een onleesbare registry laat sets zonder dataGrounding met
+    # rust; elk blok dat dan niet kon resolven failt (conservatief).
+    source_ids: Mapping[str, Any] = {}
+    try:
+        source_ids = geodata.load_sources()
+    except geodata.GeoDataError:
+        pass
     outcomes: List[Dict[str, Any]] = []
 
     for spec in specs:
@@ -466,6 +476,11 @@ def run_scenario_set(
         nc = spec["basis"].get("normCardId")
         if nc and not any(c.get("id") == nc for c in normcards):
             v2_normcard_missing.append(f"{sid}:{nc}")
+        if isinstance(spec["basis"], dict):
+            for dg_err in _data_grounding_errors(
+                    source_ids, spec["basis"].get("dataGrounding") or {}):
+                if dg_err:
+                    v2_datagrounding.append(f"{sid}:{dg_err}")
         mutated, applied, skipped, unknown = apply_mutations(rules, spec["mutations"])
         v2_unknown.extend(f"{sid}:{rid}" for rid in unknown)
         rich, executed = execute_rule_set(
@@ -570,7 +585,15 @@ def run_scenario_set(
     # Narrating against the final report is the only honest input.
     validation = evaluate_scenario_run(
         report=report, unknown_rule_ids=v2_unknown,
-        normcard_missing=v2_normcard_missing, executed_count=len(control_executed))
+        normcard_missing=v2_normcard_missing, executed_count=len(control_executed),
+        extra_v2_checks=[{
+            "id": "v2-data-grounding",
+            "status": "fail" if v2_datagrounding else "pass",
+            "detail": ("dataGrounding: " + "; ".join(v2_datagrounding))
+                      if v2_datagrounding else
+                      "elk dataGrounding-blok: sourceId met role scenario-basis in "
+                      "sources.json, retrieved ISO-datum",
+        }])
 
     report["verdict"] = "pass" if validation["verdict"] == "pass" else "fail"
 
@@ -598,6 +621,33 @@ def run_scenario_set(
 # --------------------------------------------------------------------------- #
 # critic (V0–V3 deterministic + V4 pending, over the scenario artifacts)
 # --------------------------------------------------------------------------- #
+
+def _data_grounding_errors(
+    source_ids: Mapping[str, Any], dg: Mapping[str, Any]
+) -> List[str]:
+    """V2-hulp: fouten op een basis.dataGrounding-blok (leeg = geen fouten).
+
+    Een afwezig/leeg blok is geen fout — alleen een *aanwezig* blok moet
+    resolvend zijn: de sourceId bestaat in de sources-registry met
+    ``role == "scenario-basis"`` en ``retrieved`` is een ISO-datum.
+    """
+    errs: List[str] = []
+    if not isinstance(dg, Mapping) or not dg:
+        return errs
+    sid = str(dg.get("sourceId", ""))
+    entry = source_ids.get(sid) if isinstance(source_ids, Mapping) else None
+    if entry is None:
+        errs.append(f"onbekende sourceId {sid} in sources.json")
+        return errs
+    role = str(entry.get("role", ""))
+    if role != "scenario-basis":
+        errs.append(f"sourceId {sid} heeft role {role or '?'}, verwacht scenario-basis")
+    try:
+        _dt.date.fromisoformat(str(dg.get("retrieved", "")))
+    except ValueError:
+        errs.append(f"retrieved {dg.get('retrieved')!r} is geen ISO-datum")
+    return errs
+
 
 def evaluate_scenario_run(
     *,
