@@ -40,7 +40,7 @@ def test_vijf_uitdagingen_dekken_exact_de_13_tracks():
 SET_IDS = {
     "wind": 3, "zon": 3, "bos": 3, "water": 3, "bodem": 3, "mobiliteit": 3,
     "landschap": 3, "landbouw": 3, "wonen": 3, "werken": 3, "recreatie": 3,
-    "biomassa": 3, "energietoets": 2,  # plan 2 maakt dit 3 (SC-ET-NETCONGESTIE)
+    "biomassa": 3, "energietoets": 3,
 }
 
 

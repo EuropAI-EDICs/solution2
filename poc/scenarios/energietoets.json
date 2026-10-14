@@ -1,7 +1,7 @@
 {
   "id": "SSET-energietoets-utrecht-uitdagingen",
   "useCase": "energietoets",
-  "description": "Uitdagingen-curation (Energietransitie): marker-enforcement op de afdeling-5.3-markers — de track is ruimtelijk blind (zone = AOI), precies dat is het verhaal. Derde scenario (netcongestie, data-gegrond) volgt in plan 2.",
+  "description": "Uitdagingen-curation (Energietransitie): marker-enforcement op de afdeling-5.3-markers — de track is ruimtelijk blind (zone = AOI), precies dat is het verhaal. Derde scenario (SC-ET-NETCONGESTIE) is data-gegrond op de netbeheerder-capaciteitskaart.",
   "scenarios": [
     {
       "id": "SC-ET-TOETS-HARD",
@@ -30,6 +30,26 @@
       },
       "mutations": [
         {"ruleId": "FR-ET-03", "action": "drop"}
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    },
+    {
+      "id": "SC-ET-NETCONGESTIE",
+      "name": "Netcongestie zones as spatial blockage (data-grounded)",
+      "description": "Excludes the transformer-capacity shortage zones published by the grid operators — a data-grounded hypothetical: no norm, but real data. Measures what data-driven congestion siting would cost versus the legally blind art. 5.10 marker.",
+      "objectType": "energy_storage",
+      "basis": {
+        "type": "hypothetical",
+        "rationale": "Art. 5.10/5.11 have no provincial zone layer (the marker is province-wide); grid-capacity zones are not a legal designation, so this scenario stays hypothetical — grounded in operator data instead of an arbitrary parameter.",
+        "provenanceNote": "NOT legally grounded: grounded in netbeheerder congestion data (see dataGrounding); the AOI-wide marker (NC-ET-01) is cited.",
+        "dataGrounding": {
+          "sourceId": "netbeheerder-netcongestie",
+          "retrieved": "2026-10-14",
+          "note": "voedingsgebied-polygonen Landelijke Capaciteitskaart 'afname' (afname=3: tekort aan transportcapaciteit met wachtrij), Netbeheer Nederland-export"
+        }
+      },
+      "mutations": [
+        {"ruleId": "FR-ET-01", "action": "set_semantics", "zoneSemantics": "attention"}
       ],
       "proposedBy": "deterministic-scenario-author#poc-v0"
     }
