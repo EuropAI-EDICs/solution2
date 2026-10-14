@@ -137,36 +137,63 @@
     return (D.worldSceneSpecs || []).find(function (s) { return s.scenarioId === id; });
   }
 
+  function siteRectDegrees() {
+    var bb = POINTS && POINTS.bbox;
+    if (bb && bb.length >= 6) {
+      var pad = 0.00015;
+      return {
+        west: bb[0] - pad,
+        south: bb[1] - pad,
+        east: bb[3] + pad,
+        north: bb[4] + pad
+      };
+    }
+    var d = 0.0005;
+    return {
+      west: SITE.lon - d,
+      south: SITE.lat - d,
+      east: SITE.lon + d,
+      north: SITE.lat + d
+    };
+  }
+
   function flySite() {
+    // Nadere pitch zodat site-punten + zone-rect in beeld zijn (niet naar de lucht).
     viewer.camera.setView({
-      destination: Cesium.Cartesian3.fromDegrees(SITE.lon, SITE.lat, SITE.height),
+      destination: Cesium.Cartesian3.fromDegrees(SITE.lon, SITE.lat, 280),
       orientation: {
-        heading: Cesium.Math.toRadians(28),
-        pitch: Cesium.Math.toRadians(-42),
+        heading: Cesium.Math.toRadians(15),
+        pitch: Cesium.Math.toRadians(-70),
         roll: 0
       }
     });
+    viewer.resize();
+    viewer.scene.requestRender();
   }
 
   function clearZones() {
-    zoneSources.forEach(function (ds) {
-      viewer.dataSources.remove(ds, true);
+    zoneSources.forEach(function (ent) {
+      viewer.entities.remove(ent);
     });
     zoneSources = [];
   }
 
-  function addGeoJsonLayer(fc, colorCss, alpha) {
-    return Cesium.GeoJsonDataSource.load(fc, {
-      stroke: Cesium.Color.fromCssColorString(colorCss),
-      fill: Cesium.Color.fromCssColorString(colorCss).withAlpha(alpha),
-      strokeWidth: 2,
-      clampToGround: true
-    }).then(function (ds) {
-      viewer.dataSources.add(ds);
-      zoneSources.push(ds);
-      ds.show = zonesVisible;
-      return ds;
+  function addSiteZone(colorCss, alpha, name) {
+    var r = siteRectDegrees();
+    var ent = viewer.entities.add({
+      name: name,
+      show: zonesVisible,
+      rectangle: {
+        coordinates: Cesium.Rectangle.fromDegrees(r.west, r.south, r.east, r.north),
+        material: Cesium.Color.fromCssColorString(colorCss).withAlpha(alpha),
+        height: 0.5,
+        outline: true,
+        outlineColor: Cesium.Color.fromCssColorString(colorCss),
+        outlineWidth: 3
+      }
     });
+    zoneSources.push(ent);
+    return ent;
   }
 
   function renderPoints() {
@@ -177,11 +204,12 @@
     if (!POINTS || !POINTS.points) return;
     var coll = new Cesium.PointPrimitiveCollection();
     POINTS.points.forEach(function (p) {
-      var h = p[2] || 2;
+      var h = Math.max(2, p[2] || 2);
       coll.add({
         position: Cesium.Cartesian3.fromDegrees(p[0], p[1], h),
-        color: Cesium.Color.fromCssColorString(h > 7 ? "#ffb060" : "#8ecae6").withAlpha(0.9),
-        pixelSize: h > 7 ? 4 : 2.5
+        color: Cesium.Color.fromCssColorString(h > 7 ? "#ff8205" : "#3dbbff"),
+        pixelSize: h > 7 ? 10 : 7,
+        disableDepthTestDistance: Number.POSITIVE_INFINITY
       });
     });
     pointPrimitives = viewer.scene.primitives.add(coll);
@@ -209,28 +237,30 @@
       "Stamp: " + gs + ". " +
       (sc.basisType === "hypothetical"
         ? "Hypothetisch scenario — engine-cijfers reproduceerbaar; 3D recon is context."
-        : "Policy/engine scenario — 3D recon blijft non-legal context.");
+        : "Policy/engine scenario — 3D recon blijft non-legal context. ") +
+      "Provinciale zone-outline staat in de Leaflet what-if; hier: siteschaal-context.";
 
     if (sp && sp.hyworldRecon && sp.hyworldRecon.sourceNote) {
       document.getElementById("sourceNote").textContent = sp.hyworldRecon.sourceNote;
     }
 
     clearZones();
-    var jobs = [];
-    if (D.layers && D.layers.control) {
-      jobs.push(addGeoJsonLayer(D.layers.control, "#ff8205", 0.12));
-    }
-    if (D.layers && D.layers[id]) {
-      jobs.push(addGeoJsonLayer(D.layers[id], "#c45c26", 0.22));
-    }
-    Promise.all(jobs).catch(function (err) {
-      console.error(err);
-      document.getElementById("loadStatus").textContent = "Zone-load fout";
-    });
+    // Site-scale rectangles (province MultiPolygon is invisible at this zoom and can blank Cesium)
+    addSiteZone("#ff8205", 0.18, "control (site proxy)");
+    addSiteZone("#c45c26", 0.28, "scenario (site proxy)");
+    if (viewer && viewer.scene) viewer.scene.requestRender();
   }
 
   function initViewer() {
+    // No Cesium Ion token; no Carto API key (carto basemaps now watermark "API KEY REQUIRED").
+    // PDOK BRT is free for NL; OSM as fallback provider chain via single UrlTemplate.
+    var basemap = new Cesium.UrlTemplateImageryProvider({
+      url: "https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/standaard/EPSG:3857/{z}/{x}/{y}.png",
+      credit: "© Kadaster / PDOK BRT",
+      maximumLevel: 19
+    });
     viewer = new Cesium.Viewer("cesiumContainer", {
+      baseLayer: new Cesium.ImageryLayer(basemap),
       terrainProvider: new Cesium.EllipsoidTerrainProvider(),
       animation: false,
       timeline: false,
@@ -240,16 +270,21 @@
       sceneModePicker: false,
       navigationHelpButton: false,
       infoBox: false,
-      selectionIndicator: false
+      selectionIndicator: false,
+      fullscreenButton: true,
+      skyAtmosphere: false
     });
-    viewer.imageryLayers.removeAll();
-    viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
-      url: "https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png",
-      credit: "© OSM © CARTO",
-      maximumLevel: 19
-    }));
-    viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString("#d8d4c8");
+    window.__hyViewer = viewer;
+    viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString("#c5d0b0");
+    viewer.scene.globe.enableLighting = false;
     viewer.scene.fog.enabled = false;
+    viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#87a0b8");
+    // Defer first camera until layout + first globe tiles settle
+    requestAnimationFrame(function () {
+      viewer.resize();
+      flySite();
+      viewer.scene.requestRender();
+    });
   }
 
   function wireUi() {
@@ -296,6 +331,7 @@
     renderPoints();
     wireUi();
     flySite();
+    setTimeout(flySite, 400);
     document.getElementById("loadStatus").textContent =
       (POINTS.count || 0) + " punten · fixture";
   }).catch(function (err) {
