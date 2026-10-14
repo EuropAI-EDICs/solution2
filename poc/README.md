@@ -413,6 +413,42 @@ narration passed every grounding gate and is published as
 magnitudes, verdict assertions — is covered by 169 offline tests).
 Findings and lessons: `docs/GENAI_SEAMS.md` §5.
 
+## Datakalibratie (uitdagingen-profielen + landelijke bronnen)
+
+`python3 poc/data/calibrate.py` — herhaalbare kalibratieloop: CVDR-diff van de
+Omgevingsverordening, geo-versheid per gebruikte laag (goedkope ArcGIS-count-
+checks, cache-first) en zone-drift-gate (≤0,1%, gelijk aan V3) over de 13
+featured scenario-runs (`uitdagingen.json::scenarioRuns`). Rapport:
+`poc/data/calibration/<datum>-calibratierapport.{md,json}`; exit 0 zolang elke
+control zijn baseline reproduceert. Eerste run (2026-10-14): 13/13 tracks
+pass, 56 zone-lagen live geteld, 0 tel-fouten; de CVDR-diff is byte-gewijs
+over de her-fetch-geojson en meldt daardoor `gewijzigd=True` (bekende
+byte-caveat, géén artikel-wijziging).
+**Herhaal dit na het PS-besluit van 18-11-2026 over de verordening-wijziging
+(het rapport draagt die amendementsvlag).**
+
+Landelijke bronnen (CBS-kerncijfers/landgebruik, RCE-monumenten + IAM,
+DINO/BRO, NWB/ProRail, netbeheerder-netcongestie) staan als `context`- of
+`scenario-basis`-rol in `poc/data/sources.json` — nooit als juridische zones.
+Fetchers: `poc/pipeline/national_data.py` (cache-first onder
+`poc/data/cache/national/`). Gepinde stand (2026-10-13/14): CBS via PDOK OGC
+API — `vierkant100` (Vierkantstatistieken 100 m, jaargang 2024) en INSPIRE
+`existinglanduse` (landgebruik) — de oude CBS-OData-vierkanttabellen bestaan
+niet meer; RCE op `data.geo.cultureelerfgoed.nl/openbaar/wfs`
+(rijksmonumentpunten + Archeologische Monumentenkaart als IAM-substituut);
+NWB-wegen en ProRail-spoor via PDOK WFS; netcongestie = de Landelijke
+Capaciteitskaart elektriciteitsnet 'afname' van Netbeheer Nederland
+(momentopname-download). DINO is bewust **niet gepind** (geen open WFS meer,
+BRO-REST auth-plichtig): `fetch_dino_ondergrond` faalt luid zolang er geen
+endpoint is. Contextpagina's per uitdaging:
+`python3 poc/pipeline/context_map.py` →
+`nldt/simulation/utrecht-context-<uitdaging>.html` (gelinkt via
+`simulationPages` in het dashboard; het CBS-grid en landgebruik tonen hun
+cache-status als legenda-regel in plaats van een 18k-puntenwolk). De
+energietoets-scenario SC-ET-NETCONGESTIE is data-gegrond
+(`basis.dataGrounding` op de capaciteitskaart, V2-gecontroleerd in elke
+sweep).
+
 ## Cross-track conflict overlay (energy vs nature, deterministic)
 
 [`docs/GENAI_SEAMS.md`](../docs/GENAI_SEAMS.md) phase C's cross-track conflict

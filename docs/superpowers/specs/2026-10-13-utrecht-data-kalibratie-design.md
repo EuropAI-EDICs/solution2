@@ -130,3 +130,55 @@ Algemene regels voor alle nieuwe bronnen:
 - Geen her-formalisatie van normcards buiten de door de CVDR-diff getroffen
   artikelen.
 - Extra provinces/landelijke dashboards — alleen de Utrecht-PoC.
+
+## 10. Vastlegging uitvoering plan 2 (2026-10-14)
+
+Vastlegging van de uitvoering van dit plan; de zusterspec
+[2026-10-13-utrecht-uitdagingen-design.md](2026-10-13-utrecht-uitdagingen-design.md)
+draagt de vastlegging van plan 1 als §9. De kalibratieloop (§2) is
+geïmplementeerd (`poc/data/calibrate.py`); de eerste run staat in
+`poc/data/calibration/2026-10-14-calibratierapport.{md,json}`: 13/13 tracks
+pass (zone-drift ≤0,1%), 56 zone-lagen live geteld, 0 tel-fouten. Pins en
+besluiten uit taken 4–8:
+
+- **CBS**: de StatLine-OData-vierkanttabellen bestaan niet meer; gepind op
+  PDOK OGC API (2026-10-14) — `vierkant100` (Vierkantstatistieken 100 m,
+  jaargang 2024, CQL2-filter `jaarcode=2024`) en INSPIRE `existinglanduse`
+  (landgebruik, BBG2017).
+- **RCE**: WFS-host `data.geo.cultureelerfgoed.nl/openbaar/wfs` (2026-10-13)
+  met `openbaar:rijksmonumentpunten`; de IAM-archeologie is een **substituut**
+  (`openbaar:Archeologische_Monumentenkaart_2014`) — IAM zelf heeft geen open
+  WFS.
+- **DINO niet gepind**: DINOloket biedt geen open WFS meer (asgs-wfs/
+  regionaal 404) en BRO-REST is auth-plichtig; `DINO_WFS`/`DINO_TYPENAME`
+  staan leeg in `poc/pipeline/national_data.py` en `fetch_dino_ondergrond`
+  faalt daardoor luid (RuntimeError) zolang er geen endpoint is gepind — de
+  sources.json-note draagt het vervolgstip.
+- **Netcongestie = de Landelijke Capaciteitskaart elektriciteitsnet
+  'afname'** van Netbeheer Nederland (ArcGIS-item
+  `e111e42029af46da8a3a96787c28c444`, gewijzigd 2026-06-24, Esri NL Terms of
+  Use): een document-download, dus een **momentopname** (gepind 2026-10-14;
+  59 voedingsgebied-polygonen, waarvan 31× code 3 = tekort met wachtrij),
+  geen stabiele API; de placeholder-polygoon van de publicatie is uit de
+  cache gelaten.
+- **Contextpagina's** zijn zelfstandige Leaflet-pagina's per uitdaging
+  (`poc/pipeline/context_map.py` → `nldt/simulation/utrecht-context-<id>.
+  html`, gelinkt via `simulationPages`) in plaats van embedding in
+  `report.html`/de h3-panelen én in plaats van `deep-agents/runs/` (dat
+  gitignored is; `nldt/simulation` staat wél in git, dus de pagina's zijn
+  reproduceerbaar en direct gelinkt).
+- **CBS-grid als legenda-regel**: de 100 m-kerncijfers-cache bevat ~18k
+  cellen zonder geometrie; een puntenwolk is onpraktisch en de geometrie is
+  niet bewaard, dus de cache-status staat als legenda-regel op de pagina
+  (idem landgebruik en DINO).
+- **SC-ET-NETCONGESTIE** demoot de AOI-marker (`FR-ET-01`) naar `attention`
+  (Δ0) zodat de data-laag zelf de ruimtelijke differentiatie toont; een
+  polygon-uitsluiting uit de provinciebrede AOI is niet uitdrukkbaar in de
+  bestaande mutatie-vocabulary en is bewust buiten scope gehouden.
+  `basis.dataGrounding` verwijst naar `netbeheerder-netcongestie` en is
+  V2-gecontroleerd in elke sweep.
+- **CVDR-diff is byte-gewijs**: de eerste run meldt `gewijzigd=True` — de
+  her-fetch-geojson is geen byte-stabiele output, dus byte-drift is een
+  bekende caveat en betekent niet automatisch een artikel-wijziging; de
+  artikel-herverificatie volgt pas ná het PS-besluit van 18-11-2026 (de
+  amendementsvlag staat in het rapport).
