@@ -406,6 +406,9 @@ class ScenarioBasis:
     normCardId: Optional[str] = None
     variedAspect: Optional[str] = None
     rationale: Optional[str] = None
+    #: optionele niet-juridische data-onderbouwing (kalibratie plan 2 task 1);
+    #: plain dict zodat de echo (asdict/to_row) het blok niet stilletjes dropt
+    dataGrounding: Optional[Dict[str, Any]] = None
 
 
 @dataclass

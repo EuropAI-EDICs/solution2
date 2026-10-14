@@ -780,3 +780,63 @@ class DataGroundingV2CheckTests(unittest.TestCase):
              "retrieved": "2026-10-13"})[0]
         assert "ISO" in _data_grounding_errors(
             src, {"sourceId": "netbeheerder-netcongestie", "retrieved": "gisteren"})[0]
+
+
+class DataGroundingWiringTests(unittest.TestCase):
+    """E2e wiring (kalibratie plan 2 task 3): een grounded hypothetical-spec
+    doorloopt de hele sweep — de basis-echo (incl. dataGrounding) haalt de
+    V0-report-gate op het ScenarioReport en de V2-check ``v2-data-grounding``
+    resolveert de sourceId via ``geodata.load_sources`` (hier een stub-registry
+    met de rol uit task 3's registry-entries).
+    """
+
+    def _sweep_grounding(self, source_id="netbeheerder-netcongestie"):
+        spec = _spec(
+            "SC-T-DGE",
+            {"type": "hypothetical", "rationale": "data-grounded variant",
+             "provenanceNote": "NOT legally grounded: data-grounded only.",
+             "dataGrounding": {"sourceId": source_id,
+                               "retrieved": "2026-10-13"}},
+            [{"ruleId": "FR-T-02", "action": "drop"}])
+        stub_registry = {"netbeheerder-netcongestie": {
+            "id": "netbeheerder-netcongestie", "role": "scenario-basis"}}
+        with mock.patch.object(scenarios.geodata, "load_sources",
+                               return_value=stub_registry):
+            report = scenarios.run_scenario_set(
+                baseline=_baseline(), layers=LAYERS, specs=[spec],
+                scenario_set_id="SSET-dge", report_id="SR-dge-0001")
+        validation = report.pop("_validation")
+        report.pop("_control_rich")
+        return report, validation
+
+    @staticmethod
+    def _grounding_check(validation):
+        checks = validation["levels"]["V2"]["checks"]
+        found = [c for c in checks if c.get("id") == "v2-data-grounding"]
+        assert len(found) == 1, found
+        return found[0]
+
+    def test_grounded_spec_haalt_v0_report_gate_en_v2_pass(self):
+        report, validation = self._sweep_grounding()
+        self.assertEqual(report["verdict"], "pass")
+        # V0-report-gate: de basis-echo incl. dataGrounding is schema-valid
+        contracts.validate(report, "scenario-report")
+        # de typed echo dropt het datablok niet
+        basis = report["scenarios"][0]["basis"]
+        self.assertEqual(basis["dataGrounding"]["sourceId"],
+                         "netbeheerder-netcongestie")
+        self.assertEqual(basis["dataGrounding"]["retrieved"], "2026-10-13")
+        check = self._grounding_check(validation)
+        self.assertEqual(check["status"], "pass")
+        self.assertEqual(validation["verdict"], "pass")
+
+    def test_onbekende_sourceId_faalt_de_v2_check(self):
+        report, validation = self._sweep_grounding(
+            source_id="bestaat-niet-in-registry")
+        self.assertEqual(report["verdict"], "fail")
+        check = self._grounding_check(validation)
+        self.assertEqual(check["status"], "fail")
+        self.assertIn("onbekende sourceId", check["detail"])
+        # V0 blijft groen: het rapport zelf is schema-valid; de fail zit
+        # uitsluitend in de V2-grounding-resolutie
+        contracts.validate(report, "scenario-report")

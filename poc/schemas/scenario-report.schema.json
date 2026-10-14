@@ -61,7 +61,18 @@
        "normCardId": { "type": "string" },
        "variedAspect": { "type": "string" },
        "rationale": { "type": "string" },
-       "provenanceNote": { "type": "string" }
+       "provenanceNote": { "type": "string" },
+       "dataGrounding": {
+        "type": "object",
+        "description": "Optional non-legal grounding: a national data source that parameterises this hypothetical. Never a legal claim. Echoed verbatim from the spec's basis for traceability.",
+        "additionalProperties": false,
+        "required": ["sourceId", "retrieved"],
+        "properties": {
+         "sourceId": { "type": "string", "minLength": 1 },
+         "retrieved": { "type": "string", "format": "date" },
+         "note": { "type": "string" }
+        }
+       }
       }
      },
      "proposedBy": { "type": "string" },
