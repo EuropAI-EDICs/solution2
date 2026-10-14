@@ -1,0 +1,125 @@
+[
+ {
+  "id": "FR-BEW-01",
+  "normCardId": "NC-BEW-01",
+  "status": "ambiguous",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "instrumentType": "rup-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "wind_turbine",
+   "contextTags": [
+    "inclusion_een_rij_windturbines",
+    "deelgebied_zelzate_zuid",
+    "zone_loos_gedocumenteerd",
+    "v4_human_review"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-task7",
+  "formalizedAt": "2026-10-14",
+  "reason": "Zone-loze inclusion (gedocumenteerd): art. 3 GRUP fase 2 staat in deelgebied Zelzate-zuid één rij windturbines toe op de rand van het bosgebied, maar dat deelgebied heeft geen alias in ZONE_SOURCES (taak 9: natura2000-be/gebouwen-be) en de geometrie is niet gepind; routeeert naar V4."
+ },
+ {
+  "id": "FR-BEW-02",
+  "normCardId": "NC-BEW-02",
+  "status": "ambiguous",
+  "ruleType": "zone_exclusion",
+  "zoneSemantics": "exclusion",
+  "instrumentType": "rup-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "wind_turbine",
+   "contextTags": [
+    "exclusion_grootschalige_windturbines",
+    "overdruk_grensgebied_grootstedelijk_gebied",
+    "zone_loos_gedocumenteerd",
+    "v4_human_review"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-task7",
+  "formalizedAt": "2026-10-14",
+  "reason": "Zone-loze exclusion (gedocumenteerd): art. 14 GRUP fase 2 verbiedt grootschalige windturbines in het overdruk-grensgebied met het grootstedelijk gebied (plus afvalverwerking/bulkopslag in open lucht), maar dat gebied heeft geen alias in ZONE_SOURCES (taak 9); routeeert naar V4. Art. 30 herhaalt dezelfde verbodstekst (BVW-03 duplicaat)."
+ },
+ {
+  "id": "FR-BEW-03",
+  "normCardId": "NC-BEW-03",
+  "status": "ambiguous",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "instrumentType": "gewestplan-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "wind_turbine",
+   "contextTags": [
+    "inclusion_windmolenpark",
+    "gewestplan_bestemmingsvoorschrift",
+    "geen_sv_gentse_kanaalzone",
+    "zone_loos_gedocumenteerd",
+    "v4_human_review"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-task7",
+  "formalizedAt": "2026-10-14",
+  "reason": "Zone-loze inclusion (gedocumenteerd): het gewestplan-SV bestemt 'gebied voor windmolenpark' voor inplanting/exploitatie van windmolens, maar die windmolenpark-zones hebben geen alias in ZONE_SOURCES (taak 9) en het SV bestaat alleen voor gewestplan Antwerpen 14, Hasselt - Genk 19 en Halle - Vilvoorde 25 — niet voor het gewestplan Gentse en Kanaalzone 08 van de AOI; daarom ambigu en naar V4."
+ },
+ {
+  "id": "FR-BEW-04",
+  "normCardId": "NC-BEW-04",
+  "status": "ambiguous",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "instrumentType": "vcro-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "wind_turbine",
+   "contextTags": [
+    "afwijkingsbevoegdheid_windturbines",
+    "vcro_4_4_9",
+    "standaardtypebepalingen_toets",
+    "zone_loos_gedocumenteerd",
+    "v4_human_review"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-task7",
+  "formalizedAt": "2026-10-14",
+  "relatedNormCardIds": [
+   "NC-BEE-02"
+  ],
+  "reason": "Zone-loze conditional (gedocumenteerd): art. 4.4.9 §1 VCRO opent een afwijkingsbevoegdheid voor windturbines/-parken in gebieden die onder gewestplanvoorschriften sorteren (toets aan standaardtypebepalingen; inrichting/beheer uitgesloten); procedurele regel zonder zone-selector in ZONE_SOURCES (taak 9); routeeert naar V4."
+ },
+ {
+  "id": "FR-AOI-01",
+  "normCardId": "NC-BEW-01",
+  "status": "formalized",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "instrumentType": "rup-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "wind_turbine",
+   "contextTags": [
+    "inclusion_basis_aoi",
+    "zone_loze_inclusions_v4",
+    "taak9_zone_semantiek"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "zoneSelector": {
+   "zoneIds": [
+    "aoi"
+   ],
+   "selection": "within",
+   "geometrySource": "request_aoi",
+   "caveat": "inclusion-basis is de request-AOI: geen inclusion-regel in deze shard is executabel (zone-loos, V4); de AOI is de conservatieve inclusion-union, geen positief geschiktheidsmodel"
+  },
+  "conditions": [],
+  "rationale": "Taak-9-zone-semantiek: de inclusion-regels van deze track/jurisdictie (FR-BEW-01, FR-BEW-03) zijn zone-loos naar V4 gerouteerd; de run gebruikt de request-AOI als inclusion-union (run_summary.inclusionBasis=aoi) zodat V4-markers en exclusions op een gedefinieerd werkvlak worden uitgevoerd. Deze regel is een uitvoeringsconstructie van de orchestrator, geen inhoudelijke norm.",
+  "formalizedBy": "run-orchestrator#poc-nspd-task9-aoi-basis",
+  "formalizedAt": "2026-10-14"
+ }
+]

@@ -1,0 +1,90 @@
+[
+ {
+  "id": "FR-ZON-01",
+  "normCardId": "NC-ZON-01",
+  "status": "ambiguous",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "instrumentType": "omgevingsverordening-nl",
+  "jurisdictie": "nl",
+  "appliesTo": {
+   "objectType": "solar_field",
+   "contextTags": [
+    "inclusion_stedelijk_gebied",
+    "locaties_a_tot_e_landelijk_gebied",
+    "zone_loos_gedocumenteerd",
+    "v4_human_review"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-task6",
+  "formalizedAt": "2026-10-14",
+  "reason": "Zone-loze inclusion (gedocumenteerd): art. 18.18 lids 1-2 staan zonne-energie-opstellingen toe binnen stedelijk gebied en buiten stedelijk gebied op locaties a-e (bouwvlak, stortplaatsen/infrastructuur/bedrijvigheid, waterbassin, agrarische grond in transitie of met netcongestie-bijdrage); geen van die zones heeft een alias in ZONE_SOURCES (taak 9); routeeert naar V4."
+ },
+ {
+  "id": "FR-ZON-02",
+  "normCardId": "NC-ZON-02",
+  "status": "formalized",
+  "ruleType": "zone_exclusion",
+  "zoneSemantics": "exclusion",
+  "instrumentType": "omgevingsverordening-nl",
+  "jurisdictie": "nl",
+  "appliesTo": {
+   "objectType": "solar_field",
+   "contextTags": [
+    "exclusion_natura2000_nl",
+    "water_basin_scope",
+    "nature_guard_sub_c"
+   ]
+  },
+  "executableRef": "engine.zone.exclude_within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-task6",
+  "formalizedAt": "2026-10-14",
+  "zoneSelector": {
+   "zoneIds": [
+    "natura2000-nl"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Exclusion-zone via PDOK OGC API (alias natura2000-nl, taak 9 ZONE_SOURCES); landelijke geometrie; sub c is een mits-voorwaarde voor waterbassins - de scope is daarom beperkt tot conditions location==water_basin (verbatim-gedekte uitsnede)."
+  },
+  "conditions": [
+   {
+    "parameter": "location",
+    "operator": "==",
+    "value": "water_basin"
+   }
+  ],
+  "rationale": "Art. 18.18 lid 2 sub c staat zonne-energie op water of waterbassin-grond slechts toe mits aannemelijk is dat er geen significant nadelige effecten zijn voor natuur; binnen Natura 2000-gebieden (alias natura2000-nl uit ZONE_SOURCES, taak 9) is die aannemelijkheid niet uit de verordening afleidbaar en geldt daarom een exclusion-marker voor waterbassin-solar."
+ },
+ {
+  "id": "FR-AOI-01",
+  "normCardId": "NC-ZON-01",
+  "status": "formalized",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "instrumentType": "omgevingsverordening-nl",
+  "jurisdictie": "nl",
+  "appliesTo": {
+   "objectType": "solar_field",
+   "contextTags": [
+    "inclusion_basis_aoi",
+    "zone_loze_inclusions_v4",
+    "taak9_zone_semantiek"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "zoneSelector": {
+   "zoneIds": [
+    "aoi"
+   ],
+   "selection": "within",
+   "geometrySource": "request_aoi",
+   "caveat": "inclusion-basis is de request-AOI: geen inclusion-regel in deze shard is executabel (zone-loos, V4); de AOI is de conservatieve inclusion-union, geen positief geschiktheidsmodel"
+  },
+  "conditions": [],
+  "rationale": "Taak-9-zone-semantiek: de inclusion-regels van deze track/jurisdictie (FR-ZON-01) zijn zone-loos naar V4 gerouteerd; de run gebruikt de request-AOI als inclusion-union (run_summary.inclusionBasis=aoi) zodat V4-markers en exclusions op een gedefinieerd werkvlak worden uitgevoerd. Deze regel is een uitvoeringsconstructie van de orchestrator, geen inhoudelijke norm.",
+  "formalizedBy": "run-orchestrator#poc-nspd-task9-aoi-basis",
+  "formalizedAt": "2026-10-14"
+ }
+]

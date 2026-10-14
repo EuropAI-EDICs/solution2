@@ -1,0 +1,76 @@
+[
+ {
+  "id": "FR-ETST-01",
+  "normCardId": "NC-ETST-01",
+  "status": "ambiguous",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "instrumentType": "omgevingsverordening-nl",
+  "jurisdictie": "nl",
+  "appliesTo": {
+   "objectType": "energy_storage",
+   "contextTags": [
+    "netcongestie_voorwaarde",
+    "agrarische_grond",
+    "zone_loos_gedocumenteerd",
+    "v4_human_review"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-task6",
+  "formalizedAt": "2026-10-14",
+  "reason": "Zone-loze conditional (gedocumenteerd): art. 18.18 lid 2 sub e koppelt ontwikkeling op agrarische grond aan een significante netcongestie-bijdrage (gezamenlijk kabelgebruik of directe kabel achter de meter); 'grond waar agrarisch gebruik is toegestaan' heeft geen alias in ZONE_SOURCES (taak 9); routeeert naar V4."
+ },
+ {
+  "id": "FR-ETST-02",
+  "normCardId": "NC-ETST-02",
+  "status": "ambiguous",
+  "ruleType": "zone_exclusion",
+  "zoneSemantics": "exclusion",
+  "instrumentType": "omgevingsverordening-nl",
+  "jurisdictie": "nl",
+  "appliesTo": {
+   "objectType": "energy_storage",
+   "contextTags": [
+    "verbod_waterwingebied_grondwaterbeschermingszone",
+    "bodemenergiesysteem",
+    "zone_loos_gedocumenteerd",
+    "v4_human_review"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-task6",
+  "formalizedAt": "2026-10-14",
+  "reason": "Zone-loze exclusion (gedocumenteerd): art. 5.41 verbiedt mijnbouwwerken/bodemenergiesystemen in waterwingebied of grondwaterbeschermingszone (verbatim, binding), maar die zones hebben geen alias in ZONE_SOURCES (taak 9: natura2000-nl/natura2000-be/gebouwen-be) en zijn niet gepind; routeeert naar V4 in plaats van gokken op geometrie."
+ },
+ {
+  "id": "FR-AOI-01",
+  "normCardId": "NC-ETST-01",
+  "status": "formalized",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "instrumentType": "omgevingsverordening-nl",
+  "jurisdictie": "nl",
+  "appliesTo": {
+   "objectType": "energy_storage",
+   "contextTags": [
+    "inclusion_basis_aoi",
+    "zone_loze_inclusions_v4",
+    "taak9_zone_semantiek"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "zoneSelector": {
+   "zoneIds": [
+    "aoi"
+   ],
+   "selection": "within",
+   "geometrySource": "request_aoi",
+   "caveat": "inclusion-basis is de request-AOI: geen inclusion-regel in deze shard is executabel (zone-loos, V4); de AOI is de conservatieve inclusion-union, geen positief geschiktheidsmodel"
+  },
+  "conditions": [],
+  "rationale": "Taak-9-zone-semantiek: de inclusion-regels van deze track/jurisdictie (geen) zijn zone-loos naar V4 gerouteerd; de run gebruikt de request-AOI als inclusion-union (run_summary.inclusionBasis=aoi) zodat V4-markers en exclusions op een gedefinieerd werkvlak worden uitgevoerd. Deze regel is een uitvoeringsconstructie van de orchestrator, geen inhoudelijke norm.",
+  "formalizedBy": "run-orchestrator#poc-nspd-task9-aoi-basis",
+  "formalizedAt": "2026-10-14"
+ }
+]

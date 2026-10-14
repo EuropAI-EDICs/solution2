@@ -1,0 +1,104 @@
+[
+ {
+  "id": "FR-BEE-01",
+  "normCardId": "NC-BEE-01",
+  "status": "ambiguous",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "instrumentType": "rup-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "energy_storage",
+   "contextTags": [
+    "inclusion_productie_van_energie",
+    "zeehavenondersteunende_regionale_bedrijvigheid",
+    "interpretive_bridge_energy_storage",
+    "zone_loos_gedocumenteerd",
+    "v4_human_review"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-task7",
+  "formalizedAt": "2026-10-14",
+  "reason": "Zone-loze inclusion (gedocumenteerd): art. 15 GRUP fase 2 benoemt 'productie van energie' als hoofdactiviteit in het gebied voor zeehavenondersteunende regionale bedrijvigheid; dat bedrijventerrein heeft geen alias in ZONE_SOURCES (taak 9) en de dekking van energy_storage is interpretief (energieopslag als energie-infrastructuur, niet verbatim genoemd); routeeert naar V4."
+ },
+ {
+  "id": "FR-BEE-02",
+  "normCardId": "NC-BEE-02",
+  "status": "ambiguous",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "instrumentType": "vcro-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "energy_storage",
+   "contextTags": [
+    "afwijkingsbevoegdheid_energie_installaties",
+    "vcro_4_4_9",
+    "standaardtypebepalingen_toets",
+    "zone_loos_gedocumenteerd",
+    "v4_human_review"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-task7",
+  "formalizedAt": "2026-10-14",
+  "relatedNormCardIds": [
+   "NC-BEW-04"
+  ],
+  "reason": "Zone-loze conditional (gedocumenteerd): art. 4.4.9 §1 VCRO opent voor 'andere installaties voor de productie van energie of energierecuperatie' een afwijkingsbevoegdheid op gewestplanvoorschriften (toets aan standaardtypebepalingen); procedurele regel zonder zone-selector in ZONE_SOURCES (taak 9); routeeert naar V4."
+ },
+ {
+  "id": "FR-BEE-03",
+  "normCardId": "NC-BEE-03",
+  "status": "ambiguous",
+  "ruleType": "zone_exclusion",
+  "zoneSemantics": "exclusion",
+  "instrumentType": "rup-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "energy_storage",
+   "contextTags": [
+    "exclusion_uitsluitend_bestemd",
+    "bestemmingslijst_watergebonden_bedrijven",
+    "interpretive_bridge_energy_storage",
+    "zone_loos_gedocumenteerd",
+    "v4_human_review"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-task7",
+  "formalizedAt": "2026-10-14",
+  "reason": "Zone-loze exclusion (gedocumenteerd): art. 1 GRUP papierbedrijf bestemt de zone 'uitsluitend' voor de opsomde zeehaven-/watergebonden bedrijven — andere functies (waaronder energieopslag buiten die lijst) zijn daar uitgesloten; het GRUP-gebied heeft geen alias in ZONE_SOURCES (taak 9) en of een opslaginrichting als opslag-/toeleveringsbedrijf kwalificeert is interpretief; routeeert naar V4."
+ },
+ {
+  "id": "FR-AOI-01",
+  "normCardId": "NC-BEE-01",
+  "status": "formalized",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "instrumentType": "rup-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "energy_storage",
+   "contextTags": [
+    "inclusion_basis_aoi",
+    "zone_loze_inclusions_v4",
+    "taak9_zone_semantiek"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "zoneSelector": {
+   "zoneIds": [
+    "aoi"
+   ],
+   "selection": "within",
+   "geometrySource": "request_aoi",
+   "caveat": "inclusion-basis is de request-AOI: geen inclusion-regel in deze shard is executabel (zone-loos, V4); de AOI is de conservatieve inclusion-union, geen positief geschiktheidsmodel"
+  },
+  "conditions": [],
+  "rationale": "Taak-9-zone-semantiek: de inclusion-regels van deze track/jurisdictie (FR-BEE-01) zijn zone-loos naar V4 gerouteerd; de run gebruikt de request-AOI als inclusion-union (run_summary.inclusionBasis=aoi) zodat V4-markers en exclusions op een gedefinieerd werkvlak worden uitgevoerd. Deze regel is een uitvoeringsconstructie van de orchestrator, geen inhoudelijke norm.",
+  "formalizedBy": "run-orchestrator#poc-nspd-task9-aoi-basis",
+  "formalizedAt": "2026-10-14"
+ }
+]

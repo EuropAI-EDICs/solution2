@@ -1,0 +1,100 @@
+[
+ {
+  "id": "FR-BEZ-01",
+  "normCardId": "NC-BEZ-01",
+  "status": "ambiguous",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "instrumentType": "rup-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "solar_field",
+   "contextTags": [
+    "inclusion_hernieuwbare_energie_infrastructuur",
+    "overdruk_zone_re_productie",
+    "interpretive_bridge_solar_field",
+    "zone_loos_gedocumenteerd",
+    "v4_human_review"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-task7",
+  "formalizedAt": "2026-10-14",
+  "reason": "Zone-loze inclusion (gedocumenteerd): art. 20 GRUP fase 2 staat alle handelingen voor RE-infrastructuur toe binnen het overdruk-gebied 'productie van hernieuwbare energie', maar dat gebied heeft geen alias in ZONE_SOURCES (taak 9) en de dekking van solar_field is interpretief (zonnevelden als RE-infrastructuur, niet verbatim genoemd); routeeert naar V4."
+ },
+ {
+  "id": "FR-BEZ-02",
+  "normCardId": "NC-BEZ-02",
+  "status": "ambiguous",
+  "ruleType": "zone_exclusion",
+  "zoneSemantics": "exclusion",
+  "instrumentType": "rup-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "solar_field",
+   "contextTags": [
+    "exclusion_vergunningsplichtige_constructies",
+    "bouwvrije_strook",
+    "zone_loos_gedocumenteerd",
+    "v4_human_review"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-task7",
+  "formalizedAt": "2026-10-14",
+  "reason": "Zone-loze exclusion (gedocumenteerd): art. 26 GRUP fase 2 verbiedt vergunningsplichtige gebouwen en constructies in de bouwvrije strook (uitsluitingenopsomming zonder zonnevelden), maar de strook heeft geen alias in ZONE_SOURCES (taak 9); routeeert naar V4."
+ },
+ {
+  "id": "FR-BEZ-03",
+  "normCardId": "NC-BEZ-03",
+  "status": "ambiguous",
+  "ruleType": "zone_attention",
+  "zoneSemantics": "attention",
+  "instrumentType": "vcro-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "solar_field",
+   "contextTags": [
+    "re_acceleratiegebieden_kader",
+    "vcro_2_2_5_par_2_1",
+    "geen_gebied_gepind_in_corpus",
+    "zone_loos_gedocumenteerd",
+    "v4_human_review"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-task7",
+  "formalizedAt": "2026-10-14",
+  "reason": "Zone-loze attention-marker (gedocumenteerd): art. 2.2.5 §2/1 VCRO biedt het kader ('gebied voor de versnelde uitrol van hernieuwbare energie') waaronder zonneveld-inclusionzones aangeduid worden, maar in het corpus is nog geen dergelijk gebied aangeduid of gepind; routeeert naar V4."
+ },
+ {
+  "id": "FR-AOI-01",
+  "normCardId": "NC-BEZ-01",
+  "status": "formalized",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "instrumentType": "rup-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "solar_field",
+   "contextTags": [
+    "inclusion_basis_aoi",
+    "zone_loze_inclusions_v4",
+    "taak9_zone_semantiek"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "zoneSelector": {
+   "zoneIds": [
+    "aoi"
+   ],
+   "selection": "within",
+   "geometrySource": "request_aoi",
+   "caveat": "inclusion-basis is de request-AOI: geen inclusion-regel in deze shard is executabel (zone-loos, V4); de AOI is de conservatieve inclusion-union, geen positief geschiktheidsmodel"
+  },
+  "conditions": [],
+  "rationale": "Taak-9-zone-semantiek: de inclusion-regels van deze track/jurisdictie (FR-BEZ-01) zijn zone-loos naar V4 gerouteerd; de run gebruikt de request-AOI als inclusion-union (run_summary.inclusionBasis=aoi) zodat V4-markers en exclusions op een gedefinieerd werkvlak worden uitgevoerd. Deze regel is een uitvoeringsconstructie van de orchestrator, geen inhoudelijke norm.",
+  "formalizedBy": "run-orchestrator#poc-nspd-task9-aoi-basis",
+  "formalizedAt": "2026-10-14"
+ }
+]
