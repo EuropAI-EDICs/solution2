@@ -102,3 +102,37 @@ def test_edc_stub_flow():
 
     missing = client.post("/v2/contractnegotiations", headers=auth, json={"offerUid": "ontbreekt"})
     assert missing.status_code == 404 and missing.json()["error"] == "offer-not-found"
+
+
+def test_participate_stub():
+    import json as _json
+
+    from app.participate import create_app as participate_app
+
+    seed = _json.loads((FIXTURES / "participate-seed.json").read_text())
+    client = TestClient(participate_app(seed))
+    auth = {"Authorization": "Bearer sim-toolbox-token"}
+    assert len(client.get("/api/meetings", headers=auth).json()["data"]) == 1
+    created = client.post("/api/proposals", headers=auth,
+                          json={"title": "Nieuwe zone", "area": "utrecht"}).json()
+    assert created["id"].startswith("prop-") and created["state"] == "open"
+    room = client.post("/rooms", headers=auth, json={"title": "sessie"}).json()
+    assert room["roomUrl"].startswith("http://localhost:9199/rooms/")
+
+    noauth = client.get("/api/proposals")
+    assert noauth.status_code == 401
+
+
+def test_federated_learning_round():
+    from app.algorithms import load_ground
+    from app.federated_learning import create_app as fl_app
+
+    ground = load_ground(FIXTURES)
+    client = TestClient(fl_app(ground.peilen))
+    auth = {"Authorization": "Bearer sim-toolbox-token"}
+    rnd = client.post("/rounds", headers=auth, json={"name": "peilen-r1"}).json()
+    update = client.post(f"/rounds/{rnd['id']}/updates", headers=auth,
+                         json={"municipality": "rijnland"}).json()
+    assert update["metric"]["mean_waterstand_m"] < 0  # echte peilen zijn onder NAP
+    result = client.get(f"/rounds/{rnd['id']}/result", headers=auth).json()
+    assert result["participants"] == 1 and "mean_waterstand_m" in result["aggregate"]
