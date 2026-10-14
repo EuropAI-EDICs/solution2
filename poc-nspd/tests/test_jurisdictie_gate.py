@@ -16,6 +16,10 @@ _REGISTRY = {"sources": [
     {"id": "cvdr709135-ov-zeeland", "jurisdictie": "nl"},
     {"id": "be-rup-corpus", "jurisdictie": "be"},
 ]}
+_REG_DOCS = {"S01": {"jurisdictie": "nl"}, "S02": {"jurisdictie": "be"}}
+_KAART_S02 = {"id": "NC-S02", "jurisdictie": "nl", "evidenceId": "EV-01",
+              "theme": "energy:wind", "verified": True,
+              "source": {"docId": "S02"}}
 
 
 def test_v2b_pass_bij_schone_set():
@@ -32,3 +36,20 @@ def test_v2b_fail_bij_be_kaart_in_nl_run():
     with pytest.raises(JurisdictieError):
         run_v2b(normcards=[_KAART_BE], formal_rules=[], sources_registry=_REGISTRY,
                 jurisdictie="nl", strict=True)
+
+
+def test_v2b_bron_fail_bij_be_bron_in_nl_run():
+    out = run_v2b(normcards=[_KAART_S02], formal_rules=[],
+                  sources_registry=_REGISTRY, jurisdictie="nl",
+                  document_registry=_REG_DOCS)
+    assert out["status"] == "fail"
+    bron = [c for c in out["checks"] if c["id"] == "V2B-BRON"]
+    assert bron and "NC-S02" in bron[0]["detail"] and "S02" in bron[0]["detail"]
+    assert "be" in bron[0]["detail"]
+
+
+def test_v2b_bron_overgeslagen_zonder_documentregister():
+    out = run_v2b(normcards=[_KAART_S02], formal_rules=[],
+                  sources_registry=_REGISTRY, jurisdictie="nl")
+    assert out["status"] == "pass"
+    assert not any(c["id"] == "V2B-BRON" for c in out["checks"])

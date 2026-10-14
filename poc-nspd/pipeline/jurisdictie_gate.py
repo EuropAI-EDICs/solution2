@@ -20,6 +20,7 @@ def run_v2b(
     sources_registry: Mapping[str, Any],
     jurisdictie: str,
     strict: bool = False,
+    document_registry: Mapping[str, Any] | None = None,
 ) -> dict:
     reg = sources_registry.get("sources", [])
     bron_jur: dict[str, str] = {s.get("id", ""): s.get("jurisdictie", "") for s in reg}
@@ -40,6 +41,15 @@ def run_v2b(
         if kaart and kaart.get("jurisdictie") != jurisdictie:
             checks.append({"id": "V2B-RULEKAART", "status": "fail",
                            "detail": f"{fr.get('id')}: linkt naar {kaart.get('id')} ({kaart.get('jurisdictie')})"})
+    if document_registry is not None:
+        for k in normcards:
+            src = k.get("source") or {}
+            doc_id = src.get("docId", "") if isinstance(src, Mapping) else ""
+            doc = document_registry.get(doc_id)
+            doc_jur = doc.get("jurisdictie") if isinstance(doc, Mapping) else None
+            if doc is None or doc_jur != jurisdictie:
+                checks.append({"id": "V2B-BRON", "status": "fail",
+                               "detail": f"{k.get('id')}: bron {doc_id} heeft jurisdictie {doc_jur} in run {jurisdictie}"})
     status = "pass" if not any(c["status"] == "fail" for c in checks) else "fail"
     if status == "fail" and strict:
         raise JurisdictieError("; ".join(c["detail"] for c in checks if c["status"] == "fail"))
