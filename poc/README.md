@@ -369,7 +369,7 @@ also `proposals.json` + `proposals-rejected.json` (the author's
 cite-or-abstain ledger: schema-invalid or hallucinated ids are recorded and
 never executed). Exit code 0 only on verdict `pass`. Demo sets:
 `poc/scenarios/<track>.json` — **5 uitdagingen × 13 tracks × 3 scenario's
-per track** (energietoets telt er nu 2; #3 volgt in plan 2; curation-contract
+per track** (curation-contract
 in `poc/scenarios/uitdagingen.json`, getest in `tests/test_uitdagingen.py`):
 
 | uitdaging | tracks | per track 3 scenario's, o.a. |

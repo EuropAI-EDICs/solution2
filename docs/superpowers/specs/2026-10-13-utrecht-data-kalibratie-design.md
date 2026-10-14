@@ -131,11 +131,11 @@ Algemene regels voor alle nieuwe bronnen:
   artikelen.
 - Extra provinces/landelijke dashboards — alleen de Utrecht-PoC.
 
-## 10. Vastlegging uitvoering plan 2 (2026-10-14)
+## 9. Vastlegging uitvoering plan 2 (2026-10-14)
 
 Vastlegging van de uitvoering van dit plan; de zusterspec
 [2026-10-13-utrecht-uitdagingen-design.md](2026-10-13-utrecht-uitdagingen-design.md)
-draagt de vastlegging van plan 1 als §9. De kalibratieloop (§2) is
+draagt de vastlegging van plan 1 (aldaar eveneens §9). De kalibratieloop (§2) is
 geïmplementeerd (`poc/data/calibrate.py`); de eerste run staat in
 `poc/data/calibration/2026-10-14-calibratierapport.{md,json}`: 13/13 tracks
 pass (zone-drift ≤0,1%), 56 zone-lagen live geteld, 0 tel-fouten. Pins en
