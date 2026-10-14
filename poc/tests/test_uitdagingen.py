@@ -136,3 +136,40 @@ def test_set_bestanden_valideren_tegen_contract_schemas():
         contracts.validate(s, "scenario-set")
         for sc in s["scenarios"]:
             contracts.validate(sc, "scenario-spec")
+
+
+# --------------------------------------------------------------------------- #
+# Landelijke bronnen (kalibratie plan 2 task 3): 8 nationale registry-entries —
+# context-rollen plus één scenario-basis voor SC-ET-NETCONGESTIE. Nooit een
+# juridische rol: data onderbouwt, wet- en regelgeving beslist.
+# --------------------------------------------------------------------------- #
+
+NATIONALE_BRONNEN = {
+    "cbs-grid-kerncijfers-100m": "context",
+    "cbs-landgebruik-100m": "context",
+    "rce-monumenten": "context",
+    "rce-iam-archeologie": "context",
+    "dino-bro-ondergrond": "context",
+    "rws-nwb-wegen": "context",
+    "prorail-spoor": "context",
+    "netbeheerder-netcongestie": "scenario-basis",
+}
+
+
+def test_nationale_bronnen_staan_in_registry_met_juiste_rol():
+    reg = json.loads((ROOT / "data" / "sources.json").read_text(encoding="utf-8"))
+    items = reg.get("sources", reg) if isinstance(reg, dict) else reg
+    by_id = {it["id"]: it for it in items}
+    for sid, role in NATIONALE_BRONNEN.items():
+        assert sid in by_id, sid
+        assert by_id[sid].get("role") == role, sid
+        assert "serviceUrl" in by_id[sid] or "url" in by_id[sid], sid
+
+
+def test_nationale_bronnen_dragen_geen_juridische_rol():
+    reg = json.loads((ROOT / "data" / "sources.json").read_text(encoding="utf-8"))
+    items = reg.get("sources", reg) if isinstance(reg, dict) else reg
+    juridisch = {"inclusion", "exclusion", "conditional", "attention", "compensation"}
+    for it in items:
+        if it["id"] in NATIONALE_BRONNEN:
+            assert it.get("role") not in juridisch, it["id"]
