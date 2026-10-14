@@ -215,3 +215,15 @@ def test_fetch_dino_ondergrond_faalt_luid_zonder_gepind_endpoint(tmp_path, monke
     import pytest
     with pytest.raises(RuntimeError, match="dino"):
         nd.fetch_dino_ondergrond()
+
+
+def test_load_netcongestie_leest_cache(tmp_path, monkeypatch):
+    cache = tmp_path / "netcongestie" / "netcongestie.geojson"
+    cache.parent.mkdir(parents=True)
+    cache.write_text((FIXTURES / "netcongestie_sample.json").read_text())
+    monkeypatch.setattr(nd, "CACHE", tmp_path)
+    out = nd.load_netcongestie()
+    assert out["sourceId"] == "netbeheerder-netcongestie"
+    assert out["records"]["features"][0]["properties"]["netgebied"] == "Utrecht-Stad"
+    # retrieved afgeleid van de cache-mtime, ISO met timezone
+    assert out["retrieved"].endswith("+00:00")

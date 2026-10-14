@@ -289,3 +289,44 @@ def fetch_infra(refresh: bool = False, transport: Transport | None = None) -> di
             "spoor": fetch_wfs(service_url=PRORAIL_WFS, type_name=PRORAIL_TYPENAME,
                                bbox_rd=UTRECHT_BBOX_RD, cache_name="prorail-spoor.json",
                                source_id="prorail-spoor", refresh=refresh, transport=transport)}
+
+
+# --------------------------------------------------------------------------- #
+# Netcongestie (plan-2 task 6) — scenario-basis voor SC-ET-NETCONGESTIE
+# --------------------------------------------------------------------------- #
+
+NETCONGESTIE_SERVICE = (
+    "https://services.arcgis.com/nSZVuSZjHpEZZbRo/arcgis/rest/services/"
+    "Capaciteitskaart_elektriciteitsnet_v2_afname/FeatureServer/0")
+
+
+def load_netcongestie(refresh: bool = False, transport: Transport | None = None) -> dict:
+    """Netcongestie-cache (handmatige of API-download) als scenario-basis.
+
+    Leest ``poc/data/cache/national/netcongestie/netcongestie.geojson``
+    (FeatureCollection, WGS84/CRS84): de Landelijke Capaciteitskaart
+    'afname' van Netbeheer Nederland (voedingsgebied-polygonen; code
+    ``afname``: 0=beschikbaar, 1=beperkt, 2=in onderzoek, 3=tekort met
+    wachtrij — zie de note bij netbeheerder-netcongestie in sources.json).
+    De export is een momentopname (document-download), geen stabiele API:
+    verversen gebeurt via de gedocumenteerde serviceUrl, met ``transport``
+    als injectiepunt voor offline replays.
+    """
+    cache = CACHE / "netcongestie" / "netcongestie.geojson"
+    if not cache.is_file() or refresh:
+        # De netbeheerder-export is een document-download, geen stabiele API:
+        # verversen gebeurt via de gedocumenteerde download-URL in sources.json.
+        if refresh and transport is None:
+            raise FileNotFoundError(
+                "netcongestie-cache ontbreekt; download volgens sources.json")
+        if refresh:
+            CACHE.mkdir(parents=True, exist_ok=True)
+            cache.write_text(json.dumps(transport("netcongestie"), ensure_ascii=False),
+                             encoding="utf-8")
+    payload = {
+        "sourceId": "netbeheerder-netcongestie",
+        "retrieved": datetime.fromtimestamp(
+            cache.stat().st_mtime, tz=timezone.utc).isoformat(timespec="seconds"),
+        "records": json.loads(cache.read_text(encoding="utf-8")),
+    }
+    return payload
