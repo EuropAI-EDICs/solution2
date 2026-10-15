@@ -15,7 +15,12 @@ from datetime import datetime, timezone
 # lidaanduidingen ("1", "2") uit lopende tekst als artikelnummer opvatten.
 _ARTIKEL_RE = re.compile(
     r"^[ \t]*Artikel[ \t]*(?:\n[ \t]*){0,3}([0-9]+(?:\.[0-9]+)*)\b", re.M)
-_EVID_PREFIX = {"wind": "EVW", "zon": "EVZ", "energietoets": "EVE"}
+_EVID_PREFIX = {"wind": "EVW", "zon": "EVZ", "energietoets": "EVE",
+                # fase 2 (plan 2026-10-14-poc-nspd-fase2); BE-shards hernoemen
+                # de ids naar BV<letter>-xx bij curatie (fase-1-conventie)
+                "bos": "EVB", "water": "EVD", "bodem": "EVO", "mobiliteit": "EVM",
+                "landschap": "EVL", "landbouw": "EVG", "wonen": "EVH",
+                "werken": "EVJ", "recreatie": "EVR", "biomassa": "EVX"}
 
 
 def _artikelgrenzen(tekst: str) -> list[tuple[str, int, int]]:
