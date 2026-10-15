@@ -1,11 +1,14 @@
 # poc-nspd — North Sea Port District (grensoverschrijdend scenario-POC + Leia 3D-viewer)
 
-Spec: `docs/superpowers/specs/2026-10-14-poc-nspd-design.md` · Plan: `docs/superpowers/plans/2026-10-14-poc-nspd.md`
+Spec: `docs/superpowers/specs/2026-10-14-poc-nspd-design.md` · Plannen:
+[fase 1](../docs/superpowers/plans/2026-10-14-poc-nspd.md) ·
+[fase 2](../docs/superpowers/plans/2026-10-14-poc-nspd-fase2.md)
 
-**Status: fase 2 afgerond — alle 13 tracks** — het succescriterium (§1) is aantoonbaar werkend voor de
-demo-tracks wind/zon/energietoets aan beide zijden van de grens: 6 runs PASS, 43 tests
-groen (39 offline + 4 golden-regressie), controle-run reproduceerbaar op 0,000 % en de
-grensvergelijkende wind-demo end-to-end (xborder-rapport + Leia-config).
+**Status: fase 2 afgerond — alle 13 tracks × 2 jurisdicties.** Het succescriterium (§1) is
+aantoonbaar werkend: 26 runs PASS (incl. twee gedocumenteerde abstentions), 87 tests groen
+(85 offline + 2 abstention-skips), 15 golden-tests (14 track-referentieruns + controle-run,
+reproduceerbaar op 0,000 %) en 13 xborder-rapporten; de wind-demo loopt end-to-end tot in
+de Leia-config (zie Opdrachten).
 
 ## Doel en succescriterium (spec §1)
 

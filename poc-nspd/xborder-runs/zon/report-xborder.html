@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="nl">
+<head><meta charset="utf-8"><title>NSPD grensvergelijkende scan — zon</title>
+<style>body{font-family:system-ui;margin:2rem}table{border-collapse:collapse;width:100%}
+td,th{border:1px solid #ccc;padding:.4rem .6rem;text-align:left;vertical-align:top}
+h2{margin-bottom:.3rem}td:not(:first-child){max-width:34rem}</style></head>
+<body>
+<h1>NSPD grensvergelijkende scan — zon</h1>
+<p>Les de zones van beide zijden in 3D: open de Leia-scène met
+<code>viewer-data/nspd.config.json</code> (laag <code>zones-zon-nspd.geojson</code>).</p>
+
+
+<h2>Nederland (NL) — 3 regels</h2>
+<table>
+<tr><th>rule</th><th>norm</th><th>zone-effect</th><th>notitie</th></tr>
+<tr class="nl"><td>FR-ZON-01</td><td>art. 18.18 — Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden) [binding]</td><td>ambiguous</td><td>Zone-loze inclusion (gedocumenteerd): art. 18.18 lids 1-2 staan zonne-energie-opstellingen toe binnen stedelijk gebied en buiten stedelijk gebied op locaties a-e (bouwvlak, stortplaatsen/infrastructuur/bedrijvigheid, waterbassin, agrarische grond in transitie of met netcongestie-bijdrage); geen van die zones heeft een alias in ZONE_SOURCES (taak 9); routeeert naar V4.</td></tr>
+<tr class="nl"><td>FR-ZON-02</td><td>art. 18.18 — Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden) [binding]</td><td>excluded</td><td>Art. 18.18 lid 2 sub c staat zonne-energie op water of waterbassin-grond slechts toe mits aannemelijk is dat er geen significant nadelige effecten zijn voor natuur; binnen Natura 2000-gebieden (alias natura2000-nl uit ZONE_SOURCES, taak 9) is die aannemelijkheid niet uit de verordening afleidbaar en geldt daarom een exclusion-marker voor waterbassin-solar.</td></tr>
+<tr class="nl"><td>FR-AOI-01</td><td>run.py orchestrator FR-AOI-01 — geen rechtsbron [uitvoeringsconstructie]</td><td>included</td><td>included (aoi-basis) — geen bijgaande kaart geciteerd: geen inclusion-regel in deze shard is executabel (zone-loos, V4); de request-AOI is de conservatieve inclusion-union (run_summary.inclusionBasis=aoi). Taak-9-zone-semantiek: de inclusion-regels van deze track/jurisdictie (FR-ZON-01) zijn zone-loos naar V4 gerouteerd; de run gebruikt de request-AOI als inclusion-union (run_summary.inclusionBasis=aoi) zodat V4-markers en exclusions op een gedefinieerd werkvlak worden uitgevoerd. Deze regel is een uitvoeringsconstructie van de orchestrator, geen inhoudelijke norm.</td></tr>
+
+</table>
+
+
+<h2>Vlaanderen (BE) — 4 regels</h2>
+<table>
+<tr><th>rule</th><th>norm</th><th>zone-effect</th><th>notitie</th></tr>
+<tr class="be"><td>FR-BEZ-01</td><td>Artikel 20. Gebied voor de productie van hernieuwbare energie — gewestelijk ruimtelijk uitvoeringsplan &#39;afbakening zeehavengebied Gent - fase 2&#39; — Bijlage II: stedenbouwkundige voorschriften (GRUP 2.12_00358_00001, bron gedownload 2026-10-14) [binding]</td><td>ambiguous</td><td>Zone-loze inclusion (gedocumenteerd): art. 20 GRUP fase 2 staat alle handelingen voor RE-infrastructuur toe binnen het overdruk-gebied &#39;productie van hernieuwbare energie&#39;, maar dat gebied heeft geen alias in ZONE_SOURCES (taak 9) en de dekking van solar_field is interpretief (zonnevelden als RE-infrastructuur, niet verbatim genoemd); routeeert naar V4.</td></tr>
+<tr class="be"><td>FR-BEZ-02</td><td>Artikel 26. Bouwvrije strook — gewestelijk ruimtelijk uitvoeringsplan &#39;afbakening zeehavengebied Gent - fase 2&#39; — Bijlage II: stedenbouwkundige voorschriften (GRUP 2.12_00358_00001, bron gedownload 2026-10-14) [binding]</td><td>ambiguous</td><td>Zone-loze exclusion (gedocumenteerd): art. 26 GRUP fase 2 verbiedt vergunningsplichtige gebouwen en constructies in de bouwvrije strook (uitsluitingenopsomming zonder zonnevelden), maar de strook heeft geen alias in ZONE_SOURCES (taak 9); routeeert naar V4.</td></tr>
+<tr class="be"><td>FR-BEZ-03</td><td>Artikel 2.2.5, §2/1 — Gecodificeerd Decreet Vlaamse Codex Ruimtelijke Ordening (VCRO) — geconsolideerde versie geldend op 14/10/2026 [binding]</td><td>ambiguous</td><td>Zone-loze attention-marker (gedocumenteerd): art. 2.2.5 §2/1 VCRO biedt het kader (&#39;gebied voor de versnelde uitrol van hernieuwbare energie&#39;) waaronder zonneveld-inclusionzones aangeduid worden, maar in het corpus is nog geen dergelijk gebied aangeduid of gepind; routeeert naar V4.</td></tr>
+<tr class="be"><td>FR-AOI-01</td><td>run.py orchestrator FR-AOI-01 — geen rechtsbron [uitvoeringsconstructie]</td><td>included</td><td>included (aoi-basis) — geen bijgaande kaart geciteerd: geen inclusion-regel in deze shard is executabel (zone-loos, V4); de request-AOI is de conservatieve inclusion-union (run_summary.inclusionBasis=aoi). Taak-9-zone-semantiek: de inclusion-regels van deze track/jurisdictie (FR-BEZ-01) zijn zone-loos naar V4 gerouteerd; de run gebruikt de request-AOI als inclusion-union (run_summary.inclusionBasis=aoi) zodat V4-markers en exclusions op een gedefinieerd werkvlak worden uitgevoerd. Deze regel is een uitvoeringsconstructie van de orchestrator, geen inhoudelijke norm.</td></tr>
+
+</table>
+
+</body></html>
