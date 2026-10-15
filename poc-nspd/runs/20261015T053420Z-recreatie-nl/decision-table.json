@@ -1,0 +1,47 @@
+{
+ "id": "DT-recreatie-nl-nspd",
+ "requestId": "b887867f-3f96-5759-88d7-501741cc0765",
+ "title": "Where can recreation development occur in the Dutch part of the NSPD? Decision table (programming stage)",
+ "columns": [
+  "criterion",
+  "norm",
+  "source",
+  "zone effect",
+  "ruleId",
+  "normCardId",
+  "condition",
+  "note"
+ ],
+ "rows": [
+  {
+   "criterion": "A new or expanded tourist-accommodation site is only permitted in the omgevingsplan within the designated coastal resorts, including Vlissingen..",
+   "norm": "Artikel 18.19 — Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden) [binding]",
+   "source": "S01: https://lokaleregelgeving.overheid.nl/CVDR709135",
+   "zone effect": "ambiguous",
+   "normCardId": "NC-REC-01",
+   "ruleId": "FR-REC-01",
+   "note": "Verblijfsrecreatie kustzone: badplaatsen-lijst (Vlissingen in NSPD); begrenzing badplaatsen niet als geo-pin → zone-loos. Zone-loos gedocumenteerd; routeert naar V4."
+  },
+  {
+   "criterion": "A new mooring must primarily be provided within an existing marina, with a motivation demonstrating quality improvement, prevention of oversupply and innovation..",
+   "norm": "Artikel 18.25 — Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden) [binding]",
+   "source": "S01: https://lokaleregelgeving.overheid.nl/CVDR709135",
+   "zone effect": "ambiguous",
+   "normCardId": "NC-REC-02",
+   "ruleId": "FR-REC-02",
+   "note": "Jachthavens en waterrecreatie: voorrang bestaande jachthavens; zone-loos. Zone-loos gedocumenteerd; routeert naar V4."
+  },
+  {
+   "criterion": "orchestrator-basis: request-AOI (constructie, geen norm)",
+   "norm": "run.py orchestrator FR-AOI-01 — geen rechtsbron [uitvoeringsconstructie]",
+   "source": "use-cases/recreatie-nl.json (bbox.py NSPD_BBOX_WGS84, EPSG:28992); geen document",
+   "zone effect": "included",
+   "normCardId": "NC-REC-01",
+   "ruleId": "FR-AOI-01",
+   "note": "included (aoi-basis) — geen bijgaande kaart geciteerd: geen inclusion-regel in deze shard is executabel (zone-loos, V4). Taak-9-zone-semantiek: de inclusion-regels van deze track/jurisdictie (geen) zijn zone-loos naar V4 gerouteerd; de run gebruikt de request-AOI als inclusion-union (run_summary.inclusionBasis=aoi) zodat V4-markers en exclusions op een gedefinieerd werkvlak worden uitgevoerd. Deze regel is een uitvoeringsconstructie van de orchestrator, geen inhoudelijke norm."
+  }
+ ],
+ "generatedBy": "explainer#deterministic-poc1",
+ "generatedAt": "2026-10-15T05:34:20Z",
+ "provenance": "run 20261015T053420Z-recreatie-nl of poc-nspd-run/1.0; curated norm corpus poc-nspd/corpus/normcards-nl-recreatie.json (taak 6/7: curator#poc-nspd-fase2-t7) with formal rules poc-nspd/corpus/formal-rules-nl-recreatie.json (norm-formalizer#poc-nspd-fase2-t7, run-orchestrator#poc-nspd-task9-aoi-basis); instrument Omgevingsverordening provincie Zeeland, CVDR709135 geldend 02-06-2026 t/m heden; zone geometry from pinned national open-data aliases (ZONE_SOURCES), lastChecked stamps in layers.json; V2b jurisdictie-gate pass; full PROV in prov.json"
+}

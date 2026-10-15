@@ -289,8 +289,11 @@ class Critic:
         # rule -> card links
         # FR-AOI-01: orchestrator-constructie (zie v2-decision-table-linkage) —
         # citeert bewust geen NormCard; kaartloze abstention-runs hebben er geen.
+        _tags = lambda r: ((r.get("appliesTo") or {}).get("contextTags") or [])
         orphans = [r["id"] for r in formalrules
-                   if r["id"] != "FR-AOI-01" and r.get("normCardId") not in card_ids]
+                   if not (r["id"] == "FR-AOI-01"
+                           and "inclusion_basis_aoi" in _tags(r))
+                   and r.get("normCardId") not in card_ids]
         unknown_related = sorted(
             {rel for r in formalrules for rel in (r.get("relatedNormCardIds") or []) if rel not in card_ids}
         )

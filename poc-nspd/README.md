@@ -204,9 +204,9 @@ verifieert letterlijkheid van álle kaarten in de suite).
 - **Abstentions** (cite-or-abstain): `bodem-be` en `biomassa-be` hebben géén dragende
   bepaling in het BE-havencorpus — gedocumenteerd in de rejected-ledgers, runs draaien
   op de FR-AOI-01-constructie (alleen de request-AOI).
-- **Goldens**: 15 referentieruns (`wind/zon/bos/water/bodem/mobiliteit/landschap/
-  landbouw/wonen/werken/recreatie/biomassa`-nl + wind/zon-be); freeze via
-  `NSPD_GOLDEN_FREEZE=1`.
+- **Goldens**: 14 track-referentieruns (`wind/zon/bos/water/bodem/mobiliteit/landschap/
+  landbouw/wonen/werken/recreatie/biomassa`-nl + wind/zon-be) plus de controle-run-
+  reproduceerbaarheidstest; freeze via `NSPD_GOLDEN_FREEZE=1`.
 - **Xborder-rapporten**: 12 tracks onder `xborder-runs/` (zon via hetzelfde commando
   genereerbaar); naast-elkaar NL ∣ BE-tabellen met de decision-rows per land.
 - Buiten scope (opvolgplan): scenario-sweep met `basis.dataGrounding`, crosstrack-

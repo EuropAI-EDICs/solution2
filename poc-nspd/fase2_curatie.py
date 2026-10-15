@@ -92,8 +92,8 @@ GROEPEN: dict[str, dict] = {
                  claim="It is prohibited, without an omgevingsvergunning, to remove, hold or transport aquatic plants and animals (or objects evidently serving that purpose) along, on or under a surface water.",
                  legalForce="binding", rule_type="zone_conditional", semantics="conditional",
                  note="Vergunningplicht onderwater flora/fauna: verbod zonder vergunning; zone-loos (oppervlaktewaterlichamen niet als GIO gepind)."),
-            dict(locator="Artikel 18.37", occ=1, bron="S01",
-                 claim="Activities within a restriction zone of a regional flood defence are only permitted if no obstruction arises for the maintenance, safety or reinforcement of that defence.",
+            dict(locator="Artikel 18.37", occ=2, bron="S01",
+                 claim="Where an omgevingsplan applies to a regional flood defence, the admission of activities must guarantee that no obstructions arise for the upkeep, maintenance or reinforcement of the defence.",
                  legalForce="binding", rule_type="zone_exclusion", semantics="exclusion",
                  note="Instructieregel regionale waterkeringen; kaart 'regionale waterkeringen' niet als geo-pin in dit corpus → zone-loze exclusion met caveat."),
         ],
@@ -113,7 +113,7 @@ GROEPEN: dict[str, dict] = {
 GROEPEN["t4"] = {
     ("bodem", "nl"): [
         dict(locator="Artikel 5.19", occ=2, bron="S01",
-             claim="It is prohibited to store, tranship, transport or bring solid or liquid harmful substances onto or into the soil without an omgevingsvergunning.",
+             claim="Under the OV-Zeeland groundwater-protection regime (chapter 5) it is prohibited, without an omgevingsvergunning, to store, tranship, transport or bring solid or liquid harmful substances onto or into the soil.",
              legalForce="binding", rule_type="zone_conditional", semantics="conditional",
              note="Vergunningplicht schadelijke stoffen op/in de bodem; kernbodemnorm, zone-loos."),
         dict(locator="Artikel 5.21", occ=2, bron="S01",
@@ -167,7 +167,7 @@ GROEPEN["t5"] = {
     ],
     ("landschap", "be"): [
         dict(locator="Artikel 6", occ=0, bron="rup-zeehaven-gent-fase2",
-             claim="The park-area actions permitted under the GRUP are only allowed insofar as spatial coherence, cultural-historical and landscape values of the area are not disproportionate affected.",
+             claim="The article-5 actions are permitted insofar as the spatial coherence in the area and its cultural-historical, horticultural, landscape and nature values are preserved.",
              legalForce="binding", rule_type="zone_conditional", semantics="conditional",
              note="Landschappelijke en functionele inpassing parkgebied; inpassingsvoorwaarde, cartografisch → zone-loos, V4."),
         dict(locator="Artikel 3", occ=1, bron="gewestplan-voorschriften",
@@ -210,13 +210,13 @@ GROEPEN["t6"] = {
     ],
     ("wonen", "be"): [
         dict(locator="Artikel 11", occ=0, bron="rup-zeehaven-gent-fase2",
-             claim="The GRUP designates a residential area (woongebied): all actions necessary or useful for realising the residential destination are permitted, insofar as scale and spatial impact remain subordinate.",
+             claim="The GRUP designates a residential area (woongebied): all actions necessary or useful for realising the destination are permitted insofar as, in scale and spatial impact, they are compatible with the surroundings.",
              legalForce="binding", rule_type="zone_inclusion", semantics="inclusion",
              note="Woongebied-bestemming; vlakken cartografisch (bijlage I) → zone-loos, V4."),
     ],
     ("werken", "nl"): [
         dict(locator="Artikel 16.6", occ=2, bron="S01",
-             claim="Industrial estates designated under article 2.12a of the Omgevingswet fall under a sound-production ceiling as environmental value when designated as such in the omgevingsplan.",
+             claim="The verordening designates the industrial estates - including Vlissingen-Oost, Terneuzen-West and the Oostelijke kanaaloevers - for which sound-production ceilings are set as environmental values.",
              legalForce="binding", rule_type="zone_conditional", semantics="conditional",
              note="Geluidproductieplafond industrieterreinen: werkomgevingsnorm bij bedrijfsontwikkeling; terreinenkaart niet gepind → zone-loos."),
         dict(locator="Artikel 18.47", occ=2, bron="S01",
@@ -356,7 +356,9 @@ def verwerk_groep(groep: str) -> None:
             })
             rules.append({
                 "id": frid, "normCardId": ncid,
-                "status": "ambiguous" if kz["semantics"] in ("attention",) or "zone_loos" else "formalized",
+                # alle fase-2-rules zijn zone-loos (V4): status dus altijd ambiguous;
+                # een executabele (geo-gepinde) rule zou "formalized" worden
+                "status": "ambiguous",
                 "ruleType": kz["rule_type"], "zoneSemantics": kz["semantics"],
                 "instrumentType": itype, "jurisdictie": land,
                 "appliesTo": {"objectType": _objecttype(track),
@@ -366,7 +368,13 @@ def verwerk_groep(groep: str) -> None:
                 "formalizedAt": VANDAAG,
                 "reason": kz["note"] + " Zone-loos gedocumenteerd; routeert naar V4.",
             })
-            gekozen_ids.add(f"{kz['bron']}|{kz['locator']}|{kz['occ']}")
+            # full-list index van de gekozen kandidaat — zelfde index-basis als de
+            # demotie-loop (review-fix: per-locator occ vs lijst-index verschoof
+            # de ledger eerder dubbel)
+            volledige = kandidaten_voor(kz["bron"])
+            full_idx = next(i for i, c in enumerate(volledige)
+                            if c["locator"] == kz["locator"]) + kz["occ"]
+            gekozen_ids.add(f"{kz['bron']}|{full_idx}")
         # lege groep = expliciete abstention (cite-or-abstain) indien geregistreerd
         if not keuzes:
             abstentie = _ABSTENTIES.get(groep)
@@ -377,7 +385,7 @@ def verwerk_groep(groep: str) -> None:
         # niet-gepromoveerde kandidaten → rejected-ledger met generieke redenen
         for bron in cache:
             for j, c in enumerate(kandidaten_voor(bron)):
-                sleutel = f"{bron}|{c['locator']}|{j}"
+                sleutel = f"{bron}|{j}"
                 if sleutel in gekozen_ids:
                     continue
                 rejected.append({
