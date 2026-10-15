@@ -357,7 +357,8 @@ class Critic:
             # bij abstention-tracks (fase 2) bestaat er geen kaart om te linken.
             bad_rows = [
                 str(i) for i, row in enumerate(decision_table.get("rows", []))
-                if row.get("ruleId") != "FR-AOI-01"
+                if not (row.get("ruleId") == "FR-AOI-01"
+                        and str(row.get("note", "")).startswith("included (aoi-basis)"))
                 and row.get("normCardId") not in card_ids
             ]
             checks.append(

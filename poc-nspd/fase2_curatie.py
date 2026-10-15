@@ -329,7 +329,7 @@ def verwerk_groep(groep: str) -> None:
         ev_prefix = _PREFIX[land][track]
         nc_prefix = _NC[track]
         evidence, kaarten, rules, rejected = [], [], [], []
-        gekozen_ids: set[str] = set()
+        gekozen_ids: set[tuple] = set()
         for i, kz in enumerate(keuzes, start=1):
             kand = [c for c in kandidaten_voor(kz["bron"]) if c["locator"] == kz["locator"]]
             c = kand[kz["occ"]]
@@ -368,13 +368,11 @@ def verwerk_groep(groep: str) -> None:
                 "formalizedAt": VANDAAG,
                 "reason": kz["note"] + " Zone-loos gedocumenteerd; routeert naar V4.",
             })
-            # full-list index van de gekozen kandidaat — zelfde index-basis als de
-            # demotie-loop (review-fix: per-locator occ vs lijst-index verschoof
-            # de ledger eerder dubbel)
-            volledige = kandidaten_voor(kz["bron"])
-            full_idx = next(i for i, c in enumerate(volledige)
-                            if c["locator"] == kz["locator"]) + kz["occ"]
-            gekozen_ids.add(f"{kz['bron']}|{full_idx}")
+            # herkansing ledger-key (review-fix 2): kies op identiteit —
+            # (bron, locator, quote)-paar — want kandidaten met dezelfde locator
+            # staan niet aaneengesloten in de kandidatenlijst, dus first+occ
+            # wees naar verkeerde kandidaten
+            gekozen_ids.add((kz["bron"], kz["locator"], c["quote"]))
         # lege groep = expliciete abstention (cite-or-abstain) indien geregistreerd
         if not keuzes:
             abstentie = _ABSTENTIES.get(groep)
@@ -384,9 +382,8 @@ def verwerk_groep(groep: str) -> None:
                                  "reden": "abstention (geen kaarten): " + abstentie[2]})
         # niet-gepromoveerde kandidaten → rejected-ledger met generieke redenen
         for bron in cache:
-            for j, c in enumerate(kandidaten_voor(bron)):
-                sleutel = f"{bron}|{j}"
-                if sleutel in gekozen_ids:
+            for c in kandidaten_voor(bron):
+                if (bron, c["locator"], c["quote"]) in gekozen_ids:
                     continue
                 rejected.append({
                     "id": f"{ev_prefix}-R{len(rejected)+1:02d}", "track": track,

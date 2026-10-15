@@ -1,0 +1,571 @@
+{
+ "flavour": "W3C PROV-O terms (agent/entity/activity/wasGeneratedBy/wasDerivedFrom) serialised as plain JSON",
+ "namespace": "ldttoolbox:poc-nspd:water-nl:",
+ "runId": "20261015T054310Z-water-nl",
+ "requestId": "e28886cf-6b65-58ac-b21f-c9d35c0886ec",
+ "generatedAt": "2026-10-15T05:43:11Z",
+ "generatedBy": "explainer#deterministic-poc1",
+ "agent": [
+  {
+   "id": "orchestrator",
+   "name": "run.py orchestrator",
+   "version": "poc-nspd-run/1.0",
+   "role": "plan -> dispatch -> verify -> synthesize (plan section 3.2 agent #1)"
+  },
+  {
+   "id": "legal-recon-agent",
+   "name": "NormAnalyst",
+   "version": "curator#poc-nspd-fase2-t3",
+   "role": "curated NormCard corpus load (taak 6/7; agent #3 seam)"
+  },
+  {
+   "id": "norm-formalizer",
+   "name": "NormFormalizer",
+   "version": "norm-formalizer#poc-nspd-fase2-t3, run-orchestrator#poc-nspd-task9-aoi-basis",
+   "role": "curated FormalRule shard load + orchestrator AOI-basisrule FR-AOI-01 (agent #4 seam)"
+  },
+  {
+   "id": "jurisdictie-gate",
+   "name": "V2b jurisdictie-gate",
+   "version": "jurisdictie-gate#poc-nspd-task8",
+   "role": "V2b jurisdictie-match incl. V2B-BRON documentregister: pass"
+  },
+  {
+   "id": "geo-connector",
+   "name": "GeoData connector",
+   "version": "ldttoolbox-geoconnector/0.1",
+   "role": "registry fetch (ArcGIS REST / OGC API Features), cache-first (agent #5 tool)"
+  },
+  {
+   "id": "zone-engine",
+   "name": "FormalRule zone engine",
+   "version": "poc-zone-engine/0.1",
+   "role": "deterministic execution + validation repair provenance (agent #5)"
+  },
+  {
+   "id": "cartographer",
+   "name": "Cartographer",
+   "version": "poc-cartographer/0.1",
+   "role": "GeoJSON/GML serialization (agent #6)"
+  },
+  {
+   "id": "critic-validator",
+   "name": "Critic/Validator",
+   "version": "critic-validator#deterministic-v0-v3-poc1",
+   "role": "V0-V3 deterministic checks, V4 pending (agent #7)"
+  },
+  {
+   "id": "explainer",
+   "name": "Explainer",
+   "version": "explainer#deterministic-poc1",
+   "role": "decision table + PROV (agent #8)"
+  },
+  {
+   "id": "report",
+   "name": "HTML report renderer",
+   "version": "poc-report/1.0",
+   "role": "single-file report (agent #6 view tier)"
+  }
+ ],
+ "entity": [
+  {
+   "id": "request.json",
+   "type": "OpportunityMapRequest",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/request.json",
+   "sha256": "c90641dfecf34e63f5c2b701432430b115c19f17842222c322e72d87a0ed11c4"
+  },
+  {
+   "id": "formal-rules-nl-water.json",
+   "type": "evidence shard",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/corpus/formal-rules-nl-water.json",
+   "sha256": "e9be23fb1e1472589cfb4f981ae5f27d8bbd70f0afb73de4b65d8f8619e3d7c6"
+  },
+  {
+   "id": "sources.json",
+   "type": "document source registry",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/corpus/sources.json",
+   "sha256": "09cf6db6e839c2e2d6258e10d15b08d8bc77e2f7b02570e1d5cd7560be36ff46"
+  },
+  {
+   "id": "sources.json",
+   "type": "geo source registry",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/data/sources.json",
+   "sha256": "6a175908ff9a91590627ff003f5ae9a8530c2324f240b9f06105d5e20c1cbca0"
+  },
+  {
+   "id": "normcards.json",
+   "type": "NormCard[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/normcards.json",
+   "sha256": "54519cdc648997a65fce6a17dffd62d50a79c37b1aa7ce47cd7bf2e66aacf2c0"
+  },
+  {
+   "id": "normcards-rejected.json",
+   "type": "cite-or-abstain ledger",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/normcards-rejected.json",
+   "sha256": "080496160e3a05b2786e91db7e088527aa8b1c09234396782f3589fe5c0b6ea0"
+  },
+  {
+   "id": "formalrules.json",
+   "type": "FormalRule[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/formalrules.json",
+   "sha256": "79f3a414d7f30f61ff33ae04cc69db655b4f35b9f274adcd4934aa782cd63fa8"
+  },
+  {
+   "id": "layers.json",
+   "type": "layer manifest",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/layers.json",
+   "sha256": "17dd8c8cd9ed9c87d7c45b1d1024ba278dab3c923419b0d78ec592f73ac112d9"
+  },
+  {
+   "id": "zones.json",
+   "type": "ZoneResult[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/zones.json",
+   "sha256": "b6804d6a66f822576e3695d6967d337c5c94c119466b5d193cacecc3f9383c3b"
+  },
+  {
+   "id": "rule-stats.json",
+   "type": "per-rule footprint stats",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/rule-stats.json",
+   "sha256": "08274f52a7f2a72cb5cebd988688bbb705d66001a01d34ea7b81d28541a609c7"
+  },
+  {
+   "id": "zones.geojson",
+   "type": "zones GeoJSON (RFC 7946)",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/zones.geojson",
+   "sha256": "9c8d378e594e435c90af42bbc6b2216e9f943ddda97e9f598b8391b8f837b469"
+  },
+  {
+   "id": "report_input.json",
+   "type": "cartographer report input",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/report_input.json",
+   "sha256": "afdd17ed9ba27db87b1872512866df1bf756f511ab8df02be506338e00fece7c"
+  },
+  {
+   "id": "decision-table.json",
+   "type": "DecisionTable",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/decision-table.json",
+   "sha256": "bb1e9a82b191874f428cc0961655229beb61f845c1b4c8ff61ab2f291cf273fa"
+  },
+  {
+   "id": "decision-table.md",
+   "type": "DecisionTable (markdown)",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/decision-table.md",
+   "sha256": "ae1850e4a33781e7be5b3681c8354965a6c725ae41ca88971218dbb960c1d741"
+  },
+  {
+   "id": "v2b.json",
+   "type": "V2b jurisdictie-gate result",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/v2b.json",
+   "sha256": "a3c37f18ba43e0382d61a0ac2cc7b263583e03d5f812b95789c77f7973cf1adf"
+  },
+  {
+   "id": "validation.json",
+   "type": "ValidationReport[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/validation.json",
+   "sha256": "3fd78ea36cf70395f6f8c5bda0748629dddcff67723474c0d70ec131a6146a44"
+  },
+  {
+   "id": "zones.gml",
+   "type": "zones GML 3.2",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/zones.gml",
+   "sha256": "51fbb491c9185c1b8d23b66c8bee024ea912b154da9f10f04b7f25fa07e68be6"
+  },
+  {
+   "id": "use-cases/water-nl.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "corpus/normcards-nl-water.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "corpus/sources.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "corpus/formal-rules-nl-water.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "data/sources.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "validation/opportunity-map-request.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/validation/opportunity-map-request.json",
+   "sha256": "85127ec9ba902747570fe099144d27f77408f23a4a4ad7248b6adf531d82b4dd"
+  },
+  {
+   "id": "validation/norm-card-set.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/validation/norm-card-set.json",
+   "sha256": "b7b46555d4e2b4cd4c1efb490720b382c7c9a39532994feb7529e3d6f2ddd29e"
+  },
+  {
+   "id": "validation/formal-rule-set.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/validation/formal-rule-set.json",
+   "sha256": "7f3f6bab5e49bd5afd06a51c8b1265e43c0c95f9af8c13294aa725a4dcaebbc5"
+  },
+  {
+   "id": "validation/zone-result-set.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/validation/zone-result-set.json",
+   "sha256": "46acb82d7e2417d9f6ea1d1be4f49b53838d1252de5cb1722988b13a66b7c6b6"
+  },
+  {
+   "id": "validation/decision-table.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/validation/decision-table.json",
+   "sha256": "813507352434136f4f6a56b13321aef9a0fa0468c2d87201b05d9bceeca93986"
+  },
+  {
+   "id": "validation/pipeline-run.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/validation/pipeline-run.json",
+   "sha256": "d001999963e62998e2bb9c82a1298747d0cf79893377e62f0d8ec8066677dfab"
+  },
+  {
+   "id": "zones.xsd",
+   "type": "zones GML 3.2 XML schema",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/zones.xsd",
+   "sha256": "ae528e886d80fb99255d769c5a92e3d2c7a5716adac6828272feca875cf3741f"
+  },
+  {
+   "id": "report.html",
+   "type": "single-file HTML report",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/report.html",
+   "sha256": "5e04937fdf66771090c4833d5eecdd90a39f0dcb9a8f4ef9fb60d5683d1967b2"
+  },
+  {
+   "id": "prov.json",
+   "type": "PROV bundle (this file)",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/prov.json",
+   "note": "self-referential; integrity via run_summary.json artifact hashes"
+  },
+  {
+   "id": "run_summary.json",
+   "type": "run summary (headline, tunings, artifact hashes)",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054310Z-water-nl/run_summary.json",
+   "note": "written after prov.json; its sha256 lives in its own artifacts list"
+  }
+ ],
+ "activity": [
+  {
+   "id": "intake",
+   "label": "Intake: load + validate OpportunityMapRequest",
+   "type": "intake",
+   "agent": "run.py-orchestrator",
+   "startedAt": "2026-10-15T05:43:10Z",
+   "endedAt": "2026-10-15T05:43:10Z",
+   "durationS": 0.004,
+   "used": [
+    "use-cases/water-nl.json"
+   ],
+   "generated": [
+    "request.json"
+   ]
+  },
+  {
+   "id": "norm-analyst",
+   "label": "Norm Analyst: load curated NormCards (taak 6/7 corpus)",
+   "type": "norm-analyst",
+   "agent": "legal-recon-agent",
+   "startedAt": "2026-10-15T05:43:10Z",
+   "endedAt": "2026-10-15T05:43:10Z",
+   "durationS": 0.007,
+   "used": [
+    "corpus/normcards-nl-water.json",
+    "corpus/sources.json"
+   ],
+   "generated": [
+    "normcards.json",
+    "normcards-rejected.json"
+   ]
+  },
+  {
+   "id": "norm-formalizer",
+   "label": "Norm Formalizer: load curated FormalRules (taak 6/7 shards)",
+   "type": "norm-formalizer",
+   "agent": "norm-formalizer",
+   "startedAt": "2026-10-15T05:43:10Z",
+   "endedAt": "2026-10-15T05:43:10Z",
+   "durationS": 0.007,
+   "used": [
+    "corpus/formal-rules-nl-water.json"
+   ],
+   "generated": [
+    "formalrules.json"
+   ]
+  },
+  {
+   "id": "v2b-jurisdictie",
+   "label": "V2b: jurisdictie-match (geen claim over de grens)",
+   "type": "v2b-jurisdictie",
+   "agent": "jurisdictie-gate",
+   "startedAt": "2026-10-15T05:43:10Z",
+   "endedAt": "2026-10-15T05:43:10Z",
+   "durationS": 0.0,
+   "used": [
+    "corpus/normcards-nl-water.json",
+    "corpus/formal-rules-nl-water.json",
+    "corpus/sources.json",
+    "data/sources.json"
+   ],
+   "generated": [
+    "v2b.json"
+   ]
+  },
+  {
+   "id": "geo-analyst-fetch",
+   "label": "Geo Analyst: fetch zone layers (cache-first, registry sources)",
+   "type": "geo-analyst-fetch",
+   "agent": "ldttoolbox-geoconnector/0.1",
+   "startedAt": "2026-10-15T05:43:10Z",
+   "endedAt": "2026-10-15T05:43:10Z",
+   "durationS": 0.0,
+   "used": [
+    "data/sources.json"
+   ],
+   "generated": [
+    "layers.json"
+   ]
+  },
+  {
+   "id": "zone-engine",
+   "label": "Geo Analyst: deterministic FormalRule execution (shapely path)",
+   "type": "zone-engine",
+   "agent": "zone-engine",
+   "startedAt": "2026-10-15T05:43:10Z",
+   "endedAt": "2026-10-15T05:43:10Z",
+   "durationS": 0.005,
+   "used": [
+    "formalrules.json",
+    "layers.json"
+   ],
+   "generated": [
+    "zones.json"
+   ]
+  },
+  {
+   "id": "cartographer",
+   "label": "Cartographer: zones.geojson + GML + report input",
+   "type": "cartographer",
+   "agent": "poc-cartographer/0.1",
+   "startedAt": "2026-10-15T05:43:10Z",
+   "endedAt": "2026-10-15T05:43:10Z",
+   "durationS": 0.213,
+   "used": [
+    "zones.json"
+   ],
+   "generated": [
+    "zones.geojson",
+    "zones.gml"
+   ]
+  },
+  {
+   "id": "critic",
+   "label": "Critic/Validator: V0-V3 deterministic + V4 pending",
+   "type": "critic",
+   "agent": "critic-validator",
+   "startedAt": "2026-10-15T05:43:10Z",
+   "endedAt": "2026-10-15T05:43:11Z",
+   "durationS": 0.179,
+   "used": [
+    "request.json",
+    "normcards.json",
+    "formalrules.json",
+    "zones.json",
+    "decision-table.json"
+   ],
+   "generated": [
+    "validation.json"
+   ]
+  },
+  {
+   "id": "explainer",
+   "label": "Explainer: decision table + PROV bundle",
+   "type": "explainer",
+   "agent": "explainer",
+   "startedAt": "2026-10-15T05:43:11Z",
+   "endedAt": "2026-10-15T05:43:11Z",
+   "durationS": 0.019,
+   "used": [
+    "normcards.json",
+    "formalrules.json",
+    "zones.json"
+   ],
+   "generated": [
+    "decision-table.json",
+    "decision-table.md",
+    "prov.json"
+   ]
+  },
+  {
+   "id": "report",
+   "label": "Report: single-file HTML with Leaflet map + tables",
+   "type": "report",
+   "agent": "poc-report/1.0",
+   "startedAt": "2026-10-15T05:43:11Z",
+   "endedAt": "2026-10-15T05:43:11Z",
+   "durationS": 0.072,
+   "used": [
+    "zones.geojson",
+    "decision-table.json",
+    "validation.json",
+    "normcards.json",
+    "prov.json"
+   ],
+   "generated": [
+    "report.html"
+   ]
+  }
+ ],
+ "wasGeneratedBy": [
+  {
+   "entity": "request.json",
+   "activity": "intake",
+   "time": "2026-10-15T05:43:10Z"
+  },
+  {
+   "entity": "normcards.json",
+   "activity": "norm-analyst",
+   "time": "2026-10-15T05:43:10Z"
+  },
+  {
+   "entity": "normcards-rejected.json",
+   "activity": "norm-analyst",
+   "time": "2026-10-15T05:43:10Z"
+  },
+  {
+   "entity": "formalrules.json",
+   "activity": "norm-formalizer",
+   "time": "2026-10-15T05:43:10Z"
+  },
+  {
+   "entity": "v2b.json",
+   "activity": "v2b-jurisdictie",
+   "time": "2026-10-15T05:43:10Z"
+  },
+  {
+   "entity": "layers.json",
+   "activity": "geo-analyst-fetch",
+   "time": "2026-10-15T05:43:10Z"
+  },
+  {
+   "entity": "zones.json",
+   "activity": "zone-engine",
+   "time": "2026-10-15T05:43:10Z"
+  },
+  {
+   "entity": "zones.geojson",
+   "activity": "cartographer",
+   "time": "2026-10-15T05:43:10Z"
+  },
+  {
+   "entity": "zones.gml",
+   "activity": "cartographer",
+   "time": "2026-10-15T05:43:10Z"
+  },
+  {
+   "entity": "validation.json",
+   "activity": "critic",
+   "time": "2026-10-15T05:43:11Z"
+  },
+  {
+   "entity": "validation/opportunity-map-request.json",
+   "activity": "critic",
+   "time": "2026-10-15T05:43:11Z"
+  },
+  {
+   "entity": "validation/norm-card-set.json",
+   "activity": "critic",
+   "time": "2026-10-15T05:43:11Z"
+  },
+  {
+   "entity": "validation/formal-rule-set.json",
+   "activity": "critic",
+   "time": "2026-10-15T05:43:11Z"
+  },
+  {
+   "entity": "validation/zone-result-set.json",
+   "activity": "critic",
+   "time": "2026-10-15T05:43:11Z"
+  },
+  {
+   "entity": "validation/decision-table.json",
+   "activity": "critic",
+   "time": "2026-10-15T05:43:11Z"
+  },
+  {
+   "entity": "validation/pipeline-run.json",
+   "activity": "critic",
+   "time": "2026-10-15T05:43:11Z"
+  },
+  {
+   "entity": "zones.xsd",
+   "activity": "cartographer",
+   "time": "2026-10-15T05:43:11Z"
+  },
+  {
+   "entity": "report.html",
+   "activity": "report",
+   "time": "2026-10-15T05:43:11Z"
+  },
+  {
+   "entity": "prov.json",
+   "activity": "explainer",
+   "time": "2026-10-15T05:43:11Z"
+  }
+ ],
+ "wasDerivedFrom": [
+  {
+   "generatedEntity": "formalrules.json",
+   "usedEntity": "formal-rules-nl-water.json",
+   "note": "curated FormalRule shard + orchestrator AOI-basisrule FR-AOI-01"
+  },
+  {
+   "generatedEntity": "normcards.json",
+   "usedEntity": "normcards-nl-water.json",
+   "note": "curated NormCard corpus load (cite-or-abstain)"
+  },
+  {
+   "generatedEntity": "v2b.json",
+   "usedEntity": "normcards.json",
+   "note": "V2b jurisdictie-gate over normcards + formal rules"
+  },
+  {
+   "generatedEntity": "zones.json",
+   "usedEntity": "formalrules.json",
+   "note": "engine executed FormalRules over fetched layers"
+  },
+  {
+   "generatedEntity": "decision-table.json",
+   "usedEntity": "normcards.json",
+   "note": "every row links a normCardId"
+  },
+  {
+   "generatedEntity": "validation.json",
+   "usedEntity": "zones.json",
+   "note": "V0-V3 over the artifact tree"
+  }
+ ],
+ "hadPrimarySource": [
+  {
+   "zone": "aoi",
+   "sourceId": "request-aoi",
+   "service": "None/None",
+   "lastChecked": null,
+   "fetchedAt": null,
+   "features": 1,
+   "aliasFor": "none",
+   "authoritative": true
+  }
+ ]
+}

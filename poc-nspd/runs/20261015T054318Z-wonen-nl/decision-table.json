@@ -1,0 +1,47 @@
+{
+ "id": "DT-wonen-nl-nspd",
+ "requestId": "24406e36-2ae3-53e8-b7ee-d2e3d587827b",
+ "title": "Where can housing development occur in the Dutch part of the NSPD? Decision table (programming stage)",
+ "columns": [
+  "criterion",
+  "norm",
+  "source",
+  "zone effect",
+  "ruleId",
+  "normCardId",
+  "condition",
+  "note"
+ ],
+ "rows": [
+  {
+   "criterion": "Zeeland comprises five housing-construction regions, including Zeeuws-Vlaanderen (municipalities Sluis, Terneuzen and Hulst), which structures regional housing-programme…",
+   "norm": "Artikel 18.9 — Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden) [binding]",
+   "source": "S01: https://lokaleregelgeving.overheid.nl/CVDR709135",
+   "zone effect": "ambiguous",
+   "normCardId": "NC-WON-01",
+   "ruleId": "FR-WON-01",
+   "note": "Vijf woningbouwregio's (incl. Zeeuws-Vlaanderen/NSPD-zijde): regiobenaming; geen executabele geometrie. Zone-loos gedocumenteerd; routeert naar V4."
+  },
+  {
+   "criterion": "Municipal authorities must document housing-construction initiatives from initiative phase to realisation in the provincial housing plan monitor and check its currency a…",
+   "norm": "Artikel 18.13 — Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden) [binding]",
+   "source": "S01: https://lokaleregelgeving.overheid.nl/CVDR709135",
+   "zone effect": "ambiguous",
+   "normCardId": "NC-WON-02",
+   "ruleId": "FR-WON-02",
+   "note": "Provinciale planmonitor wonen: procedureverplichting; procesnorm, zone-loos. Zone-loos gedocumenteerd; routeert naar V4."
+  },
+  {
+   "criterion": "orchestrator-basis: request-AOI (constructie, geen norm)",
+   "norm": "run.py orchestrator FR-AOI-01 — geen rechtsbron [uitvoeringsconstructie]",
+   "source": "use-cases/wonen-nl.json (bbox.py NSPD_BBOX_WGS84, EPSG:28992); geen document",
+   "zone effect": "included",
+   "normCardId": "NC-WON-01",
+   "ruleId": "FR-AOI-01",
+   "note": "included (aoi-basis) — geen bijgaande kaart geciteerd: geen inclusion-regel in deze shard is executabel (zone-loos, V4). Taak-9-zone-semantiek: de inclusion-regels van deze track/jurisdictie (geen) zijn zone-loos naar V4 gerouteerd; de run gebruikt de request-AOI als inclusion-union (run_summary.inclusionBasis=aoi) zodat V4-markers en exclusions op een gedefinieerd werkvlak worden uitgevoerd. Deze regel is een uitvoeringsconstructie van de orchestrator, geen inhoudelijke norm."
+  }
+ ],
+ "generatedBy": "explainer#deterministic-poc1",
+ "generatedAt": "2026-10-15T05:43:19Z",
+ "provenance": "run 20261015T054318Z-wonen-nl of poc-nspd-run/1.0; curated norm corpus poc-nspd/corpus/normcards-nl-wonen.json (taak 6/7: curator#poc-nspd-fase2-t6) with formal rules poc-nspd/corpus/formal-rules-nl-wonen.json (norm-formalizer#poc-nspd-fase2-t6, run-orchestrator#poc-nspd-task9-aoi-basis); instrument Omgevingsverordening provincie Zeeland, CVDR709135 geldend 02-06-2026 t/m heden; zone geometry from pinned national open-data aliases (ZONE_SOURCES), lastChecked stamps in layers.json; V2b jurisdictie-gate pass; full PROV in prov.json"
+}

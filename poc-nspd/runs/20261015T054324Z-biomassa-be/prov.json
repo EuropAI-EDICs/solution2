@@ -1,0 +1,571 @@
+{
+ "flavour": "W3C PROV-O terms (agent/entity/activity/wasGeneratedBy/wasDerivedFrom) serialised as plain JSON",
+ "namespace": "ldttoolbox:poc-nspd:biomassa-be:",
+ "runId": "20261015T054324Z-biomassa-be",
+ "requestId": "cc8868fe-2d50-5e30-8cd3-9f188d5c1be5",
+ "generatedAt": "2026-10-15T05:43:24Z",
+ "generatedBy": "explainer#deterministic-poc1",
+ "agent": [
+  {
+   "id": "orchestrator",
+   "name": "run.py orchestrator",
+   "version": "poc-nspd-run/1.0",
+   "role": "plan -> dispatch -> verify -> synthesize (plan section 3.2 agent #1)"
+  },
+  {
+   "id": "legal-recon-agent",
+   "name": "NormAnalyst",
+   "version": "legal-recon-agent#cvdr704250-geldend-2025-10-13",
+   "role": "curated NormCard corpus load (taak 6/7; agent #3 seam)"
+  },
+  {
+   "id": "norm-formalizer",
+   "name": "NormFormalizer",
+   "version": "run-orchestrator#poc-nspd-task9-aoi-basis",
+   "role": "curated FormalRule shard load + orchestrator AOI-basisrule FR-AOI-01 (agent #4 seam)"
+  },
+  {
+   "id": "jurisdictie-gate",
+   "name": "V2b jurisdictie-gate",
+   "version": "jurisdictie-gate#poc-nspd-task8",
+   "role": "V2b jurisdictie-match incl. V2B-BRON documentregister: pass"
+  },
+  {
+   "id": "geo-connector",
+   "name": "GeoData connector",
+   "version": "ldttoolbox-geoconnector/0.1",
+   "role": "registry fetch (ArcGIS REST / OGC API Features), cache-first (agent #5 tool)"
+  },
+  {
+   "id": "zone-engine",
+   "name": "FormalRule zone engine",
+   "version": "poc-zone-engine/0.1",
+   "role": "deterministic execution + validation repair provenance (agent #5)"
+  },
+  {
+   "id": "cartographer",
+   "name": "Cartographer",
+   "version": "poc-cartographer/0.1",
+   "role": "GeoJSON/GML serialization (agent #6)"
+  },
+  {
+   "id": "critic-validator",
+   "name": "Critic/Validator",
+   "version": "critic-validator#deterministic-v0-v3-poc1",
+   "role": "V0-V3 deterministic checks, V4 pending (agent #7)"
+  },
+  {
+   "id": "explainer",
+   "name": "Explainer",
+   "version": "explainer#deterministic-poc1",
+   "role": "decision table + PROV (agent #8)"
+  },
+  {
+   "id": "report",
+   "name": "HTML report renderer",
+   "version": "poc-report/1.0",
+   "role": "single-file report (agent #6 view tier)"
+  }
+ ],
+ "entity": [
+  {
+   "id": "request.json",
+   "type": "OpportunityMapRequest",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/request.json",
+   "sha256": "d67f8ab5c53c3801ab0cb587c5fe2bfc1d26609fe06039b5d1f07f7b34097dd4"
+  },
+  {
+   "id": "formal-rules-be-biomassa.json",
+   "type": "evidence shard",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/corpus/formal-rules-be-biomassa.json",
+   "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  {
+   "id": "sources.json",
+   "type": "document source registry",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/corpus/sources.json",
+   "sha256": "09cf6db6e839c2e2d6258e10d15b08d8bc77e2f7b02570e1d5cd7560be36ff46"
+  },
+  {
+   "id": "sources.json",
+   "type": "geo source registry",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/data/sources.json",
+   "sha256": "6a175908ff9a91590627ff003f5ae9a8530c2324f240b9f06105d5e20c1cbca0"
+  },
+  {
+   "id": "normcards.json",
+   "type": "NormCard[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/normcards.json",
+   "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+  },
+  {
+   "id": "normcards-rejected.json",
+   "type": "cite-or-abstain ledger",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/normcards-rejected.json",
+   "sha256": "b838bb856c3bb60d549d923bfb17b1096d5d7ca1afb6e51dfc9c3aca894cd717"
+  },
+  {
+   "id": "formalrules.json",
+   "type": "FormalRule[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/formalrules.json",
+   "sha256": "1bbc665b72cbf9c4f4836276b3118ae5247e98e703d90d54778792b00d32c375"
+  },
+  {
+   "id": "layers.json",
+   "type": "layer manifest",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/layers.json",
+   "sha256": "17dd8c8cd9ed9c87d7c45b1d1024ba278dab3c923419b0d78ec592f73ac112d9"
+  },
+  {
+   "id": "zones.json",
+   "type": "ZoneResult[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/zones.json",
+   "sha256": "4d6211c87ea4ac1873c62b6ba96ee42a60a77d353727bc92d6ef16bbbc97fcde"
+  },
+  {
+   "id": "rule-stats.json",
+   "type": "per-rule footprint stats",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/rule-stats.json",
+   "sha256": "97d4b777e35cd974e79185f0b3955121aca54b7e08f1b0fa88b9eda622fdf7c4"
+  },
+  {
+   "id": "zones.geojson",
+   "type": "zones GeoJSON (RFC 7946)",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/zones.geojson",
+   "sha256": "b4d1a88ca3879148115d28b0429eacd1a0c75bcf0e73e878e438184625f16bd8"
+  },
+  {
+   "id": "report_input.json",
+   "type": "cartographer report input",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/report_input.json",
+   "sha256": "d70408c7b89440f73a89e3b7429692f808f6a9b9f139ba3e171bfddf7c795d09"
+  },
+  {
+   "id": "decision-table.json",
+   "type": "DecisionTable",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/decision-table.json",
+   "sha256": "8a7040b7769dd3970feac6bf00f4c442aacdafbd46608db9d29ef94b58e1c182"
+  },
+  {
+   "id": "decision-table.md",
+   "type": "DecisionTable (markdown)",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/decision-table.md",
+   "sha256": "420540b7544800b513f45f8cb08607bacbaf26182c42f8c2d02063dcb9840326"
+  },
+  {
+   "id": "v2b.json",
+   "type": "V2b jurisdictie-gate result",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/v2b.json",
+   "sha256": "a3c37f18ba43e0382d61a0ac2cc7b263583e03d5f812b95789c77f7973cf1adf"
+  },
+  {
+   "id": "validation.json",
+   "type": "ValidationReport[]",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/validation.json",
+   "sha256": "bb3544dd1282a849843c4d4f0df96ce3447fed90b6271dc210e952ae88d9edd1"
+  },
+  {
+   "id": "zones.gml",
+   "type": "zones GML 3.2",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/zones.gml",
+   "sha256": "c5c317706c0d9071f3ea5e2c491c05435402ffe62dc36b5933f4e0f306f9dca9"
+  },
+  {
+   "id": "use-cases/biomassa-be.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "corpus/normcards-be-biomassa.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "corpus/sources.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "corpus/formal-rules-be-biomassa.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "data/sources.json",
+   "type": "entity",
+   "note": "referenced but not hashed at build time"
+  },
+  {
+   "id": "validation/opportunity-map-request.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/validation/opportunity-map-request.json",
+   "sha256": "f1c2a2a3254265bd6088543a5bbd11164e20a824af2558f5bdf73e85e3af81a5"
+  },
+  {
+   "id": "validation/norm-card-set.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/validation/norm-card-set.json",
+   "sha256": "24f24ea829a9e2be9fa330ad87cb85ceb6e549cd71a0607663f8d9c767158efe"
+  },
+  {
+   "id": "validation/formal-rule-set.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/validation/formal-rule-set.json",
+   "sha256": "a279228ec9f0e0b63e44e0579e7dceeb4f7e6d5ca3bf26087fc06088a0a2973d"
+  },
+  {
+   "id": "validation/zone-result-set.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/validation/zone-result-set.json",
+   "sha256": "194449ad5555128c4c1ae28c57b48de8a809e6fb8b696de42ff930bffec75d31"
+  },
+  {
+   "id": "validation/decision-table.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/validation/decision-table.json",
+   "sha256": "7be6b535267f9675456413a7a24cbc5754f2327cda2e530d2eb0c19135f67fbe"
+  },
+  {
+   "id": "validation/pipeline-run.json",
+   "type": "ValidationReport",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/validation/pipeline-run.json",
+   "sha256": "5a43ff636d3f3037299bddebfabaee270ca717c16e25a378f2ad9b1332a220a6"
+  },
+  {
+   "id": "zones.xsd",
+   "type": "zones GML 3.2 XML schema",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/zones.xsd",
+   "sha256": "ae528e886d80fb99255d769c5a92e3d2c7a5716adac6828272feca875cf3741f"
+  },
+  {
+   "id": "report.html",
+   "type": "single-file HTML report",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/report.html",
+   "sha256": "9e1a8798a9e5b85aa400ab0aad1721e1525f161c6da2926ec2ccb43ffbb2b6ff"
+  },
+  {
+   "id": "prov.json",
+   "type": "PROV bundle (this file)",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/prov.json",
+   "note": "self-referential; integrity via run_summary.json artifact hashes"
+  },
+  {
+   "id": "run_summary.json",
+   "type": "run summary (headline, tunings, artifact hashes)",
+   "path": "/Users/marc/Projecten/ldttoolbox-fase2/poc-nspd/runs/20261015T054324Z-biomassa-be/run_summary.json",
+   "note": "written after prov.json; its sha256 lives in its own artifacts list"
+  }
+ ],
+ "activity": [
+  {
+   "id": "intake",
+   "label": "Intake: load + validate OpportunityMapRequest",
+   "type": "intake",
+   "agent": "run.py-orchestrator",
+   "startedAt": "2026-10-15T05:43:24Z",
+   "endedAt": "2026-10-15T05:43:24Z",
+   "durationS": 0.004,
+   "used": [
+    "use-cases/biomassa-be.json"
+   ],
+   "generated": [
+    "request.json"
+   ]
+  },
+  {
+   "id": "norm-analyst",
+   "label": "Norm Analyst: load curated NormCards (taak 6/7 corpus)",
+   "type": "norm-analyst",
+   "agent": "legal-recon-agent",
+   "startedAt": "2026-10-15T05:43:24Z",
+   "endedAt": "2026-10-15T05:43:24Z",
+   "durationS": 0.001,
+   "used": [
+    "corpus/normcards-be-biomassa.json",
+    "corpus/sources.json"
+   ],
+   "generated": [
+    "normcards.json",
+    "normcards-rejected.json"
+   ]
+  },
+  {
+   "id": "norm-formalizer",
+   "label": "Norm Formalizer: load curated FormalRules (taak 6/7 shards)",
+   "type": "norm-formalizer",
+   "agent": "norm-formalizer",
+   "startedAt": "2026-10-15T05:43:24Z",
+   "endedAt": "2026-10-15T05:43:24Z",
+   "durationS": 0.007,
+   "used": [
+    "corpus/formal-rules-be-biomassa.json"
+   ],
+   "generated": [
+    "formalrules.json"
+   ]
+  },
+  {
+   "id": "v2b-jurisdictie",
+   "label": "V2b: jurisdictie-match (geen claim over de grens)",
+   "type": "v2b-jurisdictie",
+   "agent": "jurisdictie-gate",
+   "startedAt": "2026-10-15T05:43:24Z",
+   "endedAt": "2026-10-15T05:43:24Z",
+   "durationS": 0.0,
+   "used": [
+    "corpus/normcards-be-biomassa.json",
+    "corpus/formal-rules-be-biomassa.json",
+    "corpus/sources.json",
+    "data/sources.json"
+   ],
+   "generated": [
+    "v2b.json"
+   ]
+  },
+  {
+   "id": "geo-analyst-fetch",
+   "label": "Geo Analyst: fetch zone layers (cache-first, registry sources)",
+   "type": "geo-analyst-fetch",
+   "agent": "ldttoolbox-geoconnector/0.1",
+   "startedAt": "2026-10-15T05:43:24Z",
+   "endedAt": "2026-10-15T05:43:24Z",
+   "durationS": 0.0,
+   "used": [
+    "data/sources.json"
+   ],
+   "generated": [
+    "layers.json"
+   ]
+  },
+  {
+   "id": "zone-engine",
+   "label": "Geo Analyst: deterministic FormalRule execution (shapely path)",
+   "type": "zone-engine",
+   "agent": "zone-engine",
+   "startedAt": "2026-10-15T05:43:24Z",
+   "endedAt": "2026-10-15T05:43:24Z",
+   "durationS": 0.005,
+   "used": [
+    "formalrules.json",
+    "layers.json"
+   ],
+   "generated": [
+    "zones.json"
+   ]
+  },
+  {
+   "id": "cartographer",
+   "label": "Cartographer: zones.geojson + GML + report input",
+   "type": "cartographer",
+   "agent": "poc-cartographer/0.1",
+   "startedAt": "2026-10-15T05:43:24Z",
+   "endedAt": "2026-10-15T05:43:24Z",
+   "durationS": 0.212,
+   "used": [
+    "zones.json"
+   ],
+   "generated": [
+    "zones.geojson",
+    "zones.gml"
+   ]
+  },
+  {
+   "id": "critic",
+   "label": "Critic/Validator: V0-V3 deterministic + V4 pending",
+   "type": "critic",
+   "agent": "critic-validator",
+   "startedAt": "2026-10-15T05:43:24Z",
+   "endedAt": "2026-10-15T05:43:24Z",
+   "durationS": 0.181,
+   "used": [
+    "request.json",
+    "normcards.json",
+    "formalrules.json",
+    "zones.json",
+    "decision-table.json"
+   ],
+   "generated": [
+    "validation.json"
+   ]
+  },
+  {
+   "id": "explainer",
+   "label": "Explainer: decision table + PROV bundle",
+   "type": "explainer",
+   "agent": "explainer",
+   "startedAt": "2026-10-15T05:43:24Z",
+   "endedAt": "2026-10-15T05:43:24Z",
+   "durationS": 0.018,
+   "used": [
+    "normcards.json",
+    "formalrules.json",
+    "zones.json"
+   ],
+   "generated": [
+    "decision-table.json",
+    "decision-table.md",
+    "prov.json"
+   ]
+  },
+  {
+   "id": "report",
+   "label": "Report: single-file HTML with Leaflet map + tables",
+   "type": "report",
+   "agent": "poc-report/1.0",
+   "startedAt": "2026-10-15T05:43:24Z",
+   "endedAt": "2026-10-15T05:43:24Z",
+   "durationS": 0.071,
+   "used": [
+    "zones.geojson",
+    "decision-table.json",
+    "validation.json",
+    "normcards.json",
+    "prov.json"
+   ],
+   "generated": [
+    "report.html"
+   ]
+  }
+ ],
+ "wasGeneratedBy": [
+  {
+   "entity": "request.json",
+   "activity": "intake",
+   "time": "2026-10-15T05:43:24Z"
+  },
+  {
+   "entity": "normcards.json",
+   "activity": "norm-analyst",
+   "time": "2026-10-15T05:43:24Z"
+  },
+  {
+   "entity": "normcards-rejected.json",
+   "activity": "norm-analyst",
+   "time": "2026-10-15T05:43:24Z"
+  },
+  {
+   "entity": "formalrules.json",
+   "activity": "norm-formalizer",
+   "time": "2026-10-15T05:43:24Z"
+  },
+  {
+   "entity": "v2b.json",
+   "activity": "v2b-jurisdictie",
+   "time": "2026-10-15T05:43:24Z"
+  },
+  {
+   "entity": "layers.json",
+   "activity": "geo-analyst-fetch",
+   "time": "2026-10-15T05:43:24Z"
+  },
+  {
+   "entity": "zones.json",
+   "activity": "zone-engine",
+   "time": "2026-10-15T05:43:24Z"
+  },
+  {
+   "entity": "zones.geojson",
+   "activity": "cartographer",
+   "time": "2026-10-15T05:43:24Z"
+  },
+  {
+   "entity": "zones.gml",
+   "activity": "cartographer",
+   "time": "2026-10-15T05:43:24Z"
+  },
+  {
+   "entity": "validation.json",
+   "activity": "critic",
+   "time": "2026-10-15T05:43:24Z"
+  },
+  {
+   "entity": "validation/opportunity-map-request.json",
+   "activity": "critic",
+   "time": "2026-10-15T05:43:24Z"
+  },
+  {
+   "entity": "validation/norm-card-set.json",
+   "activity": "critic",
+   "time": "2026-10-15T05:43:24Z"
+  },
+  {
+   "entity": "validation/formal-rule-set.json",
+   "activity": "critic",
+   "time": "2026-10-15T05:43:24Z"
+  },
+  {
+   "entity": "validation/zone-result-set.json",
+   "activity": "critic",
+   "time": "2026-10-15T05:43:24Z"
+  },
+  {
+   "entity": "validation/decision-table.json",
+   "activity": "critic",
+   "time": "2026-10-15T05:43:24Z"
+  },
+  {
+   "entity": "validation/pipeline-run.json",
+   "activity": "critic",
+   "time": "2026-10-15T05:43:24Z"
+  },
+  {
+   "entity": "zones.xsd",
+   "activity": "cartographer",
+   "time": "2026-10-15T05:43:24Z"
+  },
+  {
+   "entity": "report.html",
+   "activity": "report",
+   "time": "2026-10-15T05:43:24Z"
+  },
+  {
+   "entity": "prov.json",
+   "activity": "explainer",
+   "time": "2026-10-15T05:43:24Z"
+  }
+ ],
+ "wasDerivedFrom": [
+  {
+   "generatedEntity": "formalrules.json",
+   "usedEntity": "formal-rules-be-biomassa.json",
+   "note": "curated FormalRule shard + orchestrator AOI-basisrule FR-AOI-01"
+  },
+  {
+   "generatedEntity": "normcards.json",
+   "usedEntity": "normcards-be-biomassa.json",
+   "note": "curated NormCard corpus load (cite-or-abstain)"
+  },
+  {
+   "generatedEntity": "v2b.json",
+   "usedEntity": "normcards.json",
+   "note": "V2b jurisdictie-gate over normcards + formal rules"
+  },
+  {
+   "generatedEntity": "zones.json",
+   "usedEntity": "formalrules.json",
+   "note": "engine executed FormalRules over fetched layers"
+  },
+  {
+   "generatedEntity": "decision-table.json",
+   "usedEntity": "normcards.json",
+   "note": "every row links a normCardId"
+  },
+  {
+   "generatedEntity": "validation.json",
+   "usedEntity": "zones.json",
+   "note": "V0-V3 over the artifact tree"
+  }
+ ],
+ "hadPrimarySource": [
+  {
+   "zone": "aoi",
+   "sourceId": "request-aoi",
+   "service": "None/None",
+   "lastChecked": null,
+   "fetchedAt": null,
+   "features": 1,
+   "aliasFor": "none",
+   "authoritative": true
+  }
+ ]
+}
