@@ -287,7 +287,10 @@ class Critic:
         card_ids = {c["id"] for c in normcards}
 
         # rule -> card links
-        orphans = [r["id"] for r in formalrules if r.get("normCardId") not in card_ids]
+        # FR-AOI-01: orchestrator-constructie (zie v2-decision-table-linkage) —
+        # citeert bewust geen NormCard; kaartloze abstention-runs hebben er geen.
+        orphans = [r["id"] for r in formalrules
+                   if r["id"] != "FR-AOI-01" and r.get("normCardId") not in card_ids]
         unknown_related = sorted(
             {rel for r in formalrules for rel in (r.get("relatedNormCardIds") or []) if rel not in card_ids}
         )
@@ -346,9 +349,13 @@ class Critic:
         if decision_table is None:
             checks.append(_check("v2-decision-table-linkage", "skipped", "no decision table in artifact set"))
         else:
+            # FR-AOI-01 is de gedocumenteerde orchestrator-constructie (request-AOI
+            # als inclusion-basis, plan taak 9) en citeert bewust géén NormCard;
+            # bij abstention-tracks (fase 2) bestaat er geen kaart om te linken.
             bad_rows = [
                 str(i) for i, row in enumerate(decision_table.get("rows", []))
-                if row.get("normCardId") not in card_ids
+                if row.get("ruleId") != "FR-AOI-01"
+                and row.get("normCardId") not in card_ids
             ]
             checks.append(
                 _check(

@@ -1,0 +1,47 @@
+{
+ "id": "DT-mobiliteit-be-nspd",
+ "requestId": "65559fa5-382e-578d-9331-0ca5744bd6a9",
+ "title": "Where can roadside development occur in the Flemish part of the NSPD? Decision table (programming stage)",
+ "columns": [
+  "criterion",
+  "norm",
+  "source",
+  "zone effect",
+  "ruleId",
+  "normCardId",
+  "condition",
+  "note"
+ ],
+ "rows": [
+  {
+   "criterion": "The GRUP designates a road-infrastructure area in which all actions for the construction, management and operation of road infrastructure and accessories are permitted..",
+   "norm": "Artikel 17 — GRUP afbakening zeehavengebied Gent - fase 2 (Bijlage II SV) (GRUP 2.12_00358_00001, Bijlage II Stedenbouwkundige voorschriften 'afbakening zeehavengebied Gent - fase 2' (kopregel document)) [binding]",
+   "source": "S02: https://download.dsi.omgeving.vlaanderen.be/be.vl.omg.dsi.stukonderdeel.RUP_02000_212_00358_00001.BG.3.Dossierstuk.SV.1_1",
+   "zone effect": "ambiguous",
+   "normCardId": "NC-MOB-01",
+   "ruleId": "FR-MOB-01",
+   "note": "Wegeninfrastructuurgebied; vlakken cartografisch (bijlage I) → zone-loos, V4. Zone-loos gedocumenteerd; routeert naar V4."
+  },
+  {
+   "criterion": "The GRUP designates a port-access-road zone in which all works, actions and structures necessary or useful for constructing and operating that road are permitted..",
+   "norm": "Artikel 2 — GRUP uitbreiding papierproducerend bedrijf (Bijlage III SV) (GRUP zeehavengebied Gent - uitbreiding papierproducerend bedrijf, Bijlage III Stedenbouwkundige voorschriften (titelpagina; vaststellingsdatum niet vermeld in SV-extract)) [binding]",
+   "source": "S03: https://download.dsi.omgeving.vlaanderen.be/be.vl.omg.dsi.stukonderdeel.RUP_02000_212_00008_00001.BG.3.Dossierstuk.SV.1_1",
+   "zone effect": "ambiguous",
+   "normCardId": "NC-MOB-02",
+   "ruleId": "FR-MOB-02",
+   "note": "Havenontsluitingsweg-zone; cartografisch → zone-loos, V4. Zone-loos gedocumenteerd; routeert naar V4."
+  },
+  {
+   "criterion": "orchestrator-basis: request-AOI (constructie, geen norm)",
+   "norm": "run.py orchestrator FR-AOI-01 — geen rechtsbron [uitvoeringsconstructie]",
+   "source": "use-cases/mobiliteit-be.json (bbox.py NSPD_BBOX_WGS84, EPSG:28992); geen document",
+   "zone effect": "included",
+   "normCardId": "NC-MOB-01",
+   "ruleId": "FR-AOI-01",
+   "note": "included (aoi-basis) — geen bijgaande kaart geciteerd: geen inclusion-regel in deze shard is executabel (zone-loos, V4). Taak-9-zone-semantiek: de inclusion-regels van deze track/jurisdictie (FR-MOB-01, FR-MOB-02) zijn zone-loos naar V4 gerouteerd; de run gebruikt de request-AOI als inclusion-union (run_summary.inclusionBasis=aoi) zodat V4-markers en exclusions op een gedefinieerd werkvlak worden uitgevoerd. Deze regel is een uitvoeringsconstructie van de orchestrator, geen inhoudelijke norm."
+  }
+ ],
+ "generatedBy": "explainer#deterministic-poc1",
+ "generatedAt": "2026-10-15T05:12:52Z",
+ "provenance": "run 20261015T051251Z-mobiliteit-be of poc-nspd-run/1.0; curated norm corpus poc-nspd/corpus/normcards-be-mobiliteit.json (taak 6/7: curator#poc-nspd-fase2-t4) with formal rules poc-nspd/corpus/formal-rules-be-mobiliteit.json (norm-formalizer#poc-nspd-fase2-t4, run-orchestrator#poc-nspd-task9-aoi-basis); instrument GRUP Zeehavengebied Gent fase 2 / gewestplan / VCRO (Vlaanderen); zone geometry from pinned national open-data aliases (ZONE_SOURCES), lastChecked stamps in layers.json; V2b jurisdictie-gate pass; full PROV in prov.json"
+}

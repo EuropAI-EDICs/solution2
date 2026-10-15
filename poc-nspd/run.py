@@ -606,11 +606,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             v4_inclusions = [r["id"] for r in rules if r.get("zoneSemantics") == "inclusion"]
             basis_rule = {
                 "id": "FR-AOI-01",
-                "normCardId": cards[0]["id"],
+                # kaartloze runs (abstention, fase 2): patroon-conform substituut;
+                # de decision-table-rij toont expliciet 'geen rechtsbron'
+                "normCardId": cards[0]["id"] if cards else "NC-AOI-00",
                 "status": "formalized",
                 "ruleType": "zone_inclusion",
                 "zoneSemantics": "inclusion",
-                "instrumentType": cards[0].get("instrumentType"),
+                "instrumentType": (cards[0].get("instrumentType") if cards
+                                   else "omgevingsverordening-nl" if land == "nl" else "rup-be"),
                 "jurisdictie": land,
                 "appliesTo": {
                     "objectType": request["objectType"],

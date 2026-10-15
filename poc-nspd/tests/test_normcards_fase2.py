@@ -39,8 +39,13 @@ def test_normcards_fase2_schema_en_links(track, land):
     kaarten = _shard("normcards", land, track)
     if kaarten is None:
         pytest.skip(f"geen {land}-shard voor {track} (later groepstaak)")
+    if kaarten == []:
+        # expliciete abstention: lege shard hoort bij een abstention-record in de ledger
+        ledger = _shard("normcards-rejected", land, track) or []
+        assert any("abstention" in str(r.get("reden", "")) for r in ledger), \
+            f"lege shard {land}-{track} zonder abstention-record"
+        pytest.skip(f"{land}-{track}: abstention (gedocumenteerde onthouding)")
     evidence = {e["id"]: e for e in _shard("evidence", land, track) or []}
-    assert kaarten, f"lege normcards-shard {land}-{track}"
     for k in kaarten:
         contracts.validate(k, "norm-card")
         assert k["jurisdictie"] == land

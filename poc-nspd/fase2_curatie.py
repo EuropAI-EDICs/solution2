@@ -110,6 +110,57 @@ GROEPEN: dict[str, dict] = {
     },
 }
 
+GROEPEN["t4"] = {
+    ("bodem", "nl"): [
+        dict(locator="Artikel 5.19", occ=2, bron="S01",
+             claim="It is prohibited to store, tranship, transport or bring solid or liquid harmful substances onto or into the soil without an omgevingsvergunning.",
+             legalForce="binding", rule_type="zone_conditional", semantics="conditional",
+             note="Vergunningplicht schadelijke stoffen op/in de bodem; kernbodemnorm, zone-loos."),
+        dict(locator="Artikel 5.21", occ=2, bron="S01",
+                 claim="In a water-abstraction area or groundwater protection zone it is prohibited without permit to apply soil or dredged sludge that does not meet the 'wonen' quality class.",
+                 legalForce="binding", rule_type="zone_conditional", semantics="conditional",
+                 note="Bodemkwaliteitsnorm grond/baggerspecie in beschermingszones; zones (waterwingebied) niet als geo-pin in corpus."),
+        dict(locator="Artikel 8.3", occ=2, bron="S01",
+             claim="No omgevingsvergunning is required for soil-excavation activities that qualify as ground cultivation for normal agriculture, horticulture or forestry practice.",
+             legalForce="binding", rule_type="scope_declaration", semantics="conditional",
+             note="Vergunningvrije ontgrondingen (uitzonderingscategorieën); scope-bepaling voor bodemactiviteiten."),
+    ],
+    # BE-bodem: geen specifieke bodemnorm in het haven-corpus (GRUP's, gewestplan,
+    # VCRO zijn bestemmings-/procedureel) → expliciete abstention i.p.v. fabuleren
+    ("bodem", "be"): [],
+    ("mobiliteit", "nl"): [
+        dict(locator="Artikel 3.2", occ=2, bron="S01",
+             claim="The provincial-road rules aim to preserve the condition and the effective, safe operation of a provincial road, including the interest of widening.",
+             legalForce="interpretive", rule_type="zone_attention", semantics="attention",
+             note="Oogmerk provinciale wegen: kaderbepaling, aandachtmarker."),
+        dict(locator="Artikel 3.3", occ=2, bron="S01",
+             claim="Anyone who knows or reasonably suspects that an activity may adversely affect the provincial-road interests must take all reasonably practicable preventive measures.",
+             legalForce="binding", rule_type="zone_attention", semantics="attention",
+             note="Specifieke zorgplicht provinciale wegen: gedragsnorm, geen executabele geometrie."),
+        dict(locator="Artikel 3.9", occ=2, bron="S01",
+             claim="Without an omgevingsvergunning it is prohibited to have or make an access road (uitweg) to a provincial road, or to modify an existing one, within the provincial-road management restriction zone.",
+             legalForce="binding", rule_type="zone_conditional", semantics="conditional",
+             note="Vergunningplicht uitwegen in beperkingengebied beheer provinciale wegen; beperkingengebied-kaart niet als geo-pin in corpus → zone-loos."),
+    ],
+    ("mobiliteit", "be"): [
+        dict(locator="Artikel 17", occ=0, bron="rup-zeehaven-gent-fase2",
+             claim="The GRUP designates a road-infrastructure area in which all actions for the construction, management and operation of road infrastructure and accessories are permitted.",
+             legalForce="binding", rule_type="zone_inclusion", semantics="inclusion",
+             note="Wegeninfrastructuurgebied; vlakken cartografisch (bijlage I) → zone-loos, V4."),
+        dict(locator="Artikel 2", occ=0, bron="rup-zeehaven-gent-papierbedrijf",
+             claim="The GRUP designates a port-access-road zone in which all works, actions and structures necessary or useful for constructing and operating that road are permitted.",
+             legalForce="binding", rule_type="zone_inclusion", semantics="inclusion",
+             note="Havenontsluitingsweg-zone; cartografisch → zone-loos, V4."),
+    ],
+}
+
+_ABSTENTIES = {  # groep → (track, land, reden) voor lege keuzes-lijsten
+    "t4": ("bodem", "be",
+           "geen specifieke bodemnorm in het BE-havencorpus: GRUP's en gewestplan bevatten "
+           "bestemmingsvoorschriften zonder bodembeschermende bepalingen; VCRO is procedureel — "
+           "cite-or-abstain: onthouding gedocumenteerd i.p.v. geforceerde koppeling"),
+}
+
 
 def _kandidaten(track: str, land: str, bron_tekst: str, source_url: str, bron_label: str) -> list[dict]:
     return extract_candidates(tekst=bron_tekst, track=track, trefwoorden=TREFWOORDEN[track],
@@ -195,6 +246,13 @@ def verwerk_groep(groep: str) -> None:
                 "reason": kz["note"] + " Zone-loos gedocumenteerd; routeert naar V4.",
             })
             gekozen_ids.add(f"{kz['bron']}|{kz['locator']}|{kz['occ']}")
+        # lege groep = expliciete abstention (cite-or-abstain) indien geregistreerd
+        if not keuzes:
+            abstentie = _ABSTENTIES.get(groep)
+            if abstentie and abstentie[:2] == (track, land):
+                rejected.append({"id": f"{_PREFIX[land][track]}-A01", "track": track,
+                                 "locator": "-", "bron": "-",
+                                 "reden": "abstention (geen kaarten): " + abstentie[2]})
         # niet-gepromoveerde kandidaten → rejected-ledger met generieke redenen
         for bron in cache:
             for j, c in enumerate(kandidaten_voor(bron)):

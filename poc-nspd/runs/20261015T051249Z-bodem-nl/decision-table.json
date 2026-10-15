@@ -1,0 +1,56 @@
+{
+ "id": "DT-bodem-nl-nspd",
+ "requestId": "6d52efb4-7cce-5295-8a24-fe76780c09e6",
+ "title": "Where can soil activity occur in the Dutch part of the NSPD? Decision table (programming stage)",
+ "columns": [
+  "criterion",
+  "norm",
+  "source",
+  "zone effect",
+  "ruleId",
+  "normCardId",
+  "condition",
+  "note"
+ ],
+ "rows": [
+  {
+   "criterion": "It is prohibited to store, tranship, transport or bring solid or liquid harmful substances onto or into the soil without an omgevingsvergunning..",
+   "norm": "Artikel 5.19 — Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden) [binding]",
+   "source": "S01: https://lokaleregelgeving.overheid.nl/CVDR709135",
+   "zone effect": "ambiguous",
+   "normCardId": "NC-BOD-01",
+   "ruleId": "FR-BOD-01",
+   "note": "Vergunningplicht schadelijke stoffen op/in de bodem; kernbodemnorm, zone-loos. Zone-loos gedocumenteerd; routeert naar V4."
+  },
+  {
+   "criterion": "In a water-abstraction area or groundwater protection zone it is prohibited without permit to apply soil or dredged sludge that does not meet the 'wonen' quality class..",
+   "norm": "Artikel 5.21 — Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden) [binding]",
+   "source": "S01: https://lokaleregelgeving.overheid.nl/CVDR709135",
+   "zone effect": "ambiguous",
+   "normCardId": "NC-BOD-02",
+   "ruleId": "FR-BOD-02",
+   "note": "Bodemkwaliteitsnorm grond/baggerspecie in beschermingszones; zones (waterwingebied) niet als geo-pin in corpus. Zone-loos gedocumenteerd; routeert naar V4."
+  },
+  {
+   "criterion": "No omgevingsvergunning is required for soil-excavation activities that qualify as ground cultivation for normal agriculture, horticulture or forestry practice..",
+   "norm": "Artikel 8.3 — Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden) [binding]",
+   "source": "S01: https://lokaleregelgeving.overheid.nl/CVDR709135",
+   "zone effect": "ambiguous",
+   "normCardId": "NC-BOD-03",
+   "ruleId": "FR-BOD-03",
+   "note": "Vergunningvrije ontgrondingen (uitzonderingscategorieën); scope-bepaling voor bodemactiviteiten. Zone-loos gedocumenteerd; routeert naar V4."
+  },
+  {
+   "criterion": "orchestrator-basis: request-AOI (constructie, geen norm)",
+   "norm": "run.py orchestrator FR-AOI-01 — geen rechtsbron [uitvoeringsconstructie]",
+   "source": "use-cases/bodem-nl.json (bbox.py NSPD_BBOX_WGS84, EPSG:28992); geen document",
+   "zone effect": "included",
+   "normCardId": "NC-BOD-01",
+   "ruleId": "FR-AOI-01",
+   "note": "included (aoi-basis) — geen bijgaande kaart geciteerd: geen inclusion-regel in deze shard is executabel (zone-loos, V4). Taak-9-zone-semantiek: de inclusion-regels van deze track/jurisdictie (geen) zijn zone-loos naar V4 gerouteerd; de run gebruikt de request-AOI als inclusion-union (run_summary.inclusionBasis=aoi) zodat V4-markers en exclusions op een gedefinieerd werkvlak worden uitgevoerd. Deze regel is een uitvoeringsconstructie van de orchestrator, geen inhoudelijke norm."
+  }
+ ],
+ "generatedBy": "explainer#deterministic-poc1",
+ "generatedAt": "2026-10-15T05:12:50Z",
+ "provenance": "run 20261015T051249Z-bodem-nl of poc-nspd-run/1.0; curated norm corpus poc-nspd/corpus/normcards-nl-bodem.json (taak 6/7: curator#poc-nspd-fase2-t4) with formal rules poc-nspd/corpus/formal-rules-nl-bodem.json (norm-formalizer#poc-nspd-fase2-t4, run-orchestrator#poc-nspd-task9-aoi-basis); instrument Omgevingsverordening provincie Zeeland, CVDR709135 geldend 02-06-2026 t/m heden; zone geometry from pinned national open-data aliases (ZONE_SOURCES), lastChecked stamps in layers.json; V2b jurisdictie-gate pass; full PROV in prov.json"
+}
