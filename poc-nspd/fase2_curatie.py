@@ -48,7 +48,7 @@ TREFWOORDEN = {
     "landschap": ("landschap", "cultuurlandschap", "kernkwaliteit", "landschappelijk"),
     "landbouw": ("landbouw", "agrarisch", "glastuinbouw", "veehouderij"),
     "wonen": ("wonen", "woningbouw", "woning"),
-    "werken": ("bedrijventerrein", "industrie", "bedrijvigheid", "werken"),
+    "werken": ("bedrijventerrein", "industrie", "bedrijvigheid", "werken", "bedrijven"),
     "recreatie": ("recreatie", "dagrecreatie", "verblijfsrecreatie", "toerisme"),
     "biomassa": ("biomassa", "vergisting", "houtige", "bio"),
 }
@@ -194,6 +194,45 @@ GROEPEN["t5"] = {
              claim="In bouwvrij agrarisch gebied (building-free agricultural area, BVR 13/07/01) an absolute building ban applies, with exceptions only for shelters and specific utility works.",
              legalForce="binding", rule_type="zone_exclusion", semantics="exclusion",
              note="Bouwvrij agrarisch gebied: absoluut bouwverbod; exclusion-karakter, cartografisch → zone-loos, V4."),
+    ],
+}
+
+GROEPEN["t6"] = {
+    ("wonen", "nl"): [
+        dict(locator="Artikel 18.9", occ=2, bron="S01",
+             claim="Zeeland comprises five housing-construction regions, including Zeeuws-Vlaanderen (municipalities Sluis, Terneuzen and Hulst), which structures regional housing-programme coordination.",
+             legalForce="binding", rule_type="scope_declaration", semantics="attention",
+             note="Vijf woningbouwregio's (incl. Zeeuws-Vlaanderen/NSPD-zijde): regiobenaming; geen executabele geometrie."),
+        dict(locator="Artikel 18.13", occ=2, bron="S01",
+             claim="Municipal authorities must document housing-construction initiatives from initiative phase to realisation in the provincial housing plan monitor and check its currency at least annually.",
+             legalForce="binding", rule_type="procedural_condition", semantics="attention",
+             note="Provinciale planmonitor wonen: procedureverplichting; procesnorm, zone-loos."),
+    ],
+    ("wonen", "be"): [
+        dict(locator="Artikel 11", occ=0, bron="rup-zeehaven-gent-fase2",
+             claim="The GRUP designates a residential area (woongebied): all actions necessary or useful for realising the residential destination are permitted, insofar as scale and spatial impact remain subordinate.",
+             legalForce="binding", rule_type="zone_inclusion", semantics="inclusion",
+             note="Woongebied-bestemming; vlakken cartografisch (bijlage I) → zone-loos, V4."),
+    ],
+    ("werken", "nl"): [
+        dict(locator="Artikel 16.6", occ=2, bron="S01",
+             claim="Industrial estates designated under article 2.12a of the Omgevingswet fall under a sound-production ceiling as environmental value when designated as such in the omgevingsplan.",
+             legalForce="binding", rule_type="zone_conditional", semantics="conditional",
+             note="Geluidproductieplafond industrieterreinen: werkomgevingsnorm bij bedrijfsontwikkeling; terreinenkaart niet gepind → zone-loos."),
+        dict(locator="Artikel 18.47", occ=2, bron="S01",
+             claim="Where an omgevingsplan provides for realising or modifying works within the safeguard zone of provincial navigable waters, the interest of maintaining, widening or modifying the waterway must be taken into account.",
+             legalForce="binding", rule_type="zone_attention", semantics="attention",
+             note="Vrijwaringszone werken provinciale vaarwegen: instructieregel; beperkingengebied-kaart niet gepind → zone-loos."),
+    ],
+    ("werken", "be"): [
+        dict(locator="Artikel 13", occ=0, bron="rup-zeehaven-gent-fase2",
+             claim="The GRUP designates an area for seaport- and water-bound companies that must function as the Flemish seaport area of the port of Ghent.",
+             legalForce="binding", rule_type="zone_inclusion", semantics="inclusion",
+             note="Zeehaven- en watergebonden bedrijven: de havenkern-bestemming; cartografisch → zone-loos, V4."),
+        dict(locator="Artikel 1", occ=0, bron="rup-zeehaven-gent-papierbedrijf",
+             claim="The GRUP zone is exclusively destined for seaport- and water-bound industrial companies, distribution, logistics and storage companies serving the paper-producing plant.",
+             legalForce="binding", rule_type="zone_inclusion", semantics="inclusion",
+             note="Exclusieve bedrijvensbestemming (papierfabriek); cartografisch → zone-loos, V4."),
     ],
 }
 
