@@ -42,7 +42,7 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path) -> Path:
             "type": "geojson",
             "title": f"Zones {track} {'NL' if land == 'nl' else 'BE'}",
             "groupId": "pipeline",
-            "defaultOn": True,
+            "defaultOn": True, "defaultAddToManager": True,
             "settings": {
                 "url": f"layers/{laag_bestanden[land]}",
                 "stroke": st["stroke"], "fill": st["fill"], "strokeWidth": 2,
@@ -51,7 +51,11 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path) -> Path:
 
     cfg = {
         "name": f"poc-nspd — NSPD {track}",
-        "viewer": {"x": 3.83, "y": 51.33, "z": 2500, "heading": 0, "pitch": -0.6, "duration": 3},
+        "viewer": {
+            "title": f"poc-nspd — NSPD {track}",
+            "subTitle": "grensvergelijkende scan (plan 2026-10-14)",
+            "startPosition": {"x": 3.83, "y": 51.33, "z": 2500, "heading": 0, "pitch": -35, "duration": 3},
+        },
         "groups": [
             {"id": "achtergrond", "title": "Achtergrond", "isOpen": True},
             {"id": "d3", "title": "3D gebouwcontext", "isOpen": True},
@@ -59,17 +63,20 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path) -> Path:
         ],
         "layers": [
             {"id": "bg-brt", "type": "wmts", "title": "BRT Achtergrondkaart (NL)", "groupId": "achtergrond",
-             "isBackground": True, "defaultOn": True, "attribution": "PDOK",
+             "isBackground": True, "defaultOn": True, "attribution": "PDOK", "defaultAddToManager": True,
              "settings": {"url": BRT_WMTS, "featureName": "standaard", "contentType": "image/png"}},
             {"id": "bg-be", "type": "wms", "title": "Vlaanderen basiskaart", "groupId": "achtergrond",
-             "defaultOn": False, "attribution": "Geopunt",
+             "defaultOn": False, "attribution": "Geopunt", "defaultAddToManager": True,
              "settings": {"url": GEOPUNT_BASIS, "featureName": "omwrgbmrvl", "contenttype": "image/png"}},
             {"id": "bag3d", "type": "3dtiles", "title": "3D BAG LoD2.2 (NL-gebouwen)", "groupId": "d3",
-             "defaultOn": True, "attribution": "3D BAG / TU Delft, CC-BY-4.0",
+             "defaultOn": True, "attribution": "3D BAG / TU Delft, CC-BY-4.0", "defaultAddToManager": True,
              "settings": {"url": BAG_3D, "enableHeightControl": True}},
             zone_layer("nl"), zone_layer("be"),
         ],
-        "tools": {"layermanager": {"enabled": True}, "featureinfo": {"enabled": True}},
+        # Leia verwacht tools als ARRAY van {id, enabled} met exacte tool-id's
+        # (zie viewer/static/example.config.json); een object breekt de tool-init
+        "tools": [{"id": "layerManager", "enabled": True},
+                  {"id": "featureInfo", "enabled": True}],
     }
     # 3D-context BE-gebouwen: vlakke GRB-laag zodra het extrusie-besluit (taak 12)
     # bestaat — besluitdocument: data/grb_extrusie_besluit.json (keuze "vlak": GRB:ADP
@@ -83,7 +90,7 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path) -> Path:
             "type": "geojson",
             "title": "GRB gebouwen (BE, vlak)",
             "groupId": "d3",
-            "defaultOn": False,
+            "defaultOn": False, "defaultAddToManager": True,
             "attribution": "GRB via Geopunt, vrije open data-modellicentie",
             "settings": {"url": "layers/grb-gebouwen-be.geojson"},
         })

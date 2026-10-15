@@ -2,36 +2,147 @@
  "$id": "https://nldt/poc-nspd/leia-config.schema.json",
  "title": "Leia-config subset voor poc-nspd",
  "type": "object",
- "required": ["name", "viewer", "groups", "layers"],
+ "required": [
+  "name",
+  "viewer",
+  "groups",
+  "layers"
+ ],
  "properties": {
-  "name": {"type": "string"},
+  "name": {
+   "type": "string"
+  },
   "viewer": {
    "type": "object",
-   "required": ["x", "y", "z"],
+   "required": [
+    "startPosition"
+   ],
    "properties": {
-    "x": {"type": "number"}, "y": {"type": "number"}, "z": {"type": "number"},
-    "heading": {"type": "number"}, "pitch": {"type": "number"}, "duration": {"type": "number"}
+    "title": {
+     "type": "string"
+    },
+    "subTitle": {
+     "type": "string"
+    },
+    "startPosition": {
+     "type": "object",
+     "required": [
+      "x",
+      "y",
+      "z"
+     ],
+     "properties": {
+      "x": {
+       "type": "number"
+      },
+      "y": {
+       "type": "number"
+      },
+      "z": {
+       "type": "number"
+      },
+      "heading": {
+       "type": "number"
+      },
+      "pitch": {
+       "type": "number"
+      },
+      "duration": {
+       "type": "number"
+      }
+     }
+    }
    }
   },
-  "groups": {"type": "array", "items": {"type": "object", "required": ["id", "title"], "properties": {"id": {"type": "string"}, "title": {"type": "string"}, "isOpen": {"type": "boolean"}}}},
+  "groups": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "id",
+     "title"
+    ],
+    "properties": {
+     "id": {
+      "type": "string"
+     },
+     "title": {
+      "type": "string"
+     },
+     "isOpen": {
+      "type": "boolean"
+     }
+    }
+   }
+  },
   "layers": {
    "type": "array",
    "items": {
     "type": "object",
-    "required": ["id", "type", "title", "settings"],
+    "required": [
+     "id",
+     "type",
+     "title",
+     "settings"
+    ],
     "properties": {
-     "id": {"type": "string"},
-     "type": {"enum": ["wms", "wmts", "3dtiles", "geojson"]},
-     "title": {"type": "string"},
-     "groupId": {"type": "string"},
-     "isBackground": {"type": "boolean"},
-     "defaultOn": {"type": "boolean"},
-     "opacity": {"type": "number", "minimum": 0, "maximum": 1},
-     "attribution": {"type": "string"},
-     "settings": {"type": "object"}
+     "id": {
+      "type": "string"
+     },
+     "type": {
+      "enum": [
+       "wms",
+       "wmts",
+       "3dtiles",
+       "geojson"
+      ]
+     },
+     "title": {
+      "type": "string"
+     },
+     "groupId": {
+      "type": "string"
+     },
+     "isBackground": {
+      "type": "boolean"
+     },
+     "defaultOn": {
+      "type": "boolean"
+     },
+     "opacity": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+     },
+     "attribution": {
+      "type": "string"
+     },
+     "settings": {
+      "type": "object"
+     }
     }
    }
   },
-  "tools": {"type": "object"}
+  "tools": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "id",
+     "enabled"
+    ],
+    "properties": {
+     "id": {
+      "type": "string"
+     },
+     "enabled": {
+      "type": "boolean"
+     },
+     "settings": {
+      "type": "object"
+     }
+    }
+   }
+  }
  }
 }

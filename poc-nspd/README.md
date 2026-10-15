@@ -130,9 +130,22 @@ python3 -m pipeline.xborder runs/<ts>-wind-nl runs/<ts>-wind-be xborder-runs/win
 python3 make_viewer_config.py --track wind --run-dir xborder-runs/wind
 
 # 4. viewer starten (aparte terminals; viewer/ is de onaangetaste Leia-submodule)
-(cd viewer && npm install && npm run dev -- --port 5173)
-python3 -m http.server 8000 -d viewer-data
-#    open: http://localhost:5173/?url=http://localhost:8000/nspd.config.json
+#    Let op: Leia leest de query-parameter ?config= (niet ?url= — de upstream-README noemt
+#    die verkeerd), en in Vite-dev-modus is ?url= zelfs gereserveerd. De robuuste route:
+#    zet de config + lagen op de viewer-eigen origin:
+cp viewer-data/nspd.config.json viewer/static/config.json
+mkdir -p viewer/static/layers && cp viewer-data/layers/*.geojson viewer/static/layers/
+(cd viewer && printf 'APP_URL=http://localhost:5173\nCONFIG_SERVER_URL=http://localhost:5173\n' > .env \
+ && npm install && npm run dev -- --port 5173)
+#    open: http://localhost:5173/?config=http://localhost:5173/config.json
+#    (productie-variant: `npm run build --adapter=static` → python3 -m http.server 8010 -d viewer/build
+#     → http://localhost:8010/?config=http://localhost:8010/config.json)
+#
+#    Bekende eigenschap van deze Leia-pin (commit 7351002): na het laden staan de lagen
+#    wél in de laagbeheer-bibliotheek, maar materialiseren ze pas op de globe ná eenmalig
+#    uit+aan vinken van de laag-checkbox (Links de tweede tool-knop = Lagenbeheer →
+#    groep openklappen → checkbox 2× klikken). Daarna stromen PDOK-tiles, zones en
+#    3D BAG direct in.
 ```
 
 Demo-artefacten van fase 1 zitten in de repo: de zes smoke-runs onder `runs/20261014T*`
