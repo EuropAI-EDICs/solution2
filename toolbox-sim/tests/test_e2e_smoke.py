@@ -38,3 +38,28 @@ def test_full_offline_story(live_sim, tmp_path):
         categories=["urn:ngsi-ld:category:processes"],
     )
     assert result["mock"] is False and result["offeringId"].startswith("sim-offering-") and result["marketplaceLink"]
+
+
+def test_full_catalogue_smoke_per_app():
+    from fastapi.testclient import TestClient
+
+    from app.server import build_apps
+
+    auth = {"Authorization": "Bearer sim-toolbox-token"}
+    apps = build_apps(full=True, eubd=False)
+    # één request per nieuwe app (health-checks zitten al in test_build_apps_full_omvat_alle_veertien)
+    probes = {
+        "dataspace": lambda c: c.post("/v2/catalog/request", headers=auth, json={}),
+        "algorithms": lambda c: c.get("/models", headers=auth),
+        "participate": lambda c: c.get("/api/proposals", headers=auth),
+        "fl": lambda c: c.post("/rounds", headers=auth, json={"name": "smoke"}),
+        "ain": lambda c: c.post("/notebooks", headers=auth, json={"name": "smoke"}),
+        "dm": lambda c: c.get("/models", headers=auth),
+        "ie": lambda c: c.get("/solutions", headers=auth),
+        "cip": lambda c: c.get("/scenarios", headers=auth),
+    }
+    for name, probe in probes.items():
+        response = probe(TestClient(apps[name]))
+        # 200 OK of 201 Created (create-endpoints: fl /rounds en ain /notebooks)
+        assert response.status_code in (200, 201), f"{name}: {response.status_code} {response.text[:120]}"
+        assert response.headers.get("x-sim-provenance", "").startswith("toolbox-sim/"), name

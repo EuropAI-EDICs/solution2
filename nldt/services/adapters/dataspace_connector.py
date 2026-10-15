@@ -154,6 +154,51 @@ def http_register_offer(offer: dict[str, Any]) -> dict[str, Any]:
         }
 
 
+def negotiate_and_transfer(offer_uid: str) -> dict[str, Any]:
+    """Volledige EDC-flow tegen een Management-API-endpoint:
+    catalog → contractnegotiation (REQUESTED→CONFIRMED) → transfer (→COMPLETED).
+
+    Verstuurt alleen een Authorization-header wanneer ``NLDT_EDC_MANAGEMENT_TOKEN``
+    gezet is (default leeg = geen header, dus echt-productgedrag onaangetast).
+    """
+    base = (os.environ.get("NLDT_EDC_MANAGEMENT_URL") or "").rstrip("/")
+    if not base:
+        return {"backend": "http", "status": "mock_only_no_url", "offerUid": offer_uid}
+
+    import httpx
+
+    headers = {}
+    token = os.environ.get("NLDT_EDC_MANAGEMENT_TOKEN", "")
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+
+    with httpx.Client(timeout=30.0, headers=headers) as client:
+        catalog = client.post(f"{base}/v2/catalog/request", json={})
+        catalog.raise_for_status()
+        offers = {o["uid"]: o for o in catalog.json().get("offers", [])}
+        if offer_uid not in offers:
+            return {"backend": "http", "status": "offer_not_found", "offerUid": offer_uid}
+        cn_resp = client.post(f"{base}/v2/contractnegotiations", json={"offerUid": offer_uid})
+        cn_resp.raise_for_status()
+        cn_id = cn_resp.json()["id"]
+        negotiation = client.get(f"{base}/v2/contractnegotiations/{cn_id}")
+        negotiation.raise_for_status()
+        tp_resp = client.post(
+            f"{base}/v2/transferprocesses",
+            json={"negotiationId": cn_id, "offerUid": offer_uid},
+        )
+        tp_resp.raise_for_status()
+        transfer = client.get(f"{base}/v2/transferprocesses/{tp_resp.json()['id']}")
+        transfer.raise_for_status()
+        return {
+            "backend": "http",
+            "offerUid": offer_uid,
+            "negotiationState": negotiation.json().get("state"),
+            "transferState": transfer.json().get("state"),
+            "destination": transfer.json().get("destination"),
+        }
+
+
 def mock_register_offer(offer: dict[str, Any]) -> dict[str, Any]:
     """Register an offer in the local mock connector registry."""
     path = _registry_path()

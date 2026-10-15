@@ -1,0 +1,3704 @@
+{
+ "beleidskompas-omgevingsanalyse": {
+  "id": "beleidskompas-omgevingsanalyse",
+  "title": "Beleidskompas omgevingsanalyse (overlay)",
+  "description": "GENAI-safe omgevingsanalyse for the beleidskompas policy step: fetch two layers, intersect, compute area statistics. Wraps the generic overlay processes; area-agnostic (AOI + layer URIs as inputs).",
+  "version": "1.0.0",
+  "tags": [
+   "beleidskompas",
+   "policy-step:omgevingsanalyse",
+   "spatial",
+   "overlay"
+  ],
+  "requiredData": [
+   {
+    "id": "aoi",
+    "role": "aoi",
+    "format": "geojson"
+   },
+   {
+    "id": "layerA",
+    "role": "reference_layer",
+    "format": "url"
+   },
+   {
+    "id": "layerB",
+    "role": "context_layer",
+    "format": "url"
+   }
+  ],
+  "requiredProcesses": [
+   "fetch-features",
+   "spatial-intersection",
+   "compute-area-statistics"
+  ],
+  "inputs": {
+   "aoi": {
+    "type": "geojson",
+    "description": "Area of interest polygon (e.g. province or municipality)",
+    "required": true
+   },
+   "layerAUri": {
+    "type": "uri",
+    "description": "URI to layer A GeoJSON",
+    "required": true
+   },
+   "layerBUri": {
+    "type": "uri",
+    "description": "URI to layer B GeoJSON",
+    "required": true
+   }
+  },
+  "outputs": {
+   "intersection": {
+    "type": "geojson",
+    "description": "Intersection FeatureCollection"
+   },
+   "statistics": {
+    "type": "json",
+    "description": "Area statistics in m\u00b2"
+   }
+  },
+  "steps": [
+   {
+    "id": "fetch-layer-a",
+    "processId": "fetch-features",
+    "title": "Fetch layer A",
+    "inputs": {
+     "source": "${recipe.inputs.layerAUri}",
+     "aoi": "${recipe.inputs.aoi}"
+    },
+    "outputs": {
+     "features": "features"
+    },
+    "backend": "local"
+   },
+   {
+    "id": "fetch-layer-b",
+    "processId": "fetch-features",
+    "title": "Fetch layer B",
+    "inputs": {
+     "source": "${recipe.inputs.layerBUri}",
+     "aoi": "${recipe.inputs.aoi}"
+    },
+    "outputs": {
+     "features": "features"
+    },
+    "backend": "local"
+   },
+   {
+    "id": "intersect",
+    "processId": "spatial-intersection",
+    "title": "Spatial intersection",
+    "inputs": {
+     "layerA": "${steps.fetch-layer-a.outputs.features}",
+     "layerB": "${steps.fetch-layer-b.outputs.features}"
+    },
+    "outputs": {
+     "result": "intersection"
+    },
+    "backend": "local"
+   },
+   {
+    "id": "stats",
+    "processId": "compute-area-statistics",
+    "title": "Compute area statistics",
+    "inputs": {
+     "features": "${steps.intersect.outputs.result}"
+    },
+    "outputs": {
+     "statistics": "statistics"
+    },
+    "backend": "local"
+   }
+  ],
+  "visualizationHint": {
+   "preferredFormat": "geojson",
+   "layerTitle": "Omgevingsanalyse overlay"
+  },
+  "riskLevel": "low",
+  "cookbookUri": "http://localhost:8081/recipes/beleidskompas-omgevingsanalyse"
+ },
+ "breda-five-value-scan": {
+  "id": "breda-five-value-scan",
+  "title": "Breda five-value scan run",
+  "description": "Plane A via nLDT: replay or execute Breda five-value scan; gold artifacts sync to lake when NLDT_LAKE_POST_RUN=1.",
+  "version": "1.0.0",
+  "tags": [
+   "poc-breda",
+   "scan",
+   "plane-a"
+  ],
+  "requiredProcesses": [
+   "breda-scan-run"
+  ],
+  "inputs": {
+   "mode": {
+    "type": "string",
+    "description": "replay|execute",
+    "required": false
+   },
+   "runDir": {
+    "type": "string",
+    "description": "Existing poc-breda/runs dir (replay)",
+    "required": false
+   }
+  },
+  "outputs": {
+   "summary": {
+    "type": "json",
+    "description": "Scan run summary"
+   }
+  },
+  "steps": [
+   {
+    "id": "scan",
+    "processId": "breda-scan-run",
+    "title": "Run value scan",
+    "inputs": {
+     "mode": "${recipe.inputs.mode}",
+     "runDir": "${recipe.inputs.runDir}"
+    },
+    "outputs": {
+     "summary": "summary"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "medium",
+  "cookbookUri": "http://localhost:8081/recipes/breda-five-value-scan"
+ },
+ "breda-gebiedsafweging": {
+  "id": "breda-gebiedsafweging",
+  "title": "Breda Plane D \u2014 integrale gebiedsafweging",
+  "description": "Compose spatial claims (woningverdichting / dak-PV) on the Breda five-value scan; trade-off report with V4 human decision. mode=offline-fixtures for CI; mode=replay uses an existing scan run + claims file.",
+  "version": "1.0.0",
+  "tags": [
+   "poc-breda",
+   "plane-d",
+   "gebiedsafweging",
+   "trade-off"
+  ],
+  "requiredProcesses": [
+   "breda-gebiedsafweging"
+  ],
+  "inputs": {
+   "mode": {
+    "type": "string",
+    "description": "offline-fixtures|replay",
+    "required": false
+   },
+   "runDir": {
+    "type": "string",
+    "description": "Existing poc-breda/runs dir with value-scan.json (replay)",
+    "required": false
+   },
+   "claimsFile": {
+    "type": "string",
+    "description": "Path to claims JSON set (default: poc-breda/claims/demo-breda.json)",
+    "required": false
+   }
+  },
+  "outputs": {
+   "summary": {
+    "type": "json",
+    "description": "Afweging run summary"
+   }
+  },
+  "steps": [
+   {
+    "id": "afweging",
+    "processId": "breda-gebiedsafweging",
+    "title": "Run gebiedsafweging",
+    "inputs": {
+     "mode": "${recipe.inputs.mode}",
+     "runDir": "${recipe.inputs.runDir}",
+     "claimsFile": "${recipe.inputs.claimsFile}"
+    },
+    "outputs": {
+     "summary": "summary"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "medium",
+  "cookbookUri": "http://localhost:8081/recipes/breda-gebiedsafweging"
+ },
+ "breda-scan-qa": {
+  "id": "breda-scan-qa",
+  "title": "Breda five-value scan Q&A",
+  "description": "GENAI seam S4 via nLDT: grounded Q&A over a canonical Breda value-scan run (cite-or-abstain + number gate).",
+  "version": "1.0.0",
+  "tags": [
+   "poc-breda",
+   "qa",
+   "s4",
+   "scan",
+   "legal",
+   "beleidskompas",
+   "policy-step:substantiation"
+  ],
+  "requiredProcesses": [
+   "breda-scan-query"
+  ],
+  "inputs": {
+   "runDir": {
+    "type": "string",
+    "description": "Path to poc-breda/runs/<ts>-breda-scan (default: latest)",
+    "required": false
+   },
+   "question": {
+    "type": "string",
+    "description": "Natural-language question about the scan",
+    "required": true
+   }
+  },
+  "outputs": {
+   "result": {
+    "type": "json",
+    "description": "Q&A result (answered or abstained)"
+   }
+  },
+  "steps": [
+   {
+    "id": "ask",
+    "processId": "breda-scan-query",
+    "title": "Answer scan question",
+    "inputs": {
+     "runDir": "${recipe.inputs.runDir}",
+     "question": "${recipe.inputs.question}",
+     "asker": "auto"
+    },
+    "outputs": {
+     "result": "result"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "medium",
+  "cookbookUri": "http://localhost:8081/recipes/breda-scan-qa"
+ },
+ "cir-01-circular-condition": {
+  "id": "cir-01-circular-condition",
+  "title": "Circular neighborhoods CIR-01 \u2014 'I want a circular development condition'",
+  "description": "City-recipe: bij gronduitgifte staat circulariteit als harde eis; het materiaalpaspoort levert het bewijs, en bij oplevering beoordeelt een mens of de eis echt is gehaald. KPI: circulair/hergebruikt materiaal in de bouw. Deterministische replay via hcs-recipe-run.",
+  "version": "1.0.0",
+  "tags": [
+   "hcs",
+   "edic",
+   "circular-neighborhoods",
+   "cir-01",
+   "city-recipe",
+   "system"
+  ],
+  "requiredProcesses": [
+   "hcs-recipe-run"
+  ],
+  "inputs": {
+   "scenario": {
+    "type": "string",
+    "description": "scenario-id: tender",
+    "required": false
+   },
+   "mode": {
+    "type": "string",
+    "description": "replay|execute",
+    "required": false
+   },
+   "lang": {
+    "type": "string",
+    "description": "nl|en",
+    "required": false
+   }
+  },
+  "outputs": {
+   "run": {
+    "type": "json",
+    "description": "HCS run-artefact"
+   }
+  },
+  "steps": [
+   {
+    "id": "run",
+    "processId": "hcs-recipe-run",
+    "title": "Replay circulaire voorwaarde",
+    "inputs": {
+     "recipeId": "cir-01-circular-condition",
+     "scenario": "${recipe.inputs.scenario}",
+     "mode": "${recipe.inputs.mode}",
+     "lang": "${recipe.inputs.lang}"
+    },
+    "outputs": {
+     "run": "run"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "medium",
+  "service": {
+   "dish": "circular-neighborhoods",
+   "lifeEventCode": "CIR-01",
+   "serviceType": "system",
+   "parties": [
+    {
+     "name": "Gemeente",
+     "role": "gronduitgifte en voorwaarde"
+    },
+    {
+     "name": "Ontwikkelaar",
+     "role": "levert materiaalpaspoort"
+    },
+    {
+     "name": "Beoordelaar",
+     "role": "menselijke toets bij oplevering"
+    }
+   ],
+   "legalBasis": [
+    {
+     "basis": "Omgevingswet / Grondwet art. 21 (grondslag voorwaarde bij gronduitgifte)",
+     "timeLimit": "per project, bij oplevering"
+    }
+   ],
+   "humanMeasure": {
+    "handover": [
+     "Toets bij oplevering is mensenwerk"
+    ],
+    "exceptions": [
+     "paspoort ontbreekt \u2192 geen eindoplevering"
+    ]
+   },
+   "localVariant": "drempelwaarde per gebied is gemeentelijk beleid",
+   "genAiTestPoints": [
+    {
+     "point": "G2",
+     "description": "De voorwaarde staat expliciet en toetsbaar in de tender",
+     "testCases": [
+      "drempelpercentage is terug te vinden"
+     ]
+    },
+    {
+     "point": "G3",
+     "description": "Bewijs via materiaalpaspoort, niet via verklaringen",
+     "testCases": [
+      "hergebruik is aantoonbaar per onderdeel"
+     ]
+    }
+   ],
+   "kpis": [
+    {
+     "kpi": "Circular / reused material in build",
+     "kpiType": "outcome",
+     "unit": "%",
+     "outcomeLens": "W",
+     "baseline": "",
+     "target": "",
+     "dataSource": "material ledger",
+     "frequency": "per project",
+     "kviRollup": "KVI 3 (Housing: circular) \u00b7 KVI 8 (Circular economy) \u00b7 KVI 4"
+    }
+   ]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/cir-01-circular-condition"
+ },
+ "cir-04-shared-energy": {
+  "id": "cir-04-shared-energy",
+  "title": "Circular neighborhoods CIR-04 \u2014 'I want shared energy'",
+  "description": "City-recipe: bewoners-eigen opwekking wordt gekoppeld aan verbruik, de verdeling wordt voorgesteld en door iedereen bevestigd; op de piekavond schikt de energieco\u00f6peratie (mens). KPI: lokaal opgewekte energie. Deterministische replay via hcs-recipe-run.",
+  "version": "1.0.0",
+  "tags": [
+   "hcs",
+   "edic",
+   "circular-neighborhoods",
+   "cir-04",
+   "city-recipe",
+   "share"
+  ],
+  "requiredProcesses": [
+   "hcs-recipe-run"
+  ],
+  "inputs": {
+   "scenario": {
+    "type": "string",
+    "description": "scenario-id: overproductie|piek",
+    "required": false
+   },
+   "mode": {
+    "type": "string",
+    "description": "replay|execute",
+    "required": false
+   },
+   "lang": {
+    "type": "string",
+    "description": "nl|en",
+    "required": false
+   }
+  },
+  "outputs": {
+   "run": {
+    "type": "json",
+    "description": "HCS run-artefact"
+   }
+  },
+  "steps": [
+   {
+    "id": "run",
+    "processId": "hcs-recipe-run",
+    "title": "Replay gedeelde energie",
+    "inputs": {
+     "recipeId": "cir-04-shared-energy",
+     "scenario": "${recipe.inputs.scenario}",
+     "mode": "${recipe.inputs.mode}",
+     "lang": "${recipe.inputs.lang}"
+    },
+    "outputs": {
+     "run": "run"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "medium",
+  "service": {
+   "dish": "circular-neighborhoods",
+   "lifeEventCode": "CIR-04",
+   "serviceType": "share",
+   "parties": [
+    {
+     "name": "Energieco\u00f6peratie",
+     "role": "verdeling en geschillen (mens)"
+    },
+    {
+     "name": "Netbeheerder",
+     "role": "meterdata"
+    },
+    {
+     "name": "Buurtleden",
+     "role": "leveren en verbruiken met toestemming"
+    }
+   ],
+   "legalBasis": [
+    {
+     "basis": "Energiewet / AVG (meterdata met toestemming)",
+     "timeLimit": "maandelijkse afrekening"
+    }
+   ],
+   "humanMeasure": {
+    "handover": [
+     "Belangen op de piekavond \u2192 energieco\u00f6peratie schikt (mens)"
+    ],
+    "exceptions": [
+     "leden die niet meedoen aan de verdeling",
+     "meteruitval"
+    ]
+   },
+   "localVariant": "verdelingsregel is van de co\u00f6peratie, niet van de gemeente",
+   "genAiTestPoints": [
+    {
+     "point": "G2",
+     "description": "Balans tussen opwek en verbruik, alleen over deelnemende meters",
+     "testCases": [
+      "niet-deelnemende meters blijven buiten beeld"
+     ]
+    },
+    {
+     "point": "G3",
+     "description": "Iedereen bevestigt zijn eigen deel; niets wordt verdeeld zonder bevestiging",
+     "testCases": [
+      "weigerende deelname telt als signaal (stopconditie)"
+     ]
+    },
+    {
+     "point": "G4",
+     "description": "Verdelingsvoorstel met uitleg per lid",
+     "testCases": [
+      "iedereen ziet zijn eigen deel"
+     ]
+    },
+    {
+     "point": "G5",
+     "description": "Piekpatronen worden leermomenten voor de batterij",
+     "testCases": [
+      "batterij-inzet bijgesteld op piekpatroon"
+     ]
+    }
+   ],
+   "kpis": [
+    {
+     "kpi": "Energy generated locally",
+     "kpiType": "outcome",
+     "unit": "%",
+     "outcomeLens": [
+      "Z",
+      "W"
+     ],
+     "baseline": "",
+     "target": "",
+     "dataSource": "grid/meter data",
+     "frequency": "monthly",
+     "kviRollup": "KVI 3 (Housing: circular) \u00b7 KVI 8 (Circular economy) \u00b7 KVI 4"
+    }
+   ]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/cir-04-shared-energy"
+ },
+ "donl-harvest-publish": {
+  "id": "donl-harvest-publish",
+  "title": "Harvest DONL dataset and publish Data Space offer",
+  "description": "End-to-end: harvest one DONL package \u2192 DCAT catalog record \u2192 Data Space offer (EDC-manifest). Pilot path for open government data.",
+  "version": "1.0.0",
+  "tags": [
+   "donl",
+   "harvest",
+   "dataspace",
+   "publish",
+   "edc",
+   "phase-6"
+  ],
+  "requiredProcesses": [
+   "donl-harvest-run"
+  ],
+  "inputs": {
+   "packageId": {
+    "type": "string",
+    "description": "CKAN package id to harvest and publish",
+    "required": true
+   },
+   "metadataOnly": {
+    "type": "boolean",
+    "description": "Skip file downloads (metadata + service manifest only)",
+    "required": false
+   },
+   "accessClass": {
+    "type": "string",
+    "description": "open|internal|restricted (default open)",
+    "required": false
+   }
+  },
+  "outputs": {
+   "summary": {
+    "type": "json",
+    "description": "Harvest summary"
+   },
+   "publish": {
+    "type": "json",
+    "description": "Data Space publish result"
+   }
+  },
+  "steps": [
+   {
+    "id": "harvest-publish",
+    "processId": "donl-harvest-run",
+    "title": "Harvest and publish DONL dataset",
+    "inputs": {
+     "packageId": "${recipe.inputs.packageId}",
+     "metadataOnly": "${recipe.inputs.metadataOnly}",
+     "publishDatasetId": "${recipe.inputs.packageId}",
+     "accessClass": "${recipe.inputs.accessClass}"
+    },
+    "outputs": {
+     "summary": "summary",
+     "publish": "publish"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "high",
+  "cookbookUri": "http://localhost:8081/recipes/donl-harvest-publish"
+ },
+ "donl-harvest-run": {
+  "id": "donl-harvest-run",
+  "title": "Harvest data.overheid.nl into nLDT data lake",
+  "description": "CKAN harvest from DONL watchlist \u2192 bronze + catalog/dcat (DCAT-AP-NL). File downloads optional; WFS/WMS registered as DataService manifests in silver.",
+  "version": "1.0.0",
+  "tags": [
+   "donl",
+   "ckan",
+   "harvest",
+   "data-lake",
+   "dcat",
+   "phase-6"
+  ],
+  "requiredProcesses": [
+   "donl-harvest-run"
+  ],
+  "inputs": {
+   "watchlistPath": {
+    "type": "string",
+    "description": "Path to donl-watchlist.json",
+    "required": false
+   },
+   "packageId": {
+    "type": "string",
+    "description": "Single CKAN package id (overrides watchlist)",
+    "required": false
+   },
+   "metadataOnly": {
+    "type": "boolean",
+    "description": "Skip downloading file distributions",
+    "required": false
+   }
+  },
+  "outputs": {
+   "summary": {
+    "type": "json",
+    "description": "Harvest summary with lake URIs per dataset"
+   }
+  },
+  "steps": [
+   {
+    "id": "harvest",
+    "processId": "donl-harvest-run",
+    "title": "Harvest DONL CKAN packages",
+    "inputs": {
+     "watchlistPath": "${recipe.inputs.watchlistPath}",
+     "packageId": "${recipe.inputs.packageId}",
+     "metadataOnly": "${recipe.inputs.metadataOnly}"
+    },
+    "outputs": {
+     "summary": "summary"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "medium",
+  "cookbookUri": "http://localhost:8081/recipes/donl-harvest-run"
+ },
+ "edic-asset-map": {
+  "version": "1.0.0",
+  "updated": "2026-10-09",
+  "source": "EuropAI WP4 Ecosystem Orchestration Strategy v1.0 (GA 101298736)",
+  "assets": [
+   {
+    "id": "recipe:spatial-overlay-analysis",
+    "kind": "recipe",
+    "title": "Spatial Overlay Analysis",
+    "path": "nldt/recipes/spatial-overlay-analysis.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "spatial-blueprint",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "OGC Records/Processes; ValidationReport + PROV; live Marketplace + P&V path on *.ldttoolbox.app",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "low"
+   },
+   {
+    "id": "recipe:hex-overlay-analysis",
+    "kind": "recipe",
+    "title": "Hex Overlay Analysis (H3)",
+    "path": "nldt/recipes/hex-overlay-analysis.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "spatial-blueprint",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "OGC Processes; schema-valid GeoJSON/H3 outputs; catalog process ids",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "low"
+   },
+   {
+    "id": "recipe:beleidskompas-omgevingsanalyse",
+    "kind": "recipe",
+    "title": "Beleidskompas omgevingsanalyse (overlay)",
+    "path": "nldt/recipes/beleidskompas-omgevingsanalyse.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "spatial-blueprint",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "Same overlay contract as spatial-overlay-analysis; front-door app itself is Digital Commons",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "low"
+   },
+   {
+    "id": "recipe:breda-five-value-scan",
+    "kind": "recipe",
+    "title": "Breda five-value scan run",
+    "path": "nldt/recipes/breda-five-value-scan.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "spatial-blueprint",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "Cite-or-abstain artefacts; ValidationReport V0\u2013V4; city-facing capacity module",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "medium"
+   },
+   {
+    "id": "recipe:breda-gebiedsafweging",
+    "kind": "recipe",
+    "title": "Breda Plane D \u2014 integrale gebiedsafweging",
+    "path": "nldt/recipes/breda-gebiedsafweging.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "spatial-blueprint",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "SpatialClaimSpec + gebiedsafweging-report; control V3; V4 human; no winner score",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "medium"
+   },
+   {
+    "id": "recipe:breda-scan-qa",
+    "kind": "recipe",
+    "title": "Breda five-value scan Q&A",
+    "path": "nldt/recipes/breda-scan-qa.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "spatial-blueprint",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "S4 cite-or-abstain; number gate; PROV; Toolbox IM bearer on A2A",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "medium"
+   },
+   {
+    "id": "recipe:utrecht-opportunity-map",
+    "kind": "recipe",
+    "title": "Utrecht opportunity-map (replay)",
+    "path": "nldt/recipes/utrecht-opportunity-map.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "spatial-blueprint",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "Machine-readable planning rules (NormCard/FormalRule); HITL; MIM + Rulebook declaration",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "high"
+   },
+   {
+    "id": "recipe:utrecht-scenario-author",
+    "kind": "recipe",
+    "title": "Utrecht scenario author (S7 proposals)",
+    "path": "nldt/recipes/utrecht-scenario-author.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "spatial-blueprint",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "LLM proposes only; engine-computed geometry; reject ledger; HITL",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "high"
+   },
+   {
+    "id": "recipe:utrecht-scenario-sweep",
+    "kind": "recipe",
+    "title": "Utrecht scenario sweep",
+    "path": "nldt/recipes/utrecht-scenario-sweep.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "spatial-blueprint",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "Control reproduction \u0394 \u2264 0.1%; scenario choice remains human (V4)",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "high"
+   },
+   {
+    "id": "recipe:utrecht-world-scene",
+    "kind": "recipe",
+    "title": "Utrecht world scene build",
+    "path": "nldt/recipes/utrecht-world-scene.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "spatial-blueprint",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "ScenarioReport-rows only; engine GeoJSON refs; Marble gated hypothetical+HITL; groundingStamp",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "medium"
+   },
+   {
+    "id": "recipe:multi-track-crosstrack",
+    "kind": "recipe",
+    "title": "Utrecht multi-track crosstrack",
+    "path": "nldt/recipes/multi-track-crosstrack.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "spatial-blueprint",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "Pairwise conflict overlay; arbitration = human; ValidationReport",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "high"
+   },
+   {
+    "id": "recipe:rijnland-peil-conflict",
+    "kind": "recipe",
+    "title": "Rijnland peil conflict",
+    "path": "nldt/recipes/rijnland-peil-conflict.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "spatial-blueprint",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "Deterministic engine; catalog process id; replay artefacts",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "medium"
+   },
+   {
+    "id": "recipe:rijnland-peil-conflict-live",
+    "kind": "recipe",
+    "title": "Rijnland peil conflict (CDC lake snapshot)",
+    "path": "nldt/recipes/rijnland-peil-conflict-live.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "spatial-blueprint",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "HITL on live lake snapshot; PROV; accessClass respected",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "high"
+   },
+   {
+    "id": "recipe:rijnland-peil-whatif",
+    "kind": "recipe",
+    "title": "Rijnland peilen what-if (CDC)",
+    "path": "nldt/recipes/rijnland-peil-whatif.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "spatial-blueprint",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "What-if remains a proposal; engine computes \u0394; HITL",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "high"
+   },
+   {
+    "id": "recipe:eindhoven-bp2op",
+    "kind": "recipe",
+    "title": "Eindhoven bp2op transform",
+    "path": "nldt/recipes/eindhoven-bp2op.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "spatial-blueprint",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "Method cards MC-1\u202612 traceable; HITL; MIM declaration",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "high"
+   },
+   {
+    "id": "recipe:minigim-gebiedscheck",
+    "kind": "recipe",
+    "title": "MiniGIM gebiedscheck (Lijst + ILS draft)",
+    "path": "nldt/recipes/minigim-gebiedscheck.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "spatial-blueprint",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "74/74 Lijst-items gebonden; V0\u2013V3 pass; PROV met sha256; V4 pending (HITL by design)",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "low"
+   },
+   {
+    "id": "recipe:timeseries-open-ingest",
+    "kind": "recipe",
+    "title": "Open time-series ingest (silver)",
+    "path": "nldt/recipes/timeseries-open-ingest.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "spatial-blueprint",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "Medallion silver contract; open sources only; catalog dataset record",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "medium"
+   },
+   {
+    "id": "recipe:donl-harvest-run",
+    "kind": "recipe",
+    "title": "Harvest data.overheid.nl into nLDT data lake",
+    "path": "nldt/recipes/donl-harvest-run.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "spatial-blueprint",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "Bronze snapshot integrity; DCAT metadata; no restricted publish without HITL",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "medium"
+   },
+   {
+    "id": "recipe:donl-harvest-publish",
+    "kind": "recipe",
+    "title": "Harvest DONL dataset and publish Data Space offer",
+    "path": "nldt/recipes/donl-harvest-publish.json",
+    "edic": "impacts",
+    "assetClass": "framework-exchange",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "BZK"
+    ],
+    "acceptance": "ODRL offer; SIMPL/EDC pattern or logged technical debt; HITL for restricted",
+    "fallback": "interoperable-europe-edih",
+    "readiness": "hybrid",
+    "riskLevel": "high"
+   },
+   {
+    "id": "recipe:lake-publish-offer",
+    "kind": "recipe",
+    "title": "Publish lake dataset as Data Space offer",
+    "path": "nldt/recipes/lake-publish-offer.json",
+    "edic": "impacts",
+    "assetClass": "framework-exchange",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "BZK"
+    ],
+    "acceptance": "ValidationReport V0/V2/V4; pluggable connector mock|edc-manifest|http; SIMPL alignment note",
+    "fallback": "interoperable-europe-edih",
+    "readiness": "hybrid",
+    "riskLevel": "high"
+   },
+   {
+    "id": "recipe:source-monitor-run",
+    "kind": "recipe",
+    "title": "Source monitor (open-data continuity)",
+    "path": "nldt/recipes/source-monitor-run.json",
+    "edic": "impacts",
+    "assetClass": "framework-exchange",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "BZK"
+    ],
+    "acceptance": "Human-merge patches; no silent overwrite of silver; HITL",
+    "fallback": "interoperable-europe-edih",
+    "readiness": "hybrid",
+    "riskLevel": "high"
+   },
+   {
+    "id": "skill:nldt-poc-lifecycle",
+    "kind": "skill",
+    "title": "nLDT PoC lifecycle (city onboarding)",
+    "path": "nldt/skills/poc/nldt-poc-lifecycle/SKILL.md",
+    "edic": "ldt-citiverse",
+    "assetClass": "city-capacity-module",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "Discover\u2192Lake\u2192Scenarios\u2192Demo usable by a city without consortium staff; Critic/HITL mandatory",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid"
+   },
+   {
+    "id": "skill:nldt-poc-router",
+    "kind": "skill",
+    "title": "PoC skill router",
+    "path": "nldt/skills/poc/nldt-poc-router/SKILL.md",
+    "edic": "ldt-citiverse",
+    "assetClass": "city-capacity-module",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "Routes to domain skills; no direct lake writes",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid"
+   },
+   {
+    "id": "skill:breda-scan",
+    "kind": "skill",
+    "title": "Breda five-value scan skill",
+    "path": "nldt/skills/poc/breda-scan/SKILL.md",
+    "edic": "ldt-citiverse",
+    "assetClass": "city-capacity-module",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "SEP-2640 skill:// resource; cite-or-abstain",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid"
+   },
+   {
+    "id": "skill:utrecht-scenario",
+    "kind": "skill",
+    "title": "Utrecht scenario skill",
+    "path": "nldt/skills/poc/utrecht-scenario/SKILL.md",
+    "edic": "ldt-citiverse",
+    "assetClass": "city-capacity-module",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "S7 propose / S8 sweep via processes only",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid"
+   },
+   {
+    "id": "skill:rijnland-peilen",
+    "kind": "skill",
+    "title": "Rijnland peilen skill",
+    "path": "nldt/skills/poc/rijnland-peilen/SKILL.md",
+    "edic": "ldt-citiverse",
+    "assetClass": "city-capacity-module",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "Conflict / what-if via registered processes",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid"
+   },
+   {
+    "id": "agent:orchestrator",
+    "kind": "agent",
+    "title": "LangGraph recipe orchestrator",
+    "path": "nldt/agents/orchestrator/",
+    "edic": "impacts",
+    "assetClass": "implementation-framework",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "BZK"
+    ],
+    "acceptance": "Framework spec as multi-country service; OGC-only external interface; V0\u2013V4 critic",
+    "fallback": "interoperable-europe-edih",
+    "readiness": "hybrid"
+   },
+   {
+    "id": "agent:poc-planes",
+    "kind": "agent",
+    "title": "PoC planes A/B/C agents",
+    "path": "poc/pipeline/",
+    "edic": "ldt-citiverse",
+    "assetClass": "spatial-blueprint",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "AI proposes; engines dispose; humans decide; reject ledgers",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid"
+   },
+   {
+    "id": "schema:recipe",
+    "kind": "schema",
+    "title": "Recipe / AgentPlan / ValidationReport contracts",
+    "path": "nldt/schemas/",
+    "edic": "impacts",
+    "assetClass": "implementation-framework",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "BZK"
+    ],
+    "acceptance": "JSON Schema 2020-12; published independently of one engine",
+    "fallback": "interoperable-europe-edih",
+    "readiness": "live"
+   },
+   {
+    "id": "service:marketplace-publish",
+    "kind": "service",
+    "title": "EU LDT Marketplace recipe publication",
+    "path": "nldt/services/marketplace_publish.py",
+    "edic": "impacts",
+    "assetClass": "implementation-framework",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "BZK"
+    ],
+    "acceptance": "Non-mock publish with ValidationReport + PROV payload; Toolbox IM token",
+    "fallback": "interoperable-europe-edih",
+    "readiness": "mock"
+   },
+   {
+    "id": "service:a2a",
+    "kind": "service",
+    "title": "A2A agent card (federated recipe execution)",
+    "path": "nldt/services/a2a/",
+    "edic": "ldt-citiverse",
+    "assetClass": "spatial-blueprint",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "Bearer via EU LDT Identity Management; no localhost identity in production card",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid"
+   },
+   {
+    "id": "service:identity-wallets",
+    "kind": "service",
+    "title": "User wallet + agent virtual wallet + Keycloak",
+    "path": "nldt/services/auth_wallet/",
+    "edic": "impacts",
+    "assetClass": "implementation-framework",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "BZK"
+    ],
+    "acceptance": "Consume Toolbox IM; do not rebuild IAM; EUDI-aligned claims schema",
+    "fallback": "interoperable-europe-edih",
+    "readiness": "hybrid"
+   },
+   {
+    "id": "service:dataspace-connector",
+    "kind": "service",
+    "title": "Pluggable Data Space connector (EDC/SIMPL)",
+    "path": "nldt/services/adapters/dataspace_connector.py",
+    "edic": "impacts",
+    "assetClass": "framework-exchange",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "BZK"
+    ],
+    "acceptance": "SIMPL-compatible pattern or technical-debt log; live EDC is consumed not built",
+    "fallback": "interoperable-europe-edih",
+    "readiness": "hybrid"
+   },
+   {
+    "id": "methodology:v0-v4",
+    "kind": "methodology",
+    "title": "Critic V0\u2013V4 + cite-or-abstain + HITL",
+    "path": "nldt/07-trust-and-governance.md",
+    "edic": "impacts",
+    "assetClass": "implementation-framework",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "BZK"
+    ],
+    "acceptance": "Declarations against MIMs and Digital Rulebook; procurement language of sovereignty tiers",
+    "fallback": "interoperable-europe-edih",
+    "readiness": "live"
+   },
+   {
+    "id": "methodology:poc-lifecycle",
+    "kind": "methodology",
+    "title": "Discover \u2192 Lake \u2192 Scenarios \u2192 Demo",
+    "path": "nldt/skills/poc/nldt-poc-lifecycle/SKILL.md",
+    "edic": "ldt-citiverse",
+    "assetClass": "city-capacity-module",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "VLO",
+     "LNDS"
+    ],
+    "acceptance": "City-facing module packaged with the lifecycle skill",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid"
+   },
+   {
+    "id": "application:govchat-beleidskompas",
+    "kind": "application",
+    "title": "GovChat-NL beleidskompas front door",
+    "path": "nldt/14-beleidskompas-integration.md",
+    "edic": "digital-commons",
+    "assetClass": "code-stewardship",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "BZK"
+    ],
+    "acceptance": "Clean IP vs OpenWebUI licence; contribution rules; maintenance envelope; not a CitiVERSE app",
+    "fallback": "os2-community",
+    "readiness": "hybrid"
+   },
+   {
+    "id": "service:nldt-source",
+    "kind": "service",
+    "title": "nLDT services, agents and PoC engines (source)",
+    "path": "nldt/",
+    "edic": "digital-commons",
+    "assetClass": "code-stewardship",
+    "owner": "ICTU",
+    "relationshipOwners": [
+     "BZK"
+    ],
+    "acceptance": "EUPL-1.2 (or documented exception); CONTRIBUTING; SECURITY.md; cost envelope",
+    "fallback": "os2-community",
+    "readiness": "hybrid"
+   },
+   {
+    "id": "recipe:thk-08-move-home",
+    "kind": "recipe",
+    "title": "The Key THK-08 \u2014 'I want to move home'",
+    "path": "nldt/recipes/thk-08-move-home.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "hcs-life-event",
+    "owner": "Digital Toolbox (EDIC)",
+    "relationshipOwners": [
+     "Serendipity",
+     "Gemeente Zoetermeer"
+    ],
+    "acceptance": "GenAI-testbank G1-G5 + function-baseline; deterministische replay via OGC API Processes (hcs-life-event-run)",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "medium"
+   },
+   {
+    "id": "recipe:thk-02-having-a-baby",
+    "kind": "recipe",
+    "title": "The Key THK-02 \u2014 'I'm having a baby'",
+    "path": "nldt/recipes/thk-02-having-a-baby.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "hcs-life-event",
+    "owner": "Digital Toolbox (EDIC)",
+    "relationshipOwners": [
+     "Serendipity",
+     "Gemeente Zoetermeer"
+    ],
+    "acceptance": "GenAI-testbank G2/G5 + function-baseline; deterministische replay via OGC API Processes (hcs-life-event-run)",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "medium"
+   },
+   {
+    "id": "recipe:thk-24-build-renovate",
+    "kind": "recipe",
+    "title": "The Key THK-24 \u2014 'I want to build or renovate'",
+    "path": "nldt/recipes/thk-24-build-renovate.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "hcs-life-event",
+    "owner": "Digital Toolbox (EDIC)",
+    "relationshipOwners": [
+     "Serendipity",
+     "Gemeente Zoetermeer"
+    ],
+    "acceptance": "GenAI-testbank + function-baseline; menselijke beoordeling by design; declaratieve minigim-ingredient-koppeling",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "high"
+   },
+   {
+    "id": "recipe:uam-01-medical-logistics",
+    "kind": "recipe",
+    "title": "Urban Air Mobility UAM-01 \u2014 'I want medical logistics by air'",
+    "path": "nldt/recipes/uam-01-medical-logistics.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "hcs-city-recipe",
+    "owner": "Digital Toolbox (EDIC)",
+    "relationshipOwners": [
+     "Serendipity"
+    ],
+    "acceptance": "GenAI-testbank + function-baseline; deterministische replay via hcs-recipe-run",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "medium"
+   },
+   {
+    "id": "recipe:uam-09-geofencing-zones",
+    "kind": "recipe",
+    "title": "Urban Air Mobility UAM-09 \u2014 'I want geofencing & security zones'",
+    "path": "nldt/recipes/uam-09-geofencing-zones.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "hcs-city-recipe",
+    "owner": "Digital Toolbox (EDIC)",
+    "relationshipOwners": [
+     "Serendipity"
+    ],
+    "acceptance": "GenAI-testbank + function-baseline; deterministische replay via hcs-recipe-run",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "high"
+   },
+   {
+    "id": "recipe:grn-01-canopy-measure",
+    "kind": "recipe",
+    "title": "3-30-300 GRN-01 \u2014 'I want to measure canopy (the 30%)'",
+    "path": "nldt/recipes/grn-01-canopy-measure.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "hcs-city-recipe",
+    "owner": "Digital Toolbox (EDIC)",
+    "relationshipOwners": [
+     "Serendipity"
+    ],
+    "acceptance": "GenAI-testbank + function-baseline; deterministische replay via hcs-recipe-run",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "low"
+   },
+   {
+    "id": "recipe:grn-03-300m-gaps",
+    "kind": "recipe",
+    "title": "3-30-300 GRN-03 \u2014 'I want to close the 300 m gaps'",
+    "path": "nldt/recipes/grn-03-300m-gaps.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "hcs-city-recipe",
+    "owner": "Digital Toolbox (EDIC)",
+    "relationshipOwners": [
+     "Serendipity"
+    ],
+    "acceptance": "GenAI-testbank + function-baseline; deterministische replay via hcs-recipe-run",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "low"
+   },
+   {
+    "id": "recipe:cir-04-shared-energy",
+    "kind": "recipe",
+    "title": "Circular neighborhoods CIR-04 \u2014 'I want shared energy'",
+    "path": "nldt/recipes/cir-04-shared-energy.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "hcs-city-recipe",
+    "owner": "Digital Toolbox (EDIC)",
+    "relationshipOwners": [
+     "Serendipity"
+    ],
+    "acceptance": "GenAI-testbank + function-baseline; deterministische replay via hcs-recipe-run",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "medium"
+   },
+   {
+    "id": "recipe:cir-01-circular-condition",
+    "kind": "recipe",
+    "title": "Circular neighborhoods CIR-01 \u2014 'I want a circular development condition'",
+    "path": "nldt/recipes/cir-01-circular-condition.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "hcs-city-recipe",
+    "owner": "Digital Toolbox (EDIC)",
+    "relationshipOwners": [
+     "Serendipity"
+    ],
+    "acceptance": "GenAI-testbank + function-baseline; deterministische replay via hcs-recipe-run",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "medium"
+   },
+   {
+    "id": "recipe:min-01-proximity-analysis",
+    "kind": "recipe",
+    "title": "15-minute city MIN-01 \u2014 'I want a proximity analysis'",
+    "path": "nldt/recipes/min-01-proximity-analysis.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "hcs-city-recipe",
+    "owner": "Digital Toolbox (EDIC)",
+    "relationshipOwners": [
+     "Serendipity"
+    ],
+    "acceptance": "GenAI-testbank + function-baseline; deterministische replay via hcs-recipe-run",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "low"
+   },
+   {
+    "id": "recipe:min-04-hub-network",
+    "kind": "recipe",
+    "title": "15-minute city MIN-04 \u2014 'I want to plan my hub network'",
+    "path": "nldt/recipes/min-04-hub-network.json",
+    "edic": "ldt-citiverse",
+    "assetClass": "hcs-city-recipe",
+    "owner": "Digital Toolbox (EDIC)",
+    "relationshipOwners": [
+     "Serendipity"
+    ],
+    "acceptance": "GenAI-testbank + function-baseline; deterministische replay via hcs-recipe-run",
+    "fallback": "vng-geonovum-cookbook",
+    "readiness": "hybrid",
+    "riskLevel": "low"
+   }
+  ]
+ },
+ "eindhoven-bp2op": {
+  "id": "eindhoven-bp2op",
+  "title": "Eindhoven bp2op transform",
+  "description": "Bestemmingsplan \u2192 omgevingsplan conversion for Eindhoven (poc-bp2op). V4 HITL always pending.",
+  "version": "1.0.0",
+  "tags": [
+   "poc-eindhoven",
+   "bp2op",
+   "legal"
+  ],
+  "requiredProcesses": [
+   "bp2op-transform"
+  ],
+  "inputs": {
+   "mode": {
+    "type": "string",
+    "description": "replay|execute",
+    "required": false
+   },
+   "useCase": {
+    "type": "string",
+    "description": "Use case id (eindhoven)",
+    "required": false
+   },
+   "runDir": {
+    "type": "string",
+    "description": "Existing bp2op run dir",
+    "required": false
+   },
+   "outDir": {
+    "type": "string",
+    "description": "Output root (execute)",
+    "required": false
+   }
+  },
+  "outputs": {
+   "summary": {
+    "type": "json",
+    "description": "bp2op run summary"
+   }
+  },
+  "steps": [
+   {
+    "id": "transform",
+    "processId": "bp2op-transform",
+    "title": "Run bp2op transform",
+    "inputs": {
+     "mode": "${recipe.inputs.mode}",
+     "useCase": "${recipe.inputs.useCase}",
+     "runDir": "${recipe.inputs.runDir}",
+     "outDir": "${recipe.inputs.outDir}"
+    },
+    "outputs": {
+     "summary": "summary"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "high",
+  "cookbookUri": "http://localhost:8081/recipes/eindhoven-bp2op"
+ },
+ "grn-01-canopy-measure": {
+  "id": "grn-01-canopy-measure",
+  "title": "3-30-300 GRN-01 \u2014 'I want to measure canopy (the 30%)'",
+  "description": "City-recipe: luchtfoto's \u2192 AI-bladerdakmeting \u2192 heat-map per wijk. Een medewerker controleert een steekproef van de meting; wijken onder de 30% krijgen proactief een signaal. KPI: bladerdak per wijk. Deterministische replay via hcs-recipe-run.",
+  "version": "1.0.0",
+  "tags": [
+   "hcs",
+   "edic",
+   "3-30-300",
+   "grn-01",
+   "city-recipe",
+   "measure"
+  ],
+  "requiredProcesses": [
+   "hcs-recipe-run"
+  ],
+  "inputs": {
+   "scenario": {
+    "type": "string",
+    "description": "scenario-id: wijk-noord|wijk-zuid",
+    "required": false
+   },
+   "mode": {
+    "type": "string",
+    "description": "replay|execute",
+    "required": false
+   },
+   "lang": {
+    "type": "string",
+    "description": "nl|en",
+    "required": false
+   }
+  },
+  "outputs": {
+   "run": {
+    "type": "json",
+    "description": "HCS run-artefact"
+   }
+  },
+  "steps": [
+   {
+    "id": "run",
+    "processId": "hcs-recipe-run",
+    "title": "Replay bladerdakmeting",
+    "inputs": {
+     "recipeId": "grn-01-canopy-measure",
+     "scenario": "${recipe.inputs.scenario}",
+     "mode": "${recipe.inputs.mode}",
+     "lang": "${recipe.inputs.lang}"
+    },
+    "outputs": {
+     "run": "run"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "low",
+  "service": {
+   "dish": "3-30-300",
+   "lifeEventCode": "GRN-01",
+   "serviceType": "measure",
+   "parties": [
+    {
+     "name": "Gemeente",
+     "role": "groenbeheer (opdrachtgever)"
+    },
+    {
+     "name": "Gebiedsteam",
+     "role": "ontvangt signalen per wijk"
+    }
+   ],
+   "legalBasis": [
+    {
+     "basis": "Omgevingswet (kwaliteit leefomgeving)",
+     "timeLimit": "jaarlijkse meting"
+    }
+   ],
+   "humanMeasure": {
+    "handover": [
+     "Steekproefcontrole van de AI-meting door een medewerker",
+     "Wijken onder de 30% \u2192 gebiedsteam"
+    ],
+    "exceptions": [
+     "meetfouten door schaduw en paalen"
+    ]
+   },
+   "localVariant": "doelstelling per wijk is gemeentelijk groenbeleid",
+   "genAiTestPoints": [
+    {
+     "point": "G2",
+     "description": "De meetmethode herkent bladerdak; een steekproef controleert de uitslag",
+     "testCases": [
+      "steekproef minder dan 5% afwijkend"
+     ]
+    },
+    {
+     "point": "G5",
+     "description": "Proactief signaal bij dalende of te lage wijken",
+     "testCases": [
+      "wijk onder de 30% krijgt signaal"
+     ]
+    }
+   ],
+   "kpis": [
+    {
+     "kpi": "Canopy cover per neighbourhood",
+     "kpiType": "outcome",
+     "unit": "%",
+     "outcomeLens": [
+      "L",
+      "W"
+     ],
+     "baseline": "",
+     "target": "",
+     "dataSource": "remote sensing",
+     "frequency": "yearly",
+     "kviRollup": "KVI 7 (Biodiversity) \u00b7 KVI 6 (Soil & Water) \u00b7 KVI 2 (Cooling)"
+    }
+   ]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/grn-01-canopy-measure"
+ },
+ "grn-03-300m-gaps": {
+  "id": "grn-03-300m-gaps",
+  "title": "3-30-300 GRN-03 \u2014 'I want to close the 300 m gaps'",
+  "description": "City-recipe: loopafstand naar goed groen per adres \u2192 groene woestijnen benoemen \u2192 het gebiedsteam (mens) prioriteert met bewoners welke straat eerst vergroent. KPI: bewoners binnen 300 meter van goed groen. Deterministische replay via hcs-recipe-run.",
+  "version": "1.0.0",
+  "tags": [
+   "hcs",
+   "edic",
+   "3-30-300",
+   "grn-03",
+   "city-recipe",
+   "plan"
+  ],
+  "requiredProcesses": [
+   "hcs-recipe-run"
+  ],
+  "inputs": {
+   "scenario": {
+    "type": "string",
+    "description": "scenario-id: binnen-norm|groeidesert",
+    "required": false
+   },
+   "mode": {
+    "type": "string",
+    "description": "replay|execute",
+    "required": false
+   },
+   "lang": {
+    "type": "string",
+    "description": "nl|en",
+    "required": false
+   }
+  },
+  "outputs": {
+   "run": {
+    "type": "json",
+    "description": "HCS run-artefact"
+   }
+  },
+  "steps": [
+   {
+    "id": "run",
+    "processId": "hcs-recipe-run",
+    "title": "Replay 300-meter-gaten",
+    "inputs": {
+     "recipeId": "grn-03-300m-gaps",
+     "scenario": "${recipe.inputs.scenario}",
+     "mode": "${recipe.inputs.mode}",
+     "lang": "${recipe.inputs.lang}"
+    },
+    "outputs": {
+     "run": "run"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "low",
+  "service": {
+   "dish": "3-30-300",
+   "lifeEventCode": "GRN-03",
+   "serviceType": "plan",
+   "parties": [
+    {
+     "name": "Gemeente",
+     "role": "groenbeheer en begroting"
+    },
+    {
+     "name": "Gebiedsteam met bewoners",
+     "role": "prioritering vergroening (mens)"
+    }
+   ],
+   "legalBasis": [
+    {
+     "basis": "Omgevingswet (participatie en leefomgevingskwaliteit)",
+     "timeLimit": "jaarlijkse analyse, signalen v\u00f3\u00f3r de begrotingsronde"
+    }
+   ],
+   "humanMeasure": {
+    "handover": [
+     "Prioritering van vergroening \u2192 gebiedsteam met bewoners (mens)"
+    ],
+    "exceptions": [
+     "veilige routes meewegen; adressen zonder voetpad"
+    ]
+   },
+   "localVariant": "norm en prioritering zijn gemeentelijk beleid",
+   "genAiTestPoints": [
+    {
+     "point": "G2",
+     "description": "Loopafstand over echte, veilige paden \u2014 niet in vogelvlucht",
+     "testCases": [
+      "adressen zonder veilig voetpad vallen op"
+     ]
+    },
+    {
+     "point": "G5",
+     "description": "Proactief signaal voor wijken onder de norm, v\u00f3\u00f3r de begrotingsronde",
+     "testCases": [
+      "groeidesert staat bovenaan de prioriteitenlijst"
+     ]
+    }
+   ],
+   "kpis": [
+    {
+     "kpi": "Residents within 300 m of quality green",
+     "kpiType": "outcome",
+     "unit": "%",
+     "outcomeLens": [
+      "Z",
+      "L"
+     ],
+     "baseline": "",
+     "target": "",
+     "dataSource": "network analysis",
+     "frequency": "yearly",
+     "kviRollup": "KVI 7 (Biodiversity) \u00b7 KVI 6 (Soil & Water) \u00b7 KVI 2 (Cooling)"
+    }
+   ]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/grn-03-300m-gaps"
+ },
+ "hex-overlay-analysis": {
+  "id": "hex-overlay-analysis",
+  "title": "Hex Overlay Analysis (H3)",
+  "description": "nLDT reference recipe: discretise a zone layer into H3 cells, join point data per cell, and measure spatial autocorrelation \u2014 the h3-py urban-analytics pattern on Dutch data (spec 2026-09-09-h3-integration, example 7.6). All geojson inputs must be EPSG:4326 (RFC 7946).",
+  "version": "1.0.0",
+  "tags": [
+   "spatial",
+   "h3",
+   "hex",
+   "aggregation",
+   "autocorrelation"
+  ],
+  "requiredData": [
+   {
+    "id": "zone",
+    "role": "reference_layer",
+    "format": "geojson"
+   },
+   {
+    "id": "points",
+    "role": "context_layer",
+    "format": "geojson"
+   }
+  ],
+  "requiredProcesses": [
+   "fetch-features",
+   "h3-polygon-to-cells",
+   "h3-spatial-join-points",
+   "h3-morans-i"
+  ],
+  "inputs": {
+   "aoi": {
+    "type": "geojson",
+    "description": "Area of interest (EPSG:4326)",
+    "required": true
+   },
+   "zoneUri": {
+    "type": "uri",
+    "description": "URI to zone GeoJSON",
+    "required": true
+   },
+   "pointsUri": {
+    "type": "uri",
+    "description": "URI to points GeoJSON",
+    "required": true
+   },
+   "resolution": {
+    "type": "integer",
+    "description": "H3 resolution for the cells/join steps",
+    "required": true
+   }
+  },
+  "outputs": {
+   "coverage": {
+    "type": "json",
+    "description": "H3Coverage"
+   },
+   "join": {
+    "type": "json",
+    "description": "points-per-cell join"
+   },
+   "autocorrelation": {
+    "type": "json",
+    "description": "Moran's I statistics"
+   }
+  },
+  "steps": [
+   {
+    "id": "fetch-zone",
+    "processId": "fetch-features",
+    "title": "Fetch zone layer",
+    "inputs": {
+     "source": "${recipe.inputs.zoneUri}",
+     "aoi": "${recipe.inputs.aoi}"
+    },
+    "outputs": {
+     "features": "zoneFeatures"
+    },
+    "backend": "local"
+   },
+   {
+    "id": "fetch-points",
+    "processId": "fetch-features",
+    "title": "Fetch points layer",
+    "inputs": {
+     "source": "${recipe.inputs.pointsUri}",
+     "aoi": "${recipe.inputs.aoi}"
+    },
+    "outputs": {
+     "features": "pointsFeatures"
+    },
+    "backend": "local"
+   },
+   {
+    "id": "cells",
+    "processId": "h3-polygon-to-cells",
+    "title": "Discretise zone into H3 cells",
+    "inputs": {
+     "polygon": "${steps.fetch-zone.outputs.features}",
+     "resolution": "${recipe.inputs.resolution}"
+    },
+    "outputs": {
+     "coverage": "coverage"
+    },
+    "backend": "local"
+   },
+   {
+    "id": "join",
+    "processId": "h3-spatial-join-points",
+    "title": "Join points per cell",
+    "inputs": {
+     "points": "${steps.fetch-points.outputs.features}",
+     "polygon": "${steps.fetch-zone.outputs.features}",
+     "resolution": "${recipe.inputs.resolution}"
+    },
+    "outputs": {
+     "join": "join"
+    },
+    "backend": "local"
+   },
+   {
+    "id": "autocorrelation",
+    "processId": "h3-morans-i",
+    "title": "Moran's I over cell counts",
+    "inputs": {
+     "values": "${steps.join.outputs.join}"
+    },
+    "outputs": {
+     "statistics": "autocorrelation"
+    },
+    "backend": "local"
+   }
+  ],
+  "visualizationHint": {
+   "preferredFormat": "geojson",
+   "layerTitle": "H3 coverage"
+  },
+  "riskLevel": "low",
+  "cookbookUri": "http://localhost:8081/recipes/hex-overlay-analysis"
+ },
+ "lake-publish-offer": {
+  "id": "lake-publish-offer",
+  "title": "Publish lake dataset as Data Space offer",
+  "description": "Phase 6: create an ODRL-stub Data Space offer over a lake:// URI. accessClass=restricted requires forceHitlApproved and Critic V4.",
+  "version": "1.0.0",
+  "tags": [
+   "lake",
+   "dataspace",
+   "publish",
+   "odrl",
+   "phase-6"
+  ],
+  "requiredProcesses": [
+   "lake-publish-dataset"
+  ],
+  "inputs": {
+   "lakeUri": {
+    "type": "string",
+    "description": "lake:// or s3:// URI",
+    "required": true
+   },
+   "accessClass": {
+    "type": "string",
+    "description": "open|internal|restricted",
+    "required": false
+   },
+   "datasetId": {
+    "type": "string",
+    "description": "Dataset id for the offer",
+    "required": false
+   },
+   "license": {
+    "type": "string",
+    "description": "License string",
+    "required": false
+   },
+   "forceHitlApproved": {
+    "type": "boolean",
+    "description": "HITL override for restricted",
+    "required": false
+   }
+  },
+  "outputs": {
+   "result": {
+    "type": "json",
+    "description": "Publish result (offer + validationReport + connector)"
+   }
+  },
+  "steps": [
+   {
+    "id": "publish",
+    "processId": "lake-publish-dataset",
+    "title": "Publish Data Space offer",
+    "inputs": {
+     "lakeUri": "${recipe.inputs.lakeUri}",
+     "accessClass": "${recipe.inputs.accessClass}",
+     "datasetId": "${recipe.inputs.datasetId}",
+     "license": "${recipe.inputs.license}",
+     "forceHitlApproved": "${recipe.inputs.forceHitlApproved}"
+    },
+    "outputs": {
+     "result": "result"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "high",
+  "cookbookUri": "http://localhost:8081/recipes/lake-publish-offer"
+ },
+ "min-01-proximity-analysis": {
+  "id": "min-01-proximity-analysis",
+  "title": "15-minute city MIN-01 \u2014 'I want a proximity analysis'",
+  "description": "City-recipe: alle dagelijkse voorzieningen op de kaart, per adres het bereik binnen 15 minuten (met veilige routes), en servicedeserts als proactief signaal naar het gebiedsteam (mens). KPI: bewoners binnen 15 minuten van dagelijkse voorzieningen. Deterministische replay via hcs-recipe-run.",
+  "version": "1.0.0",
+  "tags": [
+   "hcs",
+   "edic",
+   "15-minute-city",
+   "min-01",
+   "city-recipe",
+   "measure"
+  ],
+  "requiredProcesses": [
+   "hcs-recipe-run"
+  ],
+  "inputs": {
+   "scenario": {
+    "type": "string",
+    "description": "scenario-id: centrumwijk|randwijk",
+    "required": false
+   },
+   "mode": {
+    "type": "string",
+    "description": "replay|execute",
+    "required": false
+   },
+   "lang": {
+    "type": "string",
+    "description": "nl|en",
+    "required": false
+   }
+  },
+  "outputs": {
+   "run": {
+    "type": "json",
+    "description": "HCS run-artefact"
+   }
+  },
+  "steps": [
+   {
+    "id": "run",
+    "processId": "hcs-recipe-run",
+    "title": "Replay nabijheidsanalyse",
+    "inputs": {
+     "recipeId": "min-01-proximity-analysis",
+     "scenario": "${recipe.inputs.scenario}",
+     "mode": "${recipe.inputs.mode}",
+     "lang": "${recipe.inputs.lang}"
+    },
+    "outputs": {
+     "run": "run"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "low",
+  "service": {
+   "dish": "15-minute-city",
+   "lifeEventCode": "MIN-01",
+   "serviceType": "measure",
+   "parties": [
+    {
+     "name": "Gemeente",
+     "role": "voorzieningenregister en analyse"
+    },
+    {
+     "name": "Gebiedsteam",
+     "role": "ontvangt servicedesert-signalen (mens)"
+    }
+   ],
+   "legalBasis": [
+    {
+     "basis": "Omgevingswet (kwaliteit leefomgeving)",
+     "timeLimit": "jaarlijkse analyse"
+    }
+   ],
+   "humanMeasure": {
+    "handover": [
+     "Servicedesert \u2192 gebiedsteam gaat met bewoners in gesprek"
+    ],
+    "exceptions": [
+     "veilige routes wegen zwaarder dan snelste route"
+    ]
+   },
+   "localVariant": "norm en weegfactoren zijn gemeentelijk beleid",
+   "genAiTestPoints": [
+    {
+     "point": "G2",
+     "description": "Bereikbaarheid over echte, veilige routes",
+     "testCases": [
+      "ontbrekende oversteekplaatsen vallen op"
+     ]
+    },
+    {
+     "point": "G5",
+     "description": "Proactief signaal bij wijken onder de norm",
+     "testCases": [
+      "randwijk krijgt signaal v\u00f3\u00f3r de begroting"
+     ]
+    }
+   ],
+   "kpis": [
+    {
+     "kpi": "Residents within 15 min of daily needs",
+     "kpiType": "outcome",
+     "unit": "%",
+     "outcomeLens": [
+      "Z",
+      "L"
+     ],
+     "baseline": "",
+     "target": "",
+     "dataSource": "isochrone model",
+     "frequency": "yearly",
+     "kviRollup": "KVI 1 (Mobility) \u00b7 KVI 3 (Housing: mixed-use, density)"
+    }
+   ]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/min-01-proximity-analysis"
+ },
+ "min-04-hub-network": {
+  "id": "min-04-hub-network",
+  "title": "15-minute city MIN-04 \u2014 'I want to plan my hub network'",
+  "description": "City-recipe: behoefte per hubniveau (micro \u2192 wijk \u2192 stadsdeel \u2192 stad), een locatievoorstel met opbrengst, en het besluit samen met wijkbewoners en bestuur (mens). KPI: live hubs per niveau. Deterministische replay via hcs-recipe-run.",
+  "version": "1.0.0",
+  "tags": [
+   "hcs",
+   "edic",
+   "15-minute-city",
+   "min-04",
+   "city-recipe",
+   "plan"
+  ],
+  "requiredProcesses": [
+   "hcs-recipe-run"
+  ],
+  "inputs": {
+   "scenario": {
+    "type": "string",
+    "description": "scenario-id: microhub",
+    "required": false
+   },
+   "mode": {
+    "type": "string",
+    "description": "replay|execute",
+    "required": false
+   },
+   "lang": {
+    "type": "string",
+    "description": "nl|en",
+    "required": false
+   }
+  },
+  "outputs": {
+   "run": {
+    "type": "json",
+    "description": "HCS run-artefact"
+   }
+  },
+  "steps": [
+   {
+    "id": "run",
+    "processId": "hcs-recipe-run",
+    "title": "Replay hubladder",
+    "inputs": {
+     "recipeId": "min-04-hub-network",
+     "scenario": "${recipe.inputs.scenario}",
+     "mode": "${recipe.inputs.mode}",
+     "lang": "${recipe.inputs.lang}"
+    },
+    "outputs": {
+     "run": "run"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "low",
+  "service": {
+   "dish": "15-minute-city",
+   "lifeEventCode": "MIN-04",
+   "serviceType": "plan",
+   "parties": [
+    {
+     "name": "Gemeente",
+     "role": "hubregister en voorstel"
+    },
+    {
+     "name": "Wijkbewoners en college",
+     "role": "besluiten samen (mens)"
+    }
+   ],
+   "legalBasis": [
+    {
+     "basis": "Omgevingswet (participatie bij gebiedsontwikkeling)",
+     "timeLimit": "kwartaal updates hubregister"
+    }
+   ],
+   "humanMeasure": {
+    "handover": [
+     "Locatiebesluit \u2192 wijkavond en college (mens)"
+    ],
+    "exceptions": [
+     "leege hubs blokkeren nieuwe plaatsingen"
+    ]
+   },
+   "localVariant": "hubnormen per niveau zijn gemeentelijk beleid",
+   "genAiTestPoints": [
+    {
+     "point": "G2",
+     "description": "Voorstel is onderbouwd met loopafstanden en gebruikscijfers",
+     "testCases": [
+      "kandidaat-locatie aan de winkelstraat"
+     ]
+    },
+    {
+     "point": "G5",
+     "description": "Het besluit is mensenwerk; het voorstel is alleen input",
+     "testCases": [
+      "wijkavond en college besluiten"
+     ]
+    }
+   ],
+   "kpis": [
+    {
+     "kpi": "Hubs live per tier (micro/nbhd/district/city)",
+     "kpiType": "output",
+     "unit": "# per tier",
+     "outcomeLens": "\u2014",
+     "baseline": "",
+     "target": "",
+     "dataSource": "hub register",
+     "frequency": "quarterly",
+     "kviRollup": "KVI 1 (Mobility) \u00b7 KVI 3 (Housing: mixed-use, density)"
+    }
+   ]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/min-04-hub-network"
+ },
+ "minigim-gebiedscheck": {
+  "id": "minigim-gebiedscheck",
+  "title": "MiniGIM gebiedscheck (Lijst + ILS draft)",
+  "description": "PoC-5 via nLDT: run the MiniGIM omgevingsanalyse for an AOI \u2014 74 Lijst-v0.91 items auto-filled from keyless open data (PDOK BGT/BAG/BRK/CBS/NWB/RCE, gemeente Breda AGOL) plus a draft ILS-v0.8 gebiedsindeling (niveau 0-3, IfcExportAs, EPset_minigim). Deterministic, V0-V3 validated, PROV with sha256; V4 (human-in-the-loop) pending by design.",
+  "version": "1.0.0",
+  "tags": [
+   "poc-minigim",
+   "minigim",
+   "gebiedsontwikkeling",
+   "checklist",
+   "ils"
+  ],
+  "requiredProcesses": [
+   "minigim-gebiedscheck-run"
+  ],
+  "inputs": {
+   "aoi": {
+    "type": "geojson",
+    "description": "Plangrens (plan boundary) as GeoJSON in EPSG:28992 or WGS84 (auto-reprojected)",
+    "required": true
+   },
+   "label": {
+    "type": "string",
+    "description": "Human-readable label for the run (default 'gebiedscheck')",
+    "required": false
+   },
+   "refresh": {
+    "type": "boolean",
+    "description": "Bypass the layer cache and refetch all sources (default false)",
+    "required": false
+   }
+  },
+  "outputs": {
+   "report": {
+    "type": "uri",
+    "description": "Single-file report.html (checklist + ILS draft + map, tables readable offline)"
+   },
+   "omgevingsanalyse": {
+    "type": "json",
+    "description": "74-item MiniGIM Lijst artifact: deliveredStatus, values, riskFlags, prov per item"
+   },
+   "ilsDraft": {
+    "type": "json",
+    "description": "ILS v0.8 draft gebiedsindeling (huidige situatie; v4 pending) + feature layer"
+   },
+   "validation": {
+    "type": "json",
+    "description": "V0-V3 validator checks and verdict (exit 0 only on pass)"
+   },
+   "prov": {
+    "type": "json",
+    "description": "PROV bundle: pinned registry sha256's, per-layer fetch manifests"
+   }
+  },
+  "steps": [
+   {
+    "id": "gebiedscheck",
+    "processId": "minigim-gebiedscheck-run",
+    "title": "Run MiniGIM gebiedscheck",
+    "inputs": {
+     "aoi": "${recipe.inputs.aoi}",
+     "label": "${recipe.inputs.label}",
+     "refresh": "${recipe.inputs.refresh}"
+    },
+    "outputs": {
+     "report": "report",
+     "omgevingsanalyse": "omgevingsanalyse",
+     "ilsDraft": "ilsDraft",
+     "validation": "validation",
+     "prov": "prov"
+    },
+    "backend": "local"
+   }
+  ],
+  "visualizationHint": {
+   "preferredFormat": "geojson",
+   "layerTitle": "MiniGIM gebiedscheck"
+  },
+  "riskLevel": "low",
+  "cookbookUri": "http://localhost:8081/recipes/minigim-gebiedscheck"
+ },
+ "multi-track-crosstrack": {
+  "id": "multi-track-crosstrack",
+  "title": "Utrecht multi-track crosstrack",
+  "description": "Plane C via nLDT: crosstrack overlay across wind\u00d7solar\u00d7forest baseline runs.",
+  "version": "1.0.0",
+  "tags": [
+   "poc-utrecht",
+   "crosstrack",
+   "plane-c",
+   "legal"
+  ],
+  "requiredProcesses": [
+   "crosstrack-overlay"
+  ],
+  "inputs": {
+   "mode": {
+    "type": "string",
+    "description": "replay|execute",
+    "required": false
+   },
+   "runDir": {
+    "type": "string",
+    "description": "Existing crosstrack-runs dir",
+    "required": false
+   },
+   "outDir": {
+    "type": "string",
+    "description": "Output directory (execute)",
+    "required": false
+   }
+  },
+  "outputs": {
+   "summary": {
+    "type": "json",
+    "description": "Crosstrack summary"
+   }
+  },
+  "steps": [
+   {
+    "id": "crosstrack",
+    "processId": "crosstrack-overlay",
+    "title": "Run crosstrack overlay",
+    "inputs": {
+     "mode": "${recipe.inputs.mode}",
+     "runDir": "${recipe.inputs.runDir}",
+     "outDir": "${recipe.inputs.outDir}"
+    },
+    "outputs": {
+     "summary": "summary"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "high",
+  "cookbookUri": "http://localhost:8081/recipes/multi-track-crosstrack"
+ },
+ "rijnland-peil-conflict-live": {
+  "id": "rijnland-peil-conflict-live",
+  "title": "Rijnland peil conflict (CDC lake snapshot)",
+  "description": "Hybrid: freshness gate on CDC-applied peilen silver, then replay/execute rijnland-peil-conflict. Stream table is lake-only (no RisingWave).",
+  "version": "1.0.0",
+  "tags": [
+   "poc-rijnland",
+   "peil",
+   "cdc",
+   "live",
+   "hybrid"
+  ],
+  "requiredProcesses": [
+   "rijnland-peil-conflict"
+  ],
+  "inputs": {
+   "mode": {
+    "type": "string",
+    "description": "replay|execute (default replay)",
+    "required": false
+   },
+   "runDir": {
+    "type": "string",
+    "description": "Optional existing peil-conflict run dir",
+    "required": false
+   },
+   "streamSnapshotUri": {
+    "type": "string",
+    "description": "Optional lake:// URI of CDC-applied peilen (default from stream-views)",
+    "required": false
+   },
+   "maxFreshnessSeconds": {
+    "type": "number",
+    "description": "Fail soft-check if CDC silver older than this (informational in process summary)",
+    "required": false
+   }
+  },
+  "outputs": {
+   "summary": {
+    "type": "json",
+    "description": "Peil-conflict summary plus CDC freshness metadata"
+   }
+  },
+  "steps": [
+   {
+    "id": "peil",
+    "processId": "rijnland-peil-conflict",
+    "title": "Rijnland peil conflict (with CDC hint)",
+    "inputs": {
+     "mode": "${recipe.inputs.mode}",
+     "runDir": "${recipe.inputs.runDir}"
+    },
+    "outputs": {
+     "summary": "summary"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "high",
+  "cookbookUri": "http://localhost:8081/recipes/rijnland-peil-conflict-live"
+ },
+ "rijnland-peil-conflict": {
+  "id": "rijnland-peil-conflict",
+  "title": "Rijnland peil conflict",
+  "description": "PoC-3: peilgebied (vigerend) \u00d7 peilafwijking (praktijk) via OGC process rijnland-peil-conflict (replay of canonical run).",
+  "version": "1.0.0",
+  "tags": [
+   "poc-rijnland",
+   "peil",
+   "h3",
+   "conflict"
+  ],
+  "requiredProcesses": [
+   "rijnland-peil-conflict"
+  ],
+  "inputs": {
+   "mode": {
+    "type": "string",
+    "description": "replay|execute (default replay)",
+    "required": false
+   },
+   "runDir": {
+    "type": "string",
+    "description": "Path to poc-rijnland/runs/*rijnland-peil* (default: latest)",
+    "required": false
+   }
+  },
+  "outputs": {
+   "summary": {
+    "type": "json",
+    "description": "Peil-conflict summary (verdict, areas, optional H3)"
+   }
+  },
+  "steps": [
+   {
+    "id": "peil",
+    "processId": "rijnland-peil-conflict",
+    "title": "Rijnland peil conflict",
+    "inputs": {
+     "mode": "${recipe.inputs.mode}",
+     "runDir": "${recipe.inputs.runDir}"
+    },
+    "outputs": {
+     "summary": "summary"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "medium",
+  "cookbookUri": "http://localhost:8081/recipes/rijnland-peil-conflict"
+ },
+ "rijnland-peil-whatif": {
+  "id": "rijnland-peil-whatif",
+  "title": "Rijnland peilen what-if (CDC)",
+  "description": "What-if peilen delta \u2192 CDC bronze/silver \u2192 whatif-report + multi-scenario whatif-map.html (demo pack map-only) + optional conflict replay. Lake-only for the active scenario.",
+  "version": "1.0.0",
+  "tags": [
+   "poc-rijnland",
+   "peil",
+   "whatif",
+   "cdc",
+   "scenario",
+   "simulation"
+  ],
+  "requiredProcesses": [
+   "rijnland-peil-whatif"
+  ],
+  "inputs": {
+   "delta_m": {
+    "type": "number",
+    "description": "Delta in metres (mNAP), e.g. 0.05 for +5 cm",
+    "required": true
+   },
+   "layer": {
+    "type": "string",
+    "description": "polders|boezem|all",
+    "required": false
+   },
+   "limit": {
+    "type": "number",
+    "description": "Optional max stations",
+    "required": false
+   },
+   "scenarioId": {
+    "type": "string",
+    "description": "Scenario id",
+    "required": false
+   },
+   "scenarioPath": {
+    "type": "string",
+    "description": "Optional scenario JSON path",
+    "required": false
+   },
+   "applyToLake": {
+    "type": "boolean",
+    "description": "Write CDC batch and apply silver (default true)",
+    "required": false
+   }
+  },
+  "outputs": {
+   "summary": {
+    "type": "json",
+    "description": "What-if summary (runDir, stationsTouched, silverUri, mapHtml, scenariosOnMap, conflictVerdict)"
+   }
+  },
+  "steps": [
+   {
+    "id": "whatif",
+    "processId": "rijnland-peil-whatif",
+    "title": "Apply peilen what-if via CDC lake",
+    "inputs": {
+     "delta_m": "${recipe.inputs.delta_m}",
+     "layer": "${recipe.inputs.layer}",
+     "limit": "${recipe.inputs.limit}",
+     "scenarioId": "${recipe.inputs.scenarioId}",
+     "scenarioPath": "${recipe.inputs.scenarioPath}",
+     "applyToLake": "${recipe.inputs.applyToLake}"
+    },
+    "outputs": {
+     "summary": "summary"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "high",
+  "cookbookUri": "http://localhost:8081/recipes/rijnland-peil-whatif"
+ },
+ "source-monitor-run": {
+  "id": "source-monitor-run",
+  "title": "Source monitor (open-data continuity)",
+  "description": "Deterministic ArcGIS REST probes vs sources.json; machine diff + change report + registry patch proposal. Never auto-applies \u2014 human merges (V4).",
+  "version": "1.0.0",
+  "tags": [
+   "source-monitor",
+   "continuity",
+   "phase-sm",
+   "dataspace"
+  ],
+  "requiredProcesses": [
+   "source-monitor-probe"
+  ],
+  "inputs": {
+   "mode": {
+    "type": "string",
+    "description": "replay|live (default replay)",
+    "required": false
+   },
+   "watchlistPath": {
+    "type": "string",
+    "description": "Path to watchlist JSON",
+    "required": false
+   },
+   "fixtureDir": {
+    "type": "string",
+    "description": "Fixture dir for replay mode",
+    "required": false
+   },
+   "outDir": {
+    "type": "string",
+    "description": "Output run directory",
+    "required": false
+   }
+  },
+  "outputs": {
+   "summary": {
+    "type": "json",
+    "description": "Monitor summary (severity, paths, validationReport)"
+   }
+  },
+  "steps": [
+   {
+    "id": "probe",
+    "processId": "source-monitor-probe",
+    "title": "Probe and diff open-data sources",
+    "inputs": {
+     "mode": "${recipe.inputs.mode}",
+     "watchlistPath": "${recipe.inputs.watchlistPath}",
+     "fixtureDir": "${recipe.inputs.fixtureDir}",
+     "outDir": "${recipe.inputs.outDir}"
+    },
+    "outputs": {
+     "summary": "summary"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "high",
+  "cookbookUri": "http://localhost:8081/recipes/source-monitor-run"
+ },
+ "spatial-overlay-analysis": {
+  "id": "spatial-overlay-analysis",
+  "title": "Spatial Overlay Analysis",
+  "description": "Generic nLDT reference recipe: fetch two layers, intersect, compute area statistics. Use-case agnostic.",
+  "version": "1.0.0",
+  "tags": [
+   "spatial",
+   "overlay",
+   "analysis",
+   "generic"
+  ],
+  "requiredData": [
+   {
+    "id": "aoi",
+    "role": "aoi",
+    "format": "geojson"
+   },
+   {
+    "id": "layerA",
+    "role": "reference_layer",
+    "format": "url"
+   },
+   {
+    "id": "layerB",
+    "role": "context_layer",
+    "format": "url"
+   }
+  ],
+  "requiredProcesses": [
+   "fetch-features",
+   "spatial-intersection",
+   "compute-area-statistics"
+  ],
+  "inputs": {
+   "aoi": {
+    "type": "geojson",
+    "description": "Area of interest polygon",
+    "required": true
+   },
+   "layerAUri": {
+    "type": "uri",
+    "description": "URI to layer A GeoJSON",
+    "required": true
+   },
+   "layerBUri": {
+    "type": "uri",
+    "description": "URI to layer B GeoJSON",
+    "required": true
+   }
+  },
+  "outputs": {
+   "intersection": {
+    "type": "geojson",
+    "description": "Intersection FeatureCollection"
+   },
+   "statistics": {
+    "type": "json",
+    "description": "Area statistics in m\u00b2"
+   }
+  },
+  "steps": [
+   {
+    "id": "fetch-layer-a",
+    "processId": "fetch-features",
+    "title": "Fetch layer A",
+    "inputs": {
+     "source": "${recipe.inputs.layerAUri}",
+     "aoi": "${recipe.inputs.aoi}"
+    },
+    "outputs": {
+     "features": "features"
+    },
+    "backend": "local"
+   },
+   {
+    "id": "fetch-layer-b",
+    "processId": "fetch-features",
+    "title": "Fetch layer B",
+    "inputs": {
+     "source": "${recipe.inputs.layerBUri}",
+     "aoi": "${recipe.inputs.aoi}"
+    },
+    "outputs": {
+     "features": "features"
+    },
+    "backend": "local"
+   },
+   {
+    "id": "intersect",
+    "processId": "spatial-intersection",
+    "title": "Spatial intersection",
+    "inputs": {
+     "layerA": "${steps.fetch-layer-a.outputs.features}",
+     "layerB": "${steps.fetch-layer-b.outputs.features}"
+    },
+    "outputs": {
+     "result": "intersection"
+    },
+    "backend": "local"
+   },
+   {
+    "id": "stats",
+    "processId": "compute-area-statistics",
+    "title": "Compute area statistics",
+    "inputs": {
+     "features": "${steps.intersect.outputs.result}"
+    },
+    "outputs": {
+     "statistics": "statistics"
+    },
+    "backend": "local"
+   }
+  ],
+  "visualizationHint": {
+   "preferredFormat": "geojson",
+   "layerTitle": "Overlay result"
+  },
+  "riskLevel": "low",
+  "cookbookUri": "http://localhost:8081/recipes/spatial-overlay-analysis"
+ },
+ "thk-02-having-a-baby": {
+  "id": "thk-02-having-a-baby",
+  "title": "The Key THK-02 \u2014 'I'm having a baby'",
+  "description": "Life-event recipe (reactive \u2192 proactive): zwangerschap start het traject v\u00f3\u00f3r de geboorte; geboorteaangifte binnen 5 dagen; keten naar SVB, Belastingdienst en zorgverzekeraar. testpunten G2\u2013G5 (kern G2\u00b7G5 volgens The Key \u00d7 PDC); complexe situaties (erkenning, buitenlandse ouder) \u2192 medewerker.",
+  "version": "1.0.0",
+  "tags": [
+   "hcs",
+   "edic",
+   "the-key",
+   "thk-02",
+   "life-event",
+   "proactive"
+  ],
+  "requiredProcesses": [
+   "hcs-life-event-run"
+  ],
+  "inputs": {
+   "persona": {
+    "type": "string",
+    "description": "persona-id: lot|fatima",
+    "required": false
+   },
+   "mode": {
+    "type": "string",
+    "description": "replay|execute",
+    "required": false
+   }
+  },
+  "outputs": {
+   "run": {
+    "type": "json",
+    "description": "HCS run-artefact (vijf stappen)"
+   }
+  },
+  "steps": [
+   {
+    "id": "life-event",
+    "processId": "hcs-life-event-run",
+    "title": "Vijf-stappen-run 'Ik krijg een kind'",
+    "inputs": {
+     "recipeId": "thk-02-having-a-baby",
+     "persona": "${recipe.inputs.persona}",
+     "mode": "${recipe.inputs.mode}"
+    },
+    "outputs": {
+     "run": "run"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "medium",
+  "service": {
+   "dish": "the-key",
+   "lifeEventCode": "THK-02",
+   "serviceType": "proactive",
+   "blueprintSteps": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "parties": [
+    {
+     "name": "Gemeente Zoetermeer",
+     "role": "lead \u2014 Burgerzaken; Sociaal Domein (PDC-vraag 17)"
+    },
+    {
+     "name": "SVB",
+     "role": "kinderbijslag"
+    },
+    {
+     "name": "Belastingdienst",
+     "role": "toeslagen"
+    },
+    {
+     "name": "Zorgverzekeraar",
+     "role": "verzekering kind"
+    }
+   ],
+   "legalBasis": [
+    {
+     "basis": "Wet BRP",
+     "timeLimit": "melding binnen 5 dagen"
+    },
+    {
+     "basis": "Burgerlijk Wetboek (erkenning, naamgeving)",
+     "timeLimit": "v\u00f3\u00f3r geboorte of bij aangifte"
+    }
+   ],
+   "humanMeasure": {
+    "handover": [
+     "Complexe situaties (erkenning, buitenlandse ouder) \u2192 medewerker"
+    ],
+    "exceptions": [
+     "erkenning",
+     "gezag",
+     "buitenlandse akten"
+    ]
+   },
+   "localVariant": "kraamzorg-matching via gemeentelijke voorkeurslijst",
+   "genAiTestPoints": [
+    {
+     "point": "G2",
+     "description": "Proactief voorstel: verlof, kraamzorg, kinderegelingen",
+     "testCases": [
+      "persona lot"
+     ]
+    },
+    {
+     "point": "G3",
+     "description": "Consent per ketenpartij",
+     "testCases": [
+      "toestemming SVB/toeslagen"
+     ]
+    },
+    {
+     "point": "G4",
+     "description": "Geboorteaangifte digitaal binnen 5 dagen",
+     "testCases": [
+      "digitale aangifte"
+     ]
+    },
+    {
+     "point": "G5",
+     "description": "Proactief signaleren kinderbijslag en toeslagen",
+     "testCases": [
+      "signaal v\u00f3\u00f3r termijn"
+     ]
+    }
+   ],
+   "kpis": [
+    {
+     "kpi": "Birth registrations done digitally",
+     "kpiType": "output",
+     "unit": "%",
+     "outcomeLens": "\u2014",
+     "baseline": "",
+     "target": "",
+     "dataSource": "BRP",
+     "frequency": "monthly",
+     "kviRollup": "KVI 5 (Digital) \u00b7 Zoetermeer business case"
+    }
+   ]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/thk-02-having-a-baby"
+ },
+ "thk-08-move-home": {
+  "id": "thk-08-move-home",
+  "title": "The Key THK-08 \u2014 'I want to move home'",
+  "description": "Life-event recipe uit de Human-Centred Services Blueprint (EDIC): verhuizen als \u00e9\u00e9n gesorteerde reis over gemeente, energie, bank, verzekeraar en zorgverzekeraar. Vijf stappen met mens-agent-grens (adresonderzoek \u2192 medewerker), testpunten G1\u2013G5 (kern G1\u00b7G4 volgens The Key \u00d7 PDC) en de KPI's uit het framework. Deterministische replay via hcs-life-event-run.",
+  "version": "1.0.0",
+  "tags": [
+   "hcs",
+   "edic",
+   "the-key",
+   "thk-08",
+   "life-event"
+  ],
+  "requiredProcesses": [
+   "hcs-life-event-run"
+  ],
+  "inputs": {
+   "persona": {
+    "type": "string",
+    "description": "persona-id: sanne|ahmed|maria|jeroen",
+    "required": false
+   },
+   "mode": {
+    "type": "string",
+    "description": "replay|execute",
+    "required": false
+   }
+  },
+  "outputs": {
+   "run": {
+    "type": "json",
+    "description": "HCS run-artefact (vijf stappen)"
+   }
+  },
+  "steps": [
+   {
+    "id": "life-event",
+    "processId": "hcs-life-event-run",
+    "title": "Vijf-stappen-run 'Ik ga verhuizen'",
+    "inputs": {
+     "recipeId": "thk-08-move-home",
+     "persona": "${recipe.inputs.persona}",
+     "mode": "${recipe.inputs.mode}"
+    },
+    "outputs": {
+     "run": "run"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "medium",
+  "service": {
+   "dish": "the-key",
+   "lifeEventCode": "THK-08",
+   "serviceType": "reactive",
+   "blueprintSteps": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "parties": [
+    {
+     "name": "Gemeente Zoetermeer",
+     "role": "lead \u2014 Burgerzaken (PDC-vraag 8 + 6)"
+    },
+    {
+     "name": "Energie- en netbeheerder",
+     "role": "adres- en levering"
+    },
+    {
+     "name": "Bank",
+     "role": "adresgegevens"
+    },
+    {
+     "name": "Verzekeraar",
+     "role": "polisgegevens"
+    },
+    {
+     "name": "Zorgverzekeraar",
+     "role": "inschrijving"
+    }
+   ],
+   "legalBasis": [
+    {
+     "basis": "Wet BRP",
+     "timeLimit": "redelijke termijn (Awb)"
+    },
+    {
+     "basis": "Wegenverkeerswet / APV (parkeren)",
+     "timeLimit": "8 weken (Awb)"
+    }
+   ],
+   "humanMeasure": {
+    "handover": [
+     "Adresonderzoek bij twijfel \u2192 medewerker"
+    ],
+    "exceptions": [
+     "adresonderzoek",
+     "bewindsvoering/curatele"
+    ]
+   },
+   "localVariant": "gemeentelijk parkeerbeleid en afvalpas-regime",
+   "genAiTestPoints": [
+    {
+     "point": "G1",
+     "description": "Intake-assistent vraagt alleen wat niet in de BRP staat; meertalig, plain language",
+     "testCases": [
+      "persona ahmed (lage geletterdheid)",
+      "persona maria (andere taal)"
+     ]
+    },
+    {
+     "point": "G2",
+     "description": "Matching: \u00e9\u00e9n samenhangend voorstel uit de PDC",
+     "testCases": [
+      "voorstel bevat alle vijf partijen"
+     ]
+    },
+    {
+     "point": "G3",
+     "description": "Consent uitleggen: wie ziet wat, per partij per periode",
+     "testCases": [
+      "persona jeroen (bewindsvoering)"
+     ]
+    },
+    {
+     "point": "G4",
+     "description": "Agentic orkestratie over partijen met status-uitleg",
+     "testCases": [
+      "parallelle afhandeling",
+      "attestatie in wallet"
+     ]
+    },
+    {
+     "point": "G5",
+     "description": "Proactieve follow-up: rechten zonder nieuwe aanvraag; stuck \u2192 mens neemt over",
+     "testCases": [
+      "persona jeroen \u2192 wijkteam"
+     ]
+    }
+   ],
+   "kpis": [
+    {
+     "kpi": "Moves processed without manual handling",
+     "kpiType": "outcome",
+     "unit": "%",
+     "outcomeLens": "Z",
+     "baseline": "",
+     "target": "",
+     "dataSource": "case system",
+     "frequency": "monthly",
+     "kviRollup": "KVI 5 (Digital) \u00b7 Zoetermeer business case"
+    }
+   ]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/thk-08-move-home"
+ },
+ "thk-24-build-renovate": {
+  "id": "thk-24-build-renovate",
+  "title": "The Key THK-24 \u2014 'I want to build or renovate'",
+  "description": "Life-event recipe: bouwplan \u2192 vergunningcheck (Omgevingsloket) \u2192 aanvraag \u2192 beoordeling door de mens \u2192 besluit binnen 8 weken (regulier). De vergunningcheck gebruikt de bestaande MiniGIM-gebiedscheck als ingredient (declaratief: canonieke run; live koppeling in een latere fase). Doctrine: AI stelt voor \u00b7 mens beslist.",
+  "version": "1.0.0",
+  "tags": [
+   "hcs",
+   "edic",
+   "the-key",
+   "thk-24",
+   "life-event",
+   "omgevingswet"
+  ],
+  "requiredProcesses": [
+   "hcs-life-event-run",
+   "minigim-gebiedscheck-run"
+  ],
+  "inputs": {
+   "persona": {
+    "type": "string",
+    "description": "persona-id: noor|peter",
+    "required": false
+   },
+   "mode": {
+    "type": "string",
+    "description": "replay|execute",
+    "required": false
+   }
+  },
+  "outputs": {
+   "run": {
+    "type": "json",
+    "description": "HCS run-artefact (vijf stappen)"
+   }
+  },
+  "steps": [
+   {
+    "id": "life-event",
+    "processId": "hcs-life-event-run",
+    "title": "Vijf-stappen-run 'Ik wil bouwen of renoveren'",
+    "inputs": {
+     "recipeId": "thk-24-build-renovate",
+     "persona": "${recipe.inputs.persona}",
+     "mode": "${recipe.inputs.mode}"
+    },
+    "outputs": {
+     "run": "run"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "high",
+  "service": {
+   "dish": "the-key",
+   "lifeEventCode": "THK-24",
+   "serviceType": "reactive",
+   "blueprintSteps": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "parties": [
+    {
+     "name": "Gemeente",
+     "role": "Vergunningen / Omgevingsloket (PDC-vraag 10)"
+    },
+    {
+     "name": "Omgevingsloket Rijk",
+     "role": "vergunningcheck (SDG)"
+    },
+    {
+     "name": "MiniGIM gebiedscheck",
+     "role": "ingredient \u2014 canonieke gebiedsrun"
+    }
+   ],
+   "legalBasis": [
+    {
+     "basis": "Omgevingswet",
+     "timeLimit": "8 weken (regulier) / 26 weken (uitgebreid)"
+    }
+   ],
+   "humanMeasure": {
+    "handover": [
+     "Beoordeling en besluit door vergunningverlener (V4-mens)"
+    ],
+    "exceptions": [
+     "beschermd gezicht / monument",
+     "uitgebreide procedure"
+    ]
+   },
+   "localVariant": "gemeentelijke welstandscriteria en APV-bepalingen",
+   "genAiTestPoints": [
+    {
+     "point": "G1",
+     "description": "Bouwplan in eigen woorden; aanvullende vragen alleen waar het plan dat vraagt",
+     "testCases": [
+      "persona noor"
+     ]
+    },
+    {
+     "point": "G2",
+     "description": "Vergunningcheck v\u00f3\u00f3r de aanvraag (matching plan \u2194 regels)",
+     "testCases": [
+      "persona peter (beschermd gezicht)"
+     ]
+    },
+    {
+     "point": "G3",
+     "description": "Documentcheck: complete aanvraag bij eerste inzending",
+     "testCases": [
+      "brondocumenten"
+     ]
+    },
+    {
+     "point": "G5",
+     "description": "Proactief: bouwtoezicht- en vervolgstappen na besluit",
+     "testCases": [
+      "follow-up na besluit"
+     ]
+    }
+   ],
+   "kpis": [
+    {
+     "kpi": "Decision within 8 weeks (regular)",
+     "kpiType": "output",
+     "unit": "%",
+     "outcomeLens": "\u2014",
+     "baseline": "",
+     "target": "",
+     "dataSource": "case system",
+     "frequency": "monthly",
+     "kviRollup": "KVI 5 (Digital) \u00b7 Zoetermeer business case"
+    }
+   ]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/thk-24-build-renovate"
+ },
+ "timeseries-open-ingest": {
+  "id": "timeseries-open-ingest",
+  "title": "Open time-series ingest (silver)",
+  "description": "Curated TS ingest: Rijnland peilen/WKP + KNMI Gilze-Rijen (350) + CBS KWB Breda \u2192 bronze + silver/timeseries. Cross-twin lake layer for Elasticsearch discovery.",
+  "version": "1.1.0",
+  "tags": [
+   "timeseries",
+   "lake",
+   "open-data",
+   "knmi",
+   "cbs",
+   "breda",
+   "rijnland"
+  ],
+  "requiredProcesses": [
+   "timeseries-ingest-run"
+  ],
+  "inputs": {
+   "includePeilen": {
+    "type": "boolean",
+    "description": "Normalize Rijnland peilen (restricted)",
+    "required": false
+   },
+   "includeWkp": {
+    "type": "boolean",
+    "description": "Normalize Rijnland WKP monthly",
+    "required": false
+   },
+   "includeKnmi": {
+    "type": "boolean",
+    "description": "Ingest KNMI Gilze-Rijen (station 350) tmax/tmean/neerslag for Breda",
+    "required": false
+   },
+   "includeCbs": {
+    "type": "boolean",
+    "description": "Ingest CBS Kerncijfers wijken/buurten for Breda (PoC-aligned fields)",
+    "required": false
+   },
+   "maxPeilStations": {
+    "type": "integer",
+    "description": "Optional station cap; omit or \u22640 = all stations in peilen.json (default: all)",
+    "required": false
+   }
+  },
+  "outputs": {
+   "summary": {
+    "type": "json",
+    "description": "Ingest summary with series lake URIs"
+   }
+  },
+  "steps": [
+   {
+    "id": "ingest",
+    "processId": "timeseries-ingest-run",
+    "title": "Ingest open time-series wave",
+    "inputs": {
+     "includePeilen": "${recipe.inputs.includePeilen}",
+     "includeWkp": "${recipe.inputs.includeWkp}",
+     "includeKnmi": "${recipe.inputs.includeKnmi}",
+     "includeCbs": "${recipe.inputs.includeCbs}",
+     "maxPeilStations": "${recipe.inputs.maxPeilStations}"
+    },
+    "outputs": {
+     "summary": "summary"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "medium",
+  "cookbookUri": "http://localhost:8081/recipes/timeseries-open-ingest"
+ },
+ "uam-01-medical-logistics": {
+  "id": "uam-01-medical-logistics",
+  "title": "Urban Air Mobility UAM-01 \u2014 'I want medical logistics by air'",
+  "description": "City-recipe: ziekenhuis \u2192 monster \u2192 dronecorridor \u2192 lab in minuten. De route wordt getoetst aan beschermde zones; wijkt ze af van de vaste corridor, dan bevestigt een mens de omweg. KPI: tijdswinst ten opzichte van de weg. Deterministische replay via hcs-recipe-run.",
+  "version": "1.0.0",
+  "tags": [
+   "hcs",
+   "edic",
+   "urban-air-mobility",
+   "uam-01",
+   "city-recipe"
+  ],
+  "requiredProcesses": [
+   "hcs-recipe-run"
+  ],
+  "inputs": {
+   "scenario": {
+    "type": "string",
+    "description": "scenario-id: routine|spoed",
+    "required": false
+   },
+   "mode": {
+    "type": "string",
+    "description": "replay|execute",
+    "required": false
+   },
+   "lang": {
+    "type": "string",
+    "description": "nl|en",
+    "required": false
+   }
+  },
+  "outputs": {
+   "run": {
+    "type": "json",
+    "description": "HCS run-artefact"
+   }
+  },
+  "steps": [
+   {
+    "id": "run",
+    "processId": "hcs-recipe-run",
+    "title": "Replay medische logistiek",
+    "inputs": {
+     "recipeId": "uam-01-medical-logistics",
+     "scenario": "${recipe.inputs.scenario}",
+     "mode": "${recipe.inputs.mode}",
+     "lang": "${recipe.inputs.lang}"
+    },
+    "outputs": {
+     "run": "run"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "medium",
+  "service": {
+   "dish": "urban-air-mobility",
+   "lifeEventCode": "UAM-01",
+   "serviceType": "cargo",
+   "parties": [
+    {
+     "name": "Ziekenhuis",
+     "role": "afzender en ontvanger"
+    },
+    {
+     "name": "Drone-operator",
+     "role": "uitvoering"
+    },
+    {
+     "name": "Gemeente",
+     "role": "corridor- en zones-beheer"
+    }
+   ],
+   "legalBasis": [
+    {
+     "basis": "Omgevingswet / droneswetgeving (U-space)",
+     "timeLimit": "per zending geregistreerd"
+    }
+   ],
+   "humanMeasure": {
+    "handover": [
+     "Afwijkende route (buiten de vaste corridor) \u2192 mens bevestigt"
+    ],
+    "exceptions": [
+     "spoed bij slecht weer",
+     "noodzendingen"
+    ]
+   },
+   "localVariant": "corridor-keuze is gemeentelijk beleid",
+   "genAiTestPoints": [
+    {
+     "point": "G2",
+     "description": "Routekiezer stelt alleen routes voor binnen toegestane corridors",
+     "testCases": [
+      "routine-route blijft binnen corridor"
+     ]
+    },
+    {
+     "point": "G4",
+     "description": "Status-uitleg naar ziekenhuis en lab",
+     "testCases": [
+      "beide eindpunten zien dezelfde status"
+     ]
+    },
+    {
+     "point": "G5",
+     "description": "Tijdswinst wordt geregistreerd en teruggekoppeld",
+     "testCases": [
+      "KPI-effect per zending"
+     ]
+    }
+   ],
+   "kpis": [
+    {
+     "kpi": "Delivery-time reduction vs road",
+     "kpiType": "outcome",
+     "unit": "%",
+     "outcomeLens": "W",
+     "baseline": "",
+     "target": "",
+     "dataSource": "logistics logs",
+     "frequency": "monthly",
+     "kviRollup": "KVI 1 (Mobility: clean, shared) \u00b7 KVI 5 (Digital)"
+    }
+   ]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/uam-01-medical-logistics"
+ },
+ "uam-09-geofencing-zones": {
+  "id": "uam-09-geofencing-zones",
+  "title": "Urban Air Mobility UAM-09 \u2014 'I want geofencing & security zones'",
+  "description": "City-recipe: beschermde en no-flyzones worden op de drone-kaart vastgelegd, getoetst aan bestaande zones en corridors, en via het U-space-identificatiesysteem automatisch naar drones uitgezonden. Raakt een tijdelijke zone een vaste corridor, dan weegt een mens de belangen. KPI: aantal vastgelegde beschermde zones (geo-registry, per kwartaal). Deterministische replay via hcs-recipe-run.",
+  "version": "1.0.0",
+  "tags": [
+   "hcs",
+   "edic",
+   "urban-air-mobility",
+   "uam-09",
+   "city-recipe"
+  ],
+  "requiredProcesses": [
+   "hcs-recipe-run"
+  ],
+  "inputs": {
+   "scenario": {
+    "type": "string",
+    "description": "scenario-id: ziekenhuis|evenement",
+    "required": false
+   },
+   "mode": {
+    "type": "string",
+    "description": "replay|execute",
+    "required": false
+   },
+   "lang": {
+    "type": "string",
+    "description": "nl|en",
+    "required": false
+   }
+  },
+  "outputs": {
+   "run": {
+    "type": "json",
+    "description": "HCS run-artefact"
+   }
+  },
+  "steps": [
+   {
+    "id": "run",
+    "processId": "hcs-recipe-run",
+    "title": "Replay geofencing-zones",
+    "inputs": {
+     "recipeId": "uam-09-geofencing-zones",
+     "scenario": "${recipe.inputs.scenario}",
+     "mode": "${recipe.inputs.mode}",
+     "lang": "${recipe.inputs.lang}"
+    },
+    "outputs": {
+     "run": "run"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "high",
+  "service": {
+   "dish": "urban-air-mobility",
+   "lifeEventCode": "UAM-09",
+   "serviceType": "infrastructure",
+   "parties": [
+    {
+     "name": "Gemeente",
+     "role": "zone-beheer en publicatie (Openbare Ruimte)"
+    },
+    {
+     "name": "Drone-operators",
+     "role": "ontvangen zones via het identificatiesysteem"
+    },
+    {
+     "name": "Handhaver",
+     "role": "opvolgen van zone-schendingen"
+    }
+   ],
+   "legalBasis": [
+    {
+     "basis": "Omgevingswet / droneswetgeving (U-space)",
+     "timeLimit": "zones v\u00f3\u00f3r publicatie getoetst"
+    }
+   ],
+   "humanMeasure": {
+    "handover": [
+     "Tijdelijke zone die een corridor raakt \u2192 mens weegt belangen"
+    ],
+    "exceptions": [
+     "handhaving blijft mensenwerk \u2014 geen automatische boetes"
+    ]
+   },
+   "localVariant": "zone-keuze is gemeentelijk beleid (Openbare Ruimte)",
+   "genAiTestPoints": [
+    {
+     "point": "G2",
+     "description": "Zonetoetser vindt botsingen met corridors en bestaande zones v\u00f3\u00f3r publicatie",
+     "testCases": [
+      "evenementzone raakt corridor \u2192 mens weegt belangen"
+     ]
+    },
+    {
+     "point": "G5",
+     "description": "Signaal bij zone-schending gaat naar de handhaver; mens beslist over optreden",
+     "testCases": [
+      "schending wordt (op tijd) gemeld"
+     ]
+    }
+   ],
+   "kpis": [
+    {
+     "kpi": "Protected / geofenced zones defined",
+     "kpiType": "output",
+     "unit": "#",
+     "outcomeLens": "\u2014",
+     "baseline": "",
+     "target": "",
+     "dataSource": "geo-registry",
+     "frequency": "quarterly",
+     "kviRollup": "KVI 1 (Mobility: clean, shared) \u00b7 KVI 5 (Digital)"
+    }
+   ]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/uam-09-geofencing-zones"
+ },
+ "utrecht-opportunity-map": {
+  "id": "utrecht-opportunity-map",
+  "title": "Utrecht opportunity-map (replay)",
+  "description": "Plane A via nLDT: replay summary of a canonical poc/runs opportunity-map (execute mode available on the process).",
+  "version": "1.0.0",
+  "tags": [
+   "poc-utrecht",
+   "opportunity-map",
+   "plane-a",
+   "legal"
+  ],
+  "requiredProcesses": [
+   "opportunity-map-run"
+  ],
+  "inputs": {
+   "useCase": {
+    "type": "string",
+    "description": "wind|zon|bos",
+    "required": true
+   },
+   "runDir": {
+    "type": "string",
+    "description": "Optional existing run dir",
+    "required": false
+   }
+  },
+  "outputs": {
+   "summary": {
+    "type": "json",
+    "description": "Opportunity-map run summary"
+   }
+  },
+  "steps": [
+   {
+    "id": "replay",
+    "processId": "opportunity-map-run",
+    "title": "Replay opportunity-map summary",
+    "inputs": {
+     "mode": "replay",
+     "useCase": "${recipe.inputs.useCase}",
+     "runDir": "${recipe.inputs.runDir}"
+    },
+    "outputs": {
+     "summary": "summary"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "high",
+  "cookbookUri": "http://localhost:8081/recipes/utrecht-opportunity-map"
+ },
+ "utrecht-scenario-author": {
+  "id": "utrecht-scenario-author",
+  "title": "Utrecht scenario author (S7 proposals)",
+  "description": "GENAI seam S7 via nLDT: hybrid (det floor + LLM explorer) scenario proposals from a baseline run (reject ledger; no zone writes). Override author=auto|llm|hybrid via process inputs.",
+  "version": "1.1.0",
+  "tags": [
+   "poc-utrecht",
+   "scenario",
+   "s7",
+   "proposals",
+   "hybrid"
+  ],
+  "requiredProcesses": [
+   "scenario-author-propose"
+  ],
+  "inputs": {
+   "useCase": {
+    "type": "string",
+    "description": "wind|zon|bos",
+    "required": false
+   },
+   "baselineRunDir": {
+    "type": "string",
+    "description": "Baseline poc/runs dir",
+    "required": false
+   },
+   "maxScenarios": {
+    "type": "integer",
+    "description": "Effort budget",
+    "required": false
+   },
+   "author": {
+    "type": "string",
+    "description": "auto|llm|hybrid (recipe default hybrid)",
+    "required": false
+   }
+  },
+  "outputs": {
+   "proposals": {
+    "type": "json",
+    "description": "Accepted + rejected proposals"
+   }
+  },
+  "steps": [
+   {
+    "id": "propose",
+    "processId": "scenario-author-propose",
+    "title": "Propose scenarios",
+    "inputs": {
+     "author": "hybrid",
+     "useCase": "${recipe.inputs.useCase}",
+     "baselineRunDir": "${recipe.inputs.baselineRunDir}",
+     "maxScenarios": "${recipe.inputs.maxScenarios}"
+    },
+    "outputs": {
+     "proposals": "proposals"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "high",
+  "cookbookUri": "http://localhost:8081/recipes/utrecht-scenario-author"
+ },
+ "utrecht-scenario-sweep": {
+  "id": "utrecht-scenario-sweep",
+  "title": "Utrecht scenario sweep",
+  "description": "Plane B via nLDT: offline scenario sweep against a baseline opportunity-map run (file or auto author, control reproduction).",
+  "version": "1.0.0",
+  "tags": [
+   "poc-utrecht",
+   "scenario",
+   "s7",
+   "plane-b",
+   "legal"
+  ],
+  "requiredProcesses": [
+   "scenario-sweep"
+  ],
+  "inputs": {
+   "useCase": {
+    "type": "string",
+    "description": "wind|zon|bos",
+    "required": true
+   },
+   "baselineRunDir": {
+    "type": "string",
+    "description": "Optional baseline poc/runs dir",
+    "required": false
+   },
+   "author": {
+    "type": "string",
+    "description": "file|auto",
+    "required": false
+   },
+   "outDir": {
+    "type": "string",
+    "description": "Output directory for scenario-runs artifacts",
+    "required": false
+   }
+  },
+  "outputs": {
+   "summary": {
+    "type": "json",
+    "description": "Sweep summary (verdict, areas, outDir)"
+   }
+  },
+  "steps": [
+   {
+    "id": "sweep",
+    "processId": "scenario-sweep",
+    "title": "Run scenario sweep",
+    "inputs": {
+     "useCase": "${recipe.inputs.useCase}",
+     "baselineRunDir": "${recipe.inputs.baselineRunDir}",
+     "author": "${recipe.inputs.author}",
+     "outDir": "${recipe.inputs.outDir}",
+     "noH3": true
+    },
+    "outputs": {
+     "summary": "summary"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "high",
+  "cookbookUri": "http://localhost:8081/recipes/utrecht-scenario-sweep"
+ },
+ "utrecht-world-scene": {
+  "id": "utrecht-world-scene",
+  "title": "Utrecht world scene build",
+  "description": "Plane B copilot: build world-scene-specs.json from a scenario-run (engine GeoJSON refs + gated Marble prompts).",
+  "version": "1.0.0",
+  "tags": [
+   "poc-utrecht",
+   "scenario",
+   "plane-b",
+   "world-model"
+  ],
+  "requiredProcesses": [
+   "world-scene-build"
+  ],
+  "inputs": {
+   "scenarioRunDir": {
+    "type": "string",
+    "description": "poc/scenario-runs/<id> directory",
+    "required": true
+   },
+   "hitlApproved": {
+    "type": "boolean",
+    "description": "Enable Marble explore URL for hypothetical scenarios",
+    "required": false
+   }
+  },
+  "outputs": {
+   "bundle": {
+    "type": "json",
+    "description": "Path and spec count for world-scene-specs.json"
+   }
+  },
+  "steps": [
+   {
+    "id": "scene",
+    "processId": "world-scene-build",
+    "title": "Build world scene specs",
+    "inputs": {
+     "scenarioRunDir": "${recipe.inputs.scenarioRunDir}",
+     "hitlApproved": "${recipe.inputs.hitlApproved}"
+    },
+    "outputs": {
+     "bundle": "bundle"
+    },
+    "backend": "local"
+   }
+  ],
+  "riskLevel": "medium",
+  "cookbookUri": "http://localhost:8081/recipes/utrecht-world-scene"
+ }
+}

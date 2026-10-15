@@ -252,3 +252,12 @@ het log met de herkomst van wat wél geserveerd werd.
 | Poort-/procesconflicten met mesh en nldt-diensten | vaste tabel 9191–9196, gedocumenteerd in README naast de bestaande allocaties |
 | Fixturegrootte (gebouwen) | EUBD-feed optioneel en aparte poort/tenant; run-batches blijven klein |
 | Parallelle agent-sessies in de hoofdwerkmap | uitvoering in geïsoleerde git-worktree op eigen branch (patroon van de NGSI-LD-snede) |
+
+## Addendum 2026-10-14: volledige catalogus
+
+De non-goals in §9 ("geen NGSI-LD subscriptions/temporal/registrations, geen
+live EDC") komen te vervallen sinds de catalogus-uitbreiding
+(`2026-10-14-toolbox-sim-full-catalogue-design.md`): de broker ondersteunt
+subscriptions/temporal/registrations en `dataspace_ready.py` simuleert de
+EDC-flow. Blijvende non-goals: geen echte product-UI's, geen zware
+(GPU/TB-klasse) modellen, geen echte netwerkaflevering van notificaties.

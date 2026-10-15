@@ -11,6 +11,20 @@ SIMULATED = {
     "EU LDT Play & Visualise",
     "EU LDT Use Cases & Scenarios",
     "EU LDT Marketplace",
+    "EU LDT Integrated Environment",
+    "EU LDT AI Notebook",
+    "EU LDT City Innovation Planner",
+    "EU LDT Data Modeller",
+    "EU LDT Data Space Ready",
+    "EU LDT Federated Learning",
+    "EU LDT Participate",
+    "Urban Mobility",
+    "Pollution Propagation",
+    "Neighbourhood Energy Demand Forecasting",
+    "Building Environmental Footprint",
+    "Renovation Strategies",
+    "Urban Planning Vulnerability Mitigation",
+    "Police Routing Tool",
 }
 
 
@@ -35,3 +49,15 @@ def test_simulated_set_matches_spec():
     assert got == SIMULATED
     eubd = [s for s in CAT["solutions"] if s["name"] == "EU Building Database"]
     assert eubd[0]["status"] == "consumed-as-data"
+
+
+def test_catalogue_volledig_gedekt():
+    import json
+    from pathlib import Path
+
+    catalogue = json.loads((Path(__file__).resolve().parents[1] / "catalogue.json").read_text())
+    items = catalogue if isinstance(catalogue, list) else catalogue.get("solutions", [])
+    assert len(items) == 20
+    statuses = {item["status"] for item in items}
+    assert "skipped" not in statuses
+    assert statuses <= {"simulated", "consumed-as-data"}

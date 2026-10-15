@@ -16,6 +16,7 @@ def create_broker_app(
     provenance_by_tenant: dict[str, str],
     include_proxy: bool = False,
     include_trino: bool = False,
+    temporal: dict | None = None,
 ) -> FastAPI:
     app = FastAPI(title="toolbox-sim data-platform", docs_url=None, openapi_url=None)
     add_provenance(app, "data-platform")
@@ -28,6 +29,24 @@ def create_broker_app(
 
     def _prov(x_tenant: str) -> dict:
         return provenance_detail(provenance_by_tenant.get(x_tenant, "toolbox-sim/data-platform"))
+
+    subscriptions: dict[str, dict] = {}
+    subscription_notifications: dict[str, list[dict]] = {}
+    registrations: dict[str, dict] = {}
+    id_seq = {"n": 0}
+    clock_seq = {"n": 0}
+
+    def _sim_clock() -> str:
+        # sim-klok: vaste basis + teller → deterministisch, monotoon, ISO-8601 Z
+        clock_seq["n"] += 1
+        total = clock_seq["n"]
+        hh, rest = divmod(total, 3600)
+        mm, ss = divmod(rest, 60)
+        return f"2026-01-01T{hh:02d}:{mm:02d}:{ss:02d}Z"
+
+    def _next_urn(prefix: str) -> str:
+        id_seq["n"] += 1
+        return f"urn:ngsi-ld:{prefix}:sim-{id_seq['n']}"
 
     @app.get("/health")
     def health() -> dict:
@@ -68,6 +87,111 @@ def create_broker_app(
         tenant = _tenant(x_tenant)
         for entity in batch:
             tenant[entity["id"]] = entity
+
+    @app.post("/ngsi-ld/v1/subscriptions/", status_code=201)
+    def create_subscription(subscription: dict, x_tenant: str = Header(default="ldt", alias="NGSILD-Tenant"), _: dict = Depends(require_bearer)):
+        if subscription.get("type") != "Subscription" or "entities" not in subscription or "notification" not in subscription:
+            return JSONResponse(status_code=400, content={"error": "BadRequest", "description": "Subscription vereist type, entities en notification"})
+        sid = _next_urn("Subscription")
+        subscriptions[sid] = {**subscription, "id": sid, "status": "active"}
+        return Response(status_code=201, headers={"Location": f"/ngsi-ld/v1/subscriptions/{sid}"})
+
+    @app.get("/ngsi-ld/v1/subscriptions/")
+    def list_subscriptions(_: dict = Depends(require_bearer)):
+        return [dict(s) for s in subscriptions.values()]
+
+    @app.get("/ngsi-ld/v1/subscriptions/{sid}")
+    def get_subscription(sid: str, _: dict = Depends(require_bearer)):
+        sub = subscriptions.get(sid)
+        if sub is None:
+            # Taak-4-precedent: top-level {"error": ...} teruggeven; HTTPException-detail
+            # wordt in {"detail": ...} gewrapped, tests asserten r.json()["error"].
+            return JSONResponse(status_code=404, content={"error": "NotFound", "description": sid})
+        return sub
+
+    @app.delete("/ngsi-ld/v1/subscriptions/{sid}", status_code=204)
+    def delete_subscription(sid: str, _: dict = Depends(require_bearer)):
+        subscriptions.pop(sid, None)
+        subscription_notifications.pop(sid, None)
+        return Response(status_code=204)
+
+    @app.post("/ngsi-ld/v1/subscriptions/{sid}/notify")
+    def trigger_notify(sid: str, x_tenant: str = Header(default="ldt", alias="NGSILD-Tenant"), _: dict = Depends(require_bearer)):
+        sub = subscriptions.get(sid)
+        if sub is None:
+            # Taak-4-precedent: top-level {"error": ...} teruggeven; HTTPException-detail
+            # wordt in {"detail": ...} gewrapped, tests asserten r.json()["error"].
+            return JSONResponse(status_code=404, content={"error": "NotFound", "description": sid})
+        watched = [(e.get("id"), e.get("type")) for e in sub.get("entities", [])]
+        tenant = _tenant(x_tenant)
+        matched = [
+            e for e in tenant.values()
+            if any((wid and e.get("id") == wid) or (wtype and e.get("type") == wtype) for wid, wtype in watched)
+        ]
+        payload = {
+            "subscriptionId": sid,
+            "notifiedAt": _sim_clock(),
+            "data": matched,
+        }
+        subscription_notifications.setdefault(sid, []).append(payload)
+        return payload
+
+    @app.get("/ngsi-ld/v1/subscriptions/{sid}/notifications")
+    def list_subscription_notifications(sid: str, _: dict = Depends(require_bearer)):
+        if sid not in subscriptions:
+            # Taak-4-precedent: top-level {"error": ...} teruggeven; HTTPException-detail
+            # wordt in {"detail": ...} gewrapped, tests asserten r.json()["error"].
+            return JSONResponse(status_code=404, content={"error": "NotFound", "description": sid})
+        return {"data": subscription_notifications.get(sid, [])}
+
+    @app.post("/ngsi-ld/v1/registrations/", status_code=201)
+    def create_registration(registration: dict, _: dict = Depends(require_bearer)):
+        if registration.get("type") != "ContextSourceRegistration" or "endpoint" not in registration:
+            return JSONResponse(status_code=400, content={"error": "BadRequest", "description": "ContextSourceRegistration vereist type en endpoint"})
+        rid = _next_urn("ContextSourceRegistration")
+        registrations[rid] = {**registration, "id": rid, "status": "active"}
+        return Response(status_code=201, headers={"Location": f"/ngsi-ld/v1/registrations/{rid}"})
+
+    @app.get("/ngsi-ld/v1/registrations/")
+    def list_registrations(_: dict = Depends(require_bearer)):
+        return [dict(r) for r in registrations.values()]
+
+    @app.delete("/ngsi-ld/v1/registrations/{rid}", status_code=204)
+    def delete_registration(rid: str, _: dict = Depends(require_bearer)):
+        registrations.pop(rid, None)
+        return Response(status_code=204)
+
+    @app.get("/ngsi-ld/v1/temporal/entities/{entity_id}")
+    def temporal_entity(
+        entity_id: str,
+        timerel: str = Query(...),
+        time: str = Query(...),
+        endTime: str | None = Query(default=None),
+        time_property: str = Query(default="observedAt", alias="time_property"),
+        _: dict = Depends(require_bearer),
+    ):
+        entity = (temporal or {}).get(entity_id)
+        if entity is None:
+            # Taak-4-precedent: top-level {"error": ...} teruggeven; HTTPException-detail
+            # wordt in {"detail": ...} gewrapped en de test asserteert r.json()["error"].
+            return JSONResponse(status_code=404, content={"error": "NotFound", "description": entity_id})
+        if timerel not in ("before", "after", "between"):
+            return JSONResponse(status_code=400, content={"error": "BadRequest", "description": "timerel is before|after|between"})
+        if timerel == "between" and not endTime:
+            return JSONResponse(status_code=400, content={"error": "BadRequest", "description": "timerel=between vereist endTime"})
+
+        def _keep(instance: dict) -> bool:
+            stamp = str(instance.get(time_property, ""))
+            if timerel == "before":
+                return stamp <= time
+            if timerel == "after":
+                return stamp >= time
+            return time <= stamp <= (endTime or "")
+
+        instances = [i for i in entity.get("instances", []) if _keep(i)]
+        body = {k: v for k, v in entity.items() if k not in ("instances", "attribute")}
+        body[entity["attribute"]] = [{"type": "Property", "instances": instances}]
+        return body
 
     if include_proxy:
 

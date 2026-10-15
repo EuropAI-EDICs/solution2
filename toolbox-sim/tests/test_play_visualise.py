@@ -37,3 +37,38 @@ def test_datasource_requires_url_422():
 
 def test_requires_bearer():
     assert client.post("/api/dataSources", json=DS_PAYLOAD).status_code == 401
+
+
+def test_ui_map_toont_geregistreerde_lagen():
+    ds = client.post("/api/dataSources", headers=AUTH, json={
+        "name": "zones", "type": "GeoJSON",
+        "sourceConfiguration": {"type": "GeoJSON", "url": "http://localhost:9192/ngsi-ld/v1/entities", "headers": []},
+        "securityConfiguration": {"type": "none", "headers": []},
+    }).json()
+    dl = client.post("/api/dataLayers", headers=AUTH, json={
+        "name": "opportunity-zones", "dataSource": ds["id"], "type": "GeoJSON", "configuration": {},
+    }).json()
+    page = client.get("/ui/map")
+    assert page.status_code == 200
+    assert "text/html" in page.headers["content-type"]
+    assert "Leaflet" in page.text
+    assert "opportunity-zones" in page.text
+    assert dl["dataSource"] in page.text
+
+
+def test_ui_map_escapes_script_breakout_in_layer_name():
+    """Review-finding A: laag-namen mogen het inline <script>-blok niet uit breken."""
+    ds = client.post("/api/dataSources", headers=AUTH, json={
+        "name": "xss-source",
+        "sourceConfiguration": {"type": "EXTERNAL", "url": "http://localhost:8084/exports/wind.geojson", "headers": []},
+        "securityConfiguration": {"type": "OTHER", "headers": []},
+    }).json()
+    client.post("/api/dataLayers", headers=AUTH, json={
+        "name": "</script><b>xss</b>", "dataSource": ds["id"], "type": "SCENARIO", "configuration": {},
+    })
+    page = client.get("/ui/map")
+    assert page.status_code == 200
+    # de ruwe payload mag niet als leesbare HTML/markup in de pagina terechtkomen
+    assert "<b>xss</b>" not in page.text
+    # de LAYERS-json moet de </-escape bevatten: </script> wordt <\/script>
+    assert "<\\/script>" in page.text

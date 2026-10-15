@@ -7,6 +7,7 @@ from pathlib import Path
 
 import httpx
 import pytest
+from fastapi.testclient import TestClient
 
 SIM_ROOT = Path(__file__).resolve().parents[1]
 
@@ -49,3 +50,23 @@ def test_broker_serves_canonical_fixture_over_http(sim):
     zones = r.json()
     assert zones and all(z["id"].startswith("urn:ldt:utrecht:zone:") for z in zones)
     assert r.headers["X-Sim-Provenance"].startswith("toolbox-sim/data-platform")
+
+
+def test_build_apps_basis():
+    from app.server import build_apps
+
+    apps = build_apps(full=False, eubd=False)
+    assert set(apps) == {"identity", "broker", "pv", "ucs", "marketplace"}
+
+
+def test_build_apps_full_omvat_alle_veertien():
+    from app.server import build_apps
+
+    apps = build_apps(full=True, eubd=False)
+    assert set(apps) == {
+        "identity", "broker", "pv", "ucs", "marketplace",
+        "dataspace", "algorithms", "participate", "fl", "ain", "dm", "ie", "cip",
+    }
+    for name, app in apps.items():
+        client = TestClient(app)
+        assert client.get("/health").status_code == 200, name

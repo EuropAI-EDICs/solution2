@@ -376,8 +376,76 @@ PROCESS_DEFINITIONS_CORE: dict[str, dict[str, Any]] = {
 }
 
 
+# EU LDT Toolbox-algoritmemodellen (full-catalogus): executie verloopt via de
+# UCSAdapter (toolbox-sim --full / echte UCS); geen lokale implementatie — bij
+# een UCS-404 valt de bestaande execute_local-fallback terug (→ KeyError).
+FULL_CATALOGUE_MODEL_PROCESSES = frozenset({
+    "neighbourhood-energy-demand",
+    "building-environmental-footprint",
+    "renovation-strategies",
+    "urban-planning-vulnerability",
+    "urban-mobility",
+    "pollution-propagation",
+    "police-routing",
+})
+
+PROCESS_DEFINITIONS_FULL_CATALOGUE: dict[str, dict[str, Any]] = {
+    p: {
+        "id": p,
+        "title": p.replace("-", " ").title(),
+        "description": (
+            "EU LDT Toolbox-algoritmemodel (full-catalogus); uitvoering via de "
+            "UCS-adapter tegen de toolbox-sim (--full) of een echte UCS-omgeving."
+        ),
+        "version": "1.0.0",
+        "keywords": ["ucs", "full-catalogue", "model"],
+    }
+    for p in sorted(FULL_CATALOGUE_MODEL_PROCESSES)
+}
+PROCESS_DEFINITIONS_FULL_CATALOGUE["neighbourhood-energy-demand"]["inputs"] = {
+    "intensity_kwh_per_m2_year": {
+        "title": "Energie-intensiteit (kWh/m²/jaar, > 0)",
+        "schema": {"type": "number", "exclusiveMinimum": 0},
+    },
+}
+PROCESS_DEFINITIONS_FULL_CATALOGUE["neighbourhood-energy-demand"]["outputs"] = {
+    "outputs": {"title": "kwh_total / kwh_top10_tiles / area_m2_total / tile_count",
+                "schema": {"type": "object"}},
+}
+PROCESS_DEFINITIONS_FULL_CATALOGUE["building-environmental-footprint"]["inputs"] = {
+    "carbon_kg_per_m2": {
+        "title": "Koolstofintensiteit (kg CO₂/m², > 0)",
+        "schema": {"type": "number", "exclusiveMinimum": 0},
+    },
+}
+PROCESS_DEFINITIONS_FULL_CATALOGUE["building-environmental-footprint"]["outputs"] = {
+    "outputs": {"title": "carbon_kg_total / area_m2_total / tile_count",
+                "schema": {"type": "object"}},
+}
+PROCESS_DEFINITIONS_FULL_CATALOGUE["renovation-strategies"]["outputs"] = {
+    "outputs": {"title": "priority_by_tile (oppervlak-prioritering per quadkey)",
+                "schema": {"type": "object"}},
+}
+PROCESS_DEFINITIONS_FULL_CATALOGUE["urban-planning-vulnerability"]["outputs"] = {
+    "outputs": {"title": "peilgebieden (percentielrang waterstand)",
+                "schema": {"type": "object"}},
+}
+PROCESS_DEFINITIONS_FULL_CATALOGUE["urban-mobility"]["outputs"] = {
+    "outputs": {"title": "od_matrix_trips_day / modal_split_share (synthetic seed)",
+                "schema": {"type": "object"}},
+}
+PROCESS_DEFINITIONS_FULL_CATALOGUE["pollution-propagation"]["outputs"] = {
+    "outputs": {"title": "grid_pm10_ug_m3 (16x16 placeholder)",
+                "schema": {"type": "object"}},
+}
+PROCESS_DEFINITIONS_FULL_CATALOGUE["police-routing"]["outputs"] = {
+    "outputs": {"title": "response_minutes_by_zone (synthetic seed)",
+                "schema": {"type": "object"}},
+}
+
 PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
     **PROCESS_DEFINITIONS_CORE,
+    **PROCESS_DEFINITIONS_FULL_CATALOGUE,
     **POC_PROCESS_DEFINITIONS,
 }
 

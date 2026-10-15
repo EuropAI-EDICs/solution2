@@ -82,6 +82,11 @@ def entities_to_geojson(entities: list[dict[str, Any]]) -> dict[str, Any]:
     return {"type": "FeatureCollection", "features": features}
 
 
+def _broker_headers() -> dict[str, str]:
+    """Headers voor NGSI-LD broker-calls: tenant + Bearer via keycloak_auth."""
+    return {"NGSILD-Tenant": NGSI_TENANT, **auth_headers()}
+
+
 def _list_via_broker(
     entity_type: str, geoproperty: str | None, limit: int
 ) -> list[dict[str, Any]]:
@@ -90,12 +95,68 @@ def _list_via_broker(
     params: dict[str, Any] = {"type": entity_type, "limit": limit}
     if geoproperty:
         params["geoproperty"] = geoproperty
-    headers = {"NGSILD-Tenant": NGSI_TENANT, **auth_headers()}
+    headers = _broker_headers()
     with httpx.Client(timeout=30.0) as client:
         resp = client.get(f"{NGSI_LD_URL}/ngsi-ld/v1/entities", params=params, headers=headers)
         resp.raise_for_status()
         data = resp.json()
         return data if isinstance(data, list) else data.get("entities", [])
+
+
+def create_subscription(subscription: dict[str, Any]) -> str:
+    """NGSI-LD subscription aanmaken; geeft de subscription-id terug."""
+    if MOCK or not NGSI_LD_URL:
+        return "urn:ngsi-ld:Subscription:mock-1"
+
+    with httpx.Client(timeout=TRINO_TIMEOUT_S) as client:
+        resp = client.post(f"{NGSI_LD_URL}/ngsi-ld/v1/subscriptions/", json=subscription, headers=_broker_headers())
+    if resp.status_code != 201:
+        raise RuntimeError(f"subscription geweigerd: {resp.status_code} {resp.text[:200]}")
+    return resp.headers["Location"].rsplit("/", 1)[-1]
+
+
+def trigger_notify(subscription_id: str) -> dict[str, Any]:
+    """Sim-only: deterministische notificatie-trigger + outbox-payload."""
+    if MOCK or not NGSI_LD_URL:
+        return {"subscriptionId": subscription_id, "mock": True, "data": []}
+
+    with httpx.Client(timeout=TRINO_TIMEOUT_S) as client:
+        resp = client.post(f"{NGSI_LD_URL}/ngsi-ld/v1/subscriptions/{subscription_id}/notify", headers=_broker_headers())
+    if resp.status_code != 200:
+        raise RuntimeError(f"notify mislukt: {resp.status_code} {resp.text[:200]}")
+    return resp.json()
+
+
+def get_temporal_entity(
+    entity_id: str, *, timerel: str, time: str, end_time: str | None = None
+) -> dict[str, Any]:
+    """NGSI-LD temporal read (before|after|between) via de broker."""
+    if MOCK or not NGSI_LD_URL:
+        return {"id": entity_id, "mock": True}
+
+    params: dict[str, str] = {"timerel": timerel, "time": time, "time_property": "observedAt"}
+    if end_time:
+        params["endTime"] = end_time
+    with httpx.Client(timeout=TRINO_TIMEOUT_S) as client:
+        resp = client.get(
+            f"{NGSI_LD_URL}/ngsi-ld/v1/temporal/entities/{entity_id}",
+            params=params, headers=_broker_headers(),
+        )
+    if resp.status_code != 200:
+        raise RuntimeError(f"temporal read mislukt: {resp.status_code} {resp.text[:200]}")
+    return resp.json()
+
+
+def create_registration(registration: dict[str, Any]) -> str:
+    """NGSI-LD ContextSourceRegistration aanmaken; geeft de id terug."""
+    if MOCK or not NGSI_LD_URL:
+        return "urn:ngsi-ld:ContextSourceRegistration:mock-1"
+
+    with httpx.Client(timeout=TRINO_TIMEOUT_S) as client:
+        resp = client.post(f"{NGSI_LD_URL}/ngsi-ld/v1/registrations/", json=registration, headers=_broker_headers())
+    if resp.status_code != 201:
+        raise RuntimeError(f"registratie geweigerd: {resp.status_code} {resp.text[:200]}")
+    return resp.headers["Location"].rsplit("/", 1)[-1]
 
 
 def _list_via_ucs_proxy(
