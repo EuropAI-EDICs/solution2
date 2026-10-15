@@ -154,6 +154,49 @@ GROEPEN["t4"] = {
     ],
 }
 
+GROEPEN["t5"] = {
+    ("landschap", "nl"): [
+        dict(locator="Artikel 18.41", occ=2, bron="S01",
+             claim="An omgevingsplan setting rules for land within a 100-metre assessment zone around an existing nature area must motivate how the nature area is taken into account.",
+             legalForce="binding", rule_type="zone_attention", semantics="attention",
+             note="Afwegingszone natuurgebieden (bijlage XII/4): motiveringseis; zone (100m rond natuurgebied) zonder geo-pin → zone-loos."),
+        dict(locator="Artikel 18.42", occ=2, bron="S01",
+             claim="An omgevingsplan affecting landscapes, landscape elements or cultural-historically valuable farms must provide insight into the landscape and cultural-historic values in its motivation.",
+             legalForce="binding", rule_type="zone_attention", semantics="attention",
+             note="Landschap en erfgoed (bijlage VII): motiveringseis landschapskwaliteit; kernlandschapsnorm, zone-loos."),
+    ],
+    ("landschap", "be"): [
+        dict(locator="Artikel 6", occ=0, bron="rup-zeehaven-gent-fase2",
+             claim="The park-area actions permitted under the GRUP are only allowed insofar as spatial coherence, cultural-historical and landscape values of the area are not disproportionate affected.",
+             legalForce="binding", rule_type="zone_conditional", semantics="conditional",
+             note="Landschappelijke en functionele inpassing parkgebied; inpassingsvoorwaarde, cartografisch → zone-loos, V4."),
+        dict(locator="Artikel 3", occ=1, bron="gewestplan-voorschriften",
+             claim="The Gewestplan designates zones of cultural-historical value: areas with buildings protected as monument or townscape, where spatial changes must respect that protection.",
+             legalForce="binding", rule_type="zone_attention", semantics="attention",
+             note="Zone met cultuurhistorische waarde (BVR 13/07/01); aandachtmarker, cartografisch → zone-loos."),
+    ],
+    ("landbouw", "nl"): [
+        dict(locator="Artikel 18.36", occ=2, bron="S01",
+             claim="An expansion permit for livestock farming is not refused if the ammonia emission from the barns after expansion does not exceed the emission beforehand, among other conditions.",
+             legalForce="binding", rule_type="zone_conditional", semantics="conditional",
+             note="Toelaatbare wijziging veehouderij: emissie-uitzondering; kernlandbouwnorm, zone-loos."),
+        dict(locator="Artikel 18.39", occ=2, bron="S01",
+             claim="An omgevingsplan applying to an Agrarian area of ecological meaning must also set rules protecting the ecological value of that area alongside rules for agricultural activities.",
+             legalForce="binding", rule_type="zone_attention", semantics="attention",
+             note="Agrarisch gebied van ecologische betekenis (bijlage XII/2): dubbelbestemming; kaart niet gepind → zone-loos."),
+    ],
+    ("landbouw", "be"): [
+        dict(locator="Artikel 7", occ=0, bron="rup-zeehaven-gent-fase2",
+             claim="The GRUP designates an agricultural area (koppelingsgebied) for professional farming that buffers the port activities from adjacent functions.",
+             legalForce="binding", rule_type="zone_inclusion", semantics="inclusion",
+             note="Agrarisch gebied-bestemming; vlakken cartografisch → zone-loos, V4."),
+        dict(locator="Artikel 5", occ=0, bron="gewestplan-voorschriften",
+             claim="In bouwvrij agrarisch gebied (building-free agricultural area, BVR 13/07/01) an absolute building ban applies, with exceptions only for shelters and specific utility works.",
+             legalForce="binding", rule_type="zone_exclusion", semantics="exclusion",
+             note="Bouwvrij agrarisch gebied: absoluut bouwverbod; exclusion-karakter, cartografisch → zone-loos, V4."),
+    ],
+}
+
 _ABSTENTIES = {  # groep → (track, land, reden) voor lege keuzes-lijsten
     "t4": ("bodem", "be",
            "geen specifieke bodemnorm in het BE-havencorpus: GRUP's en gewestplan bevatten "
