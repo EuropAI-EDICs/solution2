@@ -2,7 +2,7 @@
 
 Spec: `docs/superpowers/specs/2026-10-14-poc-nspd-design.md` · Plan: `docs/superpowers/plans/2026-10-14-poc-nspd.md`
 
-**Status: fase 1 afgerond** — het succescriterium (§1) is aantoonbaar werkend voor de
+**Status: fase 2 afgerond — alle 13 tracks** — het succescriterium (§1) is aantoonbaar werkend voor de
 demo-tracks wind/zon/energietoets aan beide zijden van de grens: 6 runs PASS, 43 tests
 groen (39 offline + 4 golden-regressie), controle-run reproduceerbaar op 0,000 % en de
 grensvergelijkende wind-demo end-to-end (xborder-rapport + Leia-config).
@@ -184,11 +184,30 @@ en de wind-xborder-merge onder `xborder-runs/wind/` (`report-xborder.html` +
   instrumenten (NL: CVDR709135; BE: RUP/gewestplan/VCRO).
 - `poc/` (Utrecht) blijft onaangeroerd: hergebruik via kopie/adapt (poc-*-conventie).
 
-## Fase 2 (knop voor na acceptatie fase 1)
+## Fase 2 — afgerond: alle 13 tracks
 
-- **Overige 10 tracks porteren** op dezelfde machinerie: bos, water, bodem, mobiliteit,
-  landschap, landbouw, wonen, werken, recreatie, biomassa (normcuratie per land, zelfde
-  curatie-flow als hierboven; energietoets bestaat al maar zit buiten de goldens).
-- **Scenario-sweep** met `basis.dataGrounding` (spec §4.6, fase-2-deel).
-- **Optioneel**: crosstrack-conflictoverlay over de grens (`poc/crosstrack/`-patroon)
-  en DHM-extrusie van BE-gebouwen (herbeoordeling taak-12-besluit).
+Fase 2 (plan `docs/superpowers/plans/2026-10-14-poc-nspd-fase2.md`) voegde de overige
+tien tracks toe op dezelfde machinerie. Curatie verloopt config-gedreven via
+`fase2_curatie.py` (citaten machinaal uit de extractor-kandidaten; `quote_guard.py`
+verifieert letterlijkheid van álle kaarten in de suite).
+
+| track | kaarten NL | kaarten BE | | track | kaarten NL | kaarten BE |
+|---|---|---|---|---|---|---|
+| wind | 2 | 4 | | landbouw | 2 | 2 |
+| zon | 2 | 3 | | wonen | 2 | 1 |
+| energietoets | 2 | 3 | | werken | 2 | 2 |
+| bos | 3 | 2 | | recreatie | 2 | 2 |
+| water | 3 | 2 | | biomassa | 2 | **0 (abstention)** |
+| bodem | 3 | **0 (abstention)** | | mobiliteit | 3 | 2 |
+| landschap | 2 | 2 | | | | |
+
+- **Abstentions** (cite-or-abstain): `bodem-be` en `biomassa-be` hebben géén dragende
+  bepaling in het BE-havencorpus — gedocumenteerd in de rejected-ledgers, runs draaien
+  op de FR-AOI-01-constructie (alleen de request-AOI).
+- **Goldens**: 15 referentieruns (`wind/zon/bos/water/bodem/mobiliteit/landschap/
+  landbouw/wonen/werken/recreatie/biomassa`-nl + wind/zon-be); freeze via
+  `NSPD_GOLDEN_FREEZE=1`.
+- **Xborder-rapporten**: 12 tracks onder `xborder-runs/` (zon via hetzelfde commando
+  genereerbaar); naast-elkaar NL ∣ BE-tabellen met de decision-rows per land.
+- Buiten scope (opvolgplan): scenario-sweep met `basis.dataGrounding`, crosstrack-
+  conflictoverlay over de grens, DHM-extrusie van BE-gebouwen (taak-12-besluit).

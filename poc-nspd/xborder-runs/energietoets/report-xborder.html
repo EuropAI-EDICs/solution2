@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="nl">
+<head><meta charset="utf-8"><title>NSPD grensvergelijkende scan — energietoets</title>
+<style>body{font-family:system-ui;margin:2rem}table{border-collapse:collapse;width:100%}
+td,th{border:1px solid #ccc;padding:.4rem .6rem;text-align:left;vertical-align:top}
+h2{margin-bottom:.3rem}td:not(:first-child){max-width:34rem}</style></head>
+<body>
+<h1>NSPD grensvergelijkende scan — energietoets</h1>
+<p>Les de zones van beide zijden in 3D: open de Leia-scène met
+<code>viewer-data/nspd.config.json</code> (laag <code>zones-energietoets-nspd.geojson</code>).</p>
+
+
+<h2>Nederland (NL) — 3 regels</h2>
+<table>
+<tr><th>rule</th><th>norm</th><th>zone-effect</th><th>notitie</th></tr>
+<tr class="nl"><td>FR-ETST-01</td><td>art. 18.18 — Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden) [binding]</td><td>ambiguous</td><td>Zone-loze conditional (gedocumenteerd): art. 18.18 lid 2 sub e koppelt ontwikkeling op agrarische grond aan een significante netcongestie-bijdrage (gezamenlijk kabelgebruik of directe kabel achter de meter); &#39;grond waar agrarisch gebruik is toegestaan&#39; heeft geen alias in ZONE_SOURCES (taak 9); routeeert naar V4.</td></tr>
+<tr class="nl"><td>FR-ETST-02</td><td>art. 5.41 — Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden) [binding]</td><td>ambiguous</td><td>Zone-loze exclusion (gedocumenteerd): art. 5.41 verbiedt mijnbouwwerken/bodemenergiesystemen in waterwingebied of grondwaterbeschermingszone (verbatim, binding), maar die zones hebben geen alias in ZONE_SOURCES (taak 9: natura2000-nl/natura2000-be/gebouwen-be) en zijn niet gepind; routeeert naar V4 in plaats van gokken op geometrie.</td></tr>
+<tr class="nl"><td>FR-AOI-01</td><td>run.py orchestrator FR-AOI-01 — geen rechtsbron [uitvoeringsconstructie]</td><td>included</td><td>included (aoi-basis) — geen bijgaande kaart geciteerd: geen inclusion-regel in deze shard is executabel (zone-loos, V4); de request-AOI is de conservatieve inclusion-union (run_summary.inclusionBasis=aoi). Taak-9-zone-semantiek: de inclusion-regels van deze track/jurisdictie (geen) zijn zone-loos naar V4 gerouteerd; de run gebruikt de request-AOI als inclusion-union (run_summary.inclusionBasis=aoi) zodat V4-markers en exclusions op een gedefinieerd werkvlak worden uitgevoerd. Deze regel is een uitvoeringsconstructie van de orchestrator, geen inhoudelijke norm.</td></tr>
+
+</table>
+
+
+<h2>Vlaanderen (BE) — 4 regels</h2>
+<table>
+<tr><th>rule</th><th>norm</th><th>zone-effect</th><th>notitie</th></tr>
+<tr class="be"><td>FR-BEE-01</td><td>Artikel 15. Gebied voor zeehavenondersteunende regionale bedrijvigheid — gewestelijk ruimtelijk uitvoeringsplan &#39;afbakening zeehavengebied Gent - fase 2&#39; — Bijlage II: stedenbouwkundige voorschriften (GRUP 2.12_00358_00001, bron gedownload 2026-10-14) [binding]</td><td>ambiguous</td><td>Zone-loze inclusion (gedocumenteerd): art. 15 GRUP fase 2 benoemt &#39;productie van energie&#39; als hoofdactiviteit in het gebied voor zeehavenondersteunende regionale bedrijvigheid; dat bedrijventerrein heeft geen alias in ZONE_SOURCES (taak 9) en de dekking van energy_storage is interpretief (energieopslag als energie-infrastructuur, niet verbatim genoemd); routeeert naar V4.</td></tr>
+<tr class="be"><td>FR-BEE-02</td><td>Artikel 4.4.9, §1 — Gecodificeerd Decreet Vlaamse Codex Ruimtelijke Ordening (VCRO) — geconsolideerde versie geldend op 14/10/2026 [binding]</td><td>ambiguous</td><td>Zone-loze conditional (gedocumenteerd): art. 4.4.9 §1 VCRO opent voor &#39;andere installaties voor de productie van energie of energierecuperatie&#39; een afwijkingsbevoegdheid op gewestplanvoorschriften (toets aan standaardtypebepalingen); procedurele regel zonder zone-selector in ZONE_SOURCES (taak 9); routeeert naar V4.</td></tr>
+<tr class="be"><td>FR-BEE-03</td><td>Artikel 1 - Zone voor zeehaven- en watergebonden bedrijven — gewestelijk ruimtelijk uitvoeringsplan &#39;zeehavengebied Gent — uitbreiding papierproducerend bedrijf&#39; — Bijlage III: stedenbouwkundige voorschriften (bron gedownload 2026-10-14; vaststellingsdatum niet vermeld in SV-extract) [binding]</td><td>ambiguous</td><td>Zone-loze exclusion (gedocumenteerd): art. 1 GRUP papierbedrijf bestemt de zone &#39;uitsluitend&#39; voor de opsomde zeehaven-/watergebonden bedrijven — andere functies (waaronder energieopslag buiten die lijst) zijn daar uitgesloten; het GRUP-gebied heeft geen alias in ZONE_SOURCES (taak 9) en of een opslaginrichting als opslag-/toeleveringsbedrijf kwalificeert is interpretief; routeeert naar V4.</td></tr>
+<tr class="be"><td>FR-AOI-01</td><td>run.py orchestrator FR-AOI-01 — geen rechtsbron [uitvoeringsconstructie]</td><td>included</td><td>included (aoi-basis) — geen bijgaande kaart geciteerd: geen inclusion-regel in deze shard is executabel (zone-loos, V4); de request-AOI is de conservatieve inclusion-union (run_summary.inclusionBasis=aoi). Taak-9-zone-semantiek: de inclusion-regels van deze track/jurisdictie (FR-BEE-01) zijn zone-loos naar V4 gerouteerd; de run gebruikt de request-AOI als inclusion-union (run_summary.inclusionBasis=aoi) zodat V4-markers en exclusions op een gedefinieerd werkvlak worden uitgevoerd. Deze regel is een uitvoeringsconstructie van de orchestrator, geen inhoudelijke norm.</td></tr>
+
+</table>
+
+</body></html>

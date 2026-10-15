@@ -242,4 +242,9 @@ en wordt door Leia geladen via `?url=` (een kleine static server of
 - **Haalbaarheid DHM-extrusie voor BE-gebouwen**: blijft een beslispunt in
   implementatieplan taak 12, met vlakke GRB-voetafdrukken als gedocumenteerde fallback.
 
-Implementatieplan: `docs/superpowers/plans/2026-10-14-poc-nspd.md` (fase 1).
+Implementatieplan: `docs/superpowers/plans/2026-10-14-poc-nspd.md` (fase 1) en
+`docs/superpowers/plans/2026-10-14-poc-nspd-fase2.md` (fase 2).
+
+**Status 2026-10-15: fase 2 geïmplementeerd** — alle 13 tracks gecureerd (NL+BE;
+`bodem-be` en `biomassa-be` als gedocumenteerde abstentions), 15 goldens, 12
+xborder-rapporten. Item 11 (crosstrack-overlay) blijft bewust buiten scope.
