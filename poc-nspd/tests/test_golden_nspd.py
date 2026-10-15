@@ -53,7 +53,8 @@ sys.path.insert(0, str(ROOT))
 pytestmark = pytest.mark.golden
 
 TRACKS = ("wind-nl", "wind-be", "zon-nl", "zon-be", "bos-nl", "water-nl",
-           "bodem-nl", "mobiliteit-nl", "landschap-nl", "landbouw-nl", "wonen-nl", "werken-nl")
+           "bodem-nl", "mobiliteit-nl", "landschap-nl", "landbouw-nl", "wonen-nl", "werken-nl",
+           "recreatie-nl", "biomassa-nl")
 FREEZE_ENV = "NSPD_GOLDEN_FREEZE"
 GOLDEN_DIR = ROOT / "pipeline" / "goldens-nspd"
 

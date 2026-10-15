@@ -236,11 +236,50 @@ GROEPEN["t6"] = {
     ],
 }
 
+GROEPEN["t7"] = {
+    ("recreatie", "nl"): [
+        dict(locator="Artikel 18.19", occ=2, bron="S01",
+             claim="A new or expanded tourist-accommodation site is only permitted in the omgevingsplan within the designated coastal resorts, including Vlissingen.",
+             legalForce="binding", rule_type="zone_conditional", semantics="conditional",
+             note="Verblijfsrecreatie kustzone: badplaatsen-lijst (Vlissingen in NSPD); begrenzing badplaatsen niet als geo-pin → zone-loos."),
+        dict(locator="Artikel 18.25", occ=2, bron="S01",
+             claim="A new mooring must primarily be provided within an existing marina, with a motivation demonstrating quality improvement, prevention of oversupply and innovation.",
+             legalForce="binding", rule_type="zone_conditional", semantics="conditional",
+             note="Jachthavens en waterrecreatie: voorrang bestaande jachthavens; zone-loos."),
+    ],
+    ("recreatie", "be"): [
+        dict(locator="Artikel 12", occ=0, bron="rup-zeehaven-gent-fase2",
+             claim="The GRUP designates a recreation area within the seaport plan area for Evergem, Gent and Zelzate.",
+             legalForce="binding", rule_type="zone_inclusion", semantics="inclusion",
+             note="Recreatiegebied in GRUP; quote bevat paginakop-artefact letterlijk (sic); cartografisch → zone-loos, V4."),
+        dict(locator="Artikel 1", occ=0, bron="gewestplan-voorschriften",
+             claim="The Gewestplan designates areas for tourist holiday parks, indicated on the designation maps in orange.",
+             legalForce="binding", rule_type="zone_inclusion", semantics="inclusion",
+             note="Toeristisch recreatiepark (KB 6/12/76); parallel aan NL-verblijfsrecreatie; cartografisch → zone-loos."),
+    ],
+    ("biomassa", "nl"): [
+        dict(locator="Artikel 5.31", occ=0, bron="S01",
+             claim="Discharges into or onto the soil are prohibited within a water-abstraction area.",
+             legalForce="binding", rule_type="zone_conditional", semantics="conditional",
+             note="Lozingsverbod waterwingebied; raakvlak biomassa-installaties (digestaat) curator-interpretaal, claim dekt alléén het citaat."),
+        dict(locator="Artikel 5.32", occ=0, bron="S01",
+             claim="Discharges into or onto the soil within a groundwater protection zone are prohibited without an omgevingsvergunning.",
+             legalForce="binding", rule_type="zone_conditional", semantics="conditional",
+             note="Vergunningplicht lozingen grondwaterbeschermingszone; zelfde raakvlak-notitie."),
+    ],
+    # BE-biomassa: geen biomassa-specifieke bepaling in het haven-corpus → abstention
+    ("biomassa", "be"): [],
+}
+
 _ABSTENTIES = {  # groep → (track, land, reden) voor lege keuzes-lijsten
     "t4": ("bodem", "be",
            "geen specifieke bodemnorm in het BE-havencorpus: GRUP's en gewestplan bevatten "
            "bestemmingsvoorschriften zonder bodembeschermende bepalingen; VCRO is procedureel — "
            "cite-or-abstain: onthouding gedocumenteerd i.p.v. geforceerde koppeling"),
+    "t7": ("biomassa", "be",
+           "geen biomassa-specifieke bepaling in het BE-havencorpus: GRUP's kennen geen "
+           "vergistings- of biomassa-bestemming en de gewestplan-'diensten en handel'-zone "
+           "dekt dit niet — cite-or-abstain: onthouding gedocumenteerd"),
 }
 
 
