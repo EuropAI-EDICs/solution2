@@ -188,6 +188,13 @@ mkdir -p viewer/static/reports && cp viewer-data/reports/*.html viewer/static/re
 #    Zeeland OVZ-lagen (via de pipeline-cache), DHM Vlaanderen II hillshade en
 #    Netcongestie afname NL (ArcGIS Capaciteitskaart → fetch_netcongestie_layer.py,
 #    geclipt+gesimplificeerd; zelfde cache als pipeline.national_data.load_netcongestie).
+#    What-if scenario's (S7, fase 3b): groep "What-if scenario's (S7)" — per
+#    use-case de nieuwste geslaagde scenario-run (scenario-runs/*/scenario-
+#    report.json) als CONTROL (aan, grijs) + elk scenario met Δ en IoU in de
+#    titel (groen = ruimte erbij, rood = eraf). Sweep draaien met:
+#      .venv/bin/python scenarios/run.py --use-case wind-nl --author file --no-h3
+#    (sets: scenarios/wind-nl.json, wind-be.json; LLM via --author llm/hybrid met
+#    LDT_SCENARIO_LLM_ENDPOINT; H3-metrics optioneel zonder --no-h3).
 ```
 
 Demo-artefacten van fase 1 zitten in de repo: de zes smoke-runs onder `runs/20261014T*`
