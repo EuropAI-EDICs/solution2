@@ -90,6 +90,9 @@ def test_zeeland_referentielagen_overgenomen():
     assert per_titel["3D Gebouwen België"]["defaultOn"] is False
     assert "origin-vergrendeld" in per_titel["3D Gebouwen België"]["description"]
     assert per_titel["Begrenzing NSPD"]["defaultOn"] is True
+    # buurt-/sectorgrenzen bij Zeeland aan, hier uit (grove WMS-lijnen over de detailkaart)
+    assert per_titel["CBS buurten Nederland"]["defaultOn"] is False
+    assert per_titel["Statistische sectoren van België"]["defaultOn"] is False
     assert not any("map5.nl" in l["settings"].get("url", "") for l in cfg["layers"])
     ids = [l["id"] for l in cfg["layers"]]
     assert len(ids) == len(set(ids)), "dubbele laag-ids"

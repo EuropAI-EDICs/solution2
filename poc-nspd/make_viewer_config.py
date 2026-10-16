@@ -24,6 +24,10 @@ _UITGESLOTEN_HOSTS = ("map5.nl",)
 # beleid van de provincie, niet te omzeilen via een proxy. Blijft in de
 # bibliotheek met uitleg; NL-3D komt uit 3D BAG (CORS *).
 _STANDAARD_AAN = {"021"}
+# Bij Zeeland standaard aan, hier uit: de buurt-/sectorgrenzen (CBS buurten NL,
+# Statistische sectoren BE) tekenen als grove paarse WMS-lijnen over de
+# detailkaart en vertroebelen de demo; één klik in Lagenbeheer zet ze aan.
+_STANDAARD_UIT = {"030", "035"}
 _ORIGIN_VERGRENDELD = {
     "008": ("Tileset gehost door Provincie Zeeland en origin-vergrendeld op hun eigen "
             "viewer (CORS) — rendert niet in deze POC. Voor Vlaamse 3D-gebouwen: "
@@ -68,6 +72,8 @@ def _zeeland_referentielagen() -> tuple[list[dict], list[dict]]:
         if laag["id"] in _STANDAARD_AAN:
             laag["defaultOn"] = True
             laag["defaultAddToManager"] = True
+        if laag["id"] in _STANDAARD_UIT:
+            laag["defaultOn"] = False
         if laag["id"] in _ORIGIN_VERGRENDELD:
             laag["defaultOn"] = False
             laag["description"] = _ORIGIN_VERGRENDELD[laag["id"]]
