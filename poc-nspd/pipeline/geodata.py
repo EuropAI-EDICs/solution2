@@ -487,6 +487,29 @@ def fetch_ogc_api_features(session, src, bbox=None, simplify_m=None, timeout=120
     return feats, 1
 
 
+def _client_cql_filter(feats: list, cql: str) -> list:
+    """Client-side gelijkheids-conjunctie (`veld = 'waarde' AND …`).
+
+    De Mercator-WFS geeft HTTP 500 op server-CQL (probe 2026-10-16), dus de
+    per-zone filters uit de registry (queryTemplateParams.cqlFilter) worden na
+    de fetch op de feature-properties toegepast. Alleen `=` en `AND`.
+    """
+    paren = []
+    for deel in cql.split(" AND "):
+        veld, _, waarde = deel.partition("=")
+        veld, waarde = veld.strip(), waarde.strip()
+        if not (veld and len(waarde) >= 2 and waarde.startswith("'") and waarde.endswith("'")):
+            raise GeoDataError(
+                f"niet-ondersteunde client-cql (alleen `veld = 'waarde'` met AND): {cql!r}")
+        paren.append((veld, waarde[1:-1]))
+    uit = []
+    for f in feats:
+        props = f.get("properties") or {}
+        if all(str(props.get(veld)) == waarde for veld, waarde in paren):
+            uit.append(f)
+    return uit
+
+
 def fetch_wfs_features(session, src, bbox=None, timeout=120.0):
     """WFS 2.0 GetFeature (GeoJSON) — Zeeland OVZ-kaartbijlagen (fase 3, task 1).
 
@@ -534,6 +557,9 @@ def fetch_wfs_features(session, src, bbox=None, timeout=120.0):
             raise GeoDataError(
                 f"{src.get('id')}: exceeded hard cap of {MAX_FEATURES_HARD_CAP} features; aborting"
             )
+    cql = (src.get("queryTemplateParams") or {}).get("cqlFilter")
+    if cql:
+        feats = _client_cql_filter(feats, cql)
     return feats, pages
 
 

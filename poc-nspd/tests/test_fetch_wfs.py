@@ -125,3 +125,22 @@ def test_fetch_layer_wfs_geometrieloze_features_geskipt():
     sess = _FakeSession([fc])
     feats, pages = geodata.fetch_wfs_features(sess, dict(_SRC), bbox=RD_BBOX)
     assert len(feats) == 1 and pages == 1
+
+
+def test_fetch_wfs_client_filter_cql_gelijkheden():
+    """queryTemplateParams.cqlFilter = client-side gelijkheids-conjunctie (de
+    Mercator-WFS geeft HTTP 500 op server-CQL): alleen features die álle
+    `veld = 'waarde'`-paren in properties terugkomen blijven over."""
+    sess = _FakeSession([{"type": "FeatureCollection", "features": [
+        {"type": "Feature", "id": "1", "properties": {"naam": "Afbakening zeehavengebied Gent - fase 2",
+                                                      "svnaam": "Woongebied"},
+         "geometry": {"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]}},
+        {"type": "Feature", "id": "2", "properties": {"naam": "Afbakening zeehavengebied Gent - fase 2",
+                                                      "svnaam": "Bosgebied - koppelingsgebied"},
+         "geometry": {"type": "Polygon", "coordinates": [[[2, 0], [3, 0], [3, 1], [2, 1], [2, 0]]]}},
+    ]}])
+    src = dict(_SRC, queryTemplateParams={
+        "cqlFilter": "naam = 'Afbakening zeehavengebied Gent - fase 2' AND svnaam = 'Woongebied'"})
+    feats, pages = geodata.fetch_wfs_features(sess, src, bbox=RD_BBOX)
+    assert pages == 1 and len(feats) == 1
+    assert feats[0]["properties"]["svnaam"] == "Woongebied"

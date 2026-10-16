@@ -2,7 +2,7 @@
  {
   "id": "FR-BOS-01",
   "normCardId": "NC-BOS-01",
-  "status": "ambiguous",
+  "status": "formalized",
   "ruleType": "zone_inclusion",
   "zoneSemantics": "inclusion",
   "instrumentType": "rup-be",
@@ -10,16 +10,24 @@
   "appliesTo": {
    "objectType": "forest_planting",
    "contextTags": [
-    "zone_loos_gedocumenteerd",
-    "v4_human_review",
     "curatie_fase2_bos",
-    "bestemmingsartikel_cartografisch"
+    "bestemmingsartikel_cartografisch",
+    "geometry_mercator_grup"
    ]
   },
-  "executableRef": "engine.procedural.human_review@poc-v1",
-  "formalizedBy": "norm-formalizer#poc-nspd-fase2-t3",
-  "formalizedAt": "2026-10-14",
-  "reason": "Bestemmingsartikel bosgebied; vlakken uitsluitend cartografisch (bijlage I), geen geo-pin → zone-loos, V4. Zone-loos gedocumenteerd; routeert naar V4."
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task4",
+  "formalizedAt": "2026-10-16",
+  "conditions": [],
+  "zoneSelector": {
+   "zoneIds": [
+    "boskoppel-be"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via mercator-gewestelijke-RUP (gepind 2026-10-16; client-side bestemmingfilter, zie grupBevindingen in probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine."
+  },
+  "rationale": "Formalized (fase 3, task 4): GRUP fase 2 artikel 3 wijst het Bosgebied (koppelingsgebied) aan voor behoud/ontwikkeling/herstel van bos; gepind met bestemmingfilter svnaam='Bosgebied - koppelingsgebied' (14 vlakken in bbox)."
  },
  {
   "id": "FR-BOS-02",

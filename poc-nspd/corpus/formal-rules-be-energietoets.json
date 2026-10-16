@@ -2,7 +2,7 @@
  {
   "id": "FR-BEE-01",
   "normCardId": "NC-BEE-01",
-  "status": "ambiguous",
+  "status": "formalized",
   "ruleType": "zone_inclusion",
   "zoneSemantics": "inclusion",
   "instrumentType": "rup-be",
@@ -13,14 +13,22 @@
     "inclusion_productie_van_energie",
     "zeehavenondersteunende_regionale_bedrijvigheid",
     "interpretive_bridge_energy_storage",
-    "zone_loos_gedocumenteerd",
-    "v4_human_review"
+    "geometry_mercator_grup"
    ]
   },
-  "executableRef": "engine.procedural.human_review@poc-v1",
-  "formalizedBy": "norm-formalizer#poc-nspd-task7",
-  "formalizedAt": "2026-10-14",
-  "reason": "Zone-loze inclusion (gedocumenteerd): art. 15 GRUP fase 2 benoemt 'productie van energie' als hoofdactiviteit in het gebied voor zeehavenondersteunende regionale bedrijvigheid; dat bedrijventerrein heeft geen alias in ZONE_SOURCES (taak 9) en de dekking van energy_storage is interpretief (energieopslag als energie-infrastructuur, niet verbatim genoemd); routeeert naar V4."
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task4",
+  "formalizedAt": "2026-10-16",
+  "conditions": [],
+  "zoneSelector": {
+   "zoneIds": [
+    "zeehavenondersteunend-be"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via mercator-gewestelijke-RUP (gepind 2026-10-16; client-side bestemmingfilter, zie grupBevindingen in probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine."
+  },
+  "rationale": "Formalized (fase 3, task 4): GRUP fase 2 artikel 15 — zeehavenondersteunende regionale bedrijvigheid, met 'productie van energie' expliciet als hoofdactiviteit."
  },
  {
   "id": "FR-BEE-02",
@@ -51,7 +59,7 @@
  {
   "id": "FR-BEE-03",
   "normCardId": "NC-BEE-03",
-  "status": "ambiguous",
+  "status": "formalized",
   "ruleType": "zone_exclusion",
   "zoneSemantics": "exclusion",
   "instrumentType": "rup-be",
@@ -62,13 +70,21 @@
     "exclusion_uitsluitend_bestemd",
     "bestemmingslijst_watergebonden_bedrijven",
     "interpretive_bridge_energy_storage",
-    "zone_loos_gedocumenteerd",
-    "v4_human_review"
+    "geometry_mercator_grup"
    ]
   },
-  "executableRef": "engine.procedural.human_review@poc-v1",
-  "formalizedBy": "norm-formalizer#poc-nspd-task7",
-  "formalizedAt": "2026-10-14",
-  "reason": "Zone-loze exclusion (gedocumenteerd): art. 1 GRUP papierbedrijf bestemt de zone 'uitsluitend' voor de opsomde zeehaven-/watergebonden bedrijven — andere functies (waaronder energieopslag buiten die lijst) zijn daar uitgesloten; het GRUP-gebied heeft geen alias in ZONE_SOURCES (taak 9) en of een opslaginrichting als opslag-/toeleveringsbedrijf kwalificeert is interpretief; routeeert naar V4."
+  "executableRef": "engine.zone.exclude_within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task4",
+  "formalizedAt": "2026-10-16",
+  "conditions": [],
+  "zoneSelector": {
+   "zoneIds": [
+    "papierbedrijven-be"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via mercator-gewestelijke-RUP (gepind 2026-10-16; client-side bestemmingfilter, zie grupBevindingen in probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine."
+  },
+  "rationale": "Formalized (fase 3, task 4): GRUP papierproducent artikel 1 — uitsluitende lijst; een energieopslaginstallatie buiten die lijst is in deze zone uitgesloten."
  }
 ]

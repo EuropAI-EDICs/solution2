@@ -2,7 +2,7 @@
  {
   "id": "FR-WER-01",
   "normCardId": "NC-WER-01",
-  "status": "ambiguous",
+  "status": "formalized",
   "ruleType": "zone_inclusion",
   "zoneSemantics": "inclusion",
   "instrumentType": "rup-be",
@@ -10,21 +10,29 @@
   "appliesTo": {
    "objectType": "business_development",
    "contextTags": [
-    "zone_loos_gedocumenteerd",
-    "v4_human_review",
     "curatie_fase2_werken",
-    "bestemmingsartikel_cartografisch"
+    "bestemmingsartikel_cartografisch",
+    "geometry_mercator_grup"
    ]
   },
-  "executableRef": "engine.procedural.human_review@poc-v1",
-  "formalizedBy": "norm-formalizer#poc-nspd-fase2-t6",
-  "formalizedAt": "2026-10-14",
-  "reason": "Zeehaven- en watergebonden bedrijven: de havenkern-bestemming; cartografisch → zone-loos, V4. Zone-loos gedocumenteerd; routeert naar V4."
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task4",
+  "formalizedAt": "2026-10-16",
+  "conditions": [],
+  "zoneSelector": {
+   "zoneIds": [
+    "zeehavenbedrijven-be"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via mercator-gewestelijke-RUP (gepind 2026-10-16; client-side bestemmingfilter, zie grupBevindingen in probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine."
+  },
+  "rationale": "Formalized (fase 3, task 4): GRUP fase 2 artikel 13 wijst het gebied voor zeehaven- en watergebonden bedrijven aan als Vlaams zeehavengebied."
  },
  {
   "id": "FR-WER-02",
   "normCardId": "NC-WER-02",
-  "status": "ambiguous",
+  "status": "formalized",
   "ruleType": "zone_inclusion",
   "zoneSemantics": "inclusion",
   "instrumentType": "rup-be",
@@ -32,15 +40,23 @@
   "appliesTo": {
    "objectType": "business_development",
    "contextTags": [
-    "zone_loos_gedocumenteerd",
-    "v4_human_review",
     "curatie_fase2_werken",
-    "bestemmingsartikel_cartografisch"
+    "bestemmingsartikel_cartografisch",
+    "geometry_mercator_grup"
    ]
   },
-  "executableRef": "engine.procedural.human_review@poc-v1",
-  "formalizedBy": "norm-formalizer#poc-nspd-fase2-t6",
-  "formalizedAt": "2026-10-14",
-  "reason": "Exclusieve bedrijvensbestemming (papierfabriek); cartografisch → zone-loos, V4. Zone-loos gedocumenteerd; routeert naar V4."
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task4",
+  "formalizedAt": "2026-10-16",
+  "conditions": [],
+  "zoneSelector": {
+   "zoneIds": [
+    "papierbedrijven-be"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via mercator-gewestelijke-RUP (gepind 2026-10-16; client-side bestemmingfilter, zie grupBevindingen in probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine."
+  },
+  "rationale": "Formalized (fase 3, task 4): GRUP papierproducent artikel 1 — uitsluitend bestem voor zeehaven- en watergebonden bedrijven ten dienste van de papierproducent."
  }
 ]

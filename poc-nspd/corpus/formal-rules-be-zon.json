@@ -2,7 +2,7 @@
  {
   "id": "FR-BEZ-01",
   "normCardId": "NC-BEZ-01",
-  "status": "ambiguous",
+  "status": "formalized",
   "ruleType": "zone_inclusion",
   "zoneSemantics": "inclusion",
   "instrumentType": "rup-be",
@@ -13,19 +13,27 @@
     "inclusion_hernieuwbare_energie_infrastructuur",
     "overdruk_zone_re_productie",
     "interpretive_bridge_solar_field",
-    "zone_loos_gedocumenteerd",
-    "v4_human_review"
+    "geometry_mercator_grup"
    ]
   },
-  "executableRef": "engine.procedural.human_review@poc-v1",
-  "formalizedBy": "norm-formalizer#poc-nspd-task7",
-  "formalizedAt": "2026-10-14",
-  "reason": "Zone-loze inclusion (gedocumenteerd): art. 20 GRUP fase 2 staat alle handelingen voor RE-infrastructuur toe binnen het overdruk-gebied 'productie van hernieuwbare energie', maar dat gebied heeft geen alias in ZONE_SOURCES (taak 9) en de dekking van solar_field is interpretief (zonnevelden als RE-infrastructuur, niet verbatim genoemd); routeeert naar V4."
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task4",
+  "formalizedAt": "2026-10-16",
+  "conditions": [],
+  "zoneSelector": {
+   "zoneIds": [
+    "hernieuwbaar-be"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via mercator-gewestelijke-RUP (gepind 2026-10-16; client-side bestemmingfilter, zie grupBevindingen in probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine."
+  },
+  "rationale": "Formalized (fase 3, task 4): GRUP fase 2 artikel 20 (overdruk) — gebied voor de productie van hernieuwbare energie."
  },
  {
   "id": "FR-BEZ-02",
   "normCardId": "NC-BEZ-02",
-  "status": "ambiguous",
+  "status": "formalized",
   "ruleType": "zone_exclusion",
   "zoneSemantics": "exclusion",
   "instrumentType": "rup-be",
@@ -35,14 +43,22 @@
    "contextTags": [
     "exclusion_vergunningsplichtige_constructies",
     "bouwvrije_strook",
-    "zone_loos_gedocumenteerd",
-    "v4_human_review"
+    "geometry_mercator_grup"
    ]
   },
-  "executableRef": "engine.procedural.human_review@poc-v1",
-  "formalizedBy": "norm-formalizer#poc-nspd-task7",
-  "formalizedAt": "2026-10-14",
-  "reason": "Zone-loze exclusion (gedocumenteerd): art. 26 GRUP fase 2 verbiedt vergunningsplichtige gebouwen en constructies in de bouwvrije strook (uitsluitingenopsomming zonder zonnevelden), maar de strook heeft geen alias in ZONE_SOURCES (taak 9); routeeert naar V4."
+  "executableRef": "engine.zone.exclude_within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task4",
+  "formalizedAt": "2026-10-16",
+  "conditions": [],
+  "zoneSelector": {
+   "zoneIds": [
+    "bouwvrij-be"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via mercator-gewestelijke-RUP (gepind 2026-10-16; client-side bestemmingfilter, zie grupBevindingen in probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine."
+  },
+  "rationale": "Formalized (fase 3, task 4): GRUP fase 2 artikel 26 (overdruk) — bouwvrije strook: geen vergunningsplichtige bouwwerken (uitgezonderde werken blijven V4-toets)."
  },
  {
   "id": "FR-BEZ-03",

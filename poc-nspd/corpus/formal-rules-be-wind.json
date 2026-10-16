@@ -2,7 +2,7 @@
  {
   "id": "FR-BEW-01",
   "normCardId": "NC-BEW-01",
-  "status": "ambiguous",
+  "status": "formalized",
   "ruleType": "zone_inclusion",
   "zoneSemantics": "inclusion",
   "instrumentType": "rup-be",
@@ -12,19 +12,27 @@
    "contextTags": [
     "inclusion_een_rij_windturbines",
     "deelgebied_zelzate_zuid",
-    "zone_loos_gedocumenteerd",
-    "v4_human_review"
+    "geometry_mercator_grup"
    ]
   },
-  "executableRef": "engine.procedural.human_review@poc-v1",
-  "formalizedBy": "norm-formalizer#poc-nspd-task7",
-  "formalizedAt": "2026-10-14",
-  "reason": "Zone-loze inclusion (gedocumenteerd): art. 3 GRUP fase 2 staat in deelgebied Zelzate-zuid één rij windturbines toe op de rand van het bosgebied, maar dat deelgebied heeft geen alias in ZONE_SOURCES (taak 9: natura2000-be/gebouwen-be) en de geometrie is niet gepind; routeeert naar V4."
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task4",
+  "formalizedAt": "2026-10-16",
+  "conditions": [],
+  "zoneSelector": {
+   "zoneIds": [
+    "boskoppel-be"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via mercator-gewestelijke-RUP (gepind 2026-10-16; client-side bestemmingfilter, zie grupBevindingen in probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine."
+  },
+  "rationale": "Formalized (fase 3, task 4): binnen het bosgebied-koppelingsgebied is één rij windturbines toegelaten in sub-gebied Zelzate-zuid (rand van de boszone). CAVEAT: het sub-gebied is in de GRUP-geometrie niet scheidbaar — de inclusion geldt het hele koppelingsgebied ∩ AOI; de sub-gebiedvoorwaarde blijft een V4-toets."
  },
  {
   "id": "FR-BEW-02",
   "normCardId": "NC-BEW-02",
-  "status": "ambiguous",
+  "status": "formalized",
   "ruleType": "zone_exclusion",
   "zoneSemantics": "exclusion",
   "instrumentType": "rup-be",
@@ -34,14 +42,22 @@
    "contextTags": [
     "exclusion_grootschalige_windturbines",
     "overdruk_grensgebied_grootstedelijk_gebied",
-    "zone_loos_gedocumenteerd",
-    "v4_human_review"
+    "geometry_mercator_grup"
    ]
   },
-  "executableRef": "engine.procedural.human_review@poc-v1",
-  "formalizedBy": "norm-formalizer#poc-nspd-task7",
-  "formalizedAt": "2026-10-14",
-  "reason": "Zone-loze exclusion (gedocumenteerd): art. 14 GRUP fase 2 verbiedt grootschalige windturbines in het overdruk-grensgebied met het grootstedelijk gebied (plus afvalverwerking/bulkopslag in open lucht), maar dat gebied heeft geen alias in ZONE_SOURCES (taak 9); routeeert naar V4. Art. 30 herhaalt dezelfde verbodstekst (BVW-03 duplicaat)."
+  "executableRef": "engine.zone.exclude_within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task4",
+  "formalizedAt": "2026-10-16",
+  "conditions": [],
+  "zoneSelector": {
+   "zoneIds": [
+    "grensgebied-be"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via mercator-gewestelijke-RUP (gepind 2026-10-16; client-side bestemmingfilter, zie grupBevindingen in probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine."
+  },
+  "rationale": "Formalized (fase 3, task 4): in het grensgebied met het grootstedelijk gebied zijn grootschalige windturbines uitgesloten (GRUP fase 2, artikel 14)."
  },
  {
   "id": "FR-BEW-03",
