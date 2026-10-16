@@ -85,6 +85,29 @@ ZONE_SOURCES: Dict[str, Dict[str, Any]] = {
                        "note": "SBZ/Natura2000-Vlaanderen (Mercator) — exclusion"},
     "gebouwen-be": {"sourceId": "geopunt-grb-wfs",
                      "note": "GRB gebouwen BE — inclusion/context"},
+    # Fase 3 (2026-10-16): Zeeland OVZ-kaartbijlagen (probe_2026-10-16.json);
+    # aliases alléén met live-gepinde laag. grondwater (grwtrbsz) heeft geen
+    # geometrie binnen de NSPD-bbox en is bewust niet gepind.
+    "windconcl-nl": {"sourceId": "zeeland-ovz-windconcl",
+                      "note": "Windenergie-concentratielocaties (bijlage XIV OVZ) — inclusion (FR-WIND-01)"},
+    "stedelijk-nl": {"sourceId": "zeeland-ovz-stedelijk",
+                      "note": "Bestaand bebouwd gebied/woonbebouwing 2025 — inclusion (FR-ZON-01; kandidaat wonen/werken)"},
+    "waterkering-nl": {"sourceId": "zeeland-ovz-waterkering",
+                        "note": "Regionale waterkerende keringen — exclusion (FR-WAT-03)"},
+    "landschap-nl": {"sourceId": "zeeland-ovz-landschap",
+                      "note": "Landschapsvlakken — attention/inclusion (FR-LAN-*)"},
+    "natuurnetwerk-nl": {"sourceId": "zeeland-ovz-natuurnetwerk",
+                          "note": "Natuurprogramma bestand natuur 2025 — attention (FR-BOS-*, FR-LAN-*)"},
+    "recreatie-nl": {"sourceId": "zeeland-ovz-recreatie",
+                      "note": "Verblijfsrecreatie 2022 — inclusion (FR-REC-*)"},
+    "kustzone-nl": {"sourceId": "zeeland-ovz-kustzone",
+                     "note": "Kustzone 2022 — attention (FR-REC-*, FR-LAN-*)"},
+    "glastuinbouw-nl": {"sourceId": "zeeland-ovz-glastuinbouw",
+                         "note": "Glastuinbouwconcentratiegebied — inclusion (FR-LNB-*)"},
+    "stiltegebied-nl": {"sourceId": "zeeland-ovz-stiltegebied",
+                         "note": "Stiltegebieden totaal 2027 — attention (FR-LAN-*, FR-REC-*)"},
+    "vaarweg-nl": {"sourceId": "zeeland-ovz-vaarweg",
+                    "note": "Vaarweg — attention (FR-MOB-*, FR-WAT-*)"},
 }
 
 INSTRUMENTS: Dict[str, str] = {

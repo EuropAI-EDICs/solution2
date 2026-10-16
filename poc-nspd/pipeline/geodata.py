@@ -487,6 +487,56 @@ def fetch_ogc_api_features(session, src, bbox=None, simplify_m=None, timeout=120
     return feats, 1
 
 
+def fetch_wfs_features(session, src, bbox=None, timeout=120.0):
+    """WFS 2.0 GetFeature (GeoJSON) — Zeeland OVZ-kaartbijlagen (fase 3, task 1).
+
+    De dienst geeft de features in EPSG:28992 terug (srsName in de URL én de
+    bbox-URN), dus net als bij ArcGIS geldt: volledige (ongeknipte) geometrie
+    van snijdende features; de engine knipt op de AOI. Paging via startIndex
+    tot een pagina onder de paginagrootte blijft; de hard cap geldt onverkort.
+    ``layerId`` draagt hier het WFS-typeName (bijv. ``dso:ext_ovz_windnrg_concloc``).
+    """
+    layer = src.get("layerId")
+    if not layer:
+        raise GeoDataError(
+            f"wfs source {src.get('id')!r} has no layerId (WFS-typeName) — cannot query"
+        )
+    base = (src.get("serviceUrl") or "").rstrip("?")
+    if not base:
+        raise GeoDataError(f"source {src.get('id')!r} has no serviceUrl")
+    page = 1000
+    bstr = _bbox_str(bbox)
+    feats, pages, start = [], 0, 0
+    while True:
+        params = {
+            "service": "WFS",
+            "version": "2.0.0",
+            "request": "GetFeature",
+            "typeNames": layer,
+            "outputFormat": "application/json",
+            "srsName": "urn:ogc:def:crs:EPSG::28992",
+            "count": page,
+            "startIndex": start,
+        }
+        if bstr is not None:
+            params["bbox"] = f"{bstr},urn:ogc:def:crs:EPSG::28992"
+        body = _fetch_page(session, base, params, timeout)
+        raw = body.get("features", []) if isinstance(body, dict) else []
+        for f in raw:
+            if isinstance(f, dict) and f.get("geometry") is not None:
+                feats.append(f)
+        pages += 1
+        returned = body.get("numberReturned", len(raw)) if isinstance(body, dict) else len(raw)
+        if not isinstance(returned, int) or returned < page:
+            break
+        start += returned
+        if len(feats) > MAX_FEATURES_HARD_CAP:
+            raise GeoDataError(
+                f"{src.get('id')}: exceeded hard cap of {MAX_FEATURES_HARD_CAP} features; aborting"
+            )
+    return feats, pages
+
+
 def _fetch_page(session, url, params, timeout):
     try:
         resp = session.get(url, params=params, timeout=timeout)
@@ -581,7 +631,9 @@ def fetch_layer(
         session = requests.Session()
     session.headers["User-Agent"] = USER_AGENT
 
-    if src.get("endpointType") == "ogc-api":
+    if src.get("endpointType") == "wfs":
+        feats, pages = fetch_wfs_features(session, src, bbox=bbox, timeout=timeout)
+    elif src.get("endpointType") == "ogc-api":
         feats, pages = fetch_ogc_api_features(
             session, src, bbox=bbox, simplify_m=simplify_m, timeout=timeout
         )
