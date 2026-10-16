@@ -1,0 +1,53 @@
+{
+ "id": "SSET-wind-be-nspd-fase3",
+ "useCase": "wind",
+ "description": "What-if-set voor de NSPD wind-track (BE-zijde, baseline = GRUP Zeehavengebied Gent fase 2-run). De zones zijn de gepinde gewestelijke-RUP-bestemmingen; iedere basis gromdt in de geciteerde GRUP-artikelen.",
+ "scenarios": [
+  {
+   "id": "SC-WIND-BE-BOSKOPPEL-DROP",
+   "name": "Turbine-rij in het boskoppelingsgebied losgelaten (BE)",
+   "description": "FR-BEW-01 (GRUP fase 2 art. 3: één rij windturbines in het bosgebied-koppelingsgebied, Zelzate-zuid) valt weg: zonder inclusieregel is de finale zone leeg — de laagste-druk-variant voor de BE-zijde.",
+   "objectType": "wind_turbine",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-BEW-01",
+    "provenanceNote": "NC-BEW-01 (GRUP fase 2, art. 3) staat de turbine-rij in het koppelingsgebied toe; dit scenario laat die aanwijzing vallen. Het sub-gebied Zelzate-zuid is in de geometrie niet scheidbaar (caveat bij de regel) — de zone hier is het volledige koppelingsgebied."
+   },
+   "mutations": [
+    {"ruleId": "FR-BEW-01", "action": "drop"}
+   ],
+   "proposedBy": "curator#poc-nspd-fase3"
+  },
+  {
+   "id": "SC-WIND-BE-GRENS-DROP",
+   "name": "Grensgebied-exclusie losgelaten (BE)",
+   "description": "FR-BEW-02 (geen grootschalige windturbines in het grensgebied met het grootstedelijk gebied) valt weg: alleen het boskoppelingsgebied blijft de zone bepalen.",
+   "objectType": "wind_turbine",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-BEW-02",
+    "provenanceNote": "NC-BEW-02 (GRUP fase 2, art. 14) sluit grootschalige windturbines in het grensgebied uit; het schrappen van die exclusie is de beleidsvariant."
+   },
+   "mutations": [
+    {"ruleId": "FR-BEW-02", "action": "drop"}
+   ],
+   "proposedBy": "curator#poc-nspd-fase3"
+  },
+  {
+   "id": "SC-WIND-BE-BOSKOPPEL-BUF500",
+   "name": "Turbine-rij-zone verbreed met 500 m (BE)",
+   "description": "FR-BEW-01 krijgt een 500 m-buffer rond het boskoppelingsgebied: de turbines-rij krijgt meer diagonale opstellingsruimte rond de bosrand.",
+   "objectType": "wind_turbine",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-BEW-01",
+    "variedAspect": "inclusion-zone verbreed met een toegevoegde 500 m-buffer",
+    "provenanceNote": "NC-BEW-01 kent géén afstandseis; de 500 m is niet geciteerd en wordt louter verkend."
+   },
+   "mutations": [
+    {"ruleId": "FR-BEW-01", "action": "set_buffer_distance_m", "bufferDistanceM": 500}
+   ],
+   "proposedBy": "curator#poc-nspd-fase3"
+  }
+ ]
+}

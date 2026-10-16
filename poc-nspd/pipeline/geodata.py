@@ -50,28 +50,31 @@ import time
 from pathlib import Path
 
 import requests
+import shapely
 from shapely.geometry import MultiPolygon, Polygon, mapping, shape
 
 try:  # pyproj is available per toolchain check; kept optional for parsing-only use
+    import numpy
     from pyproj import Transformer
-    from shapely.ops import transform as _shp_transform
 
     _RD_TO_WGS84 = Transformer.from_crs("EPSG:28992", "EPSG:4326", always_xy=True)
     _WGS84_TO_RD = Transformer.from_crs("EPSG:4326", "EPSG:28992", always_xy=True)
 
-    def _to_wgs84(geom):
+    def _transform(transformer, geom):
         if geom is None or geom.is_empty:
             return geom
-        return _shp_transform(
-            lambda x, y, z=None: _RD_TO_WGS84.transform(x, y), geom
+        # shapely.ops.transform is deprecated; vectorized vorm is bit-exact
+        # equivalent (bewezen 2026-10-16 op RD↔WGS84-polygonen)
+        return shapely.transform(
+            geom, lambda pts: numpy.column_stack(
+                transformer.transform(pts[:, 0], pts[:, 1]))
         )
 
+    def _to_wgs84(geom):
+        return _transform(_RD_TO_WGS84, geom)
+
     def _to_rd(geom):
-        if geom is None or geom.is_empty:
-            return geom
-        return _shp_transform(
-            lambda x, y, z=None: _WGS84_TO_RD.transform(x, y), geom
-        )
+        return _transform(_WGS84_TO_RD, geom)
 
 except Exception:  # pragma: no cover - only hit on a broken toolchain
     _to_wgs84 = None

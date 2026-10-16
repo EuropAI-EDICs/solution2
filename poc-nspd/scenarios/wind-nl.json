@@ -1,0 +1,53 @@
+{
+ "id": "SSET-wind-nspd-fase3",
+ "useCase": "wind",
+ "description": "What-if-set voor de NSPD wind-track (NL-zijde, baseline = gepinde Omgevingsverordening-run). Iedere basis gromdt in de geciteerde NormCard van de baseline; de 500 m-buffer rond Natura 2000 is expliciet hypothetisch (afstandsregels zitten in het cite-or-abstain-ledger, geen geverifieerde provinciale afstand).",
+ "scenarios": [
+  {
+   "id": "SC-WIND-NL-CONCLOC-DROP",
+   "name": "Concentratielocatiebeleid losgelaten (NL)",
+   "description": "FR-WIND-01 (art. 18.17 lid 1: nieuwe turbines >21 m alléén binnen een windenergie-concentratielocatie, bijlage XIV) valt weg: de inclusion-union wordt de hele aanvraag-AOI minus Natura 2000 — de bovenkant van het beleidsbereik.",
+   "objectType": "wind_turbine",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-WIND-01",
+    "provenanceNote": "NC-WIND-01 (art. 18.17) beperkt nieuwe turbines tot de concentratielocaties uit bijlage XIV; dit scenario laat die keuze provincie-breed vallen als beleidsvariant — het loslaten zelf is de assumptie, de zone (bijlage XIV via zeeland-ovz-windconcl) is verbatim geciteerd."
+   },
+   "mutations": [
+    {"ruleId": "FR-WIND-01", "action": "drop"}
+   ],
+   "proposedBy": "curator#poc-nspd-fase3"
+  },
+  {
+   "id": "SC-WIND-NL-NATURA-BUFFER500",
+   "name": "Natura 2000-exclusie verbreed met 500 m (NL)",
+   "description": "FR-WIND-03 (exclusion natura2000-nl) krijgt een 500 m-buffer: de exclusie begint een halve kilometer vóór de gebiedsgrens. Berekend effect: de smalle concentratielocaties krimpen verder in.",
+   "objectType": "wind_turbine",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-WIND-02",
+    "variedAspect": "exclusion-zone verbreed met een toegevoegde 500 m-buffer",
+    "provenanceNote": "NC-WIND-02 (art. 18.38-interpretieve brug naar Natura 2000) kent géén afstandsregel; de 500 m is niet geciteerd en wordt louter verkend — hypothetical verrekening, geen rechtstoepassing."
+   },
+   "mutations": [
+    {"ruleId": "FR-WIND-03", "action": "set_buffer_distance_m", "bufferDistanceM": 500}
+   ],
+   "proposedBy": "curator#poc-nspd-fase3"
+  },
+  {
+   "id": "SC-WIND-NL-ZONDER-NATURA",
+   "name": "Zonder Natura 2000-toets (NL)",
+   "description": "FR-WIND-03 valt weg: alleen de concentratielocaties bepalen de zone (≈12,6 km² vóór buffers). Laagste-druk-scenario voor het windvraagstuk binnen het district.",
+   "objectType": "wind_turbine",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: wat resteert van de zone als de Natura 2000-exclusie (FR-WIND-03, de interpretieve brug art. 18.38) buiten beschouwing blijft. Geen beleidsvoorstel — de brug is in de baseline bewust conservatief geformaliseerd.",
+    "provenanceNote": "Fictieve toestand: de Natura 2000-exclusie is niet in het rechtsbestel geschrapt; dit scenario rekent puur de geometrie zonder FR-WIND-03 door, ter inzichtgeving."
+   },
+   "mutations": [
+    {"ruleId": "FR-WIND-03", "action": "drop"}
+   ],
+   "proposedBy": "curator#poc-nspd-fase3"
+  }
+ ]
+}

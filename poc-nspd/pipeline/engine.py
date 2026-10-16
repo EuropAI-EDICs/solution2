@@ -54,17 +54,25 @@ from shapely.ops import unary_union
 from shapely.validation import make_valid
 
 try:
+    import numpy
     from pyproj import Transformer
-    from shapely.ops import transform as _shp_transform
 
     _RD_TO_WGS84 = Transformer.from_crs("EPSG:28992", "EPSG:4326", always_xy=True)
     _WGS84_TO_RD = Transformer.from_crs("EPSG:4326", "EPSG:28992", always_xy=True)
 
+    def _transform(transformer, geom):
+        # shapely.ops.transform is deprecated (shapely 2.1+); de vectorized vorm
+        # is bit-exact equivalent (bewezen 2026-10-16 op RD↔WGS84-polygonen)
+        return shapely.transform(
+            geom, lambda pts: numpy.column_stack(
+                transformer.transform(pts[:, 0], pts[:, 1]))
+        )
+
     def to_wgs84(geom):
-        return _shp_transform(lambda x, y, z=None: _RD_TO_WGS84.transform(x, y), geom)
+        return _transform(_RD_TO_WGS84, geom)
 
     def _to_rd(geom):
-        return _shp_transform(lambda x, y, z=None: _WGS84_TO_RD.transform(x, y), geom)
+        return _transform(_WGS84_TO_RD, geom)
 
 except Exception:  # pragma: no cover
     raise ImportError("engine.py requires pyproj (toolchain guarantees it)")
