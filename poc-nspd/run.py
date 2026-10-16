@@ -108,6 +108,10 @@ ZONE_SOURCES: Dict[str, Dict[str, Any]] = {
                          "note": "Stiltegebieden totaal 2027 — attention (FR-LAN-*, FR-REC-*)"},
     "vaarweg-nl": {"sourceId": "zeeland-ovz-vaarweg",
                     "note": "Vaarweg — attention (FR-MOB-*, FR-WAT-*)"},
+    "badplaatsen-nl": {"sourceId": "zeeland-ovz-badplaatsen",
+                        "note": "Badplaatsen 2022 — inclusion (FR-REC-01: alleen binnen aangewezen badplaatsen)"},
+    "afwegingszone-nl": {"sourceId": "zeeland-ovz-afwegingszone",
+                          "note": "Afwegingszone natuurgebieden (art. 5.34, bijlage XII-4) — attention (FR-LAN-01)"},
 }
 
 INSTRUMENTS: Dict[str, str] = {

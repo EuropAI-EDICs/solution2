@@ -2,7 +2,7 @@
  {
   "id": "FR-LAN-01",
   "normCardId": "NC-LAN-01",
-  "status": "ambiguous",
+  "status": "formalized",
   "ruleType": "zone_attention",
   "zoneSemantics": "attention",
   "instrumentType": "omgevingsverordening-nl",
@@ -10,20 +10,28 @@
   "appliesTo": {
    "objectType": "landscape_intervention",
    "contextTags": [
-    "zone_loos_gedocumenteerd",
-    "v4_human_review",
-    "curatie_fase2_landschap"
+    "curatie_fase2_landschap",
+    "geometry_zeeland_ovz"
    ]
   },
-  "executableRef": "engine.procedural.human_review@poc-v1",
-  "formalizedBy": "norm-formalizer#poc-nspd-fase2-t5",
-  "formalizedAt": "2026-10-14",
-  "reason": "Afwegingszone natuurgebieden (bijlage XII/4): motiveringseis; zone (100m rond natuurgebied) zonder geo-pin → zone-loos. Zone-loos gedocumenteerd; routeert naar V4."
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task3",
+  "formalizedAt": "2026-10-16",
+  "conditions": [],
+  "zoneSelector": {
+   "zoneIds": [
+    "afwegingszone-nl"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via zeeland-ovz-wfs (gepind 2026-10-16, probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine. Attention-marker: de zone rapporteert, de opportuiniteitszone verandert niet."
+  },
+  "rationale": "Formalized (fase 3, task 3): NC-LAN-01-citaat — binnen de 100-m afwegingszone rond bestaande natuur (art. 5.34, bijlage XII-4) verplicht een motivering hoe het natuurgebied is meegewogen. Gepind als zeeland-ovz-afwegingszone (dso:ext_ovz_nbp_afwgzn_ntrgb2025, hits=1; het laagattribuut noemt artikel en kaartbijlage verbatim). Marker-semantiek: rapportage, geen ruimtelijke uitsluiting."
  },
  {
   "id": "FR-LAN-02",
   "normCardId": "NC-LAN-02",
-  "status": "ambiguous",
+  "status": "formalized",
   "ruleType": "zone_attention",
   "zoneSemantics": "attention",
   "instrumentType": "omgevingsverordening-nl",
@@ -31,14 +39,22 @@
   "appliesTo": {
    "objectType": "landscape_intervention",
    "contextTags": [
-    "zone_loos_gedocumenteerd",
-    "v4_human_review",
-    "curatie_fase2_landschap"
+    "curatie_fase2_landschap",
+    "geometry_zeeland_ovz"
    ]
   },
-  "executableRef": "engine.procedural.human_review@poc-v1",
-  "formalizedBy": "norm-formalizer#poc-nspd-fase2-t5",
-  "formalizedAt": "2026-10-14",
-  "reason": "Landschap en erfgoed (bijlage VII): motiveringseis landschapskwaliteit; kernlandschapsnorm, zone-loos. Zone-loos gedocumenteerd; routeert naar V4."
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task3",
+  "formalizedAt": "2026-10-16",
+  "conditions": [],
+  "zoneSelector": {
+   "zoneIds": [
+    "landschap-nl"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via zeeland-ovz-wfs (gepind 2026-10-16, probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine. Attention-marker: de zone rapporteert, de opportuiniteitszone verandert niet."
+  },
+  "rationale": "Formalized (fase 3, task 3): NC-LAN-02-citaat — omgevingsplannen die landschappen raken (bijlage VII) verplichten inzicht in landschaps- en cultuurhistorische waarden. Gepind als zeeland-ovz-landschap (dso:ext_ovz_landsch_vlak). Marker-semantiek: rapportage, geen ruimtelijke uitsluiting."
  }
 ]
