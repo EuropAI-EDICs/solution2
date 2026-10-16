@@ -109,6 +109,79 @@ def test_zeeland_referentielagen_overgenomen():
     assert not any("GRB gebouwen" in t for t in per_titel)
 
 
+def _cfg_twee_tracks() -> dict:
+    """Fixture met twee tracks: wind (ruimtelijke regel) + zon (AOI-breed)."""
+    src = ROOT / "tests" / "fixtures" / "viewer"
+    basis = Path(tempfile.mkdtemp())
+    shutil.copytree(src / "run-wind", basis / "wind")
+    shutil.copytree(src / "run-zon", basis / "zon")
+    pad = make_viewer_config(track="wind", run_dir=basis / "wind", out_dir=basis / "vd")
+    return json.loads(pad.read_text(encoding="utf-8"))
+
+
+def test_scenario_lagen_alle_tracks():
+    """AI-scenario-planning in de viewer: alle xborder-tracks als geneste
+    scenario-groep; hoofdtrack standaard aan; AOI-only-tracks eerlijk gelabeld
+    (hun eindzone is het aanvraaggebied, geen ruimtelijke operand)."""
+    cfg = _cfg_twee_tracks()
+    contracts.validate(cfg, "leia-config")
+    groepen = {g["id"]: g for g in cfg["groups"]}
+    assert groepen["scenario"]["title"] == "Scenario-zones (AI-pipeline)"
+    assert groepen["scenario-wind"]["parentId"] == "scenario"
+    assert groepen["scenario-zon"]["parentId"] == "scenario"
+    assert groepen["scenario-zon"]["title"] == "Scenario: zon (AOI-breed)"
+    assert "(AOI-breed)" not in groepen["scenario-wind"]["title"]
+    assert groepen["scenario-wind"]["isOpen"] is True
+    assert groepen["scenario-zon"]["isOpen"] is False
+    per_titel = {l["title"]: l for l in cfg["layers"]}
+    for t in ("wind", "zon"):
+        for land in ("NL", "BE"):
+            assert f"Zones {t} {land}" in per_titel
+    assert per_titel["Zones wind NL"]["defaultOn"] is True
+    assert per_titel["Zones zon NL"]["defaultOn"] is False
+    assert per_titel["Zones zon BE"]["defaultOn"] is False
+    assert "FR-WIND-03" in per_titel["Zones wind NL"]["description"]
+    assert "geen ruimtelijke norm-operand" in per_titel["Zones zon NL"]["description"]
+
+
+def test_scenario_rapporten_gerekopieerd():
+    """Het xborder-rapport van een track komt per track benoemd mee naar
+    reports/ (alle bronrapporten heten report-xborder.html) en staat in de
+    laagbeschrijving; tracks zonder rapportbestand krijgen geen verwijzing."""
+    cfg = _cfg_twee_tracks()
+    per_titel = {l["title"]: l for l in cfg["layers"]}
+    assert "Rapport: reports/wind.html" in per_titel["Zones wind NL"]["description"]
+    assert "Rapport:" not in per_titel["Zones zon NL"]["description"]
+
+
+def test_scenario_bronlagen():
+    """Bronlagen-groep met de regel-operanden: Natura 2000 NL (exclusion van
+    wind/zon), SBZ Vlaanderen (gepin, nog door geen BE-regel gebruikt), DHMV
+    (context); netcongestie-laag alleen als het laagbestand bestaat."""
+    src = ROOT / "tests" / "fixtures" / "viewer"
+    basis = Path(tempfile.mkdtemp())
+    shutil.copytree(src / "run-wind", basis / "wind")
+    # netcongestie-laag niet aanwezig → laag niet in de config
+    pad = make_viewer_config(track="wind", run_dir=basis / "wind", out_dir=basis / "vd")
+    cfg = json.loads(pad.read_text(encoding="utf-8"))
+    titels = {l["title"]: l for l in cfg["layers"]}
+    assert "Natura 2000-gebieden (NL) — exclusion" in titels
+    assert titels["Natura 2000-gebieden (NL) — exclusion"]["defaultOn"] is True
+    assert "geformaliseerde BE-regel" in titels["SBZ/Natura2000 Vlaanderen — exclusion (gepin)"]["description"]
+    assert titels["DHM Vlaanderen II (hillshade) — context"]["settings"]["featureName"] == "DHMV_II_HILL_25cm"
+    assert "Netcongestie afname (NL) — context" not in titels
+    # bestand aanwezig → laag mét stijl en uitleg
+    vd = basis / "vd" / "layers"
+    vd.mkdir(parents=True, exist_ok=True)
+    (vd / "netcongestie-afname-nl.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": []}))
+    pad = make_viewer_config(track="wind", run_dir=basis / "wind", out_dir=basis / "vd")
+    cfg = json.loads(pad.read_text(encoding="utf-8"))
+    titels = {l["title"]: l for l in cfg["layers"]}
+    nc = titels["Netcongestie afname (NL) — context"]
+    assert nc["defaultOn"] is False and nc["settings"]["style"]["stroke"] == "#620e14"
+    assert "energietoets" in nc["description"]
+
+
 def test_grb_laag_en_besluit_vermeld():
     cfg_pad = ROOT / "viewer-data" / "nspd.config.json"
     if not cfg_pad.is_file():

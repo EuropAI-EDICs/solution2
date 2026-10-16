@@ -86,42 +86,123 @@ def _zeeland_referentielagen() -> tuple[list[dict], list[dict]]:
     return groepen, lagen
 
 
+def _scenario_tracken(run_dir: Path, hoofd: str) -> dict[str, Path]:
+    """Alle xborder-trackuitvoer naast ``run_dir`` (xborder-runs/*/zones-*-nspd.geojson),
+    de hoofdtrack gegarandeerd eerst."""
+    tracks: dict[str, Path] = {}
+    for pad in sorted(run_dir.parent.glob("*/zones-*-nspd.geojson")):
+        tracks.setdefault(pad.name[len("zones-"):-len("-nspd.geojson")], pad)
+    tracks[hoofd] = run_dir / f"zones-{hoofd}-nspd.geojson"
+    return dict(sorted(tracks.items(), key=lambda kv: kv[0] != hoofd))
+
+
+def _scenario_bronnen(layers_dir: Path) -> list[dict]:
+    """Bronlagen waarop de scenario-regels rekenen (regel-operanden + context)."""
+    lagen = [
+        {"id": "bron-natura2000-nl", "type": "wms",
+         "title": "Natura 2000-gebieden (NL) — exclusion", "groupId": "scenario-bronnen",
+         "defaultOn": True, "defaultAddToManager": True, "attribution": "PDOK / RVO",
+         "description": "Exclusion-operand van FR-WIND-03 (wind) en FR-ZON-02 (zon): "
+                        "bron pdok-natura2000 (rvo/natura2000; OGC API in de pipeline, WMS hier).",
+         "settings": {"url": "https://service.pdok.nl/rvo/natura2000/wms/v1_0",
+                      "featureName": "natura2000", "contentType": "image/png",
+                      "webMercator": True}},
+        {"id": "bron-sbz-be", "type": "wms",
+         "title": "SBZ/Natura2000 Vlaanderen — exclusion (gepin)", "groupId": "scenario-bronnen",
+         "defaultOn": True, "defaultAddToManager": True,
+         "attribution": "Mercator publiek / Agentschap Natuur en Bos",
+         "description": "Gepinde exclusion-bron voor BE (mercator-sbz-wms, "
+                        "nz:nz_n_gevoelige_habitats_sbz_2025); nog niet gebruikt door een "
+                        "geformaliseerde BE-regel — de BE-zones zijn (nog) AOI-breed.",
+         "settings": {"url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
+                      "featureName": "nz:nz_n_gevoelige_habitats_sbz_2025",
+                      "contentType": "image/png", "webMercator": True}},
+        {"id": "bron-dhmv-be", "type": "wms",
+         "title": "DHM Vlaanderen II (hillshade) — context", "groupId": "scenario-bronnen",
+         "defaultOn": False, "defaultAddToManager": True, "attribution": "Geopunt / Vlaamse overheid",
+         "description": "Hoogtecontext (geopunt-dhmv-wms); geen norm-operand — besluit 'vlak' "
+                        "staat in data/grb_extrusie_besluit.json.",
+         "settings": {"url": "https://geo.api.vlaanderen.be/DHMV/wms",
+                      "featureName": "DHMV_II_HILL_25cm", "contentType": "image/png",
+                      "webMercator": True}},
+    ]
+    if (layers_dir / "netcongestie-afname-nl.geojson").is_file():
+        lagen.append({
+            "id": "bron-netcongestie-nl", "type": "geojson",
+            "title": "Netcongestie afname (NL) — context", "groupId": "scenario-bronnen",
+            "defaultOn": False, "defaultAddToManager": True, "opacity": 45,
+            "attribution": "Netbeheer Nederland, Landelijke Capaciteitskaart elektriciteitsnet",
+            "description": "Voedingsgebieden met afnamecode (0=beschikbaar … 3=tekort met "
+                           "wachtrij); scenario-basis voor energietoets "
+                           "(fetch_netcongestie_layer.py, zelfde cache als de pipeline).",
+            "settings": {"url": "layers/netcongestie-afname-nl.geojson",
+                         "style": {"fill": "#a51d2d", "stroke": "#620e14"}},
+        })
+    return lagen
+
+
 def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path) -> Path:
     geo_src = run_dir / f"zones-{track}-nspd.geojson"
     if not geo_src.is_file():
         raise SystemExit(f"ontbreekt: {geo_src} — draai eerst de xborder-merge (taak 10)")
     layers_dir = out_dir / "layers"
     layers_dir.mkdir(parents=True, exist_ok=True)
+    reports_dir = out_dir / "reports"
+    reports_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy2(geo_src, layers_dir / geo_src.name)
 
-    fc = json.loads(geo_src.read_text(encoding="utf-8"))
-    per_land = {}
-    for feat in _final_zones(fc.get("features", [])):
-        per_land.setdefault(feat["properties"].get("land", "nl"), []).append(feat)
-    laag_bestanden = {}
-    for land, feats in per_land.items():
-        pad = layers_dir / f"zones-{track}-{land}.geojson"
-        pad.write_text(json.dumps(
-            {"type": "FeatureCollection", "features": feats}, ensure_ascii=False), encoding="utf-8")
-        laag_bestanden[land] = pad.name
-
-    def zone_layer(land: str) -> dict:
-        st = LAND_STIJL[land]
-        return {
-            "id": f"zones-{track}-{land}",
-            "type": "geojson",
-            "title": f"Zones {track} {'NL' if land == 'nl' else 'BE'}",
-            "groupId": "pipeline",
-            "defaultOn": True, "defaultAddToManager": True,
-            "opacity": ZONE_OPACITY,
-            "settings": {
-                "url": f"layers/{laag_bestanden[land]}",
-                # Leia leest de stijl uitsluitend uit settings.style (object)
-                "style": {"fill": st["fill"], "stroke": st["stroke"]},
-            },
-        }
+    # per track: final-only zonebestanden per land, AOI-only-label, rapport
+    scenario_groepen: list[dict] = []
+    scenario_lagen: list[dict] = []
+    for t, bron in _scenario_tracken(run_dir, track).items():
+        if not bron.is_file():
+            continue
+        fc = json.loads(bron.read_text(encoding="utf-8"))
+        final = _final_zones(fc.get("features", []))
+        per_land: dict[str, list[dict]] = {}
+        for feat in final:
+            per_land.setdefault(feat["properties"].get("land", "nl"), []).append(feat)
+        laag_bestanden: dict[str, str] = {}
+        for land, feats in per_land.items():
+            pad = layers_dir / f"zones-{t}-{land}.geojson"
+            pad.write_text(json.dumps(
+                {"type": "FeatureCollection", "features": feats}, ensure_ascii=False),
+                encoding="utf-8")
+            laag_bestanden[land] = pad.name
+        aoi_only = all(set(f["properties"].get("ruleIds", ["FR-AOI-01"])) <= {"FR-AOI-01"}
+                       for f in final)
+        rapport = run_dir.parent / t / "report-xborder.html"
+        rapport_pad = ""
+        if rapport.is_file():  # alle tracks heten report-xborder.html → per track benoemen
+            shutil.copy2(rapport, reports_dir / f"{t}.html")
+            rapport_pad = f"reports/{t}.html"
+        regels = sorted({r for f in final for r in f["properties"].get("ruleIds", [])})
+        beschrijving = ("Eindzone = aanvraag-AOI (alleen FR-AOI-01): deze track heeft geen "
+                        "ruimtelijke norm-operand — de waarde zit in de normtabellen van het "
+                        "rapport. " if aoi_only else "")
+        beschrijving += f"Regels: {', '.join(regels)}."
+        if rapport_pad:
+            beschrijving += f" Rapport: {rapport_pad}"
+        scenario_groepen.append({
+            "id": f"scenario-{t}", "parentId": "scenario",
+            "title": f"Scenario: {t}" + (" (AOI-breed)" if aoi_only else ""),
+            "isOpen": t == track,
+        })
+        for land, bestand in laag_bestanden.items():
+            st = LAND_STIJL[land]
+            scenario_lagen.append({
+                "id": f"zones-{t}-{land}", "type": "geojson",
+                "title": f"Zones {t} {'NL' if land == 'nl' else 'BE'}",
+                "groupId": f"scenario-{t}",
+                "defaultOn": t == track, "defaultAddToManager": True,
+                "opacity": ZONE_OPACITY,
+                "description": beschrijving,
+                "settings": {"url": f"layers/{bestand}",
+                             "style": {"fill": st["fill"], "stroke": st["stroke"]}},
+            })
 
     ref_groepen, ref_lagen = _zeeland_referentielagen()
+    bronnen_lagen = _scenario_bronnen(layers_dir)
     cfg = {
         "name": f"poc-nspd — NSPD {track}",
         "viewer": {
@@ -135,7 +216,9 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path) -> Path:
         "groups": [
             {"id": "achtergrond", "title": "Achtergrond (eigen)", "isOpen": True},
             {"id": "d3", "title": "Gebouwcontext (eigen)", "isOpen": True},
-            {"id": "pipeline", "title": f"Zones {track} (pipeline)", "isOpen": True},
+            {"id": "scenario", "title": "Scenario-zones (AI-pipeline)", "isOpen": True},
+            {"id": "scenario-bronnen", "title": "Scenario-bronlagen (regel-operanden)", "isOpen": True},
+            *scenario_groepen,
             *ref_groepen,
         ],
         "layers": [
@@ -147,7 +230,8 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path) -> Path:
             {"id": "bag3d", "type": "3dtiles", "title": "3D BAG LoD2.2 (NL-gebouwen)", "groupId": "d3",
              "defaultOn": True, "attribution": "3D BAG / TU Delft, CC-BY-4.0", "defaultAddToManager": True,
              "settings": {"url": BAG_3D, "enableHeightControl": True}},
-            zone_layer("nl"), zone_layer("be"),
+            *bronnen_lagen,
+            *scenario_lagen,
             *ref_lagen,
         ],
         # Leia verwacht tools als ARRAY van {id, enabled} met exacte tool-id's

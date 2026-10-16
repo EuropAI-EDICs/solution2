@@ -126,7 +126,9 @@ python3 run.py --use-case wind-be
 # 2. xborder-merge + naast-elkaar-rapport (twee runs van één track, NL + BE)
 python3 -m pipeline.xborder runs/<ts>-wind-nl runs/<ts>-wind-be xborder-runs/wind --track wind
 
-# 3. Leia-config + lagen
+# 3. Leia-config + lagen (hoofdtrack = camera + standaard aan; álle tracks naast
+#    run-dir — xborder-runs/*/ — komen als scenario-groep mee, incl. rapport per track)
+python3 fetch_netcongestie_layer.py      # eenmalig: Capaciteitskaart 'afname' → cache + viewer-laag
 python3 make_viewer_config.py --track wind --run-dir xborder-runs/wind
 
 # 4. viewer starten (aparte terminals; viewer/ is de onaangetaste Leia-submodule)
@@ -135,6 +137,7 @@ python3 make_viewer_config.py --track wind --run-dir xborder-runs/wind
 #    zet de config + lagen op de viewer-eigen origin:
 cp viewer-data/nspd.config.json viewer/static/config.json
 mkdir -p viewer/static/layers && cp viewer-data/layers/*.geojson viewer/static/layers/
+mkdir -p viewer/static/reports && cp viewer-data/reports/*.html viewer/static/reports/
 (cd viewer && printf 'APP_URL=http://localhost:5173\nCONFIG_SERVER_URL=http://localhost:5173\n' > .env \
  && npm install && npm run dev -- --port 5173)
 #    open: http://localhost:5173/?config=http://localhost:5173/config.json
@@ -170,6 +173,18 @@ mkdir -p viewer/static/layers && cp viewer-data/layers/*.geojson viewer/static/l
 #    aan: GRB Vlaanderen (detailkaart mét gebouwvoetafdrukken), Begrenzing NSPD.
 #    NB: de fase-1-laag "GRB gebouwen" is hernoemd naar "GRB percelen" — GRB:ADP
 #    zijn administratieve percelen (CAPAKEY/CANU), geen gebouwen.
+#
+#    Scenario-lagen (AI scenario planning, 2026-10-16): groep "Scenario-zones
+#    (AI-pipeline)" met per track een geneste groep (Zones <track> NL/BE, alleen
+#    ZR-final-*); de hoofdtrack staat aan. Alleen wind (FR-WIND-03) en zon
+#    (FR-ZON-02) hebben een ruimtelijke norm-operand (AOI minus Natura 2000 NL);
+#    de 11 andere tracks zijn gelabeld "(AOI-breed)": hun eindzone is het aanvraag-
+#    gebied en de waarde zit in de normtabellen — laagbeschrijving linkt naar
+#    reports/<track>.html. Groep "Scenario-bronlagen (regel-operanden)": Natura 2000
+#    NL (PDOK WMS, exclusion wind/zon), SBZ Vlaanderen (Mercator WMS, gepind, nog
+#    door geen BE-regel gebruikt), DHM Vlaanderen II hillshade (context) en
+#    Netcongestie afname NL (ArcGIS Capaciteitskaart → fetch_netcongestie_layer.py,
+#    geclipt+gesimplificeerd; zelfde cache als pipeline.national_data.load_netcongestie).
 ```
 
 Demo-artefacten van fase 1 zitten in de repo: de zes smoke-runs onder `runs/20261014T*`
