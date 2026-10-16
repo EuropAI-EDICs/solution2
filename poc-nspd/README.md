@@ -154,6 +154,11 @@ mkdir -p viewer/static/layers && cp viewer-data/layers/*.geojson viewer/static/l
 #    De zones-lagen tonen alleen de eindzones (ZR-final-*) van de pijplijn; de
 #    tussenstappen (inclusion_union/intersection/difference) zijn AOI-breed en
 #    stapelden zich voorheen tot een bijna dekkend oranje vlak (demo 2026-10-15).
+#
+#    Leia-stijlcontract voor geojson-lagen (geojson-layer.ts): kleur uitsluitend via
+#    settings.style {fill, stroke}; transparantie via laag-opacity 0-100 (hex-alpha
+#    wordt door withAlpha() overschreven, zonder opacity = vol-dekkend); contouren
+#    verschijnen alleen bij style.stroke; strokeWidth weglaten (upstream-bug).
 ```
 
 Demo-artefacten van fase 1 zitten in de repo: de zes smoke-runs onder `runs/20261014T*`

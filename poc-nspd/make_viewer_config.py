@@ -11,9 +11,15 @@ BRT_WMTS = "https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0?"
 GEOPUNT_BASIS = "https://geo.api.vlaanderen.be/omw/wmts?"  # OMW ortho (statuspagina taak 1); featureName verifiëren in de capabilities bij eerste start — alleen defaultOn:false-laag
 BAG_3D = "https://data.3dbag.nl/v20250903/cesium3dtiles/lod22/tileset.json"
 LAND_STIJL = {
-    "nl": {"stroke": "#1a5fb4", "fill": "#1a5fb426"},
-    "be": {"stroke": "#c64600", "fill": "#c6460026"},
+    "nl": {"stroke": "#1a5fb4", "fill": "#1a5fb4"},
+    "be": {"stroke": "#c64600", "fill": "#c64600"},
 }
+# Leia (pin 7351002, geojson-layer.ts): de vul-transparantie komt uitsluitend uit
+# de laag-opacity (0-100) — een hex-alpha in de kleur wordt door withAlpha()
+# overschreven en zonder opacity is de vulling vol-dekkend. Contouren (polyline-
+# outlines) blijven op volle sterkte. strokeWidth bewust weggelaten: upstream-bug
+# stopt dan de kleurstring in de lijnbreedte (outlineWidth).
+ZONE_OPACITY = 20
 
 
 def _final_zones(feats: list[dict]) -> list[dict]:
@@ -54,9 +60,11 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path) -> Path:
             "title": f"Zones {track} {'NL' if land == 'nl' else 'BE'}",
             "groupId": "pipeline",
             "defaultOn": True, "defaultAddToManager": True,
+            "opacity": ZONE_OPACITY,
             "settings": {
                 "url": f"layers/{laag_bestanden[land]}",
-                "stroke": st["stroke"], "fill": st["fill"], "strokeWidth": 2,
+                # Leia leest de stijl uitsluitend uit settings.style (object)
+                "style": {"fill": st["fill"], "stroke": st["stroke"]},
             },
         }
 
@@ -65,10 +73,10 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path) -> Path:
         "viewer": {
             "title": f"poc-nspd — NSPD {track}",
             "subTitle": "grensvergelijkende scan (plan 2026-10-14)",
-            # Overzichtscamera: zuidelijk van het district, noordwaarts kijkend —
-            # het volledige NSPD-gebied in beeld (bewezen 2026-10-15: 12 km / −45°
-            # toont Westerschelde + kanaalzone + beide zones; 30 km/−55° onbeproefd)
-            "startPosition": {"x": 3.66, "y": 51.15, "z": 12000, "heading": 0, "pitch": -45, "duration": 3},
+            # Overzichtscamera: ten zuiden van de Kanaalzone Gent–Terneuzen, noordwaarts
+            # kijkend — kanaalzone centraal, Westerschelde boven (bewezen 2026-10-15:
+            # 14 km / −45° toont beide zones mét contouren op leesbare BRT-kaart)
+            "startPosition": {"x": 3.78, "y": 51.10, "z": 14000, "heading": 0, "pitch": -45, "duration": 3},
         },
         "groups": [
             {"id": "achtergrond", "title": "Achtergrond", "isOpen": True},

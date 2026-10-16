@@ -40,16 +40,25 @@ def test_zone_lagen_bevatten_alleen_final_zones(tmp_path):
 
 
 def test_zone_stijl_en_camera_zichtbaar_demo():
-    """Zachte fill (kaart blijft leesbaar door één tint) + overzichtscamera
-    die het hele NSPD-gebied in beeld brengt i.p.v. er middenin te hangen."""
+    """Leia-contract (geojson-layer.ts, pin 7351002): stijl uitsluitend uit
+    settings.style {fill, stroke}; transparantie uit laag-opacity (0-100,
+    hex-alpha wordt door withAlpha() overschreven); strokeWidth weglaten
+    (upstream-bug stopt de kleurstring in de lijnbreedte). Plus een
+    overzichtscamera die het hele NSPD-gebied in beeld brengt."""
     src = ROOT / "tests" / "fixtures" / "viewer" / "run-wind"
     run_dir = Path(tempfile.mkdtemp())
     shutil.copytree(src, run_dir, dirs_exist_ok=True)
     pad = make_viewer_config(track="wind", run_dir=run_dir, out_dir=run_dir / "vd")
     cfg = json.loads(pad.read_text(encoding="utf-8"))
-    for laag in cfg["layers"]:
-        if str(laag["id"]).startswith("zones-"):
-            assert laag["settings"]["fill"].endswith("26"), laag["settings"]["fill"]
+    zones = [l for l in cfg["layers"] if str(l["id"]).startswith("zones-")]
+    assert len(zones) == 2
+    for laag in zones:
+        assert 0 < laag["opacity"] <= 30, laag
+        stijl = laag["settings"]["style"]
+        assert len(stijl["fill"]) == 7 and stijl["fill"].startswith("#"), stijl
+        assert len(stijl["stroke"]) == 7 and stijl["stroke"].startswith("#"), stijl
+        assert "strokeWidth" not in stijl
+        assert "fill" not in laag["settings"] and "stroke" not in laag["settings"]
     pos = cfg["viewer"]["startPosition"]
     assert pos["z"] >= 10000 and pos["pitch"] <= -45, pos
 
