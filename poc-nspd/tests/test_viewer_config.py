@@ -1,6 +1,7 @@
 import json
 import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,6 +22,36 @@ def test_config_valid_en_lagen_aanwezig(tmp_path):
     for vereist in ("3D BAG", "Zones wind NL", "Zones wind BE"):
         assert vereist in titels
     assert (pad.parent / "layers" / "zones-wind-nspd.geojson").is_file()
+
+
+def test_zone_lagen_bevatten_alleen_final_zones(tmp_path):
+    """Tussenstappen (inclusion_union/intersection/difference) mogen niet als
+    kaartlaag: AOI-brede polygonen stapelen dan over elkaar (demo-bevinding
+    'oranje vlak over het gebied', 2026-10-15)."""
+    src = ROOT / "tests" / "fixtures" / "viewer" / "run-wind"
+    run_dir = tmp_path / "run"
+    shutil.copytree(src, run_dir)
+    pad = make_viewer_config(track="wind", run_dir=run_dir, out_dir=tmp_path / "viewer-data")
+    for land in ("nl", "be"):
+        fc = json.loads((pad.parent / "layers" / f"zones-wind-{land}.geojson").read_text(encoding="utf-8"))
+        ids = [f["properties"]["id"] for f in fc["features"]]
+        assert ids == [i for i in ids if i.startswith("ZR-final-")], f"{land}: {ids}"
+        assert len(ids) == 1
+
+
+def test_zone_stijl_en_camera_zichtbaar_demo():
+    """Zachte fill (kaart blijft leesbaar door één tint) + overzichtscamera
+    die het hele NSPD-gebied in beeld brengt i.p.v. er middenin te hangen."""
+    src = ROOT / "tests" / "fixtures" / "viewer" / "run-wind"
+    run_dir = Path(tempfile.mkdtemp())
+    shutil.copytree(src, run_dir, dirs_exist_ok=True)
+    pad = make_viewer_config(track="wind", run_dir=run_dir, out_dir=run_dir / "vd")
+    cfg = json.loads(pad.read_text(encoding="utf-8"))
+    for laag in cfg["layers"]:
+        if str(laag["id"]).startswith("zones-"):
+            assert laag["settings"]["fill"].endswith("26"), laag["settings"]["fill"]
+    pos = cfg["viewer"]["startPosition"]
+    assert pos["z"] >= 10000 and pos["pitch"] <= -45, pos
 
 
 def test_grb_laag_en_besluit_vermeld():

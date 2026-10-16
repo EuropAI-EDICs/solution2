@@ -11,9 +11,20 @@ BRT_WMTS = "https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0?"
 GEOPUNT_BASIS = "https://geo.api.vlaanderen.be/omw/wmts?"  # OMW ortho (statuspagina taak 1); featureName verifiëren in de capabilities bij eerste start — alleen defaultOn:false-laag
 BAG_3D = "https://data.3dbag.nl/v20250903/cesium3dtiles/lod22/tileset.json"
 LAND_STIJL = {
-    "nl": {"stroke": "#1a5fb4", "fill": "#1a5fb433"},
-    "be": {"stroke": "#c64600", "fill": "#c6460033"},
+    "nl": {"stroke": "#1a5fb4", "fill": "#1a5fb426"},
+    "be": {"stroke": "#c64600", "fill": "#c6460026"},
 }
+
+
+def _final_zones(feats: list[dict]) -> list[dict]:
+    """Alleen de eindzones (ZR-final-*) zijn bedoeld voor de kaart; de
+    tussenstappen (inclusion_union/intersection/difference) zijn elk AOI-breed
+    en stapelen zich tot een bijna dekkend vlak (demo-bevinding 2026-10-15)."""
+    final = [f for f in feats if str(f.get("properties", {}).get("id", "")).startswith("ZR-final-")]
+    if not final:
+        ids = [str(f.get("properties", {}).get("id", "")) for f in feats]
+        raise SystemExit(f"geen ZR-final-*-zones in run-output (ids: {ids}) — xborder-merge nakijken")
+    return final
 
 
 def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path) -> Path:
@@ -26,7 +37,7 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path) -> Path:
 
     fc = json.loads(geo_src.read_text(encoding="utf-8"))
     per_land = {}
-    for feat in fc.get("features", []):
+    for feat in _final_zones(fc.get("features", [])):
         per_land.setdefault(feat["properties"].get("land", "nl"), []).append(feat)
     laag_bestanden = {}
     for land, feats in per_land.items():
@@ -54,7 +65,10 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path) -> Path:
         "viewer": {
             "title": f"poc-nspd — NSPD {track}",
             "subTitle": "grensvergelijkende scan (plan 2026-10-14)",
-            "startPosition": {"x": 3.83, "y": 51.33, "z": 2500, "heading": 0, "pitch": -35, "duration": 3},
+            # Overzichtscamera: zuidelijk van het district, noordwaarts kijkend —
+            # het volledige NSPD-gebied in beeld (bewezen 2026-10-15: 12 km / −45°
+            # toont Westerschelde + kanaalzone + beide zones; 30 km/−55° onbeproefd)
+            "startPosition": {"x": 3.66, "y": 51.15, "z": 12000, "heading": 0, "pitch": -45, "duration": 3},
         },
         "groups": [
             {"id": "achtergrond", "title": "Achtergrond", "isOpen": True},

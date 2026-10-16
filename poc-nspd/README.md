@@ -145,7 +145,15 @@ mkdir -p viewer/static/layers && cp viewer-data/layers/*.geojson viewer/static/l
 #    wél in de laagbeheer-bibliotheek, maar materialiseren ze pas op de globe ná eenmalig
 #    uit+aan vinken van de laag-checkbox (Links de tweede tool-knop = Lagenbeheer →
 #    groep openklappen → checkbox 2× klikken). Daarna stromen PDOK-tiles, zones en
-#    3D BAG direct in.
+#    3D BAG direct in. (Vers geopende tabs materialiseren vaak ook zonder deze dans.)
+#
+#    NOOIT de pagina herladen in de in-app browser van ZCode: één reload laat de
+#    Cesium-scène permanent zwart renderen (WebGL-context in WKWebView). Sluit het
+#    tabblad en open een nieuw tabblad met dezelfde URL — dat werkt altijd.
+#
+#    De zones-lagen tonen alleen de eindzones (ZR-final-*) van de pijplijn; de
+#    tussenstappen (inclusion_union/intersection/difference) zijn AOI-breed en
+#    stapelden zich voorheen tot een bijna dekkend oranje vlak (demo 2026-10-15).
 ```
 
 Demo-artefacten van fase 1 zitten in de repo: de zes smoke-runs onder `runs/20261014T*`
