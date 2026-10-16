@@ -1,7 +1,12 @@
-"""GRB-gebouwenlaag voor de viewer — GRB:ADP via Geopunt WFS, Lambert72 → WGS84.
+"""GRB-percelenlaag voor de viewer — GRB:ADP via Geopunt WFS, Lambert72 → WGS84.
+
+NB (2026-10-16): GRB:ADP = *administratieve percelen* (kadastrale percelen,
+attributen CAPAKEY/CANU), géén gebouwen — fase 1 noemde deze laag ten onrechte
+"gebouwen". Gebouwen in de viewer komen uit de referentielaag "3D Gebouwen
+België" (Zeeland-config); GRB-gebouwvoetafdrukken zouden GRB:GBG zijn.
 
 Fase 2, task 1E (eindreview-voorbereiding). De viewer-config verwijst naar
-``layers/grb-gebouwen-be.geojson`` (laag ``grb-gebouwen`` in
+``layers/grb-percelen-be.geojson`` (laag ``grb-percelen`` in
 ``make_viewer_config.py``; taak-12-besluit "vlak": ``GRB:ADP`` heeft geen
 hoogteveld, DHM-extrusie is buiten POC-scope). Dit script genereert dat
 bestand:
@@ -15,7 +20,7 @@ bestand:
 - transformatie: alle feature-geometrieën Lambert72 (EPSG:31370) → WGS84
   (EPSG:4326) via pyproj (``always_xy``: x/oost, y/noord);
 - uitvoer: FeatureCollection (properties blijft 1-op-1) naar
-  ``<out_dir>/layers/grb-gebouwen-be.geojson`` (default ``viewer-data/``,
+  ``<out_dir>/layers/grb-percelen-be.geojson`` (default ``viewer-data/``,
   git-ignored zoals alle viewer-data).
 
 Run: ``python3 fetch_grb_layer.py [--out-dir <dir>] [--refresh]``.
@@ -38,7 +43,7 @@ from pipeline import geodata, national_data  # noqa: E402
 SOURCE_ID = "geopunt-grb-wfs"
 TYPE_NAME = "GRB:ADP"
 CACHE_NAME = "grb-adp-be.geojson"
-LAAG_BESTAND = "grb-gebouwen-be.geojson"
+LAAG_BESTAND = "grb-percelen-be.geojson"
 
 _L72_NAAR_WGS84 = Transformer.from_crs("EPSG:31370", "EPSG:4326", always_xy=True)
 
@@ -101,7 +106,7 @@ def main(out_dir: Path | str | None = None, refresh: bool = False,
         })
     uit_fc = {
         "type": "FeatureCollection",
-        "name": f"GRB ADP gebouwen ({SOURCE_ID}, NSPD-bbox)",
+        "name": f"GRB ADP percelen ({SOURCE_ID}, NSPD-bbox)",
         "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:EPSG::4326"}},
         "sourceId": SOURCE_ID,
         "retrieved": payload.get("retrieved"),
@@ -123,4 +128,4 @@ if __name__ == "__main__":
     _a = _p.parse_args()
     _pad = main(out_dir=_a.out_dir, refresh=_a.refresh)
     n = len(json.loads(_pad.read_text(encoding="utf-8"))["features"])
-    print(f"OK {_pad} ({n} gebouwfeatures, WGS84)")
+    print(f"OK {_pad} ({n} perceelfeatures, WGS84)")

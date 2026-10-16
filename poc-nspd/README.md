@@ -159,6 +159,17 @@ mkdir -p viewer/static/layers && cp viewer-data/layers/*.geojson viewer/static/l
 #    settings.style {fill, stroke}; transparantie via laag-opacity 0-100 (hex-alpha
 #    wordt door withAlpha() overschreven, zonder opacity = vol-dekkend); contouren
 #    verschijnen alleen bij style.stroke; strokeWidth weglaten (upstream-bug).
+#
+#    Referentielagen (2026-10-16): de Leia-config van de NSPD-viewer van Provincie
+#    Zeeland (https://virtueel.zeeland.nl/nspd → /prod/config/nspd.config.json) staat
+#    in data/reference/ en wordt door make_viewer_config.py 1-op-1 overgenomen
+#    (53 lagen, 9 groepen; tool layerLibrary ontsluit ze). Uitgesloten: map5.nl-
+#    topokaarten (betaalde klantsleutel van de provincie). Niet werkend vanaf onze
+#    origin: "3D Gebouwen België" — de tileset op virtueel.zeeland.nl is origin-
+#    vergrendeld (CORS); de laag staat in de bibliotheek met die uitleg. Standaard
+#    aan: GRB Vlaanderen (detailkaart mét gebouwvoetafdrukken), Begrenzing NSPD.
+#    NB: de fase-1-laag "GRB gebouwen" is hernoemd naar "GRB percelen" — GRB:ADP
+#    zijn administratieve percelen (CAPAKEY/CANU), geen gebouwen.
 ```
 
 Demo-artefacten van fase 1 zitten in de repo: de zes smoke-runs onder `runs/20261014T*`

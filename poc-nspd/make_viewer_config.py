@@ -8,8 +8,27 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 BRT_WMTS = "https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0?"
-GEOPUNT_BASIS = "https://geo.api.vlaanderen.be/omw/wmts?"  # OMW ortho (statuspagina taak 1); featureName verifiëren in de capabilities bij eerste start — alleen defaultOn:false-laag
 BAG_3D = "https://data.3dbag.nl/v20250903/cesium3dtiles/lod22/tileset.json"
+# Referentie: de Leia-config van de NSPD-viewer van Provincie Zeeland
+# (https://virtueel.zeeland.nl/nspd → /prod/config/nspd.config.json, opgehaald
+# 2026-10-16). Lagen worden 1-op-1 overgenomen, behalve de map5.nl-topokaarten:
+# die draaien op een betaalde klantsleutel van de provincie, geen open dienst.
+# De 3D-gebouwen-tilesets (tiles_other/…) worden door Zeeland zelf gehost.
+ZEELAND_REFERENTIE = ROOT / "data" / "reference" / "zeeland-nspd.config.json"
+_UITGESLOTEN_HOSTS = ("map5.nl",)
+# Standaard aan voor de demo (gebruikersvraag 2026-10-16: Vlaamse detailkaart +
+# gebouwen): 021 = GRB Vlaanderen (GRB_BSK, tekent de gebouwvoetafdrukken).
+# 008 (3D Gebouwen België) kan NIET standaard aan: de tileset op
+# virtueel.zeeland.nl is origin-vergrendeld (access-control-allow-origin:
+# https://virtueel.dev.zeeland.nl) en faalt vanaf elke andere site — bewust
+# beleid van de provincie, niet te omzeilen via een proxy. Blijft in de
+# bibliotheek met uitleg; NL-3D komt uit 3D BAG (CORS *).
+_STANDAARD_AAN = {"021"}
+_ORIGIN_VERGRENDELD = {
+    "008": ("Tileset gehost door Provincie Zeeland en origin-vergrendeld op hun eigen "
+            "viewer (CORS) — rendert niet in deze POC. Voor Vlaamse 3D-gebouwen: "
+            "toegang vragen aan Zeeland of eigen tileset uit GRB:GBG + DHM bouwen."),
+}
 LAND_STIJL = {
     "nl": {"stroke": "#1a5fb4", "fill": "#1a5fb4"},
     "be": {"stroke": "#c64600", "fill": "#c64600"},
@@ -31,6 +50,34 @@ def _final_zones(feats: list[dict]) -> list[dict]:
         ids = [str(f.get("properties", {}).get("id", "")) for f in feats]
         raise SystemExit(f"geen ZR-final-*-zones in run-output (ids: {ids}) — xborder-merge nakijken")
     return final
+
+
+def _zeeland_referentielagen() -> tuple[list[dict], list[dict]]:
+    """(groepen, lagen) uit de Zeeland-config; alleen groepen die een
+    overgenomen laag daadwerkelijk gebruikt. Het referentiebestand blijft
+    ongemoeid (diepe kopie)."""
+    if not ZEELAND_REFERENTIE.is_file():
+        raise SystemExit(f"ontbreekt: {ZEELAND_REFERENTIE} — referentie-config niet opgehaald")
+    ref = json.loads(ZEELAND_REFERENTIE.read_text(encoding="utf-8"))
+    lagen = []
+    for bron in ref.get("layers", []):
+        url = str(bron.get("settings", {}).get("url", ""))
+        if any(host in url for host in _UITGESLOTEN_HOSTS):
+            continue
+        laag = json.loads(json.dumps(bron))
+        if laag["id"] in _STANDAARD_AAN:
+            laag["defaultOn"] = True
+            laag["defaultAddToManager"] = True
+        if laag["id"] in _ORIGIN_VERGRENDELD:
+            laag["defaultOn"] = False
+            laag["description"] = _ORIGIN_VERGRENDELD[laag["id"]]
+        if laag.get("opacity") == 0:  # referentie-quirk: de laag zou onzichtbaar zijn
+            del laag["opacity"]
+        lagen.append(laag)
+    gebruikt = {l.get("groupId") for l in lagen if l.get("groupId")}
+    groepen = [{"id": g["id"], "title": g["title"], "isOpen": False}
+               for g in ref.get("groups", []) if g["id"] in gebruikt]
+    return groepen, lagen
 
 
 def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path) -> Path:
@@ -68,53 +115,56 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path) -> Path:
             },
         }
 
+    ref_groepen, ref_lagen = _zeeland_referentielagen()
     cfg = {
         "name": f"poc-nspd — NSPD {track}",
         "viewer": {
             "title": f"poc-nspd — NSPD {track}",
             "subTitle": "grensvergelijkende scan (plan 2026-10-14)",
-            # Overzichtscamera: ten zuiden van de Kanaalzone Gent–Terneuzen, noordwaarts
-            # kijkend — kanaalzone centraal, Westerschelde boven (bewezen 2026-10-15:
-            # 14 km / −45° toont beide zones mét contouren op leesbare BRT-kaart)
-            "startPosition": {"x": 3.78, "y": 51.10, "z": 14000, "heading": 0, "pitch": -45, "duration": 3},
+            # Camera boven de Belgische kanaalzone, noordwaarts op Zelzate — dichtbij
+            # genoeg voor de GRB-detailkaart en de 3D-gebouwen (bewezen 2026-10-16);
+            # de "home"-knop brengt hier terug, uitzoomen geeft het districtsoverzicht.
+            "startPosition": {"x": 3.80, "y": 51.155, "z": 4500, "heading": 0, "pitch": -45, "duration": 3},
         },
         "groups": [
-            {"id": "achtergrond", "title": "Achtergrond", "isOpen": True},
-            {"id": "d3", "title": "3D gebouwcontext", "isOpen": True},
+            {"id": "achtergrond", "title": "Achtergrond (eigen)", "isOpen": True},
+            {"id": "d3", "title": "Gebouwcontext (eigen)", "isOpen": True},
             {"id": "pipeline", "title": f"Zones {track} (pipeline)", "isOpen": True},
+            *ref_groepen,
         ],
         "layers": [
             {"id": "bg-brt", "type": "wmts", "title": "BRT Achtergrondkaart (NL)", "groupId": "achtergrond",
              "isBackground": True, "defaultOn": True, "attribution": "PDOK", "defaultAddToManager": True,
              "settings": {"url": BRT_WMTS, "featureName": "standaard", "contentType": "image/png"}},
-            {"id": "bg-be", "type": "wms", "title": "Vlaanderen basiskaart", "groupId": "achtergrond",
-             "defaultOn": False, "attribution": "Geopunt", "defaultAddToManager": True,
-             "settings": {"url": GEOPUNT_BASIS, "featureName": "omwrgbmrvl", "contenttype": "image/png"}},
+            # De Vlaamse luchtfoto komt via de referentielagen ("Luchtfoto Vlaanderen",
+            # OFW-WMS); de eerdere eigen OMW-pin (featureName omwrgbmrvl) bestond niet.
             {"id": "bag3d", "type": "3dtiles", "title": "3D BAG LoD2.2 (NL-gebouwen)", "groupId": "d3",
              "defaultOn": True, "attribution": "3D BAG / TU Delft, CC-BY-4.0", "defaultAddToManager": True,
              "settings": {"url": BAG_3D, "enableHeightControl": True}},
             zone_layer("nl"), zone_layer("be"),
+            *ref_lagen,
         ],
         # Leia verwacht tools als ARRAY van {id, enabled} met exacte tool-id's
-        # (zie viewer/static/example.config.json); een object breekt de tool-init
+        # (zie viewer/static/example.config.json); een object breekt de tool-init.
+        # layerLibrary ontsluit de 50+ referentielagen die niet standaard aan staan.
         "tools": [{"id": "layerManager", "enabled": True},
+                  {"id": "layerLibrary", "enabled": True},
                   {"id": "featureInfo", "enabled": True}],
     }
-    # 3D-context BE-gebouwen: vlakke GRB-laag zodra het extrusie-besluit (taak 12)
-    # bestaat — besluitdocument: data/grb_extrusie_besluit.json (keuze "vlak": GRB:ADP
-    # heeft geen h_dak_50-achtig hoogteveld; DHM-extrusie niet in POC-scope).
-    # NB: het laagbestand grb-gebouwen-be.geojson wordt (voorlopig) níét gegenereerd;
-    # generatie of schrapping van deze laagverwijzing is fase 2 (eindreview-bevinding).
+    # Fase-1-laag (taak 12, besluit "vlak"): GRB:ADP = administratieve PERCELEN,
+    # géén gebouwen (ontdekt 2026-10-16 aan de CAPAKEY/CANU-attributen). Gebouwen
+    # komen nu uit de referentielaag "3D Gebouwen België". Besluitdocument:
+    # data/grb_extrusie_besluit.json; laagbestand via fetch_grb_layer.py.
     if (ROOT / "data" / "grb_extrusie_besluit.json").is_file():
         json.loads((ROOT / "data" / "grb_extrusie_besluit.json").read_text(encoding="utf-8"))
         cfg["layers"].append({
-            "id": "grb-gebouwen",
+            "id": "grb-percelen",
             "type": "geojson",
-            "title": "GRB gebouwen (BE, vlak)",
+            "title": "GRB percelen (BE, ADP, vlak)",
             "groupId": "d3",
             "defaultOn": False, "defaultAddToManager": True,
             "attribution": "GRB via Geopunt, vrije open data-modellicentie",
-            "settings": {"url": "layers/grb-gebouwen-be.geojson"},
+            "settings": {"url": "layers/grb-percelen-be.geojson"},
         })
     uit = out_dir / "nspd.config.json"
     uit.write_text(json.dumps(cfg, ensure_ascii=False, indent=1), encoding="utf-8")

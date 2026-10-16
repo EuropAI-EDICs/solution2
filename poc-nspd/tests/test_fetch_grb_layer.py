@@ -1,11 +1,11 @@
 """GRB-laagfetch (fase 2, task 1E): GRB:ADP via Geopunt WFS → WGS84-viewerlaag.
 
-``fetch_grb_layer.main`` haalt de GRB-gebouwvoetafdrukken via
+``fetch_grb_layer.main`` haalt de GRB-percelen (ADP, géén gebouwen) via
 ``pipeline.national_data.fetch_geopunt_wfs`` (cache-first, bron
 ``geopunt-grb-wfs`` uit ``data/sources.json``, typeName ``GRB:ADP``,
 bbox = ``nspd_bbox_l72()``) en herschrijft alle feature-geometrieën
 Lambert72 (EPSG:31370) → WGS84 (EPSG:4326) naar
-``<out_dir>/layers/grb-gebouwen-be.geojson``. Tests met fake-transport
+``<out_dir>/layers/grb-percelen-be.geojson``. Tests met fake-transport
 (geen netwerk): transformatie-controle op een mini-polygoon plus
 cache-hit-gedrag.
 """
@@ -47,7 +47,7 @@ def test_main_schrijft_wgs84_laag_uit_fake_transport(tmp_path, monkeypatch):
 
     uit = fetch_grb_layer.main(out_dir=tmp_path / "viewer-data", transport=fake_transport)
 
-    assert uit == tmp_path / "viewer-data" / "layers" / "grb-gebouwen-be.geojson"
+    assert uit == tmp_path / "viewer-data" / "layers" / "grb-percelen-be.geojson"
     assert uit.is_file()
     # cache-first-weg raakt het netwerk precies eenmaal, met de juiste WFS-query
     assert len(urls) == 1

@@ -60,7 +60,50 @@ def test_zone_stijl_en_camera_zichtbaar_demo():
         assert "strokeWidth" not in stijl
         assert "fill" not in laag["settings"] and "stroke" not in laag["settings"]
     pos = cfg["viewer"]["startPosition"]
-    assert pos["z"] >= 10000 and pos["pitch"] <= -45, pos
+    assert pos["z"] >= 3000 and pos["pitch"] <= -40, pos
+
+
+def _cfg_uit_fixture() -> dict:
+    src = ROOT / "tests" / "fixtures" / "viewer" / "run-wind"
+    run_dir = Path(tempfile.mkdtemp())
+    shutil.copytree(src, run_dir, dirs_exist_ok=True)
+    pad = make_viewer_config(track="wind", run_dir=run_dir, out_dir=run_dir / "vd")
+    return json.loads(pad.read_text(encoding="utf-8"))
+
+
+def test_zeeland_referentielagen_overgenomen():
+    """Lagen uit de Zeeland NSPD-viewer (data/reference/zeeland-nspd.config.json,
+    opgehaald 2026-10-16) worden overgenomen — behalve map5.nl (betaalde
+    klantsleutel van de provincie). De Vlaamse detailkaart en de 3D-gebouwen
+    staan standaard aan (gebruikersvraag 2026-10-16); layerLibrary ontsluit
+    de rest."""
+    cfg = _cfg_uit_fixture()
+    contracts.validate(cfg, "leia-config")
+    per_titel = {l["title"]: l for l in cfg["layers"]}
+    for vereist in ("GRB Vlaanderen", "3D Gebouwen België", "Begrenzing NSPD",
+                    "Luchtfoto Vlaanderen", "Luchtfoto Actueel HR (NL)",
+                    "3D Gebouwen Nederland (BAG)", "Natura2000 gebieden"):
+        assert vereist in per_titel, vereist
+    assert per_titel["GRB Vlaanderen"]["defaultOn"] is True
+    # 3D Gebouwen België: tileset origin-vergrendeld door Zeeland (CORS) → niet
+    # standaard aan, wél in de bibliotheek met uitleg
+    assert per_titel["3D Gebouwen België"]["defaultOn"] is False
+    assert "origin-vergrendeld" in per_titel["3D Gebouwen België"]["description"]
+    assert per_titel["Begrenzing NSPD"]["defaultOn"] is True
+    assert not any("map5.nl" in l["settings"].get("url", "") for l in cfg["layers"])
+    ids = [l["id"] for l in cfg["layers"]]
+    assert len(ids) == len(set(ids)), "dubbele laag-ids"
+    assert not any(l.get("opacity") == 0 for l in cfg["layers"]), "onzichtbare laag (opacity 0)"
+    groep_ids = {g["id"] for g in cfg["groups"]}
+    for l in cfg["layers"]:
+        if l.get("groupId"):
+            assert l["groupId"] in groep_ids, (l["id"], l["groupId"])
+    assert {t["id"] for t in cfg["tools"]} >= {"layerLibrary", "layerManager", "featureInfo"}
+    # eigen pijplijnlagen blijven aanwezig naast de referentielagen
+    assert "Zones wind NL" in per_titel and "Zones wind BE" in per_titel
+    # de fase-1-laag was foutief 'gebouwen' genoemd: GRB:ADP = administratieve percelen
+    assert "GRB percelen (BE, ADP, vlak)" in per_titel
+    assert not any("GRB gebouwen" in t for t in per_titel)
 
 
 def test_grb_laag_en_besluit_vermeld():
@@ -68,7 +111,7 @@ def test_grb_laag_en_besluit_vermeld():
     if not cfg_pad.is_file():
         return  # pas na eerste echte run-generatie; besluit-test moet altijd draaien
     cfg = json.loads(cfg_pad.read_text(encoding="utf-8"))
-    assert "GRB gebouwen" in json.dumps(cfg["layers"])
+    assert "GRB percelen" in json.dumps(cfg["layers"])
 
 
 def test_dhm_beslispunt_gedocumenteerd():
