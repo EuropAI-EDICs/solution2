@@ -2,7 +2,7 @@
  {
   "id": "FR-WIND-01",
   "normCardId": "NC-WIND-01",
-  "status": "ambiguous",
+  "status": "formalized",
   "ruleType": "zone_inclusion",
   "zoneSemantics": "inclusion",
   "instrumentType": "omgevingsverordening-nl",
@@ -12,14 +12,22 @@
    "contextTags": [
     "inclusion_windenergie_concentratielocatie",
     "tiphoogte_gt_21m",
-    "zone_loos_gedocumenteerd",
-    "v4_human_review"
+    "geometry_zeeland_ovz"
    ]
   },
-  "executableRef": "engine.procedural.human_review@poc-v1",
-  "formalizedBy": "norm-formalizer#poc-nspd-task6",
-  "formalizedAt": "2026-10-14",
-  "reason": "Zone-loze inclusion (gedocumenteerd): art. 18.17 lid 1 staat nieuwe windturbines >21 m toe binnen een 'globaal aangegeven windenergie concentratielocatie' (bijlage XIV), maar die zone heeft geen alias in ZONE_SOURCES (taak 9: natura2000-nl/natura2000-be/gebouwen-be) en de geometrie van bijlage XIV is niet gepind; routeeert naar V4."
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task2",
+  "formalizedAt": "2026-10-16",
+  "zoneSelector": {
+   "zoneIds": [
+    "windconcl-nl"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via zeeland-ovz-wfs (gepind 2026-10-16, probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine."
+  },
+  "rationale": "Formalized (fase 3, task 2): art. 18.17 lid 1 staat nieuwe windturbines met tiphoogte >21 m alleen toe binnen een globaal aangegeven windenergie-concentratielocatie (bijlage XIV). Die zone is nu gepind: zeeland-ovz-windconcl (dso:ext_ovz_windnrg_concloc, probe_2026-10-16.json: 15 concentratielocaties provinciebreed). Inclusion-union = concentratielocaties ∩ AOI; exclusions (FR-WIND-03 Natura 2000) blijven onverkort gelden. Locaties buiten concentratielocaties (infrastructuur/bedrijventerreinen, clustering ≥3) blijven in FR-WIND-02 (ambiguous, V4).",
+  "conditions": []
  },
  {
   "id": "FR-WIND-02",

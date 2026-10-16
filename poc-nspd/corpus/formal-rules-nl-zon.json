@@ -2,7 +2,7 @@
  {
   "id": "FR-ZON-01",
   "normCardId": "NC-ZON-01",
-  "status": "ambiguous",
+  "status": "formalized",
   "ruleType": "zone_inclusion",
   "zoneSemantics": "inclusion",
   "instrumentType": "omgevingsverordening-nl",
@@ -12,14 +12,22 @@
    "contextTags": [
     "inclusion_stedelijk_gebied",
     "locaties_a_tot_e_landelijk_gebied",
-    "zone_loos_gedocumenteerd",
-    "v4_human_review"
+    "geometry_zeeland_ovz"
    ]
   },
-  "executableRef": "engine.procedural.human_review@poc-v1",
-  "formalizedBy": "norm-formalizer#poc-nspd-task6",
-  "formalizedAt": "2026-10-14",
-  "reason": "Zone-loze inclusion (gedocumenteerd): art. 18.18 lids 1-2 staan zonne-energie-opstellingen toe binnen stedelijk gebied en buiten stedelijk gebied op locaties a-e (bouwvlak, stortplaatsen/infrastructuur/bedrijvigheid, waterbassin, agrarische grond in transitie of met netcongestie-bijdrage); geen van die zones heeft een alias in ZONE_SOURCES (taak 9); routeeert naar V4."
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task2",
+  "formalizedAt": "2026-10-16",
+  "zoneSelector": {
+   "zoneIds": [
+    "stedelijk-nl"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via zeeland-ovz-wfs (gepind 2026-10-16, probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine."
+  },
+  "rationale": "Formalized (fase 3, task 2): art. 18.18 lid 1 staat zonne-energie-opstellingen toe binnen stedelijk gebied. Gepind als zeeland-ovz-stedelijk (dso:ext_ovz_bebkom_woonbeb2025, probe_2026-10-16.json). De landelijke locaties a-e (lid 2: bouwvlak, stort/infra/bedrijf, waterbassin, agrarische grond) zijn niet gepind — die conditie blijft via locaties_a_tot_e_landelijk_gebied in V4; deze rule formaliseert uitsluitend de stedelijk-gebied-inclusion zoals de regeltekst die noemt.",
+  "conditions": []
  },
  {
   "id": "FR-ZON-02",

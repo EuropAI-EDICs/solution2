@@ -68,12 +68,21 @@ def test_formal_rules_fase2_links(track, land):
     if rules is None:
         pytest.skip(f"geen {land}-rules voor {track} (later groepstaak)")
     kaarten = {k["id"] for k in _shard("normcards", land, track) or []}
+    from run import ZONE_SOURCES
+    from pipeline.agents import ENGINE_OPERATIONS
     for fr in rules:
         contracts.validate(fr, "formal-rule")
         assert fr["jurisdictie"] == land
         assert fr["normCardId"] in kaarten, fr["id"]
         tags = fr["appliesTo"].get("contextTags", [])
-        assert "zone_loos_gedocumenteerd" in tags and "v4_human_review" in tags, fr["id"]
+        if fr["status"] == "formalized":
+            # fase 3: alleen met een geregistreerde operatie én gepinde zone-alias
+            assert fr["executableRef"] in ENGINE_OPERATIONS, fr["id"]
+            assert set(fr.get("zoneSelector", {}).get("zoneIds", [])) <= set(ZONE_SOURCES), fr["id"]
+            assert any(t.startswith("geometry_") or t.startswith("exclusion_")
+                       for t in tags), fr["id"]
+        else:
+            assert "zone_loos_gedocumenteerd" in tags and "v4_human_review" in tags, fr["id"]
 
 
 def test_quote_guard_over_hele_corpus():
