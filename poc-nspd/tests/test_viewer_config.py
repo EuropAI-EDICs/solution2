@@ -196,3 +196,41 @@ def test_dhm_beslispunt_gedocumenteerd():
     b = json.loads(besluit.read_text(encoding="utf-8"))
     assert b["keuze"] in ("vlak", "extrusie")
     assert b["motivering"] and b["beslotenIn"] == "plan 2026-10-14-poc-nspd taak 12"
+
+
+def test_what_if_lagen_uit_scenario_runs(tmp_path):
+    """S7-runs (verdict pass) verschijnen als What-if-groep: CONTROL aan,
+    scenario's uit met de delta in de titel; kleur per richting; nieuwste run
+    per use-case wint."""
+    src = ROOT / "tests" / "fixtures" / "viewer" / "run-wind"
+    basis = Path(tempfile.mkdtemp())
+    shutil.copytree(src, basis / "wind", dirs_exist_ok=True)
+    sr = basis / "scenario-runs" / "20261016T000000Z-wind-nl-scen"
+    (sr / "scenarios").mkdir(parents=True)
+    (sr / "scenario-report.json").write_text(json.dumps({
+        "id": "SR-T", "baselineRunId": "20261016T000000Z-wind-nl", "verdict": "pass",
+        "control": {"finalAreaKm2": 12.18},
+        "scenarios": [
+            {"scenarioId": "SC-T-A", "deltaVsControlKm2": 1.5,
+             "geometryFile": "scenarios/SC-T-A.geojson", "basis": {"type": "policy_variant"},
+             "iouVsControl": 0.9},
+            {"scenarioId": "SC-T-B", "deltaVsControlKm2": -0.5,
+             "geometryFile": "scenarios/SC-T-B.geojson", "basis": {"type": "norm_variance"},
+             "iouVsControl": 0.8},
+        ]}), encoding="utf-8")
+    for naam in ("CONTROL.geojson", "SC-T-A.geojson", "SC-T-B.geojson"):
+        (sr / "scenarios" / naam).write_text(
+            json.dumps({"type": "FeatureCollection", "features": []}), encoding="utf-8")
+    pad = make_viewer_config(track="wind", run_dir=basis / "wind", out_dir=basis / "vd",
+                             scenario_runs=sr.parent)
+    cfg = json.loads(pad.read_text(encoding="utf-8"))
+    contracts.validate(cfg, "leia-config")
+    per_titel = {l["title"]: l for l in cfg["layers"]}
+    assert "CONTROL (12,2 km²)" in per_titel
+    assert per_titel["CONTROL (12,2 km²)"]["defaultOn"] is True
+    a = per_titel["SC-T-A (Δ +1,5 km²)"]
+    assert a["defaultOn"] is False and a["settings"]["style"]["fill"] == "#1a7f37"
+    assert per_titel["SC-T-B (Δ -0,5 km²)"]["settings"]["style"]["fill"] == "#c01c28"
+    groepen = {g["id"]: g for g in cfg["groups"]}
+    assert groepen["whatif"]["title"] == "What-if scenario's (S7)"
+    assert groepen["whatif-wind-nl"]["parentId"] == "whatif"

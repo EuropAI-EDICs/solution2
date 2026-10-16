@@ -7,6 +7,7 @@ import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+SCENARIO_RUNS = ROOT / "scenario-runs"
 BRT_WMTS = "https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0?"
 BAG_3D = "https://data.3dbag.nl/v20250903/cesium3dtiles/lod22/tileset.json"
 # Referentie: de Leia-config van de NSPD-viewer van Provincie Zeeland
@@ -141,7 +142,68 @@ def _scenario_bronnen(layers_dir: Path) -> list[dict]:
     return lagen
 
 
-def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path) -> Path:
+def _what_if(scenario_runs: Path, layers_dir: Path) -> tuple[list[dict], list[dict]]:
+    """(groepen, lagen) uit geslaagde S7-scenario-runs (fase 3b): per use-case
+    de nieuwste run met verdict pass — CONTROL als referentie, elk scenario met
+    de delta tegen de control in de titel. Kleur per richting: groen = ruimte
+    erbij, rood = ruimte eraf, grijs = control."""
+    if not scenario_runs.is_dir():
+        return [], []
+    nieuwste: dict[str, Path] = {}
+    for rapport_pad in sorted(scenario_runs.glob("*/scenario-report.json")):
+        try:
+            rapport = json.loads(rapport_pad.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if rapport.get("verdict") != "pass":
+            continue
+        usecase = str(rapport.get("baselineRunId") or rapport_pad.parent.name).split("-", 1)[-1]
+        nieuwste[usecase] = rapport_pad
+    groepen, lagen = [], []
+    for usecase, rapport_pad in sorted(nieuwste.items()):
+        rapport = json.loads(rapport_pad.read_text(encoding="utf-8"))
+        bron = rapport_pad.parent
+        gid = f"whatif-{usecase}"
+        groepen.append({"id": gid, "parentId": "whatif",
+                        "title": f"What-if: {usecase}", "isOpen": False})
+        control_km2 = float((rapport.get("control") or {}).get("finalAreaKm2") or 0)
+        control_bestand = bron / "scenarios" / "CONTROL.geojson"
+        if control_bestand.is_file():
+            shutil.copy2(control_bestand, layers_dir / f"whatif-{usecase}-CONTROL.geojson")
+            lagen.append({
+                "id": f"whatif-{usecase}-CONTROL", "type": "geojson",
+                "title": f"CONTROL ({control_km2:.1f} km²)".replace(".", ","),
+                "groupId": gid, "defaultOn": True, "defaultAddToManager": True,
+                "opacity": 15,
+                "description": "Reproductie van de baseline-zone door de scenario-"
+                               "engine; alle deltas zijn t.o.v. deze laag gemeten.",
+                "settings": {"url": f"layers/whatif-{usecase}-CONTROL.geojson",
+                             "style": {"fill": "#5e5c64", "stroke": "#3d3846"}},
+            })
+        for s in rapport.get("scenarios", []):
+            geo = bron / str(s.get("geometryFile") or "")
+            if not geo.is_file():
+                continue
+            scid = str(s.get("scenarioId") or Path(geo).stem)
+            delta = float(s.get("deltaVsControlKm2") or 0)
+            kleur = "#1a7f37" if delta >= 0 else "#c01c28"
+            shutil.copy2(geo, layers_dir / f"whatif-{usecase}-{scid}.geojson")
+            lagen.append({
+                "id": f"whatif-{usecase}-{scid}", "type": "geojson",
+                "title": f"{scid} (Δ {delta:+.1f} km²)".replace(".", ","),
+                "groupId": gid, "defaultOn": False, "defaultAddToManager": True,
+                "opacity": 25,
+                "description": str(s.get("basis", {}).get("type") or "") +
+                               f"; delta t.o.v. control {delta:+.1f} km² "
+                               f"(IoU {float(s.get('iouVsControl') or 0):.2f}).",
+                "settings": {"url": f"layers/whatif-{usecase}-{scid}.geojson",
+                             "style": {"fill": kleur, "stroke": kleur}},
+            })
+    return groepen, lagen
+
+
+def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path,
+                       scenario_runs: Path | None = None) -> Path:
     geo_src = run_dir / f"zones-{track}-nspd.geojson"
     if not geo_src.is_file():
         raise SystemExit(f"ontbreekt: {geo_src} — draai eerst de xborder-merge (taak 10)")
@@ -203,6 +265,7 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path) -> Path:
 
     ref_groepen, ref_lagen = _zeeland_referentielagen()
     bronnen_lagen = _scenario_bronnen(layers_dir)
+    whatif_groepen, whatif_lagen = _what_if(scenario_runs or SCENARIO_RUNS, layers_dir)
     cfg = {
         "name": f"poc-nspd — NSPD {track}",
         "viewer": {
@@ -217,6 +280,8 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path) -> Path:
             {"id": "achtergrond", "title": "Achtergrond (eigen)", "isOpen": True},
             {"id": "d3", "title": "Gebouwcontext (eigen)", "isOpen": True},
             {"id": "scenario", "title": "Scenario-zones (AI-pipeline)", "isOpen": True},
+            {"id": "whatif", "title": "What-if scenario's (S7)", "isOpen": bool(whatif_groepen)},
+            *whatif_groepen,
             {"id": "scenario-bronnen", "title": "Scenario-bronlagen (regel-operanden)", "isOpen": True},
             *scenario_groepen,
             *ref_groepen,
@@ -232,6 +297,7 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path) -> Path:
              "settings": {"url": BAG_3D, "enableHeightControl": True}},
             *bronnen_lagen,
             *scenario_lagen,
+            *whatif_lagen,
             *ref_lagen,
         ],
         # Leia verwacht tools als ARRAY van {id, enabled} met exacte tool-id's
