@@ -248,3 +248,13 @@ Implementatieplan: `docs/superpowers/plans/2026-10-14-poc-nspd.md` (fase 1) en
 **Status 2026-10-15: fase 2 geïmplementeerd** — alle 13 tracks gecureerd (NL+BE;
 `bodem-be` en `biomassa-be` als gedocumenteerde abstentions), 15 goldens, 12
 xborder-rapporten. Item 11 (crosstrack-overlay) blijft bewust buiten scope.
+
+**Status 2026-10-16: fase 3a geïmplementeerd (ruimtelijke grounding)** — plan
+`docs/superpowers/plans/2026-10-16-poc-nspd-fase3.md` (taken 1–5): Zeeland
+OVZ-WFS (10 lagen) + GRUP Zeehavengebied Gent (Mercator gewestelijke RUP, 13
+bestemmingszones met client-side filters) gepind; 33 formal rules geformaliseerd
+met hun operand (NL: concentratielocaties, stedelijk gebied, dijktrajecten,
+badplaatsen, afwegingszone/landschap-markers; BE: 15 GRUP-zone-regels); alle 26
+runs PASS met gedifferentieerde zones (wind-nl 12,2 km², zon-nl 22,9 km²,
+recreatie-nl 15,9 km²; BE-zones 0,01–1,17 km²); suite 99 + 15 goldens. Fase 3b
+(S7 what-if-port) volgt in hetzelfde plan (taken 6–8).

@@ -174,15 +174,18 @@ mkdir -p viewer/static/reports && cp viewer-data/reports/*.html viewer/static/re
 #    NB: de fase-1-laag "GRB gebouwen" is hernoemd naar "GRB percelen" — GRB:ADP
 #    zijn administratieve percelen (CAPAKEY/CANU), geen gebouwen.
 #
-#    Scenario-lagen (AI scenario planning, 2026-10-16): groep "Scenario-zones
-#    (AI-pipeline)" met per track een geneste groep (Zones <track> NL/BE, alleen
-#    ZR-final-*); de hoofdtrack staat aan. Alleen wind (FR-WIND-03) en zon
-#    (FR-ZON-02) hebben een ruimtelijke norm-operand (AOI minus Natura 2000 NL);
-#    de 11 andere tracks zijn gelabeld "(AOI-breed)": hun eindzone is het aanvraag-
-#    gebied en de waarde zit in de normtabellen — laagbeschrijving linkt naar
-#    reports/<track>.html. Groep "Scenario-bronlagen (regel-operanden)": Natura 2000
-#    NL (PDOK WMS, exclusion wind/zon), SBZ Vlaanderen (Mercator WMS, gepind, nog
-#    door geen BE-regel gebruikt), DHM Vlaanderen II hillshade (context) en
+#    Scenario-lagen (AI scenario planning): groep "Scenario-zones (AI-pipeline)"
+#    met per track een geneste groep (Zones <track> NL/BE, alleen ZR-final-*); de
+#    hoofdtrack staat aan. Fase 3 (2026-10-16) heeft de regel-geometrie gepind en
+#    de meeste regels geformaliseerd — de zones zijn écht gedifferentieerd:
+#    wind-nl 12,2 km² (concentratielocaties − Natura 2000), zon-nl 22,9 km²
+#    (stedelijk gebied −), recreatie-nl 15,9 km² (badplaatsen Vlissingen/Breskens),
+#    water-nl 997 km² (AOI − dijktrajecten); BE: GRUP-zones (bos 1,17 km², zon
+#    0,44 km², werken 0,41 km², …).Tracks met alléén markers/procedurele normen
+#    (o.a. biomassa/bodem/landschap) blijven gelabeld "(AOI-breed)" — eerlijk:
+#    hun waarde zit in de normtabellen, rapport linkt naar reports/<track>.html.
+#    Groep "Scenario-bronlagen (regel-operanden)": Natura 2000 NL, SBZ Vlaanderen,
+#    Zeeland OVZ-lagen (via de pipeline-cache), DHM Vlaanderen II hillshade en
 #    Netcongestie afname NL (ArcGIS Capaciteitskaart → fetch_netcongestie_layer.py,
 #    geclipt+gesimplificeerd; zelfde cache als pipeline.national_data.load_netcongestie).
 ```
