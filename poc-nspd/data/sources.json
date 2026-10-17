@@ -2,7 +2,7 @@
  "registryVersion": "2.0",
  "generatedBy": "poc-nspd taak 1 (plan 2026-10-14-poc-nspd)",
  "generatedAt": "2026-10-14T00:00:00Z",
- "probeEvidenceNote": "Live-verificatie 2026-10-14: geo.api.vlaanderen.be/GRB/wfs HTTP 200 (184KB), DHMV/wms HTTP 200 (lagen DHMV-I/II), mercator raadpleegdienstenmercatorpubliek/ows HTTP 200 (2.9MB, nz:nz_n_gevoelige_habitats_sbz_2025 gezien), geopunt.be/status-geo-webdiensten.html HTTP 200. Host geoservices.informatievlaanderen.be: DNS vervallen. Taak 5 (2026-10-14): kandidaat-pdok-natura2000 het/cdnat2000 geeft 404 — vervangen door rvo/natura2000 (collectie natura2000, 3 N2000-gebieden binnen NSPD-bbox, zie data/probe_pdok_natura2000_2026-10-14.json); GRB:ADP bevestigd via DescribeFeatureType + GetFeature count=3 in NSPD-bbox (EPSG::31370); mercator-WFS geeft alleen 46 lu:lu_*rup*-zone-varianten, geen bruikbare RUP/gewestplan-coveragelaag als één typeName. Fase 3 (2026-10-16): zeeland-ovz-wfs gepind via opengeodata.zeeland.nl (10 lagen, probe_2026-10-16.json); grondwaterbeschermingszones (grwtrbsz) hebben geen geometrie binnen de NSPD-bbox en zijn bewust niet gepind.",
+ "probeEvidenceNote": "Live-verificatie 2026-10-14: geo.api.vlaanderen.be/GRB/wfs HTTP 200 (184KB), DHMV/wms HTTP 200 (lagen DHMV-I/II), mercator raadpleegdienstenmercatorpubliek/ows HTTP 200 (2.9MB, nz:nz_n_gevoelige_habitats_sbz_2025 gezien), geopunt.be/status-geo-webdiensten.html HTTP 200. Host geoservices.informatievlaanderen.be: DNS vervallen. Taak 5 (2026-10-14): kandidaat-pdok-natura2000 het/cdnat2000 geeft 404 — vervangen door rvo/natura2000 (collectie natura2000, 3 N2000-gebieden binnen NSPD-bbox, zie data/probe_pdok_natura2000_2026-10-14.json); GRB:ADP bevestigd via DescribeFeatureType + GetFeature count=3 in NSPD-bbox (EPSG::31370); mercator-WFS geeft alleen 46 lu:lu_*rup*-zone-varianten, geen bruikbare RUP/gewestplan-coveragelaag als één typeName. Fase 3 (2026-10-16): zeeland-ovz-wfs gepind via opengeodata.zeeland.nl (10 lagen, probe_2026-10-16.json); grondwaterbeschermingszones (grwtrbsz) hebben geen geometrie binnen de NSPD-bbox en zijn bewust niet gepind. PDOK-catalogus (2026-10-16): api.pdok.nl/index.json (130 API's) als-ontvangen onder data/bronze/pdok-catalog/; 46 kandidaat-OGC-API's live geprobeerd binnen de NSPD-bbox (data/probe_pdok_catalog_2026-10-16.json) — 28 lagen gepind met fetchPolicy=cache (download naar data/cache + nldt-lake), 5 basisregistraties als service-only. Niet gepind (0 features in bbox of ongeschikt): omgevingswet-geometrieen (items 404 per omgeving), keringen-sectie/zoneringen IMWA (Scheldestromen levert geen zoneringen), ROR-risicogebied, nationale parken, hoofdspoorwegen/agglomeraties omgevingslawaai, KRM. REV/Seveso: as-volgorde lat,lon (registry axisOrder).",
  "sources": [
   {
    "id": "cvdr709135-ov-zeeland",
@@ -529,6 +529,921 @@
    "queryTemplateParams": {
     "cqlFilter": "naam = 'Afbakening zeehavengebied Gent - fase 2' AND svnaam = 'Bouwvrije strook'"
    }
+  },
+  {
+   "id": "pdok-windsnelheden-100m",
+   "title": "RVO Windsnelheden 100 m hoogte (klassen)",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/rvo/windsnelheden/ogc/v1",
+   "collection": "windsnelheden100m",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (rvo/windsnelheden/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie MultiPolygon)",
+   "note": "Opbrengstpotentieel windturbines (klasse/label_kl); V2-data-grounding voor wind-what-ifs.",
+   "role": "scenario-basis",
+   "tracks": [
+    "wind"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160444Z",
+    "featureCount": 3,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-windsnelheden-100m/20261016T160444Z",
+    "cache": "data/cache/pdok-windsnelheden-100m.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-windsnelheden-ge75",
+   "title": "RVO Windsnelheden 100 m hoogte — klasse 5 (≥ 7,5 m/s)",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/rvo/windsnelheden/ogc/v1",
+   "collection": "windsnelheden100m",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (rvo/windsnelheden/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie MultiPolygon); cache pdok-windsnelheden-100m (2026-10-16): klassen 3/4/5 = 6,5-7 / 7-7,5 / 7,5-8 m/s",
+   "note": "Deelselectie van pdok-windsnelheden-100m (client-side cqlFilter klasse = '5', zelfde dienst/collectie). Data-grounded what-if-operand (scenarios: add_zone_rule, SC-WIND-NL-WINDKLASSE-GE75); geen norm.",
+   "role": "scenario-basis",
+   "tracks": [
+    "wind"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "queryTemplateParams": {
+    "cqlFilter": "klasse = '5'"
+   },
+   "fetched": {
+    "at": "20261016T195718Z",
+    "featureCount": 1,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-windsnelheden-ge75/20261016T195718Z",
+    "cache": "data/cache/pdok-windsnelheden-ge75.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-hwh-waterkeringen",
+   "title": "Waterschappen Keringen IMWA — waterkering (Scheldestromen)",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/hwh/waterschappen-keringen-imwa/ogc/v1",
+   "collection": "waterkering",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (hwh/waterschappen-keringen-imwa/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie MultiLineString)",
+   "note": "Lijnen (categoriewaterkering primair/regionaal, statuslegger); bufferen voor zone-gebruik. Vult FR-WAT-03 aan naast zeeland-ovz-waterkering. Collecties waterkeringsectie/referentiepunt: 0 in bbox.",
+   "role": "attention",
+   "tracks": [
+    "water",
+    "wind",
+    "wonen"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160446Z",
+    "featureCount": 111,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-hwh-waterkeringen/20261016T160446Z",
+    "cache": "data/cache/pdok-hwh-waterkeringen.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-hwh-gemalen",
+   "title": "Waterschappen Kunstwerken IMWA — gemaal",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/hwh/waterschappen-kunstwerken-imwa/ogc/v2",
+   "collection": "gemaal",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (hwh/waterschappen-kunstwerken-imwa/ogc/v2: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie Point)",
+   "note": "Puntlaag (afslagpeil, drempelpeil).",
+   "role": "context",
+   "tracks": [
+    "water"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160446Z",
+    "featureCount": 33,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-hwh-gemalen/20261016T160446Z",
+    "cache": "data/cache/pdok-hwh-gemalen.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-hwh-sluizen",
+   "title": "Waterschappen Kunstwerken IMWA — sluis",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/hwh/waterschappen-kunstwerken-imwa/ogc/v2",
+   "collection": "sluis",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (hwh/waterschappen-kunstwerken-imwa/ogc/v2: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie Point)",
+   "note": "Puntlaag (doorvaartbreedte, drempelpeil).",
+   "role": "context",
+   "tracks": [
+    "water",
+    "mobiliteit"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160446Z",
+    "featureCount": 2,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-hwh-sluizen/20261016T160446Z",
+    "cache": "data/cache/pdok-hwh-sluizen.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-hwh-peilgebieden",
+   "title": "Waterschappen Waterbeheergebieden IMWA — peilgebied",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/hwh/waterschappen-waterbeheergebieden-imwa/ogc/v1",
+   "collection": "peilgebied",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (hwh/waterschappen-waterbeheergebieden-imwa/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie MultiPolygon)",
+   "note": "Peilgebieden (naam/code) — basis voor water-what-ifs.",
+   "role": "scenario-basis",
+   "tracks": [
+    "water"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160446Z",
+    "featureCount": 303,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-hwh-peilgebieden/20261016T160446Z",
+    "cache": "data/cache/pdok-hwh-peilgebieden.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-ror-overstromingsgevaar",
+   "title": "ROR Overstromingen — gevarengebied (INSPIRE geharmoniseerd)",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/rws/overstromingen-gevarengebied/ogc/v1",
+   "collection": "hazard_area",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (rws/overstromingen-gevarengebied/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie Polygon)",
+   "note": "Overstromingsgevarengebieden per kans-klasse. ROR-risicogebied (rws/overstromingen-risicogebied/ogc/v2): 0 in bbox, niet gepind.",
+   "role": "attention",
+   "tracks": [
+    "water",
+    "wonen",
+    "werken"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160447Z",
+    "featureCount": 1,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-ror-overstromingsgevaar/20261016T160447Z",
+    "cache": "data/cache/pdok-ror-overstromingsgevaar.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-rsa-rwzi",
+   "title": "Richtlijn Stedelijk Afvalwater — RWZI's",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/rws/richtlijn-stedelijk-afvalwater/ogc/v1",
+   "collection": "rsa_rwzi",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (rws/richtlijn-stedelijk-afvalwater/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie MultiPoint)",
+   "note": "Rioolwaterzuiveringsinstallaties (puntlaag).",
+   "role": "context",
+   "tracks": [
+    "water"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160447Z",
+    "featureCount": 5,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-rsa-rwzi/20261016T160447Z",
+    "cache": "data/cache/pdok-rsa-rwzi.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-nwb-vaarwegvakken",
+   "title": "NWB Vaarwegen — vaarwegvakken",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/rws/nationaal-wegenbestand-vaarwegen/ogc/v1",
+   "collection": "vaarwegvakken",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (rws/nationaal-wegenbestand-vaarwegen/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie MultiLineString)",
+   "note": "Kanaal Gent-Terneuzen/Westerschelde (vrt_naam, vaktype); naast zeeland-ovz-vaarweg (vlak).",
+   "role": "attention",
+   "tracks": [
+    "mobiliteit",
+    "water"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160447Z",
+    "featureCount": 122,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-nwb-vaarwegvakken/20261016T160447Z",
+    "cache": "data/cache/pdok-nwb-vaarwegvakken.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-prorail-spooras",
+   "title": "ProRail Spoorwegen — spooras",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/prorail/spoorwegen/ogc/v1",
+   "collection": "spooras",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (prorail/spoorwegen/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie LineString)",
+   "note": "Spoorassen (havenspoor Sloe/Terneuzen).",
+   "role": "context",
+   "tracks": [
+    "mobiliteit",
+    "werken"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160447Z",
+    "featureCount": 402,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-prorail-spooras/20261016T160447Z",
+    "cache": "data/cache/pdok-prorail-spooras.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-hoofdwegen-omgevingslawaai",
+   "title": "Hoofdwegen Richtlijn Omgevingslawaai 2022 (INSPIRE)",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/ienw/hoofdwegen-omgevingslawaai-geharmoniseerd/ogc/v1",
+   "collection": "majorroadsource",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (ienw/hoofdwegen-omgevingslawaai-geharmoniseerd/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie MultiLineString)",
+   "note": "annualTrafficFlow per wegvak; geluidscontour-proxy. Hoofdspoorwegen/agglomeraties omgevingslawaai: 0 in bbox, niet gepind.",
+   "role": "attention",
+   "tracks": [
+    "wonen",
+    "mobiliteit"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160447Z",
+    "featureCount": 831,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-hoofdwegen-omgevingslawaai/20261016T160447Z",
+    "cache": "data/cache/pdok-hoofdwegen-omgevingslawaai.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-brp-gewaspercelen",
+   "title": "BRP Gewaspercelen (RVO)",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/rvo/gewaspercelen/ogc/v1",
+   "collection": "brpgewas",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (rvo/gewaspercelen/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie Polygon)",
+   "note": "Landbouwpercelen met gewas/gewascode/category/jaar — operand-kandidaat FR-LNB-* (bestaand landbouwgebied). Omvangrijk (duizenden percelen in de bbox).",
+   "role": "inclusion",
+   "tracks": [
+    "landbouw",
+    "biomassa"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160448Z",
+    "featureCount": 24385,
+    "pages": 25,
+    "bronze": "data/bronze/pdok/pdok-brp-gewaspercelen/20261016T160448Z",
+    "cache": "data/cache/pdok-brp-gewaspercelen.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-funderingsproblematiek",
+   "title": "Indicatieve aandachtsgebieden funderingsproblematiek (RVO)",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/rvo/indicatieve-aandachtsgebieden-funderingsproblematiek/ogc/v1",
+   "collection": "indgebfunderingsproblematiek",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (rvo/indicatieve-aandachtsgebieden-funderingsproblematiek/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie MultiPolygon)",
+   "note": "Per gemeente/legenda-klasse (n_bag).",
+   "role": "attention",
+   "tracks": [
+    "bodem",
+    "wonen"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160508Z",
+    "featureCount": 5046,
+    "pages": 6,
+    "bronze": "data/bronze/pdok/pdok-funderingsproblematiek/20261016T160508Z",
+    "cache": "data/cache/pdok-funderingsproblematiek.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-fysisch-geografische-regios",
+   "title": "Fysisch Geografische Regio's (RVO)",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/rvo/fysisch-geografische-regios/ogc/v1",
+   "collection": "fysischgeografischeregios",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (rvo/fysisch-geografische-regios/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie Polygon)",
+   "note": "Zeekleigebied/duinen (fgr/afk) — landschapstypering.",
+   "role": "attention",
+   "tracks": [
+    "landschap",
+    "bodem"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160516Z",
+    "featureCount": 20,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-fysisch-geografische-regios/20261016T160516Z",
+    "cache": "data/cache/pdok-fysisch-geografische-regios.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-cbs-bbg2017",
+   "title": "CBS Bestand Bodemgebruik 2017",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/cbs/bestand-bodemgebruik-2017/ogc/v1",
+   "collection": "bbg2017",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (cbs/bestand-bodemgebruik-2017/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie MultiPolygon)",
+   "note": "Bodemgebruik met geometrie (bodemgebruik/categorie). Service-only: een bbox-dump geeft 2.480 ongeknipte, vertex-zware vlakken van 217 MB per CRS (fetch 2026-10-16) — buitenproportioneel voor een context-laag; landgebruik-properties zitten al in cbs-landgebruik-100m (national_data.py), TOP10NL terrein_vlak is het fijnere on-demand alternatief.",
+   "role": "context",
+   "tracks": [
+    "bodem",
+    "landschap",
+    "landbouw"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "service-only",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets"
+  },
+  {
+   "id": "pdok-reststromen-biogas",
+   "title": "Potentiekaart reststromen — totaal potentieel biogas (per buurt)",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/rvo/potentiekaart-reststromen/ogc/v1",
+   "collection": "totaalpotentieelbiogas",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (rvo/potentiekaart-reststromen/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie MultiPolygon)",
+   "note": "Buurtniveau; V2-grounding biomassa-what-ifs.",
+   "role": "scenario-basis",
+   "tracks": [
+    "biomassa",
+    "energietoets"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160551Z",
+    "featureCount": 7,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-reststromen-biogas/20261016T160551Z",
+    "cache": "data/cache/pdok-reststromen-biogas.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-reststromen-houtachtig",
+   "title": "Potentiekaart reststromen — totaal potentieel houtachtige biomassa (per buurt)",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/rvo/potentiekaart-reststromen/ogc/v1",
+   "collection": "totaalpotentieelhoutachtigebiomassa",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (rvo/potentiekaart-reststromen/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie MultiPolygon)",
+   "note": "Buurtniveau.",
+   "role": "scenario-basis",
+   "tracks": [
+    "biomassa",
+    "bos"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160552Z",
+    "featureCount": 7,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-reststromen-houtachtig/20261016T160552Z",
+    "cache": "data/cache/pdok-reststromen-houtachtig.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-restwarmte-industrie",
+   "title": "Potentiekaart restwarmte — ligging industrie (CO2-emissie)",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/rvo/potentiekaart-restwarmte/ogc/v1",
+   "collection": "liggingindustrieco2",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (rvo/potentiekaart-restwarmte/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie Point)",
+   "note": "Industriële CO2-emittenten (bedrijf, doelgroep, kgco2_*) — restwarmtebronnen havengebied.",
+   "role": "scenario-basis",
+   "tracks": [
+    "energietoets",
+    "werken"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160552Z",
+    "featureCount": 51,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-restwarmte-industrie/20261016T160552Z",
+    "cache": "data/cache/pdok-restwarmte-industrie.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-omgevingswarmte-wko-buurt",
+   "title": "Potentiekaart omgevingswarmte — warmte open WKO (per buurt)",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/rvo/potentiekaart-omgevingswarmte/ogc/v1",
+   "collection": "warmteopenwkobuurt",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (rvo/potentiekaart-omgevingswarmte/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie MultiPolygon)",
+   "note": "Buurtniveau; WKO-grid (rvo/potentieel-warmte-koude-opslagsystemen) bewust niet gepind (rasterpolygonen).",
+   "role": "scenario-basis",
+   "tracks": [
+    "energietoets",
+    "bodem"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160552Z",
+    "featureCount": 137,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-omgevingswarmte-wko-buurt/20261016T160552Z",
+    "cache": "data/cache/pdok-omgevingswarmte-wko-buurt.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-rev-seveso-productie",
+   "title": "REV Seveso-inrichtingen — Productie (INSPIRE PF, NACE C)",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/rws/productie-en-industrie-productiefaciliteiten/ogc/v1",
+   "collection": "production_facility_c",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (rws/productie-en-industrie-productiefaciliteiten/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie Polygon); as-volgorde lat,lon (bbox lon,lat → 0 treffers; bbox lat,lon → treffers)",
+   "note": "Brzo/Seveso-bedrijven (name, function_activity NACE). Vult de havenbedrijven/energie-infra-gap (README §Beperkingen). Attention-kandidaat voor wonen (externe veiligheid).",
+   "role": "scenario-basis",
+   "tracks": [
+    "werken",
+    "energietoets",
+    "wonen"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "axisOrder": "latlon",
+   "fetched": {
+    "at": "20261016T160552Z",
+    "featureCount": 8,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-rev-seveso-productie/20261016T160552Z",
+    "cache": "data/cache/pdok-rev-seveso-productie.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-rev-seveso-energie",
+   "title": "REV Seveso-inrichtingen — Stroom, gas, stoom (NACE D)",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/rws/productie-en-industrie-productiefaciliteiten/ogc/v1",
+   "collection": "production_facility_d",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (rws/productie-en-industrie-productiefaciliteiten/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie Polygon); as-volgorde lat,lon (bbox lon,lat → 0 treffers; bbox lat,lon → treffers)",
+   "note": "O.a. Vopak Terminal Vlissingen.",
+   "role": "scenario-basis",
+   "tracks": [
+    "werken",
+    "energietoets"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "axisOrder": "latlon",
+   "fetched": {
+    "at": "20261016T160552Z",
+    "featureCount": 1,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-rev-seveso-energie/20261016T160552Z",
+    "cache": "data/cache/pdok-rev-seveso-energie.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-rev-seveso-afval",
+   "title": "REV Seveso-inrichtingen — Water/riool/afvalbeheer (NACE E)",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/rws/productie-en-industrie-productiefaciliteiten/ogc/v1",
+   "collection": "production_facility_e",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (rws/productie-en-industrie-productiefaciliteiten/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie Polygon); as-volgorde lat,lon (bbox lon,lat → 0 treffers; bbox lat,lon → treffers)",
+   "note": "O.a. Indaver IWS.",
+   "role": "scenario-basis",
+   "tracks": [
+    "werken"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "axisOrder": "latlon",
+   "fetched": {
+    "at": "20261016T160552Z",
+    "featureCount": 1,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-rev-seveso-afval/20261016T160552Z",
+    "cache": "data/cache/pdok-rev-seveso-afval.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-rev-seveso-opslag",
+   "title": "REV Seveso-inrichtingen — Transport en opslag (NACE H)",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/rws/productie-en-industrie-productiefaciliteiten/ogc/v1",
+   "collection": "production_facility_h",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (rws/productie-en-industrie-productiefaciliteiten/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie Polygon); as-volgorde lat,lon (bbox lon,lat → 0 treffers; bbox lat,lon → treffers)",
+   "note": "O.a. Evos Terneuzen, Access World Terminals.",
+   "role": "scenario-basis",
+   "tracks": [
+    "werken",
+    "mobiliteit"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "axisOrder": "latlon",
+   "fetched": {
+    "at": "20261016T160553Z",
+    "featureCount": 3,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-rev-seveso-opslag/20261016T160553Z",
+    "cache": "data/cache/pdok-rev-seveso-opslag.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-wetlands",
+   "title": "Wetlands (Ramsar, RVO)",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/rvo/wetlands/ogc/v1",
+   "collection": "wetlands",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (rvo/wetlands/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie MultiPolygon)",
+   "note": "Westerschelde & Saeftinghe (sitecode/naam); naast pdok-natura2000.",
+   "role": "exclusion",
+   "tracks": [
+    "bos",
+    "landschap",
+    "wind"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160553Z",
+    "featureCount": 15,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-wetlands/20261016T160553Z",
+    "cache": "data/cache/pdok-wetlands.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-cdda",
+   "title": "Nationaal Beschermde Gebieden (CDDA, RVO)",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/rvo/nationaal-beschermde-gebieden-cdda/ogc/v1",
+   "collection": "cdda",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (rvo/nationaal-beschermde-gebieden-cdda/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie MultiPolygon)",
+   "note": "CDDA-gebieden (sitename, desvalue).",
+   "role": "exclusion",
+   "tracks": [
+    "bos",
+    "landschap",
+    "wind"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160553Z",
+    "featureCount": 10699,
+    "pages": 11,
+    "bronze": "data/bronze/pdok/pdok-cdda/20261016T160553Z",
+    "cache": "data/cache/pdok-cdda.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-rce-cultuurhistorie",
+   "title": "Beschermde Gebieden Cultuurhistorie (RCE, INSPIRE) — vlakken",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/rce/beschermde-gebieden-cultuurhistorie/ogc/v1",
+   "collection": "rce_inspire_polygons",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (rce/beschermde-gebieden-cultuurhistorie/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie MultiPolygon)",
+   "note": "Beschermde stads-/dorpsgezichten (designation).",
+   "role": "attention",
+   "tracks": [
+    "landschap",
+    "wonen",
+    "recreatie"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160601Z",
+    "featureCount": 96,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-rce-cultuurhistorie/20261016T160601Z",
+    "cache": "data/cache/pdok-rce-cultuurhistorie.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-cbs-buurten-2025",
+   "title": "CBS Wijken en Buurten 2025 — buurten",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/cbs/wijken-en-buurten-2025/ogc/v1",
+   "collection": "buurten",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (cbs/wijken-en-buurten-2025/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie MultiPolygon)",
+   "note": "Kerncijfers per buurt (aantal_inwoners, bevolkingsdichtheid, …).",
+   "role": "scenario-basis",
+   "tracks": [
+    "wonen",
+    "werken"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160601Z",
+    "featureCount": 176,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-cbs-buurten-2025/20261016T160601Z",
+    "cache": "data/cache/pdok-cbs-buurten-2025.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-bestuurlijke-gemeenten",
+   "title": "Bestuurlijke Gebieden (BRK) — gemeentegebied",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/kadaster/brk-bestuurlijke-gebieden/ogc/v1",
+   "collection": "gemeentegebied",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (kadaster/brk-bestuurlijke-gebieden/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie MultiPolygon)",
+   "note": "Autoritatieve gemeentegrenzen (naam, code, ligt_in_provincie_naam) — rapportage per gemeente.",
+   "role": "context",
+   "tracks": [
+    "*"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160602Z",
+    "featureCount": 7,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-bestuurlijke-gemeenten/20261016T160602Z",
+    "cache": "data/cache/pdok-bestuurlijke-gemeenten.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-cbs-bevolkingskernen-2021",
+   "title": "CBS Bevolkingskernen 2021",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/cbs/bevolkingskernen-2021/ogc/v1",
+   "collection": "bevolkingskernen",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (cbs/bevolkingskernen-2021/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie MultiPolygon)",
+   "note": "Bevolkingskernen met kerncijfers.",
+   "role": "context",
+   "tracks": [
+    "wonen"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "cache",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets",
+   "fetched": {
+    "at": "20261016T160602Z",
+    "featureCount": 47,
+    "pages": 1,
+    "bronze": "data/bronze/pdok/pdok-cbs-bevolkingskernen-2021/20261016T160602Z",
+    "cache": "data/cache/pdok-cbs-bevolkingskernen-2021.28992.geojson"
+   }
+  },
+  {
+   "id": "pdok-top10nl-terrein",
+   "title": "BRT TOP10NL — terrein_vlak",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/kadaster/brt-top10nl/ogc/v1",
+   "collection": "terrein_vlak",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (kadaster/brt-top10nl/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie Polygon)",
+   "note": "typelandgebruik (bos/akkerland/…); on-demand met CQL2-filter (queryTemplateParams.filter), geen bbox-dump.",
+   "role": "context",
+   "tracks": [
+    "bos",
+    "landbouw",
+    "landschap"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "service-only",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets"
+  },
+  {
+   "id": "pdok-bgt-begroeidterreindeel",
+   "title": "BGT — begroeidterreindeel",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/kadaster/bgt/ogc/v1",
+   "collection": "begroeidterreindeel",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (kadaster/bgt/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie Polygon)",
+   "note": "fysiek_voorkomen; on-demand.",
+   "role": "context",
+   "tracks": [
+    "bos",
+    "landschap"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "service-only",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets"
+  },
+  {
+   "id": "pdok-bag-pand",
+   "title": "BAG — pand",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/kadaster/bag/ogc/v2",
+   "collection": "pand",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (kadaster/bag/ogc/v2: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie Polygon)",
+   "note": "bouwjaar/gebruiksdoel; 3D-tegenhanger is 3dbag-lod22-cesium. On-demand.",
+   "role": "context",
+   "tracks": [
+    "wonen",
+    "werken"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "service-only",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets"
+  },
+  {
+   "id": "pdok-kadastrale-percelen",
+   "title": "Kadastrale Kaart (BRK) — perceel",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/kadaster/brk-kadastrale-kaart/ogc/v1",
+   "collection": "perceel",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (kadaster/brk-kadastrale-kaart/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie MultiPolygon)",
+   "note": "Kadastrale percelen; on-demand.",
+   "role": "context",
+   "tracks": [
+    "*"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "service-only",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets"
+  },
+  {
+   "id": "pdok-nwb-wegvakken",
+   "title": "NWB Wegen — wegvakken",
+   "jurisdictie": "nl",
+   "endpointType": "ogc-api",
+   "serviceUrl": "https://api.pdok.nl/rws/nationaal-wegenbestand-wegen/ogc/v1",
+   "collection": "wegvakken",
+   "status": "pinned",
+   "lastChecked": "2026-10-16",
+   "probeEvidence": "data/probe_pdok_catalog_2026-10-16.json (rws/nationaal-wegenbestand-wegen/ogc/v1: collections HTTP 200; items?bbox=NSPD&limit=1 HTTP 200, numberReturned=1, geometrie MultiLineString)",
+   "note": "Alle wegvakken; on-demand (hoofdwegen via pdok-hoofdwegen-omgevingslawaai).",
+   "role": "context",
+   "tracks": [
+    "mobiliteit"
+   ],
+   "authoritative": true,
+   "fetchPolicy": "service-only",
+   "licenseNote": "PDOK open data (CC0/CC-BY, zie dataset-pagina pdok.nl)",
+   "catalog": "https://www.pdok.nl/datasets"
   }
  ]
 }

@@ -411,20 +411,46 @@ def _query_url(src):
 # HTTP 200). Antwoorden zijn GeoJSON in CRS84 en worden client-side naar
 # EPSG:28992 gereprojecteerd zodat de cache-contracten
 # (<sourceId>.28992.geojson / .4326.geojson) onveranderd blijven.
+#
+# PDOK-catalogus (probe data/probe_pdok_catalog_2026-10-16.json): de GoKoala-
+# diensten pagineren via ``links[rel=next]`` (cursor), niet via offset/
+# startIndex (HTTP 400). Sommige INSPIRE-geharmoniseerde diensten (REV/Seveso)
+# leveren coördinaten én verwachten de bbox in lat,lon-volgorde; de registry
+# markeert die met ``axisOrder: "latlon"`` en de fetcher draait de assen om.
 # --------------------------------------------------------------------------- #
 
 _CRS84 = "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
+OGC_PAGE_LIMIT = 1000   # PDOK GoKoala: max limit per items-request
+OGC_MAX_PAGES = 5000    # cyclusbewaking op rel="next"
 
 
-def _bbox_str_crs84(bbox):
-    """RD-bbox -> 'minLon,minLat,maxLon,maxLat' (CRS84-asvolgorde), via pyproj."""
+def _bbox_str_crs84(bbox, latlon=False):
+    """RD-bbox -> 'minLon,minLat,maxLon,maxLat' (CRS84-asvolgorde), via pyproj.
+
+    ``latlon=True`` geeft 'minLat,minLon,maxLat,maxLon' voor diensten met
+    niet-conforme as-volgorde (registry ``axisOrder: "latlon"``)."""
     if _to_wgs84 is None:
         raise GeoDataError("pyproj/shapely unavailable: cannot transform bbox to CRS84")
     from shapely.geometry import box as _box
 
     env = _to_wgs84(_box(*_bbox_vals(bbox)))
     minx, miny, maxx, maxy = env.bounds
+    if latlon:
+        return f"{repr(miny)},{repr(minx)},{repr(maxy)},{repr(maxx)}"
     return f"{repr(minx)},{repr(miny)},{repr(maxx)},{repr(maxy)}"
+
+
+def _swap_xy(geom):
+    import shapely
+
+    return shapely.transform(geom, lambda coords: coords[:, ::-1])
+
+
+def _next_href(body):
+    for link in (body.get("links") or []) if isinstance(body, dict) else []:
+        if link.get("rel") == "next" and link.get("href"):
+            return link["href"]
+    return None
 
 
 def _bbox_vals(bbox):
@@ -439,7 +465,7 @@ def _bbox_vals(bbox):
     return vals
 
 
-def fetch_ogc_api_features(session, src, bbox=None, simplify_m=None, timeout=120.0):
+def fetch_ogc_api_features(session, src, bbox=None, simplify_m=None, timeout=120.0, raw_sink=None):
     """Fetch an OGC API - Features items endpoint; returns ([features], pages).
 
     Features are returned as GeoJSON geometries in EPSG:28992 (reprojected
@@ -447,11 +473,18 @@ def fetch_ogc_api_features(session, src, bbox=None, simplify_m=None, timeout=120
     parity but has no OGC-API equivalent here (server-side maxAllowableOffset
     is not part of the pinned probe contract).
 
-    Paging: de gepinde PDOK-dienst (probe taak 5) ondersteunt géén
-    paging-parameters ('offset' én 'startIndex' -> HTTP 400); er is dus één
-    items-request. Wordt het pagina-plafond gehaald (numberReturned == limit),
-    dan luid falen — stilletjes truncated geometrie weggeschreven in de cache
-    is erger dan een harde fout."""
+    Paging volgt ``links[rel=next]`` (GoKoala-cursor; offset/startIndex geven
+    HTTP 400). Zonder next-link is de pagina de laatste: GoKoala vraagt
+    limit+1 rijen op om dat te bepalen, dus een exact volle laatste pagina is
+    compleet. Meldt een dienst wél ``numberMatched`` en blijft het totaal
+    daaronder zonder next-link, dan luid falen — stilletjes truncated geometrie
+    in de cache is erger dan een harde fout.
+
+    ``axisOrder: "latlon"`` in de registry (REV/Seveso, probe 2026-10-16):
+    bbox in lat,lon en coördinaten omgedraaid vóór reprojectie.
+
+    ``raw_sink(page_index, url, content_bytes)`` ontvangt elke pagina
+    als-ontvangen (lake-bronze); fouten daarin zijn fouten van de fetch."""
     del simplify_m  # probe-contract: geen server-side simplificatie
     collection = src.get("collection")
     if not collection:
@@ -461,33 +494,56 @@ def fetch_ogc_api_features(session, src, bbox=None, simplify_m=None, timeout=120
     base = (src.get("serviceUrl") or "").rstrip("/")
     if not base:
         raise GeoDataError(f"source {src.get('id')!r} has no serviceUrl")
+    latlon = (src.get("axisOrder") or "lonlat") == "latlon"
     url = f"{base}/collections/{collection}/items"
-    limit = 500  # PDOK default page ceiling for this service family
+    limit = int(src.get("pageLimit") or OGC_PAGE_LIMIT)
     params = {"f": "json", "limit": limit}
     if bbox is not None:
-        params["bbox"] = _bbox_str_crs84(bbox)
-        params["bbox-crs"] = _CRS84
-    body = _fetch_page(session, url, params, timeout)
-    raw = body.get("features", []) if isinstance(body, dict) else []
-    feats = []
-    for f in raw:
-        if isinstance(f, dict) and f.get("geometry") is not None:
-            g = shape(f["geometry"])
-            f = dict(f)
-            f["geometry"] = mapping(_to_rd(g))
-            feats.append(f)
-    returned = body.get("numberReturned", len(raw)) if isinstance(body, dict) else len(raw)
-    if isinstance(returned, int) and returned >= limit:
+        params["bbox"] = _bbox_str_crs84(bbox, latlon=latlon)
+        if not latlon:
+            params["bbox-crs"] = _CRS84
+    cql = (src.get("queryTemplateParams") or {}).get("filter")
+    if cql:
+        params["filter"] = cql
+    feats, pages, matched = [], 0, None
+    while url:
+        body, content, final_url = _fetch_page_raw(session, url, params, timeout)
+        if raw_sink is not None:
+            raw_sink(pages, final_url, content)
+        raw = body.get("features", []) if isinstance(body, dict) else []
+        for f in raw:
+            if isinstance(f, dict) and f.get("geometry") is not None:
+                g = shape(f["geometry"])
+                if latlon:
+                    g = _swap_xy(g)
+                f = dict(f)
+                f["geometry"] = mapping(_to_rd(g))
+                feats.append(f)
+        pages += 1
+        if isinstance(body, dict) and isinstance(body.get("numberMatched"), int):
+            matched = body["numberMatched"]
+        url, params = _next_href(body), None  # next-href draagt zijn eigen query
+        if len(feats) > MAX_FEATURES_HARD_CAP:
+            raise GeoDataError(
+                f"{src.get('id')}: exceeded hard cap of {MAX_FEATURES_HARD_CAP} features; aborting"
+            )
+        if pages > OGC_MAX_PAGES:
+            raise GeoDataError(
+                f"{src.get('id')}: more than {OGC_MAX_PAGES} ogc-api pages; paging seems not to end"
+            )
+        if url:
+            time.sleep(PAGE_DELAY_S)
+    if matched is not None and len(feats) < matched:
         raise GeoDataError(
-            f"{src.get('id')}: ogc-api items response hit the page limit "
-            f"({returned} >= {limit}) and the pinned service exposes no paging "
-            "parameter — refusing to cache truncated geometry"
+            f"{src.get('id')}: ogc-api returned {len(feats)} of numberMatched={matched} "
+            "features without a next link — refusing to cache truncated geometry"
         )
-    if len(feats) > MAX_FEATURES_HARD_CAP:
-        raise GeoDataError(
-            f"{src.get('id')}: exceeded hard cap of {MAX_FEATURES_HARD_CAP} features; aborting"
-        )
-    return feats, 1
+    # zelfde client-side gelijkheidsfilter als de WFS-tak (queryTemplateParams.
+    # cqlFilter): één gepinde bron per deelselectie, bijv. windklasse 5 (≥ 7,5 m/s)
+    client_cql = (src.get("queryTemplateParams") or {}).get("cqlFilter")
+    if client_cql:
+        feats = _client_cql_filter(feats, client_cql)
+    return feats, pages
 
 
 def _client_cql_filter(feats: list, cql: str) -> list:
@@ -566,7 +622,8 @@ def fetch_wfs_features(session, src, bbox=None, timeout=120.0):
     return feats, pages
 
 
-def _fetch_page(session, url, params, timeout):
+def _fetch_page_raw(session, url, params, timeout):
+    """GET + JSON-parse; geeft (body, ruwe bytes, uiteindelijke URL) terug."""
     try:
         resp = session.get(url, params=params, timeout=timeout)
     except requests.RequestException as exc:
@@ -589,6 +646,14 @@ def _fetch_page(session, url, params, timeout):
             f"ArcGIS error from {url}: code={err.get('code')} "
             f"message={err.get('message')} details={err.get('details')}"
         )
+    content = getattr(resp, "content", None)
+    if content is None:
+        content = resp.text.encode("utf-8")
+    return body, content, getattr(resp, "url", url)
+
+
+def _fetch_page(session, url, params, timeout):
+    body, _, _ = _fetch_page_raw(session, url, params, timeout)
     return body
 
 
@@ -614,6 +679,7 @@ def fetch_layer(
     timeout=120,
     where=None,
     session=None,
+    raw_sink=None,
 ):
     """Fetch one registry layer as a GeoJSON FeatureCollection in EPSG:28992.
 
@@ -631,6 +697,10 @@ def fetch_layer(
     REST ``geometry``/``geometryType=esriGeometryEnvelope``/``inSR`` params).
     Recon caveat: returns full un-clipped geometries of intersecting
     features; the engine clips against the AOI anyway.
+
+    ``raw_sink``: optionele callback ``(page_index, url, content_bytes)`` die
+    elke ogc-api-pagina als-ontvangen krijgt (lake-bronze); alleen bij een
+    daadwerkelijke download, niet bij een cache-hit.
     """
     cache_dir = Path(cache_dir) if cache_dir is not None else DEFAULT_CACHE_DIR
     cache_dir.mkdir(parents=True, exist_ok=True)
@@ -664,7 +734,7 @@ def fetch_layer(
         feats, pages = fetch_wfs_features(session, src, bbox=bbox, timeout=timeout)
     elif src.get("endpointType") == "ogc-api":
         feats, pages = fetch_ogc_api_features(
-            session, src, bbox=bbox, simplify_m=simplify_m, timeout=timeout
+            session, src, bbox=bbox, simplify_m=simplify_m, timeout=timeout, raw_sink=raw_sink
         )
     else:
         url = _query_url(src)
@@ -709,6 +779,8 @@ def fetch_layer(
             "title": src.get("title"),
             "serviceUrl": src.get("serviceUrl"),
             "layerId": src.get("layerId"),
+            "collection": src.get("collection"),
+            "axisOrder": src.get("axisOrder") or "lonlat",
             "role": src.get("role"),
             "authoritative": src.get("authoritative"),
             "licenseNote": src.get("licenseNote"),
