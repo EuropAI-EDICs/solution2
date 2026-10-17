@@ -4,7 +4,7 @@
 |---|---|
 | **Voor wie** | Bestuur en directie (provincies Zeeland en Oost-Vlaanderen, gemeenten en haven in het North Sea Port District) |
 | **Datum** | 17 oktober 2026 · concept voor bespreking |
-| **Bronnen** | [POC_BESTUURLIJKE_SAMENVATTING.md](POC_BESTUURLIJKE_SAMENVATTING.md) (Utrecht/Eindhoven), [poc-nspd/README.md](../poc-nspd/README.md) (technische documentatie), [spec](superpowers/specs/2026-10-14-poc-nspd-design.md) |
+| **Bronnen** | Engelse versie: [POC_NSPD_BESTUURLIJKE_UITLEG_SCENARIOS-en.md](POC_NSPD_BESTUURLIJKE_UITLEG_SCENARIOS-en.md) · [POC_BESTUURLIJKE_SAMENVATTING.md](POC_BESTUURLIJKE_SAMENVATTING.md) (Utrecht/Eindhoven), [poc-nspd/README.md](../poc-nspd/README.md) (technische documentatie), [spec](superpowers/specs/2026-10-14-poc-nspd-design.md) |
 
 ---
 
