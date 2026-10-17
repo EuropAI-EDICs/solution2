@@ -14,7 +14,10 @@
     "provenanceNote": "NC-WIND-01 (art. 18.17) beperkt nieuwe turbines tot de concentratielocaties uit bijlage XIV; dit scenario laat die keuze provincie-breed vallen als beleidsvariant — het loslaten zelf is de assumptie, de zone (bijlage XIV via zeeland-ovz-windconcl) is verbatim geciteerd."
    },
    "mutations": [
-    {"ruleId": "FR-WIND-01", "action": "drop"}
+    {
+     "ruleId": "FR-WIND-01",
+     "action": "drop"
+    }
    ],
    "proposedBy": "curator#poc-nspd-fase3"
   },
@@ -30,7 +33,11 @@
     "provenanceNote": "NC-WIND-02 (art. 18.38-interpretieve brug naar Natura 2000) kent géén afstandsregel; de 500 m is niet geciteerd en wordt louter verkend — hypothetical verrekening, geen rechtstoepassing."
    },
    "mutations": [
-    {"ruleId": "FR-WIND-03", "action": "set_buffer_distance_m", "bufferDistanceM": 500}
+    {
+     "ruleId": "FR-WIND-03",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500
+    }
    ],
    "proposedBy": "curator#poc-nspd-fase3"
   },
@@ -45,9 +52,37 @@
     "provenanceNote": "Fictieve toestand: de Natura 2000-exclusie is niet in het rechtsbestel geschrapt; dit scenario rekent puur de geometrie zonder FR-WIND-03 door, ter inzichtgeving."
    },
    "mutations": [
-    {"ruleId": "FR-WIND-03", "action": "drop"}
+    {
+     "ruleId": "FR-WIND-03",
+     "action": "drop"
+    }
    ],
    "proposedBy": "curator#poc-nspd-fase3"
+  },
+  {
+   "id": "SC-WIND-NL-WINDKLASSE-GE75",
+   "name": "Windklasse ≥ 7,5 m/s opengesteld (NL)",
+   "description": "Verkenning: buiten de concentratielocaties komt extra opstellingsruimte beschikbaar binnen het vlak met windsnelheid ≥ 7,5 m/s op 100 m hoogte (RVO-klasse 5). De finale zone is de inclusie-union van concentratielocaties (FR-WIND-01) en dit klassevlak, min Natura 2000 (FR-WIND-03).",
+   "objectType": "wind_turbine",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: geen enkele OVZ-norm eist een windklasse; dit scenario kruist de concentratielocatie-toets met de RVO-windklassenkaart om te zien hoeveel ruimte de windexploataatie-voorwaarde óók zou opleveren als selectiecriterium.",
+    "provenanceNote": "Fictieve toestand: de windklasse is géén vigerende norm in CVDR709135; dit scenario rekent puur de geometrie door, ter inzichtgeving. Geen juridische claim.",
+    "dataGrounding": {
+     "sourceId": "pdok-windsnelheden-ge75",
+     "retrieved": "2026-10-16",
+     "note": "RVO Windsnelheden 100 m hoogte, klasse 5 (7,5-8 m/s); als-ontvangen in de pipeline-cache (pdok-windsnelheden-ge75, fetch 2026-10-16)."
+    }
+   },
+   "mutations": [
+    {
+     "ruleId": "HYP-WINDKLASSE-GE75",
+     "action": "add_zone_rule",
+     "zoneId": "windklasse-ge75-nl",
+     "zoneSemantics": "inclusion"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-pdok-20261016"
   }
  ]
 }

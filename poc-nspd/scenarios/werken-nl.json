@@ -1,0 +1,63 @@
+{
+ "id": "SSET-werken-nl-pdok",
+ "useCase": "werken",
+ "description": "What-if-set werken (NL, baseline = AOI-brede FR-AOI-01-run): verkenningen op de haven-energie-infra (restwarmtebronnen) en externe veiligheid (Seveso).",
+ "scenarios": [
+  {
+   "id": "SC-WER-NL-RESTWARMTE-1KM",
+   "name": "Rond restwarmtebronnen met 1 km (NL)",
+   "description": "De AOI-brede basisinclusie valt weg; inclusion wordt een 1 km-zone rond de industriële CO2-emittenten/restwarmtebronnen (51 punten). Verkennende lens op warmte-infrastructuur voor bedrijfsvestiging.",
+   "objectType": "business_development",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: restwarmte-ontneming leunt tegen de bron aan; de 1 km is een exploratieve bereikbaarheidsmaat, geen citatie uit de OVZ.",
+    "provenanceNote": "Fictieve toestand: geen citatie — de zone is een warmte-infra-verkenning.",
+    "dataGrounding": {
+     "sourceId": "pdok-restwarmte-industrie",
+     "retrieved": "2026-10-16",
+     "note": "Potentiekaart restwarmte — ligging industrie (CO2), 51 punten in de bbox (bedrijf, doelgroep, kgco2_*); fetch 2026-10-16."
+    }
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-AOI-01",
+     "action": "drop"
+    },
+    {
+     "ruleId": "HYP-WER-RESTWARMTE-1KM",
+     "action": "add_zone_rule",
+     "zoneId": "restwarmte-industrie-nl",
+     "zoneSemantics": "inclusion",
+     "bufferDistanceM": 1000
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-pdok-20261016"
+  },
+  {
+   "id": "SC-WER-NL-GEEN-SEVESO-500M",
+   "name": "Buiten 500 m rond Seveso-productie-inrichtingen (NL)",
+   "description": "500 m-buffer rond de Brzo/Seveso-productie-inrichtingen (NACE C) als exclusion op de AOI-brede baseline.",
+   "objectType": "business_development",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: ook voor bedrijven gelden externe-veiligheidsafstanden rond Brzo-inrichtingen; inzonderheidsmaten zijn vergunning-specifiek, de 500 m is exploratief.",
+    "provenanceNote": "Fictieve toestand: geen citatie — de buffer is verkenning, geen afstandsnorm.",
+    "dataGrounding": {
+     "sourceId": "pdok-rev-seveso-productie",
+     "retrieved": "2026-10-16",
+     "note": "REV/Seveso-inrichtingen productie (NACE C), 8 inrichtingen; fetch 2026-10-16."
+    }
+   },
+   "mutations": [
+    {
+     "ruleId": "HYP-WER-GEEN-SEVESO-500M",
+     "action": "add_zone_rule",
+     "zoneId": "seveso-productie-nl",
+     "zoneSemantics": "exclusion",
+     "bufferDistanceM": 500
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-pdok-20261016"
+  }
+ ]
+}

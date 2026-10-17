@@ -142,6 +142,93 @@ def _scenario_bronnen(layers_dir: Path) -> list[dict]:
     return lagen
 
 
+# PDOK-bronlagen (catalogus-actie 2026-10-16): geselecteerde lagen uit de
+# pipeline-cache (bronnen in data/sources.json, fetch_pdok_layers.py) als
+# verkenningen achter de scenario-runs. Bewust zonder de omvangrijke dumps
+# (gewaspercelen 51 MB, CDDA 36 MB — on-demand via de dienst) en zonder
+# context-puntlagen die niets toevoegen aan de scène.
+_PDOK_KEUZES = [
+    ("pdok-windsnelheden-100m", "Windsnelheden 100 m (RVO-klassen)", "#4a90d9", "#1f4e79",
+     "wind", "Klassen 3-5 (6,5-8 m/s) op 100 m hoogte; SC-WIND-NL-WINDKLASSE-GE75-operand."),
+    ("pdok-hwh-waterkeringen", "Waterkeringen Scheldestromen (IMWA)", "#8c6d31", "#5d4a1f",
+     "water/wind/wonen", "Primair + regionale keringen (lijnen); naast de OVZ-dijktrajecten."),
+    ("pdok-ror-overstromingsgevaar", "Overstromingsgevarengebied (ROR)", "#1f77b4", "#123c55",
+     "water/wonen/werken", "SC-WON-NL-BUITEN-OVERSTROMINGSGEVAAR-operand."),
+    ("pdok-hwh-peilgebieden", "Peilgebieden Scheldestromen (IMWA)", "#7fb3d5", "#2c5777",
+     "water", "Peilbeheer-vlakken van het waterschap."),
+    ("pdok-rev-seveso-productie", "Seveso-inrichtingen productie (NACE C)", "#d95f02", "#7c3601",
+     "werken/energietoets/wonen", "Brzo/Seveso-inrichtingen; SC-WON-NL-SEVESO-PROD-500M-operand."),
+    ("pdok-rev-seveso-energie", "Seveso-inrichtingen energie (NACE D)", "#e08214", "#8a4f08",
+     "werken/energietoets", "Brzo/Seveso-inrichtingen stroom/gas/stoom (o.a. Vopak Vlissingen)."),
+    ("pdok-rev-seveso-afval", "Seveso-inrichtingen afval/water (NACE E)", "#b35806", "#6b3404",
+     "werken", "Brzo/Seveso-inrichtingen water/riool/afval (o.a. Indaver)."),
+    ("pdok-rev-seveso-opslag", "Seveso-inrichtingen opslag (NACE H)", "#c51b7d", "#700e48",
+     "werken/mobiliteit", "Brzo/Seveso-inrichtingen transport & opslag (o.a. Evos Terneuzen)."),
+    ("pdok-restwarmte-industrie", "Restwarmtebronnen industrie (CO₂)", "#ff7f0e", "#a34a00",
+     "energietoets/werken", "Puntlaag industriële emittenten; SC-WER-NL-RESTWARMTE-1KM-operand."),
+    ("pdok-reststromen-biogas", "Potentieel biogas per buurt", "#66a61e", "#375f10",
+     "biomassa/energietoets", "Totaalpotentieel biogas (buurtniveau) uit de Potentiekaart reststromen."),
+    ("pdok-hoofdwegen-omgevingslawaai", "Hoofdwegen Omgevingslawaai 2022", "#984ea3", "#4c1547",
+     "wonen/mobiliteit", "majorroadsource met verkeersintensiteit; geluidscontext wonen."),
+    ("pdok-nwb-vaarwegvakken", "NWB-vaarwegvakken", "#17becf", "#0b5f66",
+     "mobiliteit/water", "Kanaal Gent-Terneuzen en Westerschelde-vakken (vrt_naam, vaktype)."),
+    ("pdok-funderingsproblematiek", "Aandachtsgebieden funderingsproblematiek", "#a6761d", "#5c4110",
+     "bodem/wonen", "Indicatieve klassen per gemeente (RVO)."),
+    ("pdok-rce-cultuurhistorie", "Beschermde gebieden cultuurhistorie (RCE)", "#8c564b", "#42281f",
+     "landschap/wonen/recreatie", "Beschermde stads- en dorpsgezichten (INSPIRE)."),
+    ("pdok-cbs-buurten-2025", "CBS-buurten 2025 (kerncijfers)", "#bcbd22", "#5f5f12",
+     "wonen/werken", "Buurten met inwonersaantallen en dichtheden."),
+    ("pdok-bestuurlijke-gemeenten", "Gemeentegrenzen (BRK)", "#7f7f7f", "#333333",
+     "context", "Autoritatieve gemeentegebieden (Kadaster)."),
+]
+
+
+def _pdok_bronlagen(layers_dir: Path, cache_dir: Path | None = None) -> list[dict]:
+    """Lagen van de PDOK-catalogusactie (2026-10-16) naar de viewer kopiëren.
+
+    Uit de EPSG:28992-cache; bronnen > 2 MB worden Douglas-Peucker gesimplificeerd
+    (5 m, display-only) voordat ze naar WGS84 gaan. Zonder cache geen laag — de
+    functie is geheel cache-gedreven en faalt nooit (net als _scenario_bronnen).
+    """
+    cache_dir = cache_dir or (ROOT / "data" / "cache")
+    lagen: list[dict] = []
+    for sid, titel, fill, stroke, rol, uitleg in _PDOK_KEUZES:
+        bron = cache_dir / f"{sid}.28992.geojson"
+        if not bron.is_file():
+            continue
+        doel = layers_dir / f"bron-{sid}.geojson"
+        if not doel.is_file():
+            try:
+                fc = json.loads(bron.read_text(encoding="utf-8"))
+                if bron.stat().st_size > 2_000_000:
+                    from shapely.geometry import shape, mapping
+
+                    for f in fc.get("features", []):
+                        g = f.get("geometry")
+                        if g:
+                            f["geometry"] = mapping(shape(g).simplify(5.0, preserve_topology=True))
+                from pipeline.geodata import feature_collection_to_wgs84
+
+                fc = feature_collection_to_wgs84(fc)
+                fc["properties"]["viewerNote"] = (
+                    "display-kopie van de pipeline-cache (optioneel gesimplificeerd 5 m); "
+                    "autoritatieve geometrie: data/cache + nldt-lake silver")
+                doel.write_text(json.dumps(fc, ensure_ascii=False), encoding="utf-8")
+            except Exception as exc:  # lees-/kopieerprobleem: laag overslaan, nooit crashen
+                print(f"[pdok-bronlagen] {sid} overgeslagen: {exc}")
+                continue
+        lagen.append({
+            "id": f"bron-{sid}", "type": "geojson",
+            "title": f"{titel} — {rol}", "groupId": "pdok-bronnen",
+            "defaultOn": False, "defaultAddToManager": True, "opacity": 55,
+            "attribution": "PDOK (api.pdok.nl), open data",
+            "description": f"{uitleg} Rol: {rol}.",
+            "settings": {"url": f"layers/bron-{sid}.geojson",
+                         "style": {"fill": fill, "stroke": stroke}},
+        })
+    return lagen
+
+
 def _what_if(scenario_runs: Path, layers_dir: Path) -> tuple[list[dict], list[dict]]:
     """(groepen, lagen) uit geslaagde S7-scenario-runs (fase 3b): per use-case
     de nieuwste run met verdict pass — CONTROL als referentie, elk scenario met
@@ -203,7 +290,8 @@ def _what_if(scenario_runs: Path, layers_dir: Path) -> tuple[list[dict], list[di
 
 
 def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path,
-                       scenario_runs: Path | None = None) -> Path:
+                       scenario_runs: Path | None = None,
+                       pdok_cache_dir: Path | None = None) -> Path:
     geo_src = run_dir / f"zones-{track}-nspd.geojson"
     if not geo_src.is_file():
         raise SystemExit(f"ontbreekt: {geo_src} — draai eerst de xborder-merge (taak 10)")
@@ -265,6 +353,7 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path,
 
     ref_groepen, ref_lagen = _zeeland_referentielagen()
     bronnen_lagen = _scenario_bronnen(layers_dir)
+    pdok_lagen = _pdok_bronlagen(layers_dir, pdok_cache_dir)
     whatif_groepen, whatif_lagen = _what_if(scenario_runs or SCENARIO_RUNS, layers_dir)
     cfg = {
         "name": f"poc-nspd — NSPD {track}",
@@ -283,6 +372,8 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path,
             {"id": "whatif", "title": "What-if scenario's (S7)", "isOpen": bool(whatif_groepen)},
             *whatif_groepen,
             {"id": "scenario-bronnen", "title": "Scenario-bronlagen (regel-operanden)", "isOpen": True},
+            *([{"id": "pdok-bronnen", "title": "PDOK-bronlagen (nldt-datalake, what-if-operanden)",
+                "isOpen": False}] if pdok_lagen else []),
             *scenario_groepen,
             *ref_groepen,
         ],
@@ -296,6 +387,7 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path,
              "defaultOn": True, "attribution": "3D BAG / TU Delft, CC-BY-4.0", "defaultAddToManager": True,
              "settings": {"url": BAG_3D, "enableHeightControl": True}},
             *bronnen_lagen,
+            *pdok_lagen,
             *scenario_lagen,
             *whatif_lagen,
             *ref_lagen,

@@ -1,0 +1,58 @@
+{
+ "id": "SSET-wonen-nl-pdok",
+ "useCase": "wonen",
+ "description": "What-if-set wonen (NL, baseline = AOI-brede FR-AOI-01-run): data-grounded verkenningen op PDOK-lagen (ROR-overstromingsgevarengebied, REV/Seveso). Iedere basis is hypothetical met dataGrounding op de alias-bron — geen norm.",
+ "scenarios": [
+  {
+   "id": "SC-WON-NL-BUITEN-OVERSTROMINGSGEVAAR",
+   "name": "Buiten het overstromingsgevarengebied (NL)",
+   "description": "De ROR-overstromingsgevarengebieden (kansscenario's) worden als exclusion geteld: de AOI minus het gevarenvlak blijft over. Verkennende klimaat-adaptatie-lens, geen vigerende bouwnorm.",
+   "objectType": "housing_development",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: wonen in overstromingsgevarengebied is ruimtelijk-ordeningstechnisch een maatschappelijk vraagstuk; het gevarenvlak (Richtlijn Overstromingsrisico's) is geen bouwnorm uit de OVZ, dus alleen als what-if uitvoerbaar.",
+    "provenanceNote": "Fictieve toestand: geen citatie — het gevarenvlak is hier geometrische verkenning, geen verbodszone.",
+    "dataGrounding": {
+     "sourceId": "pdok-ror-overstromingsgevaar",
+     "retrieved": "2026-10-16",
+     "note": "ROR Overstromingen gevarengebied (hazard_area), 1 vlak binnen de NSPD-bbox; cache pdok-ror-overstromingsgevaar, fetch 2026-10-16."
+    }
+   },
+   "mutations": [
+    {
+     "ruleId": "HYP-WON-GEEN-GEVARENGEBIED",
+     "action": "add_zone_rule",
+     "zoneId": "overstromingsgevaar-nl",
+     "zoneSemantics": "exclusion"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-pdok-20261016"
+  },
+  {
+   "id": "SC-WON-NL-SEVESO-PROD-500M",
+   "name": "500 m afstand tot Seveso-productie-inrichtingen (NL)",
+   "description": "500 m-buffer rond de Brzo/Seveso-productie-inrichtingen (NACE C, o.a. Zeeland Refinery, Rosier) als exclusion op de AOI. Let op: alleen NACE C is meegeteld (één dataGrounding per scenario); de sector-sets D/E/H zijn aparte bronnen en hier niet gedekt.",
+   "objectType": "housing_development",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: externe veiligheid stelt afstanden rond Brzo-inrichtingen; de inzonderheidsmaten volgen per inrichting uit het vergunningentraject, niet uit deze kaart. De 500 m is een exploratieve waarde zonder citatie.",
+    "provenanceNote": "Fictieve toestand: geen citatie — de buffer is verkenning, geen afstandsnorm.",
+    "dataGrounding": {
+     "sourceId": "pdok-rev-seveso-productie",
+     "retrieved": "2026-10-16",
+     "note": "REV/Seveso-inrichtingen productie (INSPIRE PF, NACE C), 8 inrichtingen in de bbox; as-volgorde lat,lon door de fetcher gecorrigeerd; fetch 2026-10-16."
+    }
+   },
+   "mutations": [
+    {
+     "ruleId": "HYP-WON-SEVESO-500M",
+     "action": "add_zone_rule",
+     "zoneId": "seveso-productie-nl",
+     "zoneSemantics": "exclusion",
+     "bufferDistanceM": 500
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-pdok-20261016"
+  }
+ ]
+}

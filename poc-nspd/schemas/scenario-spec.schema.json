@@ -82,20 +82,24 @@
     "properties": {
      "ruleId": {
       "type": "string",
-      "description": "Must resolve in the baseline run's formalrules.json. Unknown ids fail the V2 grounding check; known-but-not-executable rules (status ambiguous/rejected) are skipped with a recorded reason, never guessed."
+      "description": "For drop/set_semantics/set_buffer_distance_m: must resolve in the baseline run's formalrules.json (unknown ids fail the V2 grounding check; known-but-not-executable rules are skipped with a recorded reason, never guessed). For add_zone_rule: the NEW synthetic rule's id — must NOT collide with a baseline rule id."
      },
      "action": {
-      "enum": ["drop", "set_semantics", "set_buffer_distance_m"],
-      "description": "drop = remove the rule from execution; set_semantics = reclassify (e.g. conditional overlay -> hard exclusion, or exclusion -> marker); set_buffer_distance_m = set/replaces the zoneSelector buffer distance (metres, EPSG:28992)."
+      "enum": ["drop", "set_semantics", "set_buffer_distance_m", "add_zone_rule"],
+      "description": "drop = remove the rule from execution; set_semantics = reclassify (e.g. conditional overlay -> hard exclusion, or exclusion -> marker); set_buffer_distance_m = set/replaces the zoneSelector buffer distance (metres, EPSG:28992); add_zone_rule = add a synthetic rule over a pinned alias layer (data-grounded what-if operand, hypothetical basis only)."
      },
      "zoneSemantics": {
      "enum": ["inclusion", "exclusion", "conditional", "attention", "compensation", "none"],
-      "description": "Required with action=set_semantics."
+      "description": "Required with action=set_semantics or add_zone_rule."
      },
      "bufferDistanceM": {
       "type": "number",
       "minimum": 0,
-      "description": "Required with action=set_buffer_distance_m."
+      "description": "Required with action=set_buffer_distance_m; optional with add_zone_rule (buffers the alias geometry, metres EPSG:28992)."
+     },
+     "zoneId": {
+      "type": "string",
+      "description": "Required with action=add_zone_rule: a registered zone alias (run.py ZONE_SOURCES). The V2 gate requires basis.type=hypothetical and basis.dataGrounding.sourceId equal to the alias' sourceId."
      }
     },
     "allOf": [
@@ -106,6 +110,10 @@
     {
      "if": { "properties": { "action": { "const": "set_buffer_distance_m" } } },
      "then": { "required": ["bufferDistanceM"] }
+    },
+    {
+     "if": { "properties": { "action": { "const": "add_zone_rule" } } },
+     "then": { "required": ["zoneId", "zoneSemantics"] }
     }
     ]
    }

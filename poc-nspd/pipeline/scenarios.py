@@ -57,8 +57,10 @@ except Exception:  # pragma: no cover - toolchain guarantees pyproj
 
 __all__ = [
     "SCENARIOS_VERSION",
+    "ZONE_CAPABLE_ROLES",
     "ScenarioError",
     "CONTROL_REPRODUCTION_REL_TOLERANCE",
+    "add_zone_rule_zone_ids",
     "apply_mutations",
     "build_validation_report",
     "check_narrative_grounding",
@@ -67,6 +69,7 @@ __all__ = [
     "execute_rule_set",
     "final_and_inclusion",
     "load_baseline",
+    "load_extra_zone_layers",
     "load_layers",
     "narrate_report",
     "aoi_from_baseline",
@@ -142,18 +145,31 @@ def load_baseline(run_dir: Path) -> Dict[str, Any]:
 
 
 def load_layers(
-    manifest: Mapping[str, Mapping[str, Any]], *, simplify_m: float = 0.0
+    manifest: Mapping[str, Mapping[str, Any]], *, simplify_m: float = 0.0,
+    aoi_geometry: Any = None,
 ) -> Tuple[Dict[str, Dict[str, Any]], List[Dict[str, Any]]]:
     """Rebuild the engine's ``layers`` dict from the baseline run's manifest.
 
     Reads each zone's recorded cache file (EPSG:28992 computation twin) —
     no network. Missing/corrupt caches degrade per zone, exactly like a
     failed fetch in the pipeline run.
+
+    ``aoi_geometry``: het sentinel-zone-verhaal. De ``aoi``-zone is geen
+    cache-laag maar de request-AOI (orchestrator-basisrule FR-AOI-01;
+    run.py seedt ze ná simplify). Ontbreekt de cachePath maar is de
+    AOI-geometrie meegegeven (``aoi_from_baseline(baseline)``, al
+    gesimplificeerd op de opgetekende tolerantie), dan wordt de laag
+    opgebouwd zoals run.py dat doet — geen degradatie, geen gedropte
+    FR-AOI-01. Zonder aoi_geometry gedraagt de functie zich ongewijzigd.
     """
     layers: Dict[str, Dict[str, Any]] = {}
     degradations: List[Dict[str, Any]] = []
+    aoi_seed = None
     for zone, entry in sorted(manifest.items()):
         cache = entry.get("cachePath")
+        if zone == "aoi" and (not cache or not Path(cache).is_file()) and aoi_geometry is not None:
+            aoi_seed = aoi_geometry
+            continue
         if not cache or not Path(cache).is_file():
             degradations.append(
                 {"kind": "layer-cache-missing",
@@ -172,7 +188,89 @@ def load_layers(
         layers[str(zone)] = fc
     if simplify_m and simplify_m > 0:
         layers, _notes = engine.simplify_layers(layers, simplify_m)
+    if aoi_seed is not None:
+        from shapely.geometry import mapping as _mapping
+
+        layers["aoi"] = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature", "id": 0,
+                "properties": {"fid": 0, "role": "aoi"},
+                "geometry": _mapping(aoi_seed),
+            }],
+            "crs": {"type": "name", "properties": {"name": "EPSG:28992"}},
+            "properties": {"sourceId": "request-aoi", "featureCount": 1,
+                           "title": "Area of Interest (request AOI; inclusion basis)",
+                           "role": "aoi", "authoritative": True},
+        }
     return layers, degradations
+
+
+def add_zone_rule_zone_ids(specs: Sequence[Mapping[str, Any]]) -> List[str]:
+    """Alias-zoneIds die de ``add_zone_rule``-mutaties van een set nodig hebben
+    (volgorde van eerste voorkomen, zonder dubbelen)."""
+    seen: List[str] = []
+    for spec in specs:
+        for m in spec.get("mutations") or []:
+            if m.get("action") == "add_zone_rule" and m.get("zoneId") and m["zoneId"] not in seen:
+                seen.append(str(m["zoneId"]))
+    return seen
+
+
+def load_extra_zone_layers(
+    zone_ids: Sequence[str],
+    zone_aliases: Mapping[str, Mapping[str, Any]],
+    *,
+    simplify_m: float = 0.0,
+    cache_dir: Optional[Path] = None,
+) -> Tuple[Dict[str, Dict[str, Any]], Dict[str, Dict[str, Any]], List[Dict[str, Any]]]:
+    """Alias-lagen voor ``add_zone_rule`` uit de pipeline-cache (offline).
+
+    Geeft ``(layers, manifest, degradations)``: het manifest heeft dezelfde
+    vorm als layers.json van een run (serviceUrl/layerId/lastChecked/
+    cachePath), zodat ``sources_prov_from_manifest`` de engine-provenance
+    kan uitbreiden. Een onbekende alias of ontbrekende cache degradeert per
+    zone — de synthetische regel wordt dan gedropt, nooit stil overgeslagen.
+    """
+    cache_dir = Path(cache_dir) if cache_dir is not None else geodata.DEFAULT_CACHE_DIR
+    layers: Dict[str, Dict[str, Any]] = {}
+    manifest: Dict[str, Dict[str, Any]] = {}
+    degradations: List[Dict[str, Any]] = []
+    for zone in zone_ids:
+        alias = zone_aliases.get(zone)
+        if not alias or not alias.get("sourceId"):
+            degradations.append({"kind": "zone-alias",
+                                 "error": f"add_zone_rule: geen open-data alias voor zone {zone!r}"})
+            continue
+        sid = str(alias["sourceId"])
+        cache = cache_dir / f"{sid}.28992.geojson"
+        if not cache.is_file():
+            degradations.append({"kind": "layer-cache-missing",
+                                 "error": f"zone {zone!r}: cache {cache} ontbreekt (fetch_pdok_layers.py / "
+                                          f"geodata.fetch_layer eerst) — regels erop worden gedropt"})
+            continue
+        try:
+            fc = _read_json(cache)
+        except (OSError, ValueError) as exc:
+            degradations.append({"kind": "layer-cache-corrupt",
+                                 "error": f"zone {zone!r}: {type(exc).__name__}: {exc}"})
+            continue
+        layers[zone] = fc
+        props = fc.get("properties") or {}
+        manifest[zone] = {
+            "zoneId": zone, "aliasSourceId": sid,
+            "serviceUrl": props.get("serviceUrl"),
+            "layerId": props.get("layerId") or props.get("collection"),
+            "title": props.get("title"), "role": props.get("role"),
+            "featureCount": props.get("featureCount"), "fetchedAt": props.get("fetchedAt"),
+            "lastChecked": props.get("lastChecked"),
+            "cachePath": str(cache),
+            "aliasNote": alias.get("note"),
+            "scenarioOperand": "add_zone_rule",
+        }
+    if layers and simplify_m and simplify_m > 0:
+        layers, _notes = engine.simplify_layers(layers, simplify_m)
+    return layers, manifest, degradations
 
 
 def sources_prov_from_manifest(manifest: Mapping[str, Mapping[str, Any]]) -> Dict[str, Dict[str, Any]]:
@@ -190,6 +288,49 @@ def sources_prov_from_manifest(manifest: Mapping[str, Mapping[str, Any]]) -> Dic
 # --------------------------------------------------------------------------- #
 # mutations
 # --------------------------------------------------------------------------- #
+
+#: registry-rollen die een alias-bron als what-if-operand mogen dragen
+#: (add_zone_rule). 'context' is per registry-afspraak nooit zone-bepalend.
+ZONE_CAPABLE_ROLES = ("scenario-basis", "inclusion", "exclusion", "attention")
+
+_SEMANTICS_RULE_TYPE = {"inclusion": "zone_inclusion", "exclusion": "zone_exclusion"}
+
+
+def _synthetic_zone_rule(rid: str, zone_id: str, semantics: str,
+                         buffer_m: Optional[float], note: str) -> Dict[str, Any]:
+    """FormalRule-vormige what-if-regel over een gepinde alias-laag.
+
+    Geen normCardId: dit is géén norm maar een data-grounded verkenning; de
+    V2-gate eist dat de scenario-basis ``hypothetical`` is en de dataGrounding
+    op dezelfde bron wijst. Velden volgen de executable-shards zodat de engine
+    (zoneSemantics/zoneSelector) en de rapportage ze ongewijzigd verwerken."""
+    zs: Dict[str, Any] = {
+        "zoneIds": [zone_id],
+        "selection": "within",
+        "geometrySource": "national_source",
+        "caveat": "scenario add_zone_rule: data-grounded what-if-operand, geen juridische citatie; "
+                  "volledige ongeknipte featuregeometrie, knip op AOI door de engine.",
+    }
+    if buffer_m is not None:
+        zs["bufferDistanceM"] = float(buffer_m)
+    return {
+        "id": rid,
+        "normCardId": None,
+        "status": "formalized",
+        "ruleType": _SEMANTICS_RULE_TYPE.get(semantics, "zone_marker"),
+        "zoneSemantics": semantics,
+        "instrumentType": "scenario-hypothetical",
+        "jurisdictie": zone_id.rsplit("-", 1)[-1] if zone_id.endswith(("-nl", "-be")) else "nl",
+        "appliesTo": {"objectType": None, "contextTags": ["scenario_add_zone_rule", f"alias_{zone_id}"]},
+        "executableRef": "engine.zone.within@poc-v1",
+        "formalizedBy": "scenario-mutation#add_zone_rule",
+        "formalizedAt": _dt.date.today().isoformat(),
+        "zoneSelector": zs,
+        "rationale": note,
+        "conditions": [],
+        "synthetic": True,
+    }
+
 
 def eligible_rules(rules: Sequence[Mapping[str, Any]]) -> List[Dict[str, Any]]:
     """Rules the baseline actually executed: status ``formalized``.
@@ -210,7 +351,10 @@ def apply_mutations(
     Returns ``(new_rules, applied, skipped, unknown_rule_ids)`` where
     ``applied``/``skipped`` are report rows and ``unknown_rule_ids`` names
     authoring errors (rule ids that resolve nowhere — a V2 grounding failure,
-    not a graceful skip).
+    not a graceful skip). ``add_zone_rule`` voegt een synthetische regel toe
+    over een alias-laag; een ruleId die met een baseline-regel botst of een
+    ontbrekende zoneId/zoneSemantics is een authoring-fout (skipped-rij met
+    ``v2Error``, door de runner als V2-faal geteld).
     """
     by_id = {str(r.get("id")): r for r in rules}
     new_rules = [copy.deepcopy(r) for r in rules]
@@ -223,6 +367,29 @@ def apply_mutations(
         rid = str(m.get("ruleId"))
         action = str(m.get("action"))
         base = by_id.get(rid)
+        if action == "add_zone_rule":
+            zone_id = str(m.get("zoneId") or "")
+            sem = str(m.get("zoneSemantics") or "")
+            fout = None
+            if base is not None or rid in new_by_id:
+                fout = f"add_zone_rule {rid}: ruleId botst met een bestaande regel"
+            elif not zone_id or not sem:
+                fout = f"add_zone_rule {rid}: zoneId en zoneSemantics zijn verplicht"
+            if fout:
+                skipped.append({"ruleId": rid, "action": action, "reason": fout, "v2Error": fout})
+                continue
+            dist = m.get("bufferDistanceM")
+            note = (f"scenario mutation add_zone_rule: {sem} over alias {zone_id}"
+                    + (f" met buffer {float(dist):g} m" if dist is not None else ""))
+            rule = _synthetic_zone_rule(rid, zone_id, sem, dist, note)
+            new_rules.append(rule)
+            new_by_id[rid] = rule
+            row = {"ruleId": rid, "action": action, "zoneId": zone_id, "zoneSemantics": sem,
+                   "note": note}
+            if dist is not None:
+                row["bufferDistanceM"] = float(dist)
+            applied.append(row)
+            continue
         if base is None:
             unknown.append(rid)
             skipped.append({"ruleId": rid, "action": action,
@@ -387,6 +554,8 @@ def run_scenario_set(
     on_scenario_geojson=None,
     narrator=None,
     h3_metrics=None,
+    zone_aliases: Optional[Mapping[str, Mapping[str, Any]]] = None,
+    extra_layers_manifest: Optional[Mapping[str, Mapping[str, Any]]] = None,
 ) -> Dict[str, Any]:
     """Execute control + every spec; assemble the ScenarioReport dict.
 
@@ -412,7 +581,10 @@ def run_scenario_set(
     summary = baseline["runSummary"]
     rules = baseline["formalrules"]
     normcards = baseline["normcards"]
-    sources = sources_prov_from_manifest(manifest)
+    zone_aliases = dict(zone_aliases or {})
+    extra_manifest = dict(extra_layers_manifest or {})
+    sources = {**sources_prov_from_manifest(manifest),
+               **sources_prov_from_manifest(extra_manifest)}
 
     aoi = aoi_from_baseline(baseline)
 
@@ -480,13 +652,23 @@ def run_scenario_set(
         nc = spec["basis"].get("normCardId")
         if nc and not any(c.get("id") == nc for c in normcards):
             v2_normcard_missing.append(f"{sid}:{nc}")
-        if isinstance(spec["basis"], dict):
-            for dg_err in _data_grounding_errors(
-                    source_ids, spec["basis"].get("dataGrounding") or {}):
-                if dg_err:
-                    v2_datagrounding.append(f"{sid}:{dg_err}")
+        zone_fouten = _add_zone_rule_errors(spec, zone_aliases)
+        if zone_fouten:
+            v2_datagrounding.extend(f"{sid}:{fout}" for fout in zone_fouten)
+        # dataGrounding-rol: bij add_zone_rule mag elke zone-geschikte rol
+        # meewerken (geen context); anders uitsluitend scenario-basis
+        heeft_add = any(m.get("action") == "add_zone_rule" for m in spec["mutations"])
+        for dg_err in _data_grounding_errors(
+                source_ids, spec["basis"].get("dataGrounding") or {},
+                allowed_roles=ZONE_CAPABLE_ROLES if heeft_add else ("scenario-basis",)):
+            if dg_err:
+                v2_datagrounding.append(f"{sid}:{dg_err}")
         mutated, applied, skipped, unknown = apply_mutations(rules, spec["mutations"])
         v2_unknown.extend(f"{sid}:{rid}" for rid in unknown)
+        for row in skipped:
+            fout = row.pop("v2Error", None)  # intern signaal; rapport-schema kent het veld niet
+            if fout:
+                v2_unknown.append(f"{sid}:{fout}")
         rich, executed = execute_rule_set(
             eligible_rules(mutated), layers, aoi, sources,
             scenario_id=sid, degradations=degradations)
@@ -627,13 +809,16 @@ def run_scenario_set(
 # --------------------------------------------------------------------------- #
 
 def _data_grounding_errors(
-    source_ids: Mapping[str, Any], dg: Mapping[str, Any]
+    source_ids: Mapping[str, Any], dg: Mapping[str, Any],
+    allowed_roles: Sequence[str] = ("scenario-basis",),
 ) -> List[str]:
     """V2-hulp: fouten op een basis.dataGrounding-blok (leeg = geen fouten).
 
     Een afwezig/leeg blok is geen fout — alleen een *aanwezig* blok moet
-    resolvend zijn: de sourceId bestaat in de sources-registry met
-    ``role == "scenario-basis"`` en ``retrieved`` is een ISO-datum.
+    resolvend zijn: de sourceId bestaat in de sources-registry met een rol
+    uit ``allowed_roles`` (standaard alleen ``scenario-basis``; voor
+    ``add_zone_rule`` elke zone-geschikte rol, nooit ``context``) en
+    ``retrieved`` is een ISO-datum.
     """
     errs: List[str] = []
     if not isinstance(dg, Mapping) or not dg:
@@ -644,12 +829,41 @@ def _data_grounding_errors(
         errs.append(f"onbekende sourceId {sid} in sources.json")
         return errs
     role = str(entry.get("role", ""))
-    if role != "scenario-basis":
-        errs.append(f"sourceId {sid} heeft role {role or '?'}, verwacht scenario-basis")
+    if role not in allowed_roles:
+        verwacht = "scenario-basis" if tuple(allowed_roles) == ("scenario-basis",) else "/".join(allowed_roles)
+        errs.append(f"sourceId {sid} heeft role {role or '?'}, verwacht {verwacht}")
     try:
         _dt.date.fromisoformat(str(dg.get("retrieved", "")))
     except ValueError:
         errs.append(f"retrieved {dg.get('retrieved')!r} is geen ISO-datum")
+    return errs
+
+
+def _add_zone_rule_errors(
+    spec: Mapping[str, Any], zone_aliases: Mapping[str, Mapping[str, Any]],
+) -> List[str]:
+    """V2-hulp voor ``add_zone_rule``: alleen in een ``hypothetical`` met een
+    dataGrounding op precies de alias-bron van elke toegevoegde zone."""
+    adds = [m for m in (spec.get("mutations") or []) if m.get("action") == "add_zone_rule"]
+    if not adds:
+        return []
+    errs: List[str] = []
+    basis = spec.get("basis") or {}
+    if basis.get("type") != "hypothetical":
+        errs.append("add_zone_rule vereist basis.type=hypothetical (geen norm, een data-grounded what-if)")
+    dg = basis.get("dataGrounding") or {}
+    dg_sid = str(dg.get("sourceId") or "")
+    if not dg_sid:
+        errs.append("add_zone_rule vereist basis.dataGrounding.sourceId (de alias-bron)")
+    for m in adds:
+        zone = str(m.get("zoneId") or "")
+        alias = zone_aliases.get(zone) if zone else None
+        if alias is None:
+            errs.append(f"add_zone_rule {m.get('ruleId')}: zoneId {zone!r} is geen geregistreerde alias (ZONE_SOURCES)")
+            continue
+        if dg_sid and str(alias.get("sourceId")) != dg_sid:
+            errs.append(f"add_zone_rule {m.get('ruleId')}: dataGrounding.sourceId {dg_sid} ≠ alias-bron "
+                        f"{alias.get('sourceId')} van zone {zone}")
     return errs
 
 

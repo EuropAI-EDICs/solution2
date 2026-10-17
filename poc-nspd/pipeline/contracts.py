@@ -397,7 +397,10 @@ class DecisionTable(_ContractMixin):
 
 #: basis types; "baseline" is reserved for the control the runner synthesises
 SCENARIO_BASIS_TYPES = ("baseline", "norm_variance", "policy_variant", "hypothetical")
-SCENARIO_MUTATION_ACTIONS = ("drop", "set_semantics", "set_buffer_distance_m")
+#: add_zone_rule voegt een synthetische what-if-regel over een gepinde
+#: alias-laag toe (hypothetical + dataGrounding op die bron, door de V2-gate
+#: afgedwongen); de overige mutaties werken op bestaande baseline-regels
+SCENARIO_MUTATION_ACTIONS = ("drop", "set_semantics", "set_buffer_distance_m", "add_zone_rule")
 
 
 @dataclass
@@ -418,6 +421,9 @@ class ScenarioMutation:
     action: str
     zoneSemantics: Optional[str] = None
     bufferDistanceM: Optional[float] = None
+    #: alleen bij action=add_zone_rule: de alias-zone die de synthetische
+    #: regel als operand krijgt (verplicht, moet in ZONE_SOURCES staan)
+    zoneId: Optional[str] = None
 
 
 @dataclass

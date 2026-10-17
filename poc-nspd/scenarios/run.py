@@ -70,6 +70,18 @@ def utcnow() -> str:
     return _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def _import_run_module():
+    """poc-nspd/run.py expliciet laden (ZONE_SOURCES). Bewust via importlib op
+    pad: een globaal ``import run`` kan in deze CLI op scenarios/run.py zelf
+    uitkomen (scriptdir staat in sys.path)."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("nspd_run_module", POC_ROOT / "run.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def dump_json(path: Path, obj: Any, indent: int = 1) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(obj, ensure_ascii=False, indent=indent) + "\n", encoding="utf-8")
@@ -288,10 +300,22 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                    "scenario-engine",
                    used=["layers.json"], generated=["scenarios/CONTROL.geojson"]):
         layers, layer_degrades = scenarios.load_layers(
-            baseline["manifest"], simplify_m=baseline["inputSimplifyM"])
+            baseline["manifest"], simplify_m=baseline["inputSimplifyM"],
+            aoi_geometry=scenarios.aoi_from_baseline(baseline))
         if layer_degrades:
             print(f"[scenario-run] WARNING {len(layer_degrades)} layer degradation(s); "
                   f"affected rules will be dropped")
+        # extra alias-lagen voor add_zone_rule-mutaties (PDOK-catalogus,
+        # gepind 2026-10-16): offline uit dezelfde pipeline-cache
+        nspd_run = _import_run_module()
+        extra_ids = scenarios.add_zone_rule_zone_ids(specs or [])
+        extra_layers, extra_manifest, extra_degrades = scenarios.load_extra_zone_layers(
+            extra_ids, nspd_run.ZONE_SOURCES, simplify_m=baseline["inputSimplifyM"])
+        if extra_ids:
+            print(f"[scenario-run] add_zone_rule-operanden: {', '.join(extra_ids)} "
+                  f"({len(extra_layers)} geladen, {len(extra_degrades)} gedegradeerd)")
+        layers.update(extra_layers)
+        layer_degrades.extend(extra_degrades)
 
     # ---------------- 2. the sweep ------------------------------------------ #
     written_geojsons: Dict[str, str] = {}
@@ -343,6 +367,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             on_scenario_geojson=_geojson_writer,
             narrator=narrator_fn,
             h3_metrics=h3_metrics_fn,
+            zone_aliases=nspd_run.ZONE_SOURCES,
+            extra_layers_manifest=extra_manifest,
         )
         validation = report.pop("_validation")
         control_rich = report.pop("_control_rich")

@@ -1,0 +1,61 @@
+{
+ "id": "SSET-landbouw-nl-pdok",
+ "useCase": "landbouw",
+ "description": "What-if-set landbouw (NL, baseline = AOI-brede FR-AOI-01-run): het actuele agrarische vlak (BRP-gewaspercelen) als data-grounded inclusion-verkenning.",
+ "scenarios": [
+  {
+   "id": "SC-LNB-NL-ALLEEN-GEWASPERCELEN",
+   "name": "Alleen binnen BRP-gewaspercelen (NL)",
+   "description": "De AOI-brede basisinclusie (FR-AOI-01) valt weg en het actuele agrarische percelenvlak (BRP, 24.385 percelen in de bbox) wordt de inclusie: de finale zone toont het werkelijk in gebruik zijnde landbouwareaal.",
+   "objectType": "agricultural_expansion",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: BRP-gewaspercelen zijn het bestands-agrarische vlak; het is géén planologische bestemming en dus alleen als what-if-operand bruikbaar.",
+    "provenanceNote": "Fictieve toestand: geen citatie — het percelenvlak is verkenning van de actuele situatie, geen inclusionsnorm.",
+    "dataGrounding": {
+     "sourceId": "pdok-brp-gewaspercelen",
+     "retrieved": "2026-10-16",
+     "note": "BRP Gewaspercelen (brpgewas, gewas/gewascode/category, jaar 2025); cache pdok-brp-gewaspercelen, 25 pagina's, fetch 2026-10-16."
+    }
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-AOI-01",
+     "action": "drop"
+    },
+    {
+     "ruleId": "HYP-LNB-GEWASPERCELEN",
+     "action": "add_zone_rule",
+     "zoneId": "gewaspercelen-nl",
+     "zoneSemantics": "inclusion"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-pdok-20261016"
+  },
+  {
+   "id": "SC-LNB-NL-BUITEN-CDDA",
+   "name": "Buiten nationaal beschermde gebieden (NL)",
+   "description": "De CDDA-gebieden (nationaal beschermde gebieden, incl. natuurmonumenten) worden als exclusion geteld op de AOI-brede baseline.",
+   "objectType": "agricultural_expansion",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: CDDA is de internationale rapportagelijst van beschermde gebieden; het is hier een geometrische afdekking, geen agrarische norm.",
+    "provenanceNote": "Fictieve toestand: geen citatie — verkenning, geen verbodszone.",
+    "dataGrounding": {
+     "sourceId": "pdok-cdda",
+     "retrieved": "2026-10-16",
+     "note": "Nationaal Beschermde Gebieden (CDDA), 10.699 vlakken binnen de bbox; cache pdok-cdda, fetch 2026-10-16."
+    }
+   },
+   "mutations": [
+    {
+     "ruleId": "HYP-LNB-GEEN-CDDA",
+     "action": "add_zone_rule",
+     "zoneId": "cdda-nl",
+     "zoneSemantics": "exclusion"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-pdok-20261016"
+  }
+ ]
+}

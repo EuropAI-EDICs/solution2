@@ -205,3 +205,164 @@ def test_file_author_e2e_wind_nl_baseline():
     assert report["verdict"] == "pass"
     assert report["control"]["reproductionRelDelta"] <= 0.001
     assert len(list((uit / "scenarios").glob("*.geojson"))) >= 2  # CONTROL + scenario's
+
+
+# --------------------------------------------------------------------------- #
+# add_zone_rule (PDOK-catalogus 2026-10-16): data-grounded what-if-operanden
+# --------------------------------------------------------------------------- #
+
+_ALIASSEN = {"alias-x": {"sourceId": "bron-x", "note": "testlaag"}}
+
+
+def _hyp_spec(sid: str, mutaties: list, basis_type: str = "hypothetical",
+              dg_source: str = "bron-x") -> dict:
+    basis = {"type": basis_type, "provenanceNote": "fictief — geen citatie",
+             "dataGrounding": {"sourceId": dg_source, "retrieved": "2026-10-16"}}
+    if basis_type == "hypothetical":
+        basis["rationale"] = "verkenning op een gepinde datalaag"
+    else:
+        basis["normCardId"] = "NC-T-01"
+    spec = {"id": sid, "name": sid, "objectType": "wind_turbine", "basis": basis,
+            "mutations": mutaties, "proposedBy": "test#poc-nspd"}
+    contracts.validate(spec, "scenario-spec")
+    return spec
+
+
+def _draai_met_alias(tmp: Path, specs: list, bronnen_rol: str = "scenario-basis"):
+    """run_scenario_set met de alias-laag al in ``layers`` (zoals de CLI doet)
+    en de registry-rol van bron-x gemonkeypatcht via geodata.load_sources."""
+    import tempfile
+    baseline = load_baseline(_schrijf_baseline(Path(tempfile.mkdtemp(dir=tmp))))
+    lagen = _lagen()
+    lagen["alias-x"] = lagen["zone-b"]  # 4 km²-vierkant als what-if-operand
+    import pipeline.geodata as geodata
+    origineel = geodata.load_sources
+    geodata.load_sources = lambda path=None: {"bron-x": {"role": bronnen_rol}}
+    try:
+        return run_scenario_set(
+            baseline=baseline, layers=lagen, specs=specs,
+            scenario_set_id="SSET-test", report_id="SR-test",
+            zone_aliases=_ALIASSEN,
+            extra_layers_manifest={"alias-x": {"serviceUrl": "https://api.pdok.nl/x",
+                                               "layerId": "c", "lastChecked": "2026-10-16"}})
+    finally:
+        geodata.load_sources = origineel
+
+
+def _v2_check(rapport: dict, check_id: str) -> dict:
+    return next(c for c in rapport["_validation"]["levels"]["V2"]["checks"] if c["id"] == check_id)
+
+
+def test_add_zone_rule_voegt_synthetische_regel_toe_en_rekent_door(tmp_path):
+    from pipeline.scenarios import apply_mutations
+    baseline = load_baseline(_schrijf_baseline(tmp_path))
+    nieuw, toegepast, geskipt, onbekend = apply_mutations(baseline["formalrules"], [
+        {"ruleId": "HYP-X", "action": "add_zone_rule", "zoneId": "alias-x",
+         "zoneSemantics": "exclusion", "bufferDistanceM": 100}])
+    assert not geskipt and not onbekend
+    regel = next(r for r in nieuw if r["id"] == "HYP-X")
+    assert regel["status"] == "formalized" and regel["zoneSemantics"] == "exclusion"
+    assert regel["zoneSelector"]["zoneIds"] == ["alias-x"]
+    assert regel["zoneSelector"]["bufferDistanceM"] == 100.0
+    assert regel["normCardId"] is None and regel["synthetic"] is True
+    assert toegepast[0]["zoneId"] == "alias-x" and toegepast[0]["bufferDistanceM"] == 100.0
+    # end-to-end: exclusion van het 4 km²-vierkant (zonder buffer) op de
+    # 16 km²-inclusie minus zone-b (zelfde vierkant) = geen extra verlies;
+    # als inclusion-union komt het vierkant er juist niét bij (al binnen zone-a)
+    rapport = _draai_met_alias(tmp_path, [
+        _hyp_spec("SC-ADD-EXCL", [{"ruleId": "HYP-X", "action": "add_zone_rule",
+                                   "zoneId": "alias-x", "zoneSemantics": "exclusion",
+                                   "bufferDistanceM": 500}])])
+    rij = rapport["scenarios"][0]
+    assert rij["status"] == "ok" and rij["finalAreaKm2"] < rapport["control"]["finalAreaKm2"]
+    assert _v2_check(rapport, "v2-data-grounding")["status"] == "pass"
+    assert rij["mutationsApplied"][0]["action"] == "add_zone_rule"
+    contracts.validate({k: v for k, v in rapport.items() if not k.startswith("_")}, "scenario-report")
+
+
+def test_add_zone_rule_collision_en_ontbrekende_velden_zijn_authoring_fouten(tmp_path):
+    from pipeline.scenarios import apply_mutations
+    baseline = load_baseline(_schrijf_baseline(tmp_path))
+    _, toegepast, geskipt, _ = apply_mutations(baseline["formalrules"], [
+        {"ruleId": "FR-T-01", "action": "add_zone_rule", "zoneId": "alias-x", "zoneSemantics": "inclusion"},
+        {"ruleId": "HYP-LEEG", "action": "add_zone_rule", "zoneSemantics": "inclusion"},
+    ])
+    assert not toegepast and len(geskipt) == 2
+    assert "botst" in geskipt[0]["v2Error"] and "verplicht" in geskipt[1]["v2Error"]
+    rapport = _draai_met_alias(tmp_path, [
+        _hyp_spec("SC-BOTS", [{"ruleId": "FR-T-01", "action": "add_zone_rule",
+                               "zoneId": "alias-x", "zoneSemantics": "inclusion"}])])
+    assert rapport["verdict"] == "fail"
+    assert "botst" in _v2_check(rapport, "v2-mutation-rule-ids")["detail"] or any(
+        "botst" in json.dumps(c) for c in rapport["_validation"]["levels"]["V2"]["checks"])
+
+
+def test_v2_add_zone_rule_eist_hypothetical_en_passende_dataGrounding(tmp_path):
+    mut = [{"ruleId": "HYP-X", "action": "add_zone_rule", "zoneId": "alias-x",
+            "zoneSemantics": "exclusion"}]
+    # policy_variant mag géén datalaag toevoegen
+    rapport = _draai_met_alias(tmp_path, [_hyp_spec("SC-PV", mut, basis_type="policy_variant")])
+    detail = _v2_check(rapport, "v2-data-grounding")["detail"]
+    assert "hypothetical" in detail and rapport["verdict"] == "fail"
+    # dataGrounding op een andere bron dan de alias-bron
+    import pipeline.geodata as geodata
+    origineel = geodata.load_sources
+    try:
+        rapport = _draai_met_alias(tmp_path, [_hyp_spec("SC-ANDER", mut, dg_source="bron-y")])
+    finally:
+        geodata.load_sources = origineel
+    assert "≠ alias-bron" in _v2_check(rapport, "v2-data-grounding")["detail"]
+    # onbekende alias
+    rapport = _draai_met_alias(tmp_path, [_hyp_spec("SC-ONB", [
+        {"ruleId": "HYP-Y", "action": "add_zone_rule", "zoneId": "alias-bestaat-niet",
+         "zoneSemantics": "exclusion"}])])
+    assert "geen geregistreerde alias" in _v2_check(rapport, "v2-data-grounding")["detail"]
+
+
+def test_v2_rol_context_mag_nooit_zone_bepalend_zijn(tmp_path):
+    mut = [{"ruleId": "HYP-X", "action": "add_zone_rule", "zoneId": "alias-x",
+            "zoneSemantics": "exclusion"}]
+    ok = _draai_met_alias(tmp_path, [_hyp_spec("SC-EXCL", mut)], bronnen_rol="exclusion")
+    assert _v2_check(ok, "v2-data-grounding")["status"] == "pass", "zone-geschikte rol mag"
+    fout = _draai_met_alias(tmp_path, [_hyp_spec("SC-CTX", mut)], bronnen_rol="context")
+    assert _v2_check(fout, "v2-data-grounding")["status"] == "fail"
+    assert "context" in _v2_check(fout, "v2-data-grounding")["detail"]
+
+
+def test_load_extra_zone_layers_uit_cache_en_degradaties(tmp_path):
+    from pipeline.scenarios import load_extra_zone_layers, add_zone_rule_zone_ids
+    cache = tmp_path / "cache"
+    cache.mkdir()
+    fc = _lagen()["zone-b"]
+    fc["properties"] = {"serviceUrl": "https://api.pdok.nl/x/ogc/v1", "collection": "c",
+                        "featureCount": 1, "lastChecked": "2026-10-16"}
+    (cache / "bron-x.28992.geojson").write_text(json.dumps(fc), encoding="utf-8")
+    specs = [{"mutations": [{"action": "add_zone_rule", "zoneId": "alias-x"},
+                            {"action": "drop", "ruleId": "FR-T-01"},
+                            {"action": "add_zone_rule", "zoneId": "alias-x"}]},
+             {"mutations": [{"action": "add_zone_rule", "zoneId": "alias-onbekend"}]}]
+    assert add_zone_rule_zone_ids(specs) == ["alias-x", "alias-onbekend"]
+    lagen, manifest, degr = load_extra_zone_layers(
+        ["alias-x", "alias-onbekend", "alias-geen-cache"],
+        {**_ALIASSEN, "alias-geen-cache": {"sourceId": "bron-zonder-cache"}},
+        simplify_m=2.0, cache_dir=cache)
+    assert set(lagen) == {"alias-x"}
+    assert manifest["alias-x"]["layerId"] == "c" and manifest["alias-x"]["aliasSourceId"] == "bron-x"
+    assert manifest["alias-x"]["cachePath"].endswith("bron-x.28992.geojson")
+    soorten = sorted(d["kind"] for d in degr)
+    assert soorten == ["layer-cache-missing", "zone-alias"]
+
+
+def test_load_layers_seedt_aoi_zone_uit_request(tmp_path):
+    """AOI-brede baselines (FR-AOI-01): de 'aoi'-zone heeft geen cache; met de
+    request-AOI meegegeven wordt ze geseed zoals run.py doet (geen degradatie,
+    FR-AOI-01 blijft draaien)."""
+    from shapely.geometry import shape
+    from pipeline.scenarios import load_layers
+    manifest = {"aoi": {"zoneId": "aoi", "aliasSourceId": "request-aoi", "cachePath": None}}
+    lagen, degr = load_layers(manifest, simplify_m=2.0)
+    assert not lagen and degr and degr[0]["kind"] == "layer-cache-missing"
+    lagen, degr = load_layers(manifest, simplify_m=2.0, aoi_geometry=shape(VIERKANT))
+    assert not degr and "aoi" in lagen
+    assert lagen["aoi"]["properties"]["sourceId"] == "request-aoi"
+    assert abs(shape(lagen["aoi"]["features"][0]["geometry"]).area - 25e6) < 1.0

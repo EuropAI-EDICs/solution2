@@ -1,0 +1,61 @@
+{
+ "id": "SSET-bos-nl-pdok",
+ "useCase": "bos",
+ "description": "What-if-set bos (NL, baseline = AOI-brede FR-AOI-01-run): verkenningen op Ramsar-wetlands en nationaal beschermde gebieden (CDDA).",
+ "scenarios": [
+  {
+   "id": "SC-BOS-NL-ZONDER-WETLANDS",
+   "name": "Buiten Ramsar-wetlands (NL)",
+   "description": "De Ramsar-wetlands (o.a. Westerschelde & Saeftinghe) worden als exclusion geteld op de AOI-brede baseline.",
+   "objectType": "forest_planting",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: Ramsar-gebieden zijn internationaal beschermd water- en vogelgebied; het is hier geometrische verkenning naast de Natura 2000-toets die deze track (nog) niet op de AOI-brede baseline uitvoert.",
+    "provenanceNote": "Fictieve toestand: geen citatie — verkenning, geen verbodszone.",
+    "dataGrounding": {
+     "sourceId": "pdok-wetlands",
+     "retrieved": "2026-10-16",
+     "note": "Wetlands (Ramsar), 15 vlakken binnen de bbox; fetch 2026-10-16."
+    }
+   },
+   "mutations": [
+    {
+     "ruleId": "HYP-BOS-GEEN-WETLANDS",
+     "action": "add_zone_rule",
+     "zoneId": "wetlands-nl",
+     "zoneSemantics": "exclusion"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-pdok-20261016"
+  },
+  {
+   "id": "SC-BOS-NL-ALLEEN-CDDA",
+   "name": "Alleen binnen nationaal beschermde gebieden (NL)",
+   "description": "De AOI-brede basisinclusie valt weg; inclusion wordt de CDDA-afdekking (nationaal beschermde gebieden). Verkenning van 'bos binnen bestaande bescherming' — een ruwe proxy voor natuurverweving.",
+   "objectType": "forest_planting",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: CDDA-afdekking is geen aanplantnorm; het scenario toont alleen hoeveel vlak binnen bestaande beschermingslagen ligt.",
+    "provenanceNote": "Fictieve toestand: geen citatie — verkenning, geen inclusionsnorm.",
+    "dataGrounding": {
+     "sourceId": "pdok-cdda",
+     "retrieved": "2026-10-16",
+     "note": "Nationaal Beschermde Gebieden (CDDA), 10.699 vlakken binnen de bbox; fetch 2026-10-16."
+    }
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-AOI-01",
+     "action": "drop"
+    },
+    {
+     "ruleId": "HYP-BOS-BINNEN-CDDA",
+     "action": "add_zone_rule",
+     "zoneId": "cdda-nl",
+     "zoneSemantics": "inclusion"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-pdok-20261016"
+  }
+ ]
+}

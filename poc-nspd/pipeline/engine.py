@@ -231,18 +231,25 @@ def polygonal(geom):
     return merged, dropped
 
 
-def _ensure_valid(geom, prov, ctx):
-    """Validity-check; repair with make_valid and RECORD it. Returns geometry."""
+def _ensure_valid(geom, prov, ctx, keep_nonpolygonal=False):
+    """Validity-check; repair with make_valid and RECORD it. Returns geometry.
+
+    ``keep_nonpolygonal``: skip the polygon-only reduction (a point/line union
+    that the caller is about to buffer into polygons — see _union_layer)."""
     if geom is None:
         return shapely.geometry.Polygon()
     repairs = 0
     if not geom.is_valid:
         geom = make_valid(geom)
         repairs = 1
-    geom, dropped = polygonal(geom)
+    dropped = 0
+    if not keep_nonpolygonal:
+        geom, dropped = polygonal(geom)
     note = f"op=validity_check; ctx={ctx}; make_valid_repairs={repairs}"
     if dropped:
         note += f"; dropped_non_polygonal={dropped}"
+    if keep_nonpolygonal:
+        note += "; non_polygonal_kept_for_buffer=true"
     prov.append(note + f"; engine={ENGINE_VERSION} shapely/{shapely.__version__}")
     return geom
 
@@ -344,7 +351,23 @@ def simplify_layers(layers, tolerance_m):
     return new_layers, notes
 
 
-def _union_layer(layer_id, layers, prov, sources):
+def _has_polygonal_part(geom) -> bool:
+    t = geom.geom_type
+    if t in ("Polygon", "MultiPolygon"):
+        return True
+    if t == "GeometryCollection":
+        return any(_has_polygonal_part(sub) for sub in geom.geoms)
+    return False
+
+
+def _union_layer(layer_id, layers, prov, sources, keep_nonpolygonal=False):
+    """Union of a fetched layer's geometries (EPSG:28992).
+
+    ``keep_nonpolygonal``: when the calling rule buffers the layer
+    (distance > 0), point/line features are kept as-is so the buffer turns
+    them into polygons — a point layer (e.g. restwarmtebronnen, gemalen)
+    is a legitimate buffered operand. Without a buffer they are dropped and
+    counted as before (a point can never be a zone on its own)."""
     geoms = layer_geometries(layer_id, layers, prov)
     if not geoms:
         prov.append(
@@ -352,16 +375,20 @@ def _union_layer(layer_id, layers, prov, sources):
             f"features=0; result=empty; engine={ENGINE_VERSION}"
         )
         return shapely.geometry.Polygon()
-    fixed, repairs, dropped = [], 0, 0
+    fixed, repairs, dropped, kept = [], 0, 0, 0
     for g in geoms:
         if not g.is_valid:
             g = make_valid(g)
             repairs += 1
+        if keep_nonpolygonal and not _has_polygonal_part(g):
+            fixed.append(g)
+            kept += 1
+            continue
         p, d = polygonal(g)
         dropped += d
         fixed.append(p)
     u = unary_union(fixed)
-    u = _ensure_valid(u, prov, f"union layer={layer_id}")
+    u = _ensure_valid(u, prov, f"union layer={layer_id}", keep_nonpolygonal=kept > 0)
     note = (
         f"op=union; layer={_layer_prov_name(layer_id, layers, sources)}; "
         f"features={len(geoms)}; make_valid_repairs={repairs}; "
@@ -369,6 +396,8 @@ def _union_layer(layer_id, layers, prov, sources):
     )
     if dropped:
         note += f"; dropped_non_polygonal={dropped}"
+    if kept:
+        note += f"; kept_non_polygonal_for_buffer={kept}"
     prov.append(note)
     return u
 
@@ -536,7 +565,7 @@ def execute_rules(rules, layers, aoi=None, sources=None, payload_round_dp=None):
                 f"inclusion rule {rid} names no source layer and carries no inline geometry"
             )
         for lid in _resolve_layers(rid, lids, layers):
-            g = _union_layer(lid, layers, prov, sources)
+            g = _union_layer(lid, layers, prov, sources, keep_nonpolygonal=dist > 0)
             if dist > 0:
                 prov.append(
                     f"op=buffer; rule={rid}; layer={_layer_prov_name(lid, layers, sources)}; "
@@ -608,7 +637,7 @@ def execute_rules(rules, layers, aoi=None, sources=None, payload_round_dp=None):
             )
         excl_parts = []
         for lid in _resolve_layers(rid, lids, layers):
-            g = _union_layer(lid, layers, prov, sources)
+            g = _union_layer(lid, layers, prov, sources, keep_nonpolygonal=dist > 0)
             if dist > 0:
                 prov.append(
                     f"op=buffer; rule={rid}; layer={_layer_prov_name(lid, layers, sources)}; "
@@ -735,7 +764,7 @@ def reexecute_independent(rules, layers, aoi=None):
 
     rules = list(rules or [])
 
-    def _gdf_of(layer_id):
+    def _gdf_of(layer_id, keep_nonpolygonal=False):
         if layer_id not in layers:
             raise RuleError(f"reexecute: layer {layer_id!r} not fetched/passed")
         fc = _load_fc(layers[layer_id])
@@ -756,6 +785,11 @@ def reexecute_independent(rules, layers, aoi=None):
         for g in geoms:
             if not g.is_valid:
                 g = make_valid(g)
+            # zelfde contract als _union_layer: bij een buffer blijven punt-/
+            # lijnfeatures staan zodat de buffer ze tot vlakken maakt
+            if keep_nonpolygonal and not _has_polygonal_part(g):
+                fixed.append(g)
+                continue
             p, _dropped = polygonal(g)
             fixed.append(p)
         return gpd.GeoDataFrame(
@@ -776,7 +810,7 @@ def reexecute_independent(rules, layers, aoi=None):
     def _inclusion_union(r, dist, lids):
         parts = []
         for lid in lids:
-            parts.append(_apply_distance(_gdf_of(lid), dist))
+            parts.append(_apply_distance(_gdf_of(lid, keep_nonpolygonal=dist > 0), dist))
         if "geometry" in r and r["geometry"] is not None:
             g = shape(r["geometry"])
             if not g.is_valid:
@@ -833,7 +867,7 @@ def reexecute_independent(rules, layers, aoi=None):
     for sem, rid, dist, lids, r in [c for c in core if c[0] == "exclusion"]:
         excl_parts = []
         for lid in lids:
-            excl_parts.append(_apply_distance(_gdf_of(lid), dist))
+            excl_parts.append(_apply_distance(_gdf_of(lid, keep_nonpolygonal=dist > 0), dist))
         if "geometry" in r and r["geometry"] is not None:
             g = shape(r["geometry"])
             if not g.is_valid:

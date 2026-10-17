@@ -53,6 +53,74 @@ Geo-bronnen (`data/sources.json`, registry v2.0; live-geprobeerd 2026-10-14):
 | `mercator-ruimtelijk-beleid` | be | WMS | kandidaat RUP/gewestplan-zonering — géén bruikbare coveragelaag als één typeName (probe 2026-10-14) → V4, RUP-zonering via corpus-gebindde AOI |
 | `be-rup-corpus` | be | document | juridische pin — Vlaamse RUP-teksten haven Gent/Zelzate (documenten, sha256+META, taak 3) |
 
+### PDOK-catalogus (2026-10-16): 33 extra NL-bronnen, gepind en in de nldt-datalake
+
+`data/probe_pdok_catalog.py` heeft de PDOK-catalogus (`api.pdok.nl/index.json`, 130 OGC
+API's, als-ontvangen onder `data/bronze/pdok-catalog/`) doorgelicht: 46 kandidaat-API's
+live geprobeerd binnen de NSPD-bbox (`data/probe_pdok_catalog_2026-10-16.json`). Daaruit
+zijn 33 bronnen gepind in `data/sources.json` (`tracks`, `role`, `fetchPolicy`): 27 met
+`fetchPolicy: cache` (gedownload via `fetch_pdok_layers.py` → `data/cache/` dual-CRS +
+`data/bronze/pdok/<id>/<stamp>/` ruwe pagina's; beide git-ignored) en 6 service-only
+(basisregistraties, te omvangrijk voor een bbox-dump; on-demand met CQL2-`filter`).
+
+| track(s) | bron-id (collectie) | rol | features in bbox |
+|---|---|---|---|
+| wind | `pdok-windsnelheden-100m` | scenario-basis | 3 klassevlakken (6,5–8 m/s) |
+| water, wind, wonen | `pdok-hwh-waterkeringen` (IMWA `waterkering`, Scheldestromen) | attention (lijnen; bufferen) | 111 |
+| water | `pdok-hwh-peilgebieden`, `-gemalen`, `-sluizen`, `pdok-rsa-rwzi` | scenario-basis / context | 303 / 33 / 2 / 5 |
+| water, wonen, werken | `pdok-ror-overstromingsgevaar` (ROR `hazard_area`) | attention | 1 |
+| mobiliteit, water | `pdok-nwb-vaarwegvakken`, `pdok-prorail-spooras`, `pdok-hoofdwegen-omgevingslawaai` | attention / context | 122 / 402 / 831 |
+| landbouw, biomassa | `pdok-brp-gewaspercelen` (BRP `brpgewas`) | inclusion-kandidaat FR-LNB-* | 24 385 |
+| bodem, wonen, landschap | `pdok-funderingsproblematiek`, `pdok-fysisch-geografische-regios` | attention | 5 046 / 20 |
+| biomassa, energietoets | `pdok-reststromen-biogas`, `-houtachtig`, `pdok-restwarmte-industrie`, `pdok-omgevingswarmte-wko-buurt` | scenario-basis | 7 / 7 / 51 / 137 |
+| werken, energietoets, wonen | `pdok-rev-seveso-{productie,energie,afval,opslag}` (REV/Brzo-inrichtingen) | scenario-basis — vult de havenbedrijven/energie-infra-gap (§Beperkingen) | 8 / 1 / 1 / 3 |
+| bos, landschap, wind | `pdok-wetlands` (Ramsar), `pdok-cdda` | exclusion | 15 / 10 699 |
+| landschap, wonen, recreatie | `pdok-rce-cultuurhistorie` (beschermde gezichten) | attention | 96 |
+| wonen, werken, context | `pdok-cbs-buurten-2025`, `pdok-cbs-bevolkingskernen-2021`, `pdok-bestuurlijke-gemeenten` | scenario-basis / context | 176 / 47 / 7 |
+| service-only | `pdok-top10nl-terrein`, `pdok-bgt-begroeidterreindeel`, `pdok-bag-pand`, `pdok-kadastrale-percelen`, `pdok-nwb-wegvakken`, `pdok-cbs-bbg2017` | context | on-demand |
+
+Dialect-bevindingen (vastgelegd in `pipeline/geodata.py`): GoKoala pagineert via
+`links[rel=next]` (offset/startIndex → HTTP 400); de REV/Seveso-dienst levert én
+verwacht **lat,lon**-volgorde (registry `axisOrder: "latlon"`, bbox lon,lat geeft 0
+treffers). Niet gepind (0 features in bbox of ongeschikt): Omgevingswet-geometrieën
+(items 404 per omgeving), IMWA-zoneringen/keringsecties (Scheldestromen levert ze
+niet), ROR-risicogebied, nationale parken, hoofdspoorwegen/agglomeraties omgevingslawaai,
+KRM. BBG2017 is bewust service-only (2 480 ongeknipte vlakken = 217 MB per CRS).
+
+De geformaliseerde regels gebruiken deze lagen niet (de OVZ-operanden komen uit de
+OVZ-kaartbijlagen zelf; een nieuwe norm-operand vraagt de curatie-flow hieronder). Ze
+zijn wél **what-if-operanden**: `run.py:ZONE_SOURCES` kent 23 PDOK-aliassen
+(`windklasse-ge75-nl`, `gewaspercelen-nl`, `overstromingsgevaar-nl`, `seveso-*-nl`,
+`restwarmte-industrie-nl`, `wetlands-nl`, `cdda-nl`, …; context-rollen bewust niet) en
+de scenario-engine heeft de mutatie **`add_zone_rule`** (`pipeline/scenarios.py`): een
+`hypothetical` voegt een synthetische regel over een alias-laag toe (inclusion/
+exclusion, optionele buffer). De V2-gate eist `basis.type=hypothetical` én
+`basis.dataGrounding.sourceId` gelijk aan de alias-bron (rol ≠ context), en weigert een
+ruleId die met een baseline-regel botst — nooit een juridische claim, wél herleidbaar.
+De scenario-runner laadt die alias-lagen offline uit de pipeline-cache en seedt de
+`aoi`-zone uit de request-AOI (AOI-brede baselines met FR-AOI-01 draaien zo zonder
+degradatie); de engine buffert puntlagen (restwarmtebronnen, gemalen) tot vlakken in
+beide paden (shapely + geopandas-V3).
+
+Vijf scenario-sets rekenen er nu op (`scenarios/*.json`, alle verdict pass, H3-metrics
+aan; `scenario-runs/20261016T20*`):
+
+| set | scenario | finale zone (control) |
+|---|---|---|
+| wind-nl | SC-WIND-NL-WINDKLASSE-GE75 — windklasse ≥ 7,5 m/s als extra inclusie | 51,2 km² (12,2) |
+| wonen-nl | SC-WON-NL-BUITEN-OVERSTROMINGSGEVAAR · SC-WON-NL-SEVESO-PROD-500M | 565,8 · 994,0 km² (1000,6) |
+| landbouw-nl | SC-LNB-NL-ALLEEN-GEWASPERCELEN (FR-AOI-01 drop + BRP-inclusie) · SC-LNB-NL-BUITEN-CDDA | 201,3 · 829,1 km² (1000,6) |
+| werken-nl | SC-WER-NL-RESTWARMTE-1KM (1 km rond 51 restwarmtebronnen) · SC-WER-NL-GEEN-SEVESO-500M | 33,5 · 994,0 km² (1000,6) |
+| bos-nl | SC-BOS-NL-ZONDER-WETLANDS · SC-BOS-NL-ALLEEN-CDDA | 853,2 · 171,5 km² (1000,6) |
+
+In de Leia-viewer verschijnen ze automatisch als what-if-groepen (`_what_if`), en
+16 PDOK-lagen staan als groep "PDOK-bronlagen" (cache-gedreven WGS84-kopieën, > 2 MB
+display-gesimplificeerd 5 m; gewaspercelen/CDDA bewust niet — on-demand via de dienst).
+Alles staat in de nldt-datalake (medallion: bronze = ruwe pagina's + catalogus-
+snapshot, silver = dual-CRS lagen + registry + corpus, gold = runs/xborder/scenario) met
+per PDOK-bron een DCAT-record (`catalog/dcat/<id>.json`, `nldt:poc=nspd`) — zie
+Opdrachten stap 0.
+
 AOI: NSPD-bbox 3.45–3.88°E / 51.02–51.48°N (`bbox.py`), gesplitst op 3.73°E in een
 NL- en BE-helft (`use-cases/make_aoi.py`, EPSG:28992). Leia-submodule `viewer/` (MIT,
 onaangetast) gepind op commit `73510022e708bc1042a4fd0e88cec27e4857434d`.
@@ -118,6 +186,18 @@ Interpreter: `poc-nspd/.venv` (`python3` = `.venv/bin/python` hieronder). Werk v
 opnieuw downloaden.
 
 ```bash
+# 0. PDOK-bronnen (2026-10-16): catalogus proberen → lagen ophalen → nldt-datalake
+python3 data/probe_pdok_catalog.py          # live; schrijft data/probe_pdok_catalog_<datum>.json
+python3 fetch_pdok_layers.py                # cache-first; --refresh / --ids <id …>; bronze + fetched-bewijs
+(cd ../nldt && PYTHONPATH=. .venv/bin/python scripts/lake_sync.py --poc nspd \
+   && PYTHONPATH=. .venv/bin/python scripts/pdok_catalog_records.py \
+   && PYTHONPATH=. .venv/bin/python scripts/build_lake_inventory.py)
+#    → nldt/data/lake/nldt-poc-lake/{bronze,silver,gold}/nspd/ + catalog/dcat/pdok-*.json
+#    what-if-sweeps op de PDOK-lagen (add_zone_rule; offline uit de cache, baseline = nieuwste run):
+for uc in wind-nl wonen-nl landbouw-nl werken-nl bos-nl; do python3 scenarios/run.py --use-case $uc; done
+#    H3-metrics draaien via de nldt-CLI met déze interpreter: .venv heeft httpx + h3 nodig
+#    (anders degradeert elk scenario met h3-metrics-error; verdict blijft onaangetast).
+
 # 1. run — één track end-to-end (exit 0 = Critic-verdict pass)
 python3 run.py --use-case wind-nl            # --out <dir> voor een vaste doelmap
 python3 run.py --use-case wind-be
@@ -274,5 +354,6 @@ verifieert letterlijkheid van álle kaarten in de suite).
   reproduceerbaarheidstest; freeze via `NSPD_GOLDEN_FREEZE=1`.
 - **Xborder-rapporten**: 12 tracks onder `xborder-runs/` (zon via hetzelfde commando
   genereerbaar); naast-elkaar NL ∣ BE-tabellen met de decision-rows per land.
-- Buiten scope (opvolgplan): scenario-sweep met `basis.dataGrounding`, crosstrack-
-  conflictoverlay over de grens, DHM-extrusie van BE-gebouwen (taak-12-besluit).
+- Buiten scope (opvolgplan): crosstrack-conflictoverlay over de grens, DHM-extrusie van
+  BE-gebouwen (taak-12-besluit). De scenario-sweep met `basis.dataGrounding` is er
+  inmiddels (PDOK-catalogus 2026-10-16: `add_zone_rule`, vijf data-grounded sets).
