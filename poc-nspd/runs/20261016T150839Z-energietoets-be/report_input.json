@@ -1,0 +1,130 @@
+{
+ "title": "Energy-transition screening for the Flemish part of the NSPD",
+ "generatedAt": "2026-10-16T15:08:40Z",
+ "generatedBy": "poc-cartographer/0.1",
+ "crs": "EPSG:4326 (computation in EPSG:28992, areas in km²)",
+ "stats": {
+  "zoneCount": 4,
+  "finalAreaKm2": 0.137037777,
+  "finalRuleIds": [
+   "FR-BEE-01",
+   "FR-BEE-03"
+  ],
+  "geometryRepairsRecorded": 0
+ },
+ "layers": [
+  {
+   "id": "national_source",
+   "title": "national_source"
+  },
+  {
+   "id": "papierbedrijven-be",
+   "title": "papierbedrijven-be",
+   "serviceUrl": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/wfs",
+   "layerId": "lu:lu_gewrup_gv",
+   "lastChecked": "2026-10-16"
+  },
+  {
+   "id": "zeehavenondersteunend-be",
+   "title": "zeehavenondersteunend-be",
+   "serviceUrl": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/wfs",
+   "layerId": "lu:lu_gewrup_gv",
+   "lastChecked": "2026-10-16"
+  }
+ ],
+ "zones": [
+  {
+   "id": "zr-inclusion_union-270ffee81c",
+   "operation": "inclusion_union",
+   "ruleIds": [
+    "FR-BEE-01"
+   ],
+   "areaKm2": 0.137037777,
+   "layers": [
+    "zeehavenondersteunend-be"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=validity_check; ctx=union layer=zeehavenondersteunend-be; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=union; layer=zeehavenondersteunend-be(https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/wfs/lu:lu_gewrup_gv; lastChecked=2026-10-16; simplifiedM=2.0); features=2; make_valid_repairs=0; area_m2=137037.776725; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=inclusion_union; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=inclusion_union; rules=FR-BEE-01; layers=zeehavenondersteunend-be; area_m2=137037.776725; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-intersection-314a8a2f39",
+   "operation": "intersection",
+   "ruleIds": [
+    "FR-BEE-01"
+   ],
+   "areaKm2": 0.137037777,
+   "layers": [
+    "zeehavenondersteunend-be"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=clip_aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=intersection; rules=FR-BEE-01; target=AOI; area_m2=137037.776725; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-difference-77ab2b05b7",
+   "operation": "difference",
+   "ruleIds": [
+    "FR-BEE-03"
+   ],
+   "areaKm2": 0.137037777,
+   "layers": [
+    "papierbedrijven-be",
+    "national_source"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=union layer=papierbedrijven-be; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=union; layer=papierbedrijven-be(https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/wfs/lu:lu_gewrup_gv; lastChecked=2026-10-16; simplifiedM=2.0); features=2; make_valid_repairs=0; area_m2=30533.692115; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=difference rule=FR-BEE-03; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=difference; rule=FR-BEE-03; layers=papierbedrijven-be,national_source; buffer_m=0.0; area_before_m2=137037.776725; area_after_m2=137037.776725; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-final-0358cf8420",
+   "operation": "final",
+   "ruleIds": [
+    "FR-BEE-01",
+    "FR-BEE-03"
+   ],
+   "areaKm2": 0.137037777,
+   "layers": [
+    "national_source",
+    "papierbedrijven-be",
+    "zeehavenondersteunend-be"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=validity_check; ctx=union layer=zeehavenondersteunend-be; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=union; layer=zeehavenondersteunend-be(https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/wfs/lu:lu_gewrup_gv; lastChecked=2026-10-16; simplifiedM=2.0); features=2; make_valid_repairs=0; area_m2=137037.776725; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=inclusion_union; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=inclusion_union; rules=FR-BEE-01; layers=zeehavenondersteunend-be; area_m2=137037.776725; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=clip_aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=intersection; rules=FR-BEE-01; target=AOI; area_m2=137037.776725; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=papierbedrijven-be; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=union; layer=papierbedrijven-be(https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/wfs/lu:lu_gewrup_gv; lastChecked=2026-10-16; simplifiedM=2.0); features=2; make_valid_repairs=0; area_m2=30533.692115; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=difference rule=FR-BEE-03; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=difference; rule=FR-BEE-03; layers=papierbedrijven-be,national_source; buffer_m=0.0; area_before_m2=137037.776725; area_after_m2=137037.776725; engine=poc-zone-engine/0.1"
+   ]
+  }
+ ],
+ "outputs": {
+  "geojson": "/Users/marc/Projecten/ldttoolbox/poc-nspd/runs/20261016T150839Z-energietoets-be/zones.geojson",
+  "gml": "/Users/marc/Projecten/ldttoolbox/poc-nspd/runs/20261016T150839Z-energietoets-be/zones.gml",
+  "gmlStatus": {
+   "ok": true,
+   "path": "/Users/marc/Projecten/ldttoolbox/poc-nspd/runs/20261016T150839Z-energietoets-be/zones.gml",
+   "tool": "/opt/homebrew/bin/ogr2ogr",
+   "error": null,
+   "command": "/opt/homebrew/bin/ogr2ogr -f GML /Users/marc/Projecten/ldttoolbox/poc-nspd/runs/20261016T150839Z-energietoets-be/zones.gml /Users/marc/Projecten/ldttoolbox/poc-nspd/runs/20261016T150839Z-energietoets-be/zones.geojson"
+  }
+ },
+ "notes": [
+  "cite-or-abstain: every exclusion/inclusion references a registry layer with lastChecked provenance; see per-zone provSteps.",
+  "Areas computed in EPSG:28992 (RD New, metre); geometries validity-checked with make_valid repairs recorded in provenance."
+ ]
+}

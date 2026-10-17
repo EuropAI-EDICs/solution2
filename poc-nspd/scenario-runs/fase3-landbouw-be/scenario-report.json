@@ -1,0 +1,86 @@
+{
+ "id": "SR-20261016T150844Z-landbouw-be-20261017T063358Z",
+ "scenarioSetId": "SSET-landbouw-be-nspd-fase3",
+ "baselineRunId": "20261016T150844Z-landbouw-be",
+ "requestId": "8b0e5838-cd95-57d4-8dc4-84b02002c190",
+ "objectType": "agricultural_expansion",
+ "generatedAt": "2026-10-17T06:33:58Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 0.894370015,
+  "inclusionIntersectAoiKm2": 0.894370015,
+  "baselineFinalAreaKm2": 0.894370015,
+  "baselineInclusionKm2": 0.894370015,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-LNB-BE-AGRKOPPEL-DROP",
+   "name": "Agrarisch koppelingsgebied losgelaten (BE)",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-LNB-01",
+    "provenanceNote": "NC-LNB-01 (GRUP fase 2, art. 7) wijst het agrarisch koppelingsgebied aan als buffer tussen haven en omliggende functies; loslaten is de assumptie."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-LNB-01",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 0,
+   "rulesExecuted": 0,
+   "finalAreaKm2": 536.016910903,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": 535.122540888,
+   "deltaVsControlPct": 59832.343651,
+   "iouVsControl": 0.001668652,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-LNB-BE-AGRKOPPEL-DROP.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-LNB-BE-AGRKOPPEL-BUF500",
+   "name": "Agrarisch koppelingsgebied verbreed met 500 m (BE)",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-LNB-01",
+    "variedAspect": "inclusion-zone verbreed met 500 m",
+    "provenanceNote": "NC-LNB-01 kent geen afstandseis; exploratie."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-LNB-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500.0,
+     "note": "bufferDistanceM None -> 500.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 7.352250758,
+   "inclusionIntersectAoiKm2": 7.352250758,
+   "deltaVsControlKm2": 6.457880743,
+   "deltaVsControlPct": 722.059174,
+   "iouVsControl": 0.121652677,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-LNB-BE-AGRKOPPEL-BUF500.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

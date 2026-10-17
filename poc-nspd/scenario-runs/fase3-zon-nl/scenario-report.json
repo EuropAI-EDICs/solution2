@@ -1,0 +1,119 @@
+{
+ "id": "SR-20261016T144619Z-zon-nl-20261017T063350Z",
+ "scenarioSetId": "SSET-zon-nl-nspd-fase3",
+ "baselineRunId": "20261016T144619Z-zon-nl",
+ "requestId": "85c8b442-8189-5a0a-8dcc-9eafc01b839a",
+ "objectType": "solar_field",
+ "generatedAt": "2026-10-17T06:33:50Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 22.85810099,
+  "inclusionIntersectAoiKm2": 22.880058366,
+  "baselineFinalAreaKm2": 22.85810099,
+  "baselineInclusionKm2": 22.880058366,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-ZON-NL-STED-DROP",
+   "name": "Stedelijk-gebiedbeleid losgelaten (NL)",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-ZON-01",
+    "provenanceNote": "NC-ZON-01 (art. 18.18 lid 1) staat zonneparken binnen stedelijk gebied toe; locaties a-e buiten stedelijk gebied zijn V4. Het vallen laten van de inclusion is de beleidsassumptie.",
+    "dataGrounding": {
+     "sourceId": "netbeheerder-netcongestie",
+     "retrieved": "2026-10-16",
+     "note": "voedingsgebied-afnamecodes (0=beschikbaar … 3=tekort) als niet-juridische verkenning van waar ruime zonning grid-technisch relevant is"
+    }
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-ZON-01",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 852.176593212,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": 829.318492222,
+   "deltaVsControlPct": 3628.116319,
+   "iouVsControl": 0.026823092,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-ZON-NL-STED-DROP.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-ZON-NL-NATURA-BUF500",
+   "name": "Natura 2000-exclusie verbreed met 500 m (NL)",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-ZON-02",
+    "variedAspect": "exclusion-zone verbreed met 500 m",
+    "provenanceNote": "NC-ZON-02 kent geen afstandsregel; exploratie, geen rechtstoepassing."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-ZON-02",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500.0,
+     "note": "bufferDistanceM None -> 500.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 2,
+   "rulesExecuted": 2,
+   "finalAreaKm2": 18.138690145,
+   "inclusionIntersectAoiKm2": 22.880058366,
+   "deltaVsControlKm2": -4.719410845,
+   "deltaVsControlPct": -20.646557,
+   "iouVsControl": 0.793528607,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-ZON-NL-NATURA-BUF500.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-ZON-NL-ZONDER-NATURA",
+   "name": "Zonder Natura 2000-toets (NL)",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: de exclusie (interpretieve brug art. 18.38) buiten beschouwing gelaten.",
+    "provenanceNote": "Fictieve toestand; de exclusie is niet geschrapt in het rechtsbestel."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-ZON-02",
+     "action": "drop",
+     "note": "dropped exclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 22.880058366,
+   "inclusionIntersectAoiKm2": 22.880058366,
+   "deltaVsControlKm2": 0.021957376,
+   "deltaVsControlPct": 0.096059,
+   "iouVsControl": 0.999040813,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-ZON-NL-ZONDER-NATURA.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

@@ -1,0 +1,111 @@
+[
+ {
+  "id": "FR-BEW-01",
+  "normCardId": "NC-BEW-01",
+  "status": "formalized",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "instrumentType": "rup-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "wind_turbine",
+   "contextTags": [
+    "inclusion_een_rij_windturbines",
+    "deelgebied_zelzate_zuid",
+    "geometry_mercator_grup"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task4",
+  "formalizedAt": "2026-10-16",
+  "conditions": [],
+  "zoneSelector": {
+   "zoneIds": [
+    "boskoppel-be"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via mercator-gewestelijke-RUP (gepind 2026-10-16; client-side bestemmingfilter, zie grupBevindingen in probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine."
+  },
+  "rationale": "Formalized (fase 3, task 4): binnen het bosgebied-koppelingsgebied is één rij windturbines toegelaten in sub-gebied Zelzate-zuid (rand van de boszone). CAVEAT: het sub-gebied is in de GRUP-geometrie niet scheidbaar — de inclusion geldt het hele koppelingsgebied ∩ AOI; de sub-gebiedvoorwaarde blijft een V4-toets."
+ },
+ {
+  "id": "FR-BEW-02",
+  "normCardId": "NC-BEW-02",
+  "status": "formalized",
+  "ruleType": "zone_exclusion",
+  "zoneSemantics": "exclusion",
+  "instrumentType": "rup-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "wind_turbine",
+   "contextTags": [
+    "exclusion_grootschalige_windturbines",
+    "overdruk_grensgebied_grootstedelijk_gebied",
+    "geometry_mercator_grup"
+   ]
+  },
+  "executableRef": "engine.zone.exclude_within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task4",
+  "formalizedAt": "2026-10-16",
+  "conditions": [],
+  "zoneSelector": {
+   "zoneIds": [
+    "grensgebied-be"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via mercator-gewestelijke-RUP (gepind 2026-10-16; client-side bestemmingfilter, zie grupBevindingen in probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine."
+  },
+  "rationale": "Formalized (fase 3, task 4): in het grensgebied met het grootstedelijk gebied zijn grootschalige windturbines uitgesloten (GRUP fase 2, artikel 14)."
+ },
+ {
+  "id": "FR-BEW-03",
+  "normCardId": "NC-BEW-03",
+  "status": "ambiguous",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "instrumentType": "gewestplan-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "wind_turbine",
+   "contextTags": [
+    "inclusion_windmolenpark",
+    "gewestplan_bestemmingsvoorschrift",
+    "geen_sv_gentse_kanaalzone",
+    "zone_loos_gedocumenteerd",
+    "v4_human_review"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-task7",
+  "formalizedAt": "2026-10-14",
+  "reason": "Zone-loze inclusion (gedocumenteerd): het gewestplan-SV bestemt 'gebied voor windmolenpark' voor inplanting/exploitatie van windmolens, maar die windmolenpark-zones hebben geen alias in ZONE_SOURCES (taak 9) en het SV bestaat alleen voor gewestplan Antwerpen 14, Hasselt - Genk 19 en Halle - Vilvoorde 25 — niet voor het gewestplan Gentse en Kanaalzone 08 van de AOI; daarom ambigu en naar V4."
+ },
+ {
+  "id": "FR-BEW-04",
+  "normCardId": "NC-BEW-04",
+  "status": "ambiguous",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "instrumentType": "vcro-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "wind_turbine",
+   "contextTags": [
+    "afwijkingsbevoegdheid_windturbines",
+    "vcro_4_4_9",
+    "standaardtypebepalingen_toets",
+    "zone_loos_gedocumenteerd",
+    "v4_human_review"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-task7",
+  "formalizedAt": "2026-10-14",
+  "relatedNormCardIds": [
+   "NC-BEE-02"
+  ],
+  "reason": "Zone-loze conditional (gedocumenteerd): art. 4.4.9 §1 VCRO opent een afwijkingsbevoegdheid voor windturbines/-parken in gebieden die onder gewestplanvoorschriften sorteren (toets aan standaardtypebepalingen; inrichting/beheer uitgesloten); procedurele regel zonder zone-selector in ZONE_SOURCES (taak 9); routeeert naar V4."
+ }
+]

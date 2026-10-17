@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where can riparian development occur in the Dutch part of the NSPD?</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+  :root { --ink:#f5f2ec; --mut:#8a857a; --line:rgba(245,242,236,.14); --bg:#0d0d12; --card:#1a1a23;
+          --ok:#1a7f4b; --bad:#b3261e; --warn:#9a6700; --pend:#6b55b5; }
+  * { box-sizing: border-box; }
+  body { font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+         color: var(--ink); background: var(--bg); margin: 0; padding: 0 0 60px; }
+  main { max-width: 1180px; margin: 0 auto; padding: 0 22px; }
+  header { background: #14141b; color: #fff; padding: 26px 0 20px; }
+  header h1 { font-size: 24px; margin: 0 0 6px; font-weight: 650; }
+  header .sub { color: #2a2a35; font-size: 13.5px; }
+  header .badges { margin-top: 10px; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12.5px;
+           font-weight: 600; margin-right: 6px; background: #24405f; color: #d7e3f4; }
+  .badge.pass { background: #123f2a; color: #8fe3b4; }
+  .badge.fail { background: #4a1512; color: #ffb3ad; }
+  .badge.needs_human { background: #4d3a07; color: #ffdf9e; }
+  .badge.pending { background: #33276b; color: #cabdf5; }
+  h2 { font-size: 19px; margin: 38px 0 12px; font-weight: 650; }
+  h3 { font-size: 15.5px; margin: 22px 0 8px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .stat .k { color: var(--mut); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  .stat .v { font-size: 21px; font-weight: 680; margin-top: 2px; }
+  .stat .s { color: var(--mut); font-size: 12px; margin-top: 2px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  #map { height: 560px; border-radius: 8px; border: 1px solid var(--line); }
+  .map-note { color: var(--mut); font-size: 12.5px; margin-top: 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; background: var(--card); }
+  th, td { border: 1px solid var(--line); padding: 6px 9px; text-align: left; vertical-align: top; }
+  th { background: #eef2f8; font-weight: 640; position: sticky; top: 0; }
+  .tablewrap { overflow-x: auto; max-height: 480px; overflow-y: auto; border: 1px solid var(--line);
+               border-radius: 8px; }
+  .scrollx { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .fx { font-size: 11.5px; font-weight: 700; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+  .fx.included, .fx.pass { color: var(--ok); background: #e2f3e9; }
+  .fx.excluded, .fx.fail { color: var(--bad); background: #fbe6e4; }
+  .fx.conditional, .fx.attention { color: var(--warn); background: #fdf3d7; }
+  .fx.compensation { color: #6b3fa0; background: #efe6fa; }
+  .fx.ambiguous, .fx.needs_human { color: #7a5b00; background: #fff1c9; }
+  .fx.not_applicable, .fx.pending, .fx.skipped { color: var(--mut); background: #edf0f4; }
+  blockquote { margin: 6px 0; padding: 8px 12px; border-left: 3px solid #2a2a35; background: #f2f5f9;
+               font-style: italic; font-size: 13px; }
+  details { border: 1px solid var(--line); border-radius: 8px; background: var(--card);
+            margin: 8px 0; padding: 0; }
+  details summary { cursor: pointer; padding: 9px 13px; font-weight: 600; font-size: 13.5px; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  details .body { padding: 10px 14px; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+  a { color: #0b5cad; }
+  .checks li { margin: 3px 0; font-size: 12.8px; }
+  .lvl { display: inline-block; min-width: 30px; font-weight: 700; }
+  .lvl-V0,.lvl-V1,.lvl-V2,.lvl-V3 { color: #33415c; }
+  .lvl-V4 { color: var(--pend); }
+  footer { margin-top: 44px; color: var(--mut); font-size: 12.5px; border-top: 1px solid var(--line);
+           padding-top: 14px; }
+  .legend-dot { display:inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px;
+                vertical-align: middle; }
+</style>
+</head>
+<body>
+<header>
+  <main>
+    <h1>Where can riparian development occur in the Dutch part of the NSPD?</h1>
+    <div class="sub">
+      Run <span class="mono">20261016T144620Z-water-nl</span> &middot; use case <span class="mono">water-nl</span>
+      &middot; generated 2026-10-16T14:46:21Z &middot; policy stage <b>programming</b>
+      &middot; instrument pinned: Omgevingsverordening provincie Zeeland, CVDR709135 geldend 02-06-2026 t/m heden
+    </div>
+    <div class="badges">
+      <span class="badge pass">verdict: pass</span>
+      <span class="badge pass">V2b: pass</span>
+      <span class="badge pending">V4 human: pending</span>
+      <span class="badge ">cite-or-abstain: 3 cards / 3 abstentions</span>
+    </div>
+  </main>
+</header>
+<main>
+
+<section id="headline">
+  <h2>Headline</h2>
+  <div class="cards">
+    <div class="stat"><div class="k">AOI (jurisdictie)</div><div class="v">1,000.6 km²</div><div class="s">NSPD-NL-helft van de districtsbbox (EPSG:28992, snede 3.73°E)</div></div>
+    <div class="stat"><div class="k">Inclusion ∩ AOI</div><div class="v">1,000.6 km²</div><div class="s">inclusion basis: request-AOI (FR-AOI-01; inclusionBasis=aoi)</div></div>
+    <div class="stat"><div class="k">Final opportunity zone</div><div class="v">997.3 km²</div><div class="s">na executie van de formele exclusions (NL: natura2000-nl via PDOK)</div></div>
+    <div class="stat"><div class="k">Rules executed</div><div class="v">2 of 4</div><div class="s">2 formalized; 2 ambiguous → V4; 0 rejected</div></div>
+    <div class="stat"><div class="k">Zones emitted</div><div class="v">4</div><div class="s">incl. markers (attention/conditional/compensation)</div></div>
+    <div class="stat"><div class="k">Geometry repairs</div><div class="v">0</div><div class="s">invalid-as-served features, recorded in prov</div></div>
+  </div>
+  <p class="map-note" style="margin-top:12px">NL-side of the NSPD; semantics follow the formalized rules from the Omgevingsverordening Zeeland (CVDR709135).</p>
+</section>
+
+<section id="map-section">
+  <h2>Opportunity map</h2>
+  <div class="panel">
+    <div id="map"></div>
+    <p class="map-note">
+      Layers: <span class="legend-dot" style="background:#2e7d32"></span>final opportunity zone &middot;
+      <span class="legend-dot" style="background:#ff8205"></span>inclusion (designated wind zones &cap; AOI) &middot;
+      <span class="legend-dot" style="background:#ff8205"></span>after each exclusion &middot;
+      <span class="legend-dot" style="background:#6a1b9a"></span>attention / conditional / compensation markers &middot;
+      <span class="legend-dot" style="background:#000"></span>AOI (province boundary).
+      Use the layer switcher (top right) to toggle. Basemap tiles and the Leaflet library load from a CDN;
+      when opened offline the map degrades to the tables below. Full-resolution geometry:
+      <span class="mono">zones.geojson</span> / <span class="mono">zones.gml</span>.
+      Display geometry simplified to 25.0 m (recorded in the run summary).
+    </p>
+  </div>
+</section>
+
+<section id="zones">
+  <h2>Zones &amp; statistics <span class="sub">(fallback table &mdash; always available)</span></h2>
+  <div class="tablewrap">
+    <table>
+      <thead><tr>
+        <th>zone id</th><th>operation</th><th>rules</th><th class="num">area km&sup2;</th>
+        <th>layers</th><th class="num">prov steps</th><th class="num">repairs</th>
+      </tr></thead>
+      <tbody>
+      <tr>
+        <td class="mono">zr-inclusion_union-fb4ebebf4a</td>
+        <td>inclusion_union</td>
+        <td class="mono">FR-AOI-01</td>
+        <td class="num">1,000.606</td>
+        <td class="mono">aoi</td>
+        <td class="num">5</td>
+        <td class="num">0</td>
+      </tr>
+      <tr>
+        <td class="mono">zr-intersection-6b76dceba0</td>
+        <td>intersection</td>
+        <td class="mono">FR-AOI-01</td>
+        <td class="num">1,000.606</td>
+        <td class="mono">aoi</td>
+        <td class="num">2</td>
+        <td class="num">0</td>
+      </tr>
+      <tr>
+        <td class="mono">zr-difference-1276c5c1e0</td>
+        <td>difference</td>
+        <td class="mono">FR-WAT-03</td>
+        <td class="num">997.288</td>
+        <td class="mono">waterkering-nl, national_source</td>
+        <td class="num">5</td>
+        <td class="num">3</td>
+      </tr>
+      <tr>
+        <td class="mono">zr-final-a7d31b75a7</td>
+        <td>final</td>
+        <td class="mono">FR-AOI-01, FR-WAT-03</td>
+        <td class="num">997.288</td>
+        <td class="mono">aoi, national_source, waterkering-nl</td>
+        <td class="num">11</td>
+        <td class="num">0</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="decision">
+  <h2>Decision table</h2>
+  <p class="map-note">Every row links its NormCard (instrument + article + version + verbatim quote + URL in
+     <span class="mono">normcards.json</span>). Machine-readable copy: <span class="mono">decision-table.json</span>,
+     Markdown copy: <span class="mono">decision-table.md</span>.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr>
+<th>criterion</th><th>norm</th><th>source</th><th>zone effect</th><th>ruleId</th><th>normCardId</th><th>condition</th><th>note</th>      </tr></thead>
+      <tbody>
+      <tr>
+        <td>
+A permit for an activity with possible consequences for a KRW surface-water or groundwater body may not lead to non-compliance with the applicable environmental values a…        </td>
+        <td>
+Artikel 2.4 — Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden) [binding]        </td>
+        <td>
+<span class="mono">S01</span> <a href="https://lokaleregelgeving.overheid.nl/CVDR709135" target="_blank" rel="noopener">https://lokaleregelgeving.overheid.nl/CVDR709135</a>
+        </td>
+        <td>
+<span class="fx ambiguous">ambiguous</span>
+        </td>
+        <td>
+FR-WAT-01        </td>
+        <td>
+NC-WAT-01        </td>
+        <td>
+        </td>
+        <td>
+Beoordelingsregel waterlichaam; delta-breed, zone-loos conditioneel. Zone-loos gedocumenteerd; routeert naar V4.        </td>
+      </tr>
+      <tr>
+        <td>
+It is prohibited, without an omgevingsvergunning, to remove, hold or transport aquatic plants and animals (or objects evidently serving that purpose) along, on or under…        </td>
+        <td>
+Artikel 13.4 — Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden) [binding]        </td>
+        <td>
+<span class="mono">S01</span> <a href="https://lokaleregelgeving.overheid.nl/CVDR709135" target="_blank" rel="noopener">https://lokaleregelgeving.overheid.nl/CVDR709135</a>
+        </td>
+        <td>
+<span class="fx ambiguous">ambiguous</span>
+        </td>
+        <td>
+FR-WAT-02        </td>
+        <td>
+NC-WAT-02        </td>
+        <td>
+        </td>
+        <td>
+Vergunningplicht onderwater flora/fauna: verbod zonder vergunning; zone-loos (oppervlaktewaterlichamen niet als GIO gepind). Zone-loos gedocumenteerd; routeert naar V4.        </td>
+      </tr>
+      <tr>
+        <td>
+Where an omgevingsplan applies to a regional flood defence, the admission of activities must guarantee that no obstructions arise for the upkeep, maintenance or reinforc…        </td>
+        <td>
+Artikel 18.37 — Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden) [binding]        </td>
+        <td>
+<span class="mono">S01</span> <a href="https://lokaleregelgeving.overheid.nl/CVDR709135" target="_blank" rel="noopener">https://lokaleregelgeving.overheid.nl/CVDR709135</a>
+        </td>
+        <td>
+<span class="fx excluded">excluded</span>
+        </td>
+        <td>
+FR-WAT-03        </td>
+        <td>
+NC-WAT-03        </td>
+        <td>
+        </td>
+        <td>
+Formalized (fase 3, task 2): art. 18.37 verplicht dat toelating van activiteiten bij een regionale waterkering geen belemmering voor onderhoud/versterking oplevert. Gepind als zeeland-ovz-waterkering (dso:ext_ovz_regwkr_dijktraj, probe_2026-10-16.json). Exclusion van de dijktrajecten is de conservatieve operationalisering van &#39;geen belemmering&#39;; toetsing in detail blijft bij het bevoegd gezag (V4…        </td>
+      </tr>
+      <tr>
+        <td>
+orchestrator-basis: request-AOI (constructie, geen norm)        </td>
+        <td>
+run.py orchestrator FR-AOI-01 — geen rechtsbron [uitvoeringsconstructie]        </td>
+        <td>
+<span class="mono">use-cases/water-nl.json (bbox.py NSPD_BBOX_WGS84, EPSG:28992); geen document</span> <a href="#" target="_blank" rel="noopener">use-cases/water-nl.json (bbox.py NSPD_BBOX_WGS84, EPSG:28992); geen document</a>
+        </td>
+        <td>
+<span class="fx included">included</span>
+        </td>
+        <td>
+FR-AOI-01        </td>
+        <td>
+NC-WAT-01        </td>
+        <td>
+        </td>
+        <td>
+included (aoi-basis) — geen bijgaande kaart geciteerd: geen inclusion-regel in deze shard is executabel (zone-loos, V4). Taak-9-zone-semantiek: de inclusion-regels van deze track/jurisdictie (geen) zijn zone-loos naar V4 gerouteerd; de run gebruikt de request-AOI als inclusion-union (run_summary.inclusionBasis=aoi) zodat V4-markers en exclusions op een gedefinieerd werkvlak worden uitgevoerd. Deze regel is een uitvoeringsconstructie van de orchestrator, geen inhoudelijke norm.        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="validation">
+  <h2>Validation report (V0&ndash;V4)</h2>
+  <details open>
+    <summary>opportunity-map-request &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261016T144620Z-water-nl-request</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-opportunity-map-request</span>
+&mdash; 1/1 artifact(s) valid against opportunity-map-request.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V1 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V2 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>norm-card-set &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261016T144620Z-water-nl-normcards</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-norm-card</span>
+&mdash; 3/3 artifact(s) valid against norm-card.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v2-card-citations</span>
+&mdash; all 3 NormCard(s) carry docId+article+version+verbatim quote+uri</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V1 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>formal-rule-set &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261016T144620Z-water-nl-formalrules</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-formal-rule</span>
+&mdash; 4/4 artifact(s) valid against formal-rule.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v2-rule-card-linkage</span>
+&mdash; all 4 FormalRule(s) link an existing NormCard (cite-or-abstain chain intact)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-executable-refs-registered</span>
+&mdash; all executableRefs are registered deterministic engine operations (6 registered)</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V1 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>zone-result-set &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261016T144620Z-water-nl-zones</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-zone-result</span>
+&mdash; 4/4 artifact(s) valid against zone-result.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v1-output-geometry-valid</span>
+&mdash; all 4 zone geometries valid (shapely is_valid)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-output-crs-and-bounds</span>
+&mdash; all payloads EPSG:4326 with coordinates inside NL bounds lon(3.0, 7.5)/lat(50.5, 54.0)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-input-layers-crs</span>
+&mdash; 2 input layer(s) declare a recognised CRS member (EPSG:28992 computation CRS)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-input-invalid-census</span>
+&mdash; no invalid as-served features in any input layer</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-final-zone-sanity</span>
+&mdash; final zone non-empty, valid, 997.288 km2 &lt;= AOI 1000.606 km2 and &lt;= inclusion union 1000.606 km2</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V2 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>decision-table &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261016T144620Z-water-nl-decisiontable</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-decision-table</span>
+&mdash; 1/1 artifact(s) valid against decision-table.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v2-decision-table-linkage</span>
+&mdash; all 4 decision-table row(s) link an existing NormCard</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V1 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>pipeline-run &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261016T144620Z-water-nl-pipeline</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-opportunity-map-request</span>
+&mdash; 1/1 artifact(s) valid against opportunity-map-request.schema.json</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-norm-card</span>
+&mdash; 3/3 artifact(s) valid against norm-card.schema.json</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-formal-rule</span>
+&mdash; 4/4 artifact(s) valid against formal-rule.schema.json</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-zone-result</span>
+&mdash; 4/4 artifact(s) valid against zone-result.schema.json</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-decision-table</span>
+&mdash; 1/1 artifact(s) valid against decision-table.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v1-output-geometry-valid</span>
+&mdash; all 4 zone geometries valid (shapely is_valid)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-output-crs-and-bounds</span>
+&mdash; all payloads EPSG:4326 with coordinates inside NL bounds lon(3.0, 7.5)/lat(50.5, 54.0)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-input-layers-crs</span>
+&mdash; 2 input layer(s) declare a recognised CRS member (EPSG:28992 computation CRS)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-input-invalid-census</span>
+&mdash; no invalid as-served features in any input layer</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-final-zone-sanity</span>
+&mdash; final zone non-empty, valid, 997.288 km2 &lt;= AOI 1000.606 km2 and &lt;= inclusion union 1000.606 km2</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v2-rule-card-linkage</span>
+&mdash; all 4 FormalRule(s) link an existing NormCard (cite-or-abstain chain intact)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-card-citations</span>
+&mdash; all 3 NormCard(s) carry docId+article+version+verbatim quote+uri</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-zone-rule-traceability</span>
+&mdash; every zone ruleId traces to a formalized rule (2 available)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-decision-table-linkage</span>
+&mdash; all 4 decision-table row(s) link an existing NormCard</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-executable-refs-registered</span>
+&mdash; all executableRefs are registered deterministic engine operations (6 registered)</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v3-reexecution-agreement</span>
+&mdash; independent geopandas re-execution of 2 rule(s): pipeline 997.288 km2 vs independent 997.288 km2; relative area delta 1.434e-15 (threshold 0.01); IoU 0.999996 (threshold 0.98)</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+</section>
+
+<section id="normcards">
+  <h2>Norm cards (cite-or-abstain)</h2>
+  <p class="map-note">3 verified cards; each carries the verbatim Dutch quote, the article,
+     the consolidated instrument version and the URL. 3 abstentions are listed below.</p>
+  <details>
+    <summary><span class="mono">NC-WAT-01</span> &middot; Artikel 2.4
+      <span class="fx pass">binding</span>
+      <span class="fx pending">conf 0.9</span></summary>
+    <div class="body">
+      <p style="margin:4px 0">A permit for an activity with possible consequences for a KRW surface-water or groundwater body may not lead to non-compliance with the applicable environmental values and programmes.</p>
+      <blockquote lang="nl">&ldquo;Artikel 2.4 Beoordelingsregel activiteiten met gevolgen voor waterlichaam 1 Het verlenen van een omgevingsvergunning voor een activiteit die gevolgen kan hebben voor een krw-oppervlaktewaterlichaam of een grondwaterlichaam leidt er in ieder geval niet toe dat, rekening houdend met de waterbeheerprogramma&#39;s, de regionale waterprogramma&#39;s, de stroomgebiedsbeheerplannen, de overstromingsrisicobeheerplannen en het nationale waterprogramma, die betrekking hebben op het betreffende krw-oppervlaktewaterlichaam of grondwaterlichaam: a. niet wordt voldaan aan de omgevingswaarden, bedoeld in de artikele&rdquo;</blockquote>
+      <p class="map-note" style="margin:4px 0">
+        <b>Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden)</b> &middot; version: CVDR709135, geldend van 02-06-2026 t/m heden &middot;
+        doc <span class="mono">S01</span> &middot;
+        <a href="https://lokaleregelgeving.overheid.nl/CVDR709135" target="_blank" rel="noopener">https://lokaleregelgeving.overheid.nl/CVDR709135</a><br>
+        theme <span class="mono">water:waterstaat</span>
+      </p>
+    </div>
+  </details>
+  <details>
+    <summary><span class="mono">NC-WAT-02</span> &middot; Artikel 13.4
+      <span class="fx pass">binding</span>
+      <span class="fx pending">conf 0.9</span></summary>
+    <div class="body">
+      <p style="margin:4px 0">It is prohibited, without an omgevingsvergunning, to remove, hold or transport aquatic plants and animals (or objects evidently serving that purpose) along, on or under a surface water.</p>
+      <blockquote lang="nl">&ldquo;Artikel 13.4 Vergunningplicht activiteiten onderwater flora en fauna 1 Het is verboden zonder omgevingsvergunning de volgende activiteiten langs, op of onder een oppervlaktewater te verrichten: a. het uitsteken, afsnijden of anderszins verwijderen, voorhanden hebben of vervoeren van waterplanten en wieren; b. het opzettelijk doden, vangen, en voorhanden hebben of vervoeren van waterdieren; of c. het bij zich hebben van voorwerpen die kennelijk tot doel hebben een onder a of b bedoelde activiteit te verrichten. 2 De verboden zoals bedoeld in het eerste lid onder a. b. en c gelden niet voor: a. &rdquo;</blockquote>
+      <p class="map-note" style="margin:4px 0">
+        <b>Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden)</b> &middot; version: CVDR709135, geldend van 02-06-2026 t/m heden &middot;
+        doc <span class="mono">S01</span> &middot;
+        <a href="https://lokaleregelgeving.overheid.nl/CVDR709135" target="_blank" rel="noopener">https://lokaleregelgeving.overheid.nl/CVDR709135</a><br>
+        theme <span class="mono">water:waterstaat</span>
+      </p>
+    </div>
+  </details>
+  <details>
+    <summary><span class="mono">NC-WAT-03</span> &middot; Artikel 18.37
+      <span class="fx pass">binding</span>
+      <span class="fx pending">conf 0.9</span></summary>
+    <div class="body">
+      <p style="margin:4px 0">Where an omgevingsplan applies to a regional flood defence, the admission of activities must guarantee that no obstructions arise for the upkeep, maintenance or reinforcement of the defence.</p>
+      <blockquote lang="nl">&ldquo;Artikel 18.37 Regionale waterkeringen 1 Voor zover een omgevingsplan van toepassing is op een regionale waterkering, wordt bij het toelaten van activiteiten gewaarborgd dat er geen belemmeringen ontstaan voor de instandhouding, het onderhoud of de versterking van die waterkering. 2 Voor zover een omgevingsplan van toepassing is op een in een waterschapsverordening aangewezen gebied grenzend aan een regionale waterkering waar ter bescherming van een regionale waterkering regels gelden over activiteiten die gevolgen hebben of kunnen hebben voor die waterkering, is het eerste lid van overeenkomst&rdquo;</blockquote>
+      <p class="map-note" style="margin:4px 0">
+        <b>Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden)</b> &middot; version: CVDR709135, geldend van 02-06-2026 t/m heden &middot;
+        doc <span class="mono">S01</span> &middot;
+        <a href="https://lokaleregelgeving.overheid.nl/CVDR709135" target="_blank" rel="noopener">https://lokaleregelgeving.overheid.nl/CVDR709135</a><br>
+        theme <span class="mono">water:waterstaat</span>
+      </p>
+    </div>
+  </details>
+  <h3>Abstentions (no verified citation &rarr; no rule)</h3>
+  <div class="scrollx">
+  <table>
+    <thead><tr><th>id</th><th>topic</th><th>reason</th></tr></thead>
+    <tbody>
+    <tr><td class="mono">AB-NL-01</td><td>Natura 2000-specifieke instructieregel voor wind/zon/energie</td><td>Hoofdstuk 11 &#39;Natura 2000-activiteiten&#39; van CVDR709135 is &#39;[Gereserveerd]&#39; (letterlijk gecontroleerd): er is geen verbatim Natura 2000-artikel. De exclusion op zona-alias natura2000-nl is daarom geformaliseerd via de brug over art. 18.38 (natuurnetwerk Nederland, wind FR-WIND-03) en art. 18.18 sub c (natuur-waarborg, zon FR-ZON-02), met caveat; energietoets krijgt geen natura2000-exclusion (niets in de tekst onderbouwt dat).</td></tr>
+    <tr><td class="mono">AB-NL-02</td><td>Windenergie-concentratielocaties (bijlage XIV) als inclusion-zone</td><td>De concentratielocaties zijn in de verordening &#39;globaal aangegeven&#39; (bijlage XIV) en hebben geen zone-alias in ZONE_SOURCES (taak 9); geometrie niet gepind. Inclusion blijft zone-loos gedocumenteerd (FR-WIND-01/FR-ZON-01) en routeeert naar V4.</td></tr>
+    <tr><td class="mono">AB-NL-03</td><td>Waterwingebied/grondwaterbeschermingszone als exclusion-zone (energietoets)</td><td>Art. 5.41 verbiedt bodemenergiesystemen daar verbatim, maar beide zones hebben geen alias in ZONE_SOURCES en zijn niet gepind; FR-ETST-02 blijft ambiguous met reden.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="prov">
+  <h2>Provenance</h2>
+  <div class="panel">
+    <h3 style="margin-top:4px">Pipeline stages</h3>
+    <div class="scrollx">
+    <table>
+      <thead><tr><th>stage</th><th>agent</th><th>started</th><th>ended</th><th>used</th><th>generated</th></tr></thead>
+      <tbody>
+      <tr>
+        <td>Intake: load + validate OpportunityMapRequest</td>
+        <td class="mono">run.py-orchestrator</td>
+        <td class="mono">2026-10-16T14:46:20Z</td>
+        <td class="mono">2026-10-16T14:46:20Z</td>
+        <td class="mono">use-cases/water-nl.json</td>
+        <td class="mono">request.json</td>
+      </tr>
+      <tr>
+        <td>Norm Analyst: load curated NormCards (taak 6/7 corpus)</td>
+        <td class="mono">legal-recon-agent</td>
+        <td class="mono">2026-10-16T14:46:20Z</td>
+        <td class="mono">2026-10-16T14:46:20Z</td>
+        <td class="mono">corpus/normcards-nl-water.json, corpus/sources.json</td>
+        <td class="mono">normcards.json, normcards-rejected.json</td>
+      </tr>
+      <tr>
+        <td>Norm Formalizer: load curated FormalRules (taak 6/7 shards)</td>
+        <td class="mono">norm-formalizer</td>
+        <td class="mono">2026-10-16T14:46:20Z</td>
+        <td class="mono">2026-10-16T14:46:20Z</td>
+        <td class="mono">corpus/formal-rules-nl-water.json</td>
+        <td class="mono">formalrules.json</td>
+      </tr>
+      <tr>
+        <td>V2b: jurisdictie-match (geen claim over de grens)</td>
+        <td class="mono">jurisdictie-gate</td>
+        <td class="mono">2026-10-16T14:46:20Z</td>
+        <td class="mono">2026-10-16T14:46:20Z</td>
+        <td class="mono">corpus/normcards-nl-water.json, corpus/formal-rules-nl-water.json, corpus/sources.json, data/sources.json</td>
+        <td class="mono">v2b.json</td>
+      </tr>
+      <tr>
+        <td>Geo Analyst: fetch zone layers (cache-first, registry sources)</td>
+        <td class="mono">ldttoolbox-geoconnector/0.1</td>
+        <td class="mono">2026-10-16T14:46:20Z</td>
+        <td class="mono">2026-10-16T14:46:20Z</td>
+        <td class="mono">data/sources.json</td>
+        <td class="mono">layers.json</td>
+      </tr>
+      <tr>
+        <td>Geo Analyst: deterministic FormalRule execution (shapely path)</td>
+        <td class="mono">zone-engine</td>
+        <td class="mono">2026-10-16T14:46:20Z</td>
+        <td class="mono">2026-10-16T14:46:20Z</td>
+        <td class="mono">formalrules.json, layers.json</td>
+        <td class="mono">zones.json</td>
+      </tr>
+      <tr>
+        <td>Cartographer: zones.geojson + GML + report input</td>
+        <td class="mono">poc-cartographer/0.1</td>
+        <td class="mono">2026-10-16T14:46:20Z</td>
+        <td class="mono">2026-10-16T14:46:20Z</td>
+        <td class="mono">zones.json</td>
+        <td class="mono">zones.geojson, zones.gml</td>
+      </tr>
+      <tr>
+        <td>Critic/Validator: V0-V3 deterministic + V4 pending</td>
+        <td class="mono">critic-validator</td>
+        <td class="mono">2026-10-16T14:46:20Z</td>
+        <td class="mono">2026-10-16T14:46:21Z</td>
+        <td class="mono">request.json, normcards.json, formalrules.json, zones.json, decision-table.json</td>
+        <td class="mono">validation.json</td>
+      </tr>
+      <tr>
+        <td>Explainer: decision table + PROV bundle</td>
+        <td class="mono">explainer</td>
+        <td class="mono">2026-10-16T14:46:21Z</td>
+        <td class="mono">2026-10-16T14:46:21Z</td>
+        <td class="mono">normcards.json, formalrules.json, zones.json</td>
+        <td class="mono">decision-table.json, decision-table.md, prov.json</td>
+      </tr>
+      </tbody>
+    </table>
+    </div>
+    <h3>Agents</h3>
+    <p class="map-note"><span class="mono">run.py orchestrator (poc-nspd-run/1.0)</span> &middot; <span class="mono">NormAnalyst (curator#poc-nspd-fase2-t3)</span> &middot; <span class="mono">NormFormalizer (norm-formalizer#poc-nspd-fase2-t3, norm-formalizer#poc-nspd-fase3-task2, run-orchestrator#poc-nspd-task9-aoi-basis)</span> &middot; <span class="mono">V2b jurisdictie-gate (jurisdictie-gate#poc-nspd-task8)</span> &middot; <span class="mono">GeoData connector (ldttoolbox-geoconnector/0.1)</span> &middot; <span class="mono">FormalRule zone engine (poc-zone-engine/0.1)</span> &middot; <span class="mono">Cartographer (poc-cartographer/0.1)</span> &middot; <span class="mono">Critic/Validator (critic-validator#deterministic-v0-v3-poc1)</span> &middot; <span class="mono">Explainer (explainer#deterministic-poc1)</span> &middot; <span class="mono">HTML report renderer (poc-report/1.0)</span> &middot; </p>
+    <h3>Geo sources (open-data aliases, with lastChecked)</h3>
+    <div class="scrollx">
+    <table>
+      <thead><tr><th>zone</th><th>source id</th><th>service / layer</th><th>features</th><th>lastChecked</th><th>alias for (GIO)</th></tr></thead>
+      <tbody>
+      <tr>
+        <td class="mono">aoi</td>
+        <td class="mono">request-aoi</td>
+        <td class="mono">None/None</td>
+        <td class="num">1</td>
+        <td class="mono">None</td>
+        <td class="mono">none</td>
+      </tr>
+      <tr>
+        <td class="mono">waterkering-nl</td>
+        <td class="mono">zeeland-ovz-waterkering</td>
+        <td class="mono">https://opengeodata.zeeland.nl/geoserver/ows/dso:ext_ovz_regwkr_dijktraj</td>
+        <td class="num">54</td>
+        <td class="mono">2026-10-16</td>
+        <td class="mono">(national source)</td>
+      </tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="map-note">Full bundle: <span class="mono">prov.json</span> (PROV-O-flavoured: agents, entities with
+       sha256, activities with timestamps, wasGeneratedBy / wasDerivedFrom).</p>
+  </div>
+</section>
+
+<section id="limits">
+  <h2>Limitations &amp; tuning</h2>
+  <div class="panel">
+    <ul style="margin:6px 0;padding-left:20px">
+<li>Zone geometry comes from pinned national open-data aliases (NL: PDOK OGC API natura2000; BE sources registered in ZONE_SOURCES are not exercised by any formalized phase-1 rule); the provincial GIO/DSO download chain is not used in this PoC.</li><li>No inclusion rule in the phase-1 shards carries executable zone geometry: the NL bijlage-XIV wind-concentratielocaties and the BE RUP-deelgebieden/gewestplan-SV zones have no pinned open-data alias, so every inclusion norm is routed to the V4 human-expert checkpoint and the run uses the request AOI as inclusion union (inclusionBasis=aoi).</li><li>Re-run the legal recon and this pipeline before using results after a new consolidation of the cited instruments (NL: CVDR709135; BE: RUP/gewestplan/VCRO).</li><li>Map geometry in this report is display-simplified; authoritative full-resolution geometry is zones.geojson / zones.gml in the run directory.</li><li>Zone algebra inputs are Douglas-Peucker simplified (tolerance recorded per run in run_summary.json tunings and per layer in the engine provenance) so district-scale GEOS overlays stay tractable.</li><li>programming-stage screening artifact; per-location permission assessment remains required.</li>    </ul>
+    <p class="map-note"><b>Tuned parameters (recorded):</b>
+<span class="mono">display_tolerance_m=25.0</span> &middot; <span class="mono">input_simplify_m=2.0</span> &middot; <span class="mono">payload_coord_decimals=6</span> &middot; <span class="mono">buffer_resolution_quad_segs=16</span> &middot; </p>
+  </div>
+</section>
+
+<footer>
+  Artifacts in the run directory: <span class="mono">decision-table.json / decision-table.md / formalrules.json / layers.json / normcards-rejected.json / normcards.json / prov.json / report_input.json / request.json / rule-stats.json / v2b.json / validation.json / zones.geojson / zones.gml / zones.json / zones.xsd</span><br>
+  This report is a programming-stage decision-support artifact, not a permit decision. Every legal claim
+  traces to a cited instrument version; ambiguous norms are routed to the V4 human-expert checkpoint.
+</footer>
+</main>
+
+<script type="application/json" id="zones-data">{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"__cat":"inclusion","id":"zr-inclusion_union-fb4ebebf4a","operation":"inclusion_union","areaKm2":1000.606325351,"ruleIds":["FR-AOI-01"],"layers":["aoi"]},"geometry":{"type":"Polygon","coordinates":[[[3.45,51.02],[3.73,51.02],[3.73,51.48],[3.45,51.48],[3.45,51.02]]]}},{"type":"Feature","properties":{"__cat":"inclusion","id":"zr-intersection-6b76dceba0","operation":"intersection","areaKm2":1000.606325351,"ruleIds":["FR-AOI-01"],"layers":["aoi"]},"geometry":{"type":"Polygon","coordinates":[[[3.45,51.02],[3.45,51.48],[3.73,51.48],[3.73,51.02],[3.45,51.02]]]}},{"type":"Feature","properties":{"__cat":"exclusion","id":"zr-difference-1276c5c1e0","operation":"difference","areaKm2":997.287812269,"ruleIds":["FR-WAT-03"],"layers":["waterkering-nl","national_source"]},"geometry":{"type":"MultiPolygon","coordinates":[[[[3.464916,51.378035],[3.462228,51.382913],[3.462972,51.383577],[3.462196,51.385873],[3.46573,51.389781],[3.472044,51.387319],[3.473164,51.387613],[3.474792,51.389558],[3.477381,51.390465],[3.480099,51.390287],[3.48222,51.388932],[3.485816,51.388023],[3.489393,51.388067],[3.492414,51.390211],[3.494789,51.395437],[3.503809,51.395108],[3.507646,51.394072],[3.516624,51.392513],[3.518267,51.390192],[3.516947,51.388947],[3.517196,51.386095],[3.520748,51.386303],[3.525145,51.385949],[3.525875,51.385389],[3.527038,51.385322],[3.531234,51.383909],[3.53139,51.382855],[3.53634,51.382098],[3.537828,51.380345],[3.543063,51.378176],[3.544793,51.377889],[3.549865,51.377982],[3.552448,51.376523],[3.55735,51.374974],[3.567359,51.374364],[3.57474,51.377983],[3.574268,51.38393],[3.575909,51.384813],[3.581479,51.385018],[3.583688,51.384595],[3.584957,51.383798],[3.587148,51.383814],[3.587799,51.382874],[3.593674,51.380627],[3.594801,51.377531],[3.598967,51.373518],[3.604722,51.373583],[3.607478,51.371876],[3.608756,51.371731],[3.622442,51.360418],[3.624661,51.359072],[3.633703,51.360101],[3.636634,51.358601],[3.638843,51.358333],[3.641265,51.359478],[3.645949,51.360138],[3.653305,51.3576],[3.657813,51.358189],[3.663342,51.35806],[3.667193,51.356582],[3.669797,51.35665],[3.672041,51.357552],[3.679687,51.357718],[3.679676,51.355824],[3.680167,51.355413],[3.683687,51.355073],[3.687764,51.355461],[3.689725,51.353286],[3.693514,51.352435],[3.693873,51.352666],[3.693481,51.359416],[3.700252,51.354394],[3.70246,51.349146],[3.713438,51.340282],[3.709146,51.334369],[3.709401,51.333739],[3.711707,51.333391],[3.713458,51.33365],[3.730006,51.340878],[3.730006,51.336843],[3.718466,51.330262],[3.717993,51.327285],[3.71912,51.325913],[3.719189,51.324995],[3.713133,51.316802],[3.702929,51.309958],[3.706655,51.306339],[3.703691,51.303535],[3.703422,51.302653],[3.703774,51.301173],[3.705366,51.300282],[3.704279,51.295891],[3.706026,51.288914],[3.703243,51.28731],[3.700685,51.286888],[3.697379,51.284919],[3.706261,51.279366],[3.713235,51.277611],[3.71135,51.272356],[3.712031,51.272216],[3.713919,51.277876],[3.706719,51.279715],[3.698274,51.284957],[3.701104,51.286523],[3.703667,51.286948],[3.706733,51.288841],[3.704996,51.295905],[3.706078,51.300337],[3.70441,51.301381],[3.704139,51.30265],[3.707369,51.306381],[3.70696,51.30728],[3.703717,51.309896],[3.713127,51.316075],[3.715369,51.318675],[3.719887,51.324893],[3.719841,51.325976],[3.718714,51.327273],[3.719336,51.330295],[3.730006,51.336184],[3.730006,51.297892],[3.727536,51.29867],[3.726119,51.298706],[3.723871,51.297712],[3.717855,51.283439],[3.714885,51.278771],[3.715329,51.278223],[3.71698,51.278147],[3.716951,51.277658],[3.714787,51.277536],[3.712812,51.274279],[3.713706,51.27212],[3.714399,51.272233],[3.713539,51.274286],[3.715362,51.277243],[3.717639,51.277369],[3.717552,51.278482],[3.715584,51.278671],[3.718542,51.283311],[3.724333,51.29725],[3.725358,51.298059],[3.727352,51.298235],[3.730006,51.297375],[3.73,51.02],[3.45,51.02],[3.450005,51.376023],[3.463913,51.377134],[3.464916,51.378035]]],[[[3.465331,51.389941],[3.46573,51.389782],[3.46573,51.389781],[3.465331,51.389941]]],[[[3.465181,51.390195],[3.465869,51.390066],[3.465525,51.39013],[3.465181,51.390195]]],[[[3.494404,51.395514],[3.494341,51.395533],[3.4947,51.395455],[3.494404,51.395514]]],[[[3.582081,51.443394],[3.581791,51.44326],[3.58208,51.443394],[3.582081,51.443394]]],[[[3.58598,51.45042],[3.586271,51.450364],[3.586271,51.450364],[3.58598,51.45042]]],[[[3.585978,51.450668],[3.586428,51.450565],[3.586086,51.450635],[3.585978,51.450668]]],[[[3.693438,51.360155],[3.693439,51.360135],[3.693438,51.360153],[3.693438,51.360155]]],[[[3.590986,51.381865],[3.5907,51.38186],[3.591091,51.381888],[3.590986,51.381865]]],[[[3.46154,51.38609],[3.462252,51.383563],[3.461548,51.382627],[3.464101,51.378041],[3.463336,51.377432],[3.450005,51.376474],[3.45,51.48],[3.601084,51.480083],[3.583506,51.446797],[3.58143,51.445185],[3.575961,51.445583],[3.575703,51.444848],[3.577748,51.444373],[3.577772,51.443529],[3.578427,51.443469],[3.579331,51.444143],[3.581078,51.443892],[3.581791,51.44326],[3.582569,51.440898],[3.583271,51.440993],[3.582432,51.443439],[3.58158,51.444228],[3.579152,51.444615],[3.57841,51.444147],[3.578376,51.444719],[3.576483,51.444974],[3.576587,51.445271],[3.581435,51.44473],[3.582873,51.445416],[3.584114,51.446504],[3.586271,51.450364],[3.587144,51.450195],[3.587356,51.450625],[3.587595,51.450347],[3.587833,51.450566],[3.591007,51.456932],[3.592923,51.456507],[3.593554,51.455175],[3.595679,51.453751],[3.596157,51.454088],[3.593912,51.455624],[3.593546,51.456811],[3.591249,51.457341],[3.603212,51.480083],[3.653244,51.480067],[3.652355,51.479098],[3.649962,51.478939],[3.648057,51.477465],[3.646579,51.474291],[3.64598,51.471216],[3.646432,51.470592],[3.64967,51.469389],[3.649401,51.469064],[3.647239,51.468993],[3.646706,51.468428],[3.64994,51.464336],[3.651247,51.45952],[3.650909,51.457188],[3.654228,51.455279],[3.654534,51.455685],[3.651613,51.4573],[3.651967,51.459546],[3.650637,51.464466],[3.64743,51.468434],[3.649777,51.468607],[3.650556,51.469606],[3.646724,51.471148],[3.647284,51.4742],[3.648668,51.477223],[3.650382,51.478509],[3.651361,51.478381],[3.652893,51.478793],[3.654055,51.480066],[3.716812,51.480015],[3.720412,51.47825],[3.726108,51.473951],[3.726871,51.472233],[3.730001,51.468812],[3.730001,51.463722],[3.728907,51.463355],[3.724944,51.471171],[3.723139,51.473139],[3.722551,51.47288],[3.724591,51.470512],[3.728379,51.462915],[3.730001,51.463224],[3.730002,51.437189],[3.724438,51.436251],[3.724582,51.435811],[3.730002,51.436726],[3.730002,51.431952],[3.722683,51.429934],[3.719147,51.428097],[3.719592,51.427744],[3.723073,51.429555],[3.730002,51.431462],[3.730006,51.341427],[3.713111,51.334043],[3.711739,51.33384],[3.709797,51.334174],[3.714186,51.340401],[3.703069,51.349384],[3.700859,51.354634],[3.693436,51.360198],[3.693305,51.362919],[3.693764,51.363523],[3.693165,51.363771],[3.692588,51.362948],[3.693137,51.352983],[3.690202,51.35363],[3.688075,51.355911],[3.68366,51.355523],[3.680502,51.355812],[3.680116,51.358172],[3.671872,51.357997],[3.66958,51.35708],[3.66729,51.357028],[3.663438,51.358507],[3.65778,51.358639],[3.653508,51.358031],[3.645991,51.36059],[3.641005,51.359897],[3.63879,51.358781],[3.63698,51.358994],[3.633747,51.36055],[3.624899,51.359519],[3.609284,51.372036],[3.607925,51.37223],[3.60497,51.374027],[3.602156,51.374233],[3.599474,51.373844],[3.595473,51.377699],[3.594247,51.3809],[3.591133,51.381898],[3.591938,51.383016],[3.595855,51.382505],[3.599081,51.385028],[3.598496,51.385288],[3.595445,51.382875],[3.591517,51.383493],[3.590721,51.382305],[3.588298,51.383198],[3.587561,51.384182],[3.585202,51.384221],[3.584191,51.384945],[3.581671,51.385451],[3.577145,51.385397],[3.575061,51.38499],[3.571423,51.385687],[3.572358,51.389961],[3.570756,51.389832],[3.562534,51.393201],[3.561908,51.394514],[3.562808,51.395197],[3.562281,51.395502],[3.561159,51.394552],[3.561866,51.392944],[3.570524,51.3894],[3.571775,51.389634],[3.570736,51.385499],[3.574479,51.384672],[3.573423,51.38388],[3.574012,51.378161],[3.566951,51.374735],[3.557449,51.375419],[3.552846,51.376897],[3.550127,51.3784],[3.543391,51.378576],[3.538322,51.380671],[3.536759,51.382463],[3.531972,51.383215],[3.531682,51.384261],[3.527328,51.385733],[3.526215,51.385786],[3.525444,51.386358],[3.520756,51.386753],[3.517621,51.386495],[3.517697,51.389018],[3.518984,51.390071],[3.51814,51.391355],[3.5185,51.390938],[3.521219,51.390888],[3.524479,51.391094],[3.52565,51.391651],[3.529666,51.390275],[3.532376,51.391663],[3.539224,51.390037],[3.545649,51.389081],[3.546573,51.38934],[3.547122,51.39147],[3.548584,51.391806],[3.54694,51.39692],[3.546236,51.396829],[3.547781,51.392044],[3.546469,51.391676],[3.546162,51.389713],[3.545619,51.389552],[3.539432,51.390468],[3.532475,51.392109],[3.529618,51.3908],[3.525661,51.392102],[3.524155,51.391511],[3.518107,51.391397],[3.516956,51.392912],[3.507874,51.394499],[3.504462,51.395463],[3.49469,51.395926],[3.492971,51.397645],[3.492393,51.399428],[3.491732,51.399253],[3.492182,51.397533],[3.49412,51.395614],[3.494015,51.394878],[3.491753,51.390387],[3.489183,51.388498],[3.486021,51.388453],[3.482603,51.389312],[3.48063,51.390623],[3.477453,51.390917],[3.474163,51.389802],[3.472076,51.387772],[3.465869,51.390066],[3.467778,51.393924],[3.46708,51.39403],[3.466748,51.393227],[3.465721,51.391331],[3.464906,51.389633],[3.46154,51.38609]]],[[[3.591008,51.456934],[3.591007,51.456932],[3.591007,51.456932],[3.591008,51.456934]]],[[[3.591108,51.457145],[3.591249,51.457341],[3.591008,51.456934],[3.591108,51.457145]]],[[[3.587356,51.450625],[3.586428,51.450565],[3.601842,51.480083],[3.602462,51.480083],[3.587356,51.450625]]],[[[3.718127,51.480014],[3.73,51.48],[3.730001,51.469702],[3.727504,51.472447],[3.726719,51.474189],[3.721938,51.477903],[3.718127,51.480014]]]]}},{"type":"Feature","properties":{"__cat":"final","id":"zr-final-a7d31b75a7","operation":"final","areaKm2":997.287812269,"ruleIds":["FR-AOI-01","FR-WAT-03"],"layers":["aoi","national_source","waterkering-nl"]},"geometry":{"type":"MultiPolygon","coordinates":[[[[3.464916,51.378035],[3.462228,51.382913],[3.462972,51.383577],[3.462196,51.385873],[3.46573,51.389781],[3.472044,51.387319],[3.473164,51.387613],[3.474792,51.389558],[3.477381,51.390465],[3.480099,51.390287],[3.48222,51.388932],[3.485816,51.388023],[3.489393,51.388067],[3.492414,51.390211],[3.494789,51.395437],[3.503809,51.395108],[3.507646,51.394072],[3.516624,51.392513],[3.518267,51.390192],[3.516947,51.388947],[3.517196,51.386095],[3.520748,51.386303],[3.525145,51.385949],[3.525875,51.385389],[3.527038,51.385322],[3.531234,51.383909],[3.53139,51.382855],[3.53634,51.382098],[3.537828,51.380345],[3.543063,51.378176],[3.544793,51.377889],[3.549865,51.377982],[3.552448,51.376523],[3.55735,51.374974],[3.567359,51.374364],[3.57474,51.377983],[3.574268,51.38393],[3.575909,51.384813],[3.581479,51.385018],[3.583688,51.384595],[3.584957,51.383798],[3.587148,51.383814],[3.587799,51.382874],[3.593674,51.380627],[3.594801,51.377531],[3.598967,51.373518],[3.604722,51.373583],[3.607478,51.371876],[3.608756,51.371731],[3.622442,51.360418],[3.624661,51.359072],[3.633703,51.360101],[3.636634,51.358601],[3.638843,51.358333],[3.641265,51.359478],[3.645949,51.360138],[3.653305,51.3576],[3.657813,51.358189],[3.663342,51.35806],[3.667193,51.356582],[3.669797,51.35665],[3.672041,51.357552],[3.679687,51.357718],[3.679676,51.355824],[3.680167,51.355413],[3.683687,51.355073],[3.687764,51.355461],[3.689725,51.353286],[3.693514,51.352435],[3.693873,51.352666],[3.693481,51.359416],[3.700252,51.354394],[3.70246,51.349146],[3.713438,51.340282],[3.709146,51.334369],[3.709401,51.333739],[3.711707,51.333391],[3.713458,51.33365],[3.730006,51.340878],[3.730006,51.336843],[3.718466,51.330262],[3.717993,51.327285],[3.71912,51.325913],[3.719189,51.324995],[3.713133,51.316802],[3.702929,51.309958],[3.706655,51.306339],[3.703691,51.303535],[3.703422,51.302653],[3.703774,51.301173],[3.705366,51.300282],[3.704279,51.295891],[3.706026,51.288914],[3.703243,51.28731],[3.700685,51.286888],[3.697379,51.284919],[3.706261,51.279366],[3.713235,51.277611],[3.71135,51.272356],[3.712031,51.272216],[3.713919,51.277876],[3.706719,51.279715],[3.698274,51.284957],[3.701104,51.286523],[3.703667,51.286948],[3.706733,51.288841],[3.704996,51.295905],[3.706078,51.300337],[3.70441,51.301381],[3.704139,51.30265],[3.707369,51.306381],[3.70696,51.30728],[3.703717,51.309896],[3.713127,51.316075],[3.715369,51.318675],[3.719887,51.324893],[3.719841,51.325976],[3.718714,51.327273],[3.719336,51.330295],[3.730006,51.336184],[3.730006,51.297892],[3.727536,51.29867],[3.726119,51.298706],[3.723871,51.297712],[3.717855,51.283439],[3.714885,51.278771],[3.715329,51.278223],[3.71698,51.278147],[3.716951,51.277658],[3.714787,51.277536],[3.712812,51.274279],[3.713706,51.27212],[3.714399,51.272233],[3.713539,51.274286],[3.715362,51.277243],[3.717639,51.277369],[3.717552,51.278482],[3.715584,51.278671],[3.718542,51.283311],[3.724333,51.29725],[3.725358,51.298059],[3.727352,51.298235],[3.730006,51.297375],[3.73,51.02],[3.45,51.02],[3.450005,51.376023],[3.463913,51.377134],[3.464916,51.378035]]],[[[3.465331,51.389941],[3.46573,51.389782],[3.46573,51.389781],[3.465331,51.389941]]],[[[3.465181,51.390195],[3.465869,51.390066],[3.465525,51.39013],[3.465181,51.390195]]],[[[3.494404,51.395514],[3.494341,51.395533],[3.4947,51.395455],[3.494404,51.395514]]],[[[3.582081,51.443394],[3.581791,51.44326],[3.58208,51.443394],[3.582081,51.443394]]],[[[3.58598,51.45042],[3.586271,51.450364],[3.586271,51.450364],[3.58598,51.45042]]],[[[3.585978,51.450668],[3.586428,51.450565],[3.586086,51.450635],[3.585978,51.450668]]],[[[3.693438,51.360155],[3.693439,51.360135],[3.693438,51.360153],[3.693438,51.360155]]],[[[3.590986,51.381865],[3.5907,51.38186],[3.591091,51.381888],[3.590986,51.381865]]],[[[3.46154,51.38609],[3.462252,51.383563],[3.461548,51.382627],[3.464101,51.378041],[3.463336,51.377432],[3.450005,51.376474],[3.45,51.48],[3.601084,51.480083],[3.583506,51.446797],[3.58143,51.445185],[3.575961,51.445583],[3.575703,51.444848],[3.577748,51.444373],[3.577772,51.443529],[3.578427,51.443469],[3.579331,51.444143],[3.581078,51.443892],[3.581791,51.44326],[3.582569,51.440898],[3.583271,51.440993],[3.582432,51.443439],[3.58158,51.444228],[3.579152,51.444615],[3.57841,51.444147],[3.578376,51.444719],[3.576483,51.444974],[3.576587,51.445271],[3.581435,51.44473],[3.582873,51.445416],[3.584114,51.446504],[3.586271,51.450364],[3.587144,51.450195],[3.587356,51.450625],[3.587595,51.450347],[3.587833,51.450566],[3.591007,51.456932],[3.592923,51.456507],[3.593554,51.455175],[3.595679,51.453751],[3.596157,51.454088],[3.593912,51.455624],[3.593546,51.456811],[3.591249,51.457341],[3.603212,51.480083],[3.653244,51.480067],[3.652355,51.479098],[3.649962,51.478939],[3.648057,51.477465],[3.646579,51.474291],[3.64598,51.471216],[3.646432,51.470592],[3.64967,51.469389],[3.649401,51.469064],[3.647239,51.468993],[3.646706,51.468428],[3.64994,51.464336],[3.651247,51.45952],[3.650909,51.457188],[3.654228,51.455279],[3.654534,51.455685],[3.651613,51.4573],[3.651967,51.459546],[3.650637,51.464466],[3.64743,51.468434],[3.649777,51.468607],[3.650556,51.469606],[3.646724,51.471148],[3.647284,51.4742],[3.648668,51.477223],[3.650382,51.478509],[3.651361,51.478381],[3.652893,51.478793],[3.654055,51.480066],[3.716812,51.480015],[3.720412,51.47825],[3.726108,51.473951],[3.726871,51.472233],[3.730001,51.468812],[3.730001,51.463722],[3.728907,51.463355],[3.724944,51.471171],[3.723139,51.473139],[3.722551,51.47288],[3.724591,51.470512],[3.728379,51.462915],[3.730001,51.463224],[3.730002,51.437189],[3.724438,51.436251],[3.724582,51.435811],[3.730002,51.436726],[3.730002,51.431952],[3.722683,51.429934],[3.719147,51.428097],[3.719592,51.427744],[3.723073,51.429555],[3.730002,51.431462],[3.730006,51.341427],[3.713111,51.334043],[3.711739,51.33384],[3.709797,51.334174],[3.714186,51.340401],[3.703069,51.349384],[3.700859,51.354634],[3.693436,51.360198],[3.693305,51.362919],[3.693764,51.363523],[3.693165,51.363771],[3.692588,51.362948],[3.693137,51.352983],[3.690202,51.35363],[3.688075,51.355911],[3.68366,51.355523],[3.680502,51.355812],[3.680116,51.358172],[3.671872,51.357997],[3.66958,51.35708],[3.66729,51.357028],[3.663438,51.358507],[3.65778,51.358639],[3.653508,51.358031],[3.645991,51.36059],[3.641005,51.359897],[3.63879,51.358781],[3.63698,51.358994],[3.633747,51.36055],[3.624899,51.359519],[3.609284,51.372036],[3.607925,51.37223],[3.60497,51.374027],[3.602156,51.374233],[3.599474,51.373844],[3.595473,51.377699],[3.594247,51.3809],[3.591133,51.381898],[3.591938,51.383016],[3.595855,51.382505],[3.599081,51.385028],[3.598496,51.385288],[3.595445,51.382875],[3.591517,51.383493],[3.590721,51.382305],[3.588298,51.383198],[3.587561,51.384182],[3.585202,51.384221],[3.584191,51.384945],[3.581671,51.385451],[3.577145,51.385397],[3.575061,51.38499],[3.571423,51.385687],[3.572358,51.389961],[3.570756,51.389832],[3.562534,51.393201],[3.561908,51.394514],[3.562808,51.395197],[3.562281,51.395502],[3.561159,51.394552],[3.561866,51.392944],[3.570524,51.3894],[3.571775,51.389634],[3.570736,51.385499],[3.574479,51.384672],[3.573423,51.38388],[3.574012,51.378161],[3.566951,51.374735],[3.557449,51.375419],[3.552846,51.376897],[3.550127,51.3784],[3.543391,51.378576],[3.538322,51.380671],[3.536759,51.382463],[3.531972,51.383215],[3.531682,51.384261],[3.527328,51.385733],[3.526215,51.385786],[3.525444,51.386358],[3.520756,51.386753],[3.517621,51.386495],[3.517697,51.389018],[3.518984,51.390071],[3.51814,51.391355],[3.5185,51.390938],[3.521219,51.390888],[3.524479,51.391094],[3.52565,51.391651],[3.529666,51.390275],[3.532376,51.391663],[3.539224,51.390037],[3.545649,51.389081],[3.546573,51.38934],[3.547122,51.39147],[3.548584,51.391806],[3.54694,51.39692],[3.546236,51.396829],[3.547781,51.392044],[3.546469,51.391676],[3.546162,51.389713],[3.545619,51.389552],[3.539432,51.390468],[3.532475,51.392109],[3.529618,51.3908],[3.525661,51.392102],[3.524155,51.391511],[3.518107,51.391397],[3.516956,51.392912],[3.507874,51.394499],[3.504462,51.395463],[3.49469,51.395926],[3.492971,51.397645],[3.492393,51.399428],[3.491732,51.399253],[3.492182,51.397533],[3.49412,51.395614],[3.494015,51.394878],[3.491753,51.390387],[3.489183,51.388498],[3.486021,51.388453],[3.482603,51.389312],[3.48063,51.390623],[3.477453,51.390917],[3.474163,51.389802],[3.472076,51.387772],[3.465869,51.390066],[3.467778,51.393924],[3.46708,51.39403],[3.466748,51.393227],[3.465721,51.391331],[3.464906,51.389633],[3.46154,51.38609]]],[[[3.591008,51.456934],[3.591007,51.456932],[3.591007,51.456932],[3.591008,51.456934]]],[[[3.591108,51.457145],[3.591249,51.457341],[3.591008,51.456934],[3.591108,51.457145]]],[[[3.587356,51.450625],[3.586428,51.450565],[3.601842,51.480083],[3.602462,51.480083],[3.587356,51.450625]]],[[[3.718127,51.480014],[3.73,51.48],[3.730001,51.469702],[3.727504,51.472447],[3.726719,51.474189],[3.721938,51.477903],[3.718127,51.480014]]]]}}]}</script>
+<script type="application/json" id="aoi-data">{"type":"Polygon","coordinates":[[[3.4499999997052884,51.020000003244945],[3.7299999999880065,51.02000000325202],[3.7300000000144844,51.480000003567625],[3.449999999733212,51.48000000356032],[3.4499999997052884,51.020000003244945]]]}</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+(function () {
+  var mapEl = document.getElementById('map');
+  if (typeof L === 'undefined') {
+    mapEl.innerHTML = '<div style="padding:24px;color:#8a857a;font-size:14px">' +
+      'Leaflet could not be loaded (CDN unreachable). The zone tables below carry the same information; ' +
+      'open this file with internet access to render the interactive map.</div>';
+    mapEl.style.height = 'auto';
+    return;
+  }
+  var zones = JSON.parse(document.getElementById('zones-data').textContent);
+  var aoi = JSON.parse(document.getElementById('aoi-data').textContent);
+
+  var bounds = L.latLngBounds([[51.02, 3.4499999997052884], [51.480083, 3.730006]]);
+  var map = L.map('map').fitBounds(bounds.pad(0.06));
+
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  var base = { 'OSM (CDN)': L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {maxZoom:18}) };
+
+  function cat(f) { return f.properties.__cat; }
+  var styles = {
+    final:       {color: '#2e7d32', weight: 2.2, fillColor: '#66bb6a', fillOpacity: 0.30},
+    inclusion:   {color: '#ff8205', weight: 2.0, fillColor: '#64b5f6', fillOpacity: 0.22},
+    exclusion:   {color: '#ff8205', weight: 1.6, fillColor: '#ffb74d', fillOpacity: 0.14, dashArray: '6 4'},
+    marker:      {color: '#6a1b9a', weight: 1.6, fillColor: '#ce93d8', fillOpacity: 0.14, dashArray: '3 5'}
+  };
+  var labels = {
+    final: 'Final opportunity zone', inclusion: 'Inclusion (designated zones \u2229 AOI)',
+    exclusion: 'After exclusion step (cumulative)', marker: 'Attention / conditional / compensation markers'
+  };
+  var overlays = {};
+  ['final', 'inclusion', 'exclusion', 'marker'].forEach(function (c) {
+    var feats = zones.features.filter(function (f) { return cat(f) === c; });
+    if (!feats.length) return;
+    var g = L.geoJSON({type: 'FeatureCollection', features: feats}, {
+      style: function () { return styles[c]; },
+      onEachFeature: function (f, layer) {
+        var p = f.properties;
+        layer.bindPopup('<b>' + p.id + '</b><br>op: ' + p.operation +
+          '<br>area: ' + p.areaKm2 + ' km\u00b2<br>rules: ' + (p.ruleIds || []).join(', ') +
+          '<br>layers: ' + (p.layers || []).join(', '));
+      }
+    });
+    if (c === 'final' || c === 'inclusion') g.addTo(map);
+    overlays[labels[c]] = g;
+  });
+  if (aoi) {
+    overlays['AOI (province boundary)'] = L.geoJSON(aoi, {
+      style: {color: '#000', weight: 2.4, fill: false, dashArray: '9 6'}
+    }).addTo(map);
+  }
+  L.control.layers(base, overlays, {collapsed: false}).addTo(map);
+})();
+</script>
+</body>
+</html>

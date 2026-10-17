@@ -1,0 +1,53 @@
+[
+ {
+  "id": "FR-WAT-01",
+  "normCardId": "NC-WAT-01",
+  "status": "formalized",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "instrumentType": "rup-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "riparian_development",
+   "contextTags": [
+    "curatie_fase2_water",
+    "bestemmingsartikel_cartografisch",
+    "geometry_mercator_grup"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task4",
+  "formalizedAt": "2026-10-16",
+  "conditions": [],
+  "zoneSelector": {
+   "zoneIds": [
+    "watercaptatie-be"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via mercator-gewestelijke-RUP (gepind 2026-10-16; client-side bestemmingfilter, zie grupBevindingen in probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine."
+  },
+  "rationale": "Formalized (fase 3, task 4): GRUP papierproducent artikel 3 — zone voor oppervlaktewater-captatie en -behandeling."
+ },
+ {
+  "id": "FR-WAT-02",
+  "normCardId": "NC-WAT-02",
+  "status": "ambiguous",
+  "ruleType": "zone_exclusion",
+  "zoneSemantics": "exclusion",
+  "instrumentType": "gewestplan-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "riparian_development",
+   "contextTags": [
+    "zone_loos_gedocumenteerd",
+    "v4_human_review",
+    "curatie_fase2_water"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase2-t3",
+  "formalizedAt": "2026-10-14",
+  "reason": "Overstromingsgebied = waterveiligheidsfunctie; exclusion-flavored bestemming, cartografisch → zone-loos, V4 (OCR-spatiatie 'overstro mingsgebied' sic). Zone-loos gedocumenteerd; routeert naar V4."
+ }
+]

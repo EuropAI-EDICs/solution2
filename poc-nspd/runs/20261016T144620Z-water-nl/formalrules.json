@@ -1,0 +1,103 @@
+[
+ {
+  "id": "FR-WAT-01",
+  "normCardId": "NC-WAT-01",
+  "status": "ambiguous",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "instrumentType": "omgevingsverordening-nl",
+  "jurisdictie": "nl",
+  "appliesTo": {
+   "objectType": "riparian_development",
+   "contextTags": [
+    "zone_loos_gedocumenteerd",
+    "v4_human_review",
+    "curatie_fase2_water"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase2-t3",
+  "formalizedAt": "2026-10-14",
+  "reason": "Beoordelingsregel waterlichaam; delta-breed, zone-loos conditioneel. Zone-loos gedocumenteerd; routeert naar V4."
+ },
+ {
+  "id": "FR-WAT-02",
+  "normCardId": "NC-WAT-02",
+  "status": "ambiguous",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "instrumentType": "omgevingsverordening-nl",
+  "jurisdictie": "nl",
+  "appliesTo": {
+   "objectType": "riparian_development",
+   "contextTags": [
+    "zone_loos_gedocumenteerd",
+    "v4_human_review",
+    "curatie_fase2_water"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase2-t3",
+  "formalizedAt": "2026-10-14",
+  "reason": "Vergunningplicht onderwater flora/fauna: verbod zonder vergunning; zone-loos (oppervlaktewaterlichamen niet als GIO gepind). Zone-loos gedocumenteerd; routeert naar V4."
+ },
+ {
+  "id": "FR-WAT-03",
+  "normCardId": "NC-WAT-03",
+  "status": "formalized",
+  "ruleType": "zone_exclusion",
+  "zoneSemantics": "exclusion",
+  "instrumentType": "omgevingsverordening-nl",
+  "jurisdictie": "nl",
+  "appliesTo": {
+   "objectType": "riparian_development",
+   "contextTags": [
+    "curatie_fase2_water",
+    "geometry_zeeland_ovz"
+   ]
+  },
+  "executableRef": "engine.zone.exclude_within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task2",
+  "formalizedAt": "2026-10-16",
+  "zoneSelector": {
+   "zoneIds": [
+    "waterkering-nl"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via zeeland-ovz-wfs (gepind 2026-10-16, probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine."
+  },
+  "rationale": "Formalized (fase 3, task 2): art. 18.37 verplicht dat toelating van activiteiten bij een regionale waterkering geen belemmering voor onderhoud/versterking oplevert. Gepind als zeeland-ovz-waterkering (dso:ext_ovz_regwkr_dijktraj, probe_2026-10-16.json). Exclusion van de dijktrajecten is de conservatieve operationalisering van 'geen belemmering'; toetsing in detail blijft bij het bevoegd gezag (V4-marker in de caveats).",
+  "conditions": []
+ },
+ {
+  "id": "FR-AOI-01",
+  "normCardId": "NC-WAT-01",
+  "status": "formalized",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "instrumentType": "omgevingsverordening-nl",
+  "jurisdictie": "nl",
+  "appliesTo": {
+   "objectType": "riparian_development",
+   "contextTags": [
+    "inclusion_basis_aoi",
+    "zone_loze_inclusions_v4",
+    "taak9_zone_semantiek"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "zoneSelector": {
+   "zoneIds": [
+    "aoi"
+   ],
+   "selection": "within",
+   "geometrySource": "request_aoi",
+   "caveat": "inclusion-basis is de request-AOI: geen inclusion-regel in deze shard is executabel (zone-loos, V4); de AOI is de conservatieve inclusion-union, geen positief geschiktheidsmodel"
+  },
+  "conditions": [],
+  "rationale": "Taak-9-zone-semantiek: de inclusion-regels van deze track/jurisdictie (geen) zijn zone-loos naar V4 gerouteerd; de run gebruikt de request-AOI als inclusion-union (run_summary.inclusionBasis=aoi) zodat V4-markers en exclusions op een gedefinieerd werkvlak worden uitgevoerd. Deze regel is een uitvoeringsconstructie van de orchestrator, geen inhoudelijke norm.",
+  "formalizedBy": "run-orchestrator#poc-nspd-task9-aoi-basis",
+  "formalizedAt": "2026-10-16"
+ }
+]

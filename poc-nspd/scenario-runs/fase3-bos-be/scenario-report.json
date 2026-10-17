@@ -1,0 +1,86 @@
+{
+ "id": "SR-20261016T150831Z-bos-be-20261017T063359Z",
+ "scenarioSetId": "SSET-bos-be-nspd-fase3",
+ "baselineRunId": "20261016T150831Z-bos-be",
+ "requestId": "bb0f4127-a61a-5127-8a72-9863c24bb1d7",
+ "objectType": "forest_planting",
+ "generatedAt": "2026-10-17T06:33:59Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 1.170744607,
+  "inclusionIntersectAoiKm2": 1.170744607,
+  "baselineFinalAreaKm2": 1.170744607,
+  "baselineInclusionKm2": 1.170744607,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-BOS-BE-BOSKOPPEL-DROP",
+   "name": "Boskoppelingsgebied losgelaten (BE)",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-BOS-01",
+    "provenanceNote": "NC-BOS-01 (GRUP fase 2, art. 3) wijst het bosgebied-koppelingsgebied aan voor behoud/ontwikkeling/herstel van bos; loslaten is de assumptie."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-BOS-01",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 0,
+   "rulesExecuted": 0,
+   "finalAreaKm2": 536.016910903,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": 534.846166296,
+   "deltaVsControlPct": 45684.273333,
+   "iouVsControl": 0.002184166,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-BOS-BE-BOSKOPPEL-DROP.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-BOS-BE-BOSKOPPEL-BUF500",
+   "name": "Boskoppelingsgebied verbreed met 500 m (BE)",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-BOS-01",
+    "variedAspect": "inclusion-zone verbreed met 500 m",
+    "provenanceNote": "NC-BOS-01 kent geen afstandseis; exploratie."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-BOS-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500.0,
+     "note": "bufferDistanceM None -> 500.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 16.564896163,
+   "inclusionIntersectAoiKm2": 16.564896163,
+   "deltaVsControlKm2": 15.394151556,
+   "deltaVsControlPct": 1314.902624,
+   "iouVsControl": 0.070676641,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-BOS-BE-BOSKOPPEL-BUF500.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

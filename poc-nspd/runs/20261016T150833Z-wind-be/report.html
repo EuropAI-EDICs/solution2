@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where can wind turbines be sited in the Flemish part of the NSPD (haven Gent/Zelzate)?</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+  :root { --ink:#f5f2ec; --mut:#8a857a; --line:rgba(245,242,236,.14); --bg:#0d0d12; --card:#1a1a23;
+          --ok:#1a7f4b; --bad:#b3261e; --warn:#9a6700; --pend:#6b55b5; }
+  * { box-sizing: border-box; }
+  body { font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+         color: var(--ink); background: var(--bg); margin: 0; padding: 0 0 60px; }
+  main { max-width: 1180px; margin: 0 auto; padding: 0 22px; }
+  header { background: #14141b; color: #fff; padding: 26px 0 20px; }
+  header h1 { font-size: 24px; margin: 0 0 6px; font-weight: 650; }
+  header .sub { color: #2a2a35; font-size: 13.5px; }
+  header .badges { margin-top: 10px; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12.5px;
+           font-weight: 600; margin-right: 6px; background: #24405f; color: #d7e3f4; }
+  .badge.pass { background: #123f2a; color: #8fe3b4; }
+  .badge.fail { background: #4a1512; color: #ffb3ad; }
+  .badge.needs_human { background: #4d3a07; color: #ffdf9e; }
+  .badge.pending { background: #33276b; color: #cabdf5; }
+  h2 { font-size: 19px; margin: 38px 0 12px; font-weight: 650; }
+  h3 { font-size: 15.5px; margin: 22px 0 8px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .stat .k { color: var(--mut); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  .stat .v { font-size: 21px; font-weight: 680; margin-top: 2px; }
+  .stat .s { color: var(--mut); font-size: 12px; margin-top: 2px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  #map { height: 560px; border-radius: 8px; border: 1px solid var(--line); }
+  .map-note { color: var(--mut); font-size: 12.5px; margin-top: 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; background: var(--card); }
+  th, td { border: 1px solid var(--line); padding: 6px 9px; text-align: left; vertical-align: top; }
+  th { background: #eef2f8; font-weight: 640; position: sticky; top: 0; }
+  .tablewrap { overflow-x: auto; max-height: 480px; overflow-y: auto; border: 1px solid var(--line);
+               border-radius: 8px; }
+  .scrollx { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .fx { font-size: 11.5px; font-weight: 700; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+  .fx.included, .fx.pass { color: var(--ok); background: #e2f3e9; }
+  .fx.excluded, .fx.fail { color: var(--bad); background: #fbe6e4; }
+  .fx.conditional, .fx.attention { color: var(--warn); background: #fdf3d7; }
+  .fx.compensation { color: #6b3fa0; background: #efe6fa; }
+  .fx.ambiguous, .fx.needs_human { color: #7a5b00; background: #fff1c9; }
+  .fx.not_applicable, .fx.pending, .fx.skipped { color: var(--mut); background: #edf0f4; }
+  blockquote { margin: 6px 0; padding: 8px 12px; border-left: 3px solid #2a2a35; background: #f2f5f9;
+               font-style: italic; font-size: 13px; }
+  details { border: 1px solid var(--line); border-radius: 8px; background: var(--card);
+            margin: 8px 0; padding: 0; }
+  details summary { cursor: pointer; padding: 9px 13px; font-weight: 600; font-size: 13.5px; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  details .body { padding: 10px 14px; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+  a { color: #0b5cad; }
+  .checks li { margin: 3px 0; font-size: 12.8px; }
+  .lvl { display: inline-block; min-width: 30px; font-weight: 700; }
+  .lvl-V0,.lvl-V1,.lvl-V2,.lvl-V3 { color: #33415c; }
+  .lvl-V4 { color: var(--pend); }
+  footer { margin-top: 44px; color: var(--mut); font-size: 12.5px; border-top: 1px solid var(--line);
+           padding-top: 14px; }
+  .legend-dot { display:inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px;
+                vertical-align: middle; }
+</style>
+</head>
+<body>
+<header>
+  <main>
+    <h1>Where can wind turbines be sited in the Flemish part of the NSPD (haven Gent/Zelzate)?</h1>
+    <div class="sub">
+      Run <span class="mono">20261016T150833Z-wind-be</span> &middot; use case <span class="mono">wind-be</span>
+      &middot; generated 2026-10-16T15:08:35Z &middot; policy stage <b>programming</b>
+      &middot; instrument pinned: GRUP Zeehavengebied Gent fase 2 / gewestplan / VCRO (Vlaanderen)
+    </div>
+    <div class="badges">
+      <span class="badge pass">verdict: pass</span>
+      <span class="badge pass">V2b: pass</span>
+      <span class="badge pending">V4 human: pending</span>
+      <span class="badge ">cite-or-abstain: 5 cards / 0 abstentions</span>
+    </div>
+  </main>
+</header>
+<main>
+
+<section id="headline">
+  <h2>Headline</h2>
+  <div class="cards">
+    <div class="stat"><div class="k">AOI (jurisdictie)</div><div class="v">536.0 km²</div><div class="s">NSPD-BE-helft van de districtsbbox (EPSG:28992, snede 3.73°E)</div></div>
+    <div class="stat"><div class="k">Inclusion ∩ AOI</div><div class="v">1.2 km²</div><div class="s">union of the formalized inclusion zones</div></div>
+    <div class="stat"><div class="k">Final opportunity zone</div><div class="v">1.2 km²</div><div class="s">geen gepinde BE-exclusions in fase 1: finale zone = BE-AOI</div></div>
+    <div class="stat"><div class="k">Rules executed</div><div class="v">2 of 4</div><div class="s">2 formalized; 2 ambiguous → V4; 0 rejected</div></div>
+    <div class="stat"><div class="k">Zones emitted</div><div class="v">4</div><div class="s">incl. markers (attention/conditional/compensation)</div></div>
+    <div class="stat"><div class="k">Geometry repairs</div><div class="v">0</div><div class="s">invalid-as-served features, recorded in prov</div></div>
+  </div>
+  <p class="map-note" style="margin-top:12px">BE-side of the NSPD; semantics follow the formalized stedenbouwkundige voorschriften (RUP/Gewestplan) and algemene regels (VCRO).</p>
+</section>
+
+<section id="map-section">
+  <h2>Opportunity map</h2>
+  <div class="panel">
+    <div id="map"></div>
+    <p class="map-note">
+      Layers: <span class="legend-dot" style="background:#2e7d32"></span>final opportunity zone &middot;
+      <span class="legend-dot" style="background:#ff8205"></span>inclusion (designated wind zones &cap; AOI) &middot;
+      <span class="legend-dot" style="background:#ff8205"></span>after each exclusion &middot;
+      <span class="legend-dot" style="background:#6a1b9a"></span>attention / conditional / compensation markers &middot;
+      <span class="legend-dot" style="background:#000"></span>AOI (province boundary).
+      Use the layer switcher (top right) to toggle. Basemap tiles and the Leaflet library load from a CDN;
+      when opened offline the map degrades to the tables below. Full-resolution geometry:
+      <span class="mono">zones.geojson</span> / <span class="mono">zones.gml</span>.
+      Display geometry simplified to 25.0 m (recorded in the run summary).
+    </p>
+  </div>
+</section>
+
+<section id="zones">
+  <h2>Zones &amp; statistics <span class="sub">(fallback table &mdash; always available)</span></h2>
+  <div class="tablewrap">
+    <table>
+      <thead><tr>
+        <th>zone id</th><th>operation</th><th>rules</th><th class="num">area km&sup2;</th>
+        <th>layers</th><th class="num">prov steps</th><th class="num">repairs</th>
+      </tr></thead>
+      <tbody>
+      <tr>
+        <td class="mono">zr-inclusion_union-babaaef4b3</td>
+        <td>inclusion_union</td>
+        <td class="mono">FR-BEW-01</td>
+        <td class="num">1.255</td>
+        <td class="mono">boskoppel-be</td>
+        <td class="num">5</td>
+        <td class="num">0</td>
+      </tr>
+      <tr>
+        <td class="mono">zr-intersection-6d9d15655f</td>
+        <td>intersection</td>
+        <td class="mono">FR-BEW-01</td>
+        <td class="num">1.171</td>
+        <td class="mono">boskoppel-be</td>
+        <td class="num">2</td>
+        <td class="num">0</td>
+      </tr>
+      <tr>
+        <td class="mono">zr-difference-c98d63e0f5</td>
+        <td>difference</td>
+        <td class="mono">FR-BEW-02</td>
+        <td class="num">1.171</td>
+        <td class="mono">grensgebied-be, national_source</td>
+        <td class="num">4</td>
+        <td class="num">0</td>
+      </tr>
+      <tr>
+        <td class="mono">zr-final-e707dae068</td>
+        <td>final</td>
+        <td class="mono">FR-BEW-01, FR-BEW-02</td>
+        <td class="num">1.171</td>
+        <td class="mono">boskoppel-be, grensgebied-be, national_source</td>
+        <td class="num">11</td>
+        <td class="num">0</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="decision">
+  <h2>Decision table</h2>
+  <p class="map-note">Every row links its NormCard (instrument + article + version + verbatim quote + URL in
+     <span class="mono">normcards.json</span>). Machine-readable copy: <span class="mono">decision-table.json</span>,
+     Markdown copy: <span class="mono">decision-table.md</span>.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr>
+<th>criterion</th><th>norm</th><th>source</th><th>zone effect</th><th>ruleId</th><th>normCardId</th><th>condition</th><th>note</th>      </tr></thead>
+      <tbody>
+      <tr>
+        <td>
+Within the bosgebied (linking zone) of GRUP zeehavengebied Gent - fase 2, one row of wind turbines is allowed in the sub-area Zelzate-zuid, on the edge of the forest zon…        </td>
+        <td>
+Artikel 3. Bosgebied - koppelingsgebied — gewestelijk ruimtelijk uitvoeringsplan &#39;afbakening zeehavengebied Gent - fase 2&#39; — Bijlage II: stedenbouwkundige voorschriften (GRUP 2.12_00358_00001, bron gedownload 2026-10-14) [binding]        </td>
+        <td>
+<span class="mono">S02</span> <a href="https://download.dsi.omgeving.vlaanderen.be/be.vl.omg.dsi.stukonderdeel.RUP_02000_212_00358_00001.BG.3.Dossierstuk.SV.1_1" target="_blank" rel="noopener">https://download.dsi.omgeving.vlaanderen.be/be.vl.omg.dsi.stukonderdeel.RUP_02000_212_00358_00001.BG.3.Dossierstuk.SV.1_1</a>
+        </td>
+        <td>
+<span class="fx included">included</span>
+        </td>
+        <td>
+FR-BEW-01        </td>
+        <td>
+NC-BEW-01        </td>
+        <td>
+        </td>
+        <td>
+Formalized (fase 3, task 4): binnen het bosgebied-koppelingsgebied is één rij windturbines toegelaten in sub-gebied Zelzate-zuid (rand van de boszone). CAVEAT: het sub-gebied is in de GRUP-geometrie niet scheidbaar — de inclusion geldt het hele koppelingsgebied ∩ AOI; de sub-gebiedvoorwaarde blijft een V4-toets.        </td>
+      </tr>
+      <tr>
+        <td>
+Inside the overdruk-marked border area with the metropolitan area of GRUP zeehavengebied Gent - fase 2 (grensgebied met het grootstedelijk gebied), large-scale wind turb…        </td>
+        <td>
+Artikel 14. grensgebied met het grootstedelijk gebied — gewestelijk ruimtelijk uitvoeringsplan &#39;afbakening zeehavengebied Gent - fase 2&#39; — Bijlage II: stedenbouwkundige voorschriften (GRUP 2.12_00358_00001, bron gedownload 2026-10-14) [binding]        </td>
+        <td>
+<span class="mono">S02</span> <a href="https://download.dsi.omgeving.vlaanderen.be/be.vl.omg.dsi.stukonderdeel.RUP_02000_212_00358_00001.BG.3.Dossierstuk.SV.1_1" target="_blank" rel="noopener">https://download.dsi.omgeving.vlaanderen.be/be.vl.omg.dsi.stukonderdeel.RUP_02000_212_00358_00001.BG.3.Dossierstuk.SV.1_1</a>
+        </td>
+        <td>
+<span class="fx excluded">excluded</span>
+        </td>
+        <td>
+FR-BEW-02        </td>
+        <td>
+NC-BEW-02        </td>
+        <td>
+        </td>
+        <td>
+Formalized (fase 3, task 4): in het grensgebied met het grootstedelijk gebied zijn grootschalige windturbines uitgesloten (GRUP fase 2, artikel 14).        </td>
+      </tr>
+      <tr>
+        <td>
+Gewestplan areas designated as &#39;gebied voor windmolenpark&#39; are destined for the siting and operation of windmills; works matching the windmolenpark destination and works…        </td>
+        <td>
+Artikel 32 - Gebied voor windmolenpark (BVR 07/07/00), gewestplan Antwerpen 14 — Digitale geactualiseerde gewestplannen van Vlaanderen, vector — Bijlage 3: teksten aanvullende stedenbouwkundige voorschriften (per gewestplan; incl. gewestplan Gentse en Kanaalzone 08), toestand 1 januari 2002 [binding]        </td>
+        <td>
+<span class="mono">S04</span> <a href="https://omgeving.vlaanderen.be/sites/default/files/2021-11/bijlage_3_aanvullende_voorschriften_stedenbouwkundige%20gewestplannen.pdf" target="_blank" rel="noopener">https://omgeving.vlaanderen.be/sites/default/files/2021-11/bijlage_3_aanvullende_voorschriften_stedenbouwkundige%20gewestplannen.pdf</a>
+        </td>
+        <td>
+<span class="fx ambiguous">ambiguous</span>
+        </td>
+        <td>
+FR-BEW-03        </td>
+        <td>
+NC-BEW-03        </td>
+        <td>
+        </td>
+        <td>
+Zone-loze inclusion (gedocumenteerd): het gewestplan-SV bestemt &#39;gebied voor windmolenpark&#39; voor inplanting/exploitatie van windmolens, maar die windmolenpark-zones hebben geen alias in ZONE_SOURCES (taak 9) en het SV bestaat alleen voor gewestplan Antwerpen 14, Hasselt - Genk 19 en Halle - Vilvoorde 25 — niet voor het gewestplan Gentse en Kanaalzone 08 van de AOI; daarom ambigu en naar V4.        </td>
+      </tr>
+      <tr>
+        <td>
+The permitting authority may deviate from gewestplan destination rules for building applications for wind turbines and wind turbine parks (and other energy production or…        </td>
+        <td>
+Artikel 4.4.9, §1 — Gecodificeerd Decreet Vlaamse Codex Ruimtelijke Ordening (VCRO) — geconsolideerde versie geldend op 14/10/2026 [binding]        </td>
+        <td>
+<span class="mono">S05</span> <a href="https://codex.vlaanderen.be/PrintDocument.ashx?id=1018245" target="_blank" rel="noopener">https://codex.vlaanderen.be/PrintDocument.ashx?id=1018245</a>
+        </td>
+        <td>
+<span class="fx ambiguous">ambiguous</span>
+        </td>
+        <td>
+FR-BEW-04        </td>
+        <td>
+NC-BEW-04        </td>
+        <td>
+        </td>
+        <td>
+Zone-loze conditional (gedocumenteerd): art. 4.4.9 §1 VCRO opent een afwijkingsbevoegdheid voor windturbines/-parken in gebieden die onder gewestplanvoorschriften sorteren (toets aan standaardtypebepalingen; inrichting/beheer uitgesloten); procedurele regel zonder zone-selector in ZONE_SOURCES (taak 9); routeeert naar V4.        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="validation">
+  <h2>Validation report (V0&ndash;V4)</h2>
+  <details open>
+    <summary>opportunity-map-request &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261016T150833Z-wind-be-request</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-opportunity-map-request</span>
+&mdash; 1/1 artifact(s) valid against opportunity-map-request.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V1 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V2 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>norm-card-set &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261016T150833Z-wind-be-normcards</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-norm-card</span>
+&mdash; 5/5 artifact(s) valid against norm-card.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v2-card-citations</span>
+&mdash; all 5 NormCard(s) carry docId+article+version+verbatim quote+uri</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V1 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>formal-rule-set &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261016T150833Z-wind-be-formalrules</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-formal-rule</span>
+&mdash; 4/4 artifact(s) valid against formal-rule.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v2-rule-card-linkage</span>
+&mdash; all 4 FormalRule(s) link an existing NormCard (cite-or-abstain chain intact)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-executable-refs-registered</span>
+&mdash; all executableRefs are registered deterministic engine operations (6 registered)</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V1 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>zone-result-set &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261016T150833Z-wind-be-zones</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-zone-result</span>
+&mdash; 4/4 artifact(s) valid against zone-result.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v1-output-geometry-valid</span>
+&mdash; all 4 zone geometries valid (shapely is_valid)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-output-crs-and-bounds</span>
+&mdash; all payloads EPSG:4326 with coordinates inside NL bounds lon(3.0, 7.5)/lat(50.5, 54.0)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-input-layers-crs</span>
+&mdash; 2 input layer(s) declare a recognised CRS member (EPSG:28992 computation CRS)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-input-invalid-census</span>
+&mdash; no invalid as-served features in any input layer</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-final-zone-sanity</span>
+&mdash; final zone non-empty, valid, 1.171 km2 &lt;= AOI 536.017 km2 and &lt;= inclusion union 1.171 km2</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V2 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>decision-table &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261016T150833Z-wind-be-decisiontable</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-decision-table</span>
+&mdash; 1/1 artifact(s) valid against decision-table.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v2-decision-table-linkage</span>
+&mdash; all 4 decision-table row(s) link an existing NormCard</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V1 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>pipeline-run &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261016T150833Z-wind-be-pipeline</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-opportunity-map-request</span>
+&mdash; 1/1 artifact(s) valid against opportunity-map-request.schema.json</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-norm-card</span>
+&mdash; 5/5 artifact(s) valid against norm-card.schema.json</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-formal-rule</span>
+&mdash; 4/4 artifact(s) valid against formal-rule.schema.json</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-zone-result</span>
+&mdash; 4/4 artifact(s) valid against zone-result.schema.json</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-decision-table</span>
+&mdash; 1/1 artifact(s) valid against decision-table.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v1-output-geometry-valid</span>
+&mdash; all 4 zone geometries valid (shapely is_valid)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-output-crs-and-bounds</span>
+&mdash; all payloads EPSG:4326 with coordinates inside NL bounds lon(3.0, 7.5)/lat(50.5, 54.0)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-input-layers-crs</span>
+&mdash; 2 input layer(s) declare a recognised CRS member (EPSG:28992 computation CRS)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-input-invalid-census</span>
+&mdash; no invalid as-served features in any input layer</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-final-zone-sanity</span>
+&mdash; final zone non-empty, valid, 1.171 km2 &lt;= AOI 536.017 km2 and &lt;= inclusion union 1.171 km2</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v2-rule-card-linkage</span>
+&mdash; all 4 FormalRule(s) link an existing NormCard (cite-or-abstain chain intact)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-card-citations</span>
+&mdash; all 5 NormCard(s) carry docId+article+version+verbatim quote+uri</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-zone-rule-traceability</span>
+&mdash; every zone ruleId traces to a formalized rule (2 available)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-decision-table-linkage</span>
+&mdash; all 4 decision-table row(s) link an existing NormCard</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-executable-refs-registered</span>
+&mdash; all executableRefs are registered deterministic engine operations (6 registered)</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v3-reexecution-agreement</span>
+&mdash; independent geopandas re-execution of 2 rule(s): pipeline 1.171 km2 vs independent 1.171 km2; relative area delta 1.161e-13 (threshold 0.01); IoU 0.999619 (threshold 0.98)</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+</section>
+
+<section id="normcards">
+  <h2>Norm cards (cite-or-abstain)</h2>
+  <p class="map-note">5 verified cards; each carries the verbatim Dutch quote, the article,
+     the consolidated instrument version and the URL. 0 abstentions are listed below.</p>
+  <details>
+    <summary><span class="mono">NC-BEW-01</span> &middot; Artikel 3. Bosgebied - koppelingsgebied
+      <span class="fx pass">binding</span>
+      <span class="fx pending">conf 0.9</span></summary>
+    <div class="body">
+      <p style="margin:4px 0">Within the bosgebied (linking zone) of GRUP zeehavengebied Gent - fase 2, one row of wind turbines is allowed in the sub-area Zelzate-zuid, on the edge of the forest zone at the border with the adjacent economic-activity destination zone.</p>
+      <blockquote lang="nl">&ldquo;In het deelgebied Zelzate-zuid is op de rand van het bosgebied, meer bepaald op de grens met het naastliggende bestemmingsgebied voor economische activiteiten één rij windturbines toegelaten.&rdquo;</blockquote>
+      <p class="map-note" style="margin:4px 0">
+        <b>gewestelijk ruimtelijk uitvoeringsplan &#39;afbakening zeehavengebied Gent - fase 2&#39; — Bijlage II: stedenbouwkundige voorschriften (GRUP 2.12_00358_00001, bron gedownload 2026-10-14)</b> &middot; version: GRUP 2.12_00358_00001, Bijlage II Stedenbouwkundige voorschriften &#39;afbakening zeehavengebied Gent - fase 2&#39; (kopregel document) &middot;
+        doc <span class="mono">S02</span> &middot;
+        <a href="https://download.dsi.omgeving.vlaanderen.be/be.vl.omg.dsi.stukonderdeel.RUP_02000_212_00358_00001.BG.3.Dossierstuk.SV.1_1" target="_blank" rel="noopener">https://download.dsi.omgeving.vlaanderen.be/be.vl.omg.dsi.stukonderdeel.RUP_02000_212_00358_00001.BG.3.Dossierstuk.SV.1_1</a><br>
+        theme <span class="mono">energy:wind</span>
+      </p>
+    </div>
+  </details>
+  <details>
+    <summary><span class="mono">NC-BEW-02</span> &middot; Artikel 14. grensgebied met het grootstedelijk gebied
+      <span class="fx pass">binding</span>
+      <span class="fx pending">conf 0.95</span></summary>
+    <div class="body">
+      <p style="margin:4px 0">Inside the overdruk-marked border area with the metropolitan area of GRUP zeehavengebied Gent - fase 2 (grensgebied met het grootstedelijk gebied), large-scale wind turbines are not allowed, nor waste-processing or open-air bulk-storage companies.</p>
+      <blockquote lang="nl">&ldquo;In het gebied aangeduid met de overdruk zijn noch bedrijven met als hoofdactiviteit afvalverwerking met inbegrip van recyclage of bedrijven met bulkopslag in open lucht, noch grootschalige windturbines toegelaten.&rdquo;</blockquote>
+      <p class="map-note" style="margin:4px 0">
+        <b>gewestelijk ruimtelijk uitvoeringsplan &#39;afbakening zeehavengebied Gent - fase 2&#39; — Bijlage II: stedenbouwkundige voorschriften (GRUP 2.12_00358_00001, bron gedownload 2026-10-14)</b> &middot; version: GRUP 2.12_00358_00001, Bijlage II Stedenbouwkundige voorschriften &#39;afbakening zeehavengebied Gent - fase 2&#39; (kopregel document) &middot;
+        doc <span class="mono">S02</span> &middot;
+        <a href="https://download.dsi.omgeving.vlaanderen.be/be.vl.omg.dsi.stukonderdeel.RUP_02000_212_00358_00001.BG.3.Dossierstuk.SV.1_1" target="_blank" rel="noopener">https://download.dsi.omgeving.vlaanderen.be/be.vl.omg.dsi.stukonderdeel.RUP_02000_212_00358_00001.BG.3.Dossierstuk.SV.1_1</a><br>
+        theme <span class="mono">energy:wind</span>
+      </p>
+    </div>
+  </details>
+  <details>
+    <summary><span class="mono">NC-BEW-03</span> &middot; Artikel 32 - Gebied voor windmolenpark (BVR 07/07/00), gewestplan Antwerpen 14
+      <span class="fx pass">binding</span>
+      <span class="fx pending">conf 0.85</span></summary>
+    <div class="body">
+      <p style="margin:4px 0">Gewestplan areas designated as &#39;gebied voor windmolenpark&#39; are destined for the siting and operation of windmills; works matching the windmolenpark destination and works matching the underlying ground-colour destination are each allowed insofar as they do not hinder the other.</p>
+      <blockquote lang="nl">&ldquo;Het gebied voor windmolenpar k is bestemd voor de inplanting en exploi tatie van windmolens. Alle handelingen en werken die overeenstemmen met de best emming windmolenpark kunnen worden uitgevoerd in zoverre zij niet hinderlijk zijn voor de bestemming die in grondkleur wordt aangegeven. In dit gebied mogen ook alle handelingen en werken worden uitgevoerd die overeenstemmen met de in grondkleur aangegeven bestemming in zoverre deze niet hinderlijk zijn voor de aanleg of optimale uitbating van het windmolenpark.&rdquo;</blockquote>
+      <p class="map-note" style="margin:4px 0">
+        <b>Digitale geactualiseerde gewestplannen van Vlaanderen, vector — Bijlage 3: teksten aanvullende stedenbouwkundige voorschriften (per gewestplan; incl. gewestplan Gentse en Kanaalzone 08), toestand 1 januari 2002</b> &middot; version: Bijlage 3: teksten aanvullende stedenbouwkundige voorschriften (per gewestplan; incl. gewestplan Gentse en Kanaalzone 08), toestand 1 januari 2002 &middot;
+        doc <span class="mono">S04</span> &middot;
+        <a href="https://omgeving.vlaanderen.be/sites/default/files/2021-11/bijlage_3_aanvullende_voorschriften_stedenbouwkundige%20gewestplannen.pdf" target="_blank" rel="noopener">https://omgeving.vlaanderen.be/sites/default/files/2021-11/bijlage_3_aanvullende_voorschriften_stedenbouwkundige%20gewestplannen.pdf</a><br>
+        theme <span class="mono">energy:wind</span>
+      </p>
+    </div>
+  </details>
+  <details>
+    <summary><span class="mono">NC-BEW-04</span> &middot; Artikel 4.4.9, §1
+      <span class="fx pass">binding</span>
+      <span class="fx pending">conf 0.9</span></summary>
+    <div class="body">
+      <p style="margin:4px 0">The permitting authority may deviate from gewestplan destination rules for building applications for wind turbines and wind turbine parks (and other energy production or recovery installations) in areas subject to gewestplan rules, provided the request can be permitted under the standaardtypebepalingen of the comparable destination category; deviations from gewestplan rules on design and management of the area are not allowed.</p>
+      <blockquote lang="nl">&ldquo;Het vergunningverlenende bestuursorgaan mag bij het verlenen van een omgevingsvergunning voor stedenbouwkundige handelingen voor windturbines en windturbineparken, alsook voor andere installaties voor de productie van energie of energierecuperatie in een gebied dat sorteert onder de voorschriften van een gewestplan, afwijken van de bestemmingsvoorschriften, indien het aangevraagde kan worden vergund op grond van de voor de vergelijkbare categorie of subcategorie van gebiedsaanduiding bepaalde standaardtypebepalingen, vermeld in de bijlage bij het besluit van de Vlaamse Regering van 11 april 2008 tot vaststelling van nadere regels met betrekking tot de vorm en de inhoud van de ruimtelijke uitvoeringsplannen, zoals de tekst ervan is vastgesteld bij het besluit van 11 april 2008.&rdquo;</blockquote>
+      <p class="map-note" style="margin:4px 0">
+        <b>Gecodificeerd Decreet Vlaamse Codex Ruimtelijke Ordening (VCRO) — geconsolideerde versie geldend op 14/10/2026</b> &middot; version: geconsolideerde versie geldend op 14/10/2026 &middot;
+        doc <span class="mono">S05</span> &middot;
+        <a href="https://codex.vlaanderen.be/PrintDocument.ashx?id=1018245" target="_blank" rel="noopener">https://codex.vlaanderen.be/PrintDocument.ashx?id=1018245</a><br>
+        theme <span class="mono">spatial:afwijking</span>
+      </p>
+    </div>
+  </details>
+  <details>
+    <summary><span class="mono">NC-BEE-02</span> &middot; Artikel 4.4.9, §1
+      <span class="fx pass">binding</span>
+      <span class="fx pending">conf 0.9</span></summary>
+    <div class="body">
+      <p style="margin:4px 0">The permitting authority may deviate from gewestplan destination rules for building applications for other installations for energy production or energy recovery (and wind turbines/parks) in areas subject to gewestplan rules, provided the request matches the standaardtypebepalingen of the comparable destination category; deviations from gewestplan rules on design and management of the area are not allowed.</p>
+      <blockquote lang="nl">&ldquo;Het vergunningverlenende bestuursorgaan mag bij het verlenen van een omgevingsvergunning voor stedenbouwkundige handelingen voor windturbines en windturbineparken, alsook voor andere installaties voor de productie van energie of energierecuperatie in een gebied dat sorteert onder de voorschriften van een gewestplan, afwijken van de bestemmingsvoorschriften, indien het aangevraagde kan worden vergund op grond van de voor de vergelijkbare categorie of subcategorie van gebiedsaanduiding bepaalde standaardtypebepalingen, vermeld in de bijlage bij het besluit van de Vlaamse Regering van 11 april 2008 tot vaststelling van nadere regels met betrekking tot de vorm en de inhoud van de ruimtelijke uitvoeringsplannen, zoals de tekst ervan is vastgesteld bij het besluit van 11 april 2008.&rdquo;</blockquote>
+      <p class="map-note" style="margin:4px 0">
+        <b>Gecodificeerd Decreet Vlaamse Codex Ruimtelijke Ordening (VCRO) — geconsolideerde versie geldend op 14/10/2026</b> &middot; version: geconsolideerde versie geldend op 14/10/2026 &middot;
+        doc <span class="mono">S05</span> &middot;
+        <a href="https://codex.vlaanderen.be/PrintDocument.ashx?id=1018245" target="_blank" rel="noopener">https://codex.vlaanderen.be/PrintDocument.ashx?id=1018245</a><br>
+        theme <span class="mono">spatial:afwijking</span>
+      </p>
+    </div>
+  </details>
+</section>
+
+<section id="prov">
+  <h2>Provenance</h2>
+  <div class="panel">
+    <h3 style="margin-top:4px">Pipeline stages</h3>
+    <div class="scrollx">
+    <table>
+      <thead><tr><th>stage</th><th>agent</th><th>started</th><th>ended</th><th>used</th><th>generated</th></tr></thead>
+      <tbody>
+      <tr>
+        <td>Intake: load + validate OpportunityMapRequest</td>
+        <td class="mono">run.py-orchestrator</td>
+        <td class="mono">2026-10-16T15:08:33Z</td>
+        <td class="mono">2026-10-16T15:08:33Z</td>
+        <td class="mono">use-cases/wind-be.json</td>
+        <td class="mono">request.json</td>
+      </tr>
+      <tr>
+        <td>Norm Analyst: load curated NormCards (taak 6/7 corpus)</td>
+        <td class="mono">legal-recon-agent</td>
+        <td class="mono">2026-10-16T15:08:33Z</td>
+        <td class="mono">2026-10-16T15:08:33Z</td>
+        <td class="mono">corpus/normcards-be-wind.json, corpus/sources.json</td>
+        <td class="mono">normcards.json, normcards-rejected.json</td>
+      </tr>
+      <tr>
+        <td>Norm Formalizer: load curated FormalRules (taak 6/7 shards)</td>
+        <td class="mono">norm-formalizer</td>
+        <td class="mono">2026-10-16T15:08:33Z</td>
+        <td class="mono">2026-10-16T15:08:33Z</td>
+        <td class="mono">corpus/formal-rules-be-wind.json</td>
+        <td class="mono">formalrules.json</td>
+      </tr>
+      <tr>
+        <td>V2b: jurisdictie-match (geen claim over de grens)</td>
+        <td class="mono">jurisdictie-gate</td>
+        <td class="mono">2026-10-16T15:08:33Z</td>
+        <td class="mono">2026-10-16T15:08:33Z</td>
+        <td class="mono">corpus/normcards-be-wind.json, corpus/formal-rules-be-wind.json, corpus/sources.json, data/sources.json</td>
+        <td class="mono">v2b.json</td>
+      </tr>
+      <tr>
+        <td>Geo Analyst: fetch zone layers (cache-first, registry sources)</td>
+        <td class="mono">ldttoolbox-geoconnector/0.1</td>
+        <td class="mono">2026-10-16T15:08:33Z</td>
+        <td class="mono">2026-10-16T15:08:34Z</td>
+        <td class="mono">data/sources.json</td>
+        <td class="mono">layers.json</td>
+      </tr>
+      <tr>
+        <td>Geo Analyst: deterministic FormalRule execution (shapely path)</td>
+        <td class="mono">zone-engine</td>
+        <td class="mono">2026-10-16T15:08:34Z</td>
+        <td class="mono">2026-10-16T15:08:34Z</td>
+        <td class="mono">formalrules.json, layers.json</td>
+        <td class="mono">zones.json</td>
+      </tr>
+      <tr>
+        <td>Cartographer: zones.geojson + GML + report input</td>
+        <td class="mono">poc-cartographer/0.1</td>
+        <td class="mono">2026-10-16T15:08:34Z</td>
+        <td class="mono">2026-10-16T15:08:35Z</td>
+        <td class="mono">zones.json</td>
+        <td class="mono">zones.geojson, zones.gml</td>
+      </tr>
+      <tr>
+        <td>Critic/Validator: V0-V3 deterministic + V4 pending</td>
+        <td class="mono">critic-validator</td>
+        <td class="mono">2026-10-16T15:08:35Z</td>
+        <td class="mono">2026-10-16T15:08:35Z</td>
+        <td class="mono">request.json, normcards.json, formalrules.json, zones.json, decision-table.json</td>
+        <td class="mono">validation.json</td>
+      </tr>
+      <tr>
+        <td>Explainer: decision table + PROV bundle</td>
+        <td class="mono">explainer</td>
+        <td class="mono">2026-10-16T15:08:35Z</td>
+        <td class="mono">2026-10-16T15:08:35Z</td>
+        <td class="mono">normcards.json, formalrules.json, zones.json</td>
+        <td class="mono">decision-table.json, decision-table.md, prov.json</td>
+      </tr>
+      </tbody>
+    </table>
+    </div>
+    <h3>Agents</h3>
+    <p class="map-note"><span class="mono">run.py orchestrator (poc-nspd-run/1.0)</span> &middot; <span class="mono">NormAnalyst (curator#poc-nspd-task7)</span> &middot; <span class="mono">NormFormalizer (norm-formalizer#poc-nspd-fase3-task4, norm-formalizer#poc-nspd-task7)</span> &middot; <span class="mono">V2b jurisdictie-gate (jurisdictie-gate#poc-nspd-task8)</span> &middot; <span class="mono">GeoData connector (ldttoolbox-geoconnector/0.1)</span> &middot; <span class="mono">FormalRule zone engine (poc-zone-engine/0.1)</span> &middot; <span class="mono">Cartographer (poc-cartographer/0.1)</span> &middot; <span class="mono">Critic/Validator (critic-validator#deterministic-v0-v3-poc1)</span> &middot; <span class="mono">Explainer (explainer#deterministic-poc1)</span> &middot; <span class="mono">HTML report renderer (poc-report/1.0)</span> &middot; </p>
+    <h3>Geo sources (open-data aliases, with lastChecked)</h3>
+    <div class="scrollx">
+    <table>
+      <thead><tr><th>zone</th><th>source id</th><th>service / layer</th><th>features</th><th>lastChecked</th><th>alias for (GIO)</th></tr></thead>
+      <tbody>
+      <tr>
+        <td class="mono">boskoppel-be</td>
+        <td class="mono">mercator-grup-boskoppel</td>
+        <td class="mono">https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/wfs/lu:lu_gewrup_gv</td>
+        <td class="num">14</td>
+        <td class="mono">2026-10-16</td>
+        <td class="mono">(national source)</td>
+      </tr>
+      <tr>
+        <td class="mono">grensgebied-be</td>
+        <td class="mono">mercator-grup-grensgebied</td>
+        <td class="mono">https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/wfs/lu:lu_gewrup_gv</td>
+        <td class="num">1</td>
+        <td class="mono">2026-10-16</td>
+        <td class="mono">(national source)</td>
+      </tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="map-note">Full bundle: <span class="mono">prov.json</span> (PROV-O-flavoured: agents, entities with
+       sha256, activities with timestamps, wasGeneratedBy / wasDerivedFrom).</p>
+  </div>
+</section>
+
+<section id="limits">
+  <h2>Limitations &amp; tuning</h2>
+  <div class="panel">
+    <ul style="margin:6px 0;padding-left:20px">
+<li>Zone geometry comes from pinned national open-data aliases (NL: PDOK OGC API natura2000; BE sources registered in ZONE_SOURCES are not exercised by any formalized phase-1 rule); the provincial GIO/DSO download chain is not used in this PoC.</li><li>No inclusion rule in the phase-1 shards carries executable zone geometry: the NL bijlage-XIV wind-concentratielocaties and the BE RUP-deelgebieden/gewestplan-SV zones have no pinned open-data alias, so every inclusion norm is routed to the V4 human-expert checkpoint and the run uses the request AOI as inclusion union (inclusionBasis=aoi).</li><li>Re-run the legal recon and this pipeline before using results after a new consolidation of the cited instruments (NL: CVDR709135; BE: RUP/gewestplan/VCRO).</li><li>Map geometry in this report is display-simplified; authoritative full-resolution geometry is zones.geojson / zones.gml in the run directory.</li><li>Zone algebra inputs are Douglas-Peucker simplified (tolerance recorded per run in run_summary.json tunings and per layer in the engine provenance) so district-scale GEOS overlays stay tractable.</li><li>programming-stage screening artifact; per-location permission assessment remains required.</li>    </ul>
+    <p class="map-note"><b>Tuned parameters (recorded):</b>
+<span class="mono">display_tolerance_m=25.0</span> &middot; <span class="mono">input_simplify_m=2.0</span> &middot; <span class="mono">payload_coord_decimals=6</span> &middot; <span class="mono">buffer_resolution_quad_segs=16</span> &middot; </p>
+  </div>
+</section>
+
+<footer>
+  Artifacts in the run directory: <span class="mono">decision-table.json / decision-table.md / formalrules.json / layers.json / normcards-rejected.json / normcards.json / prov.json / report_input.json / request.json / rule-stats.json / v2b.json / validation.json / zones.geojson / zones.gml / zones.json / zones.xsd</span><br>
+  This report is a programming-stage decision-support artifact, not a permit decision. Every legal claim
+  traces to a cited instrument version; ambiguous norms are routed to the V4 human-expert checkpoint.
+</footer>
+</main>
+
+<script type="application/json" id="zones-data">{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"__cat":"inclusion","id":"zr-inclusion_union-babaaef4b3","operation":"inclusion_union","areaKm2":1.254540311,"ruleIds":["FR-BEW-01"],"layers":["boskoppel-be"]},"geometry":{"type":"MultiPolygon","coordinates":[[[[3.761287,51.106336],[3.762348,51.106601],[3.761354,51.106305],[3.761287,51.106336]]],[[[3.762414,51.106776],[3.762822,51.106815],[3.762378,51.106728],[3.762414,51.106776]]],[[[3.723974,51.106217],[3.722035,51.105728],[3.725995,51.10963],[3.725024,51.107663],[3.723974,51.106217]]],[[[3.726497,51.109599],[3.728447,51.110403],[3.73037,51.110331],[3.732078,51.111218],[3.734346,51.111421],[3.734508,51.111156],[3.731059,51.109595],[3.730589,51.110092],[3.72972,51.110173],[3.730488,51.109328],[3.724952,51.106665],[3.726497,51.109599]]],[[[3.734476,51.110292],[3.734037,51.110159],[3.732621,51.109985],[3.73421,51.110739],[3.734476,51.110292]]],[[[3.746057,51.12116],[3.742736,51.125359],[3.74691,51.1273],[3.748603,51.125698],[3.748946,51.125663],[3.745792,51.124538],[3.748137,51.12185],[3.747314,51.121221],[3.746057,51.12116]]],[[[3.74691,51.1273],[3.747742,51.127755],[3.747202,51.128324],[3.747842,51.129288],[3.748404,51.129029],[3.751448,51.13089],[3.753587,51.132576],[3.75331,51.132725],[3.759691,51.135873],[3.760246,51.135415],[3.760634,51.135567],[3.761223,51.134841],[3.762677,51.135176],[3.763405,51.134279],[3.764028,51.134433],[3.764689,51.133342],[3.760589,51.135031],[3.752622,51.13068],[3.747599,51.126662],[3.74691,51.1273]]],[[[3.761594,51.138006],[3.762384,51.13837],[3.763206,51.137524],[3.762367,51.137188],[3.761594,51.138006]]],[[[3.791079,51.110159],[3.789436,51.109785],[3.787865,51.109876],[3.788035,51.109219],[3.786945,51.109033],[3.785589,51.110097],[3.784499,51.109882],[3.784781,51.109322],[3.781663,51.108647],[3.781467,51.109033],[3.779707,51.108678],[3.777908,51.109331],[3.77053,51.108607],[3.770699,51.10966],[3.769036,51.109805],[3.768777,51.109022],[3.767391,51.109275],[3.76741,51.109016],[3.766053,51.108857],[3.765638,51.108333],[3.763997,51.108308],[3.764818,51.107641],[3.762682,51.10712],[3.763515,51.107458],[3.763907,51.108884],[3.764709,51.109606],[3.767918,51.110082],[3.772236,51.109611],[3.772517,51.108927],[3.777851,51.109456],[3.778482,51.110003],[3.780701,51.109678],[3.782494,51.110366],[3.782876,51.109722],[3.786774,51.110662],[3.787009,51.110121],[3.7887,51.109932],[3.791689,51.11101],[3.792733,51.110646],[3.79339,51.111095],[3.795908,51.11102],[3.796396,51.111426],[3.797824,51.111493],[3.797933,51.111176],[3.800108,51.111385],[3.797761,51.111036],[3.798053,51.110505],[3.795805,51.109493],[3.793263,51.110824],[3.792781,51.110516],[3.791546,51.110627],[3.791079,51.110159]]],[[[3.767619,51.133353],[3.766735,51.132516],[3.765758,51.132897],[3.765912,51.133151],[3.767619,51.133353]]],[[[3.765974,51.134543],[3.76504,51.134445],[3.764827,51.134847],[3.765564,51.135231],[3.766,51.134605],[3.766944,51.13481],[3.767193,51.134272],[3.766239,51.134051],[3.765974,51.134543]]],[[[3.764448,51.178801],[3.763775,51.178782],[3.764124,51.180144],[3.76477,51.180091],[3.764448,51.178801]]],[[[3.769823,51.178939],[3.76871,51.178882],[3.76955,51.182124],[3.770607,51.182269],[3.769823,51.178939]]],[[[3.778396,51.181798],[3.778621,51.181103],[3.778856,51.179769],[3.778203,51.181729],[3.777326,51.182655],[3.77675,51.182425],[3.77708,51.182929],[3.778396,51.181798]]],[[[3.807596,51.184962],[3.809761,51.185194],[3.820096,51.188208],[3.823391,51.188101],[3.82462,51.189006],[3.826768,51.18843],[3.826596,51.186968],[3.825788,51.185987],[3.803629,51.182503],[3.803654,51.185836],[3.807596,51.184962]]],[[[3.780009,51.193282],[3.778447,51.192777],[3.77975,51.193564],[3.78205,51.193635],[3.784803,51.194316],[3.789036,51.193537],[3.790139,51.192054],[3.789774,51.191564],[3.784498,51.192118],[3.782871,51.191601],[3.782154,51.193104],[3.780009,51.193282]]]]}},{"type":"Feature","properties":{"__cat":"inclusion","id":"zr-intersection-6d9d15655f","operation":"intersection","areaKm2":1.170744607,"ruleIds":["FR-BEW-01"],"layers":["boskoppel-be"]},"geometry":{"type":"MultiPolygon","coordinates":[[[[3.762348,51.106601],[3.761354,51.106305],[3.761287,51.106336],[3.762348,51.106601]]],[[[3.762822,51.106815],[3.762378,51.106728],[3.762802,51.106859],[3.762822,51.106815]]],[[[3.730004,51.109102],[3.730004,51.109861],[3.730488,51.109328],[3.730004,51.109102]]],[[[3.734613,51.110377],[3.734037,51.110159],[3.732621,51.109985],[3.73421,51.110739],[3.734613,51.110377]]],[[[3.732393,51.111226],[3.734346,51.111421],[3.734508,51.111156],[3.731059,51.109595],[3.730004,51.110119],[3.732393,51.111226]]],[[[3.74691,51.1273],[3.748603,51.125698],[3.748946,51.125663],[3.745792,51.124538],[3.748137,51.12185],[3.747314,51.121221],[3.746057,51.12116],[3.742736,51.125359],[3.74691,51.1273]]],[[[3.748404,51.129029],[3.751448,51.13089],[3.753587,51.132576],[3.75331,51.132725],[3.759691,51.135873],[3.760246,51.135415],[3.760634,51.135567],[3.761223,51.134841],[3.762677,51.135176],[3.763405,51.134279],[3.764028,51.134433],[3.764689,51.133342],[3.760589,51.135031],[3.752622,51.13068],[3.747599,51.126662],[3.74691,51.1273],[3.747742,51.127755],[3.747202,51.128324],[3.747842,51.129288],[3.748404,51.129029]]],[[[3.762384,51.13837],[3.763206,51.137524],[3.762367,51.137188],[3.761594,51.138006],[3.762384,51.13837]]],[[[3.787865,51.109876],[3.788035,51.109219],[3.787475,51.109083],[3.786945,51.109033],[3.786581,51.109634],[3.78583,51.109619],[3.785589,51.110097],[3.784499,51.109882],[3.784781,51.109322],[3.781663,51.108647],[3.781467,51.109033],[3.779707,51.108678],[3.777908,51.109331],[3.77053,51.108607],[3.770699,51.10966],[3.769036,51.109805],[3.768777,51.109022],[3.767391,51.109275],[3.76741,51.109016],[3.766053,51.108857],[3.765638,51.108333],[3.763997,51.108308],[3.764818,51.107641],[3.762682,51.10712],[3.763515,51.107458],[3.763907,51.108884],[3.764709,51.109606],[3.767918,51.110082],[3.772236,51.109611],[3.772517,51.108927],[3.777851,51.109456],[3.778482,51.110003],[3.780701,51.109678],[3.782494,51.110366],[3.782876,51.109722],[3.786774,51.110662],[3.787009,51.110121],[3.7887,51.109932],[3.791689,51.11101],[3.792733,51.110646],[3.79339,51.111095],[3.795908,51.11102],[3.796396,51.111426],[3.797824,51.111493],[3.797933,51.111176],[3.800108,51.111385],[3.797761,51.111036],[3.798053,51.110505],[3.795805,51.109493],[3.793263,51.110824],[3.792781,51.110516],[3.791546,51.110627],[3.791079,51.110159],[3.789436,51.109785],[3.787865,51.109876]]],[[[3.766735,51.132516],[3.765912,51.133151],[3.767555,51.133491],[3.766735,51.132516]]],[[[3.766,51.134605],[3.766944,51.13481],[3.767193,51.134272],[3.766239,51.134051],[3.765974,51.134543],[3.76504,51.134445],[3.764827,51.134847],[3.765564,51.135231],[3.766,51.134605]]],[[[3.763775,51.178782],[3.764124,51.180144],[3.76477,51.180091],[3.764448,51.178801],[3.763775,51.178782]]],[[[3.76871,51.178882],[3.76955,51.182124],[3.770607,51.182269],[3.769823,51.178939],[3.76871,51.178882]]],[[[3.778856,51.179769],[3.777326,51.182655],[3.77675,51.182425],[3.77708,51.182929],[3.778396,51.181798],[3.778856,51.179769]]],[[[3.808906,51.185062],[3.820096,51.188208],[3.823391,51.188101],[3.82462,51.189006],[3.826768,51.18843],[3.826596,51.186968],[3.825788,51.185987],[3.803629,51.182503],[3.803654,51.185836],[3.805844,51.185195],[3.808906,51.185062]]],[[[3.78205,51.193635],[3.784803,51.194316],[3.789036,51.193537],[3.790139,51.192054],[3.789774,51.191564],[3.784498,51.192118],[3.782871,51.191601],[3.781817,51.193271],[3.780304,51.193354],[3.778447,51.192777],[3.77975,51.193564],[3.78205,51.193635]]]]}},{"type":"Feature","properties":{"__cat":"exclusion","id":"zr-difference-c98d63e0f5","operation":"difference","areaKm2":1.170744607,"ruleIds":["FR-BEW-02"],"layers":["grensgebied-be","national_source"]},"geometry":{"type":"MultiPolygon","coordinates":[[[[3.762348,51.106601],[3.761354,51.106305],[3.761287,51.106336],[3.762348,51.106601]]],[[[3.762822,51.106815],[3.762414,51.106776],[3.762802,51.106859],[3.762822,51.106815]]],[[[3.730488,51.109328],[3.730004,51.109102],[3.730004,51.109861],[3.730488,51.109328]]],[[[3.73421,51.110739],[3.734476,51.110292],[3.732621,51.109985],[3.73421,51.110739]]],[[[3.73189,51.11117],[3.734346,51.111421],[3.734508,51.111156],[3.731059,51.109595],[3.730004,51.110119],[3.73189,51.11117]]],[[[3.745792,51.124538],[3.748137,51.12185],[3.747314,51.121221],[3.746057,51.12116],[3.742736,51.125359],[3.74691,51.1273],[3.748603,51.125698],[3.748946,51.125663],[3.745792,51.124538]]],[[[3.748404,51.129029],[3.753587,51.132576],[3.75331,51.132725],[3.759691,51.135873],[3.760246,51.135415],[3.760634,51.135567],[3.761223,51.134841],[3.762677,51.135176],[3.764627,51.133597],[3.764689,51.133342],[3.760589,51.135031],[3.752622,51.13068],[3.747599,51.126662],[3.74691,51.1273],[3.747742,51.127755],[3.747202,51.128324],[3.747842,51.129288],[3.748404,51.129029]]],[[[3.763206,51.137524],[3.762367,51.137188],[3.761594,51.138006],[3.762384,51.13837],[3.763206,51.137524]]],[[[3.786913,51.109153],[3.785589,51.110097],[3.784499,51.109882],[3.784781,51.109322],[3.781663,51.108647],[3.781467,51.109033],[3.779707,51.108678],[3.777908,51.109331],[3.77053,51.108607],[3.770699,51.10966],[3.769036,51.109805],[3.768777,51.109022],[3.767391,51.109275],[3.76741,51.109016],[3.766053,51.108857],[3.765638,51.108333],[3.763997,51.108308],[3.764818,51.107641],[3.762682,51.10712],[3.763515,51.107458],[3.763907,51.108884],[3.764709,51.109606],[3.767918,51.110082],[3.772236,51.109611],[3.772517,51.108927],[3.777851,51.109456],[3.778482,51.110003],[3.780701,51.109678],[3.782494,51.110366],[3.782876,51.109722],[3.786774,51.110662],[3.787009,51.110121],[3.7887,51.109932],[3.791689,51.11101],[3.792733,51.110646],[3.79339,51.111095],[3.795908,51.11102],[3.796396,51.111426],[3.797824,51.111493],[3.797933,51.111176],[3.800108,51.111385],[3.797761,51.111036],[3.798053,51.110505],[3.795805,51.109493],[3.793263,51.110824],[3.792781,51.110516],[3.791546,51.110627],[3.791079,51.110159],[3.789436,51.109785],[3.787865,51.109876],[3.788035,51.109219],[3.786913,51.109153]]],[[[3.767619,51.133353],[3.766735,51.132516],[3.765758,51.132897],[3.765912,51.133151],[3.767619,51.133353]]],[[[3.76504,51.134445],[3.764827,51.134847],[3.765564,51.135231],[3.766,51.134605],[3.766944,51.13481],[3.767193,51.134272],[3.766239,51.134051],[3.765974,51.134543],[3.76504,51.134445]]],[[[3.764124,51.180144],[3.76477,51.180091],[3.764448,51.178801],[3.763775,51.178782],[3.764124,51.180144]]],[[[3.76955,51.182124],[3.770607,51.182269],[3.769823,51.178939],[3.76871,51.178882],[3.76955,51.182124]]],[[[3.776953,51.182861],[3.777509,51.182728],[3.778396,51.181798],[3.778856,51.179769],[3.778203,51.181729],[3.777326,51.182655],[3.77675,51.182425],[3.776953,51.182861]]],[[[3.818595,51.187905],[3.823391,51.188101],[3.82462,51.189006],[3.826768,51.18843],[3.826596,51.186968],[3.825788,51.185987],[3.803629,51.182503],[3.803654,51.185836],[3.805844,51.185195],[3.808906,51.185062],[3.818595,51.187905]]],[[[3.784803,51.194316],[3.789036,51.193537],[3.790139,51.192054],[3.789774,51.191564],[3.784498,51.192118],[3.782871,51.191601],[3.782238,51.193008],[3.781532,51.193345],[3.780304,51.193354],[3.778447,51.192777],[3.77975,51.193564],[3.78205,51.193635],[3.784803,51.194316]]]]}},{"type":"Feature","properties":{"__cat":"final","id":"zr-final-e707dae068","operation":"final","areaKm2":1.170744607,"ruleIds":["FR-BEW-01","FR-BEW-02"],"layers":["boskoppel-be","grensgebied-be","national_source"]},"geometry":{"type":"MultiPolygon","coordinates":[[[[3.762348,51.106601],[3.761354,51.106305],[3.761287,51.106336],[3.762348,51.106601]]],[[[3.762822,51.106815],[3.762414,51.106776],[3.762802,51.106859],[3.762822,51.106815]]],[[[3.730488,51.109328],[3.730004,51.109102],[3.730004,51.109861],[3.730488,51.109328]]],[[[3.73421,51.110739],[3.734476,51.110292],[3.732621,51.109985],[3.73421,51.110739]]],[[[3.73189,51.11117],[3.734346,51.111421],[3.734508,51.111156],[3.731059,51.109595],[3.730004,51.110119],[3.73189,51.11117]]],[[[3.745792,51.124538],[3.748137,51.12185],[3.747314,51.121221],[3.746057,51.12116],[3.742736,51.125359],[3.74691,51.1273],[3.748603,51.125698],[3.748946,51.125663],[3.745792,51.124538]]],[[[3.748404,51.129029],[3.753587,51.132576],[3.75331,51.132725],[3.759691,51.135873],[3.760246,51.135415],[3.760634,51.135567],[3.761223,51.134841],[3.762677,51.135176],[3.764627,51.133597],[3.764689,51.133342],[3.760589,51.135031],[3.752622,51.13068],[3.747599,51.126662],[3.74691,51.1273],[3.747742,51.127755],[3.747202,51.128324],[3.747842,51.129288],[3.748404,51.129029]]],[[[3.763206,51.137524],[3.762367,51.137188],[3.761594,51.138006],[3.762384,51.13837],[3.763206,51.137524]]],[[[3.786913,51.109153],[3.785589,51.110097],[3.784499,51.109882],[3.784781,51.109322],[3.781663,51.108647],[3.781467,51.109033],[3.779707,51.108678],[3.777908,51.109331],[3.77053,51.108607],[3.770699,51.10966],[3.769036,51.109805],[3.768777,51.109022],[3.767391,51.109275],[3.76741,51.109016],[3.766053,51.108857],[3.765638,51.108333],[3.763997,51.108308],[3.764818,51.107641],[3.762682,51.10712],[3.763515,51.107458],[3.763907,51.108884],[3.764709,51.109606],[3.767918,51.110082],[3.772236,51.109611],[3.772517,51.108927],[3.777851,51.109456],[3.778482,51.110003],[3.780701,51.109678],[3.782494,51.110366],[3.782876,51.109722],[3.786774,51.110662],[3.787009,51.110121],[3.7887,51.109932],[3.791689,51.11101],[3.792733,51.110646],[3.79339,51.111095],[3.795908,51.11102],[3.796396,51.111426],[3.797824,51.111493],[3.797933,51.111176],[3.800108,51.111385],[3.797761,51.111036],[3.798053,51.110505],[3.795805,51.109493],[3.793263,51.110824],[3.792781,51.110516],[3.791546,51.110627],[3.791079,51.110159],[3.789436,51.109785],[3.787865,51.109876],[3.788035,51.109219],[3.786913,51.109153]]],[[[3.767619,51.133353],[3.766735,51.132516],[3.765758,51.132897],[3.765912,51.133151],[3.767619,51.133353]]],[[[3.76504,51.134445],[3.764827,51.134847],[3.765564,51.135231],[3.766,51.134605],[3.766944,51.13481],[3.767193,51.134272],[3.766239,51.134051],[3.765974,51.134543],[3.76504,51.134445]]],[[[3.764124,51.180144],[3.76477,51.180091],[3.764448,51.178801],[3.763775,51.178782],[3.764124,51.180144]]],[[[3.76955,51.182124],[3.770607,51.182269],[3.769823,51.178939],[3.76871,51.178882],[3.76955,51.182124]]],[[[3.776953,51.182861],[3.777509,51.182728],[3.778396,51.181798],[3.778856,51.179769],[3.778203,51.181729],[3.777326,51.182655],[3.77675,51.182425],[3.776953,51.182861]]],[[[3.818595,51.187905],[3.823391,51.188101],[3.82462,51.189006],[3.826768,51.18843],[3.826596,51.186968],[3.825788,51.185987],[3.803629,51.182503],[3.803654,51.185836],[3.805844,51.185195],[3.808906,51.185062],[3.818595,51.187905]]],[[[3.784803,51.194316],[3.789036,51.193537],[3.790139,51.192054],[3.789774,51.191564],[3.784498,51.192118],[3.782871,51.191601],[3.782238,51.193008],[3.781532,51.193345],[3.780304,51.193354],[3.778447,51.192777],[3.77975,51.193564],[3.78205,51.193635],[3.784803,51.194316]]]]}}]}</script>
+<script type="application/json" id="aoi-data">{"type":"Polygon","coordinates":[[[3.7299999999880065,51.02000000325202],[3.880000000139781,51.02000000325509],[3.880000000165482,51.48000000357084],[3.7300000000144844,51.480000003567625],[3.7299999999880065,51.02000000325202]]]}</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+(function () {
+  var mapEl = document.getElementById('map');
+  if (typeof L === 'undefined') {
+    mapEl.innerHTML = '<div style="padding:24px;color:#8a857a;font-size:14px">' +
+      'Leaflet could not be loaded (CDN unreachable). The zone tables below carry the same information; ' +
+      'open this file with internet access to render the interactive map.</div>';
+    mapEl.style.height = 'auto';
+    return;
+  }
+  var zones = JSON.parse(document.getElementById('zones-data').textContent);
+  var aoi = JSON.parse(document.getElementById('aoi-data').textContent);
+
+  var bounds = L.latLngBounds([[51.02000000325202, 3.722035], [51.48000000357084, 3.880000000165482]]);
+  var map = L.map('map').fitBounds(bounds.pad(0.06));
+
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  var base = { 'OSM (CDN)': L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {maxZoom:18}) };
+
+  function cat(f) { return f.properties.__cat; }
+  var styles = {
+    final:       {color: '#2e7d32', weight: 2.2, fillColor: '#66bb6a', fillOpacity: 0.30},
+    inclusion:   {color: '#ff8205', weight: 2.0, fillColor: '#64b5f6', fillOpacity: 0.22},
+    exclusion:   {color: '#ff8205', weight: 1.6, fillColor: '#ffb74d', fillOpacity: 0.14, dashArray: '6 4'},
+    marker:      {color: '#6a1b9a', weight: 1.6, fillColor: '#ce93d8', fillOpacity: 0.14, dashArray: '3 5'}
+  };
+  var labels = {
+    final: 'Final opportunity zone', inclusion: 'Inclusion (designated zones \u2229 AOI)',
+    exclusion: 'After exclusion step (cumulative)', marker: 'Attention / conditional / compensation markers'
+  };
+  var overlays = {};
+  ['final', 'inclusion', 'exclusion', 'marker'].forEach(function (c) {
+    var feats = zones.features.filter(function (f) { return cat(f) === c; });
+    if (!feats.length) return;
+    var g = L.geoJSON({type: 'FeatureCollection', features: feats}, {
+      style: function () { return styles[c]; },
+      onEachFeature: function (f, layer) {
+        var p = f.properties;
+        layer.bindPopup('<b>' + p.id + '</b><br>op: ' + p.operation +
+          '<br>area: ' + p.areaKm2 + ' km\u00b2<br>rules: ' + (p.ruleIds || []).join(', ') +
+          '<br>layers: ' + (p.layers || []).join(', '));
+      }
+    });
+    if (c === 'final' || c === 'inclusion') g.addTo(map);
+    overlays[labels[c]] = g;
+  });
+  if (aoi) {
+    overlays['AOI (province boundary)'] = L.geoJSON(aoi, {
+      style: {color: '#000', weight: 2.4, fill: false, dashArray: '9 6'}
+    }).addTo(map);
+  }
+  L.control.layers(base, overlays, {collapsed: false}).addTo(map);
+})();
+</script>
+</body>
+</html>

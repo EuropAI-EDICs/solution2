@@ -1,0 +1,86 @@
+{
+ "id": "SR-20261016T151056Z-recreatie-nl-20261017T063352Z",
+ "scenarioSetId": "SSET-recreatie-nl-nspd-fase3",
+ "baselineRunId": "20261016T151056Z-recreatie-nl",
+ "requestId": "b887867f-3f96-5759-88d7-501741cc0765",
+ "objectType": "recreation_development",
+ "generatedAt": "2026-10-17T06:33:52Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 15.882739639,
+  "inclusionIntersectAoiKm2": 15.882739639,
+  "baselineFinalAreaKm2": 15.882739639,
+  "baselineInclusionKm2": 15.882739639,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-REC-NL-BADPLAATSEN-DROP",
+   "name": "Badplaatsenbeleid losgelaten (NL)",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-REC-01",
+    "provenanceNote": "NC-REC-01 beperkt nieuwe/uitgebreide toeristische overnachtingslocaties tot de aangewezen badplaatsen; loslaten is de beleidsassumptie."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-REC-01",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 0,
+   "rulesExecuted": 0,
+   "finalAreaKm2": 1000.606325351,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": 984.723585712,
+   "deltaVsControlPct": 6199.960511,
+   "iouVsControl": 0.015873163,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-REC-NL-BADPLAATSEN-DROP.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-REC-NL-BADPLAATSEN-BUF500",
+   "name": "Badplaatsen verbreed met 500 m (NL)",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-REC-01",
+    "variedAspect": "inclusion-zone verbreed met 500 m",
+    "provenanceNote": "NC-REC-01 kent geen afstandseis; exploratie."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-REC-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500.0,
+     "note": "bufferDistanceM None -> 500.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 30.577217887,
+   "inclusionIntersectAoiKm2": 30.577217887,
+   "deltaVsControlKm2": 14.694478248,
+   "deltaVsControlPct": 92.518536,
+   "iouVsControl": 0.519432737,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-REC-NL-BADPLAATSEN-BUF500.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

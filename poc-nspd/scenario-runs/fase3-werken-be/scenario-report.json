@@ -1,0 +1,114 @@
+{
+ "id": "SR-20261016T150837Z-werken-be-20261017T063358Z",
+ "scenarioSetId": "SSET-werken-be-nspd-fase3",
+ "baselineRunId": "20261016T150837Z-werken-be",
+ "requestId": "1be48754-5db8-5188-86c1-266742b5cd3e",
+ "objectType": "business_development",
+ "generatedAt": "2026-10-17T06:33:58Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 0.411713206,
+  "inclusionIntersectAoiKm2": 0.411713206,
+  "baselineFinalAreaKm2": 0.411713206,
+  "baselineInclusionKm2": 0.411713206,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-WER-BE-ZEEHAVEN-DROP",
+   "name": "Zeehavenbedrijven-zone losgelaten (BE)",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-WER-01",
+    "provenanceNote": "NC-WER-01 (GRUP fase 2, art. 13) wijst het gebied voor zeehaven- en watergebonden bedrijven aan; loslaten is de assumptie."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-WER-01",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 0.030533692,
+   "inclusionIntersectAoiKm2": 0.030533692,
+   "deltaVsControlKm2": -0.381179514,
+   "deltaVsControlPct": -92.583747,
+   "iouVsControl": 0.074194304,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WER-BE-ZEEHAVEN-DROP.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-WER-BE-PAPIER-DROP",
+   "name": "Papierproducent-zone losgelaten (BE)",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-WER-02",
+    "provenanceNote": "NC-WER-02 (GRUP papierproducent, art. 1) wijst de zone exclusief aan voor het papierbedrijf en aanverwanten; loslaten is de assumptie."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-WER-02",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 0.381179513,
+   "inclusionIntersectAoiKm2": 0.381179513,
+   "deltaVsControlKm2": -0.030533693,
+   "deltaVsControlPct": -7.416253,
+   "iouVsControl": 0.925805696,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WER-BE-PAPIER-DROP.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-WER-BE-ZEEHAVEN-BUF500",
+   "name": "Zeehavenbedrijven-zone verbreed met 500 m (BE)",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-WER-01",
+    "variedAspect": "inclusion-zone verbreed met 500 m",
+    "provenanceNote": "NC-WER-01 kent geen afstandseis; exploratie."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-WER-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500.0,
+     "note": "bufferDistanceM None -> 500.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 2,
+   "rulesExecuted": 2,
+   "finalAreaKm2": 3.416719829,
+   "inclusionIntersectAoiKm2": 3.416719829,
+   "deltaVsControlKm2": 3.005006623,
+   "deltaVsControlPct": 729.878609,
+   "iouVsControl": 0.120496154,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WER-BE-ZEEHAVEN-BUF500.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

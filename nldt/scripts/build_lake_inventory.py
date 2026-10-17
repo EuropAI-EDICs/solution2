@@ -19,6 +19,7 @@ POC_MAP = {
     "breda": WORKSPACE / "poc-breda",
     "eindhoven": WORKSPACE / "poc-bp2op",
     "rijnland": WORKSPACE / "poc-rijnland",
+    "nspd": WORKSPACE / "poc-nspd",
     "donl": NLDT_ROOT / "data" / "lake" / "nldt-poc-lake",
 }
 
@@ -287,6 +288,114 @@ def invent_rijnland() -> list[dict[str, Any]]:
     return items
 
 
+def invent_nspd() -> list[dict[str, Any]]:
+    """poc-nspd (North Sea Port District, NL+BE): registry, dual-CRS lagen, PDOK-bronze, runs."""
+    root = POC_MAP["nspd"]
+    items: list[dict[str, Any]] = []
+    sources_path = root / "data" / "sources.json"
+    registry: dict[str, dict[str, Any]] = {}
+    if sources_path.is_file():
+        items.append(_entry(
+            poc="nspd", zone="silver", kind="manifest",
+            local_path=sources_path,
+            lake_key="silver/nspd/meta/sources.json",
+            license_="open-government",
+        ))
+        data = json.loads(sources_path.read_text(encoding="utf-8"))
+        registry = {s.get("id"): s for s in data.get("sources", []) if s.get("id")}
+    cache = root / "data" / "cache"
+    if cache.is_dir():
+        for p in sorted(cache.rglob("*.geojson")):
+            crs = "EPSG:28992" if ".28992." in p.name else ("EPSG:4326" if ".4326." in p.name else None)
+            sid = p.name.split(".")[0]
+            rel = p.relative_to(cache).as_posix()
+            src = registry.get(sid) or {}
+            e = _entry(
+                poc="nspd", zone="silver", kind="layer",
+                local_path=p,
+                lake_key=f"silver/nspd/geo/{rel}",
+                source_id=sid, crs=crs,
+                license_=src.get("licenseNote") or "open-government",
+            )
+            if src:
+                e["role"] = src.get("role")
+                e["tracks"] = src.get("tracks")
+                e["jurisdictie"] = src.get("jurisdictie")
+                e["serviceUrl"] = src.get("serviceUrl")
+            items.append(e)
+        # national/ en be/ context-caches (properties-only json) tellen als silver
+        for p in sorted(cache.rglob("*.json")):
+            rel = p.relative_to(cache).as_posix()
+            items.append(_entry(
+                poc="nspd", zone="silver", kind="context-cache",
+                local_path=p,
+                lake_key=f"silver/nspd/geo/{rel}",
+                license_="open-government",
+            ))
+    bronze = root / "data" / "bronze"
+    if bronze.is_dir():
+        for manifest in sorted(bronze.glob("pdok/*/*/manifest.json")):
+            snap = manifest.parent
+            sid = snap.parent.name
+            try:
+                meta = json.loads(manifest.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                meta = {}
+            e = _entry(
+                poc="nspd", zone="bronze", kind="pdok-ogcapi-pages",
+                local_path=snap,
+                lake_key=f"bronze/nspd/pdok/{sid}/{snap.name}/",
+                source_id=sid, license_="PDOK open data",
+            )
+            e["retrievedAt"] = meta.get("retrievedAt")
+            e["serviceUrl"] = meta.get("serviceUrl")
+            e["collection"] = meta.get("collection")
+            e["pageCount"] = len(meta.get("pages") or [])
+            items.append(e)
+        for idx in sorted(bronze.glob("pdok-catalog/*/index.json")):
+            items.append(_entry(
+                poc="nspd", zone="bronze", kind="pdok-catalog-snapshot",
+                local_path=idx,
+                lake_key=f"bronze/nspd/pdok-catalog/{idx.parent.name}/index.json",
+                source_id="api.pdok.nl", license_="PDOK open data",
+            ))
+    corpus = root / "corpus"
+    if corpus.is_dir():
+        for p in sorted(corpus.glob("*.json")):
+            items.append(_entry(
+                poc="nspd", zone="silver", kind="corpus",
+                local_path=p,
+                lake_key=f"silver/nspd/corpus/{p.name}",
+                license_="public-regulation-snapshot",
+            ))
+    scen_sets = root / "scenarios"
+    if scen_sets.is_dir():
+        # geauthoreerde what-if-sets (ScenarioSpec-contract; add_zone_rule op PDOK-aliassen)
+        for p in sorted(scen_sets.glob("*.json")):
+            items.append(_entry(
+                poc="nspd", zone="silver", kind="scenario-set",
+                local_path=p,
+                lake_key=f"silver/nspd/scenarios/{p.name}",
+                license_="open-government",
+            ))
+    for run_root, run_type in (
+        (root / "runs", "run"),
+        (root / "xborder-runs", "xborder"),
+        (root / "scenario-runs", "scenario"),
+    ):
+        if not run_root.is_dir():
+            continue
+        for d in sorted(run_root.iterdir()):
+            if d.is_dir():
+                items.append(_entry(
+                    poc="nspd", zone="gold", kind="run",
+                    local_path=d,
+                    lake_key=f"gold/nspd/{run_type}/{d.name}/",
+                    run_type=run_type, license_="open-government",
+                ))
+    return items
+
+
 def invent_donl() -> list[dict[str, Any]]:
     """Inventory DONL harvest artifacts under the local lake mirror."""
     lake_root = POC_MAP["donl"]
@@ -296,14 +405,19 @@ def invent_donl() -> list[dict[str, Any]]:
         for p in sorted(cat_dir.glob("*.json")):
             dataset_id = p.stem
             key = f"catalog/dcat/{p.name}"
+            try:
+                rec = json.loads(p.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                rec = {}
+            # DCAT-records van andere harvesters (PDOK → nspd) dragen hun eigen poc/bron
             items.append(_entry(
-                poc="donl",
+                poc=str(rec.get("nldt:poc") or "donl"),
                 zone="catalog",
                 kind="dcat-dataset",
                 local_path=p,
                 lake_key=key,
-                source_id="data.overheid.nl",
-                license_="http://creativecommons.org/publicdomain/zero/1.0/",
+                source_id=str(rec.get("nldt:hadPrimarySource") or "data.overheid.nl"),
+                license_=str(rec.get("dcterms:license") or "http://creativecommons.org/publicdomain/zero/1.0/"),
             ))
     svc_dir = lake_root / "silver" / "donl" / "services"
     if svc_dir.is_dir():
@@ -416,6 +530,7 @@ def main() -> int:
         + invent_breda()
         + invent_eindhoven()
         + invent_rijnland()
+        + invent_nspd()
         + invent_donl()
         + invent_timeseries()
     )

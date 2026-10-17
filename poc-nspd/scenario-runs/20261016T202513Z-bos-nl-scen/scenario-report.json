@@ -1,0 +1,127 @@
+{
+ "id": "SR-20261016T151051Z-bos-nl-20261016T202513Z",
+ "scenarioSetId": "SSET-bos-nl-pdok",
+ "baselineRunId": "20261016T151051Z-bos-nl",
+ "requestId": "58963a95-aa8a-52ff-a4ec-9ff788d62e16",
+ "objectType": "forest_planting",
+ "generatedAt": "2026-10-16T20:25:21Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 1000.606325351,
+  "inclusionIntersectAoiKm2": 1000.606325351,
+  "baselineFinalAreaKm2": 1000.606325351,
+  "baselineInclusionKm2": 1000.606325351,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true,
+  "h3": {
+   "resolution": 8,
+   "cellCount": 1586,
+   "moransI": 0.060004916,
+   "pValue": 0.005,
+   "cellsGainedVsControl": null,
+   "cellsLostVsControl": null
+  }
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-BOS-NL-ZONDER-WETLANDS",
+   "name": "Buiten Ramsar-wetlands (NL)",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: Ramsar-gebieden zijn internationaal beschermd water- en vogelgebied; het is hier geometrische verkenning naast de Natura 2000-toets die deze track (nog) niet op de AOI-brede baseline uitvoert.",
+    "provenanceNote": "Fictieve toestand: geen citatie — verkenning, geen verbodszone.",
+    "dataGrounding": {
+     "sourceId": "pdok-wetlands",
+     "retrieved": "2026-10-16",
+     "note": "Wetlands (Ramsar), 15 vlakken binnen de bbox; fetch 2026-10-16."
+    }
+   },
+   "proposedBy": "curator#poc-nspd-pdok-20261016",
+   "mutationsApplied": [
+    {
+     "ruleId": "HYP-BOS-GEEN-WETLANDS",
+     "action": "add_zone_rule",
+     "zoneId": "wetlands-nl",
+     "zoneSemantics": "exclusion",
+     "note": "scenario mutation add_zone_rule: exclusion over alias wetlands-nl"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 2,
+   "rulesExecuted": 2,
+   "finalAreaKm2": 853.225698889,
+   "inclusionIntersectAoiKm2": 1000.606325351,
+   "deltaVsControlKm2": -147.380626462,
+   "deltaVsControlPct": -14.729132,
+   "iouVsControl": 0.852707565,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-BOS-NL-ZONDER-WETLANDS.geojson",
+   "status": "ok",
+   "h3": {
+    "resolution": 8,
+    "cellCount": 1353,
+    "moransI": 0.117176813,
+    "pValue": 0.005,
+    "cellsGainedVsControl": 0,
+    "cellsLostVsControl": 233
+   }
+  },
+  {
+   "scenarioId": "SC-BOS-NL-ALLEEN-CDDA",
+   "name": "Alleen binnen nationaal beschermde gebieden (NL)",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: CDDA-afdekking is geen aanplantnorm; het scenario toont alleen hoeveel vlak binnen bestaande beschermingslagen ligt.",
+    "provenanceNote": "Fictieve toestand: geen citatie — verkenning, geen inclusionsnorm.",
+    "dataGrounding": {
+     "sourceId": "pdok-cdda",
+     "retrieved": "2026-10-16",
+     "note": "Nationaal Beschermde Gebieden (CDDA), 10.699 vlakken binnen de bbox; fetch 2026-10-16."
+    }
+   },
+   "proposedBy": "curator#poc-nspd-pdok-20261016",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-AOI-01",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    },
+    {
+     "ruleId": "HYP-BOS-BINNEN-CDDA",
+     "action": "add_zone_rule",
+     "zoneId": "cdda-nl",
+     "zoneSemantics": "inclusion",
+     "note": "scenario mutation add_zone_rule: inclusion over alias cdda-nl"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 171.496976742,
+   "inclusionIntersectAoiKm2": 171.496976742,
+   "deltaVsControlKm2": -829.109348609,
+   "deltaVsControlPct": -82.860694,
+   "iouVsControl": 0.17139219,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-BOS-NL-ALLEEN-CDDA.geojson",
+   "status": "ok",
+   "h3": {
+    "resolution": 8,
+    "cellCount": 240,
+    "moransI": 0.279036977,
+    "pValue": 0.005,
+    "cellsGainedVsControl": 0,
+    "cellsLostVsControl": 1346
+   }
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

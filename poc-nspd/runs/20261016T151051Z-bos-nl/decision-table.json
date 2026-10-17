@@ -1,0 +1,56 @@
+{
+ "id": "DT-bos-nl-nspd",
+ "requestId": "58963a95-aa8a-52ff-a4ec-9ff788d62e16",
+ "title": "Where can forest planting occur in the Dutch part of the NSPD? Decision table (programming stage)",
+ "columns": [
+  "criterion",
+  "norm",
+  "source",
+  "zone effect",
+  "ruleId",
+  "normCardId",
+  "condition",
+  "note"
+ ],
+ "rows": [
+  {
+   "criterion": "Chapter 14 rules serve nature conservation, maintenance of the forested area in Zeeland and protection of landscape values (stated objective)..",
+   "norm": "Artikel 14.2 — Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden) [interpretive]",
+   "source": "S01: https://lokaleregelgeving.overheid.nl/CVDR709135",
+   "zone effect": "ambiguous",
+   "normCardId": "NC-BOS-01",
+   "ruleId": "FR-BOS-01",
+   "note": "Oogmerk-artikel: doelbepaling, geen executabele norm; aandachtmarker. Zone-loos gedocumenteerd; routeert naar V4."
+  },
+  {
+   "criterion": "The national felling-notification prohibition does not apply to rejuvenation gaps up to 1.5x tree height and jointly max 10% of the forest complex, and only after earlie…",
+   "norm": "Artikel 14.4 — Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden) [binding]",
+   "source": "S01: https://lokaleregelgeving.overheid.nl/CVDR709135",
+   "zone effect": "ambiguous",
+   "normCardId": "NC-BOS-02",
+   "ruleId": "FR-BOS-02",
+   "note": "Uitzondering op meldplicht vellen; numeriek conditioneel, zone-loos. Zone-loos gedocumenteerd; routeert naar V4."
+  },
+  {
+   "criterion": "Replanting must be silviculturally sound: replanted area at least equal to the felled area, closed canopy within ten years and demonstrable growth within three years..",
+   "norm": "Artikel 14.5 — Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden) [binding]",
+   "source": "S01: https://lokaleregelgeving.overheid.nl/CVDR709135",
+   "zone effect": "ambiguous",
+   "normCardId": "NC-BOS-03",
+   "ruleId": "FR-BOS-03",
+   "note": "Herbeplantingseisen: kwaliteitsnormen voor nieuwe beplanting; kernnorm voor forest planting. Zone-loos gedocumenteerd; routeert naar V4."
+  },
+  {
+   "criterion": "orchestrator-basis: request-AOI (constructie, geen norm)",
+   "norm": "run.py orchestrator FR-AOI-01 — geen rechtsbron [uitvoeringsconstructie]",
+   "source": "use-cases/bos-nl.json (bbox.py NSPD_BBOX_WGS84, EPSG:28992); geen document",
+   "zone effect": "included",
+   "normCardId": "NC-BOS-01",
+   "ruleId": "FR-AOI-01",
+   "note": "included (aoi-basis) — geen bijgaande kaart geciteerd: geen inclusion-regel in deze shard is executabel (zone-loos, V4). Taak-9-zone-semantiek: de inclusion-regels van deze track/jurisdictie (geen) zijn zone-loos naar V4 gerouteerd; de run gebruikt de request-AOI als inclusion-union (run_summary.inclusionBasis=aoi) zodat V4-markers en exclusions op een gedefinieerd werkvlak worden uitgevoerd. Deze regel is een uitvoeringsconstructie van de orchestrator, geen inhoudelijke norm."
+  }
+ ],
+ "generatedBy": "explainer#deterministic-poc1",
+ "generatedAt": "2026-10-16T15:10:52Z",
+ "provenance": "run 20261016T151051Z-bos-nl of poc-nspd-run/1.0; curated norm corpus poc-nspd/corpus/normcards-nl-bos.json (taak 6/7: curator#poc-nspd-fase2-t3) with formal rules poc-nspd/corpus/formal-rules-nl-bos.json (norm-formalizer#poc-nspd-fase2-t3, run-orchestrator#poc-nspd-task9-aoi-basis); instrument Omgevingsverordening provincie Zeeland, CVDR709135 geldend 02-06-2026 t/m heden; zone geometry from pinned national open-data aliases (ZONE_SOURCES), lastChecked stamps in layers.json; V2b jurisdictie-gate pass; full PROV in prov.json"
+}

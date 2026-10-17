@@ -1,0 +1,86 @@
+{
+ "id": "SR-20261016T150845Z-recreatie-be-20261017T063352Z",
+ "scenarioSetId": "SSET-recreatie-be-nspd-fase3",
+ "baselineRunId": "20261016T150845Z-recreatie-be",
+ "requestId": "90bff7d5-9185-5bc3-b1d9-c9993e03637e",
+ "objectType": "recreation_development",
+ "generatedAt": "2026-10-17T06:33:52Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 0.002714592,
+  "inclusionIntersectAoiKm2": 0.002714592,
+  "baselineFinalAreaKm2": 0.002714592,
+  "baselineInclusionKm2": 0.002714592,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-REC-BE-RECGEB-DROP",
+   "name": "Recreatiegebied losgelaten (BE)",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-REC-01",
+    "provenanceNote": "NC-REC-01 (GRUP fase 2, art. 12) wijst het recreatiegebied aan; loslaten is de assumptie."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-REC-01",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 0,
+   "rulesExecuted": 0,
+   "finalAreaKm2": 536.016910903,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": 536.014196311,
+   "deltaVsControlPct": 19745663.30082,
+   "iouVsControl": 5.063e-06,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-REC-BE-RECGEB-DROP.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-REC-BE-RECGEB-BUF500",
+   "name": "Recreatiegebied verbreed met 500 m (BE)",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-REC-01",
+    "variedAspect": "inclusion-zone verbreed met 500 m",
+    "provenanceNote": "NC-REC-01 kent geen afstandseis; exploratie."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-REC-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500.0,
+     "note": "bufferDistanceM None -> 500.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 0.891182247,
+   "inclusionIntersectAoiKm2": 0.891182247,
+   "deltaVsControlKm2": 0.888467655,
+   "deltaVsControlPct": 32729.325622,
+   "iouVsControl": 0.003045439,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-REC-BE-RECGEB-BUF500.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

@@ -1,0 +1,127 @@
+{
+ "id": "SR-20261016T151054Z-landbouw-nl-20261016T202434Z",
+ "scenarioSetId": "SSET-landbouw-nl-pdok",
+ "baselineRunId": "20261016T151054Z-landbouw-nl",
+ "requestId": "2a92fcb9-8afc-5c63-850d-4992fbd7dafd",
+ "objectType": "agricultural_expansion",
+ "generatedAt": "2026-10-16T20:25:12Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 1000.606325351,
+  "inclusionIntersectAoiKm2": 1000.606325351,
+  "baselineFinalAreaKm2": 1000.606325351,
+  "baselineInclusionKm2": 1000.606325351,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true,
+  "h3": {
+   "resolution": 8,
+   "cellCount": 1586,
+   "moransI": 0.060004916,
+   "pValue": 0.005,
+   "cellsGainedVsControl": null,
+   "cellsLostVsControl": null
+  }
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-LNB-NL-ALLEEN-GEWASPERCELEN",
+   "name": "Alleen binnen BRP-gewaspercelen (NL)",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: BRP-gewaspercelen zijn het bestands-agrarische vlak; het is géén planologische bestemming en dus alleen als what-if-operand bruikbaar.",
+    "provenanceNote": "Fictieve toestand: geen citatie — het percelenvlak is verkenning van de actuele situatie, geen inclusionsnorm.",
+    "dataGrounding": {
+     "sourceId": "pdok-brp-gewaspercelen",
+     "retrieved": "2026-10-16",
+     "note": "BRP Gewaspercelen (brpgewas, gewas/gewascode/category, jaar 2025); cache pdok-brp-gewaspercelen, 25 pagina's, fetch 2026-10-16."
+    }
+   },
+   "proposedBy": "curator#poc-nspd-pdok-20261016",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-AOI-01",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    },
+    {
+     "ruleId": "HYP-LNB-GEWASPERCELEN",
+     "action": "add_zone_rule",
+     "zoneId": "gewaspercelen-nl",
+     "zoneSemantics": "inclusion",
+     "note": "scenario mutation add_zone_rule: inclusion over alias gewaspercelen-nl"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 201.253609281,
+   "inclusionIntersectAoiKm2": 201.253609281,
+   "deltaVsControlKm2": -799.35271607,
+   "deltaVsControlPct": -79.886834,
+   "iouVsControl": 0.201129103,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-LNB-NL-ALLEEN-GEWASPERCELEN.geojson",
+   "status": "ok",
+   "h3": {
+    "resolution": 8,
+    "cellCount": 307,
+    "moransI": 0.226686579,
+    "pValue": 0.005,
+    "cellsGainedVsControl": 0,
+    "cellsLostVsControl": 1279
+   }
+  },
+  {
+   "scenarioId": "SC-LNB-NL-BUITEN-CDDA",
+   "name": "Buiten nationaal beschermde gebieden (NL)",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: CDDA is de internationale rapportagelijst van beschermde gebieden; het is hier een geometrische afdekking, geen agrarische norm.",
+    "provenanceNote": "Fictieve toestand: geen citatie — verkenning, geen verbodszone.",
+    "dataGrounding": {
+     "sourceId": "pdok-cdda",
+     "retrieved": "2026-10-16",
+     "note": "Nationaal Beschermde Gebieden (CDDA), 10.699 vlakken binnen de bbox; cache pdok-cdda, fetch 2026-10-16."
+    }
+   },
+   "proposedBy": "curator#poc-nspd-pdok-20261016",
+   "mutationsApplied": [
+    {
+     "ruleId": "HYP-LNB-GEEN-CDDA",
+     "action": "add_zone_rule",
+     "zoneId": "cdda-nl",
+     "zoneSemantics": "exclusion",
+     "note": "scenario mutation add_zone_rule: exclusion over alias cdda-nl"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 2,
+   "rulesExecuted": 2,
+   "finalAreaKm2": 829.109348609,
+   "inclusionIntersectAoiKm2": 1000.606325351,
+   "deltaVsControlKm2": -171.496976742,
+   "deltaVsControlPct": -17.139306,
+   "iouVsControl": 0.828605992,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-LNB-NL-BUITEN-CDDA.geojson",
+   "status": "ok",
+   "h3": {
+    "resolution": 8,
+    "cellCount": 1301,
+    "moransI": 0.225044835,
+    "pValue": 0.005,
+    "cellsGainedVsControl": 0,
+    "cellsLostVsControl": 285
+   }
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

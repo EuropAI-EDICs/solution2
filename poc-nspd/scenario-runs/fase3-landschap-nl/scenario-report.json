@@ -1,0 +1,90 @@
+{
+ "id": "SR-20261016T145649Z-landschap-nl-20261017T063352Z",
+ "scenarioSetId": "SSET-landschap-nl-nspd-fase3",
+ "baselineRunId": "20261016T145649Z-landschap-nl",
+ "requestId": "4c714036-67a6-5c68-8785-7f93e6047d33",
+ "objectType": "landscape_intervention",
+ "generatedAt": "2026-10-17T06:33:57Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 1000.606325351,
+  "inclusionIntersectAoiKm2": 1000.606325351,
+  "baselineFinalAreaKm2": 1000.606325351,
+  "baselineInclusionKm2": 1000.606325351,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-LAN-NL-AFWEGING-STRENG",
+   "name": "Afwegingszone als harde uitsluiting (NL)",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-LAN-01",
+    "provenanceNote": "NC-LAN-01 (art. 5.34) eist een motivering binnen de 100-m afwegingszone; deze variant voert de zone uit als harde uitsluiting — de strengste, niet de geciteerde lezing."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-LAN-01",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion",
+     "note": "attention -> exclusion"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 3,
+   "rulesExecuted": 3,
+   "finalAreaKm2": 974.596207496,
+   "inclusionIntersectAoiKm2": 1000.606325351,
+   "deltaVsControlKm2": -26.010117855,
+   "deltaVsControlPct": -2.599436,
+   "iouVsControl": 0.974003513,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-LAN-NL-AFWEGING-STRENG.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-LAN-NL-MARKERS-DROP",
+   "name": "Landschapsmarkers losgelaten (NL)",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-LAN-01",
+    "provenanceNote": "Demonstratie van marker-semantiek: attention-zones rapporteren, ze veranderen de opportuiniteitszone niet."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-LAN-01",
+     "action": "drop",
+     "note": "dropped attention rule"
+    },
+    {
+     "ruleId": "FR-LAN-02",
+     "action": "drop",
+     "note": "dropped attention rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 1000.606325351,
+   "inclusionIntersectAoiKm2": 1000.606325351,
+   "deltaVsControlKm2": 0.0,
+   "deltaVsControlPct": 0.0,
+   "iouVsControl": 1.0,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-LAN-NL-MARKERS-DROP.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

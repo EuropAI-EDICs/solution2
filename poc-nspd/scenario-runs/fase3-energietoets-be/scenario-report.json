@@ -1,0 +1,114 @@
+{
+ "id": "SR-20261016T150839Z-energietoets-be-20261017T063548Z",
+ "scenarioSetId": "SSET-energietoets-be-nspd-fase3",
+ "baselineRunId": "20261016T150839Z-energietoets-be",
+ "requestId": "38640a01-878b-5efc-a49d-331df0b28798",
+ "objectType": "energy_storage",
+ "generatedAt": "2026-10-17T06:35:49Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 0.137037777,
+  "inclusionIntersectAoiKm2": 0.137037777,
+  "baselineFinalAreaKm2": 0.137037777,
+  "baselineInclusionKm2": 0.137037777,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-BEE-BE-ONDERSTEUNEND-DROP",
+   "name": "Zeehavenondersteunende zone losgelaten (BE)",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-BEE-01",
+    "provenanceNote": "NC-BEE-01 (GRUP fase 2, art. 15) wijst de zeehavenondersteunende regionale bedrijvigheid aan, met productie van energie als hoofdactiviteit; loslaten is de assumptie."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-BEE-01",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 535.986377211,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": 535.849339434,
+   "deltaVsControlPct": 391023.082222,
+   "iouVsControl": 0.000255689,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-BEE-BE-ONDERSTEUNEND-DROP.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-BEE-BE-PAPIER-DROP",
+   "name": "Papierzone-exclusie voor energieopslag losgelaten (BE)",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-BEE-03",
+    "provenanceNote": "NC-BEE-03 (GRUP papierproducent, art. 1) sluit energieopslag buiten de uitsluitende lijst uit; het vallen laten van die uitsluiting is de beleidsassumptie."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-BEE-03",
+     "action": "drop",
+     "note": "dropped exclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 0.137037777,
+   "inclusionIntersectAoiKm2": 0.137037777,
+   "deltaVsControlKm2": 0.0,
+   "deltaVsControlPct": 0.0,
+   "iouVsControl": 1.0,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-BEE-BE-PAPIER-DROP.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-BEE-BE-ONDERSTEUNEND-BUF500",
+   "name": "Zeehavenondersteunende zone verbreed met 500 m (BE)",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-BEE-01",
+    "variedAspect": "inclusion-zone verbreed met 500 m",
+    "provenanceNote": "NC-BEE-01 kent geen afstandseis; exploratie."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-BEE-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500.0,
+     "note": "bufferDistanceM None -> 500.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 2,
+   "rulesExecuted": 2,
+   "finalAreaKm2": 2.96986532,
+   "inclusionIntersectAoiKm2": 2.96986532,
+   "deltaVsControlKm2": 2.832827543,
+   "deltaVsControlPct": 2067.187315,
+   "iouVsControl": 0.046145566,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-BEE-BE-ONDERSTEUNEND-BUF500.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

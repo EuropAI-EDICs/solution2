@@ -1,0 +1,53 @@
+[
+ {
+  "id": "FR-LNB-01",
+  "normCardId": "NC-LNB-01",
+  "status": "formalized",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "instrumentType": "rup-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "agricultural_expansion",
+   "contextTags": [
+    "curatie_fase2_landbouw",
+    "bestemmingsartikel_cartografisch",
+    "geometry_mercator_grup"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task4",
+  "formalizedAt": "2026-10-16",
+  "conditions": [],
+  "zoneSelector": {
+   "zoneIds": [
+    "agrkoppel-be"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via mercator-gewestelijke-RUP (gepind 2026-10-16; client-side bestemmingfilter, zie grupBevindingen in probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine."
+  },
+  "rationale": "Formalized (fase 3, task 4): GRUP fase 2 artikel 7 — agrarisch gebied (koppelingsgebied)."
+ },
+ {
+  "id": "FR-LNB-02",
+  "normCardId": "NC-LNB-02",
+  "status": "ambiguous",
+  "ruleType": "zone_exclusion",
+  "zoneSemantics": "exclusion",
+  "instrumentType": "gewestplan-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "agricultural_expansion",
+   "contextTags": [
+    "zone_loos_gedocumenteerd",
+    "v4_human_review",
+    "curatie_fase2_landbouw"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase2-t5",
+  "formalizedAt": "2026-10-14",
+  "reason": "Bouwvrij agrarisch gebied: absoluut bouwverbod; exclusion-karakter, cartografisch → zone-loos, V4. Zone-loos gedocumenteerd; routeert naar V4."
+ }
+]

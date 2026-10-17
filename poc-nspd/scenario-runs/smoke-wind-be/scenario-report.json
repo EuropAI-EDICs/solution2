@@ -1,0 +1,114 @@
+{
+ "id": "SR-20261016T150833Z-wind-be-20261016T152124Z",
+ "scenarioSetId": "SSET-wind-be-nspd-fase3",
+ "baselineRunId": "20261016T150833Z-wind-be",
+ "requestId": "fdafb79a-5572-50cc-a7a6-92ef8f70f26b",
+ "objectType": "wind_turbine",
+ "generatedAt": "2026-10-16T15:21:24Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 1.170744607,
+  "inclusionIntersectAoiKm2": 1.170744607,
+  "baselineFinalAreaKm2": 1.170744607,
+  "baselineInclusionKm2": 1.170744607,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-WIND-BE-BOSKOPPEL-DROP",
+   "name": "Turbine-rij in het boskoppelingsgebied losgelaten (BE)",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-BEW-01",
+    "provenanceNote": "NC-BEW-01 (GRUP fase 2, art. 3) staat de turbine-rij in het koppelingsgebied toe; dit scenario laat die aanwijzing vallen. Het sub-gebied Zelzate-zuid is in de geometrie niet scheidbaar (caveat bij de regel) — de zone hier is het volledige koppelingsgebied."
+   },
+   "proposedBy": "curator#poc-nspd-fase3",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-BEW-01",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 535.999551093,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": 534.828806486,
+   "deltaVsControlPct": 45682.790532,
+   "iouVsControl": 0.002184236,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WIND-BE-BOSKOPPEL-DROP.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-WIND-BE-GRENS-DROP",
+   "name": "Grensgebied-exclusie losgelaten (BE)",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-BEW-02",
+    "provenanceNote": "NC-BEW-02 (GRUP fase 2, art. 14) sluit grootschalige windturbines in het grensgebied uit; het schrappen van die exclusie is de beleidsvariant."
+   },
+   "proposedBy": "curator#poc-nspd-fase3",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-BEW-02",
+     "action": "drop",
+     "note": "dropped exclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 1.170744607,
+   "inclusionIntersectAoiKm2": 1.170744607,
+   "deltaVsControlKm2": 0.0,
+   "deltaVsControlPct": 0.0,
+   "iouVsControl": 1.0,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WIND-BE-GRENS-DROP.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-WIND-BE-BOSKOPPEL-BUF500",
+   "name": "Turbine-rij-zone verbreed met 500 m (BE)",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-BEW-01",
+    "variedAspect": "inclusion-zone verbreed met een toegevoegde 500 m-buffer",
+    "provenanceNote": "NC-BEW-01 kent géén afstandseis; de 500 m is niet geciteerd en wordt louter verkend."
+   },
+   "proposedBy": "curator#poc-nspd-fase3",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-BEW-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500.0,
+     "note": "bufferDistanceM None -> 500.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 2,
+   "rulesExecuted": 2,
+   "finalAreaKm2": 16.564896163,
+   "inclusionIntersectAoiKm2": 16.564896163,
+   "deltaVsControlKm2": 15.394151556,
+   "deltaVsControlPct": 1314.902624,
+   "iouVsControl": 0.070676641,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WIND-BE-BOSKOPPEL-BUF500.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

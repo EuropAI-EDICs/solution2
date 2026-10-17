@@ -71,8 +71,8 @@ s3://nldt-poc-lake/
   offers/{offerId}.json
 ```
 
-`poc` ∈ `utrecht` | `breda` | `eindhoven` | `rijnland` | `donl`  
-`runType` ∈ `run` | `scenario` | `crosstrack` | `qa`
+`poc` ∈ `utrecht` | `breda` | `eindhoven` | `rijnland` | `nspd` | `donl`  
+`runType` ∈ `run` | `scenario` | `crosstrack` | `xborder` | `qa`
 
 Local (dev without MinIO): same layout under `nldt/data/lake/` via
 `NLDT_LAKE_BACKEND=fs` (default).
@@ -462,6 +462,37 @@ print(execute_local('donl-harvest-run', {
 ```
 
 Detail: [18-donl-harvest.md](18-donl-harvest.md).
+
+---
+
+## PDOK catalogue ingest (poc-nspd, 2026-10-16)
+
+Direct ingest from PDOK **OGC API Features** (api.pdok.nl), probed and pinned per PoC
+registry rather than via DONL. First wave: 33 datasets for the North Sea Port District
+(`poc-nspd/data/sources.json`, `fetchPolicy` = `cache` | `service-only`).
+
+| Path | Contents |
+|------|----------|
+| `bronze/nspd/pdok-catalog/{retrievedAt}/index.json` | `api.pdok.nl/index.json` as received (130 APIs) |
+| `bronze/nspd/pdok/{sourceId}/{retrievedAt}/page-NNNN.json` + `manifest.json` | Raw items pages (bytes as received, sha256 per page) |
+| `silver/nspd/geo/{sourceId}.{28992,4326}.geojson` | Dual-CRS layers, deterministic from bronze (`pipeline.geodata.fetch_layer`) |
+| `silver/nspd/services/{sourceId}/manifest.json` | `DataService` manifest for service-only sources (no blind dump: BAG, BGT, TOP10NL, BRK, NWB wegen, BBG2017) |
+| `silver/nspd/meta/sources.json`, `silver/nspd/corpus/` | Geo-registry with probe/fetch evidence; NormCards/FormalRules |
+| `gold/nspd/{run,xborder,scenario}/{runId}/` | Track runs, cross-border merges, scenario runs |
+| `catalog/dcat/{sourceId}.json` | DCAT-AP-NL record per PDOK source (`nldt:poc=nspd`, `nldt:lakeUri`, `nldt:bronzeUri`, `nldt:axisOrder`) |
+
+```bash
+# poc-nspd: probe → fetch (cache + bronze) ; nldt: sync → DCAT → inventory
+(cd ../poc-nspd && .venv/bin/python data/probe_pdok_catalog.py && .venv/bin/python fetch_pdok_layers.py)
+PYTHONPATH=. python scripts/lake_sync.py --poc nspd
+PYTHONPATH=. python scripts/pdok_catalog_records.py
+PYTHONPATH=. python scripts/build_lake_inventory.py
+```
+
+Dialect notes carried by the fetcher: GoKoala paging via `links[rel=next]` only;
+INSPIRE REV/Seveso services use **lat,lon** axis order (`axisOrder: "latlon"` in the
+registry flips bbox and coordinates). `accessClass` for `nspd` defaults to `open`
+(PDOK open data; exact licence per dataset on pdok.nl — recorded as `nldt:licenseNote`).
 
 ---
 

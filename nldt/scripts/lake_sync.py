@@ -20,7 +20,7 @@ def main() -> int:
         "--poc",
         action="append",
         dest="pocs",
-        choices=["utrecht", "breda", "eindhoven", "rijnland"],
+        choices=["utrecht", "breda", "eindhoven", "rijnland", "nspd"],
         help="PoC to sync (repeatable). Default: utrecht + breda",
     )
     p.add_argument("--dry-run", action="store_true")

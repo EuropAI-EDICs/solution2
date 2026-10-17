@@ -21,6 +21,7 @@ POC_ROOTS = {
     "breda": NLDT_ROOT.parent / "poc-breda",
     "eindhoven": NLDT_ROOT.parent / "poc-bp2op",
     "rijnland": NLDT_ROOT.parent / "poc-rijnland",
+    "nspd": NLDT_ROOT.parent / "poc-nspd",
 }
 
 
@@ -130,6 +131,20 @@ def default_sync_plan(pocs: Iterable[str] | None = None) -> list[dict[str, Any]]
             ("bronze", "flow", POC_ROOTS["rijnland"] / "data" / "flow"),
             ("bronze", "arcgis", POC_ROOTS["rijnland"] / "data" / "arcgis"),
             ("gold", "runs", POC_ROOTS["rijnland"] / "runs"),
+        ],
+        "nspd": [
+            # bronze: PDOK-pagina's als-ontvangen + catalogus-snapshot (fetch_pdok_layers.py)
+            ("bronze", "pdok", POC_ROOTS["nspd"] / "data" / "bronze" / "pdok"),
+            ("bronze", "pdok-catalog", POC_ROOTS["nspd"] / "data" / "bronze" / "pdok-catalog"),
+            # silver: dual-CRS lagen (PDOK/Zeeland OVZ/Mercator GRUP), registry, corpus
+            ("silver", "geo", POC_ROOTS["nspd"] / "data" / "cache"),
+            ("silver", "sources", POC_ROOTS["nspd"] / "data"),
+            ("silver", "corpus", POC_ROOTS["nspd"] / "corpus"),
+            ("silver", "scenarios", POC_ROOTS["nspd"] / "scenarios"),
+            # gold: per-track runs + grensoverschrijdende merges + what-if-sweeps
+            ("gold", "runs", POC_ROOTS["nspd"] / "runs"),
+            ("gold", "xborder", POC_ROOTS["nspd"] / "xborder-runs"),
+            ("gold", "scenario", POC_ROOTS["nspd"] / "scenario-runs"),
         ],
     }
     for poc in selected:

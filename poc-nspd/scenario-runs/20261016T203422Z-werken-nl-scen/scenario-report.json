@@ -1,0 +1,129 @@
+{
+ "id": "SR-20261016T151056Z-werken-nl-20261016T203422Z",
+ "scenarioSetId": "SSET-werken-nl-pdok",
+ "baselineRunId": "20261016T151056Z-werken-nl",
+ "requestId": "84445ba0-b233-5a13-97ca-8ce7a086b725",
+ "objectType": "business_development",
+ "generatedAt": "2026-10-16T20:34:22Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 1000.606325351,
+  "inclusionIntersectAoiKm2": 1000.606325351,
+  "baselineFinalAreaKm2": 1000.606325351,
+  "baselineInclusionKm2": 1000.606325351,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true,
+  "h3": {
+   "resolution": 8,
+   "cellCount": 1586,
+   "moransI": 0.060004916,
+   "pValue": 0.005,
+   "cellsGainedVsControl": null,
+   "cellsLostVsControl": null
+  }
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-WER-NL-RESTWARMTE-1KM",
+   "name": "Rond restwarmtebronnen met 1 km (NL)",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: restwarmte-ontneming leunt tegen de bron aan; de 1 km is een exploratieve bereikbaarheidsmaat, geen citatie uit de OVZ.",
+    "provenanceNote": "Fictieve toestand: geen citatie — de zone is een warmte-infra-verkenning.",
+    "dataGrounding": {
+     "sourceId": "pdok-restwarmte-industrie",
+     "retrieved": "2026-10-16",
+     "note": "Potentiekaart restwarmte — ligging industrie (CO2), 51 punten in de bbox (bedrijf, doelgroep, kgco2_*); fetch 2026-10-16."
+    }
+   },
+   "proposedBy": "curator#poc-nspd-pdok-20261016",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-AOI-01",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    },
+    {
+     "ruleId": "HYP-WER-RESTWARMTE-1KM",
+     "action": "add_zone_rule",
+     "zoneId": "restwarmte-industrie-nl",
+     "zoneSemantics": "inclusion",
+     "note": "scenario mutation add_zone_rule: inclusion over alias restwarmte-industrie-nl met buffer 1000 m",
+     "bufferDistanceM": 1000.0
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 33.453914209,
+   "inclusionIntersectAoiKm2": 33.453914209,
+   "deltaVsControlKm2": -967.152411142,
+   "deltaVsControlPct": -96.656636,
+   "iouVsControl": 0.03343342,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WER-NL-RESTWARMTE-1KM.geojson",
+   "status": "ok",
+   "h3": {
+    "resolution": 8,
+    "cellCount": 49,
+    "moransI": -0.00744899,
+    "pValue": 0.47,
+    "cellsGainedVsControl": 0,
+    "cellsLostVsControl": 1537
+   }
+  },
+  {
+   "scenarioId": "SC-WER-NL-GEEN-SEVESO-500M",
+   "name": "Buiten 500 m rond Seveso-productie-inrichtingen (NL)",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: ook voor bedrijven gelden externe-veiligheidsafstanden rond Brzo-inrichtingen; inzonderheidsmaten zijn vergunning-specifiek, de 500 m is exploratief.",
+    "provenanceNote": "Fictieve toestand: geen citatie — de buffer is verkenning, geen afstandsnorm.",
+    "dataGrounding": {
+     "sourceId": "pdok-rev-seveso-productie",
+     "retrieved": "2026-10-16",
+     "note": "REV/Seveso-inrichtingen productie (NACE C), 8 inrichtingen; fetch 2026-10-16."
+    }
+   },
+   "proposedBy": "curator#poc-nspd-pdok-20261016",
+   "mutationsApplied": [
+    {
+     "ruleId": "HYP-WER-GEEN-SEVESO-500M",
+     "action": "add_zone_rule",
+     "zoneId": "seveso-productie-nl",
+     "zoneSemantics": "exclusion",
+     "note": "scenario mutation add_zone_rule: exclusion over alias seveso-productie-nl met buffer 500 m",
+     "bufferDistanceM": 500.0
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 2,
+   "rulesExecuted": 2,
+   "finalAreaKm2": 994.005171587,
+   "inclusionIntersectAoiKm2": 1000.606325351,
+   "deltaVsControlKm2": -6.601153764,
+   "deltaVsControlPct": -0.659715,
+   "iouVsControl": 0.993402094,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WER-NL-GEEN-SEVESO-500M.geojson",
+   "status": "ok",
+   "h3": {
+    "resolution": 8,
+    "cellCount": 1575,
+    "moransI": 0.05853071,
+    "pValue": 0.005,
+    "cellsGainedVsControl": 0,
+    "cellsLostVsControl": 11
+   }
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

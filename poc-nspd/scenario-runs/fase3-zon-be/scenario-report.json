@@ -1,0 +1,114 @@
+{
+ "id": "SR-20261016T150840Z-zon-be-20261017T063350Z",
+ "scenarioSetId": "SSET-zon-be-nspd-fase3",
+ "baselineRunId": "20261016T150840Z-zon-be",
+ "requestId": "280410b3-5328-5f28-b691-6f14f1bc7d7b",
+ "objectType": "solar_field",
+ "generatedAt": "2026-10-17T06:33:50Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 0.444686052,
+  "inclusionIntersectAoiKm2": 0.444686052,
+  "baselineFinalAreaKm2": 0.444686052,
+  "baselineInclusionKm2": 0.444686052,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-ZON-BE-HERN-DROP",
+   "name": "Hernieuwbaar-energiegebied losgelaten (BE)",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-BEZ-01",
+    "provenanceNote": "NC-BEZ-01 (GRUP fase 2, art. 20, overdruk) wijst het hernieuwbaar-energiegebied aan; loslaten is de beleidsassumptie."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-BEZ-01",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 536.0068721,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": 535.562186048,
+   "deltaVsControlPct": 120436.020792,
+   "iouVsControl": 0.000829669,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-ZON-BE-HERN-DROP.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-ZON-BE-HERN-BUF1000",
+   "name": "Hernieuwbaar-energiegebied verbreed met 1.000 m (BE)",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-BEZ-01",
+    "variedAspect": "inclusion-zone verbreed met 1.000 m",
+    "provenanceNote": "NC-BEZ-01 kent geen afstandseis; exploratie."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-BEZ-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 1000.0,
+     "note": "bufferDistanceM None -> 1000.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 2,
+   "rulesExecuted": 2,
+   "finalAreaKm2": 6.483568574,
+   "inclusionIntersectAoiKm2": 6.483568574,
+   "deltaVsControlKm2": 6.038882522,
+   "deltaVsControlPct": 1358.01033,
+   "iouVsControl": 0.068590189,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-ZON-BE-HERN-BUF1000.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-ZON-BE-BOUWVRIJ-DROP",
+   "name": "Bouwvrije strook-exclusie losgelaten (BE)",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-BEZ-02",
+    "provenanceNote": "NC-BEZ-02 (GRUP fase 2, art. 26, overdruk) verbiedt bouwwerken in de strook; uitzonderlijke werken blijven V4."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-BEZ-02",
+     "action": "drop",
+     "note": "dropped exclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 0.444686052,
+   "inclusionIntersectAoiKm2": 0.444686052,
+   "deltaVsControlKm2": 0.0,
+   "deltaVsControlPct": 0.0,
+   "iouVsControl": 1.0,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-ZON-BE-BOUWVRIJ-DROP.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

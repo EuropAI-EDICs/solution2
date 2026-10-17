@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where can zonnevelden be sited in the Dutch part of the NSPD?</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+  :root { --ink:#f5f2ec; --mut:#8a857a; --line:rgba(245,242,236,.14); --bg:#0d0d12; --card:#1a1a23;
+          --ok:#1a7f4b; --bad:#b3261e; --warn:#9a6700; --pend:#6b55b5; }
+  * { box-sizing: border-box; }
+  body { font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+         color: var(--ink); background: var(--bg); margin: 0; padding: 0 0 60px; }
+  main { max-width: 1180px; margin: 0 auto; padding: 0 22px; }
+  header { background: #14141b; color: #fff; padding: 26px 0 20px; }
+  header h1 { font-size: 24px; margin: 0 0 6px; font-weight: 650; }
+  header .sub { color: #2a2a35; font-size: 13.5px; }
+  header .badges { margin-top: 10px; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12.5px;
+           font-weight: 600; margin-right: 6px; background: #24405f; color: #d7e3f4; }
+  .badge.pass { background: #123f2a; color: #8fe3b4; }
+  .badge.fail { background: #4a1512; color: #ffb3ad; }
+  .badge.needs_human { background: #4d3a07; color: #ffdf9e; }
+  .badge.pending { background: #33276b; color: #cabdf5; }
+  h2 { font-size: 19px; margin: 38px 0 12px; font-weight: 650; }
+  h3 { font-size: 15.5px; margin: 22px 0 8px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .stat .k { color: var(--mut); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  .stat .v { font-size: 21px; font-weight: 680; margin-top: 2px; }
+  .stat .s { color: var(--mut); font-size: 12px; margin-top: 2px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  #map { height: 560px; border-radius: 8px; border: 1px solid var(--line); }
+  .map-note { color: var(--mut); font-size: 12.5px; margin-top: 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; background: var(--card); }
+  th, td { border: 1px solid var(--line); padding: 6px 9px; text-align: left; vertical-align: top; }
+  th { background: #eef2f8; font-weight: 640; position: sticky; top: 0; }
+  .tablewrap { overflow-x: auto; max-height: 480px; overflow-y: auto; border: 1px solid var(--line);
+               border-radius: 8px; }
+  .scrollx { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .fx { font-size: 11.5px; font-weight: 700; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+  .fx.included, .fx.pass { color: var(--ok); background: #e2f3e9; }
+  .fx.excluded, .fx.fail { color: var(--bad); background: #fbe6e4; }
+  .fx.conditional, .fx.attention { color: var(--warn); background: #fdf3d7; }
+  .fx.compensation { color: #6b3fa0; background: #efe6fa; }
+  .fx.ambiguous, .fx.needs_human { color: #7a5b00; background: #fff1c9; }
+  .fx.not_applicable, .fx.pending, .fx.skipped { color: var(--mut); background: #edf0f4; }
+  blockquote { margin: 6px 0; padding: 8px 12px; border-left: 3px solid #2a2a35; background: #f2f5f9;
+               font-style: italic; font-size: 13px; }
+  details { border: 1px solid var(--line); border-radius: 8px; background: var(--card);
+            margin: 8px 0; padding: 0; }
+  details summary { cursor: pointer; padding: 9px 13px; font-weight: 600; font-size: 13.5px; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  details .body { padding: 10px 14px; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+  a { color: #0b5cad; }
+  .checks li { margin: 3px 0; font-size: 12.8px; }
+  .lvl { display: inline-block; min-width: 30px; font-weight: 700; }
+  .lvl-V0,.lvl-V1,.lvl-V2,.lvl-V3 { color: #33415c; }
+  .lvl-V4 { color: var(--pend); }
+  footer { margin-top: 44px; color: var(--mut); font-size: 12.5px; border-top: 1px solid var(--line);
+           padding-top: 14px; }
+  .legend-dot { display:inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px;
+                vertical-align: middle; }
+</style>
+</head>
+<body>
+<header>
+  <main>
+    <h1>Where can zonnevelden be sited in the Dutch part of the NSPD?</h1>
+    <div class="sub">
+      Run <span class="mono">20261016T144619Z-zon-nl</span> &middot; use case <span class="mono">zon-nl</span>
+      &middot; generated 2026-10-16T14:46:20Z &middot; policy stage <b>programming</b>
+      &middot; instrument pinned: Omgevingsverordening provincie Zeeland, CVDR709135 geldend 02-06-2026 t/m heden
+    </div>
+    <div class="badges">
+      <span class="badge pass">verdict: pass</span>
+      <span class="badge pass">V2b: pass</span>
+      <span class="badge pending">V4 human: pending</span>
+      <span class="badge ">cite-or-abstain: 2 cards / 3 abstentions</span>
+    </div>
+  </main>
+</header>
+<main>
+
+<section id="headline">
+  <h2>Headline</h2>
+  <div class="cards">
+    <div class="stat"><div class="k">AOI (jurisdictie)</div><div class="v">1,000.6 km²</div><div class="s">NSPD-NL-helft van de districtsbbox (EPSG:28992, snede 3.73°E)</div></div>
+    <div class="stat"><div class="k">Inclusion ∩ AOI</div><div class="v">22.9 km²</div><div class="s">union of the formalized inclusion zones</div></div>
+    <div class="stat"><div class="k">Final opportunity zone</div><div class="v">22.9 km²</div><div class="s">na executie van de formele exclusions (NL: natura2000-nl via PDOK)</div></div>
+    <div class="stat"><div class="k">Rules executed</div><div class="v">2 of 2</div><div class="s">2 formalized; 0 ambiguous → V4; 0 rejected</div></div>
+    <div class="stat"><div class="k">Zones emitted</div><div class="v">4</div><div class="s">incl. markers (attention/conditional/compensation)</div></div>
+    <div class="stat"><div class="k">Geometry repairs</div><div class="v">0</div><div class="s">invalid-as-served features, recorded in prov</div></div>
+  </div>
+  <p class="map-note" style="margin-top:12px">NL-side of the NSPD; semantics follow the formalized rules from the Omgevingsverordening Zeeland (CVDR709135).</p>
+</section>
+
+<section id="map-section">
+  <h2>Opportunity map</h2>
+  <div class="panel">
+    <div id="map"></div>
+    <p class="map-note">
+      Layers: <span class="legend-dot" style="background:#2e7d32"></span>final opportunity zone &middot;
+      <span class="legend-dot" style="background:#ff8205"></span>inclusion (designated wind zones &cap; AOI) &middot;
+      <span class="legend-dot" style="background:#ff8205"></span>after each exclusion &middot;
+      <span class="legend-dot" style="background:#6a1b9a"></span>attention / conditional / compensation markers &middot;
+      <span class="legend-dot" style="background:#000"></span>AOI (province boundary).
+      Use the layer switcher (top right) to toggle. Basemap tiles and the Leaflet library load from a CDN;
+      when opened offline the map degrades to the tables below. Full-resolution geometry:
+      <span class="mono">zones.geojson</span> / <span class="mono">zones.gml</span>.
+      Display geometry simplified to 25.0 m (recorded in the run summary).
+    </p>
+  </div>
+</section>
+
+<section id="zones">
+  <h2>Zones &amp; statistics <span class="sub">(fallback table &mdash; always available)</span></h2>
+  <div class="tablewrap">
+    <table>
+      <thead><tr>
+        <th>zone id</th><th>operation</th><th>rules</th><th class="num">area km&sup2;</th>
+        <th>layers</th><th class="num">prov steps</th><th class="num">repairs</th>
+      </tr></thead>
+      <tbody>
+      <tr>
+        <td class="mono">zr-inclusion_union-c2a080ce84</td>
+        <td>inclusion_union</td>
+        <td class="mono">FR-ZON-01</td>
+        <td class="num">78.120</td>
+        <td class="mono">stedelijk-nl</td>
+        <td class="num">5</td>
+        <td class="num">0</td>
+      </tr>
+      <tr>
+        <td class="mono">zr-intersection-6edf86b914</td>
+        <td>intersection</td>
+        <td class="mono">FR-ZON-01</td>
+        <td class="num">22.880</td>
+        <td class="mono">stedelijk-nl</td>
+        <td class="num">2</td>
+        <td class="num">0</td>
+      </tr>
+      <tr>
+        <td class="mono">zr-difference-a40613a35d</td>
+        <td>difference</td>
+        <td class="mono">FR-ZON-02</td>
+        <td class="num">22.858</td>
+        <td class="mono">natura2000-nl, national_source</td>
+        <td class="num">4</td>
+        <td class="num">0</td>
+      </tr>
+      <tr>
+        <td class="mono">zr-final-dcde52a65d</td>
+        <td>final</td>
+        <td class="mono">FR-ZON-01, FR-ZON-02</td>
+        <td class="num">22.858</td>
+        <td class="mono">national_source, natura2000-nl, stedelijk-nl</td>
+        <td class="num">11</td>
+        <td class="num">0</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="decision">
+  <h2>Decision table</h2>
+  <p class="map-note">Every row links its NormCard (instrument + article + version + verbatim quote + URL in
+     <span class="mono">normcards.json</span>). Machine-readable copy: <span class="mono">decision-table.json</span>,
+     Markdown copy: <span class="mono">decision-table.md</span>.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr>
+<th>criterion</th><th>norm</th><th>source</th><th>zone effect</th><th>ruleId</th><th>normCardId</th><th>condition</th><th>note</th>      </tr></thead>
+      <tbody>
+      <tr>
+        <td>
+Solar installations may be provided for inside urban area and outside urban area only on enumerated locations (bouwvlak, stortplaatsen/infrastructuur/bedrijvigheidsterre…        </td>
+        <td>
+art. 18.18 — Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden) [binding]        </td>
+        <td>
+<span class="mono">S01</span> <a href="https://lokaleregelgeving.overheid.nl/CVDR709135" target="_blank" rel="noopener">https://lokaleregelgeving.overheid.nl/CVDR709135</a>
+        </td>
+        <td>
+<span class="fx included">included</span>
+        </td>
+        <td>
+FR-ZON-01        </td>
+        <td>
+NC-ZON-01        </td>
+        <td>
+        </td>
+        <td>
+Formalized (fase 3, task 2): art. 18.18 lid 1 staat zonne-energie-opstellingen toe binnen stedelijk gebied. Gepind als zeeland-ovz-stedelijk (dso:ext_ovz_bebkom_woonbeb2025, probe_2026-10-16.json). De landelijke locaties a-e (lid 2: bouwvlak, stort/infra/bedrijf, waterbassin, agrarische grond) zijn niet gepind — die conditie blijft via locaties_a_tot_e_landelijk_gebied in V4; deze rule formalisee…        </td>
+      </tr>
+      <tr>
+        <td>
+Solar installations on water or water-basin ground are conditional on demonstrating no significant adverse effects for nature, recreation, water quality or fishery; grou…        </td>
+        <td>
+art. 18.18 — Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden) [binding]        </td>
+        <td>
+<span class="mono">S01</span> <a href="https://lokaleregelgeving.overheid.nl/CVDR709135" target="_blank" rel="noopener">https://lokaleregelgeving.overheid.nl/CVDR709135</a>
+        </td>
+        <td>
+<span class="fx excluded">excluded</span>
+        </td>
+        <td>
+FR-ZON-02        </td>
+        <td>
+NC-ZON-02        </td>
+        <td>
+location == water_basin        </td>
+        <td>
+Art. 18.18 lid 2 sub c staat zonne-energie op water of waterbassin-grond slechts toe mits aannemelijk is dat er geen significant nadelige effecten zijn voor natuur; binnen Natura 2000-gebieden (alias natura2000-nl uit ZONE_SOURCES, taak 9) is die aannemelijkheid niet uit de verordening afleidbaar en geldt daarom een exclusion-marker voor waterbassin-solar.        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="validation">
+  <h2>Validation report (V0&ndash;V4)</h2>
+  <details open>
+    <summary>opportunity-map-request &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261016T144619Z-zon-nl-request</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-opportunity-map-request</span>
+&mdash; 1/1 artifact(s) valid against opportunity-map-request.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V1 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V2 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>norm-card-set &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261016T144619Z-zon-nl-normcards</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-norm-card</span>
+&mdash; 2/2 artifact(s) valid against norm-card.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v2-card-citations</span>
+&mdash; all 2 NormCard(s) carry docId+article+version+verbatim quote+uri</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V1 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>formal-rule-set &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261016T144619Z-zon-nl-formalrules</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-formal-rule</span>
+&mdash; 2/2 artifact(s) valid against formal-rule.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v2-rule-card-linkage</span>
+&mdash; all 2 FormalRule(s) link an existing NormCard (cite-or-abstain chain intact)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-executable-refs-registered</span>
+&mdash; all executableRefs are registered deterministic engine operations (6 registered)</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V1 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>zone-result-set &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261016T144619Z-zon-nl-zones</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-zone-result</span>
+&mdash; 4/4 artifact(s) valid against zone-result.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v1-output-geometry-valid</span>
+&mdash; all 4 zone geometries valid (shapely is_valid)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-output-crs-and-bounds</span>
+&mdash; all payloads EPSG:4326 with coordinates inside NL bounds lon(3.0, 7.5)/lat(50.5, 54.0)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-input-layers-crs</span>
+&mdash; 2 input layer(s) declare a recognised CRS member (EPSG:28992 computation CRS)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-input-invalid-census</span>
+&mdash; no invalid as-served features in any input layer</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-final-zone-sanity</span>
+&mdash; final zone non-empty, valid, 22.858 km2 &lt;= AOI 1000.606 km2 and &lt;= inclusion union 22.880 km2</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V2 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>decision-table &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261016T144619Z-zon-nl-decisiontable</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-decision-table</span>
+&mdash; 1/1 artifact(s) valid against decision-table.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v2-decision-table-linkage</span>
+&mdash; all 2 decision-table row(s) link an existing NormCard</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V1 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx not_applicable">not_applicable</span><div class="map-note">V3 not evaluated for this artifact</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <details >
+    <summary>pipeline-run &mdash; <span class="fx pass">pass</span>
+      &nbsp;<span class="mono" style="color:var(--mut)">VR-20261016T144619Z-zon-nl-pipeline</span></summary>
+    <div class="body">
+      <table>
+        <thead><tr><th>level</th><th>status</th><th>checks</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="lvl lvl-V0">V0</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-opportunity-map-request</span>
+&mdash; 1/1 artifact(s) valid against opportunity-map-request.schema.json</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-norm-card</span>
+&mdash; 2/2 artifact(s) valid against norm-card.schema.json</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-formal-rule</span>
+&mdash; 2/2 artifact(s) valid against formal-rule.schema.json</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-zone-result</span>
+&mdash; 4/4 artifact(s) valid against zone-result.schema.json</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v0-schema-decision-table</span>
+&mdash; 1/1 artifact(s) valid against decision-table.schema.json</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V1">V1</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v1-output-geometry-valid</span>
+&mdash; all 4 zone geometries valid (shapely is_valid)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-output-crs-and-bounds</span>
+&mdash; all payloads EPSG:4326 with coordinates inside NL bounds lon(3.0, 7.5)/lat(50.5, 54.0)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-input-layers-crs</span>
+&mdash; 2 input layer(s) declare a recognised CRS member (EPSG:28992 computation CRS)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-input-invalid-census</span>
+&mdash; no invalid as-served features in any input layer</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v1-final-zone-sanity</span>
+&mdash; final zone non-empty, valid, 22.858 km2 &lt;= AOI 1000.606 km2 and &lt;= inclusion union 22.880 km2</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V2">V2</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v2-rule-card-linkage</span>
+&mdash; all 2 FormalRule(s) link an existing NormCard (cite-or-abstain chain intact)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-card-citations</span>
+&mdash; all 2 NormCard(s) carry docId+article+version+verbatim quote+uri</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-zone-rule-traceability</span>
+&mdash; every zone ruleId traces to a formalized rule (2 available)</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-decision-table-linkage</span>
+&mdash; all 2 decision-table row(s) link an existing NormCard</li>
+              <li><span class="mono">[pass]</span> <span class="mono">v2-executable-refs-registered</span>
+&mdash; all executableRefs are registered deterministic engine operations (6 registered)</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V3">V3</span></td>
+          <td><span class="fx pass">pass</span></td>
+          <td>
+            <ul class="checks" style="margin:0;padding-left:18px">
+              <li><span class="mono">[pass]</span> <span class="mono">v3-reexecution-agreement</span>
+&mdash; independent geopandas re-execution of 2 rule(s): pipeline 22.858 km2 vs independent 22.858 km2; relative area delta 1.450e-14 (threshold 0.01); IoU 0.999921 (threshold 0.98)</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="lvl lvl-V4">V4</span></td>
+          <td><span class="fx pending">pending</span><div class="map-note">V4 human-expert validation (HITL) is pending by design; the deterministic PoC cannot sign it.</div></td>
+          <td>
+&mdash;          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+</section>
+
+<section id="normcards">
+  <h2>Norm cards (cite-or-abstain)</h2>
+  <p class="map-note">2 verified cards; each carries the verbatim Dutch quote, the article,
+     the consolidated instrument version and the URL. 3 abstentions are listed below.</p>
+  <details>
+    <summary><span class="mono">NC-ZON-01</span> &middot; art. 18.18
+      <span class="fx pass">binding</span>
+      <span class="fx pending">conf 0.95</span></summary>
+    <div class="body">
+      <p style="margin:4px 0">Solar installations may be provided for inside urban area and outside urban area only on enumerated locations (bouwvlak, stortplaatsen/infrastructuur/bedrijvigheidsterreinen, waterbassins, agrarische grond in transitie, agrarische grond with net-congestion contribution); siting outside urban area requires omgevingskwaliteiten motivation.</p>
+      <blockquote lang="nl">&ldquo;1 Een omgevingsplan kan voorzien in de realisatie van een opstelling voor zonne-energie binnen stedelijk gebied. 2 Een omgevingsplan kan voorzien in de realisatie van een opstelling voor zonne-energie buiten stedelijk gebied op de volgende locaties: a. op een bouwvlak;&rdquo;</blockquote>
+      <p class="map-note" style="margin:4px 0">
+        <b>Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden)</b> &middot; version: CVDR709135, geldend van 02-06-2026 t/m heden &middot;
+        doc <span class="mono">S01</span> &middot;
+        <a href="https://lokaleregelgeving.overheid.nl/CVDR709135" target="_blank" rel="noopener">https://lokaleregelgeving.overheid.nl/CVDR709135</a><br>
+        theme <span class="mono">energy:solar</span>
+      </p>
+    </div>
+  </details>
+  <details>
+    <summary><span class="mono">NC-ZON-02</span> &middot; art. 18.18
+      <span class="fx pass">binding</span>
+      <span class="fx pending">conf 0.9</span></summary>
+    <div class="body">
+      <p style="margin:4px 0">Solar installations on water or water-basin ground are conditional on demonstrating no significant adverse effects for nature, recreation, water quality or fishery; grounds the Natura 2000 exclusion marker for water-basin solar.</p>
+      <blockquote lang="nl">&ldquo;c. op water of grond waarop een waterbassin is toegestaan, mits in de motivering bij het omgevingsplan aannemelijk wordt gemaakt dat er geen significant nadelige effecten voor natuur, recreatie, waterkwaliteit of visserij zijn;&rdquo;</blockquote>
+      <p class="map-note" style="margin:4px 0">
+        <b>Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden)</b> &middot; version: CVDR709135, geldend van 02-06-2026 t/m heden &middot;
+        doc <span class="mono">S01</span> &middot;
+        <a href="https://lokaleregelgeving.overheid.nl/CVDR709135" target="_blank" rel="noopener">https://lokaleregelgeving.overheid.nl/CVDR709135</a><br>
+        theme <span class="mono">nature:natuurwaarborg</span>
+      </p>
+    </div>
+  </details>
+  <h3>Abstentions (no verified citation &rarr; no rule)</h3>
+  <div class="scrollx">
+  <table>
+    <thead><tr><th>id</th><th>topic</th><th>reason</th></tr></thead>
+    <tbody>
+    <tr><td class="mono">AB-NL-01</td><td>Natura 2000-specifieke instructieregel voor wind/zon/energie</td><td>Hoofdstuk 11 &#39;Natura 2000-activiteiten&#39; van CVDR709135 is &#39;[Gereserveerd]&#39; (letterlijk gecontroleerd): er is geen verbatim Natura 2000-artikel. De exclusion op zona-alias natura2000-nl is daarom geformaliseerd via de brug over art. 18.38 (natuurnetwerk Nederland, wind FR-WIND-03) en art. 18.18 sub c (natuur-waarborg, zon FR-ZON-02), met caveat; energietoets krijgt geen natura2000-exclusion (niets in de tekst onderbouwt dat).</td></tr>
+    <tr><td class="mono">AB-NL-02</td><td>Windenergie-concentratielocaties (bijlage XIV) als inclusion-zone</td><td>De concentratielocaties zijn in de verordening &#39;globaal aangegeven&#39; (bijlage XIV) en hebben geen zone-alias in ZONE_SOURCES (taak 9); geometrie niet gepind. Inclusion blijft zone-loos gedocumenteerd (FR-WIND-01/FR-ZON-01) en routeeert naar V4.</td></tr>
+    <tr><td class="mono">AB-NL-03</td><td>Waterwingebied/grondwaterbeschermingszone als exclusion-zone (energietoets)</td><td>Art. 5.41 verbiedt bodemenergiesystemen daar verbatim, maar beide zones hebben geen alias in ZONE_SOURCES en zijn niet gepind; FR-ETST-02 blijft ambiguous met reden.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="prov">
+  <h2>Provenance</h2>
+  <div class="panel">
+    <h3 style="margin-top:4px">Pipeline stages</h3>
+    <div class="scrollx">
+    <table>
+      <thead><tr><th>stage</th><th>agent</th><th>started</th><th>ended</th><th>used</th><th>generated</th></tr></thead>
+      <tbody>
+      <tr>
+        <td>Intake: load + validate OpportunityMapRequest</td>
+        <td class="mono">run.py-orchestrator</td>
+        <td class="mono">2026-10-16T14:46:19Z</td>
+        <td class="mono">2026-10-16T14:46:19Z</td>
+        <td class="mono">use-cases/zon-nl.json</td>
+        <td class="mono">request.json</td>
+      </tr>
+      <tr>
+        <td>Norm Analyst: load curated NormCards (taak 6/7 corpus)</td>
+        <td class="mono">legal-recon-agent</td>
+        <td class="mono">2026-10-16T14:46:19Z</td>
+        <td class="mono">2026-10-16T14:46:19Z</td>
+        <td class="mono">corpus/normcards-nl-zon.json, corpus/sources.json</td>
+        <td class="mono">normcards.json, normcards-rejected.json</td>
+      </tr>
+      <tr>
+        <td>Norm Formalizer: load curated FormalRules (taak 6/7 shards)</td>
+        <td class="mono">norm-formalizer</td>
+        <td class="mono">2026-10-16T14:46:19Z</td>
+        <td class="mono">2026-10-16T14:46:19Z</td>
+        <td class="mono">corpus/formal-rules-nl-zon.json</td>
+        <td class="mono">formalrules.json</td>
+      </tr>
+      <tr>
+        <td>V2b: jurisdictie-match (geen claim over de grens)</td>
+        <td class="mono">jurisdictie-gate</td>
+        <td class="mono">2026-10-16T14:46:19Z</td>
+        <td class="mono">2026-10-16T14:46:19Z</td>
+        <td class="mono">corpus/normcards-nl-zon.json, corpus/formal-rules-nl-zon.json, corpus/sources.json, data/sources.json</td>
+        <td class="mono">v2b.json</td>
+      </tr>
+      <tr>
+        <td>Geo Analyst: fetch zone layers (cache-first, registry sources)</td>
+        <td class="mono">ldttoolbox-geoconnector/0.1</td>
+        <td class="mono">2026-10-16T14:46:19Z</td>
+        <td class="mono">2026-10-16T14:46:19Z</td>
+        <td class="mono">data/sources.json</td>
+        <td class="mono">layers.json</td>
+      </tr>
+      <tr>
+        <td>Geo Analyst: deterministic FormalRule execution (shapely path)</td>
+        <td class="mono">zone-engine</td>
+        <td class="mono">2026-10-16T14:46:19Z</td>
+        <td class="mono">2026-10-16T14:46:19Z</td>
+        <td class="mono">formalrules.json, layers.json</td>
+        <td class="mono">zones.json</td>
+      </tr>
+      <tr>
+        <td>Cartographer: zones.geojson + GML + report input</td>
+        <td class="mono">poc-cartographer/0.1</td>
+        <td class="mono">2026-10-16T14:46:19Z</td>
+        <td class="mono">2026-10-16T14:46:19Z</td>
+        <td class="mono">zones.json</td>
+        <td class="mono">zones.geojson, zones.gml</td>
+      </tr>
+      <tr>
+        <td>Critic/Validator: V0-V3 deterministic + V4 pending</td>
+        <td class="mono">critic-validator</td>
+        <td class="mono">2026-10-16T14:46:19Z</td>
+        <td class="mono">2026-10-16T14:46:19Z</td>
+        <td class="mono">request.json, normcards.json, formalrules.json, zones.json, decision-table.json</td>
+        <td class="mono">validation.json</td>
+      </tr>
+      <tr>
+        <td>Explainer: decision table + PROV bundle</td>
+        <td class="mono">explainer</td>
+        <td class="mono">2026-10-16T14:46:19Z</td>
+        <td class="mono">2026-10-16T14:46:20Z</td>
+        <td class="mono">normcards.json, formalrules.json, zones.json</td>
+        <td class="mono">decision-table.json, decision-table.md, prov.json</td>
+      </tr>
+      </tbody>
+    </table>
+    </div>
+    <h3>Agents</h3>
+    <p class="map-note"><span class="mono">run.py orchestrator (poc-nspd-run/1.0)</span> &middot; <span class="mono">NormAnalyst (curator#poc-nspd-task6)</span> &middot; <span class="mono">NormFormalizer (norm-formalizer#poc-nspd-fase3-task2, norm-formalizer#poc-nspd-task6)</span> &middot; <span class="mono">V2b jurisdictie-gate (jurisdictie-gate#poc-nspd-task8)</span> &middot; <span class="mono">GeoData connector (ldttoolbox-geoconnector/0.1)</span> &middot; <span class="mono">FormalRule zone engine (poc-zone-engine/0.1)</span> &middot; <span class="mono">Cartographer (poc-cartographer/0.1)</span> &middot; <span class="mono">Critic/Validator (critic-validator#deterministic-v0-v3-poc1)</span> &middot; <span class="mono">Explainer (explainer#deterministic-poc1)</span> &middot; <span class="mono">HTML report renderer (poc-report/1.0)</span> &middot; </p>
+    <h3>Geo sources (open-data aliases, with lastChecked)</h3>
+    <div class="scrollx">
+    <table>
+      <thead><tr><th>zone</th><th>source id</th><th>service / layer</th><th>features</th><th>lastChecked</th><th>alias for (GIO)</th></tr></thead>
+      <tbody>
+      <tr>
+        <td class="mono">natura2000-nl</td>
+        <td class="mono">pdok-natura2000</td>
+        <td class="mono">https://api.pdok.nl/rvo/natura2000/ogc/v1/None</td>
+        <td class="num">3</td>
+        <td class="mono">2026-10-14</td>
+        <td class="mono">(national source)</td>
+      </tr>
+      <tr>
+        <td class="mono">stedelijk-nl</td>
+        <td class="mono">zeeland-ovz-stedelijk</td>
+        <td class="mono">https://opengeodata.zeeland.nl/geoserver/ows/dso:ext_ovz_bebkom_woonbeb2025</td>
+        <td class="num">41</td>
+        <td class="mono">2026-10-16</td>
+        <td class="mono">(national source)</td>
+      </tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="map-note">Full bundle: <span class="mono">prov.json</span> (PROV-O-flavoured: agents, entities with
+       sha256, activities with timestamps, wasGeneratedBy / wasDerivedFrom).</p>
+  </div>
+</section>
+
+<section id="limits">
+  <h2>Limitations &amp; tuning</h2>
+  <div class="panel">
+    <ul style="margin:6px 0;padding-left:20px">
+<li>Zone geometry comes from pinned national open-data aliases (NL: PDOK OGC API natura2000; BE sources registered in ZONE_SOURCES are not exercised by any formalized phase-1 rule); the provincial GIO/DSO download chain is not used in this PoC.</li><li>No inclusion rule in the phase-1 shards carries executable zone geometry: the NL bijlage-XIV wind-concentratielocaties and the BE RUP-deelgebieden/gewestplan-SV zones have no pinned open-data alias, so every inclusion norm is routed to the V4 human-expert checkpoint and the run uses the request AOI as inclusion union (inclusionBasis=aoi).</li><li>Re-run the legal recon and this pipeline before using results after a new consolidation of the cited instruments (NL: CVDR709135; BE: RUP/gewestplan/VCRO).</li><li>Map geometry in this report is display-simplified; authoritative full-resolution geometry is zones.geojson / zones.gml in the run directory.</li><li>Zone algebra inputs are Douglas-Peucker simplified (tolerance recorded per run in run_summary.json tunings and per layer in the engine provenance) so district-scale GEOS overlays stay tractable.</li><li>programming-stage screening artifact; per-location permission assessment remains required.</li>    </ul>
+    <p class="map-note"><b>Tuned parameters (recorded):</b>
+<span class="mono">display_tolerance_m=25.0</span> &middot; <span class="mono">input_simplify_m=2.0</span> &middot; <span class="mono">payload_coord_decimals=6</span> &middot; <span class="mono">buffer_resolution_quad_segs=16</span> &middot; </p>
+  </div>
+</section>
+
+<footer>
+  Artifacts in the run directory: <span class="mono">decision-table.json / decision-table.md / formalrules.json / layers.json / normcards-rejected.json / normcards.json / prov.json / report_input.json / request.json / rule-stats.json / v2b.json / validation.json / zones.geojson / zones.gml / zones.json / zones.xsd</span><br>
+  This report is a programming-stage decision-support artifact, not a permit decision. Every legal claim
+  traces to a cited instrument version; ambiguous norms are routed to the V4 human-expert checkpoint.
+</footer>
+</main>
+
+<script type="application/json" id="zones-data">{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"__cat":"inclusion","id":"zr-inclusion_union-c2a080ce84","operation":"inclusion_union","areaKm2":78.119669116,"ruleIds":["FR-ZON-01"],"layers":["stedelijk-nl"]},"geometry":{"type":"MultiPolygon","coordinates":[[[[3.44718,51.249197],[3.450027,51.248968],[3.450749,51.250943],[3.450037,51.251002],[3.450093,51.251366],[3.451231,51.251279],[3.451319,51.251993],[3.453376,51.251586],[3.453248,51.251143],[3.452354,51.251228],[3.451431,51.245972],[3.450901,51.244413],[3.450493,51.244422],[3.4504,51.241615],[3.448225,51.241499],[3.449518,51.24597],[3.448353,51.246081],[3.448553,51.246908],[3.446776,51.247082],[3.446088,51.245097],[3.443754,51.245401],[3.44294,51.243722],[3.443455,51.243242],[3.444649,51.243056],[3.444453,51.242713],[3.440826,51.243396],[3.441937,51.244631],[3.442427,51.246584],[3.439863,51.246707],[3.439984,51.24737],[3.441673,51.247524],[3.441656,51.24826],[3.442478,51.248258],[3.4421,51.249997],[3.442638,51.250216],[3.442591,51.251079],[3.436993,51.250945],[3.435513,51.252208],[3.438944,51.253342],[3.437706,51.255017],[3.441653,51.256243],[3.443157,51.253051],[3.44439,51.253287],[3.4445,51.252713],[3.445207,51.252842],[3.445807,51.25187],[3.444404,51.251512],[3.444574,51.251132],[3.443669,51.250595],[3.444464,51.248397],[3.446434,51.248604],[3.44718,51.249197]]],[[[3.502391,51.272129],[3.502639,51.272329],[3.502642,51.272019],[3.501685,51.272028],[3.501638,51.272728],[3.499745,51.272705],[3.499727,51.272021],[3.498564,51.272036],[3.498764,51.271458],[3.495276,51.27097],[3.494377,51.271063],[3.494285,51.271772],[3.493166,51.271688],[3.493243,51.272505],[3.498986,51.273293],[3.501246,51.274031],[3.501838,51.273634],[3.505233,51.273823],[3.505588,51.272548],[3.504877,51.272591],[3.504939,51.272986],[3.50334,51.273078],[3.503344,51.272685],[3.502098,51.272716],[3.502391,51.272129]]],[[[3.448096,51.274973],[3.449087,51.274631],[3.449675,51.275168],[3.45038,51.27414],[3.450727,51.274365],[3.451987,51.273195],[3.451315,51.272737],[3.452073,51.271752],[3.453327,51.271893],[3.453571,51.272418],[3.453689,51.271936],[3.455906,51.27205],[3.45612,51.272443],[3.457032,51.271874],[3.456118,51.269153],[3.452968,51.268841],[3.45428,51.267159],[3.454385,51.266608],[3.453775,51.266473],[3.453998,51.265047],[3.453166,51.265376],[3.45323,51.267232],[3.451331,51.267282],[3.451338,51.267579],[3.453069,51.267532],[3.452336,51.268781],[3.451497,51.269412],[3.450814,51.269148],[3.449505,51.269335],[3.450175,51.270412],[3.448564,51.270655],[3.448859,51.271312],[3.448319,51.271757],[3.446698,51.270575],[3.444462,51.271456],[3.441964,51.271476],[3.442317,51.270946],[3.441529,51.268592],[3.440911,51.268589],[3.441013,51.270091],[3.436336,51.270103],[3.434898,51.269677],[3.432809,51.270786],[3.429927,51.269656],[3.429832,51.270426],[3.427981,51.271322],[3.428139,51.27265],[3.426071,51.274906],[3.426893,51.275059],[3.428109,51.274364],[3.431209,51.275924],[3.432362,51.275057],[3.4304,51.274073],[3.431762,51.273989],[3.432248,51.273169],[3.439755,51.276834],[3.439475,51.277442],[3.43843,51.277776],[3.438191,51.278422],[3.438759,51.278983],[3.439435,51.277529],[3.440298,51.277687],[3.440606,51.277107],[3.441897,51.277329],[3.442503,51.276984],[3.442042,51.27603],[3.442641,51.275914],[3.442714,51.275443],[3.44567,51.275566],[3.447615,51.276291],[3.448225,51.276212],[3.448096,51.274973]]],[[[3.555737,51.315347],[3.554771,51.316387],[3.554246,51.316246],[3.549308,51.318244],[3.550935,51.319626],[3.55693,51.317925],[3.557871,51.317998],[3.55831,51.318678],[3.561084,51.319239],[3.561133,51.318256],[3.556632,51.317696],[3.556382,51.315371],[3.555737,51.315347]]],[[[3.611626,51.316039],[3.610768,51.321394],[3.609772,51.321583],[3.603278,51.320837],[3.600701,51.320913],[3.602431,51.321163],[3.60276,51.322389],[3.603771,51.323108],[3.60402,51.322548],[3.605691,51.322771],[3.605877,51.322367],[3.607062,51.322539],[3.607677,51.321779],[3.61047,51.32194],[3.610222,51.322996],[3.61173,51.323581],[3.611787,51.324409],[3.612919,51.324429],[3.612099,51.325613],[3.613063,51.325967],[3.611693,51.32876],[3.61232,51.329013],[3.612762,51.328631],[3.613943,51.329171],[3.614524,51.328639],[3.615012,51.328866],[3.619743,51.324212],[3.621287,51.32514],[3.622028,51.324677],[3.621114,51.324135],[3.621583,51.323528],[3.620886,51.322218],[3.621646,51.321674],[3.620951,51.32125],[3.621622,51.319535],[3.623004,51.319838],[3.623006,51.318792],[3.623874,51.317949],[3.622071,51.317446],[3.622349,51.31714],[3.620145,51.317202],[3.620284,51.316631],[3.611626,51.316039]]],[[[3.475909,51.318297],[3.478493,51.319387],[3.477555,51.320734],[3.478313,51.321165],[3.478673,51.322721],[3.478027,51.322799],[3.478844,51.324508],[3.478471,51.32594],[3.479366,51.326083],[3.478018,51.327011],[3.480052,51.327425],[3.478433,51.328885],[3.477778,51.328694],[3.476908,51.330268],[3.477682,51.330801],[3.478819,51.331309],[3.481708,51.329368],[3.482819,51.33036],[3.485777,51.329014],[3.486786,51.330019],[3.486505,51.330359],[3.487652,51.331187],[3.488868,51.330642],[3.489879,51.331467],[3.492453,51.331177],[3.49365,51.331383],[3.49236,51.334194],[3.498713,51.335336],[3.503475,51.335786],[3.505712,51.333581],[3.501599,51.33193],[3.501898,51.331648],[3.500886,51.331131],[3.50754,51.324577],[3.492172,51.323718],[3.490953,51.322602],[3.486877,51.322807],[3.486672,51.321846],[3.487806,51.320492],[3.487259,51.320189],[3.482747,51.320572],[3.481413,51.319601],[3.480474,51.319794],[3.476279,51.317985],[3.475909,51.318297]]],[[[3.451765,51.338552],[3.449182,51.340335],[3.446129,51.339082],[3.446542,51.338808],[3.445033,51.337937],[3.44424,51.338473],[3.447102,51.339789],[3.446036,51.340737],[3.448331,51.342006],[3.44755,51.342505],[3.44838,51.343155],[3.451049,51.341853],[3.451869,51.342166],[3.451433,51.342437],[3.452746,51.343351],[3.45329,51.343088],[3.45393,51.343536],[3.454421,51.343317],[3.453331,51.342581],[3.456317,51.341533],[3.454551,51.340389],[3.455132,51.340162],[3.453388,51.339147],[3.454785,51.338194],[3.452676,51.339127],[3.451765,51.338552]]],[[[3.55918,51.350457],[3.558236,51.350041],[3.556171,51.351817],[3.555329,51.351463],[3.554345,51.351991],[3.552657,51.351341],[3.551924,51.352021],[3.552538,51.352268],[3.549685,51.354654],[3.547799,51.353878],[3.546388,51.35662],[3.546676,51.356829],[3.548186,51.356321],[3.550585,51.357628],[3.550073,51.358064],[3.550509,51.358534],[3.551751,51.358441],[3.552918,51.359348],[3.553554,51.359001],[3.554185,51.359478],[3.554758,51.359123],[3.553997,51.358344],[3.554507,51.357912],[3.55611,51.359105],[3.557895,51.359061],[3.561398,51.355609],[3.559233,51.353777],[3.559999,51.352034],[3.55895,51.351588],[3.560189,51.35033],[3.559559,51.350084],[3.55918,51.350457]]],[[[3.465892,51.374336],[3.468529,51.372681],[3.470775,51.374009],[3.470381,51.374587],[3.470739,51.374851],[3.473091,51.373324],[3.474549,51.373617],[3.476099,51.373323],[3.470779,51.370334],[3.465236,51.368323],[3.464422,51.368555],[3.467564,51.370616],[3.466897,51.371185],[3.468584,51.371885],[3.466145,51.373801],[3.465472,51.373565],[3.465892,51.374336]]],[[[3.517974,51.382727],[3.521684,51.382632],[3.521606,51.381854],[3.512945,51.381591],[3.509977,51.380661],[3.509941,51.377251],[3.508429,51.376732],[3.508403,51.375597],[3.507118,51.375645],[3.507021,51.375077],[3.506,51.375122],[3.506129,51.376187],[3.501925,51.376663],[3.502146,51.37848],[3.501688,51.378936],[3.502651,51.379604],[3.501883,51.380764],[3.502847,51.381025],[3.502061,51.383026],[3.504165,51.383344],[3.504495,51.382764],[3.506609,51.383246],[3.506813,51.382986],[3.508191,51.383204],[3.509194,51.38142],[3.511454,51.38221],[3.511738,51.381849],[3.517679,51.383008],[3.517974,51.382727]]],[[[3.563733,51.398699],[3.56668,51.400544],[3.567837,51.400671],[3.568501,51.398823],[3.578495,51.394042],[3.576604,51.39257],[3.579755,51.390299],[3.576177,51.38752],[3.571778,51.390236],[3.570597,51.389523],[3.562428,51.392856],[3.560676,51.391982],[3.560289,51.390056],[3.560748,51.389603],[3.558722,51.386447],[3.557845,51.386279],[3.548928,51.388105],[3.547358,51.393307],[3.544345,51.399932],[3.544411,51.401258],[3.5461,51.40444],[3.547345,51.404433],[3.546463,51.403409],[3.546891,51.402878],[3.546554,51.402314],[3.546897,51.401719],[3.548432,51.401112],[3.550824,51.400848],[3.55236,51.401925],[3.553095,51.40088],[3.557007,51.39887],[3.56134,51.398074],[3.563733,51.398699]]],[[[3.627776,51.449316],[3.628078,51.44846],[3.627045,51.448501],[3.627245,51.449077],[3.625324,51.44907],[3.62558,51.450534],[3.619369,51.45224],[3.619613,51.45253],[3.621501,51.451909],[3.622396,51.453047],[3.623971,51.452589],[3.624203,51.452891],[3.625596,51.452628],[3.625809,51.453208],[3.626823,51.452623],[3.626964,51.451879],[3.62797,51.451709],[3.62795,51.450847],[3.630895,51.450835],[3.630878,51.449842],[3.62748,51.449853],[3.628202,51.449586],[3.627776,51.449316]]],[[[3.604872,51.473727],[3.60381,51.475632],[3.604535,51.475756],[3.60485,51.475088],[3.606255,51.475295],[3.606819,51.475945],[3.607581,51.474996],[3.606922,51.472745],[3.607622,51.473374],[3.611952,51.474654],[3.613185,51.473316],[3.61378,51.473682],[3.614842,51.472818],[3.615368,51.473017],[3.617135,51.470665],[3.615959,51.469576],[3.613137,51.464596],[3.611225,51.462756],[3.612228,51.462288],[3.612308,51.461594],[3.611398,51.459509],[3.610079,51.460049],[3.60894,51.458319],[3.604424,51.457736],[3.603398,51.456907],[3.605696,51.453928],[3.609688,51.450016],[3.610094,51.447345],[3.60323,51.446992],[3.604252,51.442999],[3.603656,51.442499],[3.598714,51.443286],[3.598015,51.443128],[3.597018,51.442067],[3.596303,51.442102],[3.596056,51.441695],[3.596825,51.441499],[3.596462,51.440923],[3.59514,51.44027],[3.594108,51.440325],[3.592746,51.441166],[3.59052,51.441479],[3.582444,51.440452],[3.581883,51.439651],[3.579954,51.440642],[3.576469,51.439973],[3.577291,51.43914],[3.575752,51.438202],[3.575332,51.439022],[3.573897,51.439627],[3.569619,51.440541],[3.567566,51.443637],[3.563068,51.446172],[3.560409,51.448852],[3.556617,51.450286],[3.554852,51.449791],[3.552689,51.451541],[3.55027,51.452475],[3.547379,51.453044],[3.538691,51.457723],[3.542804,51.458283],[3.542692,51.460102],[3.539789,51.464281],[3.537567,51.463837],[3.537364,51.464858],[3.54424,51.466467],[3.5467,51.467627],[3.548754,51.466475],[3.551736,51.467883],[3.552676,51.466667],[3.555086,51.467887],[3.554835,51.468263],[3.555464,51.467943],[3.557126,51.468069],[3.560194,51.471081],[3.567026,51.470074],[3.566497,51.466986],[3.568696,51.467322],[3.569758,51.465518],[3.571947,51.465726],[3.574065,51.465389],[3.573754,51.466562],[3.575197,51.466583],[3.575147,51.467583],[3.578792,51.467768],[3.578735,51.46967],[3.582717,51.468972],[3.590002,51.470377],[3.58993,51.471102],[3.587023,51.470986],[3.586895,51.474041],[3.586313,51.475125],[3.585636,51.474979],[3.585396,51.475402],[3.590946,51.476157],[3.592759,51.476754],[3.594206,51.4754],[3.595371,51.475722],[3.597625,51.475042],[3.598185,51.475276],[3.601513,51.474662],[3.602465,51.474949],[3.60296,51.474372],[3.604872,51.473727]]],[[[3.556674,51.478254],[3.548403,51.478074],[3.544928,51.478848],[3.54555,51.479274],[3.544929,51.479658],[3.545359,51.479803],[3.544906,51.480529],[3.546551,51.480945],[3.545928,51.481983],[3.547311,51.482311],[3.546499,51.484819],[3.550352,51.485138],[3.551223,51.484069],[3.553492,51.48457],[3.553457,51.484921],[3.554341,51.484862],[3.555,51.485873],[3.560448,51.486455],[3.562302,51.48583],[3.562782,51.485266],[3.559564,51.484375],[3.559479,51.483773],[3.560303,51.483622],[3.560019,51.483001],[3.56089,51.482839],[3.560662,51.481963],[3.559905,51.482047],[3.560064,51.478624],[3.559303,51.477186],[3.557063,51.477227],[3.556674,51.478254]]],[[[3.606198,51.527034],[3.60668,51.526883],[3.606513,51.525531],[3.605873,51.525156],[3.606451,51.525128],[3.606466,51.52471],[3.6059,51.524677],[3.606428,51.524263],[3.605921,51.52407],[3.606439,51.524102],[3.606609,51.523056],[3.60809,51.523056],[3.607571,51.523929],[3.609078,51.523962],[3.609542,51.521479],[3.606513,51.52003],[3.606977,51.519005],[3.606425,51.518712],[3.607472,51.518182],[3.605499,51.516784],[3.606019,51.516027],[3.606666,51.516241],[3.607198,51.516002],[3.606774,51.514878],[3.606012,51.51502],[3.606161,51.514095],[3.606873,51.513645],[3.606166,51.51336],[3.606025,51.512473],[3.606511,51.512471],[3.606075,51.512093],[3.607409,51.511294],[3.616119,51.516291],[3.615983,51.517668],[3.617239,51.517755],[3.619887,51.519553],[3.626283,51.515991],[3.631564,51.511124],[3.633036,51.503738],[3.635775,51.502263],[3.640055,51.505296],[3.641686,51.505415],[3.645073,51.503368],[3.6483,51.500681],[3.652183,51.49864],[3.654101,51.498315],[3.657905,51.498866],[3.65893,51.498516],[3.651339,51.490088],[3.649518,51.486715],[3.650034,51.485129],[3.649197,51.485606],[3.6482,51.485023],[3.650349,51.482605],[3.650696,51.481516],[3.649627,51.480573],[3.640992,51.478255],[3.635836,51.478606],[3.634606,51.477898],[3.629223,51.480901],[3.62553,51.478195],[3.621252,51.480622],[3.617976,51.47784],[3.617408,51.478043],[3.61497,51.477364],[3.61325,51.478243],[3.612232,51.477834],[3.610723,51.478952],[3.609627,51.479217],[3.608474,51.478077],[3.606992,51.478289],[3.606078,51.4775],[3.603511,51.478749],[3.60392,51.479518],[3.603158,51.479674],[3.604973,51.483138],[3.603083,51.483522],[3.598569,51.475541],[3.597742,51.476307],[3.596885,51.476439],[3.596932,51.478006],[3.599095,51.477989],[3.599677,51.480404],[3.59501,51.481345],[3.595718,51.482504],[3.594491,51.483347],[3.593339,51.487004],[3.591911,51.488531],[3.594973,51.490209],[3.593983,51.491607],[3.591635,51.493416],[3.590293,51.497426],[3.590605,51.499672],[3.590177,51.501719],[3.589861,51.5024],[3.588693,51.502414],[3.588756,51.503364],[3.587767,51.503281],[3.587632,51.503965],[3.589222,51.504086],[3.588747,51.504563],[3.589346,51.504575],[3.590368,51.507524],[3.593423,51.506838],[3.594833,51.506738],[3.595117,51.507076],[3.595326,51.506722],[3.596656,51.507155],[3.597263,51.506905],[3.598325,51.507585],[3.598824,51.507389],[3.599214,51.507736],[3.599995,51.507411],[3.600601,51.507694],[3.600797,51.506216],[3.607168,51.508367],[3.606478,51.508393],[3.605688,51.509102],[3.60334,51.513126],[3.604301,51.51318],[3.604855,51.51362],[3.604825,51.514247],[3.60408,51.514113],[3.603973,51.514521],[3.604892,51.514743],[3.604391,51.516322],[3.604949,51.516908],[3.604402,51.517892],[3.606075,51.517994],[3.605622,51.5186],[3.606136,51.518636],[3.606119,51.519027],[3.604455,51.518885],[3.604086,51.520298],[3.604485,51.520262],[3.604454,51.521373],[3.603492,51.520935],[3.602296,51.521758],[3.601794,51.523411],[3.602803,51.523804],[3.602563,51.524649],[3.601388,51.524465],[3.600832,51.527286],[3.601533,51.527472],[3.601887,51.528833],[3.602321,51.528767],[3.601754,51.529781],[3.603732,51.529857],[3.603897,51.530439],[3.605164,51.530608],[3.604959,51.531253],[3.60455,51.531201],[3.60452,51.532396],[3.603735,51.532369],[3.602176,51.534767],[3.602621,51.53491],[3.60474,51.532449],[3.605171,51.532468],[3.605748,51.531241],[3.60661,51.531285],[3.606761,51.530293],[3.605969,51.530257],[3.606295,51.529105],[3.606906,51.529141],[3.607006,51.528635],[3.606373,51.528589],[3.606876,51.528043],[3.606142,51.527782],[3.606198,51.527034]]],[[[3.803973,51.231682],[3.803919,51.23037],[3.804637,51.230352],[3.805567,51.234215],[3.806525,51.235406],[3.807991,51.235185],[3.8069,51.231428],[3.806271,51.231148],[3.805214,51.228191],[3.804639,51.224632],[3.803367,51.224597],[3.803199,51.222745],[3.802302,51.222118],[3.80256,51.219095],[3.801724,51.214152],[3.801249,51.21343],[3.79915,51.213229],[3.794454,51.223848],[3.788883,51.223755],[3.788455,51.226373],[3.789072,51.237559],[3.795296,51.237348],[3.798882,51.243756],[3.801657,51.243077],[3.798909,51.243161],[3.798974,51.242932],[3.800536,51.24298],[3.805746,51.242109],[3.806952,51.243067],[3.811204,51.244466],[3.813241,51.243663],[3.802305,51.232533],[3.802651,51.232339],[3.801236,51.230872],[3.801709,51.23069],[3.802837,51.231769],[3.803973,51.231682]]],[[[3.815117,51.26551],[3.816283,51.265366],[3.816005,51.264891],[3.818311,51.264502],[3.806054,51.265461],[3.806894,51.267094],[3.808817,51.266742],[3.809127,51.267334],[3.810919,51.267022],[3.810572,51.266348],[3.811662,51.266199],[3.811999,51.266838],[3.814882,51.266355],[3.815425,51.266083],[3.815117,51.26551]]],[[[3.763102,51.278306],[3.761363,51.278006],[3.760765,51.277425],[3.759279,51.277997],[3.757883,51.277339],[3.756012,51.277965],[3.756937,51.278396],[3.755187,51.27854],[3.755232,51.279695],[3.752439,51.279099],[3.752587,51.279524],[3.754734,51.280134],[3.7551,51.280652],[3.749746,51.281989],[3.749276,51.284385],[3.758635,51.286771],[3.759009,51.2862],[3.759907,51.286431],[3.761686,51.288018],[3.766481,51.28589],[3.764432,51.283761],[3.766517,51.282535],[3.7668,51.281772],[3.765743,51.280163],[3.764612,51.279678],[3.764103,51.280061],[3.76292,51.279372],[3.763102,51.278306]]],[[[3.7834,51.310785],[3.781196,51.308764],[3.779644,51.303866],[3.778769,51.303573],[3.777885,51.304012],[3.778152,51.305599],[3.773064,51.306672],[3.771469,51.309399],[3.776423,51.309588],[3.775791,51.311168],[3.776849,51.311305],[3.7753,51.314706],[3.774471,51.315397],[3.768944,51.317538],[3.77606,51.315711],[3.780659,51.314969],[3.782001,51.313898],[3.782554,51.311242],[3.784206,51.311881],[3.782811,51.31487],[3.785147,51.314995],[3.787094,51.315581],[3.788708,51.314183],[3.787749,51.312658],[3.788122,51.312385],[3.7834,51.310785]]],[[[3.685852,51.323441],[3.68528,51.323419],[3.682532,51.325886],[3.680948,51.326392],[3.68,51.327934],[3.67551,51.327434],[3.674123,51.329725],[3.681051,51.331117],[3.682236,51.331738],[3.682972,51.33178],[3.683077,51.331068],[3.685769,51.33112],[3.685868,51.332599],[3.687383,51.33238],[3.687262,51.333362],[3.687669,51.333395],[3.694619,51.330576],[3.693702,51.328754],[3.690501,51.329375],[3.690561,51.327066],[3.689608,51.327072],[3.688629,51.324446],[3.685743,51.324195],[3.685852,51.323441]]],[[[3.657234,51.368735],[3.657882,51.370038],[3.65703,51.370202],[3.657235,51.370626],[3.66028,51.370039],[3.661783,51.372935],[3.670255,51.37217],[3.66767,51.372305],[3.666687,51.370278],[3.66568,51.370477],[3.664953,51.369002],[3.664406,51.369117],[3.664115,51.368507],[3.661779,51.368141],[3.660864,51.366264],[3.661553,51.366098],[3.661359,51.365703],[3.657567,51.36691],[3.658328,51.368449],[3.657234,51.368735]]],[[[3.812631,51.387936],[3.812439,51.389862],[3.813538,51.389813],[3.813525,51.390201],[3.814162,51.390271],[3.813728,51.392988],[3.816379,51.394404],[3.817538,51.392491],[3.818597,51.392658],[3.818692,51.392343],[3.81624,51.391988],[3.816214,51.391528],[3.817025,51.391128],[3.819637,51.3915],[3.818395,51.388131],[3.816822,51.388278],[3.816759,51.387368],[3.815621,51.387459],[3.816056,51.387288],[3.815748,51.386965],[3.812631,51.387936]]],[[[3.806601,51.418983],[3.80534,51.419445],[3.803959,51.418118],[3.804855,51.417755],[3.805441,51.418318],[3.805886,51.418162],[3.805109,51.41739],[3.80633,51.416269],[3.805394,51.416693],[3.804298,51.416507],[3.803544,51.416891],[3.803014,51.416394],[3.802495,51.416714],[3.797871,51.413442],[3.79736,51.413542],[3.799114,51.414761],[3.798971,51.415435],[3.79985,51.415829],[3.800378,51.41556],[3.802254,51.416907],[3.801645,51.417245],[3.802216,51.41771],[3.801127,51.418305],[3.800541,51.417571],[3.799904,51.417778],[3.800801,51.418862],[3.801238,51.418643],[3.802301,51.419799],[3.802965,51.419519],[3.803708,51.420191],[3.804302,51.419933],[3.805209,51.420795],[3.805522,51.421383],[3.80409,51.421894],[3.803983,51.422416],[3.80596,51.4215],[3.806811,51.423383],[3.808023,51.424069],[3.80886,51.423783],[3.807167,51.421756],[3.807966,51.421531],[3.807251,51.420969],[3.809951,51.41972],[3.808953,51.419181],[3.808431,51.419408],[3.80876,51.419721],[3.807764,51.420103],[3.806601,51.418983]]],[[[3.739082,51.425036],[3.740503,51.422116],[3.73763,51.421584],[3.738059,51.420753],[3.73762,51.42054],[3.731834,51.419502],[3.731407,51.420372],[3.73223,51.420641],[3.732727,51.423097],[3.732225,51.423116],[3.731649,51.424338],[3.733682,51.425184],[3.733892,51.425876],[3.733234,51.426989],[3.735936,51.427603],[3.736695,51.42612],[3.742856,51.427239],[3.741136,51.430144],[3.742246,51.430349],[3.741847,51.431184],[3.743679,51.431519],[3.745971,51.426977],[3.747716,51.427152],[3.74816,51.426416],[3.746705,51.425767],[3.7461,51.426782],[3.741892,51.426014],[3.742138,51.425843],[3.739082,51.425036]]],[[[3.817331,51.428902],[3.817336,51.428899],[3.81733,51.428901],[3.817331,51.428902]]],[[[3.765114,51.450706],[3.761798,51.455152],[3.762248,51.455267],[3.762464,51.454938],[3.767801,51.456316],[3.76696,51.461039],[3.768336,51.461118],[3.768651,51.460254],[3.76938,51.459942],[3.768833,51.459394],[3.769913,51.458993],[3.773572,51.458913],[3.772372,51.456346],[3.778405,51.453903],[3.776496,51.453694],[3.776865,51.450994],[3.772958,51.450728],[3.772682,51.450111],[3.772369,51.450682],[3.76954,51.450569],[3.769189,51.449281],[3.768635,51.44935],[3.768428,51.448654],[3.76799,51.448913],[3.768323,51.450348],[3.763952,51.449519],[3.763893,51.450135],[3.765002,51.450327],[3.765114,51.450706]]],[[[3.744876,51.467694],[3.744378,51.467665],[3.744668,51.466987],[3.74008,51.466865],[3.740191,51.464995],[3.735022,51.464969],[3.728864,51.470983],[3.740598,51.471855],[3.741153,51.475424],[3.743997,51.476158],[3.74275,51.472692],[3.743671,51.470666],[3.745603,51.470085],[3.745981,51.46918],[3.745112,51.469041],[3.744876,51.467694]]],[[[3.824202,51.472406],[3.825808,51.47165],[3.826394,51.471851],[3.826882,51.471229],[3.821123,51.469256],[3.821146,51.468015],[3.821929,51.468088],[3.822042,51.467715],[3.821067,51.467599],[3.821193,51.4667],[3.806713,51.464642],[3.804215,51.469392],[3.804544,51.469782],[3.803465,51.473389],[3.804215,51.474596],[3.806172,51.474169],[3.807513,51.476155],[3.804493,51.477105],[3.804656,51.479139],[3.811843,51.47898],[3.811738,51.478327],[3.814693,51.478174],[3.812674,51.481039],[3.811316,51.481734],[3.810813,51.483059],[3.817906,51.482946],[3.822321,51.478499],[3.823843,51.476102],[3.826354,51.4741],[3.824467,51.473148],[3.824202,51.472406]]],[[[3.655032,51.481909],[3.655405,51.483326],[3.659118,51.485902],[3.660381,51.486184],[3.661269,51.484898],[3.663809,51.486578],[3.664177,51.486359],[3.663551,51.485946],[3.665266,51.484923],[3.66126,51.482194],[3.66156,51.48202],[3.659129,51.480406],[3.659538,51.480114],[3.658496,51.479492],[3.657253,51.479929],[3.654953,51.478958],[3.654888,51.479543],[3.656843,51.480374],[3.655032,51.481909]]],[[[3.65001,51.485716],[3.651687,51.484373],[3.654601,51.483794],[3.654045,51.483314],[3.651683,51.483878],[3.650151,51.484951],[3.65001,51.485716]]],[[[3.892876,51.202696],[3.889457,51.201317],[3.887649,51.201058],[3.887303,51.201764],[3.888923,51.202284],[3.888827,51.202751],[3.889833,51.203179],[3.889407,51.203993],[3.891715,51.205138],[3.892876,51.202696]]],[[[3.843571,51.239131],[3.843078,51.23851],[3.840226,51.237174],[3.84058,51.236074],[3.839561,51.235937],[3.838681,51.236597],[3.835633,51.234198],[3.834249,51.233627],[3.835182,51.231652],[3.834042,51.23122],[3.833876,51.230592],[3.828693,51.23013],[3.825566,51.228017],[3.823425,51.227162],[3.822728,51.227258],[3.822423,51.228206],[3.821181,51.229183],[3.818204,51.228898],[3.817135,51.228412],[3.814969,51.229228],[3.811668,51.229211],[3.812018,51.229308],[3.810258,51.23075],[3.810723,51.230889],[3.811365,51.230271],[3.81248,51.230369],[3.812721,51.23075],[3.812919,51.229985],[3.81365,51.229722],[3.81698,51.230461],[3.817206,51.23018],[3.819693,51.230529],[3.824594,51.232184],[3.824441,51.23251],[3.824756,51.232257],[3.825602,51.232819],[3.825093,51.233576],[3.825855,51.233701],[3.826261,51.232962],[3.826767,51.233547],[3.827046,51.233185],[3.827827,51.233481],[3.825171,51.236581],[3.827806,51.237451],[3.830309,51.234412],[3.831548,51.234668],[3.831778,51.234369],[3.833037,51.234468],[3.832603,51.235245],[3.83322,51.235448],[3.834341,51.23487],[3.835724,51.235218],[3.835902,51.235005],[3.836473,51.235411],[3.836024,51.235971],[3.836747,51.23643],[3.837307,51.2366],[3.837563,51.236317],[3.838241,51.236946],[3.841674,51.238213],[3.843409,51.239673],[3.842093,51.24116],[3.842705,51.241272],[3.843823,51.239976],[3.844838,51.240275],[3.84454,51.241061],[3.845071,51.241235],[3.845597,51.240603],[3.846085,51.240767],[3.847971,51.243042],[3.852294,51.245685],[3.854422,51.247714],[3.854393,51.250585],[3.854815,51.250419],[3.854664,51.248417],[3.855408,51.248057],[3.852581,51.245317],[3.848093,51.242671],[3.846568,51.240579],[3.844575,51.239789],[3.845151,51.239176],[3.844626,51.238734],[3.843888,51.238566],[3.843571,51.239131]]],[[[3.834133,51.269816],[3.831348,51.270338],[3.829154,51.272903],[3.831495,51.273368],[3.831905,51.27823],[3.826969,51.280316],[3.828297,51.284451],[3.828839,51.284687],[3.833077,51.282925],[3.835474,51.284772],[3.834329,51.285499],[3.834779,51.285869],[3.83212,51.287476],[3.831076,51.286585],[3.830176,51.287022],[3.831431,51.288365],[3.836877,51.285042],[3.83909,51.278198],[3.834133,51.269816]]],[[[3.881003,51.298432],[3.882035,51.296752],[3.88172,51.296563],[3.879853,51.296217],[3.88025,51.297201],[3.879571,51.29762],[3.878843,51.297127],[3.878239,51.2974],[3.877283,51.296411],[3.872904,51.29526],[3.873179,51.294962],[3.872553,51.294671],[3.871545,51.294788],[3.874176,51.296109],[3.874489,51.295876],[3.874952,51.296113],[3.873272,51.297389],[3.874252,51.297861],[3.874987,51.297305],[3.875983,51.297786],[3.876104,51.299162],[3.87676,51.299519],[3.875331,51.300292],[3.876598,51.300294],[3.879542,51.298668],[3.879743,51.297758],[3.880193,51.297479],[3.881003,51.298432]]],[[[3.85561,51.335244],[3.856655,51.334896],[3.859379,51.335369],[3.867818,51.335497],[3.868826,51.335906],[3.868725,51.336458],[3.871085,51.339541],[3.871952,51.339284],[3.872015,51.3386],[3.871017,51.338206],[3.871052,51.337859],[3.871949,51.337767],[3.871002,51.334146],[3.867448,51.33534],[3.864449,51.331563],[3.878323,51.328848],[3.87771,51.321958],[3.860649,51.322151],[3.859273,51.324032],[3.85639,51.325877],[3.856429,51.327047],[3.857387,51.328048],[3.857781,51.329835],[3.856951,51.330319],[3.855699,51.330313],[3.854406,51.328015],[3.853538,51.328254],[3.854861,51.325104],[3.85817,51.322071],[3.860263,51.316788],[3.863369,51.314034],[3.868552,51.31146],[3.852369,51.301463],[3.849943,51.300129],[3.848498,51.299858],[3.848072,51.299097],[3.845499,51.29753],[3.844651,51.297569],[3.842032,51.295866],[3.841776,51.296097],[3.837998,51.295613],[3.835892,51.296226],[3.833062,51.30473],[3.83335,51.304893],[3.835841,51.30316],[3.835488,51.302962],[3.84075,51.299281],[3.84232,51.300148],[3.832289,51.307322],[3.831689,51.309766],[3.836551,51.31125],[3.830577,51.314199],[3.830844,51.314426],[3.829375,51.315115],[3.828875,51.31669],[3.835746,51.313451],[3.83661,51.314186],[3.828508,51.317906],[3.826981,51.321884],[3.823908,51.322189],[3.820125,51.32694],[3.814724,51.325787],[3.812426,51.329212],[3.816741,51.330555],[3.813603,51.336938],[3.814488,51.336996],[3.815477,51.335757],[3.820347,51.336389],[3.820738,51.339044],[3.827274,51.343228],[3.829304,51.342472],[3.830437,51.338805],[3.834334,51.338367],[3.834792,51.336954],[3.840171,51.336149],[3.84176,51.335524],[3.84164,51.335182],[3.85561,51.335244]]],[[[3.853739,51.410573],[3.853159,51.410728],[3.853424,51.409623],[3.855584,51.409254],[3.856374,51.409525],[3.856813,51.411034],[3.857532,51.410958],[3.857262,51.410123],[3.858503,51.409896],[3.858008,51.409204],[3.857385,51.409329],[3.856473,51.407859],[3.857161,51.407448],[3.855631,51.405372],[3.856184,51.405197],[3.855216,51.404633],[3.852068,51.405294],[3.852187,51.406298],[3.851159,51.406304],[3.850825,51.405497],[3.850709,51.407223],[3.851413,51.40721],[3.851192,51.407958],[3.851973,51.407837],[3.852136,51.408189],[3.851286,51.409059],[3.851448,51.409811],[3.851993,51.409747],[3.851844,51.41063],[3.846775,51.411177],[3.846775,51.411974],[3.845841,51.412106],[3.847858,51.413499],[3.849573,51.412996],[3.848906,51.411911],[3.850073,51.411441],[3.854516,51.41255],[3.854681,51.412972],[3.858219,51.413179],[3.857274,51.412349],[3.855299,51.412098],[3.855076,51.411306],[3.854233,51.411324],[3.853739,51.410573]]],[[[3.890133,51.407498],[3.890257,51.406729],[3.887905,51.406736],[3.887571,51.4073],[3.886202,51.407464],[3.88594,51.406921],[3.885035,51.406932],[3.884923,51.406585],[3.884197,51.406681],[3.884415,51.407394],[3.883542,51.407518],[3.883166,51.407986],[3.881333,51.408073],[3.881797,51.411908],[3.881429,51.41191],[3.881413,51.413191],[3.881904,51.413079],[3.882,51.413902],[3.88285,51.413549],[3.882874,51.412791],[3.88443,51.412799],[3.884484,51.411787],[3.882551,51.411602],[3.88306,51.41009],[3.88455,51.409943],[3.884576,51.409306],[3.885766,51.409187],[3.885889,51.409728],[3.888047,51.409335],[3.888401,51.410404],[3.88927,51.410401],[3.889225,51.407541],[3.890133,51.407498]]],[[[3.818566,51.431837],[3.819962,51.432018],[3.820222,51.431395],[3.82416,51.431673],[3.824722,51.429399],[3.827441,51.429604],[3.827607,51.429115],[3.829522,51.428984],[3.829446,51.426218],[3.825999,51.426584],[3.82571,51.426201],[3.823254,51.426669],[3.822432,51.426009],[3.817374,51.428951],[3.817329,51.428903],[3.817133,51.428545],[3.813989,51.430291],[3.812885,51.42979],[3.818444,51.433667],[3.818742,51.433466],[3.81755,51.432767],[3.818566,51.431837]]],[[[3.873675,51.433579],[3.878909,51.436866],[3.880693,51.4347],[3.881415,51.4327],[3.880198,51.432336],[3.880488,51.431951],[3.878539,51.431282],[3.878739,51.43103],[3.87803,51.430801],[3.877438,51.431142],[3.875696,51.430194],[3.873943,51.431875],[3.873675,51.432742],[3.872926,51.432854],[3.872735,51.433458],[3.873675,51.433579]]],[[[3.852869,51.455331],[3.856532,51.45324],[3.855349,51.45305],[3.856472,51.452212],[3.856124,51.452056],[3.855213,51.452608],[3.852985,51.451223],[3.851883,51.452092],[3.849179,51.450997],[3.847062,51.452593],[3.846294,51.452093],[3.845655,51.452496],[3.846575,51.453134],[3.845921,51.453532],[3.84664,51.454025],[3.847757,51.453579],[3.850713,51.456455],[3.848051,51.457591],[3.84886,51.458038],[3.850043,51.457379],[3.851561,51.458308],[3.852969,51.457489],[3.855725,51.458785],[3.856009,51.459455],[3.856687,51.459041],[3.855486,51.458078],[3.856569,51.457329],[3.858131,51.458223],[3.859754,51.457303],[3.856371,51.455151],[3.855133,51.456485],[3.854304,51.456989],[3.853897,51.456785],[3.852869,51.455331]]],[[[3.882537,51.447869],[3.880039,51.450747],[3.886388,51.452104],[3.885496,51.452423],[3.886815,51.453091],[3.887277,51.452699],[3.888521,51.453377],[3.888063,51.454136],[3.896123,51.45751],[3.894409,51.459753],[3.896923,51.461399],[3.902601,51.463201],[3.903664,51.463099],[3.912788,51.465407],[3.916096,51.463377],[3.913709,51.462573],[3.917567,51.458109],[3.910961,51.458057],[3.903043,51.457063],[3.901329,51.456504],[3.90244,51.455544],[3.900576,51.455092],[3.899946,51.455438],[3.898917,51.45498],[3.89929,51.455397],[3.897793,51.457205],[3.892936,51.455009],[3.893337,51.454699],[3.892954,51.454521],[3.892339,51.45504],[3.891696,51.454715],[3.892599,51.453957],[3.894877,51.454606],[3.89565,51.453034],[3.894431,51.452787],[3.895526,51.450688],[3.891271,51.449691],[3.889877,51.451779],[3.888101,51.451181],[3.888241,51.450692],[3.884719,51.449001],[3.884754,51.448532],[3.882537,51.447869]]],[[[3.878962,51.468404],[3.876372,51.471426],[3.878686,51.472626],[3.880224,51.471444],[3.881618,51.471875],[3.879907,51.472694],[3.880839,51.473131],[3.883019,51.472096],[3.885056,51.473542],[3.886002,51.473433],[3.884083,51.472277],[3.883485,51.471089],[3.881612,51.469643],[3.883078,51.468515],[3.882727,51.468169],[3.882361,51.468004],[3.881255,51.468829],[3.88007,51.468286],[3.878962,51.468404]]],[[[3.917881,51.496592],[3.911533,51.496589],[3.910191,51.495346],[3.912234,51.493258],[3.913077,51.493291],[3.914319,51.490653],[3.912375,51.490087],[3.913522,51.488229],[3.914579,51.488476],[3.914761,51.488153],[3.913903,51.487578],[3.914495,51.48606],[3.910202,51.485313],[3.910432,51.484179],[3.905322,51.483654],[3.905282,51.484075],[3.903975,51.48401],[3.90412,51.480603],[3.905155,51.481105],[3.906475,51.480232],[3.887765,51.481235],[3.876937,51.482314],[3.873102,51.483129],[3.871665,51.484264],[3.87131,51.485316],[3.872088,51.497911],[3.875402,51.497975],[3.874136,51.500276],[3.876228,51.506041],[3.874414,51.506039],[3.873231,51.508564],[3.872885,51.512218],[3.870766,51.512699],[3.871422,51.514039],[3.870998,51.515956],[3.868587,51.516556],[3.875103,51.519064],[3.877101,51.519545],[3.880382,51.519573],[3.885517,51.521086],[3.891598,51.520071],[3.892425,51.521299],[3.891433,51.521599],[3.892854,51.521843],[3.89689,51.526944],[3.908577,51.523327],[3.918909,51.526998],[3.925786,51.519464],[3.926234,51.519576],[3.926703,51.517737],[3.916362,51.516707],[3.916348,51.515156],[3.915361,51.515025],[3.91434,51.513585],[3.912376,51.513013],[3.91013,51.513202],[3.908501,51.510737],[3.908904,51.510226],[3.910003,51.5104],[3.910425,51.509371],[3.907493,51.507665],[3.907015,51.504206],[3.907797,51.504136],[3.907591,51.50352],[3.909773,51.503373],[3.91021,51.502845],[3.911354,51.502695],[3.911413,51.503024],[3.912187,51.502923],[3.912334,51.503625],[3.91262,51.502711],[3.914692,51.502104],[3.914988,51.50284],[3.917095,51.502543],[3.917899,51.503375],[3.91962,51.501949],[3.920044,51.502243],[3.922534,51.501332],[3.921019,51.499761],[3.918098,51.500801],[3.917944,51.499507],[3.918765,51.499171],[3.920551,51.499278],[3.922162,51.49847],[3.923351,51.49947],[3.924061,51.499511],[3.923552,51.499921],[3.924621,51.500105],[3.924571,51.500629],[3.926914,51.500656],[3.92467,51.49691],[3.92409,51.494549],[3.923511,51.495954],[3.921551,51.495795],[3.917881,51.496592]]]]}},{"type":"Feature","properties":{"__cat":"inclusion","id":"zr-intersection-6edf86b914","operation":"intersection","areaKm2":22.880058366,"ruleIds":["FR-ZON-01"],"layers":["stedelijk-nl"]},"geometry":{"type":"MultiPolygon","coordinates":[[[[3.45012,51.249724],[3.450749,51.250943],[3.450037,51.251002],[3.450093,51.251366],[3.451231,51.251279],[3.451319,51.251993],[3.453376,51.251586],[3.453248,51.251143],[3.452354,51.251228],[3.451431,51.245972],[3.450901,51.244413],[3.450493,51.244422],[3.4504,51.241615],[3.450008,51.241604],[3.45012,51.249724]]],[[[3.450618,51.274371],[3.451987,51.273195],[3.451315,51.272737],[3.452073,51.271752],[3.453327,51.271893],[3.453571,51.272418],[3.453689,51.271936],[3.455906,51.27205],[3.45612,51.272443],[3.457032,51.271874],[3.456118,51.269153],[3.452968,51.268841],[3.45428,51.267159],[3.454385,51.266608],[3.453775,51.266473],[3.453998,51.265047],[3.453166,51.265376],[3.45323,51.267232],[3.451331,51.267282],[3.451338,51.267579],[3.453069,51.267532],[3.452336,51.268781],[3.451497,51.269412],[3.450008,51.269249],[3.450008,51.274577],[3.45038,51.27414],[3.450618,51.274371]]],[[[3.502639,51.272329],[3.502642,51.272019],[3.501751,51.27199],[3.501638,51.272728],[3.499745,51.272705],[3.499727,51.272021],[3.498564,51.272036],[3.498764,51.271458],[3.496666,51.271299],[3.496672,51.271053],[3.494377,51.271063],[3.494285,51.271772],[3.493166,51.271688],[3.493243,51.272505],[3.498986,51.273293],[3.501246,51.274031],[3.501838,51.273634],[3.505233,51.273823],[3.505588,51.272548],[3.504877,51.272591],[3.504939,51.272986],[3.50334,51.273078],[3.503344,51.272685],[3.502098,51.272716],[3.502313,51.272127],[3.502639,51.272329]]],[[[3.549308,51.318244],[3.550935,51.319626],[3.55693,51.317925],[3.557871,51.317998],[3.55831,51.318678],[3.561084,51.319239],[3.561133,51.318256],[3.556632,51.317696],[3.556382,51.315371],[3.555737,51.315347],[3.554771,51.316387],[3.554246,51.316246],[3.549308,51.318244]]],[[[3.478236,51.321064],[3.478673,51.322721],[3.478027,51.322799],[3.478844,51.324508],[3.478471,51.32594],[3.479366,51.326083],[3.478018,51.327011],[3.480052,51.327425],[3.478433,51.328885],[3.477778,51.328694],[3.476908,51.330268],[3.477682,51.330801],[3.478819,51.331309],[3.481708,51.329368],[3.482819,51.33036],[3.485777,51.329014],[3.486786,51.330019],[3.486505,51.330359],[3.487652,51.331187],[3.488868,51.330642],[3.489879,51.331467],[3.492453,51.331177],[3.49365,51.331383],[3.49236,51.334194],[3.498713,51.335336],[3.503475,51.335786],[3.505712,51.333581],[3.501599,51.33193],[3.501898,51.331648],[3.500886,51.331131],[3.50754,51.324577],[3.492172,51.323718],[3.490953,51.322602],[3.486877,51.322807],[3.486672,51.321846],[3.487806,51.320492],[3.487259,51.320189],[3.482747,51.320572],[3.481413,51.319601],[3.480474,51.319794],[3.476279,51.317985],[3.475909,51.318297],[3.476582,51.318738],[3.478493,51.319387],[3.477555,51.320734],[3.478236,51.321064]]],[[[3.450877,51.341845],[3.451869,51.342166],[3.451433,51.342437],[3.452746,51.343351],[3.45329,51.343088],[3.45393,51.343536],[3.454421,51.343317],[3.453331,51.342581],[3.456317,51.341533],[3.454551,51.340389],[3.455132,51.340162],[3.453388,51.339147],[3.454785,51.338194],[3.452676,51.339127],[3.451765,51.338552],[3.450006,51.339766],[3.450006,51.342203],[3.450877,51.341845]]],[[[3.558236,51.350041],[3.556171,51.351817],[3.555329,51.351463],[3.554345,51.351991],[3.552657,51.351341],[3.551924,51.352021],[3.552538,51.352268],[3.549685,51.354654],[3.547799,51.353878],[3.546388,51.35662],[3.546676,51.356829],[3.548186,51.356321],[3.550585,51.357628],[3.550073,51.358064],[3.550509,51.358534],[3.551751,51.358441],[3.552918,51.359348],[3.553554,51.359001],[3.554185,51.359478],[3.554758,51.359123],[3.553997,51.358344],[3.554507,51.357912],[3.55611,51.359105],[3.557895,51.359061],[3.561398,51.355609],[3.559233,51.353777],[3.559999,51.352034],[3.55895,51.351588],[3.560189,51.35033],[3.559559,51.350084],[3.55918,51.350457],[3.558236,51.350041]]],[[[3.470775,51.374009],[3.470739,51.374851],[3.473091,51.373324],[3.474549,51.373617],[3.476099,51.373323],[3.470779,51.370334],[3.46536,51.368346],[3.464422,51.368555],[3.467564,51.370616],[3.466897,51.371185],[3.468584,51.371885],[3.466145,51.373801],[3.465472,51.373565],[3.465618,51.374171],[3.465892,51.374336],[3.468529,51.372681],[3.470775,51.374009]]],[[[3.521606,51.381854],[3.512024,51.381418],[3.509977,51.380661],[3.509941,51.377251],[3.508429,51.376732],[3.508403,51.375597],[3.50724,51.375684],[3.507021,51.375077],[3.506,51.375122],[3.506129,51.376187],[3.501925,51.376663],[3.502146,51.37848],[3.501688,51.378936],[3.502651,51.379604],[3.501883,51.380764],[3.502847,51.381025],[3.502061,51.383026],[3.504165,51.383344],[3.504495,51.382764],[3.506609,51.383246],[3.506813,51.382986],[3.508191,51.383204],[3.509194,51.38142],[3.511454,51.38221],[3.511738,51.381849],[3.517679,51.383008],[3.517974,51.382727],[3.521684,51.382632],[3.521606,51.381854]]],[[[3.566951,51.400631],[3.567837,51.400671],[3.568501,51.398823],[3.578495,51.394042],[3.576604,51.39257],[3.579755,51.390299],[3.576177,51.38752],[3.571778,51.390236],[3.570597,51.389523],[3.562428,51.392856],[3.560676,51.391982],[3.560289,51.390056],[3.560748,51.389603],[3.558722,51.386447],[3.557845,51.386279],[3.548928,51.388105],[3.547358,51.393307],[3.544345,51.399932],[3.544411,51.401258],[3.5461,51.40444],[3.547345,51.404433],[3.546464,51.403239],[3.546891,51.402878],[3.546677,51.401978],[3.547501,51.401438],[3.550824,51.400848],[3.55236,51.401925],[3.553095,51.40088],[3.555111,51.399786],[3.557007,51.39887],[3.559513,51.398298],[3.56134,51.398074],[3.563764,51.398671],[3.566951,51.400631]]],[[[3.552189,51.478102],[3.546666,51.478311],[3.546653,51.478652],[3.544928,51.478848],[3.54555,51.479274],[3.544929,51.479658],[3.545189,51.480075],[3.560065,51.48008],[3.560064,51.478624],[3.559303,51.477186],[3.557063,51.477227],[3.556674,51.478254],[3.552091,51.478376],[3.552189,51.478102]]],[[[3.604204,51.320934],[3.600701,51.320913],[3.602431,51.321163],[3.60276,51.322389],[3.603771,51.323108],[3.60402,51.322548],[3.605691,51.322771],[3.605877,51.322367],[3.607062,51.322539],[3.607677,51.321779],[3.61047,51.32194],[3.610222,51.322996],[3.61173,51.323581],[3.611787,51.324409],[3.612919,51.324429],[3.612099,51.325613],[3.613063,51.325967],[3.611693,51.32876],[3.61232,51.329013],[3.612762,51.328631],[3.613943,51.329171],[3.614524,51.328639],[3.615012,51.328866],[3.619743,51.324212],[3.621287,51.32514],[3.622028,51.324677],[3.621114,51.324135],[3.621583,51.323528],[3.620886,51.322218],[3.621646,51.321674],[3.620951,51.32125],[3.621622,51.319535],[3.623004,51.319838],[3.623006,51.318792],[3.623874,51.317949],[3.622071,51.317446],[3.622349,51.31714],[3.620145,51.317202],[3.620284,51.316631],[3.611626,51.316039],[3.611788,51.31749],[3.610768,51.321394],[3.609194,51.321607],[3.604204,51.320934]]],[[[3.68528,51.323419],[3.682532,51.325886],[3.680948,51.326392],[3.68,51.327934],[3.67551,51.327434],[3.674123,51.329725],[3.681051,51.331117],[3.682236,51.331738],[3.682972,51.33178],[3.683077,51.331068],[3.685769,51.33112],[3.685868,51.332599],[3.687383,51.33238],[3.687262,51.333362],[3.687669,51.333395],[3.694619,51.330576],[3.693702,51.328754],[3.690501,51.329375],[3.690561,51.327066],[3.689608,51.327072],[3.688629,51.324446],[3.685743,51.324195],[3.685852,51.323441],[3.68528,51.323419]]],[[[3.661619,51.372811],[3.670255,51.37217],[3.66767,51.372305],[3.666687,51.370278],[3.66568,51.370477],[3.664953,51.369002],[3.664406,51.369117],[3.664115,51.368507],[3.661779,51.368141],[3.660864,51.366264],[3.661553,51.366098],[3.661359,51.365703],[3.657567,51.36691],[3.658328,51.368449],[3.657234,51.368735],[3.657882,51.370038],[3.65703,51.370202],[3.657235,51.370626],[3.66028,51.370039],[3.661619,51.372811]]],[[[3.627045,51.448501],[3.627245,51.449077],[3.625324,51.44907],[3.62558,51.450534],[3.619369,51.45224],[3.619613,51.45253],[3.621501,51.451909],[3.622396,51.453047],[3.623971,51.452589],[3.624203,51.452891],[3.625596,51.452628],[3.625809,51.453208],[3.626823,51.452623],[3.626964,51.451879],[3.62797,51.451709],[3.62795,51.450847],[3.630895,51.450835],[3.630878,51.449842],[3.62748,51.449853],[3.628202,51.449586],[3.627645,51.449076],[3.628078,51.44846],[3.627045,51.448501]]],[[[3.604872,51.473727],[3.60381,51.475632],[3.604535,51.475756],[3.60485,51.475088],[3.606255,51.475295],[3.606819,51.475945],[3.607581,51.474996],[3.606922,51.472745],[3.607622,51.473374],[3.611952,51.474654],[3.613185,51.473316],[3.61378,51.473682],[3.614842,51.472818],[3.615368,51.473017],[3.617135,51.470665],[3.615959,51.469576],[3.613137,51.464596],[3.611225,51.462756],[3.612228,51.462288],[3.612308,51.461594],[3.611398,51.459509],[3.610079,51.460049],[3.60894,51.458319],[3.604424,51.457736],[3.60348,51.457155],[3.603422,51.456498],[3.609688,51.450016],[3.610094,51.447345],[3.60323,51.446992],[3.604252,51.442999],[3.603656,51.442499],[3.598714,51.443286],[3.598015,51.443128],[3.597018,51.442067],[3.596303,51.442102],[3.596056,51.441695],[3.596825,51.441499],[3.596462,51.440923],[3.594841,51.440214],[3.592746,51.441166],[3.59052,51.441479],[3.582444,51.440452],[3.581883,51.439651],[3.579954,51.440642],[3.576469,51.439973],[3.577291,51.43914],[3.575752,51.438202],[3.575332,51.439022],[3.573897,51.439627],[3.569619,51.440541],[3.567566,51.443637],[3.563068,51.446172],[3.560409,51.448852],[3.556617,51.450286],[3.554852,51.449791],[3.552689,51.451541],[3.55027,51.452475],[3.547379,51.453044],[3.538691,51.457723],[3.542804,51.458283],[3.542692,51.460102],[3.539789,51.464281],[3.537567,51.463837],[3.537364,51.464858],[3.54424,51.466467],[3.5467,51.467627],[3.548754,51.466475],[3.551736,51.467883],[3.552676,51.466667],[3.555086,51.467887],[3.554835,51.468263],[3.555464,51.467943],[3.557126,51.468069],[3.560194,51.471081],[3.567026,51.470074],[3.566497,51.466986],[3.568696,51.467322],[3.569758,51.465518],[3.571947,51.465726],[3.574065,51.465389],[3.573754,51.466562],[3.575197,51.466583],[3.575147,51.467583],[3.578792,51.467768],[3.578735,51.46967],[3.582717,51.468972],[3.590002,51.470377],[3.58993,51.471102],[3.587023,51.470986],[3.586895,51.474041],[3.586313,51.475125],[3.585636,51.474979],[3.585396,51.475402],[3.590946,51.476157],[3.592759,51.476754],[3.594206,51.4754],[3.595371,51.475722],[3.597625,51.475042],[3.598185,51.475276],[3.601513,51.474662],[3.602465,51.474949],[3.60296,51.474372],[3.604872,51.473727]]],[[[3.72886,51.470886],[3.730001,51.471016],[3.730001,51.469649],[3.72886,51.470886]]],[[[3.596885,51.476439],[3.596932,51.478006],[3.599095,51.477989],[3.599509,51.480084],[3.600947,51.480083],[3.598569,51.475541],[3.597742,51.476307],[3.596885,51.476439]]],[[[3.630701,51.480077],[3.647753,51.48007],[3.640992,51.478255],[3.635836,51.478606],[3.634606,51.477898],[3.630701,51.480077]]],[[[3.617976,51.47784],[3.61497,51.477364],[3.61325,51.478243],[3.612232,51.477834],[3.610723,51.478952],[3.609627,51.479217],[3.608474,51.478077],[3.606992,51.478289],[3.606078,51.4775],[3.603511,51.478749],[3.60392,51.479518],[3.603158,51.479674],[3.603372,51.480083],[3.620614,51.48008],[3.617976,51.47784]]],[[[3.657253,51.479929],[3.654953,51.478958],[3.654888,51.479543],[3.656117,51.480065],[3.659453,51.480063],[3.658496,51.479492],[3.657253,51.479929]]],[[[3.62553,51.478195],[3.622208,51.48008],[3.628084,51.480078],[3.62553,51.478195]]]]}},{"type":"Feature","properties":{"__cat":"exclusion","id":"zr-difference-a40613a35d","operation":"difference","areaKm2":22.85810099,"ruleIds":["FR-ZON-02"],"layers":["natura2000-nl","national_source"]},"geometry":{"type":"MultiPolygon","coordinates":[[[[3.450749,51.250943],[3.450037,51.251002],[3.450093,51.251366],[3.451231,51.251279],[3.451319,51.251993],[3.453376,51.251586],[3.453248,51.251143],[3.452354,51.251228],[3.451431,51.245972],[3.450901,51.244413],[3.450493,51.244422],[3.4504,51.241615],[3.450008,51.241604],[3.450008,51.248969],[3.450749,51.250943]]],[[[3.450008,51.274577],[3.451987,51.273195],[3.451315,51.272737],[3.452073,51.271752],[3.453327,51.271893],[3.453571,51.272418],[3.453689,51.271936],[3.455906,51.27205],[3.45612,51.272443],[3.457032,51.271874],[3.456118,51.269153],[3.452968,51.268841],[3.45428,51.267159],[3.454385,51.266608],[3.453775,51.266473],[3.453998,51.265047],[3.453166,51.265376],[3.45323,51.267232],[3.451331,51.267282],[3.451338,51.267579],[3.453069,51.267532],[3.452336,51.268781],[3.451497,51.269412],[3.450008,51.269249],[3.450008,51.274577]]],[[[3.501638,51.272728],[3.499745,51.272705],[3.499727,51.272021],[3.498564,51.272036],[3.498764,51.271458],[3.496666,51.271299],[3.496672,51.271053],[3.494377,51.271063],[3.494285,51.271772],[3.493166,51.271688],[3.493243,51.272505],[3.498986,51.273293],[3.501246,51.274031],[3.501838,51.273634],[3.505233,51.273823],[3.50517,51.272973],[3.505648,51.272945],[3.505588,51.272548],[3.504877,51.272591],[3.504939,51.272986],[3.50334,51.273078],[3.503344,51.272685],[3.502098,51.272716],[3.502642,51.272019],[3.501685,51.272028],[3.501638,51.272728]]],[[[3.555466,51.318205],[3.557871,51.317998],[3.55831,51.318678],[3.561084,51.319239],[3.561133,51.318256],[3.556632,51.317696],[3.556382,51.315371],[3.555737,51.315347],[3.554771,51.316387],[3.554246,51.316246],[3.549308,51.318244],[3.550935,51.319626],[3.555466,51.318205]]],[[[3.478844,51.324508],[3.478471,51.32594],[3.479366,51.326083],[3.478018,51.327011],[3.480052,51.327425],[3.478433,51.328885],[3.477778,51.328694],[3.476908,51.330268],[3.478819,51.331309],[3.481708,51.329368],[3.482819,51.33036],[3.485777,51.329014],[3.486786,51.330019],[3.486505,51.330359],[3.487652,51.331187],[3.488868,51.330642],[3.489879,51.331467],[3.492453,51.331177],[3.49365,51.331383],[3.49236,51.334194],[3.498713,51.335336],[3.503475,51.335786],[3.505712,51.333581],[3.501599,51.33193],[3.501898,51.331648],[3.500886,51.331131],[3.507537,51.32458],[3.493324,51.323751],[3.492057,51.324279],[3.491777,51.323117],[3.491074,51.322613],[3.486877,51.322807],[3.486672,51.321846],[3.487806,51.320492],[3.487259,51.320189],[3.482747,51.320572],[3.481413,51.319601],[3.480474,51.319794],[3.476279,51.317985],[3.475909,51.318297],[3.476582,51.318738],[3.478493,51.319387],[3.477555,51.320734],[3.478313,51.321165],[3.478673,51.322721],[3.478027,51.322799],[3.478844,51.324508]]],[[[3.452746,51.343351],[3.45329,51.343088],[3.45393,51.343536],[3.454421,51.343317],[3.453331,51.342581],[3.456317,51.341533],[3.454551,51.340389],[3.455132,51.340162],[3.453388,51.339147],[3.454785,51.338194],[3.452676,51.339127],[3.451765,51.338552],[3.450006,51.339766],[3.450006,51.342203],[3.450877,51.341845],[3.451869,51.342166],[3.451433,51.342437],[3.452746,51.343351]]],[[[3.554345,51.351991],[3.552657,51.351341],[3.551924,51.352021],[3.552538,51.352268],[3.549685,51.354654],[3.547799,51.353878],[3.546329,51.356467],[3.546676,51.356829],[3.548186,51.356321],[3.550585,51.357628],[3.550073,51.358064],[3.550509,51.358534],[3.551751,51.358441],[3.552918,51.359348],[3.553554,51.359001],[3.554185,51.359478],[3.554913,51.358969],[3.553997,51.358344],[3.554507,51.357912],[3.55611,51.359105],[3.557895,51.359061],[3.561398,51.355609],[3.559233,51.353777],[3.559999,51.352034],[3.55895,51.351588],[3.560189,51.35033],[3.559559,51.350084],[3.55918,51.350457],[3.558236,51.350041],[3.556171,51.351817],[3.555329,51.351463],[3.554345,51.351991]]],[[[3.474549,51.373617],[3.476099,51.373323],[3.47202,51.370906],[3.46536,51.368346],[3.464422,51.368555],[3.467564,51.370616],[3.466897,51.371185],[3.468584,51.371885],[3.466145,51.373801],[3.465472,51.373565],[3.465892,51.374336],[3.468529,51.372681],[3.470775,51.374009],[3.470381,51.374587],[3.470739,51.374851],[3.473091,51.373324],[3.474549,51.373617]]],[[[3.511854,51.381239],[3.509977,51.380661],[3.509941,51.377251],[3.508429,51.376732],[3.508403,51.375597],[3.50724,51.375684],[3.507021,51.375077],[3.506,51.375122],[3.506129,51.376187],[3.501925,51.376663],[3.502146,51.37848],[3.501688,51.378936],[3.502651,51.379604],[3.501883,51.380764],[3.502847,51.381025],[3.502061,51.383026],[3.504165,51.383344],[3.504495,51.382764],[3.506609,51.383246],[3.506813,51.382986],[3.508191,51.383204],[3.509194,51.38142],[3.511454,51.38221],[3.511738,51.381849],[3.517679,51.383008],[3.517974,51.382727],[3.521684,51.382632],[3.521606,51.381854],[3.516831,51.381889],[3.511854,51.381239]]],[[[3.568454,51.398886],[3.578272,51.393959],[3.576604,51.39257],[3.579755,51.390299],[3.576177,51.38752],[3.571778,51.390236],[3.570597,51.389523],[3.562428,51.392856],[3.560676,51.391982],[3.560289,51.390056],[3.560748,51.389603],[3.558722,51.386447],[3.557845,51.386279],[3.548928,51.388105],[3.547358,51.393307],[3.544345,51.399932],[3.544411,51.401258],[3.5461,51.40444],[3.547345,51.404433],[3.546463,51.403409],[3.546897,51.401719],[3.5491,51.400962],[3.550824,51.400848],[3.55236,51.401925],[3.553095,51.40088],[3.556258,51.398839],[3.56134,51.398074],[3.563076,51.398289],[3.567831,51.400671],[3.568454,51.398886]]],[[[3.549909,51.478012],[3.544928,51.478848],[3.54555,51.479274],[3.544929,51.479658],[3.545189,51.480075],[3.560065,51.48008],[3.560064,51.478624],[3.559303,51.477186],[3.557063,51.477227],[3.556674,51.478254],[3.552091,51.478376],[3.552189,51.478102],[3.549909,51.478012]]],[[[3.609194,51.321607],[3.600701,51.320913],[3.602431,51.321163],[3.60276,51.322389],[3.603771,51.323108],[3.60402,51.322548],[3.605691,51.322771],[3.605877,51.322367],[3.607062,51.322539],[3.607677,51.321779],[3.61047,51.32194],[3.610222,51.322996],[3.61173,51.323581],[3.611787,51.324409],[3.612919,51.324429],[3.612099,51.325613],[3.613063,51.325967],[3.611693,51.32876],[3.61232,51.329013],[3.612762,51.328631],[3.613943,51.329171],[3.614524,51.328639],[3.615012,51.328866],[3.619743,51.324212],[3.621287,51.32514],[3.622028,51.324677],[3.621114,51.324135],[3.621583,51.323528],[3.620886,51.322218],[3.621646,51.321674],[3.620951,51.32125],[3.621622,51.319535],[3.623004,51.319838],[3.623006,51.318792],[3.623874,51.317949],[3.622071,51.317446],[3.622349,51.31714],[3.620145,51.317202],[3.620284,51.316631],[3.611626,51.316039],[3.611788,51.31749],[3.610768,51.321394],[3.609194,51.321607]]],[[[3.681069,51.326378],[3.68,51.327934],[3.67551,51.327434],[3.674123,51.329725],[3.681051,51.331117],[3.682236,51.331738],[3.682972,51.33178],[3.683077,51.331068],[3.685769,51.33112],[3.685868,51.332599],[3.687383,51.33238],[3.687262,51.333362],[3.687669,51.333395],[3.694619,51.330576],[3.693702,51.328754],[3.690501,51.329375],[3.690561,51.327066],[3.689608,51.327072],[3.688629,51.324446],[3.685743,51.324195],[3.685852,51.323441],[3.68528,51.323419],[3.682532,51.325886],[3.681069,51.326378]]],[[[3.661619,51.372811],[3.670255,51.37217],[3.66767,51.372305],[3.666687,51.370278],[3.66568,51.370477],[3.664953,51.369002],[3.664406,51.369117],[3.664115,51.368507],[3.661779,51.368141],[3.660864,51.366264],[3.661553,51.366098],[3.661359,51.365703],[3.657567,51.36691],[3.658328,51.368449],[3.657234,51.368735],[3.657882,51.370038],[3.65703,51.370202],[3.657235,51.370626],[3.66028,51.370039],[3.661619,51.372811]]],[[[3.62558,51.450534],[3.622615,51.451188],[3.619369,51.45224],[3.619613,51.45253],[3.621501,51.451909],[3.622396,51.453047],[3.623971,51.452589],[3.624203,51.452891],[3.625596,51.452628],[3.625809,51.453208],[3.626823,51.452623],[3.626964,51.451879],[3.62797,51.451709],[3.62795,51.450847],[3.630895,51.450835],[3.630878,51.449842],[3.62748,51.449853],[3.628202,51.449586],[3.627645,51.449076],[3.628078,51.44846],[3.627045,51.448501],[3.627245,51.449077],[3.625324,51.44907],[3.62558,51.450534]]],[[[3.606059,51.475274],[3.606819,51.475945],[3.607581,51.474996],[3.606922,51.472745],[3.607622,51.473374],[3.611952,51.474654],[3.613185,51.473316],[3.61378,51.473682],[3.614842,51.472818],[3.615368,51.473017],[3.617135,51.470665],[3.615959,51.469576],[3.613137,51.464596],[3.611225,51.462756],[3.612228,51.462288],[3.612308,51.461594],[3.611398,51.459509],[3.610079,51.460049],[3.60894,51.458319],[3.604424,51.457736],[3.603398,51.456907],[3.605696,51.453928],[3.609688,51.450016],[3.610094,51.447345],[3.60323,51.446992],[3.604252,51.442999],[3.603656,51.442499],[3.598714,51.443286],[3.598015,51.443128],[3.597018,51.442067],[3.596303,51.442102],[3.596056,51.441695],[3.596825,51.441499],[3.596462,51.440923],[3.59514,51.44027],[3.594108,51.440325],[3.592746,51.441166],[3.59052,51.441479],[3.582444,51.440452],[3.581883,51.439651],[3.579954,51.440642],[3.576469,51.439973],[3.577291,51.43914],[3.575752,51.438202],[3.575332,51.439022],[3.573897,51.439627],[3.569619,51.440541],[3.567566,51.443637],[3.563068,51.446172],[3.560409,51.448852],[3.556617,51.450286],[3.554852,51.449791],[3.552689,51.451541],[3.55027,51.452475],[3.547379,51.453044],[3.538691,51.457723],[3.542804,51.458283],[3.542692,51.460102],[3.539789,51.464281],[3.537567,51.463837],[3.537364,51.464858],[3.54424,51.466467],[3.5467,51.467627],[3.548754,51.466475],[3.551736,51.467883],[3.552676,51.466667],[3.555086,51.467887],[3.554835,51.468263],[3.555464,51.467943],[3.557126,51.468069],[3.560194,51.471081],[3.567026,51.470074],[3.566497,51.466986],[3.568696,51.467322],[3.569758,51.465518],[3.571947,51.465726],[3.574065,51.465389],[3.573754,51.466562],[3.575197,51.466583],[3.575147,51.467583],[3.578792,51.467768],[3.578735,51.46967],[3.582717,51.468972],[3.590002,51.470377],[3.58993,51.471102],[3.587023,51.470986],[3.586895,51.474041],[3.586313,51.475125],[3.585636,51.474979],[3.585396,51.475402],[3.590946,51.476157],[3.592759,51.476754],[3.594206,51.4754],[3.595371,51.475722],[3.597625,51.475042],[3.598185,51.475276],[3.601513,51.474662],[3.602465,51.474949],[3.60296,51.474372],[3.604872,51.473727],[3.60381,51.475632],[3.604535,51.475756],[3.60485,51.475088],[3.606059,51.475274]]],[[[3.72886,51.470886],[3.730001,51.471016],[3.730001,51.469649],[3.72886,51.470886]]],[[[3.599095,51.477989],[3.599509,51.480084],[3.600947,51.480083],[3.598569,51.475541],[3.597742,51.476307],[3.596885,51.476439],[3.596932,51.478006],[3.599095,51.477989]]],[[[3.634606,51.477898],[3.630701,51.480077],[3.647753,51.48007],[3.640992,51.478255],[3.635836,51.478606],[3.634606,51.477898]]],[[[3.609627,51.479217],[3.608474,51.478077],[3.606992,51.478289],[3.606078,51.4775],[3.603511,51.478749],[3.60392,51.479518],[3.603158,51.479674],[3.603372,51.480083],[3.620614,51.48008],[3.617976,51.47784],[3.617408,51.478043],[3.61497,51.477364],[3.61325,51.478243],[3.612232,51.477834],[3.610723,51.478952],[3.609627,51.479217]]],[[[3.658496,51.479492],[3.657253,51.479929],[3.654953,51.478958],[3.654888,51.479543],[3.656117,51.480065],[3.659453,51.480063],[3.658496,51.479492]]],[[[3.628084,51.480078],[3.62553,51.478195],[3.622208,51.48008],[3.628084,51.480078]]]]}},{"type":"Feature","properties":{"__cat":"final","id":"zr-final-dcde52a65d","operation":"final","areaKm2":22.85810099,"ruleIds":["FR-ZON-01","FR-ZON-02"],"layers":["national_source","natura2000-nl","stedelijk-nl"]},"geometry":{"type":"MultiPolygon","coordinates":[[[[3.450749,51.250943],[3.450037,51.251002],[3.450093,51.251366],[3.451231,51.251279],[3.451319,51.251993],[3.453376,51.251586],[3.453248,51.251143],[3.452354,51.251228],[3.451431,51.245972],[3.450901,51.244413],[3.450493,51.244422],[3.4504,51.241615],[3.450008,51.241604],[3.450008,51.248969],[3.450749,51.250943]]],[[[3.450008,51.274577],[3.451987,51.273195],[3.451315,51.272737],[3.452073,51.271752],[3.453327,51.271893],[3.453571,51.272418],[3.453689,51.271936],[3.455906,51.27205],[3.45612,51.272443],[3.457032,51.271874],[3.456118,51.269153],[3.452968,51.268841],[3.45428,51.267159],[3.454385,51.266608],[3.453775,51.266473],[3.453998,51.265047],[3.453166,51.265376],[3.45323,51.267232],[3.451331,51.267282],[3.451338,51.267579],[3.453069,51.267532],[3.452336,51.268781],[3.451497,51.269412],[3.450008,51.269249],[3.450008,51.274577]]],[[[3.501638,51.272728],[3.499745,51.272705],[3.499727,51.272021],[3.498564,51.272036],[3.498764,51.271458],[3.496666,51.271299],[3.496672,51.271053],[3.494377,51.271063],[3.494285,51.271772],[3.493166,51.271688],[3.493243,51.272505],[3.498986,51.273293],[3.501246,51.274031],[3.501838,51.273634],[3.505233,51.273823],[3.50517,51.272973],[3.505648,51.272945],[3.505588,51.272548],[3.504877,51.272591],[3.504939,51.272986],[3.50334,51.273078],[3.503344,51.272685],[3.502098,51.272716],[3.502642,51.272019],[3.501685,51.272028],[3.501638,51.272728]]],[[[3.555466,51.318205],[3.557871,51.317998],[3.55831,51.318678],[3.561084,51.319239],[3.561133,51.318256],[3.556632,51.317696],[3.556382,51.315371],[3.555737,51.315347],[3.554771,51.316387],[3.554246,51.316246],[3.549308,51.318244],[3.550935,51.319626],[3.555466,51.318205]]],[[[3.478844,51.324508],[3.478471,51.32594],[3.479366,51.326083],[3.478018,51.327011],[3.480052,51.327425],[3.478433,51.328885],[3.477778,51.328694],[3.476908,51.330268],[3.478819,51.331309],[3.481708,51.329368],[3.482819,51.33036],[3.485777,51.329014],[3.486786,51.330019],[3.486505,51.330359],[3.487652,51.331187],[3.488868,51.330642],[3.489879,51.331467],[3.492453,51.331177],[3.49365,51.331383],[3.49236,51.334194],[3.498713,51.335336],[3.503475,51.335786],[3.505712,51.333581],[3.501599,51.33193],[3.501898,51.331648],[3.500886,51.331131],[3.507537,51.32458],[3.493324,51.323751],[3.492057,51.324279],[3.491777,51.323117],[3.491074,51.322613],[3.486877,51.322807],[3.486672,51.321846],[3.487806,51.320492],[3.487259,51.320189],[3.482747,51.320572],[3.481413,51.319601],[3.480474,51.319794],[3.476279,51.317985],[3.475909,51.318297],[3.476582,51.318738],[3.478493,51.319387],[3.477555,51.320734],[3.478313,51.321165],[3.478673,51.322721],[3.478027,51.322799],[3.478844,51.324508]]],[[[3.452746,51.343351],[3.45329,51.343088],[3.45393,51.343536],[3.454421,51.343317],[3.453331,51.342581],[3.456317,51.341533],[3.454551,51.340389],[3.455132,51.340162],[3.453388,51.339147],[3.454785,51.338194],[3.452676,51.339127],[3.451765,51.338552],[3.450006,51.339766],[3.450006,51.342203],[3.450877,51.341845],[3.451869,51.342166],[3.451433,51.342437],[3.452746,51.343351]]],[[[3.554345,51.351991],[3.552657,51.351341],[3.551924,51.352021],[3.552538,51.352268],[3.549685,51.354654],[3.547799,51.353878],[3.546329,51.356467],[3.546676,51.356829],[3.548186,51.356321],[3.550585,51.357628],[3.550073,51.358064],[3.550509,51.358534],[3.551751,51.358441],[3.552918,51.359348],[3.553554,51.359001],[3.554185,51.359478],[3.554913,51.358969],[3.553997,51.358344],[3.554507,51.357912],[3.55611,51.359105],[3.557895,51.359061],[3.561398,51.355609],[3.559233,51.353777],[3.559999,51.352034],[3.55895,51.351588],[3.560189,51.35033],[3.559559,51.350084],[3.55918,51.350457],[3.558236,51.350041],[3.556171,51.351817],[3.555329,51.351463],[3.554345,51.351991]]],[[[3.474549,51.373617],[3.476099,51.373323],[3.47202,51.370906],[3.46536,51.368346],[3.464422,51.368555],[3.467564,51.370616],[3.466897,51.371185],[3.468584,51.371885],[3.466145,51.373801],[3.465472,51.373565],[3.465892,51.374336],[3.468529,51.372681],[3.470775,51.374009],[3.470381,51.374587],[3.470739,51.374851],[3.473091,51.373324],[3.474549,51.373617]]],[[[3.511854,51.381239],[3.509977,51.380661],[3.509941,51.377251],[3.508429,51.376732],[3.508403,51.375597],[3.50724,51.375684],[3.507021,51.375077],[3.506,51.375122],[3.506129,51.376187],[3.501925,51.376663],[3.502146,51.37848],[3.501688,51.378936],[3.502651,51.379604],[3.501883,51.380764],[3.502847,51.381025],[3.502061,51.383026],[3.504165,51.383344],[3.504495,51.382764],[3.506609,51.383246],[3.506813,51.382986],[3.508191,51.383204],[3.509194,51.38142],[3.511454,51.38221],[3.511738,51.381849],[3.517679,51.383008],[3.517974,51.382727],[3.521684,51.382632],[3.521606,51.381854],[3.516831,51.381889],[3.511854,51.381239]]],[[[3.568454,51.398886],[3.578272,51.393959],[3.576604,51.39257],[3.579755,51.390299],[3.576177,51.38752],[3.571778,51.390236],[3.570597,51.389523],[3.562428,51.392856],[3.560676,51.391982],[3.560289,51.390056],[3.560748,51.389603],[3.558722,51.386447],[3.557845,51.386279],[3.548928,51.388105],[3.547358,51.393307],[3.544345,51.399932],[3.544411,51.401258],[3.5461,51.40444],[3.547345,51.404433],[3.546463,51.403409],[3.546897,51.401719],[3.5491,51.400962],[3.550824,51.400848],[3.55236,51.401925],[3.553095,51.40088],[3.556258,51.398839],[3.56134,51.398074],[3.563076,51.398289],[3.567831,51.400671],[3.568454,51.398886]]],[[[3.549909,51.478012],[3.544928,51.478848],[3.54555,51.479274],[3.544929,51.479658],[3.545189,51.480075],[3.560065,51.48008],[3.560064,51.478624],[3.559303,51.477186],[3.557063,51.477227],[3.556674,51.478254],[3.552091,51.478376],[3.552189,51.478102],[3.549909,51.478012]]],[[[3.609194,51.321607],[3.600701,51.320913],[3.602431,51.321163],[3.60276,51.322389],[3.603771,51.323108],[3.60402,51.322548],[3.605691,51.322771],[3.605877,51.322367],[3.607062,51.322539],[3.607677,51.321779],[3.61047,51.32194],[3.610222,51.322996],[3.61173,51.323581],[3.611787,51.324409],[3.612919,51.324429],[3.612099,51.325613],[3.613063,51.325967],[3.611693,51.32876],[3.61232,51.329013],[3.612762,51.328631],[3.613943,51.329171],[3.614524,51.328639],[3.615012,51.328866],[3.619743,51.324212],[3.621287,51.32514],[3.622028,51.324677],[3.621114,51.324135],[3.621583,51.323528],[3.620886,51.322218],[3.621646,51.321674],[3.620951,51.32125],[3.621622,51.319535],[3.623004,51.319838],[3.623006,51.318792],[3.623874,51.317949],[3.622071,51.317446],[3.622349,51.31714],[3.620145,51.317202],[3.620284,51.316631],[3.611626,51.316039],[3.611788,51.31749],[3.610768,51.321394],[3.609194,51.321607]]],[[[3.681069,51.326378],[3.68,51.327934],[3.67551,51.327434],[3.674123,51.329725],[3.681051,51.331117],[3.682236,51.331738],[3.682972,51.33178],[3.683077,51.331068],[3.685769,51.33112],[3.685868,51.332599],[3.687383,51.33238],[3.687262,51.333362],[3.687669,51.333395],[3.694619,51.330576],[3.693702,51.328754],[3.690501,51.329375],[3.690561,51.327066],[3.689608,51.327072],[3.688629,51.324446],[3.685743,51.324195],[3.685852,51.323441],[3.68528,51.323419],[3.682532,51.325886],[3.681069,51.326378]]],[[[3.661619,51.372811],[3.670255,51.37217],[3.66767,51.372305],[3.666687,51.370278],[3.66568,51.370477],[3.664953,51.369002],[3.664406,51.369117],[3.664115,51.368507],[3.661779,51.368141],[3.660864,51.366264],[3.661553,51.366098],[3.661359,51.365703],[3.657567,51.36691],[3.658328,51.368449],[3.657234,51.368735],[3.657882,51.370038],[3.65703,51.370202],[3.657235,51.370626],[3.66028,51.370039],[3.661619,51.372811]]],[[[3.62558,51.450534],[3.622615,51.451188],[3.619369,51.45224],[3.619613,51.45253],[3.621501,51.451909],[3.622396,51.453047],[3.623971,51.452589],[3.624203,51.452891],[3.625596,51.452628],[3.625809,51.453208],[3.626823,51.452623],[3.626964,51.451879],[3.62797,51.451709],[3.62795,51.450847],[3.630895,51.450835],[3.630878,51.449842],[3.62748,51.449853],[3.628202,51.449586],[3.627645,51.449076],[3.628078,51.44846],[3.627045,51.448501],[3.627245,51.449077],[3.625324,51.44907],[3.62558,51.450534]]],[[[3.606059,51.475274],[3.606819,51.475945],[3.607581,51.474996],[3.606922,51.472745],[3.607622,51.473374],[3.611952,51.474654],[3.613185,51.473316],[3.61378,51.473682],[3.614842,51.472818],[3.615368,51.473017],[3.617135,51.470665],[3.615959,51.469576],[3.613137,51.464596],[3.611225,51.462756],[3.612228,51.462288],[3.612308,51.461594],[3.611398,51.459509],[3.610079,51.460049],[3.60894,51.458319],[3.604424,51.457736],[3.603398,51.456907],[3.605696,51.453928],[3.609688,51.450016],[3.610094,51.447345],[3.60323,51.446992],[3.604252,51.442999],[3.603656,51.442499],[3.598714,51.443286],[3.598015,51.443128],[3.597018,51.442067],[3.596303,51.442102],[3.596056,51.441695],[3.596825,51.441499],[3.596462,51.440923],[3.59514,51.44027],[3.594108,51.440325],[3.592746,51.441166],[3.59052,51.441479],[3.582444,51.440452],[3.581883,51.439651],[3.579954,51.440642],[3.576469,51.439973],[3.577291,51.43914],[3.575752,51.438202],[3.575332,51.439022],[3.573897,51.439627],[3.569619,51.440541],[3.567566,51.443637],[3.563068,51.446172],[3.560409,51.448852],[3.556617,51.450286],[3.554852,51.449791],[3.552689,51.451541],[3.55027,51.452475],[3.547379,51.453044],[3.538691,51.457723],[3.542804,51.458283],[3.542692,51.460102],[3.539789,51.464281],[3.537567,51.463837],[3.537364,51.464858],[3.54424,51.466467],[3.5467,51.467627],[3.548754,51.466475],[3.551736,51.467883],[3.552676,51.466667],[3.555086,51.467887],[3.554835,51.468263],[3.555464,51.467943],[3.557126,51.468069],[3.560194,51.471081],[3.567026,51.470074],[3.566497,51.466986],[3.568696,51.467322],[3.569758,51.465518],[3.571947,51.465726],[3.574065,51.465389],[3.573754,51.466562],[3.575197,51.466583],[3.575147,51.467583],[3.578792,51.467768],[3.578735,51.46967],[3.582717,51.468972],[3.590002,51.470377],[3.58993,51.471102],[3.587023,51.470986],[3.586895,51.474041],[3.586313,51.475125],[3.585636,51.474979],[3.585396,51.475402],[3.590946,51.476157],[3.592759,51.476754],[3.594206,51.4754],[3.595371,51.475722],[3.597625,51.475042],[3.598185,51.475276],[3.601513,51.474662],[3.602465,51.474949],[3.60296,51.474372],[3.604872,51.473727],[3.60381,51.475632],[3.604535,51.475756],[3.60485,51.475088],[3.606059,51.475274]]],[[[3.72886,51.470886],[3.730001,51.471016],[3.730001,51.469649],[3.72886,51.470886]]],[[[3.599095,51.477989],[3.599509,51.480084],[3.600947,51.480083],[3.598569,51.475541],[3.597742,51.476307],[3.596885,51.476439],[3.596932,51.478006],[3.599095,51.477989]]],[[[3.634606,51.477898],[3.630701,51.480077],[3.647753,51.48007],[3.640992,51.478255],[3.635836,51.478606],[3.634606,51.477898]]],[[[3.609627,51.479217],[3.608474,51.478077],[3.606992,51.478289],[3.606078,51.4775],[3.603511,51.478749],[3.60392,51.479518],[3.603158,51.479674],[3.603372,51.480083],[3.620614,51.48008],[3.617976,51.47784],[3.617408,51.478043],[3.61497,51.477364],[3.61325,51.478243],[3.612232,51.477834],[3.610723,51.478952],[3.609627,51.479217]]],[[[3.658496,51.479492],[3.657253,51.479929],[3.654953,51.478958],[3.654888,51.479543],[3.656117,51.480065],[3.659453,51.480063],[3.658496,51.479492]]],[[[3.628084,51.480078],[3.62553,51.478195],[3.622208,51.48008],[3.628084,51.480078]]]]}}]}</script>
+<script type="application/json" id="aoi-data">{"type":"Polygon","coordinates":[[[3.4499999997052884,51.020000003244945],[3.7299999999880065,51.02000000325202],[3.7300000000144844,51.480000003567625],[3.449999999733212,51.48000000356032],[3.4499999997052884,51.020000003244945]]]}</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+(function () {
+  var mapEl = document.getElementById('map');
+  if (typeof L === 'undefined') {
+    mapEl.innerHTML = '<div style="padding:24px;color:#8a857a;font-size:14px">' +
+      'Leaflet could not be loaded (CDN unreachable). The zone tables below carry the same information; ' +
+      'open this file with internet access to render the interactive map.</div>';
+    mapEl.style.height = 'auto';
+    return;
+  }
+  var zones = JSON.parse(document.getElementById('zones-data').textContent);
+  var aoi = JSON.parse(document.getElementById('aoi-data').textContent);
+
+  var bounds = L.latLngBounds([[51.020000003244945, 3.426071], [51.53491, 3.926914]]);
+  var map = L.map('map').fitBounds(bounds.pad(0.06));
+
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  var base = { 'OSM (CDN)': L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {maxZoom:18}) };
+
+  function cat(f) { return f.properties.__cat; }
+  var styles = {
+    final:       {color: '#2e7d32', weight: 2.2, fillColor: '#66bb6a', fillOpacity: 0.30},
+    inclusion:   {color: '#ff8205', weight: 2.0, fillColor: '#64b5f6', fillOpacity: 0.22},
+    exclusion:   {color: '#ff8205', weight: 1.6, fillColor: '#ffb74d', fillOpacity: 0.14, dashArray: '6 4'},
+    marker:      {color: '#6a1b9a', weight: 1.6, fillColor: '#ce93d8', fillOpacity: 0.14, dashArray: '3 5'}
+  };
+  var labels = {
+    final: 'Final opportunity zone', inclusion: 'Inclusion (designated zones \u2229 AOI)',
+    exclusion: 'After exclusion step (cumulative)', marker: 'Attention / conditional / compensation markers'
+  };
+  var overlays = {};
+  ['final', 'inclusion', 'exclusion', 'marker'].forEach(function (c) {
+    var feats = zones.features.filter(function (f) { return cat(f) === c; });
+    if (!feats.length) return;
+    var g = L.geoJSON({type: 'FeatureCollection', features: feats}, {
+      style: function () { return styles[c]; },
+      onEachFeature: function (f, layer) {
+        var p = f.properties;
+        layer.bindPopup('<b>' + p.id + '</b><br>op: ' + p.operation +
+          '<br>area: ' + p.areaKm2 + ' km\u00b2<br>rules: ' + (p.ruleIds || []).join(', ') +
+          '<br>layers: ' + (p.layers || []).join(', '));
+      }
+    });
+    if (c === 'final' || c === 'inclusion') g.addTo(map);
+    overlays[labels[c]] = g;
+  });
+  if (aoi) {
+    overlays['AOI (province boundary)'] = L.geoJSON(aoi, {
+      style: {color: '#000', weight: 2.4, fill: false, dashArray: '9 6'}
+    }).addTo(map);
+  }
+  L.control.layers(base, overlays, {collapsed: false}).addTo(map);
+})();
+</script>
+</body>
+</html>

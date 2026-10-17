@@ -1,0 +1,149 @@
+{
+ "id": "SR-20261016T144618Z-wind-nl-20261017T093559Z",
+ "scenarioSetId": "SSET-wind-nspd-fase3",
+ "baselineRunId": "20261016T144618Z-wind-nl",
+ "requestId": "93c2a803-4bb4-52e1-b415-e547d0f14725",
+ "objectType": "wind_turbine",
+ "generatedAt": "2026-10-17T09:35:59Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 12.180043706,
+  "inclusionIntersectAoiKm2": 14.015156324,
+  "baselineFinalAreaKm2": 12.180043706,
+  "baselineInclusionKm2": 14.015156324,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-WIND-NL-CONCLOC-DROP",
+   "name": "Concentratielocatiebeleid losgelaten (NL)",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-WIND-01",
+    "provenanceNote": "NC-WIND-01 (art. 18.17) beperkt nieuwe turbines tot de concentratielocaties uit bijlage XIV; dit scenario laat die keuze provincie-breed vallen als beleidsvariant — het loslaten zelf is de assumptie, de zone (bijlage XIV via zeeland-ovz-windconcl) is verbatim geciteerd."
+   },
+   "proposedBy": "curator#poc-nspd-fase3",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-WIND-01",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 852.176593212,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": 839.996549506,
+   "deltaVsControlPct": 6896.498648,
+   "iouVsControl": 0.01429279,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WIND-NL-CONCLOC-DROP.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-WIND-NL-NATURA-BUFFER500",
+   "name": "Natura 2000-exclusie verbreed met 500 m (NL)",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-WIND-02",
+    "variedAspect": "exclusion-zone verbreed met een toegevoegde 500 m-buffer",
+    "provenanceNote": "NC-WIND-02 (art. 18.38-interpretieve brug naar Natura 2000) kent géén afstandsregel; de 500 m is niet geciteerd en wordt louter verkend — hypothetical verrekening, geen rechtstoepassing."
+   },
+   "proposedBy": "curator#poc-nspd-fase3",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-WIND-03",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500.0,
+     "note": "bufferDistanceM None -> 500.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 2,
+   "rulesExecuted": 2,
+   "finalAreaKm2": 10.38058694,
+   "inclusionIntersectAoiKm2": 14.015156324,
+   "deltaVsControlKm2": -1.799456766,
+   "deltaVsControlPct": -14.773812,
+   "iouVsControl": 0.852259833,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WIND-NL-NATURA-BUFFER500.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-WIND-NL-ZONDER-NATURA",
+   "name": "Zonder Natura 2000-toets (NL)",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: wat resteert van de zone als de Natura 2000-exclusie (FR-WIND-03, de interpretieve brug art. 18.38) buiten beschouwing blijft. Geen beleidsvoorstel — de brug is in de baseline bewust conservatief geformaliseerd.",
+    "provenanceNote": "Fictieve toestand: de Natura 2000-exclusie is niet in het rechtsbestel geschrapt; dit scenario rekent puur de geometrie zonder FR-WIND-03 door, ter inzichtgeving."
+   },
+   "proposedBy": "curator#poc-nspd-fase3",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-WIND-03",
+     "action": "drop",
+     "note": "dropped exclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 14.015156324,
+   "inclusionIntersectAoiKm2": 14.015156324,
+   "deltaVsControlKm2": 1.835112618,
+   "deltaVsControlPct": 15.066552,
+   "iouVsControl": 0.869057713,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WIND-NL-ZONDER-NATURA.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-WIND-NL-WINDKLASSE-GE75",
+   "name": "Windklasse ≥ 7,5 m/s opengesteld (NL)",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: geen enkele OVZ-norm eist een windklasse; dit scenario kruist de concentratielocatie-toets met de RVO-windklassenkaart om te zien hoeveel ruimte de windexploataatie-voorwaarde óók zou opleveren als selectiecriterium.",
+    "provenanceNote": "Fictieve toestand: de windklasse is géén vigerende norm in CVDR709135; dit scenario rekent puur de geometrie door, ter inzichtgeving. Geen juridische claim.",
+    "dataGrounding": {
+     "sourceId": "pdok-windsnelheden-ge75",
+     "retrieved": "2026-10-16",
+     "note": "RVO Windsnelheden 100 m hoogte, klasse 5 (7,5-8 m/s); als-ontvangen in de pipeline-cache (pdok-windsnelheden-ge75, fetch 2026-10-16)."
+    }
+   },
+   "proposedBy": "curator#poc-nspd-pdok-20261016",
+   "mutationsApplied": [
+    {
+     "ruleId": "HYP-WINDKLASSE-GE75",
+     "action": "add_zone_rule",
+     "zoneId": "windklasse-ge75-nl",
+     "zoneSemantics": "inclusion",
+     "note": "scenario mutation add_zone_rule: inclusion over alias windklasse-ge75-nl"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 3,
+   "rulesExecuted": 3,
+   "finalAreaKm2": 51.163236587,
+   "inclusionIntersectAoiKm2": 53.112841021,
+   "deltaVsControlKm2": 38.983192881,
+   "deltaVsControlPct": 320.057906,
+   "iouVsControl": 0.23806163,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WIND-NL-WINDKLASSE-GE75.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

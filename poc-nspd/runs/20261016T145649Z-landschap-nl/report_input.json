@@ -1,0 +1,151 @@
+{
+ "title": "Where can landscape intervention occur in the Dutch part of the NSPD?",
+ "generatedAt": "2026-10-16T14:56:55Z",
+ "generatedBy": "poc-cartographer/0.1",
+ "crs": "EPSG:4326 (computation in EPSG:28992, areas in km²)",
+ "stats": {
+  "zoneCount": 5,
+  "finalAreaKm2": 1000.606325351,
+  "finalRuleIds": [
+   "FR-AOI-01"
+  ],
+  "geometryRepairsRecorded": 0
+ },
+ "layers": [
+  {
+   "id": "afwegingszone-nl",
+   "title": "afwegingszone-nl",
+   "serviceUrl": "https://opengeodata.zeeland.nl/geoserver/ows",
+   "layerId": "dso:ext_ovz_nbp_afwgzn_ntrgb2025",
+   "lastChecked": "2026-10-16"
+  },
+  {
+   "id": "aoi",
+   "title": "aoi",
+   "lastChecked": "2026-10-05T09:30:00Z"
+  },
+  {
+   "id": "landschap-nl",
+   "title": "landschap-nl",
+   "serviceUrl": "https://opengeodata.zeeland.nl/geoserver/ows",
+   "layerId": "dso:ext_ovz_landsch_vlak",
+   "lastChecked": "2026-10-16"
+  },
+  {
+   "id": "national_source",
+   "title": "national_source"
+  }
+ ],
+ "zones": [
+  {
+   "id": "zr-inclusion_union-fb4ebebf4a",
+   "operation": "inclusion_union",
+   "ruleIds": [
+    "FR-AOI-01"
+   ],
+   "areaKm2": 1000.606325351,
+   "layers": [
+    "aoi"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=validity_check; ctx=union layer=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=union; layer=aoi(lastChecked=2026-10-05T09:30:00Z); features=1; make_valid_repairs=0; area_m2=1000606325.350554; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=inclusion_union; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=inclusion_union; rules=FR-AOI-01; layers=aoi; area_m2=1000606325.350554; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-intersection-6b76dceba0",
+   "operation": "intersection",
+   "ruleIds": [
+    "FR-AOI-01"
+   ],
+   "areaKm2": 1000.606325351,
+   "layers": [
+    "aoi"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=clip_aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=intersection; rules=FR-AOI-01; target=AOI; area_m2=1000606325.350554; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-attention_mark-92b3721f4b",
+   "operation": "attention_mark",
+   "ruleIds": [
+    "FR-LAN-01"
+   ],
+   "areaKm2": 160.084729395,
+   "layers": [
+    "afwegingszone-nl",
+    "national_source"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-LAN-01; semantics=attention; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=afwegingszone-nl; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=union; layer=afwegingszone-nl(https://opengeodata.zeeland.nl/geoserver/ows/dso:ext_ovz_nbp_afwgzn_ntrgb2025; lastChecked=2026-10-16; simplifiedM=2.0); features=1; make_valid_repairs=0; area_m2=160084729.394947; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=3; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-attention_mark-b8714a7877",
+   "operation": "attention_mark",
+   "ruleIds": [
+    "FR-LAN-02"
+   ],
+   "areaKm2": 73.682176258,
+   "layers": [
+    "landschap-nl",
+    "national_source"
+   ],
+   "provSteps": [
+    "op=marker; rule=FR-LAN-02; semantics=attention; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=landschap-nl; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=union; layer=landschap-nl(https://opengeodata.zeeland.nl/geoserver/ows/dso:ext_ovz_landsch_vlak; lastChecked=2026-10-16; simplifiedM=2.0); features=1281; make_valid_repairs=0; area_m2=73682176.257701; engine=poc-zone-engine/0.1",
+    "op=payload_validity_repair; rounding_dp=6; make_valid_repairs=3; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-final-fcd27ca039",
+   "operation": "final",
+   "ruleIds": [
+    "FR-AOI-01"
+   ],
+   "areaKm2": 1000.606325351,
+   "layers": [
+    "aoi"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=validity_check; ctx=union layer=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=union; layer=aoi(lastChecked=2026-10-05T09:30:00Z); features=1; make_valid_repairs=0; area_m2=1000606325.350554; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=inclusion_union; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=inclusion_union; rules=FR-AOI-01; layers=aoi; area_m2=1000606325.350554; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=clip_aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=intersection; rules=FR-AOI-01; target=AOI; area_m2=1000606325.350554; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-LAN-01; semantics=attention; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=afwegingszone-nl; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=union; layer=afwegingszone-nl(https://opengeodata.zeeland.nl/geoserver/ows/dso:ext_ovz_nbp_afwgzn_ntrgb2025; lastChecked=2026-10-16; simplifiedM=2.0); features=1; make_valid_repairs=0; area_m2=160084729.394947; engine=poc-zone-engine/0.1",
+    "op=marker; rule=FR-LAN-02; semantics=attention; note=non-core semantics reported as marker zone, does not alter the opportunity zone; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=union layer=landschap-nl; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=union; layer=landschap-nl(https://opengeodata.zeeland.nl/geoserver/ows/dso:ext_ovz_landsch_vlak; lastChecked=2026-10-16; simplifiedM=2.0); features=1281; make_valid_repairs=0; area_m2=73682176.257701; engine=poc-zone-engine/0.1"
+   ]
+  }
+ ],
+ "outputs": {
+  "geojson": "/Users/marc/Projecten/ldttoolbox/poc-nspd/runs/20261016T145649Z-landschap-nl/zones.geojson",
+  "gml": "/Users/marc/Projecten/ldttoolbox/poc-nspd/runs/20261016T145649Z-landschap-nl/zones.gml",
+  "gmlStatus": {
+   "ok": true,
+   "path": "/Users/marc/Projecten/ldttoolbox/poc-nspd/runs/20261016T145649Z-landschap-nl/zones.gml",
+   "tool": "/opt/homebrew/bin/ogr2ogr",
+   "error": null,
+   "command": "/opt/homebrew/bin/ogr2ogr -f GML /Users/marc/Projecten/ldttoolbox/poc-nspd/runs/20261016T145649Z-landschap-nl/zones.gml /Users/marc/Projecten/ldttoolbox/poc-nspd/runs/20261016T145649Z-landschap-nl/zones.geojson"
+  }
+ },
+ "notes": [
+  "cite-or-abstain: every exclusion/inclusion references a registry layer with lastChecked provenance; see per-zone provSteps.",
+  "Areas computed in EPSG:28992 (RD New, metre); geometries validity-checked with make_valid repairs recorded in provenance."
+ ]
+}

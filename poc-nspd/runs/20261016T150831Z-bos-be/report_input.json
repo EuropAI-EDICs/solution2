@@ -1,0 +1,93 @@
+{
+ "title": "Where can forest planting occur in the Flemish part of the NSPD?",
+ "generatedAt": "2026-10-16T15:08:32Z",
+ "generatedBy": "poc-cartographer/0.1",
+ "crs": "EPSG:4326 (computation in EPSG:28992, areas in km²)",
+ "stats": {
+  "zoneCount": 3,
+  "finalAreaKm2": 1.170744607,
+  "finalRuleIds": [
+   "FR-BOS-01"
+  ],
+  "geometryRepairsRecorded": 0
+ },
+ "layers": [
+  {
+   "id": "boskoppel-be",
+   "title": "boskoppel-be",
+   "serviceUrl": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/wfs",
+   "layerId": "lu:lu_gewrup_gv",
+   "lastChecked": "2026-10-16"
+  }
+ ],
+ "zones": [
+  {
+   "id": "zr-inclusion_union-c8631f51e6",
+   "operation": "inclusion_union",
+   "ruleIds": [
+    "FR-BOS-01"
+   ],
+   "areaKm2": 1.254540311,
+   "layers": [
+    "boskoppel-be"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=validity_check; ctx=union layer=boskoppel-be; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=union; layer=boskoppel-be(https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/wfs/lu:lu_gewrup_gv; lastChecked=2026-10-16; simplifiedM=2.0); features=14; make_valid_repairs=0; area_m2=1254540.310653; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=inclusion_union; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=inclusion_union; rules=FR-BOS-01; layers=boskoppel-be; area_m2=1254540.310653; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-intersection-44d197e4f5",
+   "operation": "intersection",
+   "ruleIds": [
+    "FR-BOS-01"
+   ],
+   "areaKm2": 1.170744607,
+   "layers": [
+    "boskoppel-be"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=clip_aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=intersection; rules=FR-BOS-01; target=AOI; area_m2=1170744.607217; engine=poc-zone-engine/0.1"
+   ]
+  },
+  {
+   "id": "zr-final-044fd39025",
+   "operation": "final",
+   "ruleIds": [
+    "FR-BOS-01"
+   ],
+   "areaKm2": 1.170744607,
+   "layers": [
+    "boskoppel-be"
+   ],
+   "provSteps": [
+    "op=validity_check; ctx=aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=validity_check; ctx=union layer=boskoppel-be; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=union; layer=boskoppel-be(https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/wfs/lu:lu_gewrup_gv; lastChecked=2026-10-16; simplifiedM=2.0); features=14; make_valid_repairs=0; area_m2=1254540.310653; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=inclusion_union; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=inclusion_union; rules=FR-BOS-01; layers=boskoppel-be; area_m2=1254540.310653; engine=poc-zone-engine/0.1",
+    "op=validity_check; ctx=clip_aoi; make_valid_repairs=0; engine=poc-zone-engine/0.1 shapely/2.2.0",
+    "op=intersection; rules=FR-BOS-01; target=AOI; area_m2=1170744.607217; engine=poc-zone-engine/0.1"
+   ]
+  }
+ ],
+ "outputs": {
+  "geojson": "/Users/marc/Projecten/ldttoolbox/poc-nspd/runs/20261016T150831Z-bos-be/zones.geojson",
+  "gml": "/Users/marc/Projecten/ldttoolbox/poc-nspd/runs/20261016T150831Z-bos-be/zones.gml",
+  "gmlStatus": {
+   "ok": true,
+   "path": "/Users/marc/Projecten/ldttoolbox/poc-nspd/runs/20261016T150831Z-bos-be/zones.gml",
+   "tool": "/opt/homebrew/bin/ogr2ogr",
+   "error": null,
+   "command": "/opt/homebrew/bin/ogr2ogr -f GML /Users/marc/Projecten/ldttoolbox/poc-nspd/runs/20261016T150831Z-bos-be/zones.gml /Users/marc/Projecten/ldttoolbox/poc-nspd/runs/20261016T150831Z-bos-be/zones.geojson"
+  }
+ },
+ "notes": [
+  "cite-or-abstain: every exclusion/inclusion references a registry layer with lastChecked provenance; see per-zone provSteps.",
+  "Areas computed in EPSG:28992 (RD New, metre); geometries validity-checked with make_valid repairs recorded in provenance."
+ ]
+}

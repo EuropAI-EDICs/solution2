@@ -1,0 +1,86 @@
+{
+ "id": "SR-20261016T150835Z-wonen-be-20261017T063358Z",
+ "scenarioSetId": "SSET-wonen-be-nspd-fase3",
+ "baselineRunId": "20261016T150835Z-wonen-be",
+ "requestId": "082cd10c-57ae-537a-9d94-0d8969b56dd7",
+ "objectType": "housing_development",
+ "generatedAt": "2026-10-17T06:33:58Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 0.005153631,
+  "inclusionIntersectAoiKm2": 0.005153631,
+  "baselineFinalAreaKm2": 0.005153631,
+  "baselineInclusionKm2": 0.005153631,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-WON-BE-WOONGEBIED-DROP",
+   "name": "Woongebied losgelaten (BE)",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-WON-01",
+    "provenanceNote": "NC-WON-01 (GRUP fase 2, art. 11) wijst het woongebied aan; loslaten is de assumptie."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-WON-01",
+     "action": "drop",
+     "note": "dropped inclusion rule"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 0,
+   "rulesExecuted": 0,
+   "finalAreaKm2": 536.016910903,
+   "inclusionIntersectAoiKm2": null,
+   "deltaVsControlKm2": 536.011757272,
+   "deltaVsControlPct": 10400662.315016,
+   "iouVsControl": 9.616e-06,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WON-BE-WOONGEBIED-DROP.geojson",
+   "status": "ok"
+  },
+  {
+   "scenarioId": "SC-WON-BE-WOONGEBIED-BUF250",
+   "name": "Woongebied verbreed met 250 m (BE)",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-WON-01",
+    "variedAspect": "inclusion-zone verbreed met 250 m",
+    "provenanceNote": "NC-WON-01 kent geen afstandseis; exploratie."
+   },
+   "proposedBy": "curator#poc-nspd-fase3-whatif",
+   "mutationsApplied": [
+    {
+     "ruleId": "FR-WON-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 250.0,
+     "note": "bufferDistanceM None -> 250.0 m"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 1,
+   "rulesExecuted": 1,
+   "finalAreaKm2": 0.186725347,
+   "inclusionIntersectAoiKm2": 0.186725347,
+   "deltaVsControlKm2": 0.181571716,
+   "deltaVsControlPct": 3523.180375,
+   "iouVsControl": 0.027604379,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WON-BE-WOONGEBIED-BUF250.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

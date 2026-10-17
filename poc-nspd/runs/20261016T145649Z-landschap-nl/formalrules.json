@@ -1,0 +1,90 @@
+[
+ {
+  "id": "FR-LAN-01",
+  "normCardId": "NC-LAN-01",
+  "status": "formalized",
+  "ruleType": "zone_attention",
+  "zoneSemantics": "attention",
+  "instrumentType": "omgevingsverordening-nl",
+  "jurisdictie": "nl",
+  "appliesTo": {
+   "objectType": "landscape_intervention",
+   "contextTags": [
+    "curatie_fase2_landschap",
+    "geometry_zeeland_ovz"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task3",
+  "formalizedAt": "2026-10-16",
+  "conditions": [],
+  "zoneSelector": {
+   "zoneIds": [
+    "afwegingszone-nl"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via zeeland-ovz-wfs (gepind 2026-10-16, probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine. Attention-marker: de zone rapporteert, de opportuiniteitszone verandert niet."
+  },
+  "rationale": "Formalized (fase 3, task 3): NC-LAN-01-citaat — binnen de 100-m afwegingszone rond bestaande natuur (art. 5.34, bijlage XII-4) verplicht een motivering hoe het natuurgebied is meegewogen. Gepind als zeeland-ovz-afwegingszone (dso:ext_ovz_nbp_afwgzn_ntrgb2025, hits=1; het laagattribuut noemt artikel en kaartbijlage verbatim). Marker-semantiek: rapportage, geen ruimtelijke uitsluiting."
+ },
+ {
+  "id": "FR-LAN-02",
+  "normCardId": "NC-LAN-02",
+  "status": "formalized",
+  "ruleType": "zone_attention",
+  "zoneSemantics": "attention",
+  "instrumentType": "omgevingsverordening-nl",
+  "jurisdictie": "nl",
+  "appliesTo": {
+   "objectType": "landscape_intervention",
+   "contextTags": [
+    "curatie_fase2_landschap",
+    "geometry_zeeland_ovz"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task3",
+  "formalizedAt": "2026-10-16",
+  "conditions": [],
+  "zoneSelector": {
+   "zoneIds": [
+    "landschap-nl"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via zeeland-ovz-wfs (gepind 2026-10-16, probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine. Attention-marker: de zone rapporteert, de opportuiniteitszone verandert niet."
+  },
+  "rationale": "Formalized (fase 3, task 3): NC-LAN-02-citaat — omgevingsplannen die landschappen raken (bijlage VII) verplichten inzicht in landschaps- en cultuurhistorische waarden. Gepind als zeeland-ovz-landschap (dso:ext_ovz_landsch_vlak). Marker-semantiek: rapportage, geen ruimtelijke uitsluiting."
+ },
+ {
+  "id": "FR-AOI-01",
+  "normCardId": "NC-LAN-01",
+  "status": "formalized",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "instrumentType": "omgevingsverordening-nl",
+  "jurisdictie": "nl",
+  "appliesTo": {
+   "objectType": "landscape_intervention",
+   "contextTags": [
+    "inclusion_basis_aoi",
+    "zone_loze_inclusions_v4",
+    "taak9_zone_semantiek"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "zoneSelector": {
+   "zoneIds": [
+    "aoi"
+   ],
+   "selection": "within",
+   "geometrySource": "request_aoi",
+   "caveat": "inclusion-basis is de request-AOI: geen inclusion-regel in deze shard is executabel (zone-loos, V4); de AOI is de conservatieve inclusion-union, geen positief geschiktheidsmodel"
+  },
+  "conditions": [],
+  "rationale": "Taak-9-zone-semantiek: de inclusion-regels van deze track/jurisdictie (geen) zijn zone-loos naar V4 gerouteerd; de run gebruikt de request-AOI als inclusion-union (run_summary.inclusionBasis=aoi) zodat V4-markers en exclusions op een gedefinieerd werkvlak worden uitgevoerd. Deze regel is een uitvoeringsconstructie van de orchestrator, geen inhoudelijke norm.",
+  "formalizedBy": "run-orchestrator#poc-nspd-task9-aoi-basis",
+  "formalizedAt": "2026-10-16"
+ }
+]

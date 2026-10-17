@@ -1,0 +1,90 @@
+[
+ {
+  "id": "FR-BEE-01",
+  "normCardId": "NC-BEE-01",
+  "status": "formalized",
+  "ruleType": "zone_inclusion",
+  "zoneSemantics": "inclusion",
+  "instrumentType": "rup-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "energy_storage",
+   "contextTags": [
+    "inclusion_productie_van_energie",
+    "zeehavenondersteunende_regionale_bedrijvigheid",
+    "interpretive_bridge_energy_storage",
+    "geometry_mercator_grup"
+   ]
+  },
+  "executableRef": "engine.zone.within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task4",
+  "formalizedAt": "2026-10-16",
+  "conditions": [],
+  "zoneSelector": {
+   "zoneIds": [
+    "zeehavenondersteunend-be"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via mercator-gewestelijke-RUP (gepind 2026-10-16; client-side bestemmingfilter, zie grupBevindingen in probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine."
+  },
+  "rationale": "Formalized (fase 3, task 4): GRUP fase 2 artikel 15 — zeehavenondersteunende regionale bedrijvigheid, met 'productie van energie' expliciet als hoofdactiviteit."
+ },
+ {
+  "id": "FR-BEE-02",
+  "normCardId": "NC-BEE-02",
+  "status": "ambiguous",
+  "ruleType": "zone_conditional",
+  "zoneSemantics": "conditional",
+  "instrumentType": "vcro-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "energy_storage",
+   "contextTags": [
+    "afwijkingsbevoegdheid_energie_installaties",
+    "vcro_4_4_9",
+    "standaardtypebepalingen_toets",
+    "zone_loos_gedocumenteerd",
+    "v4_human_review"
+   ]
+  },
+  "executableRef": "engine.procedural.human_review@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-task7",
+  "formalizedAt": "2026-10-14",
+  "relatedNormCardIds": [
+   "NC-BEW-04"
+  ],
+  "reason": "Zone-loze conditional (gedocumenteerd): art. 4.4.9 §1 VCRO opent voor 'andere installaties voor de productie van energie of energierecuperatie' een afwijkingsbevoegdheid op gewestplanvoorschriften (toets aan standaardtypebepalingen); procedurele regel zonder zone-selector in ZONE_SOURCES (taak 9); routeeert naar V4."
+ },
+ {
+  "id": "FR-BEE-03",
+  "normCardId": "NC-BEE-03",
+  "status": "formalized",
+  "ruleType": "zone_exclusion",
+  "zoneSemantics": "exclusion",
+  "instrumentType": "rup-be",
+  "jurisdictie": "be",
+  "appliesTo": {
+   "objectType": "energy_storage",
+   "contextTags": [
+    "exclusion_uitsluitend_bestemd",
+    "bestemmingslijst_watergebonden_bedrijven",
+    "interpretive_bridge_energy_storage",
+    "geometry_mercator_grup"
+   ]
+  },
+  "executableRef": "engine.zone.exclude_within@poc-v1",
+  "formalizedBy": "norm-formalizer#poc-nspd-fase3-task4",
+  "formalizedAt": "2026-10-16",
+  "conditions": [],
+  "zoneSelector": {
+   "zoneIds": [
+    "papierbedrijven-be"
+   ],
+   "selection": "within",
+   "geometrySource": "national_source",
+   "caveat": "Zone via mercator-gewestelijke-RUP (gepind 2026-10-16; client-side bestemmingfilter, zie grupBevindingen in probe_2026-10-16.json); volledige ongeclipte featuregeometrie, knip op AOI door de engine."
+  },
+  "rationale": "Formalized (fase 3, task 4): GRUP papierproducent artikel 1 — uitsluitende lijst; een energieopslaginstallatie buiten die lijst is in deze zone uitgesloten."
+ }
+]

@@ -1,0 +1,123 @@
+{
+ "id": "SR-20261016T151055Z-wonen-nl-20261016T202432Z",
+ "scenarioSetId": "SSET-wonen-nl-pdok",
+ "baselineRunId": "20261016T151055Z-wonen-nl",
+ "requestId": "24406e36-2ae3-53e8-b7ee-d2e3d587827b",
+ "objectType": "housing_development",
+ "generatedAt": "2026-10-16T20:24:34Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 1000.606325351,
+  "inclusionIntersectAoiKm2": 1000.606325351,
+  "baselineFinalAreaKm2": 1000.606325351,
+  "baselineInclusionKm2": 1000.606325351,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true,
+  "h3": {
+   "resolution": 8,
+   "cellCount": 1586,
+   "moransI": 0.060004916,
+   "pValue": 0.005,
+   "cellsGainedVsControl": null,
+   "cellsLostVsControl": null
+  }
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-WON-NL-BUITEN-OVERSTROMINGSGEVAAR",
+   "name": "Buiten het overstromingsgevarengebied (NL)",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: wonen in overstromingsgevarengebied is ruimtelijk-ordeningstechnisch een maatschappelijk vraagstuk; het gevarenvlak (Richtlijn Overstromingsrisico's) is geen bouwnorm uit de OVZ, dus alleen als what-if uitvoerbaar.",
+    "provenanceNote": "Fictieve toestand: geen citatie — het gevarenvlak is hier geometrische verkenning, geen verbodszone.",
+    "dataGrounding": {
+     "sourceId": "pdok-ror-overstromingsgevaar",
+     "retrieved": "2026-10-16",
+     "note": "ROR Overstromingen gevarengebied (hazard_area), 1 vlak binnen de NSPD-bbox; cache pdok-ror-overstromingsgevaar, fetch 2026-10-16."
+    }
+   },
+   "proposedBy": "curator#poc-nspd-pdok-20261016",
+   "mutationsApplied": [
+    {
+     "ruleId": "HYP-WON-GEEN-GEVARENGEBIED",
+     "action": "add_zone_rule",
+     "zoneId": "overstromingsgevaar-nl",
+     "zoneSemantics": "exclusion",
+     "note": "scenario mutation add_zone_rule: exclusion over alias overstromingsgevaar-nl"
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 2,
+   "rulesExecuted": 2,
+   "finalAreaKm2": 565.848563409,
+   "inclusionIntersectAoiKm2": 1000.606325351,
+   "deltaVsControlKm2": -434.757761942,
+   "deltaVsControlPct": -43.449432,
+   "iouVsControl": 0.565504879,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WON-NL-BUITEN-OVERSTROMINGSGEVAAR.geojson",
+   "status": "ok",
+   "h3": {
+    "resolution": 8,
+    "cellCount": 895,
+    "moransI": 0.078996588,
+    "pValue": 0.005,
+    "cellsGainedVsControl": 0,
+    "cellsLostVsControl": 691
+   }
+  },
+  {
+   "scenarioId": "SC-WON-NL-SEVESO-PROD-500M",
+   "name": "500 m afstand tot Seveso-productie-inrichtingen (NL)",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: externe veiligheid stelt afstanden rond Brzo-inrichtingen; de inzonderheidsmaten volgen per inrichting uit het vergunningentraject, niet uit deze kaart. De 500 m is een exploratieve waarde zonder citatie.",
+    "provenanceNote": "Fictieve toestand: geen citatie — de buffer is verkenning, geen afstandsnorm.",
+    "dataGrounding": {
+     "sourceId": "pdok-rev-seveso-productie",
+     "retrieved": "2026-10-16",
+     "note": "REV/Seveso-inrichtingen productie (INSPIRE PF, NACE C), 8 inrichtingen in de bbox; as-volgorde lat,lon door de fetcher gecorrigeerd; fetch 2026-10-16."
+    }
+   },
+   "proposedBy": "curator#poc-nspd-pdok-20261016",
+   "mutationsApplied": [
+    {
+     "ruleId": "HYP-WON-SEVESO-500M",
+     "action": "add_zone_rule",
+     "zoneId": "seveso-productie-nl",
+     "zoneSemantics": "exclusion",
+     "note": "scenario mutation add_zone_rule: exclusion over alias seveso-productie-nl met buffer 500 m",
+     "bufferDistanceM": 500.0
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 2,
+   "rulesExecuted": 2,
+   "finalAreaKm2": 994.005171587,
+   "inclusionIntersectAoiKm2": 1000.606325351,
+   "deltaVsControlKm2": -6.601153764,
+   "deltaVsControlPct": -0.659715,
+   "iouVsControl": 0.993402094,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WON-NL-SEVESO-PROD-500M.geojson",
+   "status": "ok",
+   "h3": {
+    "resolution": 8,
+    "cellCount": 1575,
+    "moransI": 0.05853071,
+    "pValue": 0.005,
+    "cellsGainedVsControl": 0,
+    "cellsLostVsControl": 11
+   }
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}

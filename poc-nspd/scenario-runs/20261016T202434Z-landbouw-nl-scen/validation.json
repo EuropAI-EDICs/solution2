@@ -1,0 +1,85 @@
+{
+ "id": "VR-scenario-run",
+ "artifactId": "SR-20261016T151054Z-landbouw-nl-20261016T202434Z",
+ "artifactType": "scenario-report",
+ "levels": {
+  "V0": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v0-scenario-report-schema",
+     "status": "pass",
+     "detail": "scenario-report validated against scenario-report.schema.json"
+    }
+   ]
+  },
+  "V1": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v1-final-geometry-sc-lnb-nl-alleen-gewaspercelen",
+     "status": "pass",
+     "detail": "final zone geometryValid=True, status=ok",
+     "evidenceRefs": [
+      "scenarios/SC-LNB-NL-ALLEEN-GEWASPERCELEN.geojson"
+     ]
+    },
+    {
+     "id": "v1-final-geometry-sc-lnb-nl-buiten-cdda",
+     "status": "pass",
+     "detail": "final zone geometryValid=True, status=ok",
+     "evidenceRefs": [
+      "scenarios/SC-LNB-NL-BUITEN-CDDA.geojson"
+     ]
+    }
+   ]
+  },
+  "V2": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v2-mutation-rule-ids",
+     "status": "pass",
+     "detail": "every mutation ruleId resolved in the baseline formalrules set (skipped mutations carry recorded reasons)"
+    },
+    {
+     "id": "v2-basis-normcard-ids",
+     "status": "pass",
+     "detail": "every norm_variance/policy_variant normCardId resolved in the baseline run's normcards.json"
+    },
+    {
+     "id": "v2-data-grounding",
+     "status": "pass",
+     "detail": "elk dataGrounding-blok: sourceId met role scenario-basis in sources.json, retrieved ISO-datum"
+    }
+   ]
+  },
+  "V3": {
+   "status": "pass",
+   "checks": [
+    {
+     "id": "v3-control-reproduction",
+     "status": "pass",
+     "detail": "control final 1000.606325351 km2 vs baseline 1000.606325351 km2 (rel delta 0.0, tolerance 0.001); 1 rules executed"
+    }
+   ]
+  },
+  "V4": {
+   "status": "pending",
+   "notes": "scenario choice remains a human decision; this report is decision support, never a decision"
+  }
+ },
+ "verdict": "pass",
+ "evidence": [
+  {
+   "ref": "scenario-report.json",
+   "note": "the swept report this verdict gates"
+  },
+  {
+   "ref": "validation.json",
+   "note": "this report"
+  }
+ ],
+ "evaluatorRun": "scenario-critic#poc-v0.1",
+ "evaluatedAt": "2026-10-16T20:25:12Z"
+}

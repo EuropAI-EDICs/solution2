@@ -1,0 +1,39 @@
+{
+ "id": "DT-zon-nl-nspd",
+ "requestId": "85c8b442-8189-5a0a-8dcc-9eafc01b839a",
+ "title": "Where can zonnevelden be sited in the Dutch part of the NSPD? Decision table (programming stage)",
+ "columns": [
+  "criterion",
+  "norm",
+  "source",
+  "zone effect",
+  "ruleId",
+  "normCardId",
+  "condition",
+  "note"
+ ],
+ "rows": [
+  {
+   "criterion": "Solar installations may be provided for inside urban area and outside urban area only on enumerated locations (bouwvlak, stortplaatsen/infrastructuur/bedrijvigheidsterre…",
+   "norm": "art. 18.18 — Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden) [binding]",
+   "source": "S01: https://lokaleregelgeving.overheid.nl/CVDR709135",
+   "zone effect": "included",
+   "normCardId": "NC-ZON-01",
+   "ruleId": "FR-ZON-01",
+   "note": "Formalized (fase 3, task 2): art. 18.18 lid 1 staat zonne-energie-opstellingen toe binnen stedelijk gebied. Gepind als zeeland-ovz-stedelijk (dso:ext_ovz_bebkom_woonbeb2025, probe_2026-10-16.json). De landelijke locaties a-e (lid 2: bouwvlak, stort/infra/bedrijf, waterbassin, agrarische grond) zijn niet gepind — die conditie blijft via locaties_a_tot_e_landelijk_gebied in V4; deze rule formalisee…"
+  },
+  {
+   "criterion": "Solar installations on water or water-basin ground are conditional on demonstrating no significant adverse effects for nature, recreation, water quality or fishery; grou…",
+   "norm": "art. 18.18 — Omgevingsverordening Zeeland (CVDR709135, geldend van 02-06-2026 t/m heden) [binding]",
+   "source": "S01: https://lokaleregelgeving.overheid.nl/CVDR709135",
+   "zone effect": "excluded",
+   "normCardId": "NC-ZON-02",
+   "ruleId": "FR-ZON-02",
+   "condition": "location == water_basin",
+   "note": "Art. 18.18 lid 2 sub c staat zonne-energie op water of waterbassin-grond slechts toe mits aannemelijk is dat er geen significant nadelige effecten zijn voor natuur; binnen Natura 2000-gebieden (alias natura2000-nl uit ZONE_SOURCES, taak 9) is die aannemelijkheid niet uit de verordening afleidbaar en geldt daarom een exclusion-marker voor waterbassin-solar."
+  }
+ ],
+ "generatedBy": "explainer#deterministic-poc1",
+ "generatedAt": "2026-10-16T14:46:19Z",
+ "provenance": "run 20261016T144619Z-zon-nl of poc-nspd-run/1.0; curated norm corpus poc-nspd/corpus/normcards-nl-zon.json (taak 6/7: curator#poc-nspd-task6) with formal rules poc-nspd/corpus/formal-rules-nl-zon.json (norm-formalizer#poc-nspd-fase3-task2, norm-formalizer#poc-nspd-task6); instrument Omgevingsverordening provincie Zeeland, CVDR709135 geldend 02-06-2026 t/m heden; zone geometry from pinned national open-data aliases (ZONE_SOURCES), lastChecked stamps in layers.json; V2b jurisdictie-gate pass; full PROV in prov.json"
+}
