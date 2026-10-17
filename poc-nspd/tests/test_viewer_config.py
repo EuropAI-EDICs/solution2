@@ -280,3 +280,19 @@ def test_opstart_schoon_alleen_basiskaarten():
     per_id = {l["id"]: l for l in cfg["layers"]}
     assert per_id["bg-brt"]["isBackground"] is True
     assert "GRB Vlaanderen" in per_id["021"]["title"]
+
+
+def test_scenario_lagen_hebben_rapportlink_in_bibliotheek():
+    """Gebruikersvraag 2026-10-17: elk scenario-zone heeft het trackrapport als
+    metadataUrl — Leia rendert dat als klikbare link in de laagbibliotheek én
+    Lagenbeheer; voor AOI-brede tracks is het rapport dé inhoud."""
+    cfg = _cfg_twee_tracks()
+    for l in cfg["layers"]:
+        if not str(l["id"]).startswith("zones-"):
+            continue
+        track = str(l["id"]).split("-")[1]
+        if track == "wind":  # fixture heeft alleen voor wind een rapportbestand
+            assert l.get("metadataUrl") == "reports/wind.html", l["id"]
+        else:
+            # geen rapportbestand → geen dode link
+            assert l.get("metadataUrl") is None, l["id"]

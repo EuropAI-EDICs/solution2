@@ -327,12 +327,6 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path,
             shutil.copy2(rapport, reports_dir / f"{t}.html")
             rapport_pad = f"reports/{t}.html"
         regels = sorted({r for f in final for r in f["properties"].get("ruleIds", [])})
-        beschrijving = ("Eindzone = aanvraag-AOI (alleen FR-AOI-01): deze track heeft geen "
-                        "ruimtelijke norm-operand — de waarde zit in de normtabellen van het "
-                        "rapport. " if aoi_only else "")
-        beschrijving += f"Regels: {', '.join(regels)}."
-        if rapport_pad:
-            beschrijving += f" Rapport: {rapport_pad}"
         scenario_groepen.append({
             "id": f"scenario-{t}", "parentId": "scenario",
             "title": f"Scenario: {t}" + (" (AOI-breed)" if aoi_only else ""),
@@ -340,7 +334,16 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path,
         })
         for land, bestand in laag_bestanden.items():
             st = LAND_STIJL[land]
-            scenario_lagen.append({
+            # beschrijving per land: de NL-laag noemt niet de BE-regels (en omgekeerd)
+            regels_land = sorted({r for f in per_land[land]
+                                  for r in f["properties"].get("ruleIds", [])})
+            beschrijving = ("Eindzone = aanvraag-AOI (alleen FR-AOI-01): deze track heeft geen "
+                            "ruimtelijke norm-operand — de waarde zit in de normtabellen van het "
+                            "rapport. " if aoi_only else "")
+            beschrijving += f"Regels: {', '.join(regels_land)}."
+            if rapport_pad:
+                beschrijving += f" Rapport: {rapport_pad}"
+            laag = {
                 "id": f"zones-{t}-{land}", "type": "geojson",
                 "title": f"Zones {t} {'NL' if land == 'nl' else 'BE'}",
                 "groupId": f"scenario-{t}",
@@ -349,7 +352,13 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path,
                 "description": beschrijving,
                 "settings": {"url": f"layers/{bestand}",
                              "style": {"fill": st["fill"], "stroke": st["stroke"]}},
-            })
+            }
+            if rapport_pad:
+                # Leia rendert metadataUrl als klikbare link in de laagbibliotheek
+                # (LibraryLayerInfo) én in Lagenbeheer — het rapport is voor
+                # AOI-brede tracks dé inhoud (gebruikersvraag 2026-10-17).
+                laag["metadataUrl"] = rapport_pad
+            scenario_lagen.append(laag)
 
     ref_groepen, ref_lagen = _zeeland_referentielagen()
     bronnen_lagen = _scenario_bronnen(layers_dir)
