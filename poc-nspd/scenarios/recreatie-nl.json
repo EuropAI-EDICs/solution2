@@ -1,0 +1,45 @@
+{
+ "id": "SSET-recreatie-nl-nspd-fase3",
+ "useCase": "recreatie",
+ "description": "What-if voor recreatie op de NL-zijde: verblijfsrecreatie alléén in de badplaatsen (art. 18.x-lijst incl. Vlissingen; OVZ badplaatsen 2022).",
+ "scenarios": [
+  {
+   "id": "SC-REC-NL-BADPLAATSEN-DROP",
+   "name": "Badplaatsenbeleid losgelaten (NL)",
+   "description": "FR-REC-01 valt weg: verblijfsrecreatie overal in de AOI — bovenkant.",
+   "objectType": "recreation_development",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-REC-01",
+    "provenanceNote": "NC-REC-01 beperkt nieuwe/uitgebreide toeristische overnachtingslocaties tot de aangewezen badplaatsen; loslaten is de beleidsassumptie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-REC-01",
+     "action": "drop"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  },
+  {
+   "id": "SC-REC-NL-BADPLAATSEN-BUF500",
+   "name": "Badplaatsen verbreed met 500 m (NL)",
+   "description": "FR-REC-01 krijgt een 500 m-buffer: uitbreidingsruimte rond Vlissingen en Breskens.",
+   "objectType": "recreation_development",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-REC-01",
+    "variedAspect": "inclusion-zone verbreed met 500 m",
+    "provenanceNote": "NC-REC-01 kent geen afstandseis; exploratie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-REC-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  }
+ ]
+}

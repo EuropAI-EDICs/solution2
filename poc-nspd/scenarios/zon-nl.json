@@ -1,0 +1,68 @@
+{
+ "id": "SSET-zon-nl-nspd-fase3",
+ "useCase": "zon",
+ "description": "What-if voor zon op de NL-zijde: stedelijk-gebied-inclusion (art. 18.18 lid 1, OVZ bebouwd gebied 2025) en de Natura 2000-exclusie (FR-ZON-02) als varieerbare randen; de netcongestie-bijdrage (locatie e) zit als scenario-basis in het ruime variant.",
+ "scenarios": [
+  {
+   "id": "SC-ZON-NL-STED-DROP",
+   "name": "Stedelijk-gebiedbeleid losgelaten (NL)",
+   "description": "FR-ZON-01 valt weg: zonneweiden overal in de aanvraag-AOI behalve Natura 2000 — de bovenkant van het beleidsbereik, verkend op de netcongestie-voedingsgebieden.",
+   "objectType": "solar_field",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-ZON-01",
+    "provenanceNote": "NC-ZON-01 (art. 18.18 lid 1) staat zonneparken binnen stedelijk gebied toe; locaties a-e buiten stedelijk gebied zijn V4. Het vallen laten van de inclusion is de beleidsassumptie.",
+    "dataGrounding": {
+     "sourceId": "netbeheerder-netcongestie",
+     "retrieved": "2026-10-16",
+     "note": "voedingsgebied-afnamecodes (0=beschikbaar … 3=tekort) als niet-juridische verkenning van waar ruime zonning grid-technisch relevant is"
+    }
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-ZON-01",
+     "action": "drop"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  },
+  {
+   "id": "SC-ZON-NL-NATURA-BUF500",
+   "name": "Natura 2000-exclusie verbreed met 500 m (NL)",
+   "description": "FR-ZON-02 krijgt een 500 m-buffer; de afstand is niet geciteerd en wordt louter verkend.",
+   "objectType": "solar_field",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-ZON-02",
+    "variedAspect": "exclusion-zone verbreed met 500 m",
+    "provenanceNote": "NC-ZON-02 kent geen afstandsregel; exploratie, geen rechtstoepassing."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-ZON-02",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  },
+  {
+   "id": "SC-ZON-NL-ZONDER-NATURA",
+   "name": "Zonder Natura 2000-toets (NL)",
+   "description": "Alleen het stedelijk gebied bepaalt de zone (art. 18.18 lid 1 zuiver).",
+   "objectType": "solar_field",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "Verkennend: de exclusie (interpretieve brug art. 18.38) buiten beschouwing gelaten.",
+    "provenanceNote": "Fictieve toestand; de exclusie is niet geschrapt in het rechtsbestel."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-ZON-02",
+     "action": "drop"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  }
+ ]
+}

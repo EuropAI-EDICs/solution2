@@ -1,0 +1,45 @@
+{
+ "id": "SSET-water-be-nspd-fase3",
+ "useCase": "water",
+ "description": "What-if voor water op de BE-zijde: de GRUP-zone voor oppervlaktewatercaptatie en -behandeling (papierproducent, art. 3).",
+ "scenarios": [
+  {
+   "id": "SC-WAT-BE-CAPTATIE-DROP",
+   "name": "Watercaptatiezone losgelaten (BE)",
+   "description": "FR-WAT-01 valt weg: de inclusion valt terug op de AOI.",
+   "objectType": "riparian_development",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-WAT-01",
+    "provenanceNote": "NC-WAT-01 (GRUP papierproducent, art. 3) wijst de captatiezone aan; loslaten is de assumptie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-WAT-01",
+     "action": "drop"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  },
+  {
+   "id": "SC-WAT-BE-CAPTATIE-BUF500",
+   "name": "Watercaptatiezone verbreed met 500 m (BE)",
+   "description": "FR-WAT-01 krijgt een 500 m-buffer.",
+   "objectType": "riparian_development",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-WAT-01",
+    "variedAspect": "inclusion-zone verbreed met 500 m",
+    "provenanceNote": "NC-WAT-01 kent geen afstandseis; exploratie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-WAT-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  }
+ ]
+}

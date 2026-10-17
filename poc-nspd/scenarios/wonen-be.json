@@ -1,0 +1,45 @@
+{
+ "id": "SSET-wonen-be-nspd-fase3",
+ "useCase": "wonen",
+ "description": "What-if voor wonen op de BE-zijde: het GRUP-fase-2-woongebied (art. 11).",
+ "scenarios": [
+  {
+   "id": "SC-WON-BE-WOONGEBIED-DROP",
+   "name": "Woongebied losgelaten (BE)",
+   "description": "FR-WON-01 valt weg: de inclusion valt terug op de AOI.",
+   "objectType": "housing_development",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-WON-01",
+    "provenanceNote": "NC-WON-01 (GRUP fase 2, art. 11) wijst het woongebied aan; loslaten is de assumptie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-WON-01",
+     "action": "drop"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  },
+  {
+   "id": "SC-WON-BE-WOONGEBIED-BUF250",
+   "name": "Woongebied verbreed met 250 m (BE)",
+   "description": "FR-WON-01 krijgt een 250 m-buffer.",
+   "objectType": "housing_development",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-WON-01",
+    "variedAspect": "inclusion-zone verbreed met 250 m",
+    "provenanceNote": "NC-WON-01 kent geen afstandseis; exploratie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-WON-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 250
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  }
+ ]
+}

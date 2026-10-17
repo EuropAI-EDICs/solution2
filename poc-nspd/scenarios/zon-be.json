@@ -1,0 +1,63 @@
+{
+ "id": "SSET-zon-be-nspd-fase3",
+ "useCase": "zon",
+ "description": "What-if voor zon op de BE-zijde: GRUP-fase-2-zones 'gebied voor de productie van hernieuwbare energie' (overdruk, art. 20) en 'bouwvrije strook' (art. 26).",
+ "scenarios": [
+  {
+   "id": "SC-ZON-BE-HERN-DROP",
+   "name": "Hernieuwbaar-energiegebied losgelaten (BE)",
+   "description": "FR-BEZ-01 valt weg: de inclusie-union valt terug op de AOI minus de bouwvrije strook — bovengrens.",
+   "objectType": "solar_field",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-BEZ-01",
+    "provenanceNote": "NC-BEZ-01 (GRUP fase 2, art. 20, overdruk) wijst het hernieuwbaar-energiegebied aan; loslaten is de beleidsassumptie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-BEZ-01",
+     "action": "drop"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  },
+  {
+   "id": "SC-ZON-BE-HERN-BUF1000",
+   "name": "Hernieuwbaar-energiegebied verbreed met 1.000 m (BE)",
+   "description": "FR-BEZ-01 krijgt een 1 km-buffer rond het overdruk-gebied.",
+   "objectType": "solar_field",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-BEZ-01",
+    "variedAspect": "inclusion-zone verbreed met 1.000 m",
+    "provenanceNote": "NC-BEZ-01 kent geen afstandseis; exploratie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-BEZ-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 1000
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  },
+  {
+   "id": "SC-ZON-BE-BOUWVRIJ-DROP",
+   "name": "Bouwvrije strook-exclusie losgelaten (BE)",
+   "description": "FR-BEZ-02 valt weg: de strook telt niet meer als verboden zone voor vergunningsplichtige zon-installaties.",
+   "objectType": "solar_field",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-BEZ-02",
+    "provenanceNote": "NC-BEZ-02 (GRUP fase 2, art. 26, overdruk) verbiedt bouwwerken in de strook; uitzonderlijke werken blijven V4."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-BEZ-02",
+     "action": "drop"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  }
+ ]
+}

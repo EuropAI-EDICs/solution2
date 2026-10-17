@@ -1,0 +1,48 @@
+{
+ "id": "SSET-landschap-nl-nspd-fase3",
+ "useCase": "landschap",
+ "description": "What-if voor landschap op de NL-zijde: de afwegingszone natuurgebieden (art. 5.34, bijlage XII-4) en de landschapsvlakken als varieerbare markers.",
+ "scenarios": [
+  {
+   "id": "SC-LAN-NL-AFWEGING-STRENG",
+   "name": "Afwegingszone als harde uitsluiting (NL)",
+   "description": "FR-LAN-01 (nu attention-marker) wordt als exclusion uitgevoerd: de strengste lezing van de motiveringseis.",
+   "objectType": "landscape_intervention",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-LAN-01",
+    "provenanceNote": "NC-LAN-01 (art. 5.34) eist een motivering binnen de 100-m afwegingszone; deze variant voert de zone uit als harde uitsluiting — de strengste, niet de geciteerde lezing."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-LAN-01",
+     "action": "set_semantics",
+     "zoneSemantics": "exclusion"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  },
+  {
+   "id": "SC-LAN-NL-MARKERS-DROP",
+   "name": "Landschapsmarkers losgelaten (NL)",
+   "description": "FR-LAN-01 en FR-LAN-02 vallen weg: de zone verandert niet (markers dragen geen geometrie bij), de rapportage wel.",
+   "objectType": "landscape_intervention",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-LAN-01",
+    "provenanceNote": "Demonstratie van marker-semantiek: attention-zones rapporteren, ze veranderen de opportuiniteitszone niet."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-LAN-01",
+     "action": "drop"
+    },
+    {
+     "ruleId": "FR-LAN-02",
+     "action": "drop"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  }
+ ]
+}

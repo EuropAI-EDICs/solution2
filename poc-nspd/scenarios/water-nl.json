@@ -1,0 +1,45 @@
+{
+ "id": "SSET-water-nl-nspd-fase3",
+ "useCase": "water",
+ "description": "What-if voor water op de NL-zijde: de regionale-waterkering-exclusie (art. 18.37, OVZ-dijktrajecten) als varieerbare rand.",
+ "scenarios": [
+  {
+   "id": "SC-WAT-NL-KERING-BUF250",
+   "name": "Keringsexclusie verbreed met 250 m (NL)",
+   "description": "FR-WAT-03 krijgt een 250 m-buffer rond de dijktrajecten — een conservatiever onderhoudsleesgebiet.",
+   "objectType": "riparian_development",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-WAT-03",
+    "variedAspect": "exclusion-zone verbreed met 250 m",
+    "provenanceNote": "NC-WAT-03 (art. 18.37) stelt geen afstand; de 250 m is exploratie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-WAT-03",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 250
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  },
+  {
+   "id": "SC-WAT-NL-KERING-DROP",
+   "name": "Keringsexclusie losgelaten (NL)",
+   "description": "FR-WAT-03 valt weg: de hele aanvraag-AOI blijft open — bovenkant, met de kanttekening dat de toetsingsplicht (art. 18.37) in het rechtsbestel blijft bestaan.",
+   "objectType": "riparian_development",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-WAT-03",
+    "provenanceNote": "NC-WAT-03 (art. 18.37) eist dat toelating geen belemmering voor onderhoud/versterking oplevert; het weglaten van de geometrische exclusie is de assumptie — de toetsingsplicht zelf blijft."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-WAT-03",
+     "action": "drop"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  }
+ ]
+}

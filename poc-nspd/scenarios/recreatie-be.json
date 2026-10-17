@@ -1,0 +1,45 @@
+{
+ "id": "SSET-recreatie-be-nspd-fase3",
+ "useCase": "recreatie",
+ "description": "What-if voor recreatie op de BE-zijde: het GRUP-fase-2-recreatiegebied (art. 12; Evergem, Gent, Zelzate).",
+ "scenarios": [
+  {
+   "id": "SC-REC-BE-RECGEB-DROP",
+   "name": "Recreatiegebied losgelaten (BE)",
+   "description": "FR-REC-01 valt weg: de inclusion valt terug op de AOI.",
+   "objectType": "recreation_development",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-REC-01",
+    "provenanceNote": "NC-REC-01 (GRUP fase 2, art. 12) wijst het recreatiegebied aan; loslaten is de assumptie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-REC-01",
+     "action": "drop"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  },
+  {
+   "id": "SC-REC-BE-RECGEB-BUF500",
+   "name": "Recreatiegebied verbreed met 500 m (BE)",
+   "description": "FR-REC-01 krijgt een 500 m-buffer.",
+   "objectType": "recreation_development",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-REC-01",
+    "variedAspect": "inclusion-zone verbreed met 500 m",
+    "provenanceNote": "NC-REC-01 kent geen afstandseis; exploratie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-REC-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  }
+ ]
+}

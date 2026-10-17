@@ -1,0 +1,63 @@
+{
+ "id": "SSET-mobiliteit-be-nspd-fase3",
+ "useCase": "mobiliteit",
+ "description": "What-if voor mobiliteit op de BE-zijde: wegeninfrastructuur (fase 2, art. 17) en havenontsluitingsweg (papierproducent, art. 2).",
+ "scenarios": [
+  {
+   "id": "SC-MOB-BE-WEGEN-DROP",
+   "name": "Wegeninfra-zone losgelaten (BE)",
+   "description": "FR-MOB-01 valt weg: alleen de havenontsluitingsweg blijft de inclusie bepalen.",
+   "objectType": "roadside_development",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-MOB-01",
+    "provenanceNote": "NC-MOB-01 (GRUP fase 2, art. 17) wijst het gebied voor wegeninfrastructuur aan; loslaten is de assumptie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-MOB-01",
+     "action": "drop"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  },
+  {
+   "id": "SC-MOB-BE-WEGEN-BUF250",
+   "name": "Wegeninfra-zone verbreed met 250 m (BE)",
+   "description": "FR-MOB-01 krijgt een 250 m-buffer.",
+   "objectType": "roadside_development",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-MOB-01",
+    "variedAspect": "inclusion-zone verbreed met 250 m",
+    "provenanceNote": "NC-MOB-01 kent geen afstandseis; exploratie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-MOB-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 250
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  },
+  {
+   "id": "SC-MOB-BE-ONTS-DROP",
+   "name": "Havenontsluitingsweg losgelaten (BE)",
+   "description": "FR-MOB-02 valt weg: alleen de wegeninfra-zone blijft over.",
+   "objectType": "roadside_development",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-MOB-02",
+    "provenanceNote": "NC-MOB-02 (GRUP papierproducent, art. 2) wijst de havenontsluitingsweg aan; loslaten is de assumptie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-MOB-02",
+     "action": "drop"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  }
+ ]
+}

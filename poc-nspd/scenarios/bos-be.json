@@ -1,0 +1,45 @@
+{
+ "id": "SSET-bos-be-nspd-fase3",
+ "useCase": "bos",
+ "description": "What-if voor bos op de BE-zijde: het bosgebied-koppelingsgebied (GRUP fase 2, art. 3).",
+ "scenarios": [
+  {
+   "id": "SC-BOS-BE-BOSKOPPEL-DROP",
+   "name": "Boskoppelingsgebied losgelaten (BE)",
+   "description": "FR-BOS-01 valt weg: de inclusion valt terug op de AOI.",
+   "objectType": "forest_planting",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-BOS-01",
+    "provenanceNote": "NC-BOS-01 (GRUP fase 2, art. 3) wijst het bosgebied-koppelingsgebied aan voor behoud/ontwikkeling/herstel van bos; loslaten is de assumptie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-BOS-01",
+     "action": "drop"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  },
+  {
+   "id": "SC-BOS-BE-BOSKOPPEL-BUF500",
+   "name": "Boskoppelingsgebied verbreed met 500 m (BE)",
+   "description": "FR-BOS-01 krijgt een 500 m-buffer.",
+   "objectType": "forest_planting",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-BOS-01",
+    "variedAspect": "inclusion-zone verbreed met 500 m",
+    "provenanceNote": "NC-BOS-01 kent geen afstandseis; exploratie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-BOS-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  }
+ ]
+}

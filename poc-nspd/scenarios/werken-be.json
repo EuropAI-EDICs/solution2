@@ -1,0 +1,63 @@
+{
+ "id": "SSET-werken-be-nspd-fase3",
+ "useCase": "werken",
+ "description": "What-if voor werken op de BE-zijde: zeehaven- en watergebonden bedrijven (fase 2, art. 13) en de papierproducent-zone (art. 1).",
+ "scenarios": [
+  {
+   "id": "SC-WER-BE-ZEEHAVEN-DROP",
+   "name": "Zeehavenbedrijven-zone losgelaten (BE)",
+   "description": "FR-WER-01 valt weg: alleen de papierproducent-zone blijft de inclusie bepalen.",
+   "objectType": "business_development",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-WER-01",
+    "provenanceNote": "NC-WER-01 (GRUP fase 2, art. 13) wijst het gebied voor zeehaven- en watergebonden bedrijven aan; loslaten is de assumptie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-WER-01",
+     "action": "drop"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  },
+  {
+   "id": "SC-WER-BE-PAPIER-DROP",
+   "name": "Papierproducent-zone losgelaten (BE)",
+   "description": "FR-WER-02 valt weg: alleen de zeehavenbedrijven-zone blijft over.",
+   "objectType": "business_development",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-WER-02",
+    "provenanceNote": "NC-WER-02 (GRUP papierproducent, art. 1) wijst de zone exclusief aan voor het papierbedrijf en aanverwanten; loslaten is de assumptie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-WER-02",
+     "action": "drop"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  },
+  {
+   "id": "SC-WER-BE-ZEEHAVEN-BUF500",
+   "name": "Zeehavenbedrijven-zone verbreed met 500 m (BE)",
+   "description": "FR-WER-01 krijgt een 500 m-buffer.",
+   "objectType": "business_development",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-WER-01",
+    "variedAspect": "inclusion-zone verbreed met 500 m",
+    "provenanceNote": "NC-WER-01 kent geen afstandseis; exploratie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-WER-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  }
+ ]
+}

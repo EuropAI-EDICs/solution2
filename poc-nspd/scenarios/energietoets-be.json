@@ -1,0 +1,63 @@
+{
+ "id": "SSET-energietoets-be-nspd-fase3",
+ "useCase": "energietoets",
+ "description": "What-if voor de energietoets op de BE-zijde: zeehavenondersteunende bedrijvigheid met productie van energie (fase 2, art. 15) en de papierzone-exclusie voor energieopslag (art. 1).",
+ "scenarios": [
+  {
+   "id": "SC-BEE-BE-ONDERSTEUNEND-DROP",
+   "name": "Zeehavenondersteunende zone losgelaten (BE)",
+   "description": "FR-BEE-01 valt weg: alleen de papierexclusie blijft de zone begrenzen.",
+   "objectType": "energy_storage",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-BEE-01",
+    "provenanceNote": "NC-BEE-01 (GRUP fase 2, art. 15) wijst de zeehavenondersteunende regionale bedrijvigheid aan, met productie van energie als hoofdactiviteit; loslaten is de assumptie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-BEE-01",
+     "action": "drop"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  },
+  {
+   "id": "SC-BEE-BE-PAPIER-DROP",
+   "name": "Papierzone-exclusie voor energieopslag losgelaten (BE)",
+   "description": "FR-BEE-03 valt weg: energieopslag is ook binnen de papierzone niet meer uitgesloten.",
+   "objectType": "energy_storage",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-BEE-03",
+    "provenanceNote": "NC-BEE-03 (GRUP papierproducent, art. 1) sluit energieopslag buiten de uitsluitende lijst uit; het vallen laten van die uitsluiting is de beleidsassumptie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-BEE-03",
+     "action": "drop"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  },
+  {
+   "id": "SC-BEE-BE-ONDERSTEUNEND-BUF500",
+   "name": "Zeehavenondersteunende zone verbreed met 500 m (BE)",
+   "description": "FR-BEE-01 krijgt een 500 m-buffer.",
+   "objectType": "energy_storage",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-BEE-01",
+    "variedAspect": "inclusion-zone verbreed met 500 m",
+    "provenanceNote": "NC-BEE-01 kent geen afstandseis; exploratie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-BEE-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  }
+ ]
+}

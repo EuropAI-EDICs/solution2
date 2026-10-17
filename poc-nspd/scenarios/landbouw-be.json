@@ -1,0 +1,45 @@
+{
+ "id": "SSET-landbouw-be-nspd-fase3",
+ "useCase": "landbouw",
+ "description": "What-if voor landbouw op de BE-zijde: het agrarisch gebied-koppelingsgebied (GRUP fase 2, art. 7).",
+ "scenarios": [
+  {
+   "id": "SC-LNB-BE-AGRKOPPEL-DROP",
+   "name": "Agrarisch koppelingsgebied losgelaten (BE)",
+   "description": "FR-LNB-01 valt weg: de inclusion valt terug op de AOI.",
+   "objectType": "agricultural_expansion",
+   "basis": {
+    "type": "policy_variant",
+    "normCardId": "NC-LNB-01",
+    "provenanceNote": "NC-LNB-01 (GRUP fase 2, art. 7) wijst het agrarisch koppelingsgebied aan als buffer tussen haven en omliggende functies; loslaten is de assumptie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-LNB-01",
+     "action": "drop"
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  },
+  {
+   "id": "SC-LNB-BE-AGRKOPPEL-BUF500",
+   "name": "Agrarisch koppelingsgebied verbreed met 500 m (BE)",
+   "description": "FR-LNB-01 krijgt een 500 m-buffer.",
+   "objectType": "agricultural_expansion",
+   "basis": {
+    "type": "norm_variance",
+    "normCardId": "NC-LNB-01",
+    "variedAspect": "inclusion-zone verbreed met 500 m",
+    "provenanceNote": "NC-LNB-01 kent geen afstandseis; exploratie."
+   },
+   "mutations": [
+    {
+     "ruleId": "FR-LNB-01",
+     "action": "set_buffer_distance_m",
+     "bufferDistanceM": 500
+    }
+   ],
+   "proposedBy": "curator#poc-nspd-fase3-whatif"
+  }
+ ]
+}
