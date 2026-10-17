@@ -322,6 +322,16 @@ def make_viewer_config(*, track: str, run_dir: Path, out_dir: Path,
             "attribution": "GRB via Geopunt, vrije open data-modellicentie",
             "settings": {"url": "layers/grb-percelen-be.geojson"},
         })
+    # Opstart-schone kaart (gebruikersvraag 2026-10-17): alléén de basiskaarten
+    # staan aan — BRT dekt NL, GRB Vlaanderen dekt de Belgische kant (zonder die
+    # tweede blijft BE grijs/zwart: PDOK-BRT heeft geen Vlaamse tegels). Alles
+    # thematische (zones, bronlagen, 3D-gebouwen, what-if, begrenzing) start uit
+    # en staat één klik weg in Lagenbeheer.
+    _OPSTART_AAN = {"bg-brt", "021"}  # BRT Achtergrondkaart (NL), GRB Vlaanderen
+    for laag in cfg["layers"]:
+        if laag["id"] not in _OPSTART_AAN:
+            laag["defaultOn"] = False
+
     uit = out_dir / "nspd.config.json"
     uit.write_text(json.dumps(cfg, ensure_ascii=False, indent=1), encoding="utf-8")
     return uit

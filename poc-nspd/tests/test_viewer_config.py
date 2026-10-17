@@ -89,7 +89,8 @@ def test_zeeland_referentielagen_overgenomen():
     # standaard aan, wél in de bibliotheek met uitleg
     assert per_titel["3D Gebouwen België"]["defaultOn"] is False
     assert "origin-vergrendeld" in per_titel["3D Gebouwen België"]["description"]
-    assert per_titel["Begrenzing NSPD"]["defaultOn"] is True
+    # fase 3, opstart-schoon: ook de begrenzing start uit (basiskaarten alleen)
+    assert per_titel["Begrenzing NSPD"]["defaultOn"] is False
     # buurt-/sectorgrenzen bij Zeeland aan, hier uit (grove WMS-lijnen over de detailkaart)
     assert per_titel["CBS buurten Nederland"]["defaultOn"] is False
     assert per_titel["Statistische sectoren van België"]["defaultOn"] is False
@@ -137,7 +138,8 @@ def test_scenario_lagen_alle_tracks():
     for t in ("wind", "zon"):
         for land in ("NL", "BE"):
             assert f"Zones {t} {land}" in per_titel
-    assert per_titel["Zones wind NL"]["defaultOn"] is True
+    # fase 3, opstart-schoon: zones starten úit (basiskaarten alleen)
+    assert per_titel["Zones wind NL"]["defaultOn"] is False
     assert per_titel["Zones zon NL"]["defaultOn"] is False
     assert per_titel["Zones zon BE"]["defaultOn"] is False
     assert "FR-WIND-03" in per_titel["Zones wind NL"]["description"]
@@ -166,7 +168,7 @@ def test_scenario_bronlagen():
     cfg = json.loads(pad.read_text(encoding="utf-8"))
     titels = {l["title"]: l for l in cfg["layers"]}
     assert "Natura 2000-gebieden (NL) — exclusion" in titels
-    assert titels["Natura 2000-gebieden (NL) — exclusion"]["defaultOn"] is True
+    assert titels["Natura 2000-gebieden (NL) — exclusion"]["defaultOn"] is False
     assert "geformaliseerde BE-regel" in titels["SBZ/Natura2000 Vlaanderen — exclusion (gepin)"]["description"]
     assert titels["DHM Vlaanderen II (hillshade) — context"]["settings"]["featureName"] == "DHMV_II_HILL_25cm"
     assert "Netcongestie afname (NL) — context" not in titels
@@ -227,10 +229,54 @@ def test_what_if_lagen_uit_scenario_runs(tmp_path):
     contracts.validate(cfg, "leia-config")
     per_titel = {l["title"]: l for l in cfg["layers"]}
     assert "CONTROL (12,2 km²)" in per_titel
-    assert per_titel["CONTROL (12,2 km²)"]["defaultOn"] is True
+    assert per_titel["CONTROL (12,2 km²)"]["defaultOn"] is False
     a = per_titel["SC-T-A (Δ +1,5 km²)"]
     assert a["defaultOn"] is False and a["settings"]["style"]["fill"] == "#1a7f37"
     assert per_titel["SC-T-B (Δ -0,5 km²)"]["settings"]["style"]["fill"] == "#c01c28"
     groepen = {g["id"]: g for g in cfg["groups"]}
     assert groepen["whatif"]["title"] == "What-if scenario's (S7)"
     assert groepen["whatif-wind-nl"]["parentId"] == "whatif"
+
+
+def test_pdok_bronlagen_uit_cache_naar_wgs84(tmp_path):
+    """PDOK-bronlagen (catalogus 2026-10-16) komen cache-gedreven mee: zonder
+    cache geen groep; met een 28992-cachebestand een WGS84-kopie + laag in de
+    groep 'pdok-bronnen' (what-if-operanden, standaard uit)."""
+    src = ROOT / "tests" / "fixtures" / "viewer"
+    basis = Path(tempfile.mkdtemp())
+    shutil.copytree(src / "run-wind", basis / "wind")
+    leeg = basis / "cache-leeg"
+    leeg.mkdir()
+    pad = make_viewer_config(track="wind", run_dir=basis / "wind", out_dir=basis / "vd0",
+                             scenario_runs=basis / "geen-scenario-runs", pdok_cache_dir=leeg)
+    cfg = json.loads(pad.read_text(encoding="utf-8"))
+    assert "pdok-bronnen" not in {g["id"] for g in cfg["groups"]}
+    cache = basis / "cache"
+    cache.mkdir()
+    (cache / "pdok-restwarmte-industrie.28992.geojson").write_text(json.dumps({
+        "type": "FeatureCollection", "crs": {"type": "name", "properties": {"name": "EPSG:28992"}},
+        "features": [{"type": "Feature", "properties": {"bedrijf": "X"},
+                      "geometry": {"type": "Point", "coordinates": [40000.0, 370000.0]}}],
+        "properties": {"sourceId": "pdok-restwarmte-industrie"}}), encoding="utf-8")
+    pad = make_viewer_config(track="wind", run_dir=basis / "wind", out_dir=basis / "vd1",
+                             scenario_runs=basis / "geen-scenario-runs", pdok_cache_dir=cache)
+    cfg = json.loads(pad.read_text(encoding="utf-8"))
+    assert "pdok-bronnen" in {g["id"] for g in cfg["groups"]}
+    laag = next(l for l in cfg["layers"] if l["id"] == "bron-pdok-restwarmte-industrie")
+    assert laag["groupId"] == "pdok-bronnen" and laag["defaultOn"] is False
+    assert "SC-WER-NL-RESTWARMTE-1KM" in laag["description"]
+    kopie = json.loads((basis / "vd1" / "layers" / "bron-pdok-restwarmte-industrie.geojson").read_text())
+    lon, lat = kopie["features"][0]["geometry"]["coordinates"]
+    assert 3.4 < lon < 3.9 and 51.0 < lat < 51.5, "WGS84-kopie verwacht"
+
+
+def test_opstart_schoon_alleen_basiskaarten():
+    """Gebruikersvraag 2026-10-17: de kaart start niet met thematische vlakken —
+    alléén BRT (NL) en GRB Vlaanderen (BE) staan aan; anders blijft BE grijs
+    (PDOK-BRT heeft geen Vlaamse tegels)."""
+    cfg = _cfg_twee_tracks()
+    aan = [l["id"] for l in cfg["layers"] if l.get("defaultOn")]
+    assert aan == ["bg-brt", "021"], aan
+    per_id = {l["id"]: l for l in cfg["layers"]}
+    assert per_id["bg-brt"]["isBackground"] is True
+    assert "GRB Vlaanderen" in per_id["021"]["title"]
