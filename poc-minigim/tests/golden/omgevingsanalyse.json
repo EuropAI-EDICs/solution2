@@ -1,0 +1,1851 @@
+{
+ "aoi": {
+  "bbox28992": [
+   100000.0,
+   400000.0,
+   100500.0,
+   400500.0
+  ],
+  "btoM2": 250000.0,
+  "file": "plangrens.geojson"
+ },
+ "items": [
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": null,
+   "layerRef": null,
+   "lijstItemId": "locatie.luchtfoto",
+   "manualPointer": "https://www.pdok.nl/datasets/luchtfoto-s (Beeldmateriaal Nederland, WMTS/WMS — raster buiten scope runner)",
+   "notes": [
+    "rasterlevering, geen vectorstatistiek"
+   ],
+   "onderdeel": "luchtfoto",
+   "prioriteit": "laag",
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "locatie",
+   "values": {
+    "route": "https://www.pdok.nl/datasets/luchtfoto-s (Beeldmateriaal Nederland, WMTS/WMS — raster buiten scope runner)"
+   }
+  },
+  {
+   "bindingStatus": "auto",
+   "deliveredStatus": "delivered",
+   "item": null,
+   "layerRef": "layers/plangrens.28992.geojson",
+   "lijstItemId": "locatie.plangrens",
+   "manualPointer": null,
+   "notes": [
+    "de plangrens is run-input; BTO (bruto terreinoppervlakte) wordt deterministisch berekend"
+   ],
+   "onderdeel": "plangrens",
+   "prioriteit": "hoog",
+   "prov": {
+    "bronLeverancier": null,
+    "bronRegistratie": "afgeleid van run-input (plangrens)",
+    "fetchedAt": null,
+    "protocol": "derived",
+    "sha256": null,
+    "urls": []
+   },
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "locatie",
+   "values": {
+    "bbox28992": [
+     100000.0,
+     400000.0,
+     100500.0,
+     400500.0
+    ],
+    "btoHa": 25.0,
+    "btoM2": 250000.0,
+    "perimeterM": 2000.0
+   }
+  },
+  {
+   "bindingStatus": "auto",
+   "deliveredStatus": "delivered",
+   "item": null,
+   "layerRef": "layers/locatie-adres.28992.geojson",
+   "lijstItemId": "locatie.adres",
+   "manualPointer": null,
+   "notes": [
+    "adreslijst uit BAG-verblijfsobjecten binnen plangrens"
+   ],
+   "onderdeel": "adres",
+   "prioriteit": "laag",
+   "prov": {
+    "bronLeverancier": "PDOK",
+    "bronRegistratie": "BAG",
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "wfs2",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-bag-wfs::bag:verblijfsobject"
+    ]
+   },
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "locatie",
+   "values": {
+    "count": 2,
+    "list": [
+     {
+      "huisnummer": 1,
+      "openbare_ruimte": "Dorpsstraat",
+      "postcode": "1234 AB"
+     },
+     {
+      "huisnummer": 2,
+      "openbare_ruimte": "Dorpsstraat",
+      "postcode": "1234 AB"
+     }
+    ],
+    "listCap": 250,
+    "sourceFeatureCount": 3
+   }
+  },
+  {
+   "bindingStatus": "auto",
+   "deliveredStatus": "delivered",
+   "item": "nulpunt",
+   "layerRef": null,
+   "lijstItemId": "locatie.referentie.nulpunt",
+   "manualPointer": null,
+   "notes": [
+    "representatief punt (shapely representative_point) van de plangrens in RD en WGS84"
+   ],
+   "onderdeel": "referentie",
+   "prioriteit": "midden",
+   "prov": {
+    "bronLeverancier": null,
+    "bronRegistratie": "afgeleid van run-input (plangrens)",
+    "fetchedAt": null,
+    "protocol": "derived",
+    "sha256": null,
+    "urls": []
+   },
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "locatie",
+   "values": {
+    "lat": 51.588489,
+    "lon": 4.597164,
+    "rdX": 100250.0,
+    "rdY": 400250.0
+   }
+  },
+  {
+   "bindingStatus": "auto",
+   "deliveredStatus": "delivered",
+   "item": null,
+   "layerRef": "layers/topografie-materialisatie.28992.geojson",
+   "lijstItemId": "topografie.materialisatie",
+   "manualPointer": null,
+   "notes": [
+    "BGT-objecten binnen plangrens; klasseoverzicht als overzicht van het hele onderdeel"
+   ],
+   "onderdeel": "materialisatie",
+   "prioriteit": "laag",
+   "prov": {
+    "bronLeverancier": "PDOK",
+    "bronRegistratie": "BGT",
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "ogc-api-features",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-bgt-ogc-api::overbruggingsdeel"
+    ]
+   },
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "areaHa": 3.53,
+    "areaM2": 35300.0,
+    "featureCount": 8,
+    "functieBreakdown": {
+     "(onbekend)": 5,
+     "rijbaan lokale weg": 1,
+     "verhard": 1,
+     "voetpad": 1
+    },
+    "historicalObjectsFiltered": 1,
+    "sourceFeatureCount": 8
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "afval",
+   "layerRef": null,
+   "lijstItemId": "topografie.materialisatie.afval",
+   "manualPointer": "BGT-viewer gemeente/land (objecttype bak, functie afvalcontainer) — geen aparte open landelijke collectie",
+   "notes": [],
+   "onderdeel": "materialisatie",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "route": "BGT-viewer gemeente/land (objecttype bak, functie afvalcontainer) — geen aparte open landelijke collectie"
+   }
+  },
+  {
+   "bindingStatus": "auto",
+   "deliveredStatus": "delivered",
+   "item": "bebouwd oppervlak",
+   "layerRef": "layers/topografie-materialisatie-bebouwd-oppervlak.28992.geojson",
+   "lijstItemId": "topografie.materialisatie.bebouwd-oppervlak",
+   "manualPointer": null,
+   "notes": [
+    "pandvoetafdruk (m²) binnen plangrens"
+   ],
+   "onderdeel": "materialisatie",
+   "prioriteit": null,
+   "prov": {
+    "bronLeverancier": null,
+    "bronRegistratie": null,
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "wfs2",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-bag-wfs::bag:pand"
+    ]
+   },
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "areaHa": 0.18,
+    "areaM2": 1800.0,
+    "featureCount": 2,
+    "sourceFeatureCount": 2
+   }
+  },
+  {
+   "bindingStatus": "partial",
+   "deliveredStatus": "delivered",
+   "item": "verhard oppervlak",
+   "layerRef": "layers/topografie-materialisatie-verhard-oppervlak.28992.geojson",
+   "lijstItemId": "topografie.materialisatie.verhard-oppervlak",
+   "manualPointer": null,
+   "notes": [],
+   "onderdeel": "materialisatie",
+   "prioriteit": null,
+   "prov": {
+    "bronLeverancier": null,
+    "bronRegistratie": null,
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "ogc-api-features",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-bgt-ogc-api::onbegroeidterreindeel"
+    ]
+   },
+   "proxyNote": "BGT wegdeel + onbegroeidterreindeel als verhardingsproxy; werkelijke verhardingsgraad (type materialisatie) staat niet als apart attribuut in de open BGT-levering",
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "areaHa": 1.85,
+    "areaM2": 18500.0,
+    "featureCount": 5,
+    "functieBreakdown": {
+     "(onbekend)": 2,
+     "rijbaan lokale weg": 1,
+     "verhard": 1,
+     "voetpad": 1
+    },
+    "historicalObjectsFiltered": 1,
+    "sourceFeatureCount": 5
+   }
+  },
+  {
+   "bindingStatus": "partial",
+   "deliveredStatus": "delivered",
+   "item": "onverhard oppervlak",
+   "layerRef": "layers/topografie-materialisatie-onverhard-oppervlak.28992.geojson",
+   "lijstItemId": "topografie.materialisatie.onverhard-oppervlak",
+   "manualPointer": null,
+   "notes": [],
+   "onderdeel": "materialisatie",
+   "prioriteit": null,
+   "prov": {
+    "bronLeverancier": null,
+    "bronRegistratie": null,
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "ogc-api-features",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-bgt-ogc-api::onbegroeidterreindeel"
+    ]
+   },
+   "proxyNote": "begroeid terreindeel (plus onverhard onbegroeid deel) als onverhard-proxy; BGT-functie 'onverhard' selecteren waar aanwezig",
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "areaHa": 1.75,
+    "areaM2": 17500.0,
+    "featureCount": 4,
+    "sourceFeatureCount": 4
+   }
+  },
+  {
+   "bindingStatus": "auto",
+   "deliveredStatus": "delivered",
+   "item": "wegdeel",
+   "layerRef": "layers/topografie-materialisatie-wegdeel.28992.geojson",
+   "lijstItemId": "topografie.materialisatie.wegdeel",
+   "manualPointer": null,
+   "notes": [],
+   "onderdeel": "materialisatie",
+   "prioriteit": null,
+   "prov": {
+    "bronLeverancier": null,
+    "bronRegistratie": null,
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "ogc-api-features",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-bgt-ogc-api::wegdeel"
+    ]
+   },
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "areaHa": 1.1,
+    "areaM2": 11000.0,
+    "featureCount": 2,
+    "functieBreakdown": {
+     "rijbaan lokale weg": 1,
+     "voetpad": 1
+    },
+    "historicalObjectsFiltered": 1,
+    "sourceFeatureCount": 2
+   }
+  },
+  {
+   "bindingStatus": "auto",
+   "deliveredStatus": "delivered",
+   "item": "waterdeel",
+   "layerRef": "layers/topografie-materialisatie-waterdeel.28992.geojson",
+   "lijstItemId": "topografie.materialisatie.waterdeel",
+   "manualPointer": null,
+   "notes": [],
+   "onderdeel": "materialisatie",
+   "prioriteit": null,
+   "prov": {
+    "bronLeverancier": null,
+    "bronRegistratie": null,
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "ogc-api-features",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-bgt-ogc-api::waterdeel"
+    ]
+   },
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "areaHa": 0.64,
+    "areaM2": 6400.0,
+    "featureCount": 1,
+    "sourceFeatureCount": 1
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "bebouwing",
+   "layerRef": null,
+   "lijstItemId": "topografie.materialisatie.bebouwing-3d-bag",
+   "manualPointer": "https://3dbag.nl (TU Delft 3D BAG API); zie ook 3d-viewer/ in deze repo (LOD22 tiles)",
+   "notes": [
+    "volume (m³) voor sloopschatting zit in de 3D BAG; niet als sleutelloze vectorstatistiek in deze runner (fase 2)"
+   ],
+   "onderdeel": "materialisatie",
+   "prioriteit": "laag",
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "route": "https://3dbag.nl (TU Delft 3D BAG API); zie ook 3d-viewer/ in deze repo (LOD22 tiles)"
+   }
+  },
+  {
+   "bindingStatus": "auto",
+   "deliveredStatus": "delivered",
+   "item": "bebouwing",
+   "layerRef": "layers/topografie-materialisatie-bebouwing-bag.28992.geojson",
+   "lijstItemId": "topografie.materialisatie.bebouwing-bag",
+   "manualPointer": null,
+   "notes": [],
+   "onderdeel": "materialisatie",
+   "prioriteit": "laag",
+   "prov": {
+    "bronLeverancier": "PDOK",
+    "bronRegistratie": "BAG",
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "wfs2",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-bag-wfs::bag:pand"
+    ]
+   },
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "areaHa": 0.18,
+    "areaM2": 1800.0,
+    "featureCount": 2,
+    "sourceFeatureCount": 2
+   }
+  },
+  {
+   "bindingStatus": "partial",
+   "deliveredStatus": "delivered",
+   "item": null,
+   "layerRef": "layers/topografie-mobiliteit.28992.geojson",
+   "lijstItemId": "topografie.mobiliteit",
+   "manualPointer": null,
+   "notes": [],
+   "onderdeel": "mobiliteit",
+   "prioriteit": "laag",
+   "prov": {
+    "bronLeverancier": "OSM/PDOK",
+    "bronRegistratie": "OSM/Nationaal wegenbestand",
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "ogc-api-features",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-nwb-wegen::wegvakken"
+    ]
+   },
+   "proxyNote": "NWB wegvakken dekt verkeerswegen-hiërarchie; OV en parken zitten niet in het NWB",
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "overlapFeatureCount": 1
+   }
+  },
+  {
+   "bindingStatus": "auto",
+   "deliveredStatus": "delivered",
+   "item": "verkeerswegen",
+   "layerRef": "layers/topografie-mobiliteit-verkeerswegen.28992.geojson",
+   "lijstItemId": "topografie.mobiliteit.verkeerswegen",
+   "manualPointer": null,
+   "notes": [
+    "hiërarchie via NWB-attributen (wegtype/beheerder)"
+   ],
+   "onderdeel": "mobiliteit",
+   "prioriteit": null,
+   "prov": {
+    "bronLeverancier": null,
+    "bronRegistratie": null,
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "ogc-api-features",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-nwb-wegen::wegvakken"
+    ]
+   },
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "featureCount": 1,
+    "lengthKm": 0.5,
+    "sourceFeatureCount": 1
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "openbaar vervoer",
+   "layerRef": null,
+   "lijstItemId": "topografie.mobiliteit.openbaar-vervoer",
+   "manualPointer": "NDOVL / OV-API (https://ndovloket.nl) — haltes en lijnen, niet in deze bronnenstack geverifieerd",
+   "notes": [],
+   "onderdeel": "mobiliteit",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "route": "NDOVL / OV-API (https://ndovloket.nl) — haltes en lijnen, niet in deze bronnenstack geverifieerd"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "parkeren",
+   "layerRef": null,
+   "lijstItemId": "topografie.mobiliteit.parkeren",
+   "manualPointer": "gemeente Breda parkeerregistratie (data.breda.nl) — parkeerbalans vraagt gemeentedata",
+   "notes": [],
+   "onderdeel": "mobiliteit",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "route": "gemeente Breda parkeerregistratie (data.breda.nl) — parkeerbalans vraagt gemeentedata"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "hoogte maaiveld",
+   "layerRef": null,
+   "lijstItemId": "topografie.hoogte.hoogte-maaiveld",
+   "manualPointer": "AHN (https://www.pdok.nl/datasets/ahn) — raster/WCS; hoogtestatistiek is fase 2 (rasterfetcher)",
+   "notes": [
+    "hoogste prioriteit + financieel risico (grondbalans): eerste kandidaat voor fase 2"
+   ],
+   "onderdeel": "hoogte",
+   "prioriteit": "hoog",
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [
+    "hoog-prioriteit niet automatisch geleverd"
+   ],
+   "thema": "topografie",
+   "values": {
+    "route": "AHN (https://www.pdok.nl/datasets/ahn) — raster/WCS; hoogtestatistiek is fase 2 (rasterfetcher)"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "bodemdaling",
+   "layerRef": null,
+   "lijstItemId": "topografie.hoogte.bodemdaling",
+   "manualPointer": "NCG bodemdaling (https://bodemdalingskaart.nl) / atlas leefomgeving",
+   "notes": [],
+   "onderdeel": "hoogte",
+   "prioriteit": "midden",
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "route": "NCG bodemdaling (https://bodemdalingskaart.nl) / atlas leefomgeving"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": null,
+   "layerRef": null,
+   "lijstItemId": "topografie.bodemsamenstelling",
+   "manualPointer": "Dinoloket (https://www.dinoloket.nl) — boorprofielen; specialist interpretatie",
+   "notes": [],
+   "onderdeel": "bodemsamenstelling",
+   "prioriteit": "hoog",
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [
+    "hoog-prioriteit niet automatisch geleverd"
+   ],
+   "thema": "topografie",
+   "values": {
+    "route": "Dinoloket (https://www.dinoloket.nl) — boorprofielen; specialist interpretatie"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": null,
+   "layerRef": null,
+   "lijstItemId": "topografie.grondwater",
+   "manualPointer": "BRO grondwater (https://brodata.nl) — grondwatermonitoringput",
+   "notes": [],
+   "onderdeel": "grondwater",
+   "prioriteit": "hoog",
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [
+    "hoog-prioriteit niet automatisch geleverd"
+   ],
+   "thema": "topografie",
+   "values": {
+    "route": "BRO grondwater (https://brodata.nl) — grondwatermonitoringput"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "peilbuismeting",
+   "layerRef": null,
+   "lijstItemId": "topografie.grondwater.peilbuismeting",
+   "manualPointer": "BRO GM (https://brodata.nl); waterschap West-Brabant eigen metingen",
+   "notes": [],
+   "onderdeel": "grondwater",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "route": "BRO GM (https://brodata.nl); waterschap West-Brabant eigen metingen"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "peilbesluit waterschap",
+   "layerRef": null,
+   "lijstItemId": "topografie.grondwater.peilbesluit-waterschap",
+   "manualPointer": "waterschap Brabantse Delta — peilbesluiten/legger",
+   "notes": [],
+   "onderdeel": "grondwater",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "route": "waterschap Brabantse Delta — peilbesluiten/legger"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "opname capaciteit",
+   "layerRef": null,
+   "lijstItemId": "topografie.grondwater.opname-capaciteit",
+   "manualPointer": "klimaateffectatlas (https://www.klimaateffectatlas.nl) — infiltratie/opname",
+   "notes": [],
+   "onderdeel": "grondwater",
+   "prioriteit": "laag",
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "route": "klimaateffectatlas (https://www.klimaateffectatlas.nl) — infiltratie/opname"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": null,
+   "layerRef": null,
+   "lijstItemId": "topografie.verontreiniging",
+   "manualPointer": "bodemloket / omgevingsdienst West-Brabant — bodeminformatie",
+   "notes": [
+    "prioriteit hoog; niet open als landelijke vectorlaag"
+   ],
+   "onderdeel": "verontreiniging",
+   "prioriteit": "hoog",
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [
+    "hoog-prioriteit niet automatisch geleverd"
+   ],
+   "thema": "topografie",
+   "values": {
+    "route": "bodemloket / omgevingsdienst West-Brabant — bodeminformatie"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": null,
+   "layerRef": null,
+   "lijstItemId": "topografie.kabels-en-leidingen",
+   "manualPointer": "KLIC (https://www.kadaster.nl/zakelijk/klic) —graafprocessen/netinformatie",
+   "notes": [
+    "thuisnetbeheerders; niet openbaar als vectorlaag"
+   ],
+   "onderdeel": "kabels en leidingen",
+   "prioriteit": "hoog",
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [
+    "hoog-prioriteit niet automatisch geleverd"
+   ],
+   "thema": "topografie",
+   "values": {
+    "route": "KLIC (https://www.kadaster.nl/zakelijk/klic) —graafprocessen/netinformatie"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "data",
+   "layerRef": null,
+   "lijstItemId": "topografie.kabels-en-leidingen.data",
+   "manualPointer": "KLIC",
+   "notes": [],
+   "onderdeel": "kabels en leidingen",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "route": "KLIC"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "elektriciteit",
+   "layerRef": null,
+   "lijstItemId": "topografie.kabels-en-leidingen.elektriciteit",
+   "manualPointer": "KLIC (netbeheerder elektriciteit)",
+   "notes": [],
+   "onderdeel": "kabels en leidingen",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "route": "KLIC (netbeheerder elektriciteit)"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "drinkwater",
+   "layerRef": null,
+   "lijstItemId": "topografie.kabels-en-leidingen.drinkwater",
+   "manualPointer": "KLIC / Brabant Water",
+   "notes": [],
+   "onderdeel": "kabels en leidingen",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "route": "KLIC / Brabant Water"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "warmtenet",
+   "layerRef": null,
+   "lijstItemId": "topografie.kabels-en-leidingen.warmtenet",
+   "manualPointer": "netbeheerder warmte (KLIC waar geregistreerd)",
+   "notes": [],
+   "onderdeel": "kabels en leidingen",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "route": "netbeheerder warmte (KLIC waar geregistreerd)"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "riolering",
+   "layerRef": null,
+   "lijstItemId": "topografie.kabels-en-leidingen.riolering",
+   "manualPointer": "gemeente Breda rioleringsregistratie (data.breda.nl)",
+   "notes": [],
+   "onderdeel": "kabels en leidingen",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "route": "gemeente Breda rioleringsregistratie (data.breda.nl)"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "gas",
+   "layerRef": null,
+   "lijstItemId": "topografie.kabels-en-leidingen.gas",
+   "manualPointer": "KLIC (netbeheerder gas)",
+   "notes": [],
+   "onderdeel": "kabels en leidingen",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "topografie",
+   "values": {
+    "route": "KLIC (netbeheerder gas)"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": null,
+   "layerRef": null,
+   "lijstItemId": "topografie.topotijdreis",
+   "manualPointer": "https://www.topotijdreis.nl (Kadaster, historische topografie)",
+   "notes": [
+    "PDF/beeldlevering"
+   ],
+   "onderdeel": "topotijdreis",
+   "prioriteit": "hoog",
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [
+    "hoog-prioriteit niet automatisch geleverd"
+   ],
+   "thema": "topografie",
+   "values": {
+    "route": "https://www.topotijdreis.nl (Kadaster, historische topografie)"
+   }
+  },
+  {
+   "bindingStatus": "auto",
+   "deliveredStatus": "delivered",
+   "item": "percelen",
+   "layerRef": "layers/ruimtelijke-ordening-kadaster-percelen.28992.geojson",
+   "lijstItemId": "ruimtelijke-ordening.kadaster.percelen",
+   "manualPointer": null,
+   "notes": [
+    "sectie- en perceelnummers zitten in de open kadastrale kaart; EIGENDOM ('van wie was je?') is wettelijk geen open data — zie ILS-EPset-notitie"
+   ],
+   "onderdeel": "kadaster",
+   "prioriteit": "hoog",
+   "prov": {
+    "bronLeverancier": "PDOK",
+    "bronRegistratie": "kadaster",
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "ogc-api-features",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-brk-kadastrale-kaart::perceel"
+    ]
+   },
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "areaHa": 6.25,
+    "areaM2": 62500.0,
+    "featureCount": 1,
+    "sourceFeatureCount": 1
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": null,
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.bestemmingsplan",
+   "manualPointer": "DSO/LVBB omgevingsdocumenten (https://www.omgevingswet.overheid.nl) — machinekanaal API-sleutel vereist (zie PoC-1 ervaring: DSO download API 401 zonder key); lokale conversie-tooling: imro/ in deze repo",
+   "notes": [
+    "regelingtekst + GIO's; sleutelgate"
+   ],
+   "onderdeel": "bestemmingsplan",
+   "prioriteit": "hoog",
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [
+    "hoog-prioriteit niet automatisch geleverd"
+   ],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "route": "DSO/LVBB omgevingsdocumenten (https://www.omgevingswet.overheid.nl) — machinekanaal API-sleutel vereist (zie PoC-1 ervaring: DSO download API 401 zonder key); lokale conversie-tooling: imro/ in deze repo"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "enkelbestemming",
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.bestemmingsplan.enkelbestemming",
+   "manualPointer": "idem bestemmingsplan (DSO)",
+   "notes": [],
+   "onderdeel": "bestemmingsplan",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "route": "idem bestemmingsplan (DSO)"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "dubbelbestemming",
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.bestemmingsplan.dubbelbestemming",
+   "manualPointer": "idem bestemmingsplan (DSO); NB archeologie vaak via dubbelbestemming (lijst-toelichting rij 20)",
+   "notes": [],
+   "onderdeel": "bestemmingsplan",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "route": "idem bestemmingsplan (DSO); NB archeologie vaak via dubbelbestemming (lijst-toelichting rij 20)"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "functieaanduiding",
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.bestemmingsplan.functieaanduiding",
+   "manualPointer": "idem bestemmingsplan (DSO)",
+   "notes": [],
+   "onderdeel": "bestemmingsplan",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "route": "idem bestemmingsplan (DSO)"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "maatvoering",
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.bestemmingsplan.maatvoering",
+   "manualPointer": "idem bestemmingsplan (DSO) — hoogte/bouwlagen niet machine-leesbaar open",
+   "notes": [],
+   "onderdeel": "bestemmingsplan",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "route": "idem bestemmingsplan (DSO) — hoogte/bouwlagen niet machine-leesbaar open"
+   }
+  },
+  {
+   "bindingStatus": "partial",
+   "deliveredStatus": "delivered",
+   "item": "milieuzone",
+   "layerRef": "layers/ruimtelijke-ordening-bestemmingsplan-milieuzone.28992.geojson",
+   "lijstItemId": "ruimtelijke-ordening.bestemmingsplan.milieuzone",
+   "manualPointer": null,
+   "notes": [],
+   "onderdeel": "bestemmingsplan",
+   "prioriteit": null,
+   "prov": {
+    "bronLeverancier": null,
+    "bronRegistratie": null,
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "arcgis-rest",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/breda-milieuzones::"
+    ]
+   },
+   "proxyNote": "gemeentelijke milieuzoneslaag Breda (open); dekken milieuzones in het omgevingsplan slechts deels",
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "overlapFeatureCount": 1
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": null,
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.gemeentelijk-beleid",
+   "manualPointer": "omgevingsvisie/-verordening gemeente Breda (breda.nl/omgevingswet) — parkeernorm en molenbiotoop als beleidsregels",
+   "notes": [
+    "groepsrij: parkeernorm/molenbiotoop zijn beleidsdocument-items"
+   ],
+   "onderdeel": "gemeentelijk beleid",
+   "prioriteit": "hoog",
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [
+    "hoog-prioriteit niet automatisch geleverd"
+   ],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "route": "omgevingsvisie/-verordening gemeente Breda (breda.nl/omgevingswet) — parkeernorm en molenbiotoop als beleidsregels"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "parkeernorm",
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.gemeentelijk-beleid.parkeernorm",
+   "manualPointer": "gemeente Breda parkeernorm (beleidsregels omgevingsplan)",
+   "notes": [],
+   "onderdeel": "gemeentelijk beleid",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "route": "gemeente Breda parkeernorm (beleidsregels omgevingsplan)"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "molenbiotoop",
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.gemeentelijk-beleid.molenbiotoop",
+   "manualPointer": "molenbiotoopzones (provincie/gemeente; hoogte 10/20/30 m vraagt toelichting — lijst-toelichting rij 27)",
+   "notes": [],
+   "onderdeel": "gemeentelijk beleid",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "route": "molenbiotoopzones (provincie/gemeente; hoogte 10/20/30 m vraagt toelichting — lijst-toelichting rij 27)"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": null,
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.externe-veiligheid",
+   "manualPointer": "atlas leefomgeving (https://www.atlasleefomgeving.nl) — externe veiligheid",
+   "notes": [],
+   "onderdeel": "externe veiligheid",
+   "prioriteit": "midden",
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "route": "atlas leefomgeving (https://www.atlasleefomgeving.nl) — externe veiligheid"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "kwetsbare objecten",
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.externe-veiligheid.kwetsbare-objecten",
+   "manualPointer": "atlas leefomgeving / gemeentelijke registratie",
+   "notes": [],
+   "onderdeel": "externe veiligheid",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "route": "atlas leefomgeving / gemeentelijke registratie"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "risicocontouren",
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.externe-veiligheid.risicocontouren",
+   "manualPointer": "atlas leefomgeving / omgevingsdienst",
+   "notes": [],
+   "onderdeel": "externe veiligheid",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "route": "atlas leefomgeving / omgevingsdienst"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "vervoer en buisleidingen",
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.externe-veiligheid.vervoer-en-buisleidingen",
+   "manualPointer": "risicokaart transportroutes (atlas leefomgeving / RIVM)",
+   "notes": [],
+   "onderdeel": "externe veiligheid",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "route": "risicokaart transportroutes (atlas leefomgeving / RIVM)"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "installaties",
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.externe-veiligheid.installaties",
+   "manualPointer": "BRZO/Seveso-installaties (RIVM/omgevingsdienst)",
+   "notes": [],
+   "onderdeel": "externe veiligheid",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "route": "BRZO/Seveso-installaties (RIVM/omgevingsdienst)"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "brandkranen",
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.externe-veiligheid.brandkranen",
+   "manualPointer": "BGT-objecttype put (plusertype brandkraan niet uniform in open levering); gemeente/waterbedrijf hydrantenregister",
+   "notes": [
+    "lijst-toelichting rij 19: BGT-put"
+   ],
+   "onderdeel": "externe veiligheid",
+   "prioriteit": "laag",
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "route": "BGT-objecttype put (plusertype brandkraan niet uniform in open levering); gemeente/waterbedrijf hydrantenregister"
+   }
+  },
+  {
+   "bindingStatus": "partial",
+   "deliveredStatus": "delivered",
+   "item": null,
+   "layerRef": "layers/ruimtelijke-ordening-geluidscontouren.28992.geojson",
+   "lijstItemId": "ruimtelijke-ordening.geluidscontouren",
+   "manualPointer": null,
+   "notes": [],
+   "onderdeel": "geluidscontouren",
+   "prioriteit": "hoog",
+   "prov": {
+    "bronLeverancier": "nationaal georegister",
+    "bronRegistratie": null,
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "arcgis-rest",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/breda-geluidcontouren::"
+    ]
+   },
+   "proxyNote": "gemeentelijke geluidscontourenlaag Breda (dB, LOW_VAL); bronweg (weg/spoor/industrie) niet eenduidig gelabeld in de open laag",
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "areaHa": 1.0,
+    "areaM2": 10000.0,
+    "featureCount": 1,
+    "sourceFeatureCount": 1
+   }
+  },
+  {
+   "bindingStatus": "partial",
+   "deliveredStatus": "delivered",
+   "item": "wegverkeer",
+   "layerRef": "layers/ruimtelijke-ordening-geluidscontouren-wegverkeer.28992.geojson",
+   "lijstItemId": "ruimtelijke-ordening.geluidscontouren.wegverkeer",
+   "manualPointer": null,
+   "notes": [],
+   "onderdeel": "geluidscontouren",
+   "prioriteit": null,
+   "prov": {
+    "bronLeverancier": null,
+    "bronRegistratie": null,
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "arcgis-rest",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/breda-geluidcontouren::"
+    ]
+   },
+   "proxyNote": "contouren uit de Breda-laag omvatten wegverkeer maar zijn niet per bron onderscheiden",
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "overlapFeatureCount": 1,
+    "overlapM2": 10000.0
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "spoorverkeer",
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.geluidscontouren.spoorverkeer",
+   "manualPointer": "ProRail geluidsregisters / gemeente (bron-specifiek)",
+   "notes": [],
+   "onderdeel": "geluidscontouren",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "route": "ProRail geluidsregisters / gemeente (bron-specifiek)"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "industrie",
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.geluidscontouren.industrie",
+   "manualPointer": "omgevingsdienst (Ke-zones industrie)",
+   "notes": [],
+   "onderdeel": "geluidscontouren",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "route": "omgevingsdienst (Ke-zones industrie)"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "luchthavens",
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.geluidscontouren.luchthavens",
+   "manualPointer": "geluidszones luchthavens (atlas leefomgeving)",
+   "notes": [],
+   "onderdeel": "geluidscontouren",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "route": "geluidszones luchthavens (atlas leefomgeving)"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": null,
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.waterbeheer",
+   "manualPointer": "waterschap Brabantse Delta — legger en peilbesluiten",
+   "notes": [],
+   "onderdeel": "waterbeheer",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "route": "waterschap Brabantse Delta — legger en peilbesluiten"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "primaire en secundaire watergangen",
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.waterbeheer.primaire-en-secundaire-watergangen",
+   "manualPointer": "legger waterschap Brabantse Delta",
+   "notes": [],
+   "onderdeel": "waterbeheer",
+   "prioriteit": "laag",
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "route": "legger waterschap Brabantse Delta"
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "waterkeringen",
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.waterbeheer.waterkeringen",
+   "manualPointer": "waterkeringen (IPO/atlas leefomgeving; waterschap legger)",
+   "notes": [],
+   "onderdeel": "waterbeheer",
+   "prioriteit": "laag",
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "route": "waterkeringen (IPO/atlas leefomgeving; waterschap legger)"
+   }
+  },
+  {
+   "bindingStatus": "partial",
+   "deliveredStatus": "delivered",
+   "item": null,
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.natuur",
+   "manualPointer": null,
+   "notes": [],
+   "onderdeel": "natuur",
+   "prioriteit": "midden",
+   "prov": {
+    "bronLeverancier": "atlas leefomgeving",
+    "bronRegistratie": "ministerie EZ",
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "ogc-api-features",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-natura2000::natura2000"
+    ]
+   },
+   "proxyNote": "alleen Natura 2000-check; bredere natuurgebieden (NNN e.a.) niet in deze stack",
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "overlapFeatureCount": 0
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": "natuurgebieden",
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.natuur.natuurgebieden",
+   "manualPointer": "geen landelijke open 'natuurgebieden'-kaart in deze bronnenstack; provincie/Bioregister",
+   "notes": [],
+   "onderdeel": "natuur",
+   "prioriteit": null,
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "route": "geen landelijke open 'natuurgebieden'-kaart in deze bronnenstack; provincie/Bioregister"
+   }
+  },
+  {
+   "bindingStatus": "auto",
+   "deliveredStatus": "delivered",
+   "item": "natura2000",
+   "layerRef": null,
+   "lijstItemId": "ruimtelijke-ordening.natuur.natura2000",
+   "manualPointer": null,
+   "notes": [
+    "aanwezigheid in plangrens + afstand tot dichtstbijzijnd Natura 2000-gebied"
+   ],
+   "onderdeel": "natuur",
+   "prioriteit": null,
+   "prov": {
+    "bronLeverancier": null,
+    "bronRegistratie": null,
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "ogc-api-features",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-natura2000::natura2000"
+    ]
+   },
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "ruimtelijke ordening",
+   "values": {
+    "distanceToNearestKm": 2.5,
+    "overlapFeatureCount": 0,
+    "presence": false
+   }
+  },
+  {
+   "bindingStatus": "partial",
+   "deliveredStatus": "delivered",
+   "item": null,
+   "layerRef": null,
+   "lijstItemId": "statistiek.aantal-inwoners",
+   "manualPointer": null,
+   "notes": [],
+   "onderdeel": "aantal inwoners",
+   "prioriteit": "laag",
+   "prov": {
+    "bronLeverancier": "PDOK",
+    "bronRegistratie": "CBS",
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "wfs2",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-cbs-wijkenbuurten-2024::wijkenbuurten:buurten"
+    ]
+   },
+   "proxyNote": "CBS 2024 buurtstatistiek, oppervlaktegewogen naar de plangrens — buurtniveau, geen exacte plangrens-cijfers",
+   "riskFlags": [],
+   "thema": "statistiek",
+   "values": {
+    "estimate": 400.0,
+    "method": "oppervlaktegewogen CBS 2024 buurtstatistiek binnen plangrens",
+    "statField": "aantalInwoners"
+   }
+  },
+  {
+   "bindingStatus": "partial",
+   "deliveredStatus": "delivered",
+   "item": null,
+   "layerRef": null,
+   "lijstItemId": "statistiek.woz",
+   "manualPointer": null,
+   "notes": [],
+   "onderdeel": "woz",
+   "prioriteit": "laag",
+   "prov": {
+    "bronLeverancier": "PDOK",
+    "bronRegistratie": "CBS",
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "wfs2",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-cbs-wijkenbuurten-2024::wijkenbuurten:buurten"
+    ]
+   },
+   "proxyNote": "CBS 2024 buurtgemiddelde (woningwaarde, ×1000 euro), oppervlaktegewogen — buurtniveau",
+   "riskFlags": [],
+   "thema": "statistiek",
+   "values": {
+    "estimate": 350.0,
+    "method": "oppervlaktegewogen CBS 2024 buurtstatistiek binnen plangrens",
+    "statField": "gemiddeldeWoningwaarde"
+   }
+  },
+  {
+   "bindingStatus": "auto",
+   "deliveredStatus": "delivered",
+   "item": null,
+   "layerRef": "layers/statistiek-aantal-eenheden.28992.geojson",
+   "lijstItemId": "statistiek.aantal-eenheden",
+   "manualPointer": null,
+   "notes": [
+    "verblijfsobjecten binnen plangrens"
+   ],
+   "onderdeel": "aantal eenheden",
+   "prioriteit": "laag",
+   "prov": {
+    "bronLeverancier": "PDOK",
+    "bronRegistratie": "BAG",
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "wfs2",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-bag-wfs::bag:verblijfsobject"
+    ]
+   },
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "statistiek",
+   "values": {
+    "featureCount": 2,
+    "sourceFeatureCount": 3
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": null,
+   "layerRef": null,
+   "lijstItemId": "statistiek.aantal-bouwlagen",
+   "manualPointer": "aantal bouwlagen zit niet in de open BAG; uit bestemmingsplan (maatvoering) of 3D BAG",
+   "notes": [],
+   "onderdeel": "aantal bouwlagen",
+   "prioriteit": "laag",
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "statistiek",
+   "values": {
+    "route": "aantal bouwlagen zit niet in de open BAG; uit bestemmingsplan (maatvoering) of 3D BAG"
+   }
+  },
+  {
+   "bindingStatus": "partial",
+   "deliveredStatus": "delivered",
+   "item": null,
+   "layerRef": null,
+   "lijstItemId": "statistiek.fsi",
+   "manualPointer": null,
+   "notes": [],
+   "onderdeel": "fsi",
+   "prioriteit": "laag",
+   "prov": {
+    "bronLeverancier": null,
+    "bronRegistratie": null,
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "wfs2",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-bag-wfs::bag:verblijfsobject"
+    ]
+   },
+   "proxyNote": "proxy: som verblijfsobject-oppervlaktes / BTO (bruto vloeroppervlak-afleiding, geen true FSI zonder bouwlagen)",
+   "riskFlags": [],
+   "thema": "statistiek",
+   "values": {
+    "fsiProxy": 0.0008,
+    "vboOppervlakteM2": 200.0
+   }
+  },
+  {
+   "bindingStatus": "partial",
+   "deliveredStatus": "delivered",
+   "item": null,
+   "layerRef": null,
+   "lijstItemId": "statistiek.gsi",
+   "manualPointer": null,
+   "notes": [],
+   "onderdeel": "gsi",
+   "prioriteit": "laag",
+   "prov": {
+    "bronLeverancier": null,
+    "bronRegistratie": null,
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "ogc-api-features",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-bgt-ogc-api::begroeidterreindeel"
+    ]
+   },
+   "proxyNote": "proxy: begroeid terreindeel (BGT) / BTO",
+   "riskFlags": [],
+   "thema": "statistiek",
+   "values": {
+    "begroeidTerreindeelM2": 10000.0,
+    "gsiProxy": 0.04
+   }
+  },
+  {
+   "bindingStatus": "partial",
+   "deliveredStatus": "delivered",
+   "item": null,
+   "layerRef": null,
+   "lijstItemId": "statistiek.mxi",
+   "manualPointer": null,
+   "notes": [],
+   "onderdeel": "mxi",
+   "prioriteit": "laag",
+   "prov": {
+    "bronLeverancier": null,
+    "bronRegistratie": null,
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "wfs2",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-bag-wfs::bag:verblijfsobject"
+    ]
+   },
+   "proxyNote": "proxy: spreiding (Shannon-entropy genormaliseerd) van gebruiksdoelen in de plangrens",
+   "riskFlags": [],
+   "thema": "statistiek",
+   "values": {
+    "method": "genormaliseerde Shannon-entropy van gebruiksdoelen",
+    "mxiProxy": 1.0
+   }
+  },
+  {
+   "bindingStatus": "auto",
+   "deliveredStatus": "delivered",
+   "item": null,
+   "layerRef": "layers/identiteit-bouwjaar.28992.geojson",
+   "lijstItemId": "identiteit.bouwjaar",
+   "manualPointer": null,
+   "notes": [],
+   "onderdeel": "bouwjaar",
+   "prioriteit": "laag",
+   "prov": {
+    "bronLeverancier": "PDOK",
+    "bronRegistratie": "BAG",
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "wfs2",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-bag-wfs::bag:pand"
+    ]
+   },
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "identiteit",
+   "values": {
+    "areaHa": 0.18,
+    "areaM2": 1800.0,
+    "bouwjaarHistogram": {
+     "1970s": 1,
+     "2000s": 1
+    },
+    "featureCount": 2,
+    "sourceFeatureCount": 2
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": null,
+   "layerRef": null,
+   "lijstItemId": "identiteit.voorzieningen",
+   "manualPointer": "voorzieningenregister niet als open landelijke kaart in deze stack (CBS-afstanden zijn buurtniveau — zie poc-breda)",
+   "notes": [],
+   "onderdeel": "voorzieningen",
+   "prioriteit": "laag",
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "identiteit",
+   "values": {
+    "route": "voorzieningenregister niet als open landelijke kaart in deze stack (CBS-afstanden zijn buurtniveau — zie poc-breda)"
+   }
+  },
+  {
+   "bindingStatus": "auto",
+   "deliveredStatus": "delivered",
+   "item": "verblijfsobject gebruiksfunctie",
+   "layerRef": "layers/identiteit-voorzieningen-verblijfsobject-gebruiksfunctie.28992.geojson",
+   "lijstItemId": "identiteit.voorzieningen.verblijfsobject-gebruiksfunctie",
+   "manualPointer": null,
+   "notes": [],
+   "onderdeel": "voorzieningen",
+   "prioriteit": "laag",
+   "prov": {
+    "bronLeverancier": null,
+    "bronRegistratie": null,
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "wfs2",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-bag-wfs::bag:verblijfsobject"
+    ]
+   },
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "identiteit",
+   "values": {
+    "featureCount": 2,
+    "gebruiksdoelBreakdown": {
+     "kantoorfunctie": 1,
+     "woonfunctie": 1
+    },
+    "sourceFeatureCount": 3
+   }
+  },
+  {
+   "bindingStatus": "manual",
+   "deliveredStatus": "manual-action",
+   "item": null,
+   "layerRef": null,
+   "lijstItemId": "identiteit.bereikbaarheid",
+   "manualPointer": "bereikbaarheidsanalyse (NETMOB/OSM-routering) — fase 2",
+   "notes": [],
+   "onderdeel": "bereikbaarheid",
+   "prioriteit": "laag",
+   "prov": null,
+   "proxyNote": null,
+   "riskFlags": [],
+   "thema": "identiteit",
+   "values": {
+    "route": "bereikbaarheidsanalyse (NETMOB/OSM-routering) — fase 2"
+   }
+  },
+  {
+   "bindingStatus": "partial",
+   "deliveredStatus": "delivered",
+   "item": null,
+   "layerRef": "layers/identiteit-monumenten.28992.geojson",
+   "lijstItemId": "identiteit.monumenten",
+   "manualPointer": null,
+   "notes": [
+    "directe monumentenregister-links als referentie"
+   ],
+   "onderdeel": "monumenten",
+   "prioriteit": "laag",
+   "prov": {
+    "bronLeverancier": "atlas leefomgeving",
+    "bronRegistratie": "RCE",
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "ogc-api-features",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/pdok-rce-cultuurhistorie::rce_inspire_points"
+    ]
+   },
+   "proxyNote": "alleen rijksmonumenten (RCE); gemeentelijke monumenten niet landelijk open",
+   "riskFlags": [],
+   "thema": "identiteit",
+   "values": {
+    "count": 1,
+    "list": [
+     {
+      "ci_citation": "https://monumentenregister.cultureelerfgoed.nl/monumenten/1"
+     }
+    ],
+    "listCap": 250,
+    "sourceFeatureCount": 1
+   }
+  },
+  {
+   "bindingStatus": "partial",
+   "deliveredStatus": "delivered",
+   "item": null,
+   "layerRef": "layers/identiteit-cultuurhistorie.28992.geojson",
+   "lijstItemId": "identiteit.cultuurhistorie",
+   "manualPointer": null,
+   "notes": [],
+   "onderdeel": "cultuurhistorie",
+   "prioriteit": "laag",
+   "prov": {
+    "bronLeverancier": "cultgis",
+    "bronRegistratie": "RCE",
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "arcgis-rest",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/breda-cultuurhistorie::"
+    ]
+   },
+   "proxyNote": "gemeentelijke cultuurhistorische waardekaart Breda (open); interpretatie vraagt gemeente",
+   "riskFlags": [],
+   "thema": "identiteit",
+   "values": {
+    "areaHa": 0.36,
+    "areaM2": 3600.0,
+    "featureCount": 1,
+    "sourceFeatureCount": 1
+   }
+  },
+  {
+   "bindingStatus": "partial",
+   "deliveredStatus": "delivered",
+   "item": null,
+   "layerRef": "layers/identiteit-archeologie.28992.geojson",
+   "lijstItemId": "identiteit.archeologie",
+   "manualPointer": null,
+   "notes": [],
+   "onderdeel": "archeologie",
+   "prioriteit": "laag",
+   "prov": {
+    "bronLeverancier": "ikaw",
+    "bronRegistratie": "RCE",
+    "fetchedAt": "2026-09-21T00:00:00Z",
+    "protocol": "arcgis-rest",
+    "sha256": [
+     "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "urls": [
+     "https://example.test/breda-archeologie::"
+    ]
+   },
+   "proxyNote": "gemeentelijk archeologiebeleid Breda (verwachtingszones); AMVR-overleg blijft mensenwerk",
+   "riskFlags": [],
+   "thema": "identiteit",
+   "values": {
+    "areaHa": 0.49,
+    "areaM2": 4900.0,
+    "featureCount": 1,
+    "sourceFeatureCount": 1
+   }
+  }
+ ],
+ "miniGimVersions": {
+  "ils": "v0.8",
+  "lijst": "v0.91"
+ },
+ "summary": {
+  "autoCoverageOfHoog": {
+   "delivered": 3,
+   "hoog": 11,
+   "pct": 27.3
+  },
+  "bindingStatus": {
+   "auto": 14,
+   "manual": 45,
+   "partial": 15
+  },
+  "deliveredStatus": {
+   "delivered": 29,
+   "manual-action": 45
+  },
+  "hoogPrioriteitNotDelivered": [
+   "topografie.hoogte.hoogte-maaiveld",
+   "topografie.bodemsamenstelling",
+   "topografie.grondwater",
+   "topografie.verontreiniging",
+   "topografie.kabels-en-leidingen",
+   "topografie.topotijdreis",
+   "ruimtelijke-ordening.bestemmingsplan",
+   "ruimtelijke-ordening.gemeentelijk-beleid"
+  ],
+  "itemCount": 74
+ }
+}
