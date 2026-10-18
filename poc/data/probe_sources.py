@@ -9,6 +9,7 @@ caches. Run: cd poc && /opt/homebrew/Caskroom/miniconda/base/bin/python3 data/pr
 from __future__ import annotations
 
 import json
+import re
 import urllib.request
 from datetime import date
 from pathlib import Path
@@ -19,13 +20,18 @@ AOI = {"type": "Polygon", "coordinates": [[[130000, 440000], [160000, 440000],
       [160000, 470000], [130000, 470000], [130000, 440000]]]}
 
 
+# brief-amendement (review task 5): laagindex in serviceUrl wordt genormaliseerd —
+# anders verdubbelt de index bij bronnen zonder layerId.
 def _arcgis_count(entry: dict) -> int | None:
-    url = f"{entry['serviceUrl']}/{entry.get('layerId', 0)}/query?f=json&where=1%3D1&returnCountOnly=true"
+    url = entry["serviceUrl"].rstrip("/")
+    if not entry.get("layerId"):
+        url = re.sub(r"/FeatureServer/\d+$", "/FeatureServer", url)
+    url = f"{url}/{entry.get('layerId', 0)}/query?f=json&where=1%3D1&returnCountOnly=true"
     try:
         with urllib.request.urlopen(url, timeout=30) as r:
             return int(json.loads(r.read().decode("utf-8")).get("count"))
-    except Exception as exc:  # bewust breed: de probe registreert, faalt nooit
-        return None if not isinstance(exc, KeyboardInterrupt) else None
+    except Exception:  # bewust breed: de probe registreert, faalt nooit
+        return None
 
 
 def main() -> int:
