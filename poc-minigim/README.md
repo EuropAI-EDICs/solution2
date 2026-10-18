@@ -52,6 +52,11 @@ from services.process_adapter.poc_handlers import execute_minigim_gebiedscheck_r
 print(execute_minigim_gebiedscheck_run({'mode': 'replay'}))"
 ```
 
+De generieke mechaniek (fetch, derivaties, binding-executor) staat sinds M2 in
+[`poc-fundament/`](../poc-fundament/README.md); deze PoC levert de MiniGIM-bindings,
+de proxy-ops en de rapportage. Het bewijs dat de migratie niets veranderde:
+`tests/test_golden.py` (canonisch identiek t.o.v. de pre-refactor golden).
+
 ## Tests (offline, geen netwerk)
 
 ```bash
@@ -118,7 +123,10 @@ poc-minigim/
 ├── schemas/          5 JSON-schema's (registers, bindings, artefacten)
 ├── data/             sources.json (11 bronnen + quirks), probe-script + bewijs
 ├── examples/         plangrens-breda-teteringen.28992.geojson (pilot-AOI)
-├── minigim/          package: registry, fetch, checklist, ils, validate, report
+├── minigim/          package: PoC-specifieke laag op poc-fundament
+│                     (registry = TaskRegistry-subclass, checklist = BindingExecutor-
+│                     subclass + proxy-ops, fetch = compat-shim, ils, report, validate)
+├── fase-manifest.json  agent–fase–tool matrix (gegenereerd: tools/gen_fase_manifest.py)
 ├── tests/            offline unittest-suite (stub-fetch, deterministisch)
 └── run.py            orchestrator (runs/<ts>-minigim-gebiedscheck/)
 ```
