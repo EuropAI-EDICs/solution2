@@ -20,9 +20,10 @@ def test_known_names_present():  # regressie op bestaande tracks
 
 def test_fase1_alias_naam_binding():  # eindreview-belangrijk-6
     """De vijf gekozen water/bodem-NAAM's staan letterlijk in het artifact
-    ÉN letterlijk als WHERE NAAM='<naam>' in run.py's ZONE_SOURCES — de
-    alias-binding is dus artefact-gefilterd, niet vrij gezocht."""
-    run_py = Path("run.py").read_text()
+    ÉN letterlijk als WHERE NAAM='<naam>' in het zone-register
+    poc/tracks/_zone-sources.json — de alias-binding is dus
+    artefact-gefilterd, niet vrij gezocht."""
+    zs = json.loads(Path("tracks/_zone-sources.json").read_text())
     for naam in [
         "Waterbergingsgebied",
         "Overstroombaar gebied",
@@ -31,14 +32,14 @@ def test_fase1_alias_naam_binding():  # eindreview-belangrijk-6
         "Gebied gesloten stortplaats",
     ]:
         assert naam in ART["namen"], naam
-        assert f"WHERE NAAM='{naam}'" in run_py, naam
+        assert any(f"WHERE NAAM='{naam}'" in (e.get("note") or "") for e in zs.values()), naam
 
 
 def test_fase2_alias_naam_binding():  # spiegel van de fase-1-bindingsrij
     """De elf gekozen mobiliteit/landschap-NAAM's (fase 2) staan letterlijk
-    in het artifact ÉN letterlijk als WHERE NAAM='<naam>' in run.py's
-    ZONE_SOURCES."""
-    run_py = Path("run.py").read_text()
+    in het artifact ÉN letterlijk als WHERE NAAM='<naam>' in het
+    zone-register poc/tracks/_zone-sources.json."""
+    zs = json.loads(Path("tracks/_zone-sources.json").read_text())
     for naam in [
         "Beperkingengebied bouwwerken provinciale weg",
         "Geluidcontour buiten de bebouwde kom",
@@ -53,4 +54,4 @@ def test_fase2_alias_naam_binding():  # spiegel van de fase-1-bindingsrij
         "Gebied aardkundige waarden",
     ]:
         assert naam in ART["namen"], naam
-        assert f"WHERE NAAM='{naam}'" in run_py, naam
+        assert any(f"WHERE NAAM='{naam}'" in (e.get("note") or "") for e in zs.values()), naam

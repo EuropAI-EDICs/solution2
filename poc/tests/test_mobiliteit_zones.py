@@ -45,33 +45,22 @@ MOBILITEIT_MATCH = re.compile(
 
 
 def _alias_source_ids():
-    """Parse de mobiliteit-alias -> sourceId-regels uit run.py::ZONE_SOURCES.
-
-    De scan is begrensd tot het ZONE_SOURCES-dict (eindreview-backlog-hygiëne,
-    spiegel van test_landschap_zones.py): de onbegrensde variant pakt ook
-    regels buiten het dict en botst zodra een aliasnaam óók een TRACKS-sleutel
-    is."""
-    lines = (POC / "run.py").read_text().splitlines()
-    start = next(i for i, l in enumerate(lines) if l.startswith("ZONE_SOURCES"))
-    end = next(i for i in range(start, len(lines)) if lines[i] == "}")
-    block = lines[start:end]
+    """Alias -> sourceId uit het zone-register poc/tracks/_zone-sources.json
+    (sinds nspd-port fase 1 de declaratieve locatie van ZONE_SOURCES)."""
+    registry = json.loads((POC / "tracks" / "_zone-sources.json").read_text())
     ids = {}
-    for i, line in enumerate(block):
-        m = re.match(r'\s*"(\w+)":\s*\{\s*$', line)
-        if m and m.group(1) in set(MOBILITEIT_ALIASES):
-            assert i + 1 < len(block), f"alias {m.group(1)} aan het einde van ZONE_SOURCES"
-            m2 = re.match(r'\s*"sourceId":\s*"([\w.-]+)"', block[i + 1])
-            assert m2, f"alias {m.group(1)} zonder sourceId-regel in ZONE_SOURCES"
-            ids[m.group(1)] = m2.group(1)
-    missing = [a for a in MOBILITEIT_ALIASES if a not in ids]
-    assert not missing, f"zone-alias(es) ontbreken in run.py ZONE_SOURCES: {missing}"
+    for alias in MOBILITEIT_ALIASES:
+        entry = registry.get(alias)
+        assert entry and entry.get("sourceId"), (
+            f"zone-alias zonder sourceId in tracks/_zone-sources.json: {alias}")
+        ids[alias] = entry["sourceId"]
     return ids
 
 
 def test_mobiliteit_aliases_resolve_to_registered_sources():
-    run_py = (POC / "run.py").read_text()
+    zone_registry = json.loads((POC / "tracks" / "_zone-sources.json").read_text())
     for alias in MOBILITEIT_ALIASES:
-        assert f'"{alias}"' in run_py, alias
+        assert alias in zone_registry, alias
     registry = json.loads((POC / "data/sources.json").read_text())["sources"]
     by_id = {s["id"]: s for s in registry}
     # sterke vorm: de dict-vorm van ZONE_SOURCES moet op een bestaand registry-id

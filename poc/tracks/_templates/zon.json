@@ -1,0 +1,80 @@
+{
+  "Z-01": {
+    "kind": "reject",
+    "rule_type": "scope_declaration",
+    "reason": "Definitional scope of the object type 'zonneveld' (Bijlage I): ground/water-mounted panel groupings, roofs excluded. Carries no zone or threshold semantics to execute.",
+    "rationale": "The definition scopes the ZON use case; the operative siting norm is art. 5.5 (FR-Z-02), so this card yields no independent rule.",
+    "executable_ref": "engine.scope.none@poc-v1"
+  },
+  "Z-02": {
+    "kind": "inclusion",
+    "zone": {
+      "zoneIds": [
+        "gebied_zonneveld"
+      ],
+      "selection": "within",
+      "geometrySource": "provincial_gio",
+      "gioJoinId": "/join/id/regdata/pv26/2025/gioa748cb8c-4f7f-4bbb-83d4-54becd3e0d1d/nld@2025-10-10;849",
+      "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+    },
+    "conditions": [],
+    "extra_tags": [
+      "inclusion_zone_gebied_zonneveld"
+    ],
+    "rationale": "CORE ZON RULE. Art. 5.5 lid 1 permits, within the 'Gebied zonneveld' (GIO Bijlage II), rules allowing zonnevelden; the zone is quoted verbatim in NC-Z-02. The three proviso's (recognisable structures/landscape integration, soil-water-quality-fitting arrangement, removal duty) are qualitative duties carried as procedural context tags, never guessed as geometry.",
+    "executable_ref": "engine.zone.within@poc-v1"
+  },
+  "Z-03": {
+    "kind": "exclusion",
+    "zone": {
+      "zoneIds": [
+        "natura_2000",
+        "ganzenrustgebied"
+      ],
+      "selection": "within",
+      "geometrySource": "national_source",
+      "caveat": "exclusion grounded in the toelichting on art. 5.5 (interpretive) + Omgevingsvisie 2021 (non-binding); no provincial GIO exists — geo analyst must attach national geometry with provenance"
+    },
+    "conditions": [],
+    "extra_tags": [
+      "exclusion_natura_2000",
+      "exclusion_ganzenrustgebied",
+      "no_zon_provisions_for_stedelijk_gebied"
+    ],
+    "rationale": "The toelichting to art. 5.5 restricts the article to the landelijk gebied 'met uitzondering van de natura 2000-gebieden en de ganzenrustgebieden' — the same geographic reading as wind FR-W-08. Geometry must come from national sources because no provincial GIO covers these areas. The stedelijk gebied needs no separate exclusion: the Gebied zonneveld designation itself does not extend there.",
+    "executable_ref": "engine.zone.exclude_within@poc-v1"
+  },
+  "Z-04": {
+    "kind": "compensation",
+    "zone": {
+      "zoneIds": [
+        "groene_contour"
+      ],
+      "selection": "within",
+      "geometrySource": "provincial_gio",
+      "gioJoinId": "/join/id/regdata/pv26/2025/gioee37db62-22b1-4334-bf89-7ddf4e5812c6/nld@2025-08-18;798",
+      "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+    },
+    "conditions": [
+      {
+        "parameter": "compensation_realisation_deadline_years",
+        "operator": "<=",
+        "value": 25,
+        "unit": "jaar"
+      }
+    ],
+    "extra_tags": [
+      "compensation_within_groene_contour",
+      "zonneveld_implicitly_temporary"
+    ],
+    "rationale": "Art. 6.5a lid 3 sets a fully deterministic compensation regime for zonnevelden inside the Groene contour: the compensation new nature (with its management measures) must be realised at the latest 25 years after placement of the panels. Not an elimination: a temporally bounded obligation attached to affected parcels.",
+    "executable_ref": "engine.compensation.ratio@poc-v1"
+  },
+  "Z-05": {
+    "kind": "reject",
+    "rule_type": "unsupported_claim",
+    "reason": "Non-binding visie statement of admissibility and preference (roofs/facades/infrastructure first, then industrial estates); the visie formulates no further rules, and the toelichting to art. 5.5 (NC-Z-03) confirms the verordening contains no provisions for solar energy in the stedelijk gebied.",
+    "rationale": "Visie-admissibility of zonnevelden in the stedelijk gebied is policy, not a verordeningsrule; issuing an executable inclusion from it alone would break the binding/interpretive grounding chain (V2). Note the contrast with wind, where the toelichting itself excludes the stedelijk gebied.",
+    "executable_ref": "engine.scope.none@poc-v1"
+  }
+}

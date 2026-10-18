@@ -1,0 +1,56 @@
+{
+  "WA-01": {
+    "kind": "conditional",
+    "zone": {
+      "zoneIds": [
+        "vrijwaringszone_waterkering"
+      ],
+      "selection": "within",
+      "geometrySource": "provincial_gio_unverified",
+      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+    },
+    "conditions": [],
+    "extra_tags": [
+      "conditional_within_vrijwaringszone_waterkering",
+      "waterkerende_functie_beschermen"
+    ],
+    "rationale": "CORE WATER RULE (art. 2.14). Instructieregel directing omgevingsplannen for locations within the 'Vrijwaringszone regionale waterkering' to contain rules that protect the waterkerende functie and provide in a vrijwaringszone on both sides of the waterkering. The zone overlay is deterministic; whether a specific riparian development's plan rules adequately protect the waterkering is a plan-quality assessment marked for human review (V4), not guessed — hence a conditional marker (mirroring FR-W-12/FR-B-03), never an elimination.",
+    "executable_ref": "engine.zone.within@poc-v1"
+  },
+  "WA-02": {
+    "kind": "exclusion",
+    "zone": {
+      "zoneIds": [
+        "waterbergingsgebied"
+      ],
+      "selection": "within",
+      "geometrySource": "provincial_gio_unverified",
+      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+    },
+    "conditions": [],
+    "extra_tags": [
+      "exclusion_waterbergingsgebied",
+      "bestaande_uitbreidingsrechten_exception"
+    ],
+    "rationale": "Art. 2.15 instructieregel: an omgevingsplan for locations within the 'Waterbergingsgebied' contains no rules allowing developments that conflict with the waterbergingsfunctie, 'tenzij die ontwikkelingen plaatsvinden op basis van bestaande uitbreidingsrechten ter plaatse van de al aanwezige functies'. Formalized as the default zone exclusion for new riparian development; the existing-expansion-rights exception is parcel-specific and cannot be predicated without a case file, so it is carried as a context tag routed to V4 (the engine applies the default, exactly like FR-W-14's discretionary lid-2 exceptions).",
+    "executable_ref": "engine.zone.exclude_within@poc-v1"
+  },
+  "WA-03": {
+    "kind": "conditional",
+    "zone": {
+      "zoneIds": [
+        "overstroombaar_gebied"
+      ],
+      "selection": "within",
+      "geometrySource": "provincial_gio_unverified",
+      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+    },
+    "conditions": [],
+    "extra_tags": [
+      "conditional_within_overstroombaar_gebied",
+      "binnendijks_buitendijks_objectdifferentiatie"
+    ],
+    "rationale": "Art. 2.16 instructieregel: plans for locations within the 'Overstroombaar gebied' must contain rules that take flood risk into account, differentiated binnendijks (vulnerable and vital objects, woonwijken, bedrijventerreinen) versus buitendijks (also individual homes and businesses). The zone overlay is deterministic; the 'rekening houden met overstromingsrisico's' test is object-type- and case-specific, so the rule is a conditional marker for the riparian_development object type routed to V4 — it never eliminates area by itself.",
+    "executable_ref": "engine.zone.within@poc-v1"
+  }
+}
