@@ -1,0 +1,33 @@
+{
+  "id": "SSET-werken-whatif-netcongestie",
+  "useCase": "werken",
+  "description": "Data-grounded what-if (nspd-port fase 3, task 8): exclusion 1 km rond de landelijke netcongestie-voedingsgebieden — bedrijventerrein-uitbreiding weggedrukt uit de gebieden met transportcapaciteitstekort (code 3).",
+  "scenarios": [
+    {
+      "id": "SC-WER-NETCONGESTIE-1KM",
+      "name": "Bedrijventerreinen 1 km rond netcongestie uitgesloten",
+      "description": "Synthetische exclusion rond de Landelijke Capaciteitskaart 'afname'-voedingsgebieden (netbeheerder-netcongestie, Utrecht-bbox) met een 1 km buffer — een data-gegronde verkenning, geen juridische regel.",
+      "objectType": "business_development",
+      "basis": {
+        "type": "hypothetical",
+        "rationale": "De 1 km-afstand rond netcongestie-voedingsgebieden staat in geen enkele verordening; deze hypothetical meet waar bedrijfsuitbreiding zou overblijven als gridcapaciteit als vestigingsvoorwaarde wordt meegewogen.",
+        "provenanceNote": "NOT legally grounded: alleen de netcongestie-datalaag (Landelijke Capaciteitskaart 'afname', plan 2 task 6) onderbouwt de zone; de 1 km-afstand is een scenario-parameter.",
+        "dataGrounding": {
+          "sourceId": "netbeheerder-netcongestie",
+          "retrieved": "2026-10-14",
+          "note": "Landelijke Capaciteitskaart elektriciteitsnet 'afname' (ArcGIS item e111e42029af46da8a3a96787c28c444), Utrecht-bbox, 59 voedingsgebied-polygonen; cache data/cache/national/netcongestie/netcongestie.geojson"
+        }
+      },
+      "mutations": [
+        {
+          "ruleId": "SC-WER-AZR-1",
+          "action": "add_zone_rule",
+          "zoneId": "netcongestie",
+          "zoneSemantics": "exclusion",
+          "bufferDistanceM": 1000
+        }
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    }
+  ]
+}

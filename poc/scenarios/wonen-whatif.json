@@ -1,0 +1,33 @@
+{
+  "id": "SSET-wonen-whatif-netcongestie",
+  "useCase": "wonen",
+  "description": "Data-grounded what-if (nspd-port fase 3, task 8): inclusion binnen 500 m van de landelijke netcongestie-voedingsgebieden — herstructureringsdruk rond knelpunten; woningbouw-openingen worden juist dáár toegestaan.",
+  "scenarios": [
+    {
+      "id": "SC-WON-NETCONGESTIE-INCLUSIE-500M",
+      "name": "Woningbouw binnen 500 m van netcongestie toegestaan",
+      "description": "Synthetische inclusion op de Landelijke Capaciteitskaart 'afname'-voedingsgebieden (netbeheerder-netcongestie, Utrecht-bbox) met een 500 m buffer — inclusie is een ander verhaal dan de werken-exclusie: transformatiedruk rond knelpunten als verkenning, geen juridische regel.",
+      "objectType": "housing_development",
+      "basis": {
+        "type": "hypothetical",
+        "rationale": "De 500 m-herstructureringsband rond netcongestie-voedingsgebieden is niet ergens geciteerd; deze hypothetical meet welke woningbouw-openingen er bijkomen als knelpuntgebieden als transformatielocatie worden aangemerkt.",
+        "provenanceNote": "NOT legally grounded: alleen de netcongestie-datalaag (Landelijke Capaciteitskaart 'afname', plan 2 task 6) onderbouwt de zone; de 500 m-afstand is een scenario-parameter.",
+        "dataGrounding": {
+          "sourceId": "netbeheerder-netcongestie",
+          "retrieved": "2026-10-14",
+          "note": "Landelijke Capaciteitskaart elektriciteitsnet 'afname' (ArcGIS item e111e42029af46da8a3a96787c28c444), Utrecht-bbox, 59 voedingsgebied-polygonen; cache data/cache/national/netcongestie/netcongestie.geojson"
+        }
+      },
+      "mutations": [
+        {
+          "ruleId": "SC-WON-AZR-1",
+          "action": "add_zone_rule",
+          "zoneId": "netcongestie",
+          "zoneSemantics": "inclusion",
+          "bufferDistanceM": 500
+        }
+      ],
+      "proposedBy": "deterministic-scenario-author#poc-v0"
+    }
+  ]
+}

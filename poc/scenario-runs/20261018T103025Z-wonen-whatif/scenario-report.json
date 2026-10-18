@@ -1,0 +1,64 @@
+{
+ "id": "SR-20261005T100258Z-wonen-20261018T103026Z",
+ "scenarioSetId": "SSET-wonen-whatif-netcongestie",
+ "baselineRunId": "20261005T100258Z-wonen",
+ "requestId": "22ca237f-761c-46b3-8d88-3ca25824adf5",
+ "objectType": "housing_development",
+ "generatedAt": "2026-10-18T10:30:33Z",
+ "generatedBy": "deterministic-scenario-author#poc-v0",
+ "control": {
+  "finalAreaKm2": 1142.989820617,
+  "inclusionIntersectAoiKm2": 1142.989820617,
+  "baselineFinalAreaKm2": 1142.989820617,
+  "baselineInclusionKm2": 1142.989820617,
+  "reproductionDeltaKm2": 0.0,
+  "reproductionRelDelta": 0.0,
+  "reproductionWithinTolerance": true
+ },
+ "scenarios": [
+  {
+   "scenarioId": "SC-WON-NETCONGESTIE-INCLUSIE-500M",
+   "name": "Woningbouw binnen 500 m van netcongestie toegestaan",
+   "basis": {
+    "type": "hypothetical",
+    "rationale": "De 500 m-herstructureringsband rond netcongestie-voedingsgebieden is niet ergens geciteerd; deze hypothetical meet welke woningbouw-openingen er bijkomen als knelpuntgebieden als transformatielocatie worden aangemerkt.",
+    "provenanceNote": "NOT legally grounded: alleen de netcongestie-datalaag (Landelijke Capaciteitskaart 'afname', plan 2 task 6) onderbouwt de zone; de 500 m-afstand is een scenario-parameter.",
+    "dataGrounding": {
+     "sourceId": "netbeheerder-netcongestie",
+     "retrieved": "2026-10-14",
+     "note": "Landelijke Capaciteitskaart elektriciteitsnet 'afname' (ArcGIS item e111e42029af46da8a3a96787c28c444), Utrecht-bbox, 59 voedingsgebied-polygonen; cache data/cache/national/netcongestie/netcongestie.geojson"
+    }
+   },
+   "proposedBy": "deterministic-scenario-author#poc-v0",
+   "mutationsApplied": [
+    {
+     "ruleId": "SC-WON-AZR-1",
+     "action": "add_zone_rule",
+     "zoneId": "netcongestie",
+     "zoneSemantics": "inclusion",
+     "note": "scenario mutation add_zone_rule: inclusion over alias netcongestie met buffer 500 m",
+     "bufferDistanceM": 500.0
+    }
+   ],
+   "mutationsSkipped": [],
+   "rulesTotal": 13,
+   "rulesExecuted": 13,
+   "finalAreaKm2": 1465.890894998,
+   "inclusionIntersectAoiKm2": 1465.890894998,
+   "deltaVsControlKm2": 322.901074381,
+   "deltaVsControlPct": 28.250564,
+   "iouVsControl": 0.779723204,
+   "geometryValid": true,
+   "geometryFile": "scenarios/SC-WON-NETCONGESTIE-INCLUSIE-500M.geojson",
+   "status": "ok"
+  }
+ ],
+ "verdict": "pass",
+ "validationReportFile": "validation.json",
+ "degradations": [],
+ "notes": [
+  "Phase A deterministic sweep (docs/GENAI_SEAMS.md): no LLM at runtime; scenario specs are schema-validated contracts authored by deterministic-scenario-author#poc-v0.",
+  "Deltas are measured against the unmutated control re-executed over the baseline run's cached layers (same tunings), not against summary numbers.",
+  "Marker semantics (attention/conditional/compensation) never alter the opportunity zone; set_semantics mutations make that policy choice explicit and visible in the delta."
+ ]
+}
