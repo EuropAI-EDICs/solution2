@@ -431,7 +431,9 @@ for it in reg["sources"]:
     caches = {f"{it['id']}.28992.geojson", f"{it['id']}.4326.geojson", f"{it['id']}.json"}
     hit = bool(caches & manifest_caches) or any(it["id"] in n for n in national)
     it["fetchPolicy"] = "cache" if hit else "service"
-    note = it.pop("note", it.pop("notes", None))
+    note = it.pop("note", None)
+    extra = it.pop("notes", None)
+    note = note or extra  # beide sleutels komen voor; geen van beide mag verliezen
     pinned = str(it.get("lastChecked") or "2026-08-30")[:10]
     it["provenance"] = {"pinned": pinned,
                         "evidence": default_probe,
@@ -446,7 +448,7 @@ print("registry v2.0:", len(reg["sources"]), "entries;",
       sum(1 for i in reg["sources"] if i["fetchPolicy"] == "service"), "service")
 ```
 
-(Sla op als `poc/data/make_registry_v2.py`, draai: `cd poc && /opt/homebrew/Caskroom/miniconda/base/bin/python3 data/make_registry_v2.py`. Let op: `it.pop("note", it.pop("notes", None))` — pop-volgorde maakt dat `note` wint; beide sleutels komen voor in de registry.)
+(Sla op als `poc/data/make_registry_v2.py`, draai: `cd poc && /opt/homebrew/Caskroom/miniconda/base/bin/python3 data/make_registry_v2.py`. Beide note-sleutels (`note`/`notes`) worden expliciet samengevoegd — geen van beide mag verliezen.)
 
 - [ ] **Step 4: Run tests to verify they pass + volledige suite**
 
