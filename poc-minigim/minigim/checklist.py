@@ -9,11 +9,9 @@ degradeert, breekt nooit, faket nooit.
 
 from __future__ import annotations
 
-import math
-
-from fundament.derivations import (CBS_SENTINELS, _area_m2, _breakdown, _clip,
+from fundament.derivations import (CBS_SENTINELS, _area_m2, _clip,
                                    _current_only, _entropy_norm, _geom,
-                                   _histogram, _length_km, summarize)
+                                   summarize)
 from fundament.executor import BindingExecutor
 from fundament.ops import DEFAULT_OPS
 

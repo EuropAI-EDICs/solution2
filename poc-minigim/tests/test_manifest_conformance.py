@@ -39,6 +39,15 @@ class TestManifestConformance(unittest.TestCase):
                     verwacht = "computation" if op in COMPUTATION_OPS else "retrieval"
                     self.assertEqual(t["tool"]["class"], verwacht, t["id"])
 
+    def test_tool_ref_komt_overeen_met_servicerefs(self):
+        for ph in self.manifest["phases"]:
+            for t in (ph.get("tasks") or []):
+                if t.get("from") != "register:minigim-lijst" or "tool" not in t:
+                    continue
+                b = self.reg.binding(t["id"])
+                verwacht_ref = ",".join(b.get("serviceRefs") or []) or "run-input"
+                self.assertEqual(t["tool"]["ref"], verwacht_ref, t["id"])
+
     def test_manual_heeft_altijd_pointer(self):
         for ph in self.manifest["phases"]:
             for t in (ph.get("tasks") or []):

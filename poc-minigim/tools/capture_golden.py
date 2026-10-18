@@ -23,29 +23,11 @@ sys.path.insert(0, str(ROOT))
 
 import run as runmod  # noqa: E402
 from minigim import checklist as clmod  # noqa: E402
+from minigim.canon import ARTIFACTS, canon  # noqa: E402
 
 from tests import fixtures  # noqa: E402
 
 GOLDEN = ROOT / "tests" / "golden"
-VOLATILE = {"runId", "generatedAt", "artifacts"}
-ARTIFACTS = ("omgevingsanalyse.json", "ils-draft.json",
-             "ils-draft.features.28992.geojson", "validation.json", "run_summary.json")
-
-
-def canon(doc):
-    if isinstance(doc, dict):
-        out = {}
-        for k, v in doc.items():
-            if k in VOLATILE:
-                continue
-            if k == "file" and isinstance(v, str):
-                out[k] = Path(v).name  # aoi-invoerpad is per-run; naam is stabiel
-            else:
-                out[k] = canon(v)
-        return out
-    if isinstance(doc, list):
-        return [canon(v) for v in doc]
-    return doc
 
 
 def run_offline(runs_root: Path) -> Path:

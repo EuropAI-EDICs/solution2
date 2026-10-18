@@ -6,7 +6,6 @@ aan breken. Canon-regels identiek aan tools/capture_golden.py.
 
 from __future__ import annotations
 
-import json
 import sys
 import tempfile
 import unittest

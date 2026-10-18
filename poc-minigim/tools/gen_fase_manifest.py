@@ -17,8 +17,6 @@ sys.path.insert(0, str(ROOT))
 
 from minigim.registry import MiniGimRegistry  # noqa: E402
 
-RETRIEVAL_OPS = {"echo_input", "representative_point", "clip_layer", "clip_stats",
-                 "count_in_aoi", "list_in_aoi", "presence"}
 COMPUTATION_OPS = {"proxy_ratio", "proxy_entropy"}
 
 
