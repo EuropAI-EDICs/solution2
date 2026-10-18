@@ -19,7 +19,8 @@ implementation behind the agent interface, and every agent boundary emits
 JSON validated against poc/schemas/*.schema.json (V0 gate).
 
 Run ``python3 -m pipeline.agents`` (from poc/) to (re)generate the per-track
-corpora poc/corpus/normcards-{wind,zon,bos}.json and formalrules-{wind,zon,bos}.json.
+corpora poc/corpus/normcards-<track>.json and formalrules-<track>.json for
+all 13 canonieke tracks (declaratieve bron: pipeline.track_config).
 """
 
 from __future__ import annotations
@@ -707,12 +708,12 @@ class NormFormalizer:
 def generate_corpus() -> Dict[str, Path]:
     """Deterministically (re)generate the per-track normcard/formalrule corpora.
 
-    Tracks: wind (evidence-wind.json), zon (evidence-zon.json, solar fields)
-    and bos (evidence-bos.json, new nature / forest planting)."""
+    Tracks: alle 13 canonieke tracks uit pipeline.track_config — per track
+    evidence-<track>.json → normcards-<track>.json + formalrules-<track>.json."""
     out: Dict[str, Path] = {}
     analyst = NormAnalyst()
     formalizer = NormFormalizer()
-    for track in ("wind", "zon", "bos"):
+    for track in sorted(track_config.load_all_tracks()):
         shard = CORPUS_DIR / f"evidence-{track}.json"
         cards = analyst.read(shard)
         if analyst.rejected:
@@ -738,7 +739,7 @@ def main() -> None:
     generate_corpus()
     analyst = NormAnalyst()
     formalizer = NormFormalizer()
-    for track in ("wind", "zon", "bos"):
+    for track in sorted(track_config.load_all_tracks()):
         cards = analyst.read(CORPUS_DIR / f"evidence-{track}.json")
         formalizer.formalize(cards)
         print(f"wrote corpus/normcards-{track}.json ({len(cards)} cards) and "
