@@ -396,7 +396,7 @@ class DecisionTable(_ContractMixin):
 
 #: basis types; "baseline" is reserved for the control the runner synthesises
 SCENARIO_BASIS_TYPES = ("baseline", "norm_variance", "policy_variant", "hypothetical")
-SCENARIO_MUTATION_ACTIONS = ("drop", "set_semantics", "set_buffer_distance_m")
+SCENARIO_MUTATION_ACTIONS = ("drop", "set_semantics", "set_buffer_distance_m", "add_zone_rule")
 
 
 @dataclass
@@ -415,6 +415,10 @@ class ScenarioBasis:
 class ScenarioMutation:
     ruleId: str
     action: str
+    #: alleen action=add_zone_rule: de alias/zone-laag (poc/tracks/
+    #: _zone-aliases.json) waarop de synthetische regel geldt (nspd-port
+    #: fase 3, task 6-schema + task 8-echo)
+    zoneId: Optional[str] = None
     zoneSemantics: Optional[str] = None
     bufferDistanceM: Optional[float] = None
 

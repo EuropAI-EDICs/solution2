@@ -223,6 +223,33 @@ class ScenarioSchemaTests(unittest.TestCase):
         self.assertEqual(spec.basis.normCardId, "NC-02")
         contracts.validate(spec.to_dict(), "scenario-spec")
 
+    def test_add_zone_rule_spec_dataclass_round_trip(self):
+        """De contracts-echo (nspd-port fase 3, task 8): ScenarioMutation kent
+        zoneId en add_zone_rule — een add_zone_rule-spec round-tript door
+        ScenarioSpec.from_dict() zonder ContractError en de echo'de velden
+        zitten in to_dict (de sweep werkt op raw dicts, maar elke consumer
+        die specs door de dataclass stuurt mag niet crashen)."""
+        payload = _spec(
+            "SC-T-AZR",
+            {"type": "hypothetical",
+             "rationale": "data-grounded what-if op een gepinde datalaag",
+             "provenanceNote": "NOT legally grounded: data-grounded only.",
+             "dataGrounding": {"sourceId": "netbeheerder-netcongestie",
+                               "retrieved": "2026-10-14"}},
+            [{"ruleId": "SC-WER-AZR-1", "action": "add_zone_rule",
+              "zoneId": "netcongestie", "zoneSemantics": "exclusion",
+              "bufferDistanceM": 1000}])
+        spec = contracts.ScenarioSpec.from_dict(payload)  # geen ContractError
+        mut = spec.mutations[0]
+        self.assertEqual(mut.action, "add_zone_rule")
+        self.assertEqual(mut.zoneId, "netcongestie")
+        self.assertEqual(mut.zoneSemantics, "exclusion")
+        self.assertEqual(mut.bufferDistanceM, 1000.0)
+        self.assertIn("add_zone_rule", contracts.SCENARIO_MUTATION_ACTIONS)
+        echo = spec.to_dict()
+        self.assertEqual(echo["mutations"][0]["zoneId"], "netcongestie")
+        contracts.validate(echo, "scenario-spec")
+
 
 class MutationTests(unittest.TestCase):
     """apply_mutations: applied / skipped / unknown, never guessed."""
@@ -887,8 +914,9 @@ class DataGroundingWiringTests(unittest.TestCase):
 
 def _hyp_spec(sid, mutations, basis_type="hypothetical",
               dg_source="netbeheerder-netcongestie"):
-    """Schema-gevalideerde add_zone_rule-spec (plain dict: de ScenarioSpec-
-    dataclass kent nog geen zoneId — task 6 heeft alleen het schema verrijkt)."""
+    """Schema-gevalideerde add_zone_rule-spec (plain dict; de ScenarioSpec-
+    dataclass kent zoneId sinds de task-8-echo — test
+    ScenarioSchemaTests.test_add_zone_rule_spec_dataclass_round_trip)."""
     basis = {"type": basis_type, "provenanceNote": "fictief — geen citatie",
              "dataGrounding": {"sourceId": dg_source, "retrieved": "2026-10-13"}}
     if basis_type == "hypothetical":
