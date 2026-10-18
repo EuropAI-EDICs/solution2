@@ -65,7 +65,7 @@ Sinds okt 2026 draait de executie via het gedeelde
 [`poc-fundament/`](../poc-fundament/README.md) (MiniGIM-harnas): de checklist-
 bindingen zijn er declaratief als `poc-minigim/fase-manifest.json`
 (agent–fase–tool matrix) en de mechaniek (fetch/derivaties/executor) is
-gegeneraliseerd voor de volgende PoC's — bewezen byte-identiek (M2).
+gegeneraliseerd voor de volgende PoC's — bewezen canonisch identiek (M2; volatile run-meta uitgezonderd, lagen byte-gelijkg).
 
 - Recipe `nldt/recipes/minigim-gebiedscheck.json` (risk low) rond proces
   `minigim-gebiedscheck-run` (replay/execute) — geregistreerd in

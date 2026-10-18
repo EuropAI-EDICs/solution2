@@ -30,6 +30,6 @@ faal-isolatie, PROV, deterministisch — zie
 - Getallen komen uit ops, nooit uit een LLM; een falende bron is `not-delivered` + risicovlag.
 - Cache-first: her-runs zijn offline reproduceerbaar; cache-bestanden zijn uitwisselbaar tussen PoC's die dezelfde bron pinnen.
 
-Eerste consument: `poc-minigim` (PoC-5) — byte-identiek bewezen in M2.
+Eerste consument: `poc-minigim` (PoC-5) — canonisch identiek bewezen in M2 (golden-test + live-vergelijker; volatile run-meta uitgezonderd, lagen byte-gelijkg).
 Vervolg (eigen plannen): M3 slotgates in deep-agents, M4 transport-bruggen
 (nldt-processes / A2A Agent Cards), M5 golden-per-fase.
