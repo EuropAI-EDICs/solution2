@@ -17,6 +17,9 @@ HERE = Path(__file__).resolve().parent
 POC = HERE.parent
 
 reg = json.loads((HERE / "sources.json").read_text(encoding="utf-8"))
+if reg.get("registryVersion") == "2.0":
+    raise SystemExit("registry is al v2.0 — deze migratie is one-shot; "
+                     "opnieuw draaien zou provenance.note wissen")
 manifest_caches: set[str] = set()
 for run in sorted((POC / "runs").glob("*/layers.json")):
     for laag in json.loads(run.read_text(encoding="utf-8")).values():

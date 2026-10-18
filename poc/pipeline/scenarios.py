@@ -274,6 +274,9 @@ def load_extra_zone_layers(
 #: alias-rollen (poc/tracks/_zone-aliases.json) die een bron als
 #: what-if-operand mogen dragen (add_zone_rule). 'context' is per
 #: registry-afspraak nooit zone-bepalend.
+#: NB: de V2-check eist óók dat de dataGrounding-bron in sources.json een
+#: zone-geschikte rol heeft (momenteel hard "scenario-basis"); de alias-rol
+#: hieronder en de registry-rol zijn twee deuren die beide open moeten.
 ZONE_CAPABLE_ROLES = ("scenario-basis", "inclusion", "exclusion", "attention")
 
 _SEMANTICS_RULE_TYPE = {"inclusion": "zone_inclusion", "exclusion": "zone_exclusion"}

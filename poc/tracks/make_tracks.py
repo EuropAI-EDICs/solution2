@@ -1,9 +1,11 @@
-"""One-shot extractor: TRACKS/ZONE_SOURCES uit poc/run.py -> poc/tracks/*.json.
+"""Validator voor poc/tracks/ (NSPD-refactor eindreview-fix).
+
+Was de one-shot extractor van fase 1; sinds de refactor is run.py consumer
+van deze bestanden en zou een her-extractie de handmatig gevulde
+limitationsTemplates naar null clobberen. Dit script overschrijft niets: het
+rapporteert drift (leeg/ontbrekend template, geen dict) en exit 1 bij problemen.
 
 Run: cd poc && /opt/homebrew/Caskroom/miniconda/base/bin/python3 tracks/make_tracks.py
-Limitations-lambdas worden niet geserialiseerd: elk <track>.json krijgt
-"limitationsTemplate": null en wordt handmatig gevuld (task 2, wind is het
-uitgewerkte voorbeeld). Idempotent: herschrijft de gegenereerde bestanden.
 """
 from __future__ import annotations
 
@@ -12,22 +14,32 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent))  # poc/ op pad zodat `run` importeerbaar is
-
-from run import TRACKS, ZONE_SOURCES  # noqa: E402
 
 
-def main() -> None:
-    for track, cfg in TRACKS.items():
-        out = {k: v for k, v in cfg.items() if k != "limitations"}
-        out["limitationsTemplate"] = None  # handmatig vullen (task 2)
-        (HERE / f"{track}.json").write_text(
-            json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        print(f"tracks/{track}.json ({', '.join(sorted(out))})")
-    (HERE / "_zone-sources.json").write_text(
-        json.dumps(ZONE_SOURCES, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"tracks/_zone-sources.json ({len(ZONE_SOURCES)} aliassen)")
+def main() -> int:
+    problems: list[str] = []
+    n = 0
+    for p in sorted(HERE.glob("*.json")):
+        if p.stem.startswith("_"):
+            continue
+        n += 1
+        data = json.loads(p.read_text(encoding="utf-8"))
+        tpl = data.get("limitationsTemplate")
+        if not isinstance(tpl, list) or not tpl or not all(isinstance(t, str) for t in tpl):
+            problems.append(f"{p.name}: limitationsTemplate leeg/ontbrekend")
+    zs = HERE / "_zone-sources.json"
+    if not zs.is_file() or not isinstance(json.loads(zs.read_text(encoding="utf-8")), dict):
+        problems.append("_zone-sources.json: ontbreekt of geen dict")
+    for name in ("make_tracks.py",):
+        pass  # placeholder-vrij
+    if problems:
+        print("PROBLEMEN:")
+        for pr in problems:
+            print(" -", pr)
+        return 1
+    print(f"poc/tracks ok: {n} tracks, templates gevuld, zone-sources aanwezig")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
