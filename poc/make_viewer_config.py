@@ -114,35 +114,90 @@ def rules_list(regels):
     return regels if isinstance(regels, list) else regels.get("formalRules", [])
 
 
-def _verrijk_features(fc: dict, index: dict[str, dict[str, str]],
-                      *, compact: bool = False) -> None:
-    """Voeg per feature wetsartikel-verwijzingen toe op basis van ruleIds.
+def _unieke_refs(fc: dict, index: dict[str, dict[str, str]]) -> list[dict[str, str]]:
+    """Unieke normverwijzingen over alle features (volgorde van eerste gebruik)."""
+    gezien: list[str] = []
+    for f in fc.get("features", []):
+        for r in (f.get("properties") or {}).get("ruleIds") or []:
+            r = str(r)
+            if r in index and r not in gezien:
+                gezien.append(r)
+    return [index[r] for r in gezien]
 
-    properties.wetsartikel = leesbare regel voor de popup ("1) art. X — 'citaat'
-    — bron: url"); properties.normverwijzingen = gestructureerde lijst. compact
-    (CONTROL-lagen: veel regels) kap citaat af en noem alleen artikelen.
-    """
+
+def _verrijk_features(fc: dict, index: dict[str, dict[str, str]],
+                       *, titel: str, weblink: str) -> None:
+    """Popup-attributen in leesbaar Nederlands: wat betekent dit vlak, welke
+    wetsartikelen horen erbij, en de weblink naar de leesbare regelpagina.
+    Technische eigenschappen (ruleIds/operation/prov) verdwijnen uit de popup;
+    de geometrie blijft onaangetast.
+
+    De normkaart-quote is de Nederlandse wettekst zelf — eerste zin = leesbare
+    samenvatting; de volledige tekst + weblink staan in de regelpagina."""
     for f in fc.get("features", []):
         props = f.get("properties")
         if not isinstance(props, dict):
             continue
         rids = [str(r) for r in (props.get("ruleIds") or [])]
         refs = [index[r] for r in rids if r in index]
-        if not refs:
-            continue
-        props["normverwijzingen"] = [
-            {"ruleId": r, **index[r]} for r in rids if r in index]
-        delen = []
+        area = float(props.get("areaKm2") or 0)
+        regels_leesbaar = []
+        artikelen = []
         for n, r in enumerate(refs, 1):
-            citaat = r["citaat"]
-            if compact and len(citaat) > 120:
-                citaat = citaat[:117].rstrip() + "…"
-            deel = f"{n}) {r['artikel']}: \u201c{citaat}\u201d"
-            if r["bron"]:
-                deel += f" — bron: {r['bron']}"
-            deel += f" [normkaart {r['normkaart']}]"
-            delen.append(deel)
-        props["wetsartikel"] = "\n".join(delen)
+            zin = r["citaat"].split(". ")
+            eerste_zin = (zin[0] + ("." if len(zin) > 1 else ""))[:260]
+            regels_leesbaar.append(f"{n}) {r['artikel']}: {eerste_zin}")
+            artikelen.append(r["artikel"])
+        props.clear()
+        props["gebied"] = titel
+        props["oppervlakte_km2"] = round(area, 1)
+        if regels_leesbaar:
+            # popup toont max 8 leesbare regels; de rest via de weblink
+            getoond = regels_leesbaar[:8]
+            if len(regels_leesbaar) > 8:
+                getoond.append(f"… nog {len(regels_leesbaar) - 8} artikelen — "
+                               "zie de weblink hieronder")
+            props["wat_betreft_dit_vlak"] = " ".join(getoond)
+        if artikelen:
+            props["wetsartikelen"] = " · ".join(artikelen)
+        if refs:
+            props["weblink_leesbare_regels"] = (
+                f"http://localhost:8010{weblink}" if weblink.startswith("/") else weblink)
+        props["regel_ids"] = ", ".join(rids)
+
+
+def _regel_rapport(scid: str, titel: str, refs: list[dict[str, str]],
+                   reports_dir: Path) -> str:
+    """Leesbare regelpagina (HTML): per wetsartikel de volledige Nederlandse
+    wettekst + de weblink naar het artikel. Dit is de 'recursieve verwijzing':
+    popup → pagina → wetsartikel."""
+    kaarten = "".join(
+        f"<div class='kaart'><h2>{r['artikel']}</h2>"
+        f"<p class='citaat'>\u201c{r['citaat']}\u201d</p>"
+        f"<p class='instrument'>{r['instrument']}</p>"
+        f"<p><a href='{r['bron']}' target='_blank'>→ Open het wetsartikel "
+        f"(lokaleregelgeving.overheid.nl)</a></p>"
+        f"<p class='meta'>normkaart: {r['normkaart']}</p></div>"
+        for r in refs)
+    html = f"""<!DOCTYPE html><html lang="nl"><head><meta charset="utf-8">
+<title>Leesbare regels — {titel}</title><style>
+body {{ font: 16px/1.55 -apple-system, sans-serif; max-width: 780px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; }}
+h1 {{ font-size: 1.4rem; }} .kaart {{ border: 1px solid #ddd; border-radius: 8px; padding: 1rem 1.25rem; margin: 1rem 0; }}
+.citaat {{ font-style: italic; background: #f6f4ee; padding: .75rem 1rem; border-radius: 6px; }}
+.instrument {{ color: #555; font-size: .9rem; }} .meta {{ color: #999; font-size: .8rem; }}
+a {{ color: #0b57a4; }} .disclaimer {{ color: #777; font-size: .85rem; margin-top: 2rem; }}
+</style></head><body>
+<h1>Leesbare regels — {titel}</h1>
+<p>Onderaan elk onderdeel staat de weblink naar het wetsartikel zelf
+(lokaleregelgeving.overheid.nl, Omgevingsverordening provincie Utrecht).</p>
+{kaarten}
+<p class="disclaimer">Scenariodoel: besluitondersteuning. Dit is geen juridisch
+advies; per locatie blijft een afzonderlijke beoordeling nodig.</p>
+</body></html>"""
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    out = reports_dir / f"{scid}.html"
+    out.write_text(html, encoding="utf-8")
+    return out.name
 
 
 def _scenario_groep_en_lagen(layers_dir: Path) -> tuple[list[dict], list[dict]]:
@@ -165,9 +220,14 @@ def _scenario_groep_en_lagen(layers_dir: Path) -> tuple[list[dict], list[dict]]:
         control = bron / "scenarios" / "CONTROL.geojson"
         if control.is_file():
             fc_ctl = json.loads(control.read_text(encoding="utf-8"))
-            _verrijk_features(fc_ctl, _norm_index(bron), compact=True)
+            titel_ctl = f"CONTROL {track}"
+            _verrijk_features(fc_ctl, _norm_index(bron), titel=titel_ctl,
+                              weblink=f"{URL_PREFIX}/reports/{track}-CONTROL.html")
             (layers_dir / f"zones-{track}-CONTROL.geojson").write_text(
                 json.dumps(fc_ctl, ensure_ascii=False), encoding="utf-8")
+            _regel_rapport(f"{track}-CONTROL", titel_ctl,
+                           _unieke_refs(fc_ctl, _norm_index(bron)),
+                           layers_dir.parent / "reports")
             lagen.append({
                 "id": f"zones-{track}-CONTROL", "type": "geojson",
                 "title": f"CONTROL {track} ({control_km2:.1f} km²)".replace(".", ","),
@@ -175,6 +235,7 @@ def _scenario_groep_en_lagen(layers_dir: Path) -> tuple[list[dict], list[dict]]:
                 "opacity": 15,
                 "description": "Reproductie van de baseline-zone door de scenario-"
                                "engine; alle deltas zijn t.o.v. deze laag gemeten.",
+                "metadataUrl": f"{URL_PREFIX}/reports/{track}-CONTROL.html",
                 "settings": {"url": f"{URL_PREFIX}/layers/zones-{track}-CONTROL.geojson",
                              "style": CONTROL_STIJL},
             })
@@ -187,9 +248,14 @@ def _scenario_groep_en_lagen(layers_dir: Path) -> tuple[list[dict], list[dict]]:
             delta = float(s.get("deltaVsControlKm2") or 0)
             kleur = "#1a7f37" if delta >= 0 else "#c01c28"
             fc_sc = json.loads(geo.read_text(encoding="utf-8"))
-            _verrijk_features(fc_sc, _norm_index(bron))
+            _verrijk_features(fc_sc, _norm_index(bron),
+                              titel=f"{track} — {scid}",
+                              weblink=f"{URL_PREFIX}/reports/{scid}.html")
             (layers_dir / f"zones-{track}-{scid}.geojson").write_text(
                 json.dumps(fc_sc, ensure_ascii=False), encoding="utf-8")
+            _regel_rapport(scid, f"{track} — {scid}",
+                           _unieke_refs(fc_sc, _norm_index(bron)),
+                           layers_dir.parent / "reports")
             basis_type = str((s.get("basis") or {}).get("type") or "")
             lagen.append({
                 "id": f"zones-{track}-{scid}", "type": "geojson",
@@ -199,6 +265,7 @@ def _scenario_groep_en_lagen(layers_dir: Path) -> tuple[list[dict], list[dict]]:
                 "description": (f"{s.get('name', '')} — basis: {basis_type}; "
                                 f"delta t.o.v. control {delta:+.1f} km² "
                                 f"(IoU {float(s.get('iouVsControl') or 0):.2f})."),
+                "metadataUrl": f"{URL_PREFIX}/reports/{scid}.html",
                 "settings": {"url": f"{URL_PREFIX}/layers/zones-{track}-{scid}.geojson",
                              "style": {"fill": kleur, "stroke": kleur}},
             })
@@ -225,9 +292,14 @@ def _whatif_groep_en_lagen(layers_dir: Path) -> tuple[list[dict], list[dict]]:
         control = bron / "scenarios" / "CONTROL.geojson"
         if control.is_file():
             fc_ctl = json.loads(control.read_text(encoding="utf-8"))
-            _verrijk_features(fc_ctl, _norm_index(bron), compact=True)
+            titel_ctl = f"CONTROL {usecase}"
+            _verrijk_features(fc_ctl, _norm_index(bron), titel=titel_ctl,
+                              weblink=f"{URL_PREFIX}/reports/{usecase}-CONTROL.html")
             (layers_dir / f"whatif-{usecase}-CONTROL.geojson").write_text(
                 json.dumps(fc_ctl, ensure_ascii=False), encoding="utf-8")
+            _regel_rapport(f"{usecase}-CONTROL", titel_ctl,
+                           _unieke_refs(fc_ctl, _norm_index(bron)),
+                           layers_dir.parent / "reports")
             lagen.append({
                 "id": f"whatif-{usecase}-CONTROL", "type": "geojson",
                 "title": f"CONTROL ({control_km2:.1f} km²)".replace(".", ","),
@@ -235,6 +307,7 @@ def _whatif_groep_en_lagen(layers_dir: Path) -> tuple[list[dict], list[dict]]:
                 "opacity": 15,
                 "description": "Reproductie van de baseline-zone door de scenario-"
                                "engine; alle deltas zijn t.o.v. deze laag gemeten.",
+                "metadataUrl": f"{URL_PREFIX}/reports/{usecase}-CONTROL.html",
                 "settings": {"url": f"{URL_PREFIX}/layers/whatif-{usecase}-CONTROL.geojson",
                              "style": CONTROL_STIJL},
             })
@@ -246,9 +319,14 @@ def _whatif_groep_en_lagen(layers_dir: Path) -> tuple[list[dict], list[dict]]:
             delta = float(s.get("deltaVsControlKm2") or 0)
             kleur = "#1a7f37" if delta >= 0 else "#c01c28"
             fc_sc = json.loads(geo.read_text(encoding="utf-8"))
-            _verrijk_features(fc_sc, _norm_index(bron))
+            _verrijk_features(fc_sc, _norm_index(bron),
+                              titel=f"{usecase} — {scid}",
+                              weblink=f"{URL_PREFIX}/reports/{scid}.html")
             (layers_dir / f"whatif-{usecase}-{scid}.geojson").write_text(
                 json.dumps(fc_sc, ensure_ascii=False), encoding="utf-8")
+            _regel_rapport(scid, f"{usecase} — {scid}",
+                           _unieke_refs(fc_sc, _norm_index(bron)),
+                           layers_dir.parent / "reports")
             dg = (s.get("basis") or {}).get("dataGrounding") or {}
             lagen.append({
                 "id": f"whatif-{usecase}-{scid}", "type": "geojson",
@@ -258,6 +336,7 @@ def _whatif_groep_en_lagen(layers_dir: Path) -> tuple[list[dict], list[dict]]:
                 "description": (f"{s.get('name', '')} — data-gegrond what-if "
                                 f"(bron: {dg.get('sourceId', '?')}); delta t.o.v. "
                                 f"control {delta:+.1f} km²."),
+                "metadataUrl": f"{URL_PREFIX}/reports/{scid}.html",
                 "settings": {"url": f"{URL_PREFIX}/layers/whatif-{usecase}-{scid}.geojson",
                              "style": {"fill": kleur, "stroke": kleur}},
             })
