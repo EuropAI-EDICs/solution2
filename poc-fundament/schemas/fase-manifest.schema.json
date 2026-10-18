@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldt-toolbox/schemas/fase-manifest.schema.json",
+  "title": "Fase-manifest: agent–fase–tool matrix van één PoC",
+  "type": "object",
+  "required": ["poc", "methodiek", "phases"],
+  "additionalProperties": false,
+  "properties": {
+    "poc": { "type": "string", "minLength": 1 },
+    "methodiek": { "type": "string", "minLength": 1,
+      "description": "herkenbare methodiek-pin, bv. minigim-v0.91" },
+    "aoi": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "schema": { "type": "string" },
+        "crs": { "type": "string" }
+      }
+    },
+    "phases": {
+      "type": "array", "minItems": 1,
+      "items": { "$ref": "#/$defs/phase" }
+    }
+  },
+  "$defs": {
+    "agent": {
+      "type": "object", "required": ["role"],
+      "additionalProperties": false,
+      "properties": {
+        "role": { "type": "string", "minLength": 1 },
+        "llm": { "type": "boolean", "default": false },
+        "note": { "type": "string" }
+      }
+    },
+    "tool": {
+      "type": "object", "required": ["class", "ref"],
+      "additionalProperties": false,
+      "properties": {
+        "class": { "enum": ["retrieval", "computation", "validation", "report"] },
+        "ref": { "type": "string", "minLength": 1,
+          "description": "bron-id(s) uit het bronregister, modelregister-ref, of 'run-input'" },
+        "transport": { "enum": ["in-process", "processes", "mcp", "a2a"],
+          "default": "in-process" },
+        "derive": { "type": "array", "items": { "type": "string" } },
+        "prov": { "type": "string" }
+      }
+    },
+    "task": {
+      "type": "object", "required": ["id", "binding"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "from": { "type": "string", "description": "taakregister-ref, bv. 'register:minigim-lijst'" },
+        "binding": { "enum": ["auto", "partial", "manual", "out-of-scope"] },
+        "tool": { "$ref": "#/$defs/tool" },
+        "manualPointer": { "type": ["string", "null"] },
+        "proxyNote": { "type": ["string", "null"] },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      },
+      "allOf": [
+        { "if": { "properties": { "binding": { "enum": ["manual"] } } },
+          "then": { "required": ["manualPointer"] } },
+        { "if": { "properties": { "binding": { "enum": ["auto", "partial"] } } },
+          "then": { "required": ["tool"] } }
+      ]
+    },
+    "gate": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "validate": { "type": "array", "items": { "enum": ["V0", "V1", "V2", "V3"] } },
+        "hitl": { "type": "string" },
+        "onFail": { "type": "string" }
+      }
+    },
+    "phase": {
+      "type": "object", "required": ["id", "title", "agent"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^F[0-9]+-[a-z0-9-]+$" },
+        "title": { "type": "string", "minLength": 1 },
+        "agent": { "$ref": "#/$defs/agent" },
+        "tasks": { "type": "array", "items": { "$ref": "#/$defs/task" } },
+        "gate": { "$ref": "#/$defs/gate" }
+      }
+    }
+  }
+}
