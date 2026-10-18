@@ -1,13 +1,17 @@
 """Laadt en indexeert de MiniGIM-registries (lijst, ILS, bindings, bronnen).
 
 De registries onder registry/ zijn gegenereerd uit de gepinde Excel-artefacten
-(zie tools/convert_minigim_xlsx.py) en zijn de norm voor de runner.
+(zie tools/convert_minigim_xlsx.py) en zijn de norm voor de runner. De
+taak-/bindings-/bronnen-mechaniek staat sinds M2 in fundament.registers;
+dit bestand houdt de MiniGIM-specifieke delen (ILS-niveaus, pad-labels).
 """
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
+
+from fundament.registers import TaskRegistry
 
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "registry"
@@ -30,7 +34,7 @@ def load_sources() -> dict:
     return json.loads((DATA / "sources.json").read_text(encoding="utf-8"))
 
 
-class MiniGimRegistry:
+class MiniGimRegistry(TaskRegistry):
     """Geïndexeerde view over lijst + bindings + bronnen + ILS."""
 
     def __init__(self) -> None:
@@ -38,37 +42,16 @@ class MiniGimRegistry:
         self.ils = load_ils()
         self.bindings = load_bindings()
         self.sources = load_sources()
-
-        self.items = {i["id"]: i for i in self.lijst["items"]}
-        self.bindings_by_id = {b["lijstItemId"]: b for b in self.bindings["bindings"]}
-        self.sources_by_id = {s["id"]: s for s in self.sources["sources"]}
-
+        super().__init__(tasks=self.lijst["items"],
+                         bindings=self.bindings["bindings"],
+                         sources=self.sources["sources"])
         self.ils_nodes = {n["id"]: n for n in self.ils["nodes"]}
         self._path_cache: dict[str, list[str]] = {}
 
-        self._check_complete()
+    def tasks(self) -> list[dict]:
+        return self.lijst["items"]
 
     # ------------------------------------------------------------------ #
-    def _check_complete(self) -> None:
-        """V2-voorwaarde: elk lijst-item exact één binding; elke binding een
-        bekend item; elke serviceRef een geregistreerde bron."""
-        missing = set(self.items) - set(self.bindings_by_id)
-        extra = set(self.bindings_by_id) - set(self.items)
-        if missing or extra:
-            raise AssertionError(
-                f"bindings/dekking inconsistent — missing={sorted(missing)} extra={sorted(extra)}"
-            )
-        for b in self.bindings["bindings"]:
-            for ref in b.get("serviceRefs", []):
-                if ref not in self.sources_by_id:
-                    raise AssertionError(f"onbekende serviceRef {ref} in {b['lijstItemId']}")
-
-    def item(self, item_id: str) -> dict:
-        return self.items[item_id]
-
-    def binding(self, item_id: str) -> dict:
-        return self.bindings_by_id[item_id]
-
     def ils_path_labels(self, node_id: str) -> list[str]:
         """Labels van wortel naar knoop (Niveau 0 → …)."""
         if node_id in self._path_cache:
