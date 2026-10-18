@@ -133,8 +133,15 @@ bestaande caches (adaptief: nationale caches liggen onder
 **Demo-what-ifs** (nieuwe scenario's, naast de bestaande 39, verdict pass):
 1. `SC-WER-NETCONGESTIE-1KM` (werken): exclusion 1 km rond de
    netcongestie-voedingsgebieden — data-gegrond;
-2. `SC-WON-RCE-250M` (wonen): attention 250 m rond de rijksmonumentpunten —
-   erfgoed-druk als marker, nooit eliminatie.
+2. `SC-WON-NETCONGESTIE-500M-INCLUSIE` (wonen): inclusion binnen 500 m van de
+   netcongestiegebieden (herstructureringsdruk rond knelpunten).
+
+De oorspronkelijk overwogen "wonen 250 m rond rijksmonumenten" is niet
+uitdrukbaar zonder twee besluiten: `add_zone_rule` kent alleen
+inclusion/exclusion (geen attention-semantics, zoals NSPD), en
+`rce-monumenten` heeft registry-rol `context` die de V2-gate bewust weigert.
+Rol-verhoging van context-lagen is een beleidskeuze, geen code-wijziging, en
+blijft dus buiten deze refactor.
 
 **Gate fase 3:** unit-tests voor de mutatie (aanvaard/bots/degradatie), V2-gate
 (afgewezen: context-rol, niet-hypothetical basis, vreemde sourceId), twee
