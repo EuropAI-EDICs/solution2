@@ -62,6 +62,22 @@ class TestE2EOffline(unittest.TestCase):
             rs = json.loads((out / "run_summary.json").read_text())
             self.assertEqual(rs["verdict"], "pass")
 
+    def test_fase_matrix_artefact(self):
+        fake = fixtures.fake_fetch_layer_factory()
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            aoi = tmp / "plangrens.geojson"
+            aoi.write_text(json.dumps(fixtures.AOI_FC), encoding="utf-8")
+            with mock.patch.object(clmod, "fetch_layer", fake):
+                runmod.main(["--aoi", str(aoi), "--label", "matrix-test",
+                             "--runs-dir", str(tmp / "runs")])
+            run_dir = next((tmp / "runs").iterdir())
+            md = (run_dir / "fase-matrix.md").read_text(encoding="utf-8")
+            self.assertIn("F1-omgevingsanalyse", md)
+            self.assertIn("manual-action", md)
+            summary = json.loads((run_dir / "run_summary.json").read_text(encoding="utf-8"))
+            self.assertIn("fase-matrix.md", summary["artifacts"])
+
 
 if __name__ == "__main__":
     unittest.main()

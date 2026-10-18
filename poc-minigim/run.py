@@ -30,6 +30,8 @@ from minigim import report as repmod  # noqa: E402
 from minigim import validate as valmod  # noqa: E402
 from minigim.fetch import load_aoi  # noqa: E402
 from minigim.registry import MiniGimRegistry  # noqa: E402
+from fundament.manifest import load_manifest  # noqa: E402
+from fundament.matrix import render_matrix, render_run_matrix  # noqa: E402
 
 
 def _now_compact() -> str:
@@ -172,6 +174,18 @@ def main(argv=None) -> int:
     }
     (runs_dir / "run_summary.json").write_text(
         json.dumps(run_summary, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+
+    # 7b. fase-matrix (agent–fase–tool, declaratief + wat er daadwerkelijk leverde)
+    manifest_path = ROOT / "fase-manifest.json"
+    if manifest_path.exists():
+        manifest = load_manifest(manifest_path)
+        matrix_md = ("## Declaratieve matrix\n\n" + render_matrix(manifest)
+                     + "\n## Uitkomst per taak\n\n"
+                     + render_run_matrix(manifest, records))
+        (runs_dir / "fase-matrix.md").write_text(matrix_md, encoding="utf-8")
+        run_summary["artifacts"].append("fase-matrix.md")
+        (runs_dir / "run_summary.json").write_text(
+            json.dumps(run_summary, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
 
     print(f"run: {runs_dir}")
     print(f"BTO: {runner.bto_m2:,.1f} m² | items: {summary['itemCount']} "
