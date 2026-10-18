@@ -82,7 +82,9 @@ _UTRECHT_MODES: list[dict[str, str]] = [
                  " energietoets: 2 tot plan 2)",
         "template": (
             "Delegeer naar utrecht: geef het uitdaging-overzicht — lees "
-            "poc/scenarios/uitdagingen.json en geef per uitdaging (5 stuks): de titel, "
+            "poc/scenarios/uitdagingen.json (de tracks zijn declaratief "
+            "beschreven in poc/tracks/<track>.json; verzin geen tracks buiten "
+            "die lijst) en geef per uitdaging (5 stuks): de titel, "
             "de tracks, en per track de 3 scenario's (energietoets: 2 tot plan 2) "
             "met de headline-delta "
             "(deltaVsControlPct uit scenario-report.json van de run in scenarioRuns). "

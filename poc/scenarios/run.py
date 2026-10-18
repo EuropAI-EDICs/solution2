@@ -139,7 +139,8 @@ def load_scenario_set(path: Path) -> Dict[str, Any]:
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--use-case", default="wind",
-                    help="track id (wind|zon|bos); selects the default baseline run "
+                    help="track id (declarative tracks: poc/tracks/<track>.json, "
+                         "e.g. wind|zon|bos); selects the default baseline run "
                          "and scenario set (default: wind)")
     ap.add_argument("--baseline", default=None,
                     help="baseline pipeline run dir (default: latest poc/runs/*-<use-case>)")

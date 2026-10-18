@@ -43,7 +43,7 @@ is een eigen PoC onder hetzelfde contractpatroon.
 
 Wat de getallen inhoudelijk betekenen (inclusion-compositie, harde exclusies,
 conditionele/attention/compensatie-markers, open normen naar V4) staat **declaratief
-per track** in [`poc/tracks/<track>.json`](tracks/wind.json) (`headlineNote` +
+per track** in [`poc/tracks/<track>.json`](tracks/wind.json) (`headline_note` +
 `limitationsTemplate`) en in het rapport van elke run — niet langer als proza hier.
 Grondslag: de **Omgevingsverordening provincie Utrecht** (CVDR704250, geldend
 13-10-2025) en de **Omgevingsvisie 2021**, plus de open geo-data van de provincie.
@@ -242,6 +242,8 @@ faalt luid. Contextpagina's per uitdaging:
 - Geen WFS/OGC-API-fallback op de provinciestack (ArcGIS REST only); faalt een
   live laag halverwege, dan degradeert de run beheerst: de betreffende regels
   vervallen, staan in het validatierapport (`needs_human`) en worden nooit gegokt.
+- V3-IoU per run staat in het `validation.json` van de gelinkte canonieke
+  run-dirs.
 
 ## Opdrachten
 
@@ -278,7 +280,7 @@ python3 -m services.memory.report              # leerrapport (--handle/--promote
 (OpportunityMapRequest, provinciegrens als AOI met bron in `parameters`),
 (b) een geverifieerde evidence-shard `poc/corpus/evidence-<track>.json`,
 (c) de declaratie [`poc/tracks/<track>.json`](tracks/wind.json) (report-titels,
-`headlineNote`, `limitationsTemplate`; enrichment/templates in
+`headline_note`, `limitationsTemplate`; enrichment/templates in
 `poc/tracks/_enrichment/` en `poc/tracks/_templates/`),
 (d) een cite-or-abstain-ledger `poc/corpus/normcards-rejected-<track>.json`,
 (e) zone-aliassen in `poc/tracks/_zone-sources.json` en een registry-entry in
