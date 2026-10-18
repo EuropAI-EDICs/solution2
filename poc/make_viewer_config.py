@@ -60,6 +60,91 @@ def _uitdaging_featured() -> list[dict]:
     return sorted(per.values(), key=lambda x: volgorde.index(x["track"]))
 
 
+# --------------------------------------------------------------------------- #
+# normverwijzingen: ruleId -> echt wetsartikel (normkaart: artikel, citaat,
+# bron-URL) uit de baseline-run van de scenario-run — zodat een klik op een
+# zone in de viewer naar het wetsartikel leidt in plaats van "FR-x-x".
+# --------------------------------------------------------------------------- #
+
+_NORM_INDEX_CACHE: dict[str, dict | None] = {}
+
+
+def _norm_index(scenario_run_dir: Path) -> dict[str, dict[str, str]]:
+    """{ruleId: {artikel, instrument, citaat, bron, normkaart}} uit de
+    baseline-run van een scenario-run. Vastgezette normkaartvelden: source.
+    article / instrument / quote / uri (cite-or-abstain contract)."""
+    run_id = scenario_run_dir.name
+    if run_id in _NORM_INDEX_CACHE:
+        return _NORM_INDEX_CACHE[run_id] or {}
+    try:
+        rapport = json.loads((scenario_run_dir / "scenario-report.json")
+                             .read_text(encoding="utf-8"))
+        basis = (REPO / "poc" / "runs" /
+                 str(rapport.get("baselineRunId")))
+        regels = json.loads((basis / "formalrules.json").read_text(encoding="utf-8"))
+        regels = regels.get("formalRules", regels) if isinstance(regels, dict) else regels
+        regel_naar_kaart = {str(r["id"]): str(r.get("normCardId") or "")
+                            for r in rules_list(regels)}
+        kaarten = json.loads((basis / "normcards.json").read_text(encoding="utf-8"))
+        kaarten = kaarten.get("normCards", kaarten) if isinstance(kaarten, dict) else kaarten
+        kaart_by_id = {str(c["id"]): c for c in kaarten}
+    except (OSError, ValueError, KeyError) as exc:
+        print(f"[normverwijzingen] {run_id}: baseline niet leesbaar ({exc})")
+        _NORM_INDEX_CACHE[run_id] = {}
+        return {}
+
+    index: dict[str, dict[str, str]] = {}
+    for rid, ncid in regel_naar_kaart.items():
+        kaart = kaart_by_id.get(ncid)
+        if not kaart:
+            continue
+        bron = kaart.get("source") or {}
+        index[rid] = {
+            "artikel": str(bron.get("article") or ""),
+            "instrument": str(kaart.get("instrument") or ""),
+            "citaat": str(bron.get("quote") or ""),
+            "bron": str(bron.get("uri") or ""),
+            "normkaart": ncid,
+        }
+    _NORM_INDEX_CACHE[run_id] = index
+    return index
+
+
+def rules_list(regels):
+    return regels if isinstance(regels, list) else regels.get("formalRules", [])
+
+
+def _verrijk_features(fc: dict, index: dict[str, dict[str, str]],
+                      *, compact: bool = False) -> None:
+    """Voeg per feature wetsartikel-verwijzingen toe op basis van ruleIds.
+
+    properties.wetsartikel = leesbare regel voor de popup ("1) art. X — 'citaat'
+    — bron: url"); properties.normverwijzingen = gestructureerde lijst. compact
+    (CONTROL-lagen: veel regels) kap citaat af en noem alleen artikelen.
+    """
+    for f in fc.get("features", []):
+        props = f.get("properties")
+        if not isinstance(props, dict):
+            continue
+        rids = [str(r) for r in (props.get("ruleIds") or [])]
+        refs = [index[r] for r in rids if r in index]
+        if not refs:
+            continue
+        props["normverwijzingen"] = [
+            {"ruleId": r, **index[r]} for r in rids if r in index]
+        delen = []
+        for n, r in enumerate(refs, 1):
+            citaat = r["citaat"]
+            if compact and len(citaat) > 120:
+                citaat = citaat[:117].rstrip() + "…"
+            deel = f"{n}) {r['artikel']}: \u201c{citaat}\u201d"
+            if r["bron"]:
+                deel += f" — bron: {r['bron']}"
+            deel += f" [normkaart {r['normkaart']}]"
+            delen.append(deel)
+        props["wetsartikel"] = "\n".join(delen)
+
+
 def _scenario_groep_en_lagen(layers_dir: Path) -> tuple[list[dict], list[dict]]:
     """Per uitdaging een subgroep met CONTROL + scenario-lagen (delta in titel,
     kleur per track). Opstart: alles uit — Lagenbeheer is de bediening."""
@@ -79,7 +164,10 @@ def _scenario_groep_en_lagen(layers_dir: Path) -> tuple[list[dict], list[dict]]:
         control_km2 = float((rapport.get("control") or {}).get("finalAreaKm2") or 0)
         control = bron / "scenarios" / "CONTROL.geojson"
         if control.is_file():
-            shutil.copy2(control, layers_dir / f"zones-{track}-CONTROL.geojson")
+            fc_ctl = json.loads(control.read_text(encoding="utf-8"))
+            _verrijk_features(fc_ctl, _norm_index(bron), compact=True)
+            (layers_dir / f"zones-{track}-CONTROL.geojson").write_text(
+                json.dumps(fc_ctl, ensure_ascii=False), encoding="utf-8")
             lagen.append({
                 "id": f"zones-{track}-CONTROL", "type": "geojson",
                 "title": f"CONTROL {track} ({control_km2:.1f} km²)".replace(".", ","),
@@ -98,7 +186,10 @@ def _scenario_groep_en_lagen(layers_dir: Path) -> tuple[list[dict], list[dict]]:
             scid = str(s.get("scenarioId") or Path(geo).stem)
             delta = float(s.get("deltaVsControlKm2") or 0)
             kleur = "#1a7f37" if delta >= 0 else "#c01c28"
-            shutil.copy2(geo, layers_dir / f"zones-{track}-{scid}.geojson")
+            fc_sc = json.loads(geo.read_text(encoding="utf-8"))
+            _verrijk_features(fc_sc, _norm_index(bron))
+            (layers_dir / f"zones-{track}-{scid}.geojson").write_text(
+                json.dumps(fc_sc, ensure_ascii=False), encoding="utf-8")
             basis_type = str((s.get("basis") or {}).get("type") or "")
             lagen.append({
                 "id": f"zones-{track}-{scid}", "type": "geojson",
@@ -133,7 +224,10 @@ def _whatif_groep_en_lagen(layers_dir: Path) -> tuple[list[dict], list[dict]]:
         control_km2 = float((rapport.get("control") or {}).get("finalAreaKm2") or 0)
         control = bron / "scenarios" / "CONTROL.geojson"
         if control.is_file():
-            shutil.copy2(control, layers_dir / f"whatif-{usecase}-CONTROL.geojson")
+            fc_ctl = json.loads(control.read_text(encoding="utf-8"))
+            _verrijk_features(fc_ctl, _norm_index(bron), compact=True)
+            (layers_dir / f"whatif-{usecase}-CONTROL.geojson").write_text(
+                json.dumps(fc_ctl, ensure_ascii=False), encoding="utf-8")
             lagen.append({
                 "id": f"whatif-{usecase}-CONTROL", "type": "geojson",
                 "title": f"CONTROL ({control_km2:.1f} km²)".replace(".", ","),
@@ -151,7 +245,10 @@ def _whatif_groep_en_lagen(layers_dir: Path) -> tuple[list[dict], list[dict]]:
             scid = str(s.get("scenarioId") or Path(geo).stem)
             delta = float(s.get("deltaVsControlKm2") or 0)
             kleur = "#1a7f37" if delta >= 0 else "#c01c28"
-            shutil.copy2(geo, layers_dir / f"whatif-{usecase}-{scid}.geojson")
+            fc_sc = json.loads(geo.read_text(encoding="utf-8"))
+            _verrijk_features(fc_sc, _norm_index(bron))
+            (layers_dir / f"whatif-{usecase}-{scid}.geojson").write_text(
+                json.dumps(fc_sc, ensure_ascii=False), encoding="utf-8")
             dg = (s.get("basis") or {}).get("dataGrounding") or {}
             lagen.append({
                 "id": f"whatif-{usecase}-{scid}", "type": "geojson",
