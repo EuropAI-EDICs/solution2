@@ -85,17 +85,22 @@
       "description": "Must resolve in the baseline run's formalrules.json. Unknown ids fail the V2 grounding check; known-but-not-executable rules (status ambiguous/rejected) are skipped with a recorded reason, never guessed."
      },
      "action": {
-      "enum": ["drop", "set_semantics", "set_buffer_distance_m"],
-      "description": "drop = remove the rule from execution; set_semantics = reclassify (e.g. conditional overlay -> hard exclusion, or exclusion -> marker); set_buffer_distance_m = set/replaces the zoneSelector buffer distance (metres, EPSG:28992)."
+      "enum": ["drop", "set_semantics", "set_buffer_distance_m", "add_zone_rule"],
+      "description": "drop = remove the rule from execution; set_semantics = reclassify (e.g. conditional overlay -> hard exclusion, or exclusion -> marker); set_buffer_distance_m = set/replaces the zoneSelector buffer distance (metres, EPSG:28992); add_zone_rule = synthesize a NEW rule over an alias/zone layer id (data-grounded what-if, e.g. an NSPD evidence layer such as netcongestie) — never a legal claim."
+     },
+     "zoneId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Required with action=add_zone_rule: the alias/zone layer id the synthetic rule applies to (resolved by the engine against the run's zone layers)."
      },
      "zoneSemantics": {
      "enum": ["inclusion", "exclusion", "conditional", "attention", "compensation", "none"],
-      "description": "Required with action=set_semantics."
+      "description": "Required with action=set_semantics or add_zone_rule."
      },
      "bufferDistanceM": {
       "type": "number",
       "minimum": 0,
-      "description": "Required with action=set_buffer_distance_m."
+      "description": "Required with action=set_buffer_distance_m; optional with add_zone_rule."
      }
     },
     "allOf": [
@@ -106,6 +111,10 @@
     {
      "if": { "properties": { "action": { "const": "set_buffer_distance_m" } } },
      "then": { "required": ["bufferDistanceM"] }
+    },
+    {
+     "if": { "properties": { "action": { "const": "add_zone_rule" } } },
+     "then": { "required": ["zoneId", "zoneSemantics"] }
     }
     ]
    }

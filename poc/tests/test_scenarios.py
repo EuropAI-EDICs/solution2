@@ -169,6 +169,40 @@ class ScenarioSchemaTests(unittest.TestCase):
                  "proposedBy": "a#b"},
                 "scenario-spec")
 
+    def test_add_zone_rule_is_toegestaan_met_zoneid(self):
+        spec = {
+            "id": "SC-T-AZR", "name": "test", "objectType": "business_development",
+            "basis": {
+                "type": "hypothetical",
+                "rationale": "data-grounded what-if",
+                "provenanceNote": "NOT legally grounded: data-grounded only.",
+                "dataGrounding": {"sourceId": "netbeheerder-netcongestie",
+                                  "retrieved": "2026-10-14"},
+            },
+            "mutations": [{"ruleId": "SC-AZR-1", "action": "add_zone_rule",
+                           "zoneId": "netcongestie", "zoneSemantics": "exclusion",
+                           "bufferDistanceM": 1000}],
+            "proposedBy": "a#b",
+        }
+        contracts.validate(spec, "scenario-spec")  # V0-gate
+
+    def test_add_zone_rule_zonder_zoneid_faalt(self):
+        spec = {
+            "id": "SC-T-AZR2", "name": "test", "objectType": "business_development",
+            "basis": {
+                "type": "hypothetical",
+                "rationale": "x",
+                "provenanceNote": "NOT legally grounded.",
+                "dataGrounding": {"sourceId": "netbeheerder-netcongestie",
+                                  "retrieved": "2026-10-14"},
+            },
+            "mutations": [{"ruleId": "SC-AZR-2", "action": "add_zone_rule",
+                           "zoneSemantics": "exclusion"}],
+            "proposedBy": "a#b",
+        }
+        with self.assertRaises(contracts.ContractError):
+            contracts.validate(spec, "scenario-spec")
+
     def test_proposed_by_must_be_agent_run_form(self):
         with self.assertRaises(contracts.ContractError):
             contracts.validate(
