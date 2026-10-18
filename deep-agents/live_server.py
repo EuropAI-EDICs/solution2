@@ -48,6 +48,7 @@ load_dotenv(HERE / ".env")  # so /api/models sees ZAI_API_KEY for the dropdown
 RUNS = HERE / "runs"
 SCENARIO_RUNS = HERE.parent / "poc" / "scenario-runs"
 SIMULATION_DIR = HERE.parent / "nldt" / "simulation"
+VIEWER_DIR = HERE / "viewer-utrecht"  # gegenereerd door poc/make_viewer_config.py
 JOURNAL = RUNS / "live" / "steps.jsonl"
 CHECKPOINTS = RUNS / "live" / "checkpoints.sqlite"
 DASHBOARD = HERE / "dashboard.html"
@@ -343,6 +344,24 @@ def steps() -> PlainTextResponse:
 def simulation_assets(path: str) -> FileResponse:
     target = (SIMULATION_DIR / path).resolve()
     if not str(target).startswith(str(SIMULATION_DIR.resolve())) or not target.is_file():
+        raise HTTPException(404, "not found")
+    return _fresh(FileResponse(target))
+
+
+@app.get("/_app/{path:path}")
+def viewer_app_assets(path: str) -> FileResponse:
+    # Leia-build gebruikt absolute asset-paden (/_app/...) — dezelfde bestanden
+    # als /viewer-utrecht/_app (SvelteKit-build is voor root-hosting gebouwd).
+    target = (VIEWER_DIR / "_app" / path).resolve()
+    if not str(target).startswith(str(VIEWER_DIR.resolve())) or not target.is_file():
+        raise HTTPException(404, "not found")
+    return _fresh(FileResponse(target))
+
+
+@app.get("/viewer-utrecht/{path:path}")
+def viewer_assets(path: str) -> FileResponse:
+    target = (VIEWER_DIR / path).resolve()
+    if not str(target).startswith(str(VIEWER_DIR.resolve())) or not target.is_file():
         raise HTTPException(404, "not found")
     return _fresh(FileResponse(target))
 
