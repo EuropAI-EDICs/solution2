@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -49,3 +50,23 @@ def test_load_zone_sources_gelijk_aan_oude_dict():
     zs = track_config.load_zone_sources()
     assert "gebied_windenergie" in zs and "natura_2000" in zs
     assert zs["gebied_windenergie"]["sourceId"] == "agrest-ov-gebied-windenergie"
+
+
+def test_corpus_regenereert_byte_identiek():
+    """De declaratieve tracks moeten byte-identieke corpus-artefacten
+    opleveren (nspd-port gate, spec §3): dezelfde serialisatie als
+    agents.generate_corpus, nu voor alle 13 tracks."""
+    from pipeline import agents
+
+    corpus = ROOT / "corpus"
+    for track in TRACKS13:
+        analyst = agents.NormAnalyst()
+        formalizer = agents.NormFormalizer()
+        cards = analyst.read(corpus / f"evidence-{track}.json")
+        rules = formalizer.formalize(cards)
+        expected_cards = json.dumps(
+            [c.to_dict() for c in cards], ensure_ascii=False, indent=2) + "\n"
+        expected_rules = json.dumps(
+            [r.to_dict() for r in rules], ensure_ascii=False, indent=2) + "\n"
+        assert (corpus / f"normcards-{track}.json").read_text(encoding="utf-8") == expected_cards, track
+        assert (corpus / f"formalrules-{track}.json").read_text(encoding="utf-8") == expected_rules, track
