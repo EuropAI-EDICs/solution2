@@ -13,6 +13,7 @@ from __future__ import annotations
 import copy
 import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -874,3 +875,140 @@ class DataGroundingWiringTests(unittest.TestCase):
         # V0 blijft groen: het rapport zelf is schema-valid; de fail zit
         # uitsluitend in de V2-grounding-resolutie
         contracts.validate(report, "scenario-report")
+
+
+# --------------------------------------------------------------------------- #
+# add_zone_rule (nspd-port fase 3, task 7): data-grounded what-if-operanden
+# port van poc-nspd/tests/test_scenarios_nspd.py:256/:283/:300 — de NSPD-
+# alias-fixture (ZONE_SOURCES + <sourceId>.28992.geojson-cache) is vervangen
+# door een stub-alias met eigen cachePath (Utrecht: nationale caches onder
+# data/cache/national/, genest; de sweep laadt ze via load_extra_zone_layers)
+# --------------------------------------------------------------------------- #
+
+def _hyp_spec(sid, mutations, basis_type="hypothetical",
+              dg_source="netbeheerder-netcongestie"):
+    """Schema-gevalideerde add_zone_rule-spec (plain dict: de ScenarioSpec-
+    dataclass kent nog geen zoneId — task 6 heeft alleen het schema verrijkt)."""
+    basis = {"type": basis_type, "provenanceNote": "fictief — geen citatie",
+             "dataGrounding": {"sourceId": dg_source, "retrieved": "2026-10-13"}}
+    if basis_type == "hypothetical":
+        basis["rationale"] = "verkenning op een gepinde datalaag"
+    else:
+        basis["normCardId"] = "NC-01"
+    spec = {"id": sid, "name": sid, "objectType": "wind_turbine", "basis": basis,
+            "mutations": mutations, "proposedBy": "test#poc"}
+    contracts.validate(spec, "scenario-spec")
+    return spec
+
+
+class AddZoneRuleTests(unittest.TestCase):
+    """add_zone_rule: synthetische regel, authoring-fouten, V2-gate."""
+
+    def _stub_alias(self):
+        """Stub-alias {"netcongestie": ...} met een eigen cachePath (tmp) —
+        Utrecht-variant van NSPD's ZONE_SOURCES-fixture; de laag-inhoud is
+        het 2x2 km-vierkant (NSPD: lagen["alias-x"] = lagen["zone-b"])."""
+        td = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        cache = td / "netcongestie.geojson"
+        cache.write_text(json.dumps(_fc(EXCL_BOX, "netcongestie")), encoding="utf-8")
+        return {"netcongestie": {"sourceId": "netbeheerder-netcongestie",
+                                 "role": "scenario-basis",
+                                 "cachePath": str(cache)}}
+
+    def _draai_met_alias(self, specs, *, alias_role="scenario-basis"):
+        """Sweep met de stub-alias; de bronnen-registry is een stub zodat de
+        V2-resolutie offline en deterministisch is (zoals NSPD's
+        _draai_met_alias geodata.load_sources laat wegdraaien)."""
+        aliases = self._stub_alias()
+        aliases["netcongestie"]["role"] = alias_role
+        stub_registry = {"netbeheerder-netcongestie": {
+            "id": "netbeheerder-netcongestie", "role": "scenario-basis"}}
+        with mock.patch.object(scenarios.geodata, "load_sources",
+                               return_value=stub_registry):
+            report = scenarios.run_scenario_set(
+                baseline=_baseline(), layers=LAYERS, specs=specs,
+                scenario_set_id="SSET-azr", report_id="SR-azr-0001",
+                zone_aliases=aliases)
+        return report
+
+    @staticmethod
+    def _v2_check(rapport, check_id):
+        return next(c for c in rapport["_validation"]["levels"]["V2"]["checks"]
+                    if c["id"] == check_id)
+
+    def test_add_zone_rule_voegt_synthetische_regel_toe_en_rekent_door(self):
+        nieuw, toegepast, geskipt, onbekend = scenarios.apply_mutations(RULES, [
+            {"ruleId": "HYP-X", "action": "add_zone_rule", "zoneId": "netcongestie",
+             "zoneSemantics": "exclusion", "bufferDistanceM": 100}])
+        self.assertEqual(geskipt, [])
+        self.assertEqual(onbekend, [])
+        regel = next(r for r in nieuw if r["id"] == "HYP-X")
+        self.assertEqual(regel["status"], "formalized")
+        self.assertEqual(regel["zoneSemantics"], "exclusion")
+        self.assertEqual(regel["zoneSelector"]["zoneIds"], ["netcongestie"])
+        self.assertEqual(regel["zoneSelector"]["bufferDistanceM"], 100.0)
+        self.assertIsNone(regel["normCardId"])
+        self.assertIs(regel["synthetic"], True)
+        self.assertEqual(toegepast[0]["zoneId"], "netcongestie")
+        self.assertEqual(toegepast[0]["bufferDistanceM"], 100.0)
+        # end-to-end: exclusion van het 4 km2-vierkant (+500 m buffer) op de
+        # 96 km2-control verliest extra oppervlak; de V2-checks blijven groen
+        rapport = self._draai_met_alias([
+            _hyp_spec("SC-ADD-EXCL", [{"ruleId": "HYP-X", "action": "add_zone_rule",
+                                       "zoneId": "netcongestie", "zoneSemantics": "exclusion",
+                                       "bufferDistanceM": 500}])])
+        rij = rapport["scenarios"][0]
+        self.assertEqual(rij["status"], "ok")
+        self.assertLess(rij["finalAreaKm2"], rapport["control"]["finalAreaKm2"])
+        self.assertEqual(self._v2_check(rapport, "v2-add-zone-rule")["status"], "pass")
+        self.assertEqual(self._v2_check(rapport, "v2-data-grounding")["status"], "pass")
+        self.assertEqual(rij["mutationsApplied"][0]["action"], "add_zone_rule")
+        contracts.validate({k: v for k, v in rapport.items() if not k.startswith("_")},
+                           "scenario-report")
+
+    def test_add_zone_rule_collision_en_ontbrekende_velden_zijn_authoring_fouten(self):
+        _, toegepast, geskipt, _ = scenarios.apply_mutations(RULES, [
+            {"ruleId": "FR-T-01", "action": "add_zone_rule",
+             "zoneId": "netcongestie", "zoneSemantics": "inclusion"},
+            {"ruleId": "HYP-LEEG", "action": "add_zone_rule", "zoneSemantics": "inclusion"},
+        ])
+        self.assertEqual(toegepast, [])
+        self.assertEqual(len(geskipt), 2)
+        self.assertIn("botst", geskipt[0]["v2Error"])
+        self.assertIn("verplicht", geskipt[1]["v2Error"])
+        rapport = self._draai_met_alias([
+            _hyp_spec("SC-BOTS", [{"ruleId": "FR-T-01", "action": "add_zone_rule",
+                                   "zoneId": "netcongestie", "zoneSemantics": "inclusion"}])])
+        self.assertEqual(rapport["verdict"], "fail")
+        self.assertTrue(
+            "botst" in self._v2_check(rapport, "v2-mutation-rule-ids")["detail"]
+            or any("botst" in json.dumps(c)
+                   for c in rapport["_validation"]["levels"]["V2"]["checks"]))
+
+    def test_v2_add_zone_rule_eist_hypothetical_en_passende_dataGrounding(self):
+        mut = [{"ruleId": "HYP-X", "action": "add_zone_rule", "zoneId": "netcongestie",
+                "zoneSemantics": "exclusion"}]
+        # policy_variant mag geen datalaag toevoegen
+        rapport = self._draai_met_alias(
+            [_hyp_spec("SC-PV", mut, basis_type="policy_variant")])
+        detail = self._v2_check(rapport, "v2-add-zone-rule")["detail"]
+        self.assertIn("hypothetical", detail)
+        self.assertEqual(rapport["verdict"], "fail")
+        # dataGrounding op een andere bron dan de alias-bron
+        rapport = self._draai_met_alias(
+            [_hyp_spec("SC-ANDER", mut, dg_source="bron-y")])
+        self.assertIn("≠ alias-bron",
+                      self._v2_check(rapport, "v2-add-zone-rule")["detail"])
+        # onbekende alias
+        rapport = self._draai_met_alias([_hyp_spec("SC-ONB", [
+            {"ruleId": "HYP-Y", "action": "add_zone_rule",
+             "zoneId": "netcongestie-bestaat-niet", "zoneSemantics": "exclusion"}])])
+        self.assertIn("geen geregistreerde alias",
+                      self._v2_check(rapport, "v2-add-zone-rule")["detail"])
+        # Utrecht-aanpassing (b): de alias-rol zelf is zone-geschikt of de
+        # V2-gate faalt ('context' is per afspraak nooit zone-bepalend)
+        rapport = self._draai_met_alias(
+            [_hyp_spec("SC-CTX", mut)], alias_role="context")
+        check = self._v2_check(rapport, "v2-add-zone-rule")
+        self.assertEqual(check["status"], "fail")
+        self.assertIn("niet zone-geschikt", check["detail"])

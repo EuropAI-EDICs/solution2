@@ -2,7 +2,7 @@
  "$schema": "https://json-schema.org/draft/2020-12/schema",
  "$id": "https://ldttoolbox.example/poc/schemas/scenario-spec.schema.json",
  "title": "ScenarioSpec",
- "description": "One what-if scenario for the opportunity-map pipeline: an ordered list of deterministic mutations over a baseline run's FormalRule set, plus the provenance basis that keeps the scenario traceable WITHOUT pretending to carry a legal citation it does not have. GenAI (Phase B, docs/GENAI_SEAMS.md) may only ever author a ScenarioSpec proposal (proposedBy = 'llm-proposal#...'); the deterministic engine executes it and the critic validates it. Mutations are deliberately restricted to what the zone engine actually consumes (zoneSemantics, bufferDistanceM, rule presence) — conditions are never re-derived by a scenario.",
+ "description": "One what-if scenario for the opportunity-map pipeline: an ordered list of deterministic mutations over a baseline run's FormalRule set, plus the provenance basis that keeps the scenario traceable WITHOUT pretending to carry a legal citation it does not have. GenAI (Phase B, docs/GENAI_SEAMS.md) may only ever author a ScenarioSpec proposal (proposedBy = 'llm-proposal#...'); the deterministic engine executes it and the critic validates it. Mutations are deliberately restricted to what the zone engine actually consumes (zoneSemantics, zoneId, bufferDistanceM, rule presence) — conditions are never re-derived by a scenario.",
  "type": "object",
  "additionalProperties": false,
  "required": ["id", "name", "objectType", "basis", "mutations", "proposedBy"],

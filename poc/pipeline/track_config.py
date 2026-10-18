@@ -65,3 +65,17 @@ def load_templates() -> dict:
 @lru_cache(maxsize=None)
 def load_zone_sources() -> dict:
     return _read("_zone-sources.json")
+
+
+def load_zone_aliases() -> dict:
+    """Zone-alias-registry voor ``add_zone_rule`` (nspd-port fase 3):
+    ``poc/tracks/_zone-aliases.json`` — per alias sourceId/role/cachePath.
+
+    Geeft ``{}`` als het bestand ontbreekt (task 8 legt het echte bestand
+    neer); de sweep draait dan gewoon zonder alias-operanden. Bewust niet
+    gelru cachet (anders dan ``load_zone_sources``): een gecachte lees-miss
+    zou het bestand verbergen zodra het alsnog neerkomt in een lang proces.
+    """
+    if not (TRACKS_DIR / "_zone-aliases.json").is_file():
+        return {}
+    return _read("_zone-aliases.json")
