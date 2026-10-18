@@ -93,8 +93,17 @@ def _norm_index(scenario_run_dir: Path) -> dict[str, dict[str, str]]:
         _NORM_INDEX_CACHE[run_id] = {}
         return {}
 
+    sem_naar_nl = {
+        "exclusion": "hier niet toegestaan",
+        "conditional": "hier voorwaardelijk",
+        "inclusion": "hier mogelijk",
+        "attention": "aandachtsgebied",
+        "compensation": "compensatieplicht",
+        "none": "geen ruimtelijke werking",
+    }
     index: dict[str, dict[str, str]] = {}
-    for rid, ncid in regel_naar_kaart.items():
+    for r in regels:
+        rid, ncid = str(r["id"]), str(r.get("normCardId") or "")
         kaart = kaart_by_id.get(ncid)
         if not kaart:
             continue
@@ -105,6 +114,8 @@ def _norm_index(scenario_run_dir: Path) -> dict[str, dict[str, str]]:
             "citaat": str(bron.get("quote") or ""),
             "bron": str(bron.get("uri") or ""),
             "normkaart": ncid,
+            "werking": sem_naar_nl.get(str(r.get("zoneSemantics") or ""),
+                                       str(r.get("zoneSemantics") or "")),
         }
     _NORM_INDEX_CACHE[run_id] = index
     return index
@@ -126,7 +137,8 @@ def _unieke_refs(fc: dict, index: dict[str, dict[str, str]]) -> list[dict[str, s
 
 
 def _verrijk_features(fc: dict, index: dict[str, dict[str, str]],
-                       *, titel: str, weblink: str) -> None:
+                       *, titel: str, weblink: str,
+                       context_regels: dict[str, str] | None = None) -> None:
     """Popup-attributen in leesbaar Nederlands: wat betekent dit vlak, welke
     wetsartikelen horen erbij, en de weblink naar de leesbare regelpagina.
     Technische eigenschappen (ruleIds/operation/prov) verdwijnen uit de popup;
@@ -141,21 +153,27 @@ def _verrijk_features(fc: dict, index: dict[str, dict[str, str]],
         rids = [str(r) for r in (props.get("ruleIds") or [])]
         refs = [index[r] for r in rids if r in index]
         area = float(props.get("areaKm2") or 0)
+        context = context_regels or {}
         regels_leesbaar = []
         artikelen = []
         for n, r in enumerate(refs, 1):
-            zin = r["citaat"].split(". ")
-            eerste_zin = (zin[0] + ("." if len(zin) > 1 else ""))[:260]
-            regels_leesbaar.append(f"{n}) {r['artikel']}: {eerste_zin}")
+            citaat = r["citaat"]
+            if len(citaat) > 600:
+                citaat = citaat[:597].rstrip() + "…"
+            werking = r.get("werking", "")
+            regels_leesbaar.append(
+                f"{n}) {r['artikel']} ({werking}): {citaat}")
             artikelen.append(r["artikel"])
+        for n, (rid, contexttekst) in enumerate(context.items(), len(refs) + 1):
+            regels_leesbaar.append(f"{n}) {rid}: {contexttekst}")
         props.clear()
         props["gebied"] = titel
         props["oppervlakte_km2"] = round(area, 1)
         if regels_leesbaar:
-            # popup toont max 8 leesbare regels; de rest via de weblink
-            getoond = regels_leesbaar[:8]
-            if len(regels_leesbaar) > 8:
-                getoond.append(f"… nog {len(regels_leesbaar) - 8} artikelen — "
+            # popup toont max 5 volledige regels; de rest via de weblink
+            getoond = regels_leesbaar[:5]
+            if len(regels_leesbaar) > 5:
+                getoond.append(f"… nog {len(regels_leesbaar) - 5} artikelen — "
                                "zie de weblink hieronder")
             props["wat_betreft_dit_vlak"] = " ".join(getoond)
         if artikelen:
@@ -319,9 +337,15 @@ def _whatif_groep_en_lagen(layers_dir: Path) -> tuple[list[dict], list[dict]]:
             delta = float(s.get("deltaVsControlKm2") or 0)
             kleur = "#1a7f37" if delta >= 0 else "#c01c28"
             fc_sc = json.loads(geo.read_text(encoding="utf-8"))
+            dg_note = ((s.get("basis") or {}).get("dataGrounding") or {}).get("note") \
+                if isinstance((s.get("basis") or {}).get("dataGrounding"), dict) else None
+            ctx = {str(scid): "data-gegrond what-if op basis van "
+                   + (dg_note or "landelijke bron")} \
+                if str((s.get("basis") or {}).get("type")) == "hypothetical" else {}
             _verrijk_features(fc_sc, _norm_index(bron),
                               titel=f"{usecase} — {scid}",
-                              weblink=f"{URL_PREFIX}/reports/{scid}.html")
+                              weblink=f"{URL_PREFIX}/reports/{scid}.html",
+                              context_regels=ctx)
             (layers_dir / f"whatif-{usecase}-{scid}.geojson").write_text(
                 json.dumps(fc_sc, ensure_ascii=False), encoding="utf-8")
             _regel_rapport(scid, f"{usecase} — {scid}",
