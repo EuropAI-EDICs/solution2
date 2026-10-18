@@ -30,8 +30,6 @@ def main() -> int:
     zs = HERE / "_zone-sources.json"
     if not zs.is_file() or not isinstance(json.loads(zs.read_text(encoding="utf-8")), dict):
         problems.append("_zone-sources.json: ontbreekt of geen dict")
-    for name in ("make_tracks.py",):
-        pass  # placeholder-vrij
     if problems:
         print("PROBLEMEN:")
         for pr in problems:
