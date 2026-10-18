@@ -1,0 +1,850 @@
+{
+ "poc": "minigim-gebiedscheck",
+ "methodiek": "minigim-v0.91",
+ "aoi": {
+  "schema": "geojson",
+  "crs": "EPSG:28992|WGS84"
+ },
+ "phases": [
+  {
+   "id": "F0-intake",
+   "title": "Intake/scoping",
+   "agent": {
+    "role": "intake",
+    "llm": true
+   },
+   "tasks": [
+    {
+     "id": "request-schema",
+     "from": "run-input",
+     "binding": "auto",
+     "tool": {
+      "class": "validation",
+      "ref": "schema:OpportunityMapRequest",
+      "transport": "in-process"
+     }
+    }
+   ],
+   "gate": {
+    "validate": [
+     "V0"
+    ]
+   }
+  },
+  {
+   "id": "F1-omgevingsanalyse",
+   "title": "Omgevingsanalyse (informatie ophalen)",
+   "agent": {
+    "role": "minigim-specialist"
+   },
+   "tasks": [
+    {
+     "id": "locatie.luchtfoto",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "https://www.pdok.nl/datasets/luchtfoto-s (Beeldmateriaal Nederland, WMTS/WMS — raster buiten scope runner)",
+     "notes": [
+      "rasterlevering, geen vectorstatistiek"
+     ]
+    },
+    {
+     "id": "locatie.plangrens",
+     "from": "register:minigim-lijst",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "run-input",
+      "transport": "in-process",
+      "derive": [
+       "echo_input"
+      ]
+     },
+     "notes": [
+      "de plangrens is run-input; BTO (bruto terreinoppervlakte) wordt deterministisch berekend"
+     ]
+    },
+    {
+     "id": "locatie.adres",
+     "from": "register:minigim-lijst",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "pdok-bag-wfs",
+      "transport": "in-process",
+      "derive": [
+       "list_in_aoi"
+      ]
+     },
+     "notes": [
+      "adreslijst uit BAG-verblijfsobjecten binnen plangrens"
+     ]
+    },
+    {
+     "id": "locatie.referentie.nulpunt",
+     "from": "register:minigim-lijst",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "run-input",
+      "transport": "in-process",
+      "derive": [
+       "representative_point"
+      ]
+     },
+     "notes": [
+      "representatief punt (shapely representative_point) van de plangrens in RD en WGS84"
+     ]
+    },
+    {
+     "id": "topografie.materialisatie",
+     "from": "register:minigim-lijst",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "pdok-bgt-ogc-api",
+      "transport": "in-process",
+      "derive": [
+       "clip_stats"
+      ]
+     },
+     "notes": [
+      "BGT-objecten binnen plangrens; klasseoverzicht als overzicht van het hele onderdeel"
+     ]
+    },
+    {
+     "id": "topografie.materialisatie.afval",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "BGT-viewer gemeente/land (objecttype bak, functie afvalcontainer) — geen aparte open landelijke collectie"
+    },
+    {
+     "id": "topografie.materialisatie.bebouwd-oppervlak",
+     "from": "register:minigim-lijst",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "pdok-bag-wfs",
+      "transport": "in-process",
+      "derive": [
+       "clip_stats"
+      ]
+     },
+     "notes": [
+      "pandvoetafdruk (m²) binnen plangrens"
+     ]
+    },
+    {
+     "id": "topografie.materialisatie.verhard-oppervlak",
+     "from": "register:minigim-lijst",
+     "binding": "partial",
+     "tool": {
+      "class": "retrieval",
+      "ref": "pdok-bgt-ogc-api",
+      "transport": "in-process",
+      "derive": [
+       "clip_stats"
+      ]
+     },
+     "proxyNote": "BGT wegdeel + onbegroeidterreindeel als verhardingsproxy; werkelijke verhardingsgraad (type materialisatie) staat niet als apart attribuut in de open BGT-levering"
+    },
+    {
+     "id": "topografie.materialisatie.onverhard-oppervlak",
+     "from": "register:minigim-lijst",
+     "binding": "partial",
+     "tool": {
+      "class": "retrieval",
+      "ref": "pdok-bgt-ogc-api",
+      "transport": "in-process",
+      "derive": [
+       "clip_stats"
+      ]
+     },
+     "proxyNote": "begroeid terreindeel (plus onverhard onbegroeid deel) als onverhard-proxy; BGT-functie 'onverhard' selecteren waar aanwezig"
+    },
+    {
+     "id": "topografie.materialisatie.wegdeel",
+     "from": "register:minigim-lijst",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "pdok-bgt-ogc-api",
+      "transport": "in-process",
+      "derive": [
+       "clip_layer"
+      ]
+     }
+    },
+    {
+     "id": "topografie.materialisatie.waterdeel",
+     "from": "register:minigim-lijst",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "pdok-bgt-ogc-api",
+      "transport": "in-process",
+      "derive": [
+       "clip_layer"
+      ]
+     }
+    },
+    {
+     "id": "topografie.materialisatie.bebouwing-3d-bag",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "https://3dbag.nl (TU Delft 3D BAG API); zie ook 3d-viewer/ in deze repo (LOD22 tiles)",
+     "notes": [
+      "volume (m³) voor sloopschatting zit in de 3D BAG; niet als sleutelloze vectorstatistiek in deze runner (fase 2)"
+     ]
+    },
+    {
+     "id": "topografie.materialisatie.bebouwing-bag",
+     "from": "register:minigim-lijst",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "pdok-bag-wfs",
+      "transport": "in-process",
+      "derive": [
+       "clip_layer"
+      ]
+     }
+    },
+    {
+     "id": "topografie.mobiliteit",
+     "from": "register:minigim-lijst",
+     "binding": "partial",
+     "tool": {
+      "class": "retrieval",
+      "ref": "pdok-nwb-wegen",
+      "transport": "in-process",
+      "derive": [
+       "presence"
+      ]
+     },
+     "proxyNote": "NWB wegvakken dekt verkeerswegen-hiërarchie; OV en parken zitten niet in het NWB"
+    },
+    {
+     "id": "topografie.mobiliteit.verkeerswegen",
+     "from": "register:minigim-lijst",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "pdok-nwb-wegen",
+      "transport": "in-process",
+      "derive": [
+       "clip_layer"
+      ]
+     },
+     "notes": [
+      "hiërarchie via NWB-attributen (wegtype/beheerder)"
+     ]
+    },
+    {
+     "id": "topografie.mobiliteit.openbaar-vervoer",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "NDOVL / OV-API (https://ndovloket.nl) — haltes en lijnen, niet in deze bronnenstack geverifieerd"
+    },
+    {
+     "id": "topografie.mobiliteit.parkeren",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "gemeente Breda parkeerregistratie (data.breda.nl) — parkeerbalans vraagt gemeentedata"
+    },
+    {
+     "id": "topografie.hoogte.hoogte-maaiveld",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "AHN (https://www.pdok.nl/datasets/ahn) — raster/WCS; hoogtestatistiek is fase 2 (rasterfetcher)",
+     "notes": [
+      "hoogste prioriteit + financieel risico (grondbalans): eerste kandidaat voor fase 2"
+     ]
+    },
+    {
+     "id": "topografie.hoogte.bodemdaling",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "NCG bodemdaling (https://bodemdalingskaart.nl) / atlas leefomgeving"
+    },
+    {
+     "id": "topografie.bodemsamenstelling",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "Dinoloket (https://www.dinoloket.nl) — boorprofielen; specialist interpretatie"
+    },
+    {
+     "id": "topografie.grondwater",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "BRO grondwater (https://brodata.nl) — grondwatermonitoringput"
+    },
+    {
+     "id": "topografie.grondwater.peilbuismeting",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "BRO GM (https://brodata.nl); waterschap West-Brabant eigen metingen"
+    },
+    {
+     "id": "topografie.grondwater.peilbesluit-waterschap",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "waterschap Brabantse Delta — peilbesluiten/legger"
+    },
+    {
+     "id": "topografie.grondwater.opname-capaciteit",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "klimaateffectatlas (https://www.klimaateffectatlas.nl) — infiltratie/opname"
+    },
+    {
+     "id": "topografie.verontreiniging",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "bodemloket / omgevingsdienst West-Brabant — bodeminformatie",
+     "notes": [
+      "prioriteit hoog; niet open als landelijke vectorlaag"
+     ]
+    },
+    {
+     "id": "topografie.kabels-en-leidingen",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "KLIC (https://www.kadaster.nl/zakelijk/klic) —graafprocessen/netinformatie",
+     "notes": [
+      "thuisnetbeheerders; niet openbaar als vectorlaag"
+     ]
+    },
+    {
+     "id": "topografie.kabels-en-leidingen.data",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "KLIC"
+    },
+    {
+     "id": "topografie.kabels-en-leidingen.elektriciteit",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "KLIC (netbeheerder elektriciteit)"
+    },
+    {
+     "id": "topografie.kabels-en-leidingen.drinkwater",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "KLIC / Brabant Water"
+    },
+    {
+     "id": "topografie.kabels-en-leidingen.warmtenet",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "netbeheerder warmte (KLIC waar geregistreerd)"
+    },
+    {
+     "id": "topografie.kabels-en-leidingen.riolering",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "gemeente Breda rioleringsregistratie (data.breda.nl)"
+    },
+    {
+     "id": "topografie.kabels-en-leidingen.gas",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "KLIC (netbeheerder gas)"
+    },
+    {
+     "id": "topografie.topotijdreis",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "https://www.topotijdreis.nl (Kadaster, historische topografie)",
+     "notes": [
+      "PDF/beeldlevering"
+     ]
+    },
+    {
+     "id": "ruimtelijke-ordening.kadaster.percelen",
+     "from": "register:minigim-lijst",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "pdok-brk-kadastrale-kaart",
+      "transport": "in-process",
+      "derive": [
+       "clip_layer"
+      ]
+     },
+     "notes": [
+      "sectie- en perceelnummers zitten in de open kadastrale kaart; EIGENDOM ('van wie was je?') is wettelijk geen open data — zie ILS-EPset-notitie"
+     ]
+    },
+    {
+     "id": "ruimtelijke-ordening.bestemmingsplan",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "DSO/LVBB omgevingsdocumenten (https://www.omgevingswet.overheid.nl) — machinekanaal API-sleutel vereist (zie PoC-1 ervaring: DSO download API 401 zonder key); lokale conversie-tooling: imro/ in deze repo",
+     "notes": [
+      "regelingtekst + GIO's; sleutelgate"
+     ]
+    },
+    {
+     "id": "ruimtelijke-ordening.bestemmingsplan.enkelbestemming",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "idem bestemmingsplan (DSO)"
+    },
+    {
+     "id": "ruimtelijke-ordening.bestemmingsplan.dubbelbestemming",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "idem bestemmingsplan (DSO); NB archeologie vaak via dubbelbestemming (lijst-toelichting rij 20)"
+    },
+    {
+     "id": "ruimtelijke-ordening.bestemmingsplan.functieaanduiding",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "idem bestemmingsplan (DSO)"
+    },
+    {
+     "id": "ruimtelijke-ordening.bestemmingsplan.maatvoering",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "idem bestemmingsplan (DSO) — hoogte/bouwlagen niet machine-leesbaar open"
+    },
+    {
+     "id": "ruimtelijke-ordening.bestemmingsplan.milieuzone",
+     "from": "register:minigim-lijst",
+     "binding": "partial",
+     "tool": {
+      "class": "retrieval",
+      "ref": "breda-milieuzones",
+      "transport": "in-process",
+      "derive": [
+       "presence"
+      ]
+     },
+     "proxyNote": "gemeentelijke milieuzoneslaag Breda (open); dekken milieuzones in het omgevingsplan slechts deels"
+    },
+    {
+     "id": "ruimtelijke-ordening.gemeentelijk-beleid",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "omgevingsvisie/-verordening gemeente Breda (breda.nl/omgevingswet) — parkeernorm en molenbiotoop als beleidsregels",
+     "notes": [
+      "groepsrij: parkeernorm/molenbiotoop zijn beleidsdocument-items"
+     ]
+    },
+    {
+     "id": "ruimtelijke-ordening.gemeentelijk-beleid.parkeernorm",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "gemeente Breda parkeernorm (beleidsregels omgevingsplan)"
+    },
+    {
+     "id": "ruimtelijke-ordening.gemeentelijk-beleid.molenbiotoop",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "molenbiotoopzones (provincie/gemeente; hoogte 10/20/30 m vraagt toelichting — lijst-toelichting rij 27)"
+    },
+    {
+     "id": "ruimtelijke-ordening.externe-veiligheid",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "atlas leefomgeving (https://www.atlasleefomgeving.nl) — externe veiligheid"
+    },
+    {
+     "id": "ruimtelijke-ordening.externe-veiligheid.kwetsbare-objecten",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "atlas leefomgeving / gemeentelijke registratie"
+    },
+    {
+     "id": "ruimtelijke-ordening.externe-veiligheid.risicocontouren",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "atlas leefomgeving / omgevingsdienst"
+    },
+    {
+     "id": "ruimtelijke-ordening.externe-veiligheid.vervoer-en-buisleidingen",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "risicokaart transportroutes (atlas leefomgeving / RIVM)"
+    },
+    {
+     "id": "ruimtelijke-ordening.externe-veiligheid.installaties",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "BRZO/Seveso-installaties (RIVM/omgevingsdienst)"
+    },
+    {
+     "id": "ruimtelijke-ordening.externe-veiligheid.brandkranen",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "BGT-objecttype put (plusertype brandkraan niet uniform in open levering); gemeente/waterbedrijf hydrantenregister",
+     "notes": [
+      "lijst-toelichting rij 19: BGT-put"
+     ]
+    },
+    {
+     "id": "ruimtelijke-ordening.geluidscontouren",
+     "from": "register:minigim-lijst",
+     "binding": "partial",
+     "tool": {
+      "class": "retrieval",
+      "ref": "breda-geluidcontouren",
+      "transport": "in-process",
+      "derive": [
+       "clip_layer"
+      ]
+     },
+     "proxyNote": "gemeentelijke geluidscontourenlaag Breda (dB, LOW_VAL); bronweg (weg/spoor/industrie) niet eenduidig gelabeld in de open laag"
+    },
+    {
+     "id": "ruimtelijke-ordening.geluidscontouren.wegverkeer",
+     "from": "register:minigim-lijst",
+     "binding": "partial",
+     "tool": {
+      "class": "retrieval",
+      "ref": "breda-geluidcontouren",
+      "transport": "in-process",
+      "derive": [
+       "presence"
+      ]
+     },
+     "proxyNote": "contouren uit de Breda-laag omvatten wegverkeer maar zijn niet per bron onderscheiden"
+    },
+    {
+     "id": "ruimtelijke-ordening.geluidscontouren.spoorverkeer",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "ProRail geluidsregisters / gemeente (bron-specifiek)"
+    },
+    {
+     "id": "ruimtelijke-ordening.geluidscontouren.industrie",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "omgevingsdienst (Ke-zones industrie)"
+    },
+    {
+     "id": "ruimtelijke-ordening.geluidscontouren.luchthavens",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "geluidszones luchthavens (atlas leefomgeving)"
+    },
+    {
+     "id": "ruimtelijke-ordening.waterbeheer",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "waterschap Brabantse Delta — legger en peilbesluiten"
+    },
+    {
+     "id": "ruimtelijke-ordening.waterbeheer.primaire-en-secundaire-watergangen",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "legger waterschap Brabantse Delta"
+    },
+    {
+     "id": "ruimtelijke-ordening.waterbeheer.waterkeringen",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "waterkeringen (IPO/atlas leefomgeving; waterschap legger)"
+    },
+    {
+     "id": "ruimtelijke-ordening.natuur",
+     "from": "register:minigim-lijst",
+     "binding": "partial",
+     "tool": {
+      "class": "retrieval",
+      "ref": "pdok-natura2000",
+      "transport": "in-process",
+      "derive": [
+       "presence"
+      ]
+     },
+     "proxyNote": "alleen Natura 2000-check; bredere natuurgebieden (NNN e.a.) niet in deze stack"
+    },
+    {
+     "id": "ruimtelijke-ordening.natuur.natuurgebieden",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "geen landelijke open 'natuurgebieden'-kaart in deze bronnenstack; provincie/Bioregister"
+    },
+    {
+     "id": "ruimtelijke-ordening.natuur.natura2000",
+     "from": "register:minigim-lijst",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "pdok-natura2000",
+      "transport": "in-process",
+      "derive": [
+       "presence"
+      ]
+     },
+     "notes": [
+      "aanwezigheid in plangrens + afstand tot dichtstbijzijnd Natura 2000-gebied"
+     ]
+    },
+    {
+     "id": "statistiek.aantal-eenheden",
+     "from": "register:minigim-lijst",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "pdok-bag-wfs",
+      "transport": "in-process",
+      "derive": [
+       "count_in_aoi"
+      ]
+     },
+     "notes": [
+      "verblijfsobjecten binnen plangrens"
+     ]
+    },
+    {
+     "id": "statistiek.aantal-bouwlagen",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "aantal bouwlagen zit niet in de open BAG; uit bestemmingsplan (maatvoering) of 3D BAG"
+    },
+    {
+     "id": "identiteit.bouwjaar",
+     "from": "register:minigim-lijst",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "pdok-bag-wfs",
+      "transport": "in-process",
+      "derive": [
+       "clip_stats"
+      ]
+     }
+    },
+    {
+     "id": "identiteit.voorzieningen",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "voorzieningenregister niet als open landelijke kaart in deze stack (CBS-afstanden zijn buurtniveau — zie poc-breda)"
+    },
+    {
+     "id": "identiteit.voorzieningen.verblijfsobject-gebruiksfunctie",
+     "from": "register:minigim-lijst",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "pdok-bag-wfs",
+      "transport": "in-process",
+      "derive": [
+       "clip_stats"
+      ]
+     }
+    },
+    {
+     "id": "identiteit.bereikbaarheid",
+     "from": "register:minigim-lijst",
+     "binding": "manual",
+     "manualPointer": "bereikbaarheidsanalyse (NETMOB/OSM-routering) — fase 2"
+    },
+    {
+     "id": "identiteit.monumenten",
+     "from": "register:minigim-lijst",
+     "binding": "partial",
+     "tool": {
+      "class": "retrieval",
+      "ref": "pdok-rce-cultuurhistorie",
+      "transport": "in-process",
+      "derive": [
+       "list_in_aoi"
+      ]
+     },
+     "proxyNote": "alleen rijksmonumenten (RCE); gemeentelijke monumenten niet landelijk open",
+     "notes": [
+      "directe monumentenregister-links als referentie"
+     ]
+    },
+    {
+     "id": "identiteit.cultuurhistorie",
+     "from": "register:minigim-lijst",
+     "binding": "partial",
+     "tool": {
+      "class": "retrieval",
+      "ref": "breda-cultuurhistorie",
+      "transport": "in-process",
+      "derive": [
+       "clip_layer"
+      ]
+     },
+     "proxyNote": "gemeentelijke cultuurhistorische waardekaart Breda (open); interpretatie vraagt gemeente"
+    },
+    {
+     "id": "identiteit.archeologie",
+     "from": "register:minigim-lijst",
+     "binding": "partial",
+     "tool": {
+      "class": "retrieval",
+      "ref": "breda-archeologie",
+      "transport": "in-process",
+      "derive": [
+       "clip_layer"
+      ]
+     },
+     "proxyNote": "gemeentelijk archeologiebeleid Breda (verwachtingszones); AMVR-overleg blijft mensenwerk"
+    }
+   ],
+   "gate": {
+    "validate": [
+     "V0",
+     "V2"
+    ],
+    "onFail": "degradeer-taak"
+   }
+  },
+  {
+   "id": "F2-gebiedsindeling",
+   "title": "ILS-draft gebiedsindeling",
+   "agent": {
+    "role": "geospecialist"
+   },
+   "tasks": [
+    {
+     "id": "ils-classificatie",
+     "from": "register:minigim-ils",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "register:minigim-ils",
+      "transport": "in-process",
+      "derive": [
+       "ils_bgt_mapping"
+      ]
+     }
+    }
+   ],
+   "gate": {
+    "validate": [
+     "V1"
+    ],
+    "hitl": "draft-keuze (v4 pending by design)"
+   }
+  },
+  {
+   "id": "F3-doorrekening",
+   "title": "Doorrekening (rekenmodel aanroepen)",
+   "agent": {
+    "role": "minigim-specialist"
+   },
+   "tasks": [
+    {
+     "id": "statistiek.aantal-inwoners",
+     "from": "register:minigim-lijst",
+     "binding": "partial",
+     "tool": {
+      "class": "computation",
+      "ref": "pdok-cbs-wijkenbuurten-2024",
+      "transport": "in-process",
+      "derive": [
+       "proxy_ratio"
+      ]
+     },
+     "proxyNote": "CBS 2024 buurtstatistiek, oppervlaktegewogen naar de plangrens — buurtniveau, geen exacte plangrens-cijfers"
+    },
+    {
+     "id": "statistiek.woz",
+     "from": "register:minigim-lijst",
+     "binding": "partial",
+     "tool": {
+      "class": "computation",
+      "ref": "pdok-cbs-wijkenbuurten-2024",
+      "transport": "in-process",
+      "derive": [
+       "proxy_ratio"
+      ]
+     },
+     "proxyNote": "CBS 2024 buurtgemiddelde (woningwaarde, ×1000 euro), oppervlaktegewogen — buurtniveau"
+    },
+    {
+     "id": "statistiek.fsi",
+     "from": "register:minigim-lijst",
+     "binding": "partial",
+     "tool": {
+      "class": "computation",
+      "ref": "pdok-bag-wfs",
+      "transport": "in-process",
+      "derive": [
+       "proxy_ratio"
+      ]
+     },
+     "proxyNote": "proxy: som verblijfsobject-oppervlaktes / BTO (bruto vloeroppervlak-afleiding, geen true FSI zonder bouwlagen)"
+    },
+    {
+     "id": "statistiek.gsi",
+     "from": "register:minigim-lijst",
+     "binding": "partial",
+     "tool": {
+      "class": "computation",
+      "ref": "pdok-bgt-ogc-api",
+      "transport": "in-process",
+      "derive": [
+       "proxy_ratio"
+      ]
+     },
+     "proxyNote": "proxy: begroeid terreindeel (BGT) / BTO"
+    },
+    {
+     "id": "statistiek.mxi",
+     "from": "register:minigim-lijst",
+     "binding": "partial",
+     "tool": {
+      "class": "computation",
+      "ref": "pdok-bag-wfs",
+      "transport": "in-process",
+      "derive": [
+       "proxy_entropy"
+      ]
+     },
+     "proxyNote": "proxy: spreiding (Shannon-entropy genormaliseerd) van gebruiksdoelen in de plangrens"
+    }
+   ],
+   "gate": {
+    "validate": [
+     "V3"
+    ]
+   }
+  },
+  {
+   "id": "F4-synthese",
+   "title": "Synthese & rapport",
+   "agent": {
+    "role": "critic + explainer"
+   },
+   "tasks": [
+    {
+     "id": "v0-v3-verdict",
+     "from": "run-input",
+     "binding": "auto",
+     "tool": {
+      "class": "validation",
+      "ref": "fundament:validate",
+      "transport": "in-process"
+     }
+    },
+    {
+     "id": "rapport",
+     "from": "run-input",
+     "binding": "auto",
+     "tool": {
+      "class": "report",
+      "ref": "minigim:report",
+      "transport": "in-process"
+     }
+    }
+   ],
+   "gate": {
+    "validate": [
+     "V0",
+     "V1",
+     "V2",
+     "V3"
+    ],
+    "hitl": "v4 (mens) pending"
+   }
+  }
+ ]
+}
