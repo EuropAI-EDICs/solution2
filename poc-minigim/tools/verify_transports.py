@@ -33,9 +33,10 @@ def main() -> int:
     proc = next(t for t in m["transports"] if t["type"] == "processes")
     from services.process_adapter.poc_handlers import execute_minigim_gebiedscheck_run
     result = execute_minigim_gebiedscheck_run({"mode": "replay"})
-    ok = isinstance(result, dict) and not result.get("error")
+    verdict = (result.get("summary") or {}).get("verdict") if isinstance(result, dict) else None
+    ok = isinstance(result, dict) and not result.get("error") and verdict == "pass"
     report["transports"]["processes"] = {
-        "processId": proc["processId"], "ok": ok, "result": result,
+        "processId": proc["processId"], "ok": ok, "verdict": verdict, "result": result,
     }
 
     catalog_path = ROOT.parent / "a2a-simulation" / "catalog" / "poc-agents.json"
@@ -55,7 +56,7 @@ def main() -> int:
     out.write_text(json.dumps(report, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     allemaal_ok = all(t["ok"] for t in report["transports"].values())
     print(f"transports: processes={report['transports']['processes']['ok']} "
-          f"a2a={report['transports']['a2a']['ok']} → {out}")
+          f"(verdict: {verdict}) a2a={report['transports']['a2a']['ok']} → {out}")
     return 0 if allemaal_ok else 1
 
 

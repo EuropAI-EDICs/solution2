@@ -41,7 +41,6 @@ class TestManifestConformance(unittest.TestCase):
                     self.assertEqual(t["tool"]["class"], verwacht, t["id"])
 
     def test_tool_ref_komt_overeen_met_binding_en_modelregister(self):
-        models = load_model_registry(ROOT / "modelregister.json")
         for ph in self.manifest["phases"]:
             for t in (ph.get("tasks") or []):
                 if t.get("from") != "register:minigim-lijst" or "tool" not in t:
@@ -52,6 +51,10 @@ class TestManifestConformance(unittest.TestCase):
                 else:
                     verwacht_ref = ",".join(b.get("serviceRefs") or []) or "run-input"
                     self.assertEqual(t["tool"]["ref"], verwacht_ref, t["id"])
+        for ph in self.manifest["phases"]:
+            for t in (ph.get("tasks") or []):
+                if t["id"] == "ils-classificatie":
+                    self.assertEqual(t["tool"]["ref"], "model:minigim-ils-classificatie", t["id"])
 
     def test_alle_modelrefs_resolven_in_het_modelregister(self):
         models = load_model_registry(ROOT / "modelregister.json")
