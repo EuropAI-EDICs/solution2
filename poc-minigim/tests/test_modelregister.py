@@ -61,7 +61,7 @@ class TestModelRegister(unittest.TestCase):
     def test_fase2haak_entries_zijn_gemarkeerd_en_vrijgesteld(self):
         for m in self.reg["models"]:
             if m.get("status") == "fase-2-haak":
-                self.assertIn("fase-2", m["prov"]["note"], m["id"])
+                self.assertIn("fase-2", m.get("prov", {}).get("note", ""), m["id"])
         haak_ids = {m["id"] for m in self.reg["models"] if m.get("status") == "fase-2-haak"}
         self.assertEqual(haak_ids, {"grex-financien", "ifc-export"})
 

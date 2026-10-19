@@ -2,7 +2,7 @@
 
 Assemblage van de bestaande bewijzen, per contract-familie (spec §9):
   V0      — fase-manifest en modelregister van beide pilot-PoC's zijn schema-geldig
-  retrieval — een falende fetch degradeert naar not-delivered mét manifest-velden in de prov
+  retrieval — een falende fetch degradeert naar not-delivered; prov blijft None (bewijs komt uit notes/riskFlags)
   computation — derivaties zijn in-run replay-identiek (byte-vergelijking op canon)
   binding — auto⇒tool en manual⇒pointer worden door het schema afgedwongen
 Slotgate-contracten: zie deep-agents/tests/test_fase_slotgate.py (dependency-richting:
@@ -25,7 +25,7 @@ sys.path.insert(0, str(ROOT))
 from fundament.manifest import load_manifest  # noqa: E402
 from fundament.models import load_model_registry  # noqa: E402
 
-import mini_registry  # noqa: E402
+from tests import mini_registry  # noqa: E402
 from fundament.executor import BindingExecutor  # noqa: E402
 from fundament.ops import DEFAULT_OPS  # noqa: E402
 
@@ -49,7 +49,7 @@ class TestV0Schemas(unittest.TestCase):
 
 
 class TestRetrievalContract(unittest.TestCase):
-    def test_falende_fetch_degradeert_met_prov_en_vlaggen(self):
+    def test_falende_fetch_degradeert_zonder_prov_met_vlaggen(self):
         reg = mini_registry.build()
         real = fixtures.fake_fetch_layer_factory()
 
