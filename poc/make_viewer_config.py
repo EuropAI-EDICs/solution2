@@ -181,6 +181,10 @@ def _verrijk_features(fc: dict, index: dict[str, dict[str, str]],
         if refs:
             props["weblink_leesbare_regels"] = (
                 f"http://localhost:8010{weblink}" if weblink.startswith("/") else weblink)
+            # Leia url:-protocol → klikbare link in de featureInfo-popup
+            # (label mag géén komma bevatten: parts = value.split(","))
+            props["wetsartikel"] = (
+                f"url:{weblink},Leesbare regels & wetsartikel van dit vlak")
         props["regel_ids"] = ", ".join(rids)
 
 
@@ -446,6 +450,59 @@ def _bron_lagen(layers_dir: Path) -> list[dict]:
     return lagen
 
 
+
+PANEEL_TEMPLATE = """<!DOCTYPE html><html lang="nl"><head><meta charset="utf-8">
+<title>Utrecht-PoC — kaart + leesbare regels</title>
+<style>
+ body { margin:0; display:flex; height:100vh; font:14px/1.4 -apple-system, sans-serif; }
+ #kaart { flex:1; border:0; }
+ #paneel { width:44%; min-width:420px; border-left:1px solid #c9c6c2; display:flex; flex-direction:column; background:#fafaf8; }
+ #paneel header { padding:10px 14px; background:#1a1a1a; color:#fff; }
+ #paneel header small { color:#bbb; }
+ #status { padding:8px 14px; background:#eef3f8; color:#1a4a7a; font-size:13px; }
+ select { margin:8px 14px; padding:6px; }
+ #regels { flex:1; border:0; }
+</style></head><body>
+<iframe id="kaart" src="/index.html?config=/utrecht/config.json"></iframe>
+<div id="paneel">
+ <header><b>Leesbare regels &amp; wetsartikel</b><br>
+  <small>klik op een zone in de kaart — het paneel opent de regels van dat vlak</small></header>
+ <div id="status">Nog geen zone gekozen — je kunt ook hieronder een scenario kiezen.</div>
+ <select id="lijst"><option value="">— kies een scenario —</option></select>
+ <iframe id="regels" src="about:blank" title="Leesbare regels"></iframe>
+</div>
+<script>
+const rapporten = __RAPPORTEN__;
+const lijst = document.getElementById("lijst");
+for (const r of rapporten) {
+  const o = document.createElement("option");
+  o.value = "/utrecht/reports/" + r;
+  o.textContent = r.replace(".html", "").replaceAll("_", " ");
+  lijst.appendChild(o);
+}
+lijst.addEventListener("change", () => {
+  if (lijst.value) document.getElementById("regels").src = lijst.value;
+});
+const kaartFrame = document.getElementById("kaart");
+function koppel() {
+  const doc = kaartFrame.contentDocument;
+  if (!doc) return;
+  const observer = new MutationObserver(() => {
+    const links = doc.querySelectorAll('a[href*="/utrecht/reports/"]');
+    if (links.length) {
+      const href = links[links.length - 1].getAttribute("href");
+      document.getElementById("status").textContent =
+        "Gekozen zone → leesbare regels (wetsartikel via de link in de pagina):";
+      if (document.getElementById("regels").src !== href)
+        document.getElementById("regels").src = href;
+    }
+  });
+  observer.observe(doc.documentElement, { subtree: true, childList: true });
+}
+kaartFrame.addEventListener("load", koppel);
+</script></body></html>"""
+
+
 def main() -> int:
     layers_dir = OUT / "layers"
     layers_dir.mkdir(parents=True, exist_ok=True)
@@ -461,8 +518,12 @@ def main() -> int:
             "title": "Utrecht-PoC — waar kan ik wat?",
             "subTitle": "5 uitdagingen × 13 tracks × 3 scenario's (+ what-ifs), "
                         "elke claim geciteerd uit de Omgevingsverordening",
-            "startPosition": {"x": 5.12, "y": 52.08, "z": 45000,
+            # top-down start: de camera centreert dan gegarandeerd op Utrecht
+            # (pitch -45 schuift het midden van het beeld ten noorden van de
+            #  doelcoördinaat — de kaart leek 'rond Amsterdam' te hangen)
+            "startPosition": {"x": 5.121, "y": 52.075, "z": 42000,
                               "heading": 0, "pitch": -45, "duration": 3},
+            "startCameraMode3D": False,
         },
         "groups": [
             {"id": "achtergrond", "title": "Achtergrond", "isOpen": True},
@@ -508,6 +569,14 @@ def main() -> int:
         json.dumps(cfg, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"Leia-config: {OUT / 'config.json'} "
           f"({len(cfg['layers'])} lagen, {len(cfg['groups'])} groepen)")
+
+    # paneel.html: viewer + apart leespaneel — klik op een zone en het rechter-
+    # paneel opent de leesbare regelpagina met het wetsartikel (zelfde origin,
+    # dus de parent leest de popup-DOM van de viewer via MutationObserver).
+    rapporten = sorted(x.name for x in (OUT / "reports").glob("*.html"))
+    paneel = PANEEL_TEMPLATE.replace("__RAPPORTEN__", json.dumps(rapporten))
+    (OUT / "paneel.html").write_text(paneel, encoding="utf-8")
+    print(f"paneel: {OUT / 'paneel.html'} (rapporten: {len(rapporten)})")
     print("kijk op: http://localhost:8010/index.html?config=/utrecht/config.json")
     return 0
 
