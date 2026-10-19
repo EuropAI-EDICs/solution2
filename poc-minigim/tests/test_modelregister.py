@@ -25,6 +25,17 @@ class TestModelRegister(unittest.TestCase):
     def setUpClass(cls):
         cls.reg = load_model_registry(ROOT / "modelregister.json")
 
+    def test_modelrefs_uit_het_manifest_resolven(self):
+        manifest = json.loads((ROOT / "fase-manifest.json").read_text(encoding="utf-8"))
+        gevonden = 0
+        for ph in manifest["phases"]:
+            for t in (ph.get("tasks") or []):
+                ref = (t.get("tool") or {}).get("ref") or ""
+                if ref.startswith("model:"):
+                    model_by_id(self.reg, ref[len("model:"):])
+                    gevonden += 1
+        self.assertGreaterEqual(gevonden, 3, "manifest koppelt minder dan 3 model-refs")
+
     def test_processes_transport_bestaat_in_de_process_adapter(self):
         m = model_by_id(self.reg, "minigim-gebiedscheck-run")
         handler_src = (REPO / "nldt" / "services" / "process_adapter" / "poc_handlers.py"

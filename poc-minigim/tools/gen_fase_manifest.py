@@ -28,7 +28,8 @@ def _task(item: dict, binding: dict) -> dict:
         transport = "in-process"
         t["tool"] = {
             "class": klasse,
-            "ref": ",".join(binding.get("serviceRefs") or []) or "run-input",
+            "ref": ("model:minigim-proxy-derivaties" if klasse == "computation"
+                    else ",".join(binding.get("serviceRefs") or []) or "run-input"),
             "transport": transport,
             "derive": [op] if op else [],
         }
@@ -67,7 +68,7 @@ def build() -> dict:
              "agent": {"role": "geospecialist"},
              "tasks": [{"id": "ils-classificatie", "from": "register:minigim-ils",
                         "binding": "auto",
-                        "tool": {"class": "computation", "ref": "register:minigim-ils",
+                        "tool": {"class": "computation", "ref": "model:minigim-ils-classificatie",
                                  "transport": "in-process", "derive": ["ils_bgt_mapping"]}}],
              "gate": {"validate": ["V1"], "hitl": "draft-keuze (v4 pending by design)"}},
             {"id": "F3-doorrekening", "title": "Doorrekening (rekenmodel aanroepen)",

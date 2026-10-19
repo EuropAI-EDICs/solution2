@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT))
 
 from minigim.registry import MiniGimRegistry  # noqa: E402  (bootstrap: zet poc-fundament op sys.path)
 from fundament.manifest import load_manifest  # noqa: E402
+from fundament.models import load_model_registry, model_by_id  # noqa: E402
 
 COMPUTATION_OPS = {"proxy_ratio", "proxy_entropy"}
 
@@ -39,14 +40,26 @@ class TestManifestConformance(unittest.TestCase):
                     verwacht = "computation" if op in COMPUTATION_OPS else "retrieval"
                     self.assertEqual(t["tool"]["class"], verwacht, t["id"])
 
-    def test_tool_ref_komt_overeen_met_servicerefs(self):
+    def test_tool_ref_komt_overeen_met_binding_en_modelregister(self):
+        models = load_model_registry(ROOT / "modelregister.json")
         for ph in self.manifest["phases"]:
             for t in (ph.get("tasks") or []):
                 if t.get("from") != "register:minigim-lijst" or "tool" not in t:
                     continue
                 b = self.reg.binding(t["id"])
-                verwacht_ref = ",".join(b.get("serviceRefs") or []) or "run-input"
-                self.assertEqual(t["tool"]["ref"], verwacht_ref, t["id"])
+                if t["tool"]["class"] == "computation":
+                    self.assertEqual(t["tool"]["ref"], "model:minigim-proxy-derivaties", t["id"])
+                else:
+                    verwacht_ref = ",".join(b.get("serviceRefs") or []) or "run-input"
+                    self.assertEqual(t["tool"]["ref"], verwacht_ref, t["id"])
+
+    def test_alle_modelrefs_resolven_in_het_modelregister(self):
+        models = load_model_registry(ROOT / "modelregister.json")
+        for ph in self.manifest["phases"]:
+            for t in (ph.get("tasks") or []):
+                ref = (t.get("tool") or {}).get("ref") or ""
+                if ref.startswith("model:"):
+                    model_by_id(models, ref[len("model:"):])
 
     def test_manual_heeft_altijd_pointer(self):
         for ph in self.manifest["phases"]:
