@@ -112,3 +112,25 @@ def test_unknown_poc_raises():
 
     with pytest.raises(KeyError):
         run_poc_live("crosstrack")  # bewust buiten scope (gebruikersbesluit)
+
+
+def test_minigim_live_journaliseert_fase_en_gate(live_env):
+    from tools import poc_live as pl
+
+    live_env["monkeypatch"].setattr(
+        pl.subprocess, "run",
+        live_env["fake_engine"]({
+            "20260101T000000Z-minigim-gebiedscheck/report.html": "<html>r</html>",
+            "20260101T000000Z-minigim-gebiedscheck/run_summary.json": json.dumps(
+                {"verdict": "pass", "label": "pilot"}),
+        }))
+    out = pl.run_minigim_live()
+    assert out["poc"] == "minigim"
+    events = live_env["events"]
+    fases = [e[3]["fase"] for e in events if e[0] == "fase"]
+    assert fases == ["F0-intake", "F1-omgevingsanalyse", "F2-gebiedsindeling",
+                     "F3-doorrekening", "F4-synthese"]
+    gates = [e for e in events if e[0] == "gate"]
+    assert len(gates) == 1 and gates[0][3]["verdict"] == "pass"
+    # de bestaande tool_result-regel met de viz-referentie blijft bestaan
+    assert any(e[0] == "tool_result" and e[3].get("viz") for e in events)

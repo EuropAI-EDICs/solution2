@@ -22,6 +22,7 @@ from tools.breda import run_breda_scan
 from tools.poc_live import run_eindhoven_live, run_minigim_live, run_rijnland_live
 from tools.crosstrack import run_crosstrack_overlay
 from tools.validate import validate_world_scene
+from fase_slotgate import apply_slotgate, load_manifest  # noqa: E402
 
 PROMPTS_DIR = Path(__file__).resolve().parent / "prompts" / "poc"
 ROLE_PROMPTS_DIR = Path(__file__).resolve().parent / "prompts" / "roles"
@@ -191,7 +192,14 @@ def poc_subagents(mcp_tools: list | None = None) -> list[dict[str, Any]]:
     poc_base = mcp_catalog or [list_recipes, get_recipe]
     poc_specs = [spec_to_subagent(spec, PROMPTS_DIR, poc_base) for spec in POC_AGENTS]
     role_specs = [spec_to_subagent(spec, ROLE_PROMPTS_DIR, spec["tools"]) for spec in ROLE_AGENTS]
-    return poc_specs + role_specs
+    specs = poc_specs + role_specs
+    # M3 slotgate: het fase-manifest stuurt de toolsets van de agenten die
+    # het noemt; zonder manifest (andere PoC's) ongewijzigd.
+    manifest = load_manifest()
+    if manifest is not None:
+        specs = apply_slotgate(specs, manifest,
+                               poc_agent_names={s["name"] for s in POC_AGENTS})
+    return specs
 
 
 def roster() -> list[dict[str, str]]:

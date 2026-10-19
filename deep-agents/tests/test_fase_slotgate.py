@@ -104,3 +104,38 @@ def test_journal_zonder_run_summary_is_stil(monkeypatch, tmp_path):
                         lambda kind, agent, summary, **kw: events.append((kind, agent, summary, kw)))
     fs.journal_fases_en_gate("minigim", tmp_path)  # geen run_summary.json
     assert events == []
+
+
+# ---- wiring (taak 2): poc_subagents past de slotgate toe ----
+
+from pocs import poc_subagents  # noqa: E402
+
+
+def test_poc_subagents_minigim_heeft_fase_en_catalog_tools():
+    specs = {s["name"]: s for s in poc_subagents(mcp_tools=None)}
+    minigim = _names(specs["minigim"]["tools"])
+    assert {"list_recipes", "get_recipe", "run_minigim_live"} <= minigim
+    assert "submit_request" not in minigim and "validate_world_scene" not in minigim
+
+
+def test_poc_subagents_agent_buiten_zijn_fase_heeft_geen_tools():
+    specs = {s["name"]: s for s in poc_subagents(mcp_tools=None)}
+    assert "run_minigim_live" not in _names(specs["intake"]["tools"])
+    assert "run_minigim_live" not in _names(specs["geospecialist"]["tools"])
+    assert _names(specs["critic"]["tools"]) == {"validate_world_scene"}
+    assert _names(specs["explainer"]["tools"]) == {"get_provenance", "crosscheck_formal_rule"}
+
+
+def test_poc_subagents_agenten_buiten_manifest_ongewijzigd():
+    specs = {s["name"]: s for s in poc_subagents(mcp_tools=None)}
+    assert "run_world_scene" in _names(specs["utrecht"]["tools"])
+    assert "run_breda_scan" in _names(specs["breda"]["tools"])
+    assert _names(specs["normspecialist"]["tools"]) == {"search_norms", "submit_norm_cards"}
+
+
+def test_poc_subagents_mcp_catalog_komt_door_de_slotgate():
+    specs = {s["name"]: s for s in poc_subagents(mcp_tools=[
+        FakeTool("search_records"), FakeTool("get_record"), FakeTool("run_opportunity_map")])}
+    minigim = _names(specs["minigim"]["tools"])
+    assert {"search_records", "get_record", "run_minigim_live"} <= minigim
+    assert "list_recipes" not in minigim

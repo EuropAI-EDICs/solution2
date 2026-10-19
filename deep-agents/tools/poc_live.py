@@ -25,6 +25,8 @@ from typing import Any, Callable
 
 import journal
 
+from fase_slotgate import journal_fases_en_gate  # noqa: E402
+
 HERE = Path(__file__).resolve().parents[1]          # deep-agents/
 REPO_ROOT = HERE.parent
 RUNS_DIR = HERE / "runs"
@@ -158,6 +160,10 @@ def run_poc_live(poc: str) -> dict:
         f"live panel built: {spec['title']} — paneel staat klaar",
         viz={"kind": f"{poc}-viz", "runId": rid, "poc": poc},
     )
+    # M3: manifest-fasen + gate-verdict journaal (no-op voor PoC's zonder manifest)
+    run_dirs = sorted(work.glob("*/run_summary.json"))
+    if run_dirs:
+        journal_fases_en_gate(poc, run_dirs[-1].parent)
     return {
         "runId": rid, "poc": poc, "verdictOf": cards[0]["lines"][0] if cards else "",
         "dashboard": "Het paneel (kaart/rapport + kaarten) staat in het rechtervlak.",
