@@ -139,3 +139,58 @@ def test_poc_subagents_mcp_catalog_komt_door_de_slotgate():
     minigim = _names(specs["minigim"]["tools"])
     assert {"search_records", "get_record", "run_minigim_live"} <= minigim
     assert "list_recipes" not in minigim
+
+
+def test_nspd_rollen_resolven_via_aliassen():
+    manifest = {"poc": "nspd", "methodiek": "m", "phases": [
+        {"id": "F1-normanalyse", "title": "N", "agent": {"role": "normspecialist"},
+         "tasks": [{"id": "t1", "binding": "auto",
+                    "tool": {"class": "retrieval", "ref": "r"}}]},
+        {"id": "F2-formalisering", "title": "F", "agent": {"role": "formalizer"},
+         "tasks": [{"id": "t2", "binding": "auto",
+                    "tool": {"class": "computation", "ref": "r"}}]},
+    ]}
+    out = fs.resolve_agent_phases(manifest)
+    assert out["normspecialist"] == ["F1-normanalyse"]
+    assert out["formalizer"] == ["F2-formalisering"]
+
+
+def test_poc_subagents_roept_de_slotgate_aan(monkeypatch):
+    """De wiring-zelf is getest: als iemand apply_slotgate uit poc_subagents
+    verwijdert, faalt deze test (M4-eindreview, restant 4)."""
+    import pocs
+
+    aangeroepen = {}
+    origineel = pocs.apply_slotgate
+
+    def spy(specs, manifest, poc_agent_names):
+        aangeroepen["n"] = aangeroepen.get("n", 0) + 1
+        aangeroepen["poc"] = tuple(sorted(poc_agent_names))
+        return origineel(specs, manifest, poc_agent_names)
+
+    monkeypatch.setattr(pocs, "apply_slotgate", spy)
+    pocs.poc_subagents(mcp_tools=None)
+    assert aangeroepen.get("n") == 1
+    assert "minigim" in aangeroepen["poc"]
+
+
+def test_journal_gate_fase_uit_het_manifest(monkeypatch, tmp_path):
+    """De gate-journal-regel gebruikt de laatste manifest-fase, geen hardcode."""
+    manifest = fs.load_manifest("minigim")
+    assert manifest["phases"][-1]["id"] == "F4-synthese"  # zelfde waarde, nu afgeleid
+    events = []
+    monkeypatch.setattr(fs.journal, "append",
+                        lambda kind, agent, summary, **kw: events.append((kind, agent, summary, kw)))
+    (tmp_path / "run_summary.json").write_text(json.dumps({"verdict": "pass"}), encoding="utf-8")
+    fs.journal_fases_en_gate("minigim", tmp_path)
+    gates = [e for e in events if e[0] == "gate"]
+    assert gates[0][3]["fase"] == manifest["phases"][-1]["id"]
+
+
+def test_journal_corrupt_json_is_stil(monkeypatch, tmp_path):
+    events = []
+    monkeypatch.setattr(fs.journal, "append",
+                        lambda kind, agent, summary, **kw: events.append((kind, agent, summary, kw)))
+    (tmp_path / "run_summary.json").write_bytes(b"\xff\xfe\x00invalid")
+    fs.journal_fases_en_gate("minigim", tmp_path)  # UnicodeDecodeError ⊂ ValueError
+    assert events == []

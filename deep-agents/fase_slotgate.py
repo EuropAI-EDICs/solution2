@@ -31,6 +31,8 @@ MANIFEST_PATHS = {
 ROLE_ALIASES = {
     "intake": "intake",
     "minigim-specialist": "minigim",
+    "normspecialist": "normspecialist",
+    "formalizer": "formalizer",
     "geospecialist": "geospecialist",
     "critic": "critic",
     "explainer": "explainer",
@@ -137,13 +139,14 @@ def journal_fases_en_gate(poc: str, run_dir: Path) -> None:
         return
     try:
         summary = json.loads((run_dir / "run_summary.json").read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+    except (OSError, ValueError):  # incl. JSONDecodeError/UnicodeDecodeError
         return
     verdict = summary.get("verdict", "onbekend")
     for ph in manifest["phases"]:
         journal.append("fase", poc,
                        f"{ph['id']}: {ph['title']} — agent {ph['agent']['role']}",
                        fase=ph["id"])
+    laatste_fase = manifest["phases"][-1]["id"]
     journal.append("gate", poc,
                    f"verdict: {verdict} (V0–V3 deterministisch; V4 pending)",
-                   fase="F4-synthese", verdict=verdict)
+                   fase=laatste_fase, verdict=verdict)
