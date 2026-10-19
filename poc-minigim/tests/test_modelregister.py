@@ -34,7 +34,7 @@ class TestModelRegister(unittest.TestCase):
                 if ref.startswith("model:"):
                     model_by_id(self.reg, ref[len("model:"):])
                     gevonden += 1
-        self.assertGreaterEqual(gevonden, 3, "manifest koppelt minder dan 3 model-refs")
+        self.assertEqual(gevonden, 6, "manifest koppelt niet exact 6 model-refs")
 
     def test_processes_transport_bestaat_in_de_process_adapter(self):
         m = model_by_id(self.reg, "minigim-gebiedscheck-run")
@@ -57,6 +57,17 @@ class TestModelRegister(unittest.TestCase):
         m = model_by_id(self.reg, "minigim-gebiedscheck-run")
         recipe = json.loads((REPO / "nldt" / "recipes" / "minigim-gebiedscheck.json").read_text(encoding="utf-8"))
         self.assertEqual(m["riskLevel"], recipe["riskLevel"])
+
+    def test_fase2haak_entries_zijn_gemarkeerd_en_vrijgesteld(self):
+        for m in self.reg["models"]:
+            if m.get("status") == "fase-2-haak":
+                self.assertIn("fase-2", m["prov"]["note"], m["id"])
+        haak_ids = {m["id"] for m in self.reg["models"] if m.get("status") == "fase-2-haak"}
+        self.assertEqual(haak_ids, {"grex-financien", "ifc-export"})
+
+    def test_actieve_entries_blijven_bewezen(self):
+        actief = [m for m in self.reg["models"] if m.get("status", "actief") == "actief"]
+        self.assertIn("minigim-gebiedscheck-run", [m["id"] for m in actief])
 
 
 if __name__ == "__main__":

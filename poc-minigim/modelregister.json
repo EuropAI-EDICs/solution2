@@ -37,6 +37,26 @@
    "version": "1.0.0",
    "prov": {"note": "in-process: minigim/checklist.py proxy-ops; proxyNote verplicht per item"},
    "transports": [{"type": "in-process", "ops": ["proxy_ratio", "proxy_entropy"], "ref": "run-input"}]
+  },
+  {
+   "id": "grex-financien",
+   "title": "GREX financi\u00eble doorrekening per gebiedsdeel (MiniGIM fase 2)",
+   "class": "computation",
+   "status": "fase-2-haak",
+   "riskLevel": "medium",
+   "version": "fase-2",
+   "prov": {"note": "fase-2-haak uit docs/MINIGIM.md: join op ilsNodeId; transportintentie a2a (Agent Card) zodra GREX ontsloten is \u2014 nog geen bestaandbewijs, vandaar status"},
+   "transports": [{"type": "a2a", "catalogRef": "fase-2-haak: GREX-tabellen (niet ontsloten)", "agentId": "grex"}]
+  },
+  {
+   "id": "ifc-export",
+   "title": "IFC-export van de ILS-draft (IfcOpenShell, spatial structure per nodePath)",
+   "class": "computation",
+   "status": "fase-2-haak",
+   "riskLevel": "low",
+   "version": "fase-2",
+   "prov": {"note": "fase-2-haak: ils-draft.features.28992.geojson draagt ilsNodeId/ifcExportAs/epsetMinigim; transportintentie in-process (tool) \u2014 nog niet ge\u00efmplementeerd"},
+   "transports": [{"type": "in-process", "ref": "haak:minigim/ils.py#write", "note": "intentie, nog niet gebouwd"}]
   }
  ]
 }

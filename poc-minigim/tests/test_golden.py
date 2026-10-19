@@ -6,6 +6,7 @@ aan breken. Canon-regels identiek aan tools/capture_golden.py.
 
 from __future__ import annotations
 
+import json
 import sys
 import tempfile
 import unittest
@@ -29,6 +30,16 @@ class TestGoldenReproductie(unittest.TestCase):
                 expected = (GOLDEN / name).read_text(encoding="utf-8")
                 actual = (canon_dir / name).read_text(encoding="utf-8")
                 self.assertEqual(actual, expected, f"artefact wijkt af: {name}")
+
+            from minigim.canon import fase_samenvatting
+            from fundament.manifest import load_manifest
+
+            manifest = load_manifest(ROOT / "fase-manifest.json")
+            docs = json.loads((canon_dir / "omgevingsanalyse.json").read_text(encoding="utf-8"))
+            sam = fase_samenvatting(manifest, docs["items"])
+            verwacht = json.loads((GOLDEN / "fase-samenvatting.json").read_text(encoding="utf-8"))
+            self.assertEqual(sam, verwacht, "fase-samenvatting wijkt af")
+
             exp_layers = sorted(p.name[8:] for p in GOLDEN.glob("layers__*"))
             act_layers = sorted(p.name for p in (run_dir / "layers").glob("*.geojson"))
             self.assertEqual(act_layers, exp_layers, "lagen-set wijkt af")

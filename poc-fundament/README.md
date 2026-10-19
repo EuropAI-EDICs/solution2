@@ -18,6 +18,16 @@ faal-isolatie, PROV, deterministisch — zie
 | `fundament/matrix.py` | matrix → markdown (declaratief + per-run uitkomst) |
 | `fundament/models.py` | modelregister-loader (BB13-patroon): computation-modellen + transports, schema-gevalideerd; conformance bewijst transport-bestaan |
 
+## Matrix van de eerste pilot (minigim)
+
+| fase | agent | tools | taken | bindingen | gate |
+|---|---|---|---|---|---|
+| F0-intake — Intake/scoping | intake (LLM) | validation | 1 | 1 auto | V0 |
+| F1-omgevingsanalyse — Omgevingsanalyse (informatie ophalen) | minigim-specialist | retrieval | 69 | 14 auto, 10 partial, 45 manual | V0, V2 |
+| F2-gebiedsindeling — ILS-draft gebiedsindeling | geospecialist | computation | 1 | 1 auto | V1 HITL: draft-keuze (v4 pending by design) |
+| F3-doorrekening — Doorrekening (rekenmodel aanroepen) | minigim-specialist | computation | 5 | 5 partial | V3 |
+| F4-synthese — Synthese & rapport | critic + explainer | validation, report | 2 | 2 auto | V0, V1, V2, V3 HITL: v4 (mens) pending |
+
 ## Hoe een PoC het gebruikt
 
 1. **Registries**: taken (checklist), bindings en bronnen in eigen `registry/`/`data/` (gepinde JSON).
@@ -30,6 +40,10 @@ faal-isolatie, PROV, deterministisch — zie
 - `fundament` importeert nooit `deep-agents`, `nldt` of een poc-package (getest in `tests/test_deps.py`).
 - Getallen komen uit ops, nooit uit een LLM; een falende bron is `not-delivered` + risicovlag.
 - Cache-first: her-runs zijn offline reproduceerbaar; cache-bestanden zijn uitwisselbaar tussen PoC's die dezelfde bron pinnen.
+- **Import-brug:** consumenten zonder package-bootstrap voegen het fundament toe met
+  `sys.path.append(str(REPO_ROOT / "poc-fundament"))` — append, nooit insert(0)
+  (insert schaduwt lokale `tests`-packages onder unittest-discovery; M2-les).
+  Zie `poc-nspd/tools/gen_fase_manifest.py` als voorbeeld.
 
 Eerste consument: `poc-minigim` (PoC-5) — canonisch identiek bewezen in M2 (golden-test + live-vergelijker; volatile run-meta uitgezonderd, lagen byte-gelijkg).
 Vervolg (eigen plannen): M3 slotgates in deep-agents, M4 transport-bruggen

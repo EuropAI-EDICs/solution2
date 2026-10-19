@@ -74,6 +74,12 @@ gegeneraliseerd voor de volgende PoC's — bewezen canonisch identiek (M2; volat
 
 ## Fase-2-haken (bewust buiten scope)
 
+De GREX- en IFC-export-haken zijn sinds M4/M5 modelregister-entries met
+`status: "fase-2-haak"` (`poc-minigim/modelregister.json`) — geregistreerd als
+intentie, bewust zonder transport-bestaanbewijs; de bron-haken (BRK-eigendom,
+AHN/3D, bestemmingsplan/RO-online) horen bij het bronregister en blijven
+`manualPointer`s in de Lijst-bindingen.
+
 | fase-2 wens | haak in de code |
 |---|---|
 | **IFC-export** van de ILS-draft | `ils-draft.features.28992.geojson` draagt per feature `ilsNodeId`, `ifcExportAs` en `epsetMinigim` — een IfcOpenShell-stap kan hier direct op bouwen (spatial structure per nodePath, IfcTypeProduct per IfcExportAs) |

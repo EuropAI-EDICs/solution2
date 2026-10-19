@@ -23,7 +23,8 @@ sys.path.insert(0, str(ROOT))
 
 import run as runmod  # noqa: E402
 from minigim import checklist as clmod  # noqa: E402
-from minigim.canon import ARTIFACTS, canon  # noqa: E402
+from minigim.canon import ARTIFACTS, canon, fase_samenvatting  # noqa: E402
+from fundament.manifest import load_manifest  # noqa: E402  (bootstrap via minigim)
 
 from tests import fixtures  # noqa: E402
 
@@ -52,6 +53,11 @@ def main() -> None:
             (GOLDEN / name).write_text(
                 json.dumps(canon(doc), ensure_ascii=False, indent=1, sort_keys=True) + "\n",
                 encoding="utf-8")
+        manifest = load_manifest(ROOT / "fase-manifest.json")
+        items = json.loads((run_dir / "omgevingsanalyse.json").read_text(encoding="utf-8"))["items"]
+        (GOLDEN / "fase-samenvatting.json").write_text(
+            json.dumps(fase_samenvatting(manifest, items), ensure_ascii=False, indent=1,
+                       sort_keys=True) + "\n", encoding="utf-8")
         for lf in sorted((run_dir / "layers").glob("*.geojson")):
             (GOLDEN / f"layers__{lf.name}").write_text(lf.read_text(encoding="utf-8"),
                                                        encoding="utf-8")
