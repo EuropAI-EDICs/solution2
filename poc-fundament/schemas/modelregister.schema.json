@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldt-toolbox/schemas/modelregister.schema.json",
+  "title": "Modelregister: computation-modellen met transports, risico en versie-pinnen",
+  "type": "object",
+  "required": ["poc", "models"],
+  "additionalProperties": false,
+  "properties": {
+    "poc": { "type": "string", "minLength": 1 },
+    "models": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/model" } }
+  },
+  "$defs": {
+    "transport": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "enum": ["processes", "a2a", "mcp", "in-process"] },
+        "processId": { "type": "string" },
+        "handler": { "type": "string" },
+        "catalogRef": { "type": "string" },
+        "agentId": { "type": "string" },
+        "port": { "type": "integer" },
+        "agentSkill": { "type": "string" },
+        "ref": { "type": "string" },
+        "ops": { "type": "array", "items": { "type": "string" } },
+        "note": { "type": "string" }
+      },
+      "allOf": [
+        { "if": { "properties": { "type": { "const": "processes" } } },
+          "then": { "required": ["processId"] } },
+        { "if": { "properties": { "type": { "const": "a2a" } } },
+          "then": { "required": ["catalogRef", "agentId"] } }
+      ]
+    },
+    "model": {
+      "type": "object",
+      "required": ["id", "title", "class", "riskLevel", "version", "transports"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "title": { "type": "string", "minLength": 1 },
+        "class": { "const": "computation" },
+        "riskLevel": { "enum": ["low", "medium", "high"] },
+        "version": { "type": "string", "minLength": 1 },
+        "sourceVersion": { "type": "object" },
+        "prov": { "type": "object" },
+        "transports": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/transport" } }
+      }
+    }
+  }
+}

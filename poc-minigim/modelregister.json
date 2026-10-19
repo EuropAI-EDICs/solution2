@@ -1,0 +1,42 @@
+{
+ "poc": "minigim-gebiedscheck",
+ "models": [
+  {
+   "id": "minigim-gebiedscheck-run",
+   "title": "MiniGIM gebiedscheck (74-item Lijst v0.91 + ILS v0.8 draft)",
+   "class": "computation",
+   "riskLevel": "low",
+   "version": "1.0.0",
+   "sourceVersion": {"lijst": "v0.91", "ils": "v0.8"},
+   "prov": {
+    "recipe": "nldt/recipes/minigim-gebiedscheck.json",
+    "handler": "nldt/services/process_adapter/poc_handlers.py::execute_minigim_gebiedscheck_run",
+    "note": "deterministisch; PROV via runs/<rid>/prov.json (register-sha256 + per-laag fetch-manifesten); V4 pending by design"
+   },
+   "transports": [
+    {"type": "processes", "processId": "minigim-gebiedscheck-run",
+     "handler": "nldt/services/process_adapter/poc_handlers.py"},
+    {"type": "a2a", "catalogRef": "a2a-simulation/catalog/poc-agents.json",
+     "agentId": "minigim", "port": 9186, "agentSkill": "minigim-gebiedscheck"}
+   ]
+  },
+  {
+   "id": "minigim-ils-classificatie",
+   "title": "ILS draft-gebiedsindeling (niveaus 0–3, IfcExportAs, EPset_minigim)",
+   "class": "computation",
+   "riskLevel": "low",
+   "version": "v0.8",
+   "prov": {"note": "in-process: minigim/ils.py IlsDraftBuilder; draft=true, v4 pending"},
+   "transports": [{"type": "in-process", "ref": "register:minigim-ils"}]
+  },
+  {
+   "id": "minigim-proxy-derivaties",
+   "title": "Proxy-berekeningen (fsi/gsi/mxi-proxy, CBS oppervlaktegewogen, entropy)",
+   "class": "computation",
+   "riskLevel": "low",
+   "version": "1.0.0",
+   "prov": {"note": "in-process: minigim/checklist.py proxy-ops; proxyNote verplicht per item"},
+   "transports": [{"type": "in-process", "ops": ["proxy_ratio", "proxy_entropy"], "ref": "run-input"}]
+  }
+ ]
+}

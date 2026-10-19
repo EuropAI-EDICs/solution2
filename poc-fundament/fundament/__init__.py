@@ -8,3 +8,4 @@ from .manifest import ManifestError, load_manifest  # noqa: F401
 from .registers import TaskRegistry  # noqa: F401
 from .executor import BindingExecutor  # noqa: F401
 from .ops import DEFAULT_OPS  # noqa: F401
+from .models import ModelRegistryError, load_model_registry, model_by_id  # noqa: F401
