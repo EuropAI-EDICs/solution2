@@ -226,8 +226,15 @@ def _formalize_one(
             "source": "formalrule",
         }
 
+    # Eindhoven: doel/bron limiet-templates + sterk-kennisbank equivalentie
+    if poc == "eindhoven":
+        from eindhoven_templates import try_formalize_eindhoven
+
+        eh = try_formalize_eindhoven(article, alignment)
+        if eh is not None:
+            return eh  # type: ignore[return-value]
+
     if cards or omzet or (alignment.get("bronRegels") or alignment.get("doelRegels")):
-        # Empty template registry in v1 → unmatched (text-only, same as abstention)
         return {
             "number": number,
             "status": "unmatched",

@@ -121,6 +121,64 @@ class TestFormalizer(unittest.TestCase):
         )
 
 
+class TestEindhovenTemplates(unittest.TestCase):
+    def test_bouwhoogte_article_formalized(self):
+        from align_evidence import align
+        from formalize_to_rr import formalize
+
+        arts = split_instrument("eindhoven")
+        al, orphans = align("eindhoven", arts)
+        by_num, _ = formalize("eindhoven", arts, al, orphans)
+        self.assertEqual(by_num["6.19"]["status"], "formalized")
+        mr = by_num["6.19"]["machineReadable"]
+        self.assertIsNotNone(mr)
+        self.assertIn("bouwhoogte_m", str(mr))
+        self.assertEqual(by_num["6.19"]["source"], "eindhoven-doel-template")
+
+    def test_verbod_article_formalized(self):
+        from align_evidence import align
+        from formalize_to_rr import formalize
+
+        arts = split_instrument("eindhoven")
+        al, orphans = align("eindhoven", arts)
+        by_num, _ = formalize("eindhoven", arts, al, orphans)
+        self.assertEqual(by_num["3.13"]["status"], "formalized")
+        self.assertIn("activiteit_valt_onder_verbod", str(by_num["3.13"]["machineReadable"]))
+
+    def test_sterk_omzet_gives_equivalentie(self):
+        from align_evidence import align
+        from formalize_to_rr import formalize
+
+        arts = split_instrument("eindhoven")
+        al, orphans = align("eindhoven", arts)
+        by_num, _ = formalize("eindhoven", arts, al, orphans)
+        # 22.1 is smoke-linked via OT-001; bron side should get template or smoke path.
+        # Doel 1.5 is a classic kennisbank "komt in de plaats van" pair (KB).
+        self.assertEqual(by_num["1.5"]["status"], "formalized")
+        self.assertIn("equivalentie", by_num["1.5"]["source"])
+
+    def test_conflicting_limits_ambiguous(self):
+        from eindhoven_templates import _try_limit_or_verbod
+
+        text = (
+            "De maximum bouwhoogte bedraagt 5 m. "
+            "In afwijking daarvan bedraagt de bouwhoogte maximaal 10 m."
+        )
+        hit = _try_limit_or_verbod(text, "9.99", source="test")
+        self.assertIsNotNone(hit)
+        self.assertEqual(hit["status"], "ambiguous")
+        self.assertIsNone(hit["machineReadable"])
+
+    def test_eindhoven_formalized_coverage_at_least_50(self):
+        from align_evidence import align
+        from formalize_to_rr import formalize
+
+        arts = split_instrument("eindhoven")
+        al, orphans = align("eindhoven", arts)
+        _, report = formalize("eindhoven", arts, al, orphans)
+        self.assertGreaterEqual(report["counts"]["formalized"], 50)
+
+
 class TestWriter(unittest.TestCase):
     def test_yaml_schema_valid_and_53_has_mr(self):
         import yaml
