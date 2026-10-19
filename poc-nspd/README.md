@@ -125,6 +125,15 @@ AOI: NSPD-bbox 3.45–3.88°E / 51.02–51.48°N (`bbox.py`), gesplitst op 3.73�
 NL- en BE-helft (`use-cases/make_aoi.py`, EPSG:28992). Leia-submodule `viewer/` (MIT,
 onaangetast) gepind op commit `73510022e708bc1042a4fd0e88cec27e4857434d`.
 
+## Fase-manifest (MiniGIM-harnas, tweede pilot)
+
+`fase-manifest.json` (82 taken, 5 fasen) verklaart NSPD's methodiek in de
+toolbox-conventie: per fase agent, tools (retrieval/computation) en gates —
+afgeleid uit het corpus (26 land×track-paren) via
+`tools/gen_fase_manifest.py`, geconformeerd tegen het fundament
+(`tests/test_fase_manifest_conformance.py`). Leesbare matrix:
+`tools/render_matrix.py` → `fase-matrix.md`. De engine (hierna) is onaangetast.
+
 ## Architectuur
 
 ```

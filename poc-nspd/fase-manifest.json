@@ -1,0 +1,1168 @@
+{
+ "poc": "nspd-tracks",
+ "methodiek": "nspd-tracks-v2.0",
+ "aoi": {
+  "schema": "geojson",
+  "crs": "EPSG:28992"
+ },
+ "phases": [
+  {
+   "id": "F0-intake",
+   "title": "Intake/scoping (use-case + AOI)",
+   "agent": {
+    "role": "intake"
+   },
+   "tasks": [
+    {
+     "id": "use-case-aoi",
+     "from": "use-cases:make_aoi",
+     "binding": "auto",
+     "tool": {
+      "class": "validation",
+      "ref": "use-cases:make_aoi",
+      "transport": "in-process"
+     }
+    }
+   ],
+   "gate": {
+    "validate": [
+     "V0"
+    ]
+   }
+  },
+  {
+   "id": "F1-normanalyse",
+   "title": "Normanalyse (cite-or-abstain)",
+   "agent": {
+    "role": "normspecialist"
+   },
+   "tasks": [
+    {
+     "id": "normcards-be-biomassa",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-be-biomassa",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-be-bodem",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-be-bodem",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-be-bos",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-be-bos",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-be-energietoets",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-be-energietoets",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-be-landbouw",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-be-landbouw",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-be-landschap",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-be-landschap",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-be-mobiliteit",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-be-mobiliteit",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-be-recreatie",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-be-recreatie",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-be-water",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-be-water",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-be-werken",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-be-werken",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-be-wind",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-be-wind",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-be-wonen",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-be-wonen",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-be-zon",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-be-zon",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-nl-biomassa",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-nl-biomassa",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-nl-bodem",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-nl-bodem",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-nl-bos",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-nl-bos",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-nl-energietoets",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-nl-energietoets",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-nl-landbouw",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-nl-landbouw",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-nl-landschap",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-nl-landschap",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-nl-mobiliteit",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-nl-mobiliteit",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-nl-recreatie",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-nl-recreatie",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-nl-water",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-nl-water",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-nl-werken",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-nl-werken",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-nl-wind",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-nl-wind",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-nl-wonen",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-nl-wonen",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    },
+    {
+     "id": "normcards-nl-zon",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "retrieval",
+      "ref": "corpus:normcards-nl-zon",
+      "transport": "in-process",
+      "derive": [
+       "cite-or-abstain"
+      ]
+     }
+    }
+   ],
+   "gate": {
+    "validate": [
+     "V0",
+     "V2"
+    ],
+    "onFail": "cite-or-abstain"
+   }
+  },
+  {
+   "id": "F2-formalisering",
+   "title": "Formalisering (FormalRules, V2b-gate)",
+   "agent": {
+    "role": "formalizer"
+   },
+   "tasks": [
+    {
+     "id": "formal-rules-be-biomassa",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-be-biomassa",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-be-bodem",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-be-bodem",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-be-bos",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-be-bos",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-be-energietoets",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-be-energietoets",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-be-landbouw",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-be-landbouw",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-be-landschap",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-be-landschap",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-be-mobiliteit",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-be-mobiliteit",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-be-recreatie",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-be-recreatie",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-be-water",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-be-water",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-be-werken",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-be-werken",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-be-wind",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-be-wind",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-be-wonen",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-be-wonen",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-be-zon",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-be-zon",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-nl-biomassa",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-nl-biomassa",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-nl-bodem",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-nl-bodem",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-nl-bos",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-nl-bos",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-nl-energietoets",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-nl-energietoets",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-nl-landbouw",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-nl-landbouw",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-nl-landschap",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-nl-landschap",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-nl-mobiliteit",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-nl-mobiliteit",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-nl-recreatie",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-nl-recreatie",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-nl-water",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-nl-water",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-nl-werken",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-nl-werken",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-nl-wind",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-nl-wind",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-nl-wonen",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-nl-wonen",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    },
+    {
+     "id": "formal-rules-nl-zon",
+     "from": "register:nspd-corpus",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "corpus:formal-rules-nl-zon",
+      "transport": "in-process",
+      "derive": [
+       "v2b-jurisdictie-gate"
+      ]
+     }
+    }
+   ],
+   "gate": {
+    "validate": [
+     "V2"
+    ],
+    "onFail": "formal-rule geweigerd (ledger)"
+   }
+  },
+  {
+   "id": "F3-geodoorrekening",
+   "title": "Geodoorrekening (zone-algebra, cache-first)",
+   "agent": {
+    "role": "geospecialist"
+   },
+   "tasks": [
+    {
+     "id": "zones-biomassa-be",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-bodem-be",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-bos-be",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-energietoets-be",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-landbouw-be",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-landschap-be",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-mobiliteit-be",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-recreatie-be",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-water-be",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-werken-be",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-wind-be",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-wonen-be",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-zon-be",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-biomassa-nl",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-bodem-nl",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-bos-nl",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-energietoets-nl",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-landbouw-nl",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-landschap-nl",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-mobiliteit-nl",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-recreatie-nl",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-water-nl",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-werken-nl",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-wind-nl",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-wonen-nl",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    },
+    {
+     "id": "zones-zon-nl",
+     "from": "register:nspd-bronnen",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "run:nspd-zone-engine",
+      "transport": "in-process",
+      "derive": [
+       "zone-algebra",
+       "fr-aoi-01"
+      ]
+     }
+    }
+   ],
+   "gate": {
+    "validate": [
+     "V1",
+     "V3"
+    ]
+   }
+  },
+  {
+   "id": "F4-synthese",
+   "title": "Synthese & rapport (xborder-merge, Leia)",
+   "agent": {
+    "role": "critic + explainer"
+   },
+   "tasks": [
+    {
+     "id": "v0-v3-verdict",
+     "from": "run-input",
+     "binding": "auto",
+     "tool": {
+      "class": "validation",
+      "ref": "fundament:validate",
+      "transport": "in-process"
+     }
+    },
+    {
+     "id": "xborder-merge",
+     "from": "pipeline:xborder",
+     "binding": "auto",
+     "tool": {
+      "class": "computation",
+      "ref": "pipeline:xborder",
+      "transport": "in-process"
+     }
+    },
+    {
+     "id": "rapport",
+     "from": "run-input",
+     "binding": "auto",
+     "tool": {
+      "class": "report",
+      "ref": "nspd:report",
+      "transport": "in-process"
+     }
+    }
+   ],
+   "gate": {
+    "validate": [
+     "V0",
+     "V1",
+     "V2",
+     "V3"
+    ],
+    "hitl": "v4 (mens) pending"
+   }
+  }
+ ]
+}
