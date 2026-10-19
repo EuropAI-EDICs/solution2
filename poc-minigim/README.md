@@ -52,6 +52,10 @@ from services.process_adapter.poc_handlers import execute_minigim_gebiedscheck_r
 print(execute_minigim_gebiedscheck_run({'mode': 'replay'}))"
 ```
 
+Beide transports van het geregistreerde model bewijzen (replay + catalog-check):
+
+    cd poc-minigim && PYTHONPATH=$PWD/../nldt ../nldt/.venv/bin/python tools/verify_transports.py
+
 De generieke mechaniek (fetch, derivaties, binding-executor) staat sinds M2 in
 [`poc-fundament/`](../poc-fundament/README.md); deze PoC levert de MiniGIM-bindings,
 de proxy-ops en de rapportage. Het bewijs dat de migratie niets veranderde:
@@ -127,6 +131,8 @@ poc-minigim/
 │                     (registry = TaskRegistry-subclass, checklist = BindingExecutor-
 │                     subclass + proxy-ops, fetch = compat-shim, ils, report, validate)
 ├── fase-manifest.json  agent–fase–tool matrix (gegenereerd: tools/gen_fase_manifest.py)
+├── modelregister.json  computation-modellen + transports (processes/a2a/in-process,
+│                       riskLevel, versie-pinnen) — bewijs: tests/test_modelregister.py
 ├── tests/            offline unittest-suite (stub-fetch, deterministisch)
 └── run.py            orchestrator (runs/<ts>-minigim-gebiedscheck/)
 ```

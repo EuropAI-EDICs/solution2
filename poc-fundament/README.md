@@ -16,6 +16,7 @@ faal-isolatie, PROV, deterministisch — zie
 | `fundament/derivations.py` | pure derivatie-helpers (clip, historiefilter, statistiek, entropy) |
 | `fundament/ops.py` + `executor.py` | `BindingExecutor` + generieke ops: per taak deterministisch leveren, falen degradeert (nooit fake, nooit fataal) |
 | `fundament/matrix.py` | matrix → markdown (declaratief + per-run uitkomst) |
+| `fundament/models.py` | modelregister-loader (BB13-patroon): computation-modellen + transports, schema-gevalideerd; conformance bewijst transport-bestaan |
 
 ## Hoe een PoC het gebruikt
 
