@@ -196,7 +196,7 @@ class TestWriter(unittest.TestCase):
         doc = yaml.safe_load(path.read_text())
         schema = json.loads(
             (
-                ROOT / "nldt/simulation/regelrecht/schema/regelrecht-v0.7.1.schema.json"
+                ROOT / "nldt/simulation/regelrecht/schema/regelrecht-v0.8.11.schema.json"
             ).read_text()
         )
         Draft202012Validator(schema).validate(doc)
@@ -208,6 +208,39 @@ class TestWriter(unittest.TestCase):
         for a in doc["articles"]:
             if a["number"] in ambiguous_nums:
                 self.assertNotIn("machine_readable", a)
+
+
+class TestExecutionSoT(unittest.TestCase):
+    def test_machine_readable_is_rule_execution(self):
+        from formalize_to_rr import formal_rule_to_machine_readable
+
+        rule = {
+            "id": "FR-X-01",
+            "status": "formalized",
+            "execution": {"output": [{"name": "o"}], "actions": [{"output": "o"}]},
+        }
+        mr = formal_rule_to_machine_readable(rule, {"number": "1.2"})
+        self.assertIs(mr["execution"], rule["execution"])
+        self.assertEqual(mr["endpoint"], "art_1_2")
+        with self.assertRaises(ValueError):
+            formal_rule_to_machine_readable(
+                {"id": "FR-X-02", "status": "formalized"}, {"number": "1.2"}
+            )
+
+    def test_w03_matches_smoke_yaml(self):
+        import yaml
+        from formalize_to_rr import formal_rule_to_machine_readable
+
+        corpus = json.loads((ROOT / "poc/corpus/formalrules-wind.json").read_text())
+        rule = next(r for r in corpus if r["id"] == "FR-W-03")
+        mr = formal_rule_to_machine_readable(rule, {"number": "5.3"})
+        doc = yaml.safe_load(
+            (
+                ROOT / "docs/examples/regelrecht/omgevingsverordening-utrecht-art5.3.yaml"
+            ).read_text()
+        )
+        smoke = next(a for a in doc["articles"] if a["number"] == "5.3")["machine_readable"]
+        self.assertEqual(mr, smoke)
 
 
 class TestDemoBuild(unittest.TestCase):
@@ -227,7 +260,7 @@ class TestBuildAll(unittest.TestCase):
         import subprocess
 
         cmd = [
-            str(ROOT / "nldt/.venv/bin/python"),
+            sys.executable,
             str(FULL / "build_all.py"),
             "--stamp",
             "2026-10-14T12:00:00Z",
@@ -243,7 +276,7 @@ class TestBuildAll(unittest.TestCase):
 
         subprocess.check_call(
             [
-                str(ROOT / "nldt/.venv/bin/python"),
+                sys.executable,
                 str(ROOT / "nldt/simulation/regelrecht/build_runs.py"),
                 "--stamp",
                 "2026-10-14T12:00:00Z",
