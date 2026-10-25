@@ -367,6 +367,124 @@ class BosTrackTests(unittest.TestCase):
         self.assertEqual(rule.executableRef, "engine.procedural.human_review@poc-v1")
 
 
+class RegelRechtContractTests(unittest.TestCase):
+    """NormCard artikelkern (number/text/url) and FormalRule execution contract."""
+
+    SOURCE = {
+        "id": "S07",
+        "version": "CVDR704250, geldend van 13-10-2025 t/m heden",
+        "url": "https://lokaleregelgeving.overheid.nl/cvdr704250",
+        "retrieved_at": "2026-08-30",
+    }
+
+    def _card(self):
+        evidence = {
+            "id": "W-97",
+            "sourceId": "S07",
+            "instrument": "Omgevingsverordening provincie Utrecht (CVDR704250) - artikeltekst",
+            "article": "art. 6.4, eerste lid",
+            "quote_nl": "Geverifieerde quote die ruim lang genoeg is voor de schema-minimum.",
+            "theme": "energy:wind-test",
+            "url": "https://lokaleregelgeving.overheid.nl/cvdr704250",
+            "verified": True,
+        }
+        return NormAnalyst().read({"evidence": [evidence], "sources": {"S07": self.SOURCE}})[0]
+
+    def test_analyst_emits_number_text_url(self):
+        card = self._card()
+        self.assertEqual(card.number, "6.4")
+        self.assertEqual(card.text, card.source.quote)
+        self.assertEqual(card.url, "https://lokaleregelgeving.overheid.nl/cvdr704250")
+        card.validate()
+
+    def test_card_without_article_core_rejected(self):
+        for key in ("number", "text", "url"):
+            bad = self._card().to_dict()
+            del bad[key]
+            with self.assertRaises(contracts.ContractError, msg=key):
+                contracts.validate(bad, "norm-card")
+
+    def test_card_text_and_url_constraints(self):
+        bad = self._card().to_dict()
+        bad["text"] = "te kort"
+        with self.assertRaises(contracts.ContractError):
+            contracts.validate(bad, "norm-card")
+        bad = self._card().to_dict()
+        bad["url"] = "not a url"
+        with self.assertRaises(contracts.ContractError):
+            contracts.validate(bad, "norm-card")
+
+    def _formalized_rule(self):
+        return {
+            "id": "FR-W-97",
+            "normCardId": "NC-W-97",
+            "status": "formalized",
+            "ruleType": "zone_inclusion",
+            "zoneSemantics": "inclusion",
+            "appliesTo": {"objectType": "wind_turbine"},
+            "zoneSelector": {
+                "zoneIds": ["gebied_windenergie"],
+                "selection": "within",
+                "geometrySource": "national_source",
+            },
+            "conditions": [],
+            "execution": {
+                "parameters": [],
+                "input": [],
+                "output": [{"name": "allowed", "type": "boolean"}],
+                "actions": [{"output": "allowed", "value": True}],
+            },
+            "zoneBinding": {
+                "inputs": {
+                    "in_zone": {
+                        "zoneIds": ["gebied_windenergie"],
+                        "selection": "within",
+                        "geometrySource": "national_source",
+                    }
+                }
+            },
+            "executableRef": "engine.zone.within@poc-v1",
+            "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+            "formalizedAt": "2026-08-30",
+        }
+
+    def test_formalized_rule_with_execution_and_binding_validates(self):
+        payload = self._formalized_rule()
+        contracts.validate(payload, "formal-rule")
+        rule = contracts.FormalRule.from_dict(payload)
+        self.assertIsInstance(rule.execution, dict)
+        self.assertIsInstance(rule.zoneBinding, dict)
+        self.assertEqual(rule.to_dict(), payload)
+
+    def test_formalized_rule_requires_execution(self):
+        payload = self._formalized_rule()
+        del payload["execution"]
+        with self.assertRaises(contracts.ContractError):
+            contracts.validate(payload, "formal-rule")
+
+    def test_execution_requires_output_and_actions(self):
+        for key in ("output", "actions"):
+            payload = self._formalized_rule()
+            del payload["execution"][key]
+            with self.assertRaises(contracts.ContractError, msg=key):
+                contracts.validate(payload, "formal-rule")
+
+    def test_ambiguous_rule_needs_no_execution(self):
+        payload = {
+            "id": "FR-W-96",
+            "normCardId": "NC-W-96",
+            "status": "ambiguous",
+            "reason": "no deterministic template registered for this card",
+            "ruleType": "unsupported_claim",
+            "zoneSemantics": "none",
+            "appliesTo": {"objectType": "wind_turbine"},
+            "executableRef": "engine.procedural.human_review@poc-v1",
+            "formalizedBy": "norm-formalizer#deterministic-templates-v1",
+            "formalizedAt": "2026-08-30",
+        }
+        contracts.validate(payload, "formal-rule")
+
+
 class NegativeValidationTests(unittest.TestCase):
     """An intentionally bad card (and other artifacts) must fail validation."""
 

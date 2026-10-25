@@ -230,6 +230,15 @@ _NOOP_REF = "engine.scope.none@poc-v1"
 EVIDENCE_ENRICHMENT: Dict[str, Dict[str, Any]] = track_config.load_enrichment()
 
 
+_ART_NUM = re.compile(r"(\d+(?:\.\d+)*)")
+
+
+def _article_number(article: str) -> str:
+    """RegelRecht articles[].number: first dotted number in an article cite."""
+    m = _ART_NUM.search(article or "")
+    return m.group(1) if m else (article or "").strip()
+
+
 def _detect_legal_force(instrument: str) -> str:
     """Deterministically derive legal force from the instrument description."""
     lowered = (instrument or "").lower()
@@ -351,6 +360,9 @@ class NormAnalyst:
                 "uri": ev.get("url") or src.get("url"),
                 "retrievedAt": src.get("retrieved_at"),
             },
+            "number": _article_number(ev.get("article", "")),
+            "text": ev.get("quote_nl"),
+            "url": ev.get("url") or src.get("url"),
             "instrument": instrument,
             "legalForce": legal_force,
             "theme": ev.get("theme"),

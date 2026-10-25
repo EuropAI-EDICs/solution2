@@ -17,6 +17,40 @@
     "appliesTo": { "$ref": "#/$defs/appliesTo" },
     "zoneSelector": { "$ref": "#/$defs/zoneSelector" },
     "conditions": { "type": "array", "items": { "$ref": "#/$defs/condition" } },
+    "execution": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["output", "actions"],
+      "properties": {
+        "produces": { "type": "object" },
+        "parameters": { "type": "array" },
+        "input": { "type": "array" },
+        "output": { "type": "array", "minItems": 1 },
+        "actions": { "type": "array", "minItems": 1 }
+      }
+    },
+    "zoneBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "inputs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["zoneIds", "geometrySource"],
+            "properties": {
+              "zoneIds": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+              "selection": { "enum": ["within", "outside"] },
+              "geometrySource": { "type": "string" },
+              "gioJoinId": { "type": "string" },
+              "bufferDistanceM": { "type": "number" },
+              "derivedFrom": { "type": "string" },
+              "caveat": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
     "executableRef": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_.-]*@[a-z0-9][a-z0-9_.-]*$", "description": "deterministic engine operation, e.g. engine.zone.within@poc-v1" },
     "rationale": { "type": "string", "minLength": 20, "description": "how the rule follows from the quoted article (carries the cite-or-abstain argument)" },
     "formalizedBy": { "$ref": "#/$defs/agentRun" },
@@ -25,7 +59,7 @@
   "allOf": [
     {
       "if": { "properties": { "status": { "const": "formalized" } }, "required": ["status"] },
-      "then": { "required": ["zoneSelector", "conditions"] }
+      "then": { "required": ["zoneSelector", "conditions", "execution"] }
     },
     {
       "if": { "properties": { "status": { "not": { "const": "formalized" } } }, "required": ["status"] },
