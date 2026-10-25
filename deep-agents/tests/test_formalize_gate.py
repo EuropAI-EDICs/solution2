@@ -39,7 +39,7 @@ def test_corpus_formalized_rules_pass_gate():
 
 def test_handauthored_zone_selector_rejected():
     rule = copy.deepcopy(_geo_rule())
-    rule["zoneSelector"]["zoneIds"] = ["HAND-AUTHORED"]
+    rule["zoneSelector"]["zoneIds"] = ["hand_authored_zone"]
     res = formalize.validate_formal_rule(json.dumps(rule))
     assert not res["passed"]
     assert any("zone_projector" in e for e in res["errors"])
