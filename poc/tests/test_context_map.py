@@ -155,6 +155,26 @@ def test_html_benoemt_run_en_disclaimer():
     assert "vereenvoudigd" in html                           # weergave-tolerantie benoemd
 
 
+def test_html_toont_scenario_verschil_zonder_km2():
+    """Sweep-lagen: éénregel-verschil in legenda/popup, geen km²."""
+    sweep = [{
+        "track": "wind",
+        "name": "wind: Natuurnetwerk mag open — uitzondering overal aangenomen",
+        "verschil": "Verschil: Natuurnetwerk mag open — uitzondering overal aangenomen",
+        "color": "#1a7f37",
+        "geojson": EMPTY_FC,
+        "defaultOn": False,
+        "isBaseline": False,
+        "run_id": "run-x",
+    }]
+    html = cm.render_html("Energietransitie", control_geojson=EMPTY_FC, layers=[],
+                          sweep_layers=sweep)
+    assert "Scenario-sweep" in html
+    assert "Natuurnetwerk mag open" in html
+    assert "km2" not in html.lower() and "km²" not in html
+    assert "zonePopup" in html
+
+
 def test_html_escapt_script_sluiter_in_data():
     # '</script>' in een property mag de pagina niet breken (json → \u003c)
     fc = json.dumps({"type": "FeatureCollection", "features": [
@@ -198,7 +218,13 @@ def test_main_schrijft_een_pagina_per_uitdaging(tmp_path, monkeypatch):
     runs = tmp_path / "scenario-runs"
     ctl = runs / "run-a" / "scenarios" / "CONTROL.geojson"
     ctl.parent.mkdir(parents=True)
-    ctl.write_text((FIXTURES / "netcongestie_sample.json").read_text())  # een WGS84-polygoon volstaat
+    # Alleen operation=final telt als kanszone (inclusion ≈ hele provincie).
+    sample = json.loads((FIXTURES / "netcongestie_sample.json").read_text())
+    for f in sample.get("features") or []:
+        props = f.setdefault("properties", {})
+        props["operation"] = "final"
+        props["id"] = "zr-final-test"
+    ctl.write_text(json.dumps(sample), encoding="utf-8")
     monkeypatch.setattr(cm, "SCENARIO_RUNS", runs)
     monkeypatch.setattr(cm, "UITDAGINGEN", {
         "uitdagingen": [{"id": "energietransitie", "titel": "Energietransitie", "tracks": ["wind"]},
@@ -209,5 +235,6 @@ def test_main_schrijft_een_pagina_per_uitdaging(tmp_path, monkeypatch):
     assert paden == ["utrecht-context-energietransitie.html", "utrecht-context-water-bodem.html"]
     et = (tmp_path / "out" / "utrecht-context-energietransitie.html").read_text()
     assert "geen juridische zone" in et and "run-a" in et
+    assert "baseline (huidige regels)" in et
     wb = (tmp_path / "out" / "utrecht-context-water-bodem.html").read_text()
-    assert "geen control-zone" in wb                                 # ontbrekende run eerlijk benoemd
+    assert "geen baseline-zone" in wb                                # ontbrekende run eerlijk benoemd

@@ -1,0 +1,276 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tpod-index/v1",
+  "title": "tpod-index",
+  "description": "IMOW-annotatie-index van één instrument+locatie (offline gebouwd uit gecachte Presenteren-antwoorden). Zie docs/POC_TPOD_IMOW_KANSEN.md.",
+  "type": "object",
+  "required": [
+    "contract",
+    "instrument",
+    "locatie",
+    "gegenereerdOp",
+    "bron",
+    "regelteksten",
+    "regels",
+    "artikelProfielen",
+    "hitCoverage",
+    "activiteiten",
+    "geoFeiten",
+    "pons",
+    "inputs"
+  ],
+  "properties": {
+    "contract": { "const": "tpod-index/v1" },
+    "instrument": {
+      "type": "object",
+      "required": ["id", "label", "cvdr"],
+      "properties": {
+        "id": { "type": "string" },
+        "label": { "type": "string" },
+        "aknUri": { "type": "string" },
+        "aknPath": { "type": "string" },
+        "cvdr": { "type": "string" },
+        "bevoegdGezag": { "type": "string" }
+      }
+    },
+    "locatie": {
+      "type": "object",
+      "properties": {
+        "id": { "type": ["string", "null"] },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+    "gegenereerdOp": { "type": "string", "format": "date-time" },
+    "bron": {
+      "type": "object",
+      "required": ["annotatiesSha256"],
+      "properties": {
+        "annotatiesSha256": { "type": "string" },
+        "fetchedAt": { "type": "string" },
+        "presenterenBase": { "type": "string" },
+        "presentatieScope": { "type": "string" }
+      }
+    },
+    "regelteksten": {
+      "type": "object",
+      "required": ["aantal", "artikelen", "metLid", "zonderLid", "zonderArtikel"],
+      "properties": {
+        "aantal": { "type": "integer", "minimum": 0 },
+        "artikelen": { "type": "integer", "minimum": 0 },
+        "metLid": { "type": "integer", "minimum": 0 },
+        "zonderLid": { "type": "integer", "minimum": 0 },
+        "zonderArtikel": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "regels": {
+      "type": "object",
+      "required": [
+        "aantal",
+        "regelVoorIedereen",
+        "instructieregel",
+        "metActiviteiten",
+        "zonderTekstInPayload"
+      ],
+      "properties": {
+        "aantal": { "type": "integer", "minimum": 0 },
+        "regelVoorIedereen": { "type": "integer", "minimum": 0 },
+        "instructieregel": { "type": "integer", "minimum": 0 },
+        "metActiviteiten": { "type": "integer", "minimum": 0 },
+        "zonderTekstInPayload": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "artikelProfielen": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "artikel",
+          "leden",
+          "aantalRegels",
+          "activiteitGroepen",
+          "locatieRefs",
+          "gebiedsaanwijzingen",
+          "formalized"
+        ],
+        "properties": {
+          "artikel": { "type": "string" },
+          "hoofdstuk": { "type": ["string", "null"] },
+          "leden": { "type": "array", "items": { "type": "string" } },
+          "aantalRegels": { "type": "integer", "minimum": 0 },
+          "activiteitGroepen": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "locatieRefs": { "type": "array", "items": { "type": "string" } },
+          "gebiedsaanwijzingen": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "formalized": { "type": ["boolean", "null"] },
+          "rrStatus": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "hitCoverage": {
+      "type": "object",
+      "required": ["formalizedInHit", "toelichting"],
+      "properties": {
+        "pocArtikelen": { "type": ["integer", "null"] },
+        "pocArtikelenInHit": { "type": ["integer", "null"] },
+        "formalizedInHit": { "type": "integer", "minimum": 0 },
+        "toelichting": { "type": "string" }
+      }
+    },
+    "activiteiten": {
+      "type": "object",
+      "required": [
+        "totaal",
+        "roots",
+        "tophaakKandidaten",
+        "metBovenliggende",
+        "metExterneBovenliggende",
+        "maxDiepte",
+        "groepen"
+      ],
+      "properties": {
+        "totaal": { "type": "integer", "minimum": 0 },
+        "roots": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "identificatie": { "type": "string" },
+              "naam": { "type": "string" }
+            }
+          }
+        },
+        "tophaakKandidaten": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "identificatie": { "type": "string" },
+              "naam": { "type": "string" }
+            }
+          }
+        },
+        "metBovenliggende": { "type": "integer", "minimum": 0 },
+        "metExterneBovenliggende": { "type": "integer", "minimum": 0 },
+        "maxDiepte": { "type": "integer", "minimum": 0 },
+        "groepen": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "geoFeiten": {
+      "type": "object",
+      "required": [
+        "geselecteerdeLocatieRefs",
+        "locaties",
+        "aantalLocatiesMetGeometrie",
+        "gebiedsaanwijzingen"
+      ],
+      "properties": {
+        "geselecteerdeLocatieRefs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "ambtsgebiedRef": { "type": ["string", "null"] },
+        "locaties": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["identificatie", "locatieType", "geselecteerdOpPunt"],
+            "properties": {
+              "identificatie": { "type": "string" },
+              "locatieType": { "type": ["string", "null"] },
+              "noemer": { "type": ["string", "null"] },
+              "geometrieIdentificatie": {
+                "type": ["string", "null"]
+              },
+              "gmlBestand": { "type": ["string", "null"] },
+              "geselecteerdOpPunt": { "type": "boolean" }
+            }
+          }
+        },
+        "aantalLocatiesMetGeometrie": { "type": "integer", "minimum": 0 },
+        "gioInPakket": { "type": "integer", "minimum": 0 },
+        "gebiedsaanwijzingen": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["identificatie"],
+            "properties": {
+              "identificatie": { "type": "string" },
+              "naam": { "type": ["string", "null"] },
+              "groep": { "type": ["string", "null"] },
+              "type": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    },
+    "pons": {
+      "type": "object",
+      "required": ["beschikbaar", "aantal", "objecten"],
+      "properties": {
+        "beschikbaar": { "type": "boolean" },
+        "aantal": { "type": "integer", "minimum": 0 },
+        "opmerking": { "type": ["string", "null"] },
+        "objecten": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "identificatie": { "type": ["string", "null"] },
+              "naam": { "type": ["string", "null"] },
+              "locatieRefs": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "documentstructuur": {
+      "type": "object",
+      "required": ["componenten", "artikelen", "leden"],
+      "properties": {
+        "componenten": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "artikelen": { "type": "integer", "minimum": 0 },
+        "leden": { "type": "integer", "minimum": 0 },
+        "hoofdstukken": { "type": "integer", "minimum": 0 },
+        "maxDiepte": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "geoValidatie": {
+      "type": "object",
+      "required": ["rapport", "getoetst", "overeenstemming", "conflicten"],
+      "properties": {
+        "rapport": { "type": "string" },
+        "gioInPakket": { "type": "integer", "minimum": 0 },
+        "metKoppelbareGml": { "type": "integer", "minimum": 0 },
+        "getoetst": { "type": "integer", "minimum": 0 },
+        "overeenstemming": { "type": "integer", "minimum": 0 },
+        "conflicten": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": { "type": "string" },
+          "sha256": { "type": "string" },
+          "role": { "type": "string" }
+        }
+      }
+    }
+  }
+}

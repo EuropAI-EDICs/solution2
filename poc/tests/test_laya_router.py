@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[2] / "deep-agents"
 sys.path.insert(0, str(ROOT))
 
 from laya_router import (  # noqa: E402
+    custom_model_override,
     format_routing_hint,
     nldt_orchestrator_questions,
     passes_confidence_gate,
@@ -55,3 +56,14 @@ def test_confidence_gate_blocks_low_routing_conf():
     os.environ["LAYA_MIN_CONFIDENCE"] = "0.50"
     assert passes_confidence_gate(payload) is True
     del os.environ["LAYA_MIN_CONFIDENCE"]
+
+
+def test_custom_model_override_wired_via_env(monkeypatch, tmp_path):
+    monkeypatch.delenv("LAYA_MODEL_DIR", raising=False)
+    assert custom_model_override() is None
+    monkeypatch.setenv("LAYA_MODEL_DIR", str(tmp_path / "bestaat-niet"))
+    assert custom_model_override() is None
+    mlx_dir = tmp_path / "nldt-router-mlx"
+    mlx_dir.mkdir()
+    monkeypatch.setenv("LAYA_MODEL_DIR", str(mlx_dir))
+    assert custom_model_override() == {"english": str(mlx_dir), "multilingual": str(mlx_dir)}

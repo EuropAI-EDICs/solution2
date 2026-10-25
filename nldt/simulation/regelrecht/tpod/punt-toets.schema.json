@@ -1,0 +1,300 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "punt-toets/v1",
+  "title": "punt-toets",
+  "description": "Executie van formalized RegelRecht-artikelen uit de DSO-hit op TPOD-geo-feiten (feit/afwezigheid/scenario/onthouding). Zie docs/POC_TPOD_IMOW_KANSEN.md, kans 1.",
+  "type": "object",
+  "required": [
+    "contract",
+    "instrument",
+    "locatie",
+    "gegenereerdOp",
+    "feiten",
+    "tellingen",
+    "artikelen"
+  ],
+  "properties": {
+    "contract": {
+      "const": "punt-toets/v1"
+    },
+    "instrument": {
+      "type": "object",
+      "required": [
+        "id",
+        "label",
+        "cvdr"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "cvdr": {
+          "type": "string"
+        }
+      }
+    },
+    "locatie": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "gegenereerdOp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "feiten": {
+      "type": "object",
+      "required": [
+        "bron",
+        "tijdelijkDeelGeldtOpPunt",
+        "gebiedsaanwijzingenInHit"
+      ],
+      "properties": {
+        "bron": {
+          "type": "string"
+        },
+        "tijdelijkDeelGeldtOpPunt": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "gebiedsaanwijzingenInHit": {
+          "type": "array",
+          "items": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "tellingen": {
+      "type": "object",
+      "required": [
+        "getoetst",
+        "scenario",
+        "onthouding",
+        "engineFout",
+        "formalizedInHit",
+        "artikelen"
+      ],
+      "properties": {
+        "getoetst": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "scenario": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "onthouding": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "engineFout": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "formalizedInHit": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "artikelen": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "artikelen": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "artikel",
+          "status"
+        ],
+        "properties": {
+          "artikel": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "getoetst",
+              "scenario",
+              "onthouding",
+              "engineFout"
+            ]
+          },
+          "reden": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "zones": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "ref": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "noemer": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "inputs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "naam",
+                "bron",
+                "waarde"
+              ],
+              "properties": {
+                "naam": {
+                  "type": "string"
+                },
+                "bron": {
+                  "enum": [
+                    "presenteren-hit",
+                    "gebiedsaanwijzing",
+                    "afwezig_in_hit",
+                    "scenario",
+                    "onbekend",
+                    "voorstel"
+                  ]
+                },
+                "waarde": {
+                  "type": [
+                    "boolean",
+                    "number",
+                    "null"
+                  ]
+                },
+                "match": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reden": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "inputsWaarden": {
+            "type": "object"
+          },
+          "outputs": {
+            "type": "object"
+          },
+          "trace": {
+            "type": "array"
+          },
+          "scenarioContext": {
+            "type": "object",
+            "properties": {
+              "tijdelijkDeelGeldtOpPunt": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "toelichting": {
+                "type": "string"
+              }
+            }
+          },
+          "scenarioVelden": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "runs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "scenario",
+                "inputs",
+                "outputs"
+              ],
+              "properties": {
+                "scenario": {
+                  "type": "string"
+                },
+                "inputs": {
+                  "type": "object"
+                },
+                "outputs": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "voorstel": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "toelichting": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "scorecard": {
+          "type": "object",
+          "required": [
+            "uitkomsten",
+            "toelichting"
+          ],
+          "properties": {
+            "uitkomsten": {
+              "type": "object"
+            },
+            "toelichting": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

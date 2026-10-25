@@ -7,6 +7,14 @@ Open via `file://` or `python3 -m http.server` from this directory.
 
 [`index.html`](index.html) — per-PoC sections with story, agent flow, and related demos.
 
+## Rondleiding (alle demo's & architecturen)
+
+[`toolbox-tour.html`](toolbox-tour.html) — begeleide tour in **7 rondes en 29 stops**:
+fundament & architectuur, de vier PoC's, de RegelRecht/TPOD/DSO-keten (incl.
+artefacten en voorstel-sweep), HCS/EDIC, bestuur & agentic state, platform &
+dataspace en governance & roadmap. Werkt offline vanaf schijf; voortgang in
+localStorage; dieplinks via `?stop=N`; pijltjestoetsen navigeren.
+
 ## Agentic State — executive demo
 
 [`agentic-state-demo-en.html`](agentic-state-demo-en.html) (EN) ·
@@ -77,6 +85,23 @@ nldt/.venv/bin/python nldt/simulation/regelrecht/build_runs.py --stamp <ISO-time
 (roept de volle demo aan zodra formalization-reports aanwezig zijn).
 Contract: `regelrecht/simulation-run.schema.json`;
 fase-1-ontwerp: `docs/superpowers/specs/2026-09-29-simulation-regelrecht-design.md`.
+
+### TpOD/IMOW-index (annotatielaag)
+
+```bash
+nldt/.venv/bin/python -m nldt.simulation.regelrecht.tpod --instruments eindhoven,utrecht --toets --geo [--voorstel <fixture>]
+```
+
+Bouwt (offline, op de gecachte Presenteren-antwoorden van `dso_overlap`) per
+instrument een `tpod-index`: wId-anchoring per artikel+lid, geo-feiten
+(geselecteerde locaties + GIO-geometrierefs), documentstructuur,
+activiteitstructuur en een expliciete pons-status. Met `--toets` worden de
+formalized artikelen uit de DSO-hit geëxecuteerd op die geo-feiten (feit /
+scenario / onthouding; met `--voorstel` volledig getoetst met scorecard).
+Met `--geo` wordt de DSO-puntselectie punt-in-polygoon gekruisvalideerd
+tegen de GIO-GML's uit het OW-uitwisselpakket (sweep + naam-afstemming).
+Kansenkaart, gemeten cijfers en de punt-toets-resultaten:
+[`docs/POC_TPOD_IMOW_KANSEN.md`](../../docs/POC_TPOD_IMOW_KANSEN.md).
 
 ## Architecture tour
 

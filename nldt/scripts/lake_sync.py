@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sync PoC filesystem assets into the nLDT data lake (fs or S3/MinIO)."""
+"""Sync PoC filesystem assets into the nLDT data lake (fs or S3/RustFS)."""
 
 from __future__ import annotations
 

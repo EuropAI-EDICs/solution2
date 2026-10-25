@@ -8,7 +8,7 @@ to use. Tiers below are the working vocabulary for EuropAI (proposal status
 |------|-------------------|----------------|----------------------|
 | T0 | Unclassified / public internet | Public open-data reads (PDOK, DONL) | live |
 | T1 | EU-available, extra-EU control possible | Optional LLM seams S7/S8 if a non-NLAIF host is used | gap unless `NLDT_NLAIF_ROUTE` |
-| T2 | EU-controlled, restricted extra-EU access | EU LDT Toolbox (UCS, Marketplace, P&V, IM) on `*.ldttoolbox.app`; lake on EU-hosted MinIO | hybrid (mock on laptop) |
+| T2 | EU-controlled, restricted extra-EU access | EU LDT Toolbox (UCS, Marketplace, P&V, IM) on `*.ldttoolbox.app`; lake on EU-hosted RustFS | hybrid (mock on laptop) |
 | T3 | Public-sector / sovereign compute | Deterministic engines (overlay, zone, peilen, bp2op); local orchestrator critic | live (runs without cloud) |
 
 ## Mapping rules

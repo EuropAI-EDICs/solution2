@@ -74,7 +74,7 @@ s3://nldt-poc-lake/
 `poc` ∈ `utrecht` | `breda` | `eindhoven` | `rijnland` | `nspd` | `donl`  
 `runType` ∈ `run` | `scenario` | `crosstrack` | `xborder` | `qa`
 
-Local (dev without MinIO): same layout under `nldt/data/lake/` via
+Local (dev without RustFS): same layout under `nldt/data/lake/` via
 `NLDT_LAKE_BACKEND=fs` (default).
 
 ---
@@ -92,7 +92,7 @@ EU Data Space connector path (EDC-shaped).
 |--------|---------|----------|
 | `file://…` | Local filesystem path (offline / PoC cache) | path as-is |
 | `lake://nldt-poc-lake/{key}` | Logical object in the medallion store | `services.lake.get_lake_client` (FS or S3) |
-| `s3://nldt-poc-lake/{key}` | Same object on MinIO/S3 | S3 client (`NLDT_LAKE_*`) |
+| `s3://nldt-poc-lake/{key}` | Same object on RustFS/S3 | S3 client (`NLDT_LAKE_*`) |
 
 `_load_source` in the process adapter accepts all three. Recipes and catalog
 records prefer `lakeUri` so the same recipe works on laptop (FS) and cluster (S3).
@@ -150,7 +150,7 @@ Publication is a separate handshake from Cook:
    remains with the EDC/DSR stack when live (`NLDT_EDC_MANAGEMENT_URL` / DSR).
 
 Inside the org, Cook reads the lake directly. Across organisations, peers
-negotiate via the connector; they do **not** get raw MinIO credentials.
+negotiate via the connector; they do **not** get raw RustFS credentials.
 
 ### Message shapes (contracts)
 
@@ -271,7 +271,7 @@ Technical choice for analyse/transform over the object store (laptop → cluster
 
 | Layer | Tool | Role |
 |-------|------|------|
-| Object store | FS or MinIO/S3 | bronze/silver/gold blobs |
+| Object store | FS or RustFS/S3 | bronze/silver/gold blobs |
 | Table format | **Apache Iceberg** | versioned tables (`iceberg/` warehouse), time-travel |
 | Query engine | **DuckDB** (+ `httpfs` / `iceberg`) | SQL on Parquet/Iceberg without a Spark cluster |
 | Transforms | **dbt Core** (`dbt-duckdb`) | staging → marts over inventory/gold metadata |
@@ -376,12 +376,12 @@ PYTHONPATH=. python scripts/build_lake_inventory.py
 # Sync Utrecht+Breda to local lake
 PYTHONPATH=. python scripts/lake_sync.py --poc utrecht --poc breda
 
-# MinIO (optional)
+# RustFS (optional)
 docker compose -f docker-compose.lake.yml up -d
 export NLDT_LAKE_BACKEND=s3
-export NLDT_LAKE_ENDPOINT=http://127.0.0.1:9000
-export NLDT_LAKE_ACCESS_KEY=minioadmin
-export NLDT_LAKE_SECRET_KEY=minioadmin
+export NLDT_LAKE_ENDPOINT=http://localhost:9000
+export NLDT_LAKE_ACCESS_KEY=nldtadmin
+export NLDT_LAKE_SECRET_KEY=nldtadmin
 export NLDT_LAKE_BUCKET=nldt-poc-lake
 PYTHONPATH=. python scripts/lake_sync.py --poc utrecht
 ```

@@ -88,7 +88,7 @@ with ValidationReport + PROV; catalog discoverable; per-PoC CLI remains as engin
 | Item | Status |
 |------|--------|
 | Medallion zones + accessClass/deny-list | Done (`data/lake-deny.json`, inventory) |
-| Lake client fs/S3 + `lake_sync.py` | Done (`services/lake/`, MinIO compose) |
+| Lake client fs/S3 + `lake_sync.py` | Done (`services/lake/`, RustFS compose) |
 | DuckDB query + inventory Parquet | Done |
 | Apache Iceberg warehouse bootstrap | Done (`lake_iceberg_bootstrap.py`) |
 | dbt Core (`dbt-duckdb`) marts | Done (`dbt_lake/`) |

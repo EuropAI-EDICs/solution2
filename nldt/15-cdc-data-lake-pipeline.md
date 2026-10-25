@@ -87,7 +87,7 @@ flowchart LR
 
 Extend [`docker-compose.lake.yml`](docker-compose.lake.yml):
 
-- Keep MinIO
+- Keep RustFS
 - Add `postgres-cdc` (`wal_level=logical`, publication on peilen table)
 - **Do not** add RisingWave or other stream processors
 
@@ -169,7 +169,7 @@ Keywords `peil` / `cdc` / `live` → hybrid; Critic fails if freshness over thre
 
 | Path | Action |
 |------|--------|
-| `docker-compose.lake.yml` | `postgres-cdc` only (+ MinIO) |
+| `docker-compose.lake.yml` | `postgres-cdc` only (+ RustFS) |
 | `scripts/sql/cdc_postgres_init.sql` | Logical replication + table |
 | `scripts/seed_peilen_oltp.py` | Seed OLTP |
 | `scripts/cdc_capture_peilen.py` | CDC → bronze |
@@ -193,7 +193,7 @@ Keywords `peil` / `cdc` / `live` → hybrid; Critic fails if freshness over thre
 3. `dbt run` produces `mart_peil_latest`  
 4. MCP stream tools read-only; restricted gated; no OLTP exposure  
 5. Live recipe → ValidationReport + PROV  
-6. Stack = MinIO + Postgres + existing Python lake/dbt only — **no RisingWave**  
+6. Stack = RustFS + Postgres + existing Python lake/dbt only — **no RisingWave**  
 7. Existing lake/MCP tests green  
 
 ---

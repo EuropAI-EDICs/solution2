@@ -1,6 +1,6 @@
 {
  "schemaVersion": "1",
- "runId": "cd0f875c",
+ "runId": "69d8e792",
  "generatedAt": "2026-10-14T12:00:00Z",
  "poc": "eindhoven",
  "instrument": {
@@ -13,7 +13,7 @@
   {
    "path": "docs/examples/regelrecht/omgevingsplan-eindhoven-art22.1-en-10.2.yaml",
    "role": "example-yaml",
-   "sha256": "0554c3c4138add1aed6a527785eccb2597adff109e21b15282bb1fe65108021b"
+   "sha256": "04f71b39694dc116e01b7ed6e0367f3b10b55a3adaa8b591186ad97c03a7a29c"
   },
   {
    "path": "poc-bp2op/runs/20260830-124515-eindhoven/bronregels.json",
@@ -46,13 +46,7 @@
    "produces": {
     "legal_character": "TOETS"
    },
-   "parameters": [
-    {
-     "name": "voorschriften_verbonden_voor_iwt",
-     "type": "boolean",
-     "description": "Of aan de milieubelastende activiteit voorschriften zijn verbonden aan een omgevingsvergunning die vóór de inwerkingtreding (IWT) van de Omgevingswet onherroepelijk was, of vóór IWT was aangevraagd en daarna onherroepelijk werd (lid 2, onder a en b)."
-    }
-   ],
+   "parameters": [],
    "input": [
     {
      "name": "strijd_met_tijdelijk_deel",
@@ -60,6 +54,14 @@
      "description": "Of de desbetreffende regel van dit hoofdstuk ter plaatse strijdig is met een nog in werking zijnde regel uit het tijdelijke deel (hoofdstukken 22/23).",
      "source": {
       "description": "Buiten de wet-YAML op te lossen: de regel-conversieketen van poc-bp2op (kennisbank \"komt in de plaats van\"-relaties + omzettabel) levert dit feit per bron-/doelregelpaar; het werkingsgebied zelf is een geo-feit (werkingsgebiedRef, MC-11)."
+     }
+    },
+    {
+     "name": "voorschriften_verbonden_voor_iwt",
+     "type": "boolean",
+     "description": "Of aan de milieubelastende activiteit voorschriften zijn verbonden aan een omgevingsvergunning die vóór de inwerkingtreding (IWT) van de Omgevingswet onherroepelijk was, of vóór IWT was aangevraagd en daarna onherroepelijk werd (lid 2, onder a en b). De engine lost $-verwijzingen alleen uit input: als parameter verdween dit feit uit de reikwijdte van de actions.",
+     "source": {
+      "description": "Buiten de wet-YAML op te lossen: vergunninggegevens van het concrete voorstel (voorstelafhankelijk feit, zoals strijd_met_tijdelijk_deel)."
      }
     }
    ],

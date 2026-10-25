@@ -60,14 +60,7 @@ articles:
       execution:
         produces:
           legal_character: TOETS
-        parameters:
-          - name: voorschriften_verbonden_voor_iwt
-            type: boolean
-            description: >-
-              Of aan de milieubelastende activiteit voorschriften zijn verbonden aan een
-              omgevingsvergunning die vóór de inwerkingtreding (IWT) van de Omgevingswet
-              onherroepelijk was, of vóór IWT was aangevraagd en daarna onherroepelijk werd
-              (lid 2, onder a en b).
+        parameters: []
         input:
           - name: strijd_met_tijdelijk_deel
             type: boolean
@@ -80,6 +73,18 @@ articles:
                 (kennisbank "komt in de plaats van"-relaties + omzettabel) levert dit feit
                 per bron-/doelregelpaar; het werkingsgebied zelf is een geo-feit
                 (werkingsgebiedRef, MC-11).
+          - name: voorschriften_verbonden_voor_iwt
+            type: boolean
+            description: >-
+              Of aan de milieubelastende activiteit voorschriften zijn verbonden aan een
+              omgevingsvergunning die vóór de inwerkingtreding (IWT) van de Omgevingswet
+              onherroepelijk was, of vóór IWT was aangevraagd en daarna onherroepelijk werd
+              (lid 2, onder a en b). De engine lost $-verwijzingen alleen uit input:
+              als parameter verdween dit feit uit de reikwijdte van de actions.
+            source:
+              description: >-
+                Buiten de wet-YAML op te lossen: vergunninggegevens van het concrete
+                voorstel (voorstelafhankelijk feit, zoals strijd_met_tijdelijk_deel).
         output:
           - name: regels_hoofdstuk_van_toepassing
             type: boolean

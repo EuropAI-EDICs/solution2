@@ -47,10 +47,52 @@ def _cache_paths(cache_dir: pathlib.Path, instrument_id: str, location_id: str):
         "regeling": cache_dir / f"{stem}.regeling.json",
         "annotaties": cache_dir / f"{stem}.annotaties.json",
         "annotaties_meta": cache_dir / f"{stem}.annotaties.meta.json",
+        "documentstructuur": cache_dir / f"{stem}.documentstructuur.json",
+        "documentstructuur_meta": cache_dir / f"{stem}.documentstructuur.meta.json",
+        "pakket": cache_dir / f"{stem}.pakket.zip",
+        "pakket_meta": cache_dir / f"{stem}.pakket.meta.json",
         "rp": cache_dir / f"{stem}.rp.json",
         "rp_meta": cache_dir / f"{stem}.rp.meta.json",
         "report": cache_dir / f"{stem}.overlap.json",
     }
+
+
+def _fetch_documentstructuur(meta: dict[str, Any], api_key: str, path: dict) -> None:
+    payload, sha = client.fetch_documentstructuur(meta["akn_uri"], api_key=api_key)
+    _write_json(path["documentstructuur"], payload)
+    _write_json(
+        path["documentstructuur_meta"],
+        {
+            "sha256": sha,
+            "fetchedAt": datetime.now(timezone.utc).isoformat(),
+            "aknUri": meta["akn_uri"],
+        },
+    )
+
+
+def _fetch_pakket(meta: dict[str, Any], api_key: str, path: dict) -> None:
+    """OW-uitwisselpakket (pons, GIO's) via de asynchrone downloaden-API.
+
+    Duurt van enkele seconden tot minuten (status-poll); sla over als de
+    cache al een niet-lege zip bevat.
+    """
+    if path["pakket"].is_file() and path["pakket"].stat().st_size > 1000:
+        print(f"  pakket al in cache: {path['pakket']}")
+        return
+    raw, sha = client.fetch_uitwisselpakket(
+        meta["akn_path"], api_key=api_key
+    )
+    path["pakket"].parent.mkdir(parents=True, exist_ok=True)
+    path["pakket"].write_bytes(raw)
+    _write_json(
+        path["pakket_meta"],
+        {
+            "sha256": sha,
+            "bytes": len(raw),
+            "fetchedAt": datetime.now(timezone.utc).isoformat(),
+            "regelingId": meta["akn_path"],
+        },
+    )
 
 
 def compare_instrument(
@@ -60,6 +102,7 @@ def compare_instrument(
     out_dir: pathlib.Path,
     offline: bool,
     skip_rp: bool,
+    pakket: bool = False,
 ) -> dict[str, Any]:
     if instrument_id not in INSTRUMENTS:
         raise SystemExit(f"onbekend instrument: {instrument_id}")
@@ -103,6 +146,10 @@ def compare_instrument(
                 "aknUri": meta["akn_uri"],
             },
         )
+        _fetch_documentstructuur(meta, api_key, paths)
+        if pakket:
+            print("  uitwisselpakket aanvragen (kan minuten duren)…")
+            _fetch_pakket(meta, api_key, paths)
 
         rp_plannen = None
         rp_sha = None
@@ -175,6 +222,12 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Geen Ruimtelijke plannen-aanroep (ook als RP_API_KEY gezet is)",
     )
+    p.add_argument(
+        "--pakket",
+        action="store_true",
+        help="Ook het OW-uitwisselpakket (pons, GIO's) via de downloaden-API "
+        "cachen; asynchroon, kan minuten duren",
+    )
     args = p.parse_args(argv)
 
     ids = [x.strip() for x in args.instruments.split(",") if x.strip()]
@@ -186,6 +239,7 @@ def main(argv: list[str] | None = None) -> int:
             out_dir=args.out_dir,
             offline=args.offline,
             skip_rp=args.skip_rp,
+            pakket=args.pakket,
         )
         ov = result["overlap"]
         summaries.append(

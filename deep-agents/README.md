@@ -57,6 +57,10 @@ deep-agents/
   tools/intake.py        # intake: request template + OpportunityMapRequest schema gate
   tools/formalize.py     # formalizer: formal-rule corpus + FormalRule schema gate
   prompts/               # recipe_driver.md (orchestrator) + poc/*.md (specialists)
+  fase_slotgate.py       # M3: manifest stuurt de toolsets per agent (apply_slotgate)
+  harness_lab_adapter.py # harness-lab adapter: variant-toepassing + probes (fake/llm)
+  harnessregister.json   # gepinde harness-baselijn (prompts + model-pinnen)
+  harness-lab/           # probe-tasksets + kandidaat-varianten
   runs/                  # agent-written artifacts per session (gitignored)
 ```
 
@@ -162,6 +166,23 @@ pip install laya-mlx   # arm64 macOS only (staat ook in requirements.txt)
 - Orchestrator-tool: `laya_advise_request` voor her-classificatie mid-run.
 - Dashboard: dropdown **Laya routing (MLX)**; timeline toont groene `laya`-stappen.
 
+**Fine-tuned nLDT-checkpoint.** `laya_train/` bevat een pipeline die het
+multilingual-checkpoint fine-tunet op routing-cases uit de scenariovoorbeelden
+van de POC's (`poc/scenarios`, `poc-nspd/scenarios` + demo-catalogus-phrasings).
+Op de held-out split (ongeziene scenario-sets) gaat primary_poc-accuracy van
+0.46 (zero-shot) naar 0.96, workflow van 0.66 naar 0.96, en komt 96% van de
+hints door de 0.55-confidence-gate (zero-shot: 38%). Activeren:
+
+```bash
+export LAYA_MODEL_DIR="$PWD/deep-agents/laya_train/checkpoints/nldt-router-mlx"
+```
+
+De NL-route **én** de Engelse route gebruiken dan het fine-tuned checkpoint
+(het multilingual-model is met EN-parafrases getraind; zonder override valt
+korte NL-tekst anders terug op het stock english-checkpoint). Zonder
+`LAYA_MODEL_DIR` is alles onveranderd.
+Zie `laya_train/README.md` voor dataset, training en evaluatie.
+
 Laya vervangt de orchestrator niet — zero-shot scores zijn beperkt; gebruik het als
 snelle lokale head naast tool-calling LLM’s.
 
@@ -233,6 +254,29 @@ weigert bij het afspelen van de geschiedenis elke inhoud die geen
 plattert de berichten vóór élke model-aanroep (`wrap_model_call`-middleware,
 ingebouwd in `build_agent`): `text`-blokken samengevoegd, `thinking`
 gestript, `tool_use` blijft via `AIMessage.tool_calls`.
+
+## Harness-lab: de harness als versie-bare variant
+
+De orchestrator-prompt, de slotgate-toolgrants en de model-pinnen zijn
+gepind in `harnessregister.json` en kunnen als *variant* worden voorgesteld,
+geprobeerd en (menselijk) geadopteerd — de propose–probe–compose-methode
+naar [google-research/harness2](https://github.com/google-research/harness2),
+maar geoordeeld door onze eigen deterministische rechter (geen LLM-jury).
+Motor, schema's en CLI staan in `../poc-fundament` (README-sectie
+"Harness-lab"); deze map levert alleen de adapter
+(`harness_lab_adapter.py`: fake = offline gescripte modellen, llm = echt
+model via `check_ollama`) en de voorbeelden in `harness-lab/`.
+
+```bash
+# probe met beide kandidaat-varianten (offline montuurbewijs)
+../nldt/.venv/bin/python ../poc-fundament/tools/harness_lab.py probe --mode fake \
+  --taskset harness-lab/tasksets/routing-kern.json \
+  --variant harness-lab/variants/*.json --out /tmp/harness-lab
+```
+
+Conformance (`tests/test_harnessregister.py`) bewijst dat het register niets
+claimt wat de repo niet waarmaakt: sha256 van élk gepind promptbestand,
+prompt-targets op disk == geregistreerd, model-pinnen == model_config-defaults.
 
 ## Next steps
 

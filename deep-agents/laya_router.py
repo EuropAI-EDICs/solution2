@@ -14,6 +14,7 @@ import os
 import platform
 import sys
 import threading
+from pathlib import Path
 from typing import Any
 
 import journal
@@ -209,6 +210,25 @@ def _suggest_delegate(answers: dict[str, Any]) -> str | None:
     return None
 
 
+def custom_model_override() -> dict[str, str] | None:
+    """LAYA_MODEL_DIR vervangt beide routes door het fine-tuned nLDT-checkpoint.
+
+    Het fine-tuned multilingual-checkpoint (laya_train/checkpoints/nldt-router-mlx)
+    dekt ook Engelse requests (getraind met EN-parafrases); zonder override hier
+    valt korte NL-tekst zonder stopwoord-trigger anders terug op het stock
+    english-checkpoint. Een pad dat niet bestaat wordt genegeerd met een
+    journal-regel.
+    """
+    raw = os.environ.get("LAYA_MODEL_DIR", "").strip()
+    if not raw:
+        return None
+    path = Path(raw).expanduser()
+    if not path.is_dir():
+        journal.append("laya", "router", f"LAYA_MODEL_DIR genegeerd — geen map: {raw}")
+        return None
+    return {"english": str(path), "multilingual": str(path)}
+
+
 def _get_router() -> Any | None:
     global _router, _router_failed
     if _router_failed or not laya_available():
@@ -223,7 +243,12 @@ def _get_router() -> Any | None:
 
             max_loaded = int(os.environ.get("LAYA_MAX_LOADED", "1"))
             preload = os.environ.get("LAYA_PRELOAD", "").strip().lower() in ("1", "true", "yes")
-            _router = Router(max_loaded=max_loaded, preload=preload, default="english")
+            _router = Router(
+                models=custom_model_override(),
+                max_loaded=max_loaded,
+                preload=preload,
+                default="english",
+            )
             return _router
         except Exception as exc:
             _router_failed = True

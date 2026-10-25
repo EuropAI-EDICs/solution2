@@ -1,0 +1,110 @@
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]Fetching 5 files: 100%|██████████| 5/5 [00:00<00:00, 3293.78it/s]
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]Fetching 5 files: 100%|██████████| 5/5 [00:00<00:00, 3164.56it/s]
+items: 1645 (skipped {}) from 329 cases
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]Fetching 5 files: 100%|██████████| 5/5 [00:00<00:00, 3057.96it/s]
+W1018 14:11:07.876000 2933 .venv/lib/python3.12/site-packages/torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+eval items 250 from /Users/marc/Projecten/ldttoolbox/deep-agents/laya_train/data/scenarios-eval.jsonl (skipped {}, 20 overlapping training/calibration items)
+train items 1481, calibration items 164, eval items 250 (/Users/marc/Projecten/ldttoolbox/deep-agents/laya_train/data/scenarios-eval.jsonl), skipped {}, device mps
+optimizer budget: 1481 train item(s), effective batch up to 64 (micro_batch 8 x grad_accum 8), 96 optimizer updates over 4 epoch(s)
+epoch 1/4 step 100 loss 0.1441
+epoch 1/4 mean loss 0.1977
+epoch 2/4 step 100 loss 0.0426
+epoch 2/4 mean loss 0.0547
+epoch 3/4 step 100 loss -0.0000
+epoch 3/4 mean loss 0.0410
+epoch 4/4 step 100 loss -0.0000
+epoch 4/4 mean loss 0.0405
+/Users/marc/Projecten/ldttoolbox/deep-agents/laya_train/finetune_local.py:76: RuntimeWarning: laya.train: choice calibration: the fitted temperature 5 is on the [0.5, 5] clamp
+  summary = finetune(
+
+=== Evaluation (before vs after fine-tuning on 250 items from /Users/marc/Projecten/ldttoolbox/deep-agents/laya_train/data/scenarios-eval.jsonl; overlaps training data) ===
+Metric                 Before         After          Delta         
+-----------------------------------------------------------------
+Accuracy               0.7080         0.9680         +0.2600       
+Loss                   0.9508         0.1009         -0.8499       
+ECE                    0.1434         0.0197         -0.1237       
+Brier (multi-class)    0.4198         0.0395         -0.3803       
+Brier (top-1)          0.1806         0.0171         -0.1635       
+Mean Confidence        0.8476         0.9841         +0.1365       
+-----------------------------------------------------------------
+
+{
+  "train_items": 1481,
+  "calibration_items": 164,
+  "eval_items": 250,
+  "skipped": {},
+  "epoch_loss": [
+    0.1977161208806235,
+    0.05473428261783765,
+    0.04104973214020657,
+    0.04049063628158894
+  ],
+  "temperature": [
+    5.0,
+    1.0,
+    0.9743143916130066
+  ],
+  "temperature_by_options": {},
+  "n_by_bucket": {
+    "noul:2": 107,
+    "choice:6-10": 57
+  },
+  "calibration": {
+    "choice": {
+      "items": 57,
+      "temperature": 5.0,
+      "issues": [
+        "the fitted temperature 5 is on the [0.5, 5] clamp"
+      ],
+      "accuracy": 0.9824561403508771,
+      "mean_confidence": 0.989726497812774
+    },
+    "score": {
+      "items": 0,
+      "temperature": 1.0,
+      "issues": []
+    },
+    "noul": {
+      "items": 107,
+      "temperature": 0.9743143916130066,
+      "issues": [],
+      "accuracy": 1.0,
+      "mean_confidence": 0.9980164438179147
+    }
+  },
+  "abstention_thresholds": {
+    "noul:2": 0.7878,
+    "choice:6-10": 0.9405
+  },
+  "train_report": {
+    "eval_source": "/Users/marc/Projecten/ldttoolbox/deep-agents/laya_train/data/scenarios-eval.jsonl",
+    "eval_mode": "overlapping_eval",
+    "is_held_out": false,
+    "eval_items": 250,
+    "note": "Evaluation set contains inputs that overlap training data (20) and calibration data (9) (total 20/250 items); metrics do not reflect strictly independent held-out evaluation.",
+    "before": {
+      "items": 250,
+      "loss": 0.9508,
+      "accuracy": 0.708,
+      "mean_confidence": 0.8476,
+      "ece": 0.1434,
+      "brier": 0.4198,
+      "brier_top1": 0.1806,
+      "by_type": {
+        "choice": {
+          "items": 100,
+          "loss": 1.7052,
+          "accuracy": 0.57,
+          "mean_confidence": 0.7909,
+          "ece": 0.227,
+          "brier": 0.6228,
+          "brier_top1": 0.2381
+        },
+        "noul": {
+          "items": 150,
+          "loss": 0.4479,
+          "accuracy": 0.8,
+          "mean_confidence": 0.8854,
+          "ece": 0.0914,
+          "brier": 0.2845,
+          "b

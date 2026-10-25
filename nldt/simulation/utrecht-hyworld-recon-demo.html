@@ -84,12 +84,7 @@
     </div>
     <aside>
       <h2>Scenario</h2>
-      <div class="stat-grid" id="metrics">
-        <div class="stat"><div class="lbl">Δ km²</div><div class="val" id="mDelta">—</div></div>
-        <div class="stat"><div class="lbl">relatief</div><div class="val" id="mPct">—</div></div>
-        <div class="stat"><div class="lbl">variant km²</div><div class="val" id="mFinal">—</div></div>
-        <div class="stat"><div class="lbl">IoU</div><div class="val" id="mIou">—</div></div>
-      </div>
+      <p id="verschil" style="font-size:0.88rem;font-weight:500;line-height:1.35;margin:0 0 10px;padding:8px 10px;border-left:4px solid #e5a50a;background:rgba(229,165,10,0.12)">—</p>
       <div class="stamp" id="stamp">Engine GeoJSON = SoT. Reconstructie is context only.</div>
 
       <h2>Recon</h2>
@@ -101,7 +96,7 @@
 
       <h2>Governance</h2>
       <p class="credit">
-        HAI Renderer-categorie (Stanford). Zones en km² komen uitsluitend uit
+        HAI Renderer-categorie (Stanford). Zones komen uitsluitend uit
         <code>scenario-report</code> / engine GeoJSON. HY-World WorldMirror levert
         geen input aan Critic V2/V3. Marble blijft het generative explore-pad.
       </p>
@@ -126,12 +121,16 @@
   var zonesVisible = true;
   var SITE = { lon: 5.154611, lat: 52.089389, height: 280 };
 
-  function fmtKm2(v) {
-    return (v >= 0 ? "+" : "") + Number(v).toFixed(3);
+  var VERSCHIL = {
+    "SC-Z-GROENE-CONTOUR-HARD": "Verschil: groene contour volledig uitgesloten (natuur eerst)",
+    "SC-Z-GEEN-NATURA-CARVE": "Verschil: Natura/ganzenrust niet meer uit het zonneveld gehaald",
+    "SC-Z-ZONE-BUFFER-500": "Verschil: zoekgebied zonneveld 500 m breder"
+  };
+  function verschilTekst(sc) {
+    return VERSCHIL[sc.scenarioId] || ("Verschil: " + (sc.name || sc.scenarioId));
   }
-  function pct(v) {
-    if (v == null) return "—";
-    return (v >= 0 ? "+" : "") + Number(v).toFixed(2) + "%";
+  function kortLabel(sc) {
+    return verschilTekst(sc).replace(/^Verschil:\s*/, "");
   }
   function specFor(id) {
     return (D.worldSceneSpecs || []).find(function (s) { return s.scenarioId === id; });
@@ -225,10 +224,7 @@
     var sc = D.scenarios.find(function (s) { return s.scenarioId === id; });
     if (!sc) return;
     var sp = specFor(id);
-    document.getElementById("mDelta").textContent = fmtKm2(sc.deltaKm2);
-    document.getElementById("mPct").textContent = pct(sc.deltaPct);
-    document.getElementById("mFinal").textContent = Number(sc.finalAreaKm2).toFixed(3);
-    document.getElementById("mIou").textContent = Number(sc.iou).toFixed(4);
+    document.getElementById("verschil").textContent = verschilTekst(sc);
 
     var stamp = document.getElementById("stamp");
     var gs = (sp && sp.groundingStamp) || "hyworld-recon-context-not-legal";
@@ -236,7 +232,7 @@
     stamp.textContent =
       "Stamp: " + gs + ". " +
       (sc.basisType === "hypothetical"
-        ? "Hypothetisch scenario — engine-cijfers reproduceerbaar; 3D recon is context."
+        ? "Hypothetisch scenario — engine reproduceerbaar; 3D recon is context."
         : "Policy/engine scenario — 3D recon blijft non-legal context. ") +
       "Provinciale zone-outline staat in de Leaflet what-if; hier: siteschaal-context.";
 
@@ -246,8 +242,8 @@
 
     clearZones();
     // Site-scale rectangles (province MultiPolygon is invisible at this zoom and can blank Cesium)
-    addSiteZone("#ff8205", 0.18, "control (site proxy)");
-    addSiteZone("#c45c26", 0.28, "scenario (site proxy)");
+    addSiteZone("#5e5c64", 0.18, "baseline (site proxy)");
+    addSiteZone("#c45c26", 0.28, kortLabel(sc) + " (site proxy)");
     if (viewer && viewer.scene) viewer.scene.requestRender();
   }
 
@@ -292,7 +288,7 @@
     D.scenarios.forEach(function (sc) {
       var o = document.createElement("option");
       o.value = sc.scenarioId;
-      o.textContent = sc.name + " (" + sc.basisType + ")";
+      o.textContent = kortLabel(sc);
       sel.appendChild(o);
     });
     sel.onchange = function () { showScenario(sel.value); };

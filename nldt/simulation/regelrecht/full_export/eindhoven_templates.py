@@ -94,14 +94,23 @@ def _mr_limit(
             },
             "execution": {
                 "produces": {"legal_character": "TOETS"},
-                "parameters": [
+                "parameters": [],
+                "input": [
                     {
+                        # $-verwijzingen lost de engine uitsluitend uit input op:
+                        # dit voorstelafhankelijke feit hoort daar, niet bij parameters.
                         "name": param,
                         "type": "number",
-                        "description": f"Gemeten {param} t.o.v. limiet {limit}",
+                        "description": f"Gemeten {param} van het voorstel t.o.v. limiet {limit}.",
+                        "source": {
+                            "description": (
+                                "Buiten wet-YAML: gemeten waarde uit het concrete "
+                                "voorstel (activiteitparameters, bestuurlijke notitie laag 2)."
+                            )
+                        },
                     }
-                ],
-                "input": inputs,
+                ]
+                + inputs,
                 "output": [
                     {
                         "name": out_name,
@@ -132,14 +141,21 @@ def _mr_verbod(article_number: str, *, source: str, reason: str) -> Dict[str, An
             },
             "execution": {
                 "produces": {"legal_character": "TOETS"},
-                "parameters": [
+                "parameters": [],
+                "input": [
                     {
+                        # $-verwijzingen lost de engine uitsluitend uit input op:
+                        # dit voorstelafhankelijke feit hoort daar, niet bij parameters.
                         "name": "activiteit_valt_onder_verbod",
                         "type": "boolean",
                         "description": "Of de voorgenomen activiteit onder het verbod valt.",
-                    }
-                ],
-                "input": [
+                        "source": {
+                            "description": (
+                                "Buiten wet-YAML: voorstelgegevens van de concrete "
+                                "activiteit (bestuurlijke notitie laag 2)."
+                            )
+                        },
+                    },
                     {
                         "name": "in_werkingsgebied",
                         "type": "boolean",
@@ -147,7 +163,7 @@ def _mr_verbod(article_number: str, *, source: str, reason: str) -> Dict[str, An
                         "source": {
                             "description": "Buiten wet-YAML; werkingsgebiedRef / zone-engine (MC-11)."
                         },
-                    }
+                    },
                 ],
                 "output": [
                     {

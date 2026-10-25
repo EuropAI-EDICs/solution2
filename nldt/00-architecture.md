@@ -108,7 +108,7 @@ Diagram: [`diagrams/container-view.mmd`](diagrams/container-view.mmd).
 | nLDT interfaces | Records / Processes / Recipe schema | [`schemas/`](schemas/) |
 | Implementation | EU Toolbox + PoC engines | [06](06-hybrid-implementation.md), [10](10-toolbox-integration.md) |
 | Data plane | Medallion lake + lakehouse | [13](13-data-lake-and-space.md) |
-| Infrastructure | Local FS / MinIO / K8s | [docker-compose.lake.yml](docker-compose.lake.yml), [`../ldtsolutions/`](../ldtsolutions/) |
+| Infrastructure | Local FS / RustFS / K8s | [docker-compose.lake.yml](docker-compose.lake.yml), [`../ldtsolutions/`](../ldtsolutions/) |
 
 ### 3.3 Agentic planes (PoC)
 
@@ -237,7 +237,7 @@ Inventory: [`data/lake-inventory.json`](data/lake-inventory.json).
 
 | Layer | Tech | Entry |
 |-------|------|-------|
-| Object store | FS / MinIO | [`docker-compose.lake.yml`](docker-compose.lake.yml) |
+| Object store | FS / RustFS | [`docker-compose.lake.yml`](docker-compose.lake.yml) |
 | Table format | **Apache Iceberg** (PyIceberg SqlCatalog) | [`services/lake/iceberg.py`](services/lake/iceberg.py) |
 | Query | **DuckDB** | [`services/lake/__init__.py`](services/lake/__init__.py) |
 | Transforms | **dbt Core** + `dbt-duckdb` | [`dbt_lake/`](dbt_lake/) |
@@ -325,7 +325,7 @@ Agent identity (W6a, real Keycloak credentials): `NLDT_WALLET_VERIFIER=mock|keyc
 `NLDT_AGENT_CREDENTIALS_FILE` ([`16 §W6a`](16-eid-wallet-identity.md));
 provision with [`scripts/provision_agent_clients.py`](scripts/provision_agent_clients.py).
 External (local Docker): Kestra bridge `:8086` ([`govchat/`](govchat/)), OpenWebUI `:8080`,
-MinIO (optional lake) `9000/9001` ([`docker-compose.lake.yml`](docker-compose.lake.yml)).
+RustFS (optional lake) `9000/9001` ([`docker-compose.lake.yml`](docker-compose.lake.yml)).
 
 Start: [`scripts/start-services.sh`](scripts/start-services.sh) ·
 [README quick start](README.md#snel-starten).

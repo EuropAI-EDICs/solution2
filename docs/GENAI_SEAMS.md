@@ -244,7 +244,7 @@ one governed nLDT/MCP agent layer over all PoCs (done 2026-09-15,
 replay); silver = normalised inputs for Cook; gold = schema-valid run
 artifacts + PROV. Communication: OGC Records → Cookbook → Processes read
 `lake://` / `s3://` URIs; Data Space offers are a separate publish step
-(never raw MinIO credentials to peers). See
+(never raw RustFS credentials to peers). See
 [`nldt/13-data-lake-and-space.md`](../nldt/13-data-lake-and-space.md) § Lake
 zones & Communication protocol.
 

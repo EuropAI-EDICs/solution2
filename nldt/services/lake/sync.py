@@ -24,6 +24,9 @@ POC_ROOTS = {
     "nspd": NLDT_ROOT.parent / "poc-nspd",
 }
 
+#: gedeelde RegelRecht/DSO-artefacten per instrument (nldt/simulation/regelrecht)
+REGELRECHT_DIR = NLDT_ROOT / "simulation" / "regelrecht"
+
 
 def access_class_for_local(
     path: Path,
@@ -105,15 +108,56 @@ def sync_tree(
 
 
 def default_sync_plan(pocs: Iterable[str] | None = None) -> list[dict[str, Any]]:
-    """Map local PoC dirs → lake keys (silver/bronze/gold)."""
+    """Map local PoC dirs → lake keys (silver/bronze/gold).
+
+    Een mapping-item is ``(zone, layer, path)`` of
+    ``(zone, layer, path, globs)``; met ``globs`` (lijst van bestands-globs,
+    relatief aan ``path``) worden alleen matchende bestanden gesynchroniseerd.
+    """
     selected = list(pocs) if pocs else ["utrecht", "breda"]
     plan: list[dict[str, Any]] = []
+
+    def _regelrecht_entries(poc: str) -> list[tuple]:
+        dso_out = REGELRECHT_DIR / "dso_overlap" / "out"
+        return [
+            # bronze: OW-uitwisselpakket (pons, GIO's) as-received
+            ("bronze", "dso-uitwisselpakket", dso_out, [f"{poc}__*.pakket.zip"]),
+            # silver: Presenteren-caches, tpod-indexen, toetsen, overlap-rapporten
+            (
+                "silver",
+                "dso-presenteren",
+                dso_out,
+                [
+                    f"{poc}__*.annotaties.json",
+                    f"{poc}__*.regeling.json",
+                    f"{poc}__*.rp.json",
+                    f"{poc}__*.documentstructuur.json",
+                    f"{poc}__*.tpod-index.json",
+                    f"{poc}__*.toets.json",
+                    f"{poc}__*.overlap.json",
+                    f"{poc}__*.pakket-index.json",
+                    f"{poc}__*.geo-validatie.json",
+                    f"{poc}__*.voorstel-sweep.json",
+                ],
+            ),
+            # silver: RegelRecht instrument-YAML, formalization-report, artikelen
+            (
+                "silver",
+                "regelrecht-export",
+                REGELRECHT_DIR / "full_export" / "out",
+                [f"{poc}-*.yaml", f"{poc}-*.json"],
+            ),
+            # gold: smoke-runs
+            ("gold", "regelrecht-runs", REGELRECHT_DIR / "runs", [f"{poc}-*.json"]),
+        ]
+
     mapping = {
         "utrecht": [
             ("silver", "geo", POC_ROOTS["utrecht"] / "data" / "cache"),
             ("silver", "sources", POC_ROOTS["utrecht"] / "data"),
             ("gold", "runs", POC_ROOTS["utrecht"] / "runs"),
-        ],
+        ]
+        + _regelrecht_entries("utrecht"),
         "breda": [
             ("silver", "geo", POC_ROOTS["breda"] / "data" / "cache"),
             ("silver", "sources", POC_ROOTS["breda"] / "data"),
@@ -122,7 +166,8 @@ def default_sync_plan(pocs: Iterable[str] | None = None) -> list[dict[str, Any]]
         "eindhoven": [
             ("silver", "corpus", POC_ROOTS["eindhoven"] / "corpus"),
             ("gold", "runs", POC_ROOTS["eindhoven"] / "runs"),
-        ],
+        ]
+        + _regelrecht_entries("eindhoven"),
         "rijnland": [
             ("silver", "geo", POC_ROOTS["rijnland"] / "data" / "cache"),
             ("silver", "sources", POC_ROOTS["rijnland"] / "data"),
@@ -148,8 +193,17 @@ def default_sync_plan(pocs: Iterable[str] | None = None) -> list[dict[str, Any]]
         ],
     }
     for poc in selected:
-        for zone, layer, path in mapping.get(poc, []):
-            plan.append({"poc": poc, "zone": zone, "layer": layer, "path": path})
+        for zone, layer, path, *rest in mapping.get(poc, []):
+            globs = rest[0] if rest else None
+            plan.append(
+                {
+                    "poc": poc,
+                    "zone": zone,
+                    "layer": layer,
+                    "path": path,
+                    "globs": globs,
+                }
+            )
     return plan
 
 
@@ -190,15 +244,17 @@ def run_sync(
                     }
                     uploaded.append(sync_file(client, f, key, metadata=meta, dry_run=dry_run))
             continue
-        for result in sync_tree(client, path, prefix, dry_run=dry_run):
-            result["poc"] = item["poc"]
-            result["zone"] = item["zone"]
-            result["accessClass"] = access_class_for_local(
-                path / Path(result["key"].split(f"{prefix}/")[-1]),
-                item["poc"],
-                deny,
-            )
-            uploaded.append(result)
+        globs = item.get("globs") or ["**/*"]
+        for g in globs:
+            for result in sync_tree(client, path, prefix, dry_run=dry_run, glob=g):
+                result["poc"] = item["poc"]
+                result["zone"] = item["zone"]
+                result["accessClass"] = access_class_for_local(
+                    path / Path(result["key"].split(f"{prefix}/")[-1]),
+                    item["poc"],
+                    deny,
+                )
+                uploaded.append(result)
 
     summary = {
         "bucket": DEFAULT_BUCKET,

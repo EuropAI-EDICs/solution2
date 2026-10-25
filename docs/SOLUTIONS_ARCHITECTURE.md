@@ -109,7 +109,7 @@ Legal sources are consumed **read-only and version-pinned** (snapshot under `doc
   │  poc/corpus/   legal evidence     │              ▼
   │  poc/data/     geo registry+cache │      ┌ Medallion data lake ─────────────────────┐
   │  poc/runs/<id>        artifacts   │      │ bronze · silver · gold · catalog/dcat    │
-  │  poc/scenario-runs/<id>  sweeps   │      │ FS or MinIO (NLDT_LAKE_BACKEND)          │
+  │  poc/scenario-runs/<id>  sweeps   │      │ FS or RustFS (NLDT_LAKE_BACKEND)         │
   │  poc/crosstrack-runs/<id> overlays│      │ Iceberg + DuckDB/dbt lakehouse           │
   └ stdlib+geo stack; core offline ───┘      │ lake-publish → ODRL offer → EDC connector│
         ▲ propose-only (temperature 0, gated) └──────────────────────────────────────────┘
@@ -300,7 +300,7 @@ Utrecht working sets remain the **engine cache**. The nLDT lake is the
 | **silver** | Normalised dual-CRS GeoJSON, `sources.json`, service manifests | `silver/utrecht/layers/…`, `silver/utrecht/meta/…` |
 | **gold** | Schema-valid run / scenario / crosstrack artifacts + PROV | `gold/utrecht/{run,scenario,crosstrack}/…` |
 
-**Communication protocol.** Agents and Cook resolve `file://`, `lake://nldt-poc-lake/{key}` or `s3://…` the same way. Discovery uses OGC Records; execution uses OGC Processes; cross-org sharing uses an ODRL offer via the pluggable connector (`mock` \| `edc-manifest` \| `http`) — peers do not get raw MinIO credentials. Default `accessClass` for Utrecht silver/gold is `open`; peilen-class restricted assets (other PoCs) require HITL.
+**Communication protocol.** Agents and Cook resolve `file://`, `lake://nldt-poc-lake/{key}` or `s3://…` the same way. Discovery uses OGC Records; execution uses OGC Processes; cross-org sharing uses an ODRL offer via the pluggable connector (`mock` \| `edc-manifest` \| `http`) — peers do not get raw RustFS credentials. Default `accessClass` for Utrecht silver/gold is `open`; peilen-class restricted assets (other PoCs) require HITL.
 
 **National discovery.** Curated harvest from [data.overheid.nl](https://data.overheid.nl) (CKAN → DCAT-AP-NL catalog records; downloads vs WFS/WMS as DataService) lands in the same lake ([`nldt/18-donl-harvest.md`](../nldt/18-donl-harvest.md)). DONL is a metadata hub, not a blob store.
 
@@ -308,7 +308,7 @@ Utrecht working sets remain the **engine cache**. The nLDT lake is the
 
 **Continuity.** Source monitor probes ArcGIS registries used by this pilot and DONL `metadata_modified` / resource URLs; patch proposals are never auto-applied ([`nldt/17-source-monitor.md`](../nldt/17-source-monitor.md)).
 
-**Ops.** `scripts/lake_sync.py --poc utrecht` · `build_lake_inventory.py` · optional MinIO (`NLDT_LAKE_BACKEND=s3`) · recipe `lake-publish-offer` for Data Space offers. Future KG/pgvector stores (plan §3.3) remain optional behind MCP; they are not required for the lake path.
+**Ops.** `scripts/lake_sync.py --poc utrecht` · `build_lake_inventory.py` · optional RustFS (`NLDT_LAKE_BACKEND=s3`) · recipe `lake-publish-offer` for Data Space offers. Future KG/pgvector stores (plan §3.3) remain optional behind MCP; they are not required for the lake path.
 
 ---
 

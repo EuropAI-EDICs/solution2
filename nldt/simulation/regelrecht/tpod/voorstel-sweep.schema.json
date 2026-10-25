@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "voorstel-sweep/v1",
+  "title": "voorstel-sweep",
+  "description": "Variant-sweep bovenop een voorstel: scorecard per variant plus kantelpunten (welke artikelen omslaan tussen varianten). Verkenning, geen besluit. Zie docs/POC_TPOD_IMOW_KANSEN.md, kans 1a.",
+  "type": "object",
+  "required": [
+    "contract",
+    "instrument",
+    "locatie",
+    "gegenereerdOp",
+    "voorstel",
+    "aantalVarianten",
+    "kantelArtikelen",
+    "varianten",
+    "interpretatie"
+  ],
+  "properties": {
+    "contract": { "const": "voorstel-sweep/v1" },
+    "instrument": {
+      "type": "object",
+      "required": ["id", "label", "cvdr"],
+      "properties": {
+        "id": { "type": "string" },
+        "label": { "type": "string" },
+        "cvdr": { "type": "string" }
+      }
+    },
+    "locatie": {
+      "type": "object",
+      "properties": { "id": { "type": ["string", "null"] } }
+    },
+    "gegenereerdOp": { "type": "string", "format": "date-time" },
+    "voorstel": {
+      "type": "object",
+      "required": ["basisparameters"],
+      "properties": {
+        "label": { "type": ["string", "null"] },
+        "basisparameters": { "type": "object" },
+        "toelichting": { "type": ["string", "null"] }
+      }
+    },
+    "aantalVarianten": { "type": "integer", "minimum": 0 },
+    "kantelArtikelen": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["artikel", "aantalWissels", "variaties"],
+        "properties": {
+          "artikel": { "type": "string" },
+          "aantalWissels": { "type": "integer", "minimum": 0 },
+          "variaties": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "varianten": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["variant", "waarden", "tellingen", "uitkomsten", "afgewezenArtikelen"],
+        "properties": {
+          "variant": { "type": "integer", "minimum": 1 },
+          "waarden": { "type": "object" },
+          "tellingen": { "type": "object" },
+          "uitkomsten": { "type": "object" },
+          "afgewezenArtikelen": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "interpretatie": { "type": "string" }
+  }
+}

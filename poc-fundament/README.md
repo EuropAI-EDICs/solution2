@@ -17,6 +17,8 @@ faal-isolatie, PROV, deterministisch — zie
 | `fundament/ops.py` + `executor.py` | `BindingExecutor` + generieke ops: per taak deterministisch leveren, falen degradeert (nooit fake, nooit fataal) |
 | `fundament/matrix.py` | matrix → markdown (declaratief + per-run uitkomst) |
 | `fundament/models.py` | modelregister-loader (BB13-patroon): computation-modellen + transports, schema-gevalideerd; conformance bewijst transport-bestaan |
+| `fundament/harnesslab.py` | harness-lab motor: harness-varianten, probe-evidence en adoptie (harness2-methode, eigen deterministische rechter) |
+| `tools/harness_lab.py` | CLI: `scaffold` / `probe` / `adopt` — zie de harness-lab-sectie hieronder |
 
 ## Matrix van de eerste pilot (minigim)
 
@@ -48,3 +50,44 @@ faal-isolatie, PROV, deterministisch — zie
 Eerste consument: `poc-minigim` (PoC-5) — canonisch identiek bewezen in M2 (golden-test + live-vergelijker; volatile run-meta uitgezonderd, lagen byte-gelijkg).
 Vervolg (eigen plannen): M3 slotgates in deep-agents, M4 transport-bruggen
 (nldt-processes / A2A Agent Cards), M5 golden-per-fase.
+
+## Harness-lab: varianten, probes, adoptie
+
+De lab behandelt de agent-harness (prompts, slotgate-toolgrants, model-pinnen)
+als versie-bare varianten — de propose–probe–compose-methode uit
+[google-research/harness2](https://github.com/google-research/harness2), maar
+gericht op onze eigen harness en geoordeeld door onze eigen deterministische
+rechter (geen LLM-jury). Zie
+`docs/superpowers/specs/2026-10-25-harness-lab-design.md`.
+
+- **Register**: `harnessregister.json` (per poc, patroon van het
+  modelregister): component (`prompt`/`toolGrants`/`modelPin`), target,
+  status `actief`/`kandidaat`/`verworpen`, sha256-gepingd artifact; precies
+  één `actief` per target (loader faalt daar luid op).
+- **Variant**: JSON tegen `schemas/harness-variant.schema.json`; paden van
+  prompt-bestanden zijn t.o.v. de map van het variantbestand.
+- **Taskset**: taken (`static`/`route`/`standalone`) met deterministische
+  checks (`delegatesTo`, `toolTraceIncludes`, `answer(Not)Contains`,
+  `slotgate(Allows|Forbids)`) tegen `schemas/probe-taskset.schema.json`.
+
+```bash
+# 1. baselijn pinnen (register + identiteits-variant)
+nldt/.venv/bin/python poc-fundament/tools/harness_lab.py scaffold \
+  --adapter deepagents --register deep-agents/harnessregister.json \
+  --out deep-agents/harness-lab/variants/baseline.json
+# 2. proberen — fake = offline montuurbewijs; llm = echt model (check_ollama)
+nldt/.venv/bin/python poc-fundament/tools/harness_lab.py probe --mode fake \
+  --taskset deep-agents/harness-lab/tasksets/routing-kern.json \
+  --variant deep-agents/harness-lab/variants/*.json --out harness-lab-runs/<ts>
+# 3. menselijke knop: alleen met voldoend llm-bewijs (of --allow-fake)
+nldt/.venv/bin/python poc-fundament/tools/harness_lab.py adopt \
+  --register deep-agents/harnessregister.json \
+  --variant .../variants/<id>.json --evidence .../runs/<ts>/<id>
+```
+
+Adoptie van een prompt-variant schrijft de varianttekst door naar het live
+promptbestand (de verworpen voorganger houdt zijn eigen sha256, dus de oude
+inhoud is reconstrueerbaar); `toolGrants`-adoptie is bewust geweigerd tot de
+manifest-generatoren dat dragen. De lab-motor importeert géén agent-laag —
+adapters worden door de CLI geïnjecteerd (eerste: `deep-agents/
+harness_lab_adapter.py`).

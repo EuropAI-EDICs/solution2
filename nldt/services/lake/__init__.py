@@ -1,4 +1,4 @@
-"""nLDT data lake client: filesystem or S3/MinIO backend + DuckDB analytics."""
+"""nLDT data lake client: filesystem or S3/RustFS backend + DuckDB analytics."""
 
 from __future__ import annotations
 
@@ -157,8 +157,8 @@ class S3LakeClient(LakeClient):
         self.client = boto3.client(
             "s3",
             endpoint_url=endpoint,
-            aws_access_key_id=os.environ.get("NLDT_LAKE_ACCESS_KEY", "minioadmin"),
-            aws_secret_access_key=os.environ.get("NLDT_LAKE_SECRET_KEY", "minioadmin"),
+            aws_access_key_id=os.environ.get("NLDT_LAKE_ACCESS_KEY", "nldtadmin"),
+            aws_secret_access_key=os.environ.get("NLDT_LAKE_SECRET_KEY", "nldtadmin"),
             region_name=os.environ.get("NLDT_LAKE_REGION", "us-east-1"),
         )
         try:
@@ -261,8 +261,8 @@ def duckdb_connect(readonly: bool = True):
                 pass
     if lake_backend() == "s3":
         endpoint = os.environ.get("NLDT_LAKE_ENDPOINT", "").replace("http://", "").replace("https://", "")
-        key = os.environ.get("NLDT_LAKE_ACCESS_KEY", "minioadmin")
-        secret = os.environ.get("NLDT_LAKE_SECRET_KEY", "minioadmin")
+        key = os.environ.get("NLDT_LAKE_ACCESS_KEY", "nldtadmin")
+        secret = os.environ.get("NLDT_LAKE_SECRET_KEY", "nldtadmin")
         con.execute(f"SET s3_access_key_id='{key}';")
         con.execute(f"SET s3_secret_access_key='{secret}';")
         if endpoint:

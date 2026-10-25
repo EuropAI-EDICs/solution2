@@ -1,0 +1,110 @@
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]Fetching 5 files: 100%|██████████| 5/5 [00:00<00:00, 3410.56it/s]
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]Fetching 5 files: 100%|██████████| 5/5 [00:00<00:00, 3389.61it/s]
+items: 1700 (skipped {}) from 340 cases
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]Fetching 5 files: 100%|██████████| 5/5 [00:00<00:00, 3587.33it/s]
+W1018 14:19:41.882000 5372 .venv/lib/python3.12/site-packages/torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+eval items 250 from /Users/marc/Projecten/ldttoolbox/deep-agents/laya_train/data/scenarios-eval.jsonl (skipped {}, 0 overlapping training/calibration items)
+train items 1530, calibration items 170, eval items 250 (/Users/marc/Projecten/ldttoolbox/deep-agents/laya_train/data/scenarios-eval.jsonl), skipped {}, device mps
+optimizer budget: 1530 train item(s), effective batch up to 64 (micro_batch 8 x grad_accum 8), 96 optimizer updates over 4 epoch(s)
+epoch 1/4 step 100 loss -0.3106
+epoch 1/4 mean loss 0.2142
+epoch 2/4 step 100 loss -0.0000
+epoch 2/4 mean loss 0.0802
+epoch 3/4 step 100 loss -0.0000
+epoch 3/4 mean loss 0.0288
+epoch 4/4 step 100 loss -0.0000
+epoch 4/4 mean loss 0.0409
+/Users/marc/Projecten/ldttoolbox/deep-agents/laya_train/finetune_local.py:76: RuntimeWarning: laya.train: noul calibration: the fit came back unchanged at 1.0 (accuracy 1.00, mean confidence 1.000 on the calibration items), which usually means they gave it nothing to correct; this type's confidences are uncalibrated
+  summary = finetune(
+
+=== Evaluation (before vs after fine-tuning on 250 held-out items from /Users/marc/Projecten/ldttoolbox/deep-agents/laya_train/data/scenarios-eval.jsonl) ===
+Metric                 Before         After          Delta         
+-----------------------------------------------------------------
+Accuracy               0.7000         0.9840         +0.2840       
+Loss                   0.9828         0.0723         -0.9105       
+ECE                    0.1487         0.0051         -0.1436       
+Brier (multi-class)    0.4369         0.0237         -0.4132       
+Brier (top-1)          0.1890         0.0109         -0.1781       
+Mean Confidence        0.8446         0.9861         +0.1415       
+-----------------------------------------------------------------
+
+{
+  "train_items": 1530,
+  "calibration_items": 170,
+  "eval_items": 250,
+  "skipped": {},
+  "epoch_loss": [
+    0.21420551908522611,
+    0.08020739568435904,
+    0.028827049881025833,
+    0.04086125641576164
+  ],
+  "temperature": [
+    4.688409805297852,
+    1.0,
+    1.0
+  ],
+  "temperature_by_options": {},
+  "n_by_bucket": {
+    "choice:6-10": 68,
+    "noul:2": 102
+  },
+  "calibration": {
+    "choice": {
+      "items": 68,
+      "temperature": 4.688409805297852,
+      "issues": [],
+      "accuracy": 0.9705882352941176,
+      "mean_confidence": 0.9812586396432664
+    },
+    "score": {
+      "items": 0,
+      "temperature": 1.0,
+      "issues": []
+    },
+    "noul": {
+      "items": 102,
+      "temperature": 1.0,
+      "issues": [
+        "the fit came back unchanged at 1.0 (accuracy 1.00, mean confidence 1.000 on the calibration items), which usually means they gave it nothing to correct; this type's confidences are uncalibrated"
+      ],
+      "accuracy": 1.0,
+      "mean_confidence": 0.9999999998534017
+    }
+  },
+  "abstention_thresholds": {
+    "choice:6-10": 0.8112,
+    "noul:2": 1.0
+  },
+  "train_report": {
+    "eval_source": "/Users/marc/Projecten/ldttoolbox/deep-agents/laya_train/data/scenarios-eval.jsonl",
+    "eval_mode": "held_out",
+    "is_held_out": true,
+    "eval_items": 250,
+    "note": "Metrics reflect independent held-out evaluation.",
+    "before": {
+      "items": 250,
+      "loss": 0.9828,
+      "accuracy": 0.7,
+      "mean_confidence": 0.8446,
+      "ece": 0.1487,
+      "brier": 0.4369,
+      "brier_top1": 0.189,
+      "by_type": {
+        "choice": {
+          "items": 100,
+          "loss": 1.7183,
+          "accuracy": 0.57,
+          "mean_confidence": 0.7885,
+          "ece": 0.2385,
+          "brier": 0.6267,
+          "brier_top1": 0.2398
+        },
+        "noul": {
+          "items": 150,
+          "loss": 0.4925,
+          "accuracy": 0.7867,
+          "mean_confidence": 0.882,
+          "ece": 0.1013,
+          "brier": 0.3103,
+     

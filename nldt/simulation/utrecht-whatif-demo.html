@@ -21,10 +21,8 @@
     button { background: #ff8205; color: #fff; cursor: pointer; border-color: #ff8205; }
     button.ghost { background: transparent; color: #ff8205; }
     button:disabled { opacity: 0.45; cursor: not-allowed; }
-    .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
-    .metric { background: #fff; border: 1px solid rgba(26,36,40,0.12); padding: 8px 10px; border-radius: 4px; }
-    .metric .v { font-size: 1.05rem; font-weight: 600; color: #ff8205; }
-    .metric .l { font-size: 0.72rem; color: #8a857a; }
+    .verschil { margin: 10px 0; padding: 10px 12px; font-size: 0.92rem; font-weight: 500;
+      border-left: 4px solid #e5a50a; background: rgba(229,165,10,0.12); color: #f5f2ec; line-height: 1.35; }
     .stamp { margin: 10px 0; padding: 8px 10px; font-size: 0.78rem; border-left: 3px solid #c45c26;
       background: rgba(196,92,38,0.12); color: #c9c4b8; }
     .stamp.ok { border-color: #ff8205; background: rgba(13,110,110,0.1); }
@@ -50,11 +48,11 @@
     <div id="side">
       <label for="scenSel">Scenario</label>
       <select id="scenSel"></select>
-      <div class="metrics" id="metrics"></div>
+      <div class="verschil" id="verschil">—</div>
       <div id="stamp" class="stamp ok"></div>
       <p class="legend">
-        <span style="background:#ff8205"></span> control (engine)
-        <span style="background:#ff8205;margin-left:10px"></span> variant (engine)
+        <span style="background:#5e5c64"></span> baseline (huidige regels)
+        <span style="background:#c45c26;margin-left:10px"></span> scenario-variant
       </p>
       <div class="marble-box" id="marbleBox">
         <strong>World Labs Marble (Renderer)</strong>
@@ -81,23 +79,23 @@
   var layerScenario = null;
   var layerVariant = null;
 
-  function fmtKm2(v) {
-    return (v >= 0 ? "+" : "") + Number(v).toFixed(3) + " km²";
+  // Zelfde éénregel-labels als viewer + contextkaarten (geen km²).
+  var VERSCHIL = {
+    "SC-Z-GROENE-CONTOUR-HARD": "Verschil: groene contour volledig uitgesloten (natuur eerst)",
+    "SC-Z-GEEN-NATURA-CARVE": "Verschil: Natura/ganzenrust niet meer uit het zonneveld gehaald",
+    "SC-Z-ZONE-BUFFER-500": "Verschil: zoekgebied zonneveld 500 m breder"
+  };
+  function verschilTekst(sc) {
+    return VERSCHIL[sc.scenarioId] || ("Verschil: " + (sc.name || sc.scenarioId));
   }
-  function pct(v) {
-    if (v == null) return "—";
-    return (v >= 0 ? "+" : "") + Number(v).toFixed(2) + "%";
+  function kortLabel(sc) {
+    return verschilTekst(sc).replace(/^Verschil:\s*/, "");
   }
   function specFor(id) {
     return (D.worldSceneSpecs || []).find(function (s) { return s.scenarioId === id; });
   }
-  function renderMetrics(sc) {
-    var el = document.getElementById("metrics");
-    el.innerHTML =
-      "<div class=\"metric\"><div class=\"v\">" + fmtKm2(sc.deltaKm2) + "</div><div class=\"l\">Δ vs control</div></div>" +
-      "<div class=\"metric\"><div class=\"v\">" + pct(sc.deltaPct) + "</div><div class=\"l\">relatief</div></div>" +
-      "<div class=\"metric\"><div class=\"v\">" + Number(sc.finalAreaKm2).toFixed(3) + "</div><div class=\"l\">variant km²</div></div>" +
-      "<div class=\"metric\"><div class=\"v\">" + Number(sc.iou).toFixed(4) + "</div><div class=\"l\">IoU vs control</div></div>";
+  function renderVerschil(sc) {
+    document.getElementById("verschil").textContent = verschilTekst(sc);
   }
   function renderStamp(sc, sp) {
     var st = document.getElementById("stamp");
@@ -144,7 +142,7 @@
     var sc = D.scenarios.find(function (s) { return s.scenarioId === id; });
     if (!sc) return;
     var sp = specFor(id);
-    renderMetrics(sc);
+    renderVerschil(sc);
     renderStamp(sc, sp);
     renderMarble(sp);
     if (layerVariant) map.removeLayer(layerVariant);
@@ -153,6 +151,7 @@
       layerVariant = L.geoJSON(fc, {
         style: { color: "#c45c26", weight: 2, fillColor: "#c45c26", fillOpacity: 0.25 }
       }).addTo(map);
+      layerVariant.bindPopup("<b>" + kortLabel(sc) + "</b><br>" + verschilTekst(sc));
       try {
         map.fitBounds(layerVariant.getBounds().pad(0.05));
       } catch (e) { /* ignore */ }
@@ -161,14 +160,15 @@
   function init() {
     document.getElementById("reportRef").textContent = D.reportId;
     layerControl = L.geoJSON(D.layers.control, {
-      style: { color: "#ff8205", weight: 2, fillColor: "#ff8205", fillOpacity: 0.15 }
+      style: { color: "#5e5c64", weight: 2, fillColor: "#5e5c64", fillOpacity: 0.12 }
     }).addTo(map);
+    layerControl.bindPopup("<b>baseline (huidige regels)</b><br>Baseline: kanszone met de huidige regels");
     try { map.fitBounds(layerControl.getBounds().pad(0.05)); } catch (e) { map.setView([52.09, 5.12], 9); }
     var sel = document.getElementById("scenSel");
     D.scenarios.forEach(function (sc) {
       var o = document.createElement("option");
       o.value = sc.scenarioId;
-      o.textContent = sc.name + " (" + sc.basisType + ")";
+      o.textContent = kortLabel(sc);
       sel.appendChild(o);
     });
     sel.onchange = function () { showScenario(sel.value); };

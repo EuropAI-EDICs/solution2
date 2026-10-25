@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LDT-toolbox — Rondleiding: alle demo's &amp; architecturen</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --ink: #1c2330; --muted: #5b6575;
+    --accent: #0b5cab; --accent-soft: #e8f0fa; --line: #dde3ea;
+    --ok: #1a7f4e; --warn: #b26a00; --chip: #eef2f6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.55 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  header {
+    background: linear-gradient(120deg, #0b2e5c, #0b5cab 60%, #1273c4);
+    color: #fff; padding: 18px 22px 14px;
+  }
+  header h1 { margin: 0; font-size: 20px; letter-spacing: .2px; }
+  header p { margin: 4px 0 0; opacity: .85; font-size: 13px; }
+  .progress-wrap { height: 5px; background: rgba(255,255,255,.25); margin-top: 12px; border-radius: 3px; }
+  .progress-bar { height: 5px; background: #ffd166; border-radius: 3px; width: 0; transition: width .25s; }
+  .layout { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 92px); }
+  nav {
+    border-right: 1px solid var(--line); background: var(--card);
+    overflow-y: auto; max-height: calc(100vh - 92px); position: sticky; top: 0;
+    padding: 10px 0 40px;
+  }
+  nav .ronde {
+    padding: 12px 16px 4px; font-size: 11px; text-transform: uppercase;
+    letter-spacing: .12em; color: var(--muted); font-weight: 700;
+  }
+  nav button.stopbtn {
+    display: block; width: 100%; text-align: left; border: 0; background: none;
+    padding: 7px 16px 7px 24px; cursor: pointer; font: inherit; color: var(--ink);
+    border-left: 3px solid transparent;
+  }
+  nav button.stopbtn:hover { background: var(--accent-soft); }
+  nav button.stopbtn.actief { border-left-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+  nav button.stopbtn.bezocht .titel::after { content: " ✓"; color: var(--ok); }
+  nav button.stopbtn .nr {
+    display: inline-block; width: 26px; color: var(--muted); font-variant-numeric: tabular-nums;
+  }
+  main { padding: 26px 34px 80px; max-width: 980px; }
+  .stop-meta { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+  .chip { background: var(--chip); border: 1px solid var(--line); border-radius: 20px;
+          padding: 2px 10px; font-size: 12px; color: var(--muted); }
+  .chip.type-demo { background: #e5f3e8; border-color: #c4e2cc; color: var(--ok); }
+  .chip.type-arch { background: var(--accent-soft); border-color: #c8daf0; color: var(--accent); }
+  .chip.type-artefact { background: #fff4e0; border-color: #f0dfba; color: var(--warn); }
+  .chip.type-portaal { background: #f0e8fa; border-color: #ddc8f0; color: #6a3bab; }
+  h2 { margin: 6px 0 10px; font-size: 24px; }
+  .wat { font-size: 16px; margin: 0 0 14px; }
+  .kaart { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+           padding: 22px 26px; box-shadow: 0 1px 3px rgba(16,24,40,.05); }
+  .zie { margin: 0; padding-left: 20px; }
+  .zie li { margin: 6px 0; }
+  .links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+  a.knop {
+    display: inline-block; background: var(--accent); color: #fff; text-decoration: none;
+    padding: 9px 16px; border-radius: 8px; font-weight: 600; font-size: 14px;
+    border: 1px solid var(--accent);
+  }
+  a.knop.bij { background: #fff; color: var(--accent); }
+  a.knop:hover { filter: brightness(1.07); }
+  .opmerking { font-size: 13px; color: var(--muted); margin-top: 14px;
+               border-left: 3px solid var(--line); padding-left: 12px; }
+  .pictogram { float: right; margin: -6px -10px 0 18px; opacity: .9; }
+  .navigatie { display: flex; justify-content: space-between; margin-top: 26px; gap: 12px; }
+  .navigatie button {
+    font: inherit; font-weight: 600; padding: 10px 20px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--card); cursor: pointer; color: var(--ink);
+  }
+  .navigatie button.volgende { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .navigatie button:disabled { opacity: .4; cursor: default; }
+  .alles { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .alles button { text-align: left; font: inherit; background: var(--card); border: 1px solid var(--line);
+                  border-radius: 10px; padding: 12px 14px; cursor: pointer; }
+  .alles button:hover { border-color: var(--accent); }
+  .alles .r { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
+  .alles .t { font-weight: 600; margin-top: 2px; }
+  .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .toolbar button { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--card);
+                    border-radius: 8px; padding: 6px 12px; cursor: pointer; color: var(--ink); }
+  .toolbar button.actief { background: var(--accent); color: #fff; border-color: var(--accent); }
+  footer { color: var(--muted); font-size: 12px; padding: 10px 22px 24px; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } nav { position: static; max-height: none; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>LDT-toolbox — Rondleiding</h1>
+  <p>Alle demo's en architecturen in één lopend verhaal · <span id="teller"></span> · pijltjestoetsen = vorige/volgende</p>
+  <div class="progress-wrap"><div class="progress-bar" id="voortgang"></div></div>
+</header>
+<div class="layout">
+  <nav id="menu" aria-label="Stops"></nav>
+  <main id="hoofd"></main>
+</div>
+<footer>
+  Werkt offline vanaf schijf (file://) en via <code>python3 -m http.server</code> uit <code>nldt/simulation/</code>.
+  Gegenereerde artefacten (dso_overlap/out) herbouw je met <code>nldt/.venv/bin/python -m nldt.simulation.regelrecht.tpod --toets --geo --sweep --voorstel …</code>.
+  Demo-portaal (run-rapporten) draait via <code>demo/server.py</code>.
+</footer>
+<script>
+"use strict";
+
+const RONDES = [
+  { id: "A", naam: "Fundament & architectuur" },
+  { id: "B", naam: "De vier PoC's" },
+  { id: "C", naam: "RegelRecht & TPOD/DSO-keten" },
+  { id: "D", naam: "Human-Centred Services (EDIC)" },
+  { id: "E", naam: "Bestuur & agentic state" },
+  { id: "F", naam: "Platform, data & dataspace" },
+  { id: "G", naam: "Governance & roadmap" },
+];
+
+const STOPS = [
+  // ── A. Fundament & architectuur
+  { ronde: "A", type: "arch", titel: "De hoofdarchitectuur",
+    wat: "Het kernstuk: hoe de toolbox is opgebouwd — van bron en geodata via governed agents naar rapportage — en welke keuzes daaraan ten grondslag liggen.",
+    zie: ["De lagen: bron → agents → critic → explainer", "Waar geometry, regels en rapportage elkaar raken"],
+    links: [["Open 00-architecture.html", "../00-architecture.html"]] },
+  { ronde: "A", type: "arch", titel: "Solutions-architectuur",
+    wat: "De solutions-architectuur achter de PoC-reeks: contracts → deterministic agents → critic met validatieniveaus → explainer/PROV → single-file rapport.",
+    zie: ["Het architectuurpatroon dat élke PoC herhaalt", "Waarom determinisme vóór LLM gaat"],
+    links: [["Open SOLUTIONS_ARCHITECTURE.md", "../../docs/SOLUTIONS_ARCHITECTURE.md"]] },
+  { ronde: "A", type: "demo", titel: "Architecture tour (interactive)",
+    wat: "Interactieve tour door de toolbox-lagen: lifecycle, router, alle vier de PoC's en de recipes-catalogus — de architectuur als demo.",
+    zie: ["Play-tours: lifecycle, router, PoC's", "Recipes-catalogus en MCP-skills"],
+    links: [["Open poc-mcp-skills.html", "poc-mcp-skills.html"]] },
+  { ronde: "A", type: "arch", titel: "Referentie-architectuur & bouwblokken",
+    wat: "Hoofdstuk 2 (referentie-architectuur) en 3 (bouwblokken): de generieke opbouw waar elke PoC een instantie van is.",
+    zie: ["Bouwblokken versus PoC-instanties", "Herbruikbare contracten tussen tracks"],
+    links: [["02-reference-architecture.md", "../02-reference-architecture.md"],
+            ["03-building-blocks.md", "../03-building-blocks.md"]] },
+  { ronde: "A", type: "arch", titel: "Agentlagen & GenAI-naad",
+    wat: "Waar zitten de agenten (hoofdstuk 5, 12) en waar mag GenAI wel en niet in ingrijpen (GenAI Seams): de naad tussen deterministische keten en taalmodellen.",
+    zie: ["Governed agent layer", "GenAI-seams: wat LLM's mogen voorstellen, nooit beslissen"],
+    links: [["05-agentic-ai-layer.md", "../05-agentic-ai-layer.md"],
+            ["12-governed-agent-layer.md", "../12-governed-agent-layer.md"],
+            ["GENAI_SEAMS.md", "../../docs/GENAI_SEAMS.md"]] },
+
+  // ── B. De vier PoC's
+  { ronde: "B", type: "demo", titel: "PoC Utrecht — kansrijke locaties",
+    wat: "\"Waar kan wat?\": norm → zone. Verordening + GIO + geodata → kansrijke locaties voor kleine windturbines, met scenario-copilot (Plane B) en context-schetsen per thema.",
+    zie: ["Kansrijke-zones kaart", "What if…? scenario-copilot", "Agent flow (LangGraph)"],
+    links: [["poc-utrecht.html", "poc-utrecht.html"],
+            ["whatif-demo", "utrecht-whatif-demo.html"],
+            ["agent flow", "utrecht-flow-demo.html"]] },
+  { ronde: "B", type: "demo", titel: "PoC Breda — five-value scan",
+    wat: "Breda AI in the City: de five-value scan met what-if en rapport, plus de schematische route-map naar de EDIC-handover.",
+    zie: ["Five-value scan", "What if…? varianten", "Route-map (roadmap)"],
+    links: [["poc-breda.html", "poc-breda.html"],
+            ["whatif-demo", "breda-whatif-demo.html"],
+            ["report-demo", "breda-report-demo.html"],
+            ["route-map", "edic-breda-roadmap.html"]] },
+  { ronde: "B", type: "demo", titel: "PoC Rijnland — waterpeilen",
+    wat: "Rijnland: waterstanden en peilbesluiten als zone-vraag; what-if op waterlevels en de agent flow erachter.",
+    zie: ["Waterlevels-scenario's", "Agent flow"],
+    links: [["poc-rijnland.html", "poc-rijnland.html"],
+            ["whatif-demo", "rijnland-whatif-demo.html"],
+            ["agent flow", "rijnland-flow-demo.html"]] },
+  { ronde: "B", type: "demo", titel: "PoC Eindhoven — bestemmingsplan → omgevingsplan",
+    wat: "\"Hoe verhuizen regels van oud naar nieuw recht?\": regel-voor-regel koppelen van de bruidschat (hfd 22/23) aan de doelregeling, met kennisbank, omzettabel en critic V0–V4.",
+    zie: ["Omzettabel met match-scores", "Kennisbank: 'komt in de plaats van'", "Het gecanonieke run-rapport"],
+    links: [["poc-eindhoven.html", "poc-eindhoven.html"],
+            ["agent flow", "eindhoven-flow-demo.html"],
+            ["run-rapport (canonieke run)", "../../poc-bp2op/runs/20260830-124515-eindhoven/report.html"]] },
+
+  // ── C. RegelRecht & TPOD/DSO-keten
+  { ronde: "C", type: "demo", titel: "RegelRecht-demo — van artikel naar uitvoerbare regel",
+    wat: "De volle-instrumentketen: artikel → YAML → schema → executie → trace over Utrecht en Eindhoven, live rekenend waar machine_readable bestaat, met onthoudingen-paneel en de altijd open juristoets.",
+    zie: ["Artikelkiezer + coverage", "Engine-selftest (16+K cases)", "Onthouding = volwaardig resultaat"],
+    links: [["Open regelrecht-demo.html", "regelrecht-demo.html"]] },
+  { ronde: "C", type: "arch", titel: "De rule graphs van beide PoC's",
+    wat: "Hoe Utrecht (norm→zone) en Eindhoven (regel→regel) spiegelpelissen zijn, en hoe RegelRecht (MinBZK) de beslislogica-laag wordt met de PoC's als feitenleveranciers.",
+    zie: ["Keten Utrecht vs Eindhoven", "Equivalentie-orakel tijdens de omzetting"],
+    links: [["POC_RULE_GRAPH.md (Utrecht)", "../../docs/POC_RULE_GRAPH.md"],
+            ["POC_RULE_GRAPH_EINDHOVEN.md", "../../docs/POC_RULE_GRAPH_EINDHOVEN.md"],
+            ["POC_REGELRECHT_INTEGRATION.md", "../../docs/POC_REGELRECHT_INTEGRATION.md"]] },
+  { ronde: "C", type: "arch", titel: "TPOD/IMOW-kansen — de DSO-annotatielaag",
+    wat: "Hoe STOP/TPOD/IMOW de officiële annotatielaag is die de PoC al impliciet gebruikte: vier kansen (geo-feiten, pons, wId-anchoring, activiteitstructuur) — inmiddels grotendeels geleverd én gekruisvalideerd.",
+    zie: ["34/34 punt-in-polygoon overeenstemming (Eindhoven)", "8/8 naam-afstemming (Utrecht)", "Pons: afwezig in beide aanleveringen — beantwoord"],
+    links: [["POC_TPOD_IMOW_KANSEN.md", "../../docs/POC_TPOD_IMOW_KANSEN.md"],
+            ["Geonovum STOP/TPOD-hub", "https://www.geonovum.nl/omgevingswet/STOPTPOD"]] },
+  { ronde: "C", type: "artefact", titel: "Artefacten van de TPOD-keten",
+    wat: "De herhaalbare artefacten onder dso_overlap/out: tpod-index (wId-anchoring + documentstructuur), punt-toets (457/457 getoetst met voorstel), geo-validatie, pakket-index en de voorstel-sweep met kantelpunten.",
+    zie: ["Scorecard 447 waar / 10 onwaar (bouwhoogte 12 m)", "4 kantel-artikelen in de 8-varianten-sweep", "CLI: … tpod --toets --geo --sweep --voorstel …"],
+    links: [["tpod-index Eindhoven", "../simulation/regelrecht/dso_overlap/out/eindhoven__eindhoven-woensel-proxy.tpod-index.json"],
+            ["punt-toets", "../simulation/regelrecht/dso_overlap/out/eindhoven__eindhoven-woensel-proxy.toets.json"],
+            ["geo-validatie", "../simulation/regelrecht/dso_overlap/out/eindhoven__eindhoven-woensel-proxy.geo-validatie.json"],
+            ["voorstel-sweep", "../simulation/regelrecht/dso_overlap/out/eindhoven__eindhoven-woensel-proxy.voorstel-sweep.json"],
+            ["voorstel-fixture", "regelrecht/tpod/fixtures/voorstel-eindhoven-bouwhoogte.json"]],
+    opmerking: "Artefacten zijn gegenereerd en gitignored; herbouw ze met de CLI uit de footer. De voorstel-fixture is wél gecommit." },
+  { ronde: "C", type: "arch", titel: "Bestuurlijke notitie — annotatie / toets / verkenning",
+    wat: "De drie lagen voor bestuur: DSO-annotatie (retrieval), RegelRecht-toets (deterministisch), AI-verkenning (zoekruimte) — met meetresultaten per instrument en de vijf bestuurlijke vragen.",
+    zie: ["Coverage-tabel Eindhoven/Utrecht", "Onthouding als volwaardig resultaat"],
+    links: [["POC_DSO_REGELRECHT_BESTUURLIJKE_NOTITIE.md", "../../docs/POC_DSO_REGELRECHT_BESTUURLIJKE_NOTITIE.md"]] },
+
+  // ── D. HCS/EDIC
+  { ronde: "D", type: "demo", titel: "HCS-menu — 53 recipes, 5 dishes",
+    wat: "Solutions for Change: alle EDIC-recipes als kaarten, met PoC-markering, vijf stappen × G1–G5 en roll-up naar KVI's.",
+    zie: ["Welke recipes al een PoC hebben", "Recipe-cyclus en scale path"],
+    links: [["Open hcs-menu-demo.html", "hcs-menu-demo.html"]] },
+  { ronde: "D", type: "demo", titel: "The Key — 'ik wil verhuizen'",
+    wat: "The Key als recipe-PoC: vijf blueprint-stappen als deterministische replay, persona-switcher met edge-cases, GenAI-testbank en KPI-baseline. Plus de vier city-dishes: UAM, GRN, CIR, MIN.",
+    zie: ["Deterministische replay van het levensevenement", "Edge-cases per persona"],
+    links: [["hcs-key-demo.html", "hcs-key-demo.html"],
+            ["UAM-01/09", "hcs-uam-demo.html"],
+            ["GRN-01/03", "hcs-grn-demo.html"],
+            ["CIR-04/01", "hcs-cir-demo.html"],
+            ["MIN-01/04", "hcs-min-demo.html"]] },
+
+  // ── E. Bestuur & agentic state
+  { ronde: "E", type: "demo", titel: "Agentic State — bestuurlijke demo",
+    wat: "Tien scènes: de Sitra-diagnose (organisatie-first vs function-first), de functie als gedeeld niveau, een gesimuleerde run door de reference chain en de vijf gates.",
+    zie: ["De reference chain als replay", "Vijf gates: waar de mens de knoppen houdt"],
+    links: [["agentic-state-demo.html", "agentic-state-demo.html"],
+            ["bestuurdersdemo", "agentic-state-bestuurders-demo.html"],
+            ["English", "agentic-state-demo-en.html"]] },
+  { ronde: "E", type: "arch", titel: "Bestuurlijke samenvatting & slides",
+    wat: "Managementniveau: wat beide PoC's bewijzen, wetgeving-hergebruik en de business case — plus de conference-slides over agentic AI in de ruimtelijke planning.",
+    zie: ["Business case (Amsterdams cijfers)", "Slides: agentic AI & spatial planning"],
+    links: [["POC_BESTUURLIJKE_SAMENVATTING.md", "../../docs/POC_BESTUURLIJKE_SAMENVATTING.md"],
+            ["bestuurlijke-samenvatting.md", "../bestuurlijke-samenvatting.md"],
+            ["slides (EN)", "../../docs/slides/2026-09-13-agentic-ai-spatial-planning-en.html"]] },
+
+  // ── F. Platform, data & dataspace
+  { ronde: "F", type: "arch", titel: "Data lake & European Data Space",
+    wat: "Medallion-zones (bronze/silver/gold), object-key-conventie, toegangsklassen en de lakehouse-stack — de DSO-artefacten van de RegelRecht-track liggen hier nu in voor Eindhoven en Utrecht.",
+    zie: ["Bronze pakket / silver caches+indices / gold runs", "Object-key convention", "Lakehouse: DuckDB + Iceberg + dbt"],
+    links: [["13-data-lake-and-space.md", "../13-data-lake-and-space.md"],
+            ["15-cdc-data-lake-pipeline.md", "../15-cdc-data-lake-pipeline.md"],
+            ["18-donl-harvest.md", "../18-donl-harvest.md"]] },
+  { ronde: "F", type: "portaal", titel: "Marketplace & deep-agents dashboard",
+    wat: "De marketplace-catalogus (bouwstenen als aanbidbare diensten) en het deep-agents-dashboard: de bovenste laag van de stack als werkomgeving.",
+    zie: ["Catalogus-structuur", "Deep agents als harness"],
+    links: [["marketplace", "../marketplace/index.html"],
+            ["deep-agents dashboard", "../../deep-agents/dashboard.html"]] },
+  { ronde: "F", type: "demo", titel: "IMRO, 3D & world context",
+    wat: "De conversie- en 3D-track: IMRO-omzetting, de 3D BAG-viewer (Rijnsweerd) en de HY World reconstructie van Utrecht als world context voor scenario's.",
+    zie: ["3D BAG in de browser", "WorldMirror-context voor scenario's"],
+    links: [["imro", "../../imro/index.html"],
+            ["3d-viewer", "../../3d-viewer/index.html"],
+            ["web3d-viewer", "web3d-viewer.html"],
+            ["HY World recon", "utrecht-hyworld-recon-demo.html"]] },
+  { ronde: "F", type: "portaal", titel: "Demo-portaal (run-rapporten)",
+    wat: "Eén portaal over alle PoC-run-rapporten (matrix, gebiedscheck, transports, golden, suites) — geserveerd door demo/server.py, inclusief prov-bundles.",
+    zie: ["Run-matrix over alle PoC's", "prov.json per run"],
+    links: [["Open demo/portal.html (via server)", "../../demo/portal.html"]],
+    opmerking: "Start eerst: python3 demo/server.py — het portaal haalt run-artefacten via /api/artifact op." },
+  { ronde: "F", type: "demo", titel: "Dataspace & ODRL-beleid",
+    wat: "Hoe data delen tussen overheden beleidsmatig is geregeld: ODRL-usage-policies in de dataspace — de share plane van de lake.",
+    zie: ["ODRL-beleid als code", "Access classes: open / internal / restricted"],
+    links: [["odrl-dataspace-demo.html", "odrl-dataspace-demo.html"],
+            ["26-odrl-usage-policies.md", "../26-odrl-usage-policies.md"]] },
+
+  // ── G. Governance & roadmap
+  { ronde: "G", type: "arch", titel: "Trust & governance",
+    wat: "Hoofdstuk 7: vertrouwen in de keten — critic-niveaus, PROV-bundles, mens-op-de-knoppen en audit-trails als ontwerpeisen, niet als sluitstuk.",
+    zie: ["Critic V0–V4 als architectuurprincipe", "PROV: agents, sha256, derivations"],
+    links: [["07-trust-and-governance.md", "../07-trust-and-governance.md"],
+            ["11-poc-patterns-scenarios-qa.md", "../11-poc-patterns-scenarios-qa.md"]] },
+  { ronde: "G", type: "arch", titel: "Roadmap & soevereiniteit",
+    wat: "De weg vooruit (hoofdstuk 8), de EDIC-soevereiniteits tiers en de alignment-pagina's richting programma's (DTAS, ZichtOpNL, IMB).",
+    zie: ["Fasering van PoC naar platform", "Sovereignty tiers"],
+    links: [["08-roadmap.md", "../08-roadmap.md"],
+            ["sovereignty-tiers.md", "../edic/sovereignty-tiers.md"],
+            ["23-dtas-alignment.md", "../23-dtas-alignment.md"]] },
+];
+
+const PICTOGRAM = {
+  demo: '<svg class="pictogram" width="54" height="40" viewBox="0 0 54 40"><rect x="2" y="3" width="50" height="32" rx="4" fill="#e5f3e8" stroke="#1a7f4e" stroke-width="2"/><path d="M18 12l8 7-8 7" fill="none" stroke="#1a7f4e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><rect x="16" y="37" width="22" height="3" rx="1.5" fill="#c4e2cc"/></svg>',
+  arch: '<svg class="pictogram" width="54" height="40" viewBox="0 0 54 40"><path d="M4 14L27 3l23 11" fill="#e8f0fa" stroke="#0b5cab" stroke-width="2"/><rect x="8" y="16" width="6" height="18" fill="#c8daf0"/><rect x="18" y="16" width="6" height="18" fill="#c8daf0"/><rect x="28" y="16" width="6" height="18" fill="#c8daf0"/><rect x="38" y="16" width="6" height="18" fill="#c8daf0"/><rect x="4" y="34" width="46" height="4" fill="#0b5cab"/></svg>',
+  artefact: '<svg class="pictogram" width="50" height="40" viewBox="0 0 50 40"><path d="M6 4h26l10 10v22H6z" fill="#fff4e0" stroke="#b26a00" stroke-width="2"/><path d="M32 4v10h10" fill="none" stroke="#b26a00" stroke-width="2"/><path d="M13 20h20M13 26h20M13 32h13" stroke="#b26a00" stroke-width="2" stroke-linecap="round"/></svg>',
+  portaal: '<svg class="pictogram" width="54" height="40" viewBox="0 0 54 40"><rect x="2" y="4" width="50" height="32" rx="4" fill="#f0e8fa" stroke="#6a3bab" stroke-width="2"/><circle cx="12" cy="11" r="2.5" fill="#6a3bab"/><circle cx="20" cy="11" r="2.5" fill="#6a3bab"/><rect x="7" y="17" width="40" height="14" rx="2" fill="#fff" stroke="#6a3bab" stroke-width="1.5"/></svg>',
+};
+
+const bezocht = new Set(JSON.parse(localStorage.getItem("tour-bezocht") || "[]"));
+let huidige = 0;
+const param = new URLSearchParams(location.search).get("stop");
+if (param !== null) huidige = Math.max(0, Math.min(STOPS.length - 1, parseInt(param, 10) || 0));
+
+const menu = document.getElementById("menu");
+const hoofd = document.getElementById("hoofd");
+
+function bouwMenu() {
+  menu.innerHTML = "";
+  let ronde = "";
+  STOPS.forEach((s, i) => {
+    if (s.ronde !== ronde) {
+      ronde = s.ronde;
+      const r = document.createElement("div");
+      r.className = "ronde";
+      const def = RONDES.find(x => x.id === ronde);
+      r.textContent = (def ? def.naam : ronde);
+      menu.appendChild(r);
+    }
+    const b = document.createElement("button");
+    b.className = "stopbtn" + (i === huidige ? " actief" : "") + (bezocht.has(i) ? " bezocht" : "");
+    b.innerHTML = `<span class="nr">${i + 1}</span><span class="titel">${s.titel}</span>`;
+    b.onclick = () => ga(i);
+    menu.appendChild(b);
+  });
+}
+
+function render() {
+  const s = STOPS[huidige];
+  const def = RONDES.find(x => x.id === s.ronde);
+  const links = s.links.map(([t, href]) =>
+    `<a class="knop" href="${href}" onclick="markeerBezocht(${huidige})">${t}</a>`).join("");
+  hoofd.innerHTML = `
+    <div class="toolbar">
+      <button id="modus-tour" class="actief">Tour</button>
+      <button id="modus-alles">Alle stops</button>
+      <button id="reset">Voortgang wissen</button>
+    </div>
+    <div class="kaart">
+      <div class="stop-meta">
+        <span class="chip">Ronde ${s.ronde} — ${def ? def.naam : ""}</span>
+        <span class="chip type-${s.type}">${s.type}</span>
+        <span class="chip">stop ${huidige + 1} / ${STOPS.length}</span>
+      </div>
+      ${PICTOGRAM[s.type] || ""}
+      <h2>${s.titel}</h2>
+      <p class="wat">${s.wat}</p>
+      <ul class="zie">${(s.zie || []).map(z => `<li>${z}</li>`).join("")}</ul>
+      <div class="links">${links}</div>
+      ${s.opmerking ? `<p class="opmerking">${s.opmerking}</p>` : ""}
+    </div>
+    <div class="navigatie">
+      <button id="vorige" ${huidige === 0 ? "disabled" : ""}>← Vorige</button>
+      <button id="volgende" class="volgende" ${huidige === STOPS.length - 1 ? "disabled" : ""}>Volgende →</button>
+    </div>`;
+  document.getElementById("vorige").onclick = () => ga(huidige - 1);
+  document.getElementById("volgende").onclick = () => ga(huidige + 1);
+  document.getElementById("modus-alles").onclick = renderAlles;
+  document.getElementById("reset").onclick = () => {
+    bezocht.clear(); localStorage.removeItem("tour-bezocht"); bouwMenu(); updateVoortgang();
+  };
+  bouwMenu();
+  updateVoortgang();
+  hoofd.scrollTop = 0;
+}
+
+function renderAlles() {
+  hoofd.innerHTML = `
+    <div class="toolbar">
+      <button id="modus-tour">Tour</button>
+      <button id="modus-alles" class="actief">Alle stops</button>
+      <button id="reset">Voortgang wissen</button>
+    </div>
+    <div class="alles">
+      ${STOPS.map((s, i) => `
+        <button onclick="ga(${i})">
+          <div class="r">Ronde ${s.ronde} · ${s.type}</div>
+          <div class="t">${s.titel}</div>
+        </button>`).join("")}
+    </div>`;
+  document.getElementById("modus-tour").onclick = () => render();
+  document.getElementById("reset").onclick = () => {
+    bezocht.clear(); localStorage.removeItem("tour-bezocht"); renderAlles(); updateVoortgang();
+  };
+  updateVoortgang();
+}
+
+function ga(i) {
+  huidige = Math.max(0, Math.min(STOPS.length - 1, i));
+  bezocht.add(huidige);
+  localStorage.setItem("tour-bezocht", JSON.stringify([...bezocht]));
+  history.replaceState(null, "", "?stop=" + huidige);
+  render();
+}
+
+function updateVoortgang() {
+  document.getElementById("teller").textContent = `${bezocht.size} van ${STOPS.length} stops bezocht`;
+  document.getElementById("voortgang").style.width =
+    (100 * bezocht.size / STOPS.length) + "%";
+}
+
+window.markeerBezocht = (i) => {
+  bezocht.add(i);
+  localStorage.setItem("tour-bezocht", JSON.stringify([...bezocht]));
+  updateVoortgang();
+};
+
+document.addEventListener("keydown", (e) => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+  if (e.key === "ArrowRight" || e.key === "PageDown") ga(huidige + 1);
+  if (e.key === "ArrowLeft" || e.key === "PageUp") ga(huidige - 1);
+});
+
+render();
+</script>
+</body>
+</html>

@@ -21,7 +21,7 @@ services/donl_harvest/
     ├── distributions.py  download vs DataService split
     └── harvest.py        bronze + catalog/dcat + silver manifests
     ▼
-nldt-poc-lake (FS or MinIO)
+nldt-poc-lake (FS or RustFS)
     ├── bronze/donl/…
     ├── catalog/dcat/…
     └── silver/donl/services/…
@@ -101,7 +101,7 @@ PYTHONPATH=. python -m services.source_monitor.cli run --mode replay
 
 ## Cluster (LDT Toolbox)
 
-1. Deploy Data Platform MinIO bucket `nldt-poc-lake` ([`../ldtsolutions/NLDT_MCP_DEPLOY.md`](../ldtsolutions/NLDT_MCP_DEPLOY.md))
+1. Deploy Data Platform RustFS bucket `nldt-poc-lake` ([`../ldtsolutions/NLDT_MCP_DEPLOY.md`](../ldtsolutions/NLDT_MCP_DEPLOY.md))
 2. `export NLDT_LAKE_BACKEND=s3 NLDT_LAKE_ENDPOINT=…`
 3. Run harvest from orchestrator or CronJob
 4. Publish offers via `NLDT_DATASPACE_CONNECTOR=edc-manifest` or live EDC/DSR

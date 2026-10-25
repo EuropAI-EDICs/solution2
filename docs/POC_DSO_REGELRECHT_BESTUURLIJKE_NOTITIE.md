@@ -66,6 +66,12 @@ Bestuurlijk levert dit vijf concrete voordelen:
 **Werkend**
 
 - Overlap-pipeline Eindhoven + Utrecht (Presenteren → formaliseringsrapport → rapport).
+- Punt-toets: formalized artikelen uit de DSO-hit geëxecuteerd op de TPOD-geo-feiten. Op de fixture-punten: Utrecht 7/7 getoetst; Eindhoven 434 scenario-runs + 23 onthoudingen zonder voorstel, en met het bouwhoogte-voorstel **457/457 getoetst (447 waar / 10 onwaar, 0 onthouding)** — het end-to-end use-case-antwoord op vraag 3.
+- Verkenning (laag 3, mechanisch): de variant-sweep over 8 bouwhoogte-stappen (4→20 m) toont de kantelpunten — de ladder loopt van 450 naar 446 "waar", **4 artikelen zijn gevoelig** (22.140, 5.81, 6.44, 6.7). Deterministische onderlaag voor AI-scenarioverkenning.
+- Geo-kruisvalidatie: de DSO-puntselectie is punt-in-polygoon gecontroleerd tegen de echte GIO-geometrie uit de aanlevering — Eindhoven 34/34 overeenstemming; Utrecht via geometrie-sweep + naam-afstemming 8/8 (registratie-onafhankelijk).
+- OW-uitwisselpakketten via de downloaden-API: GIO-geometrie-adressen (151 GML's voor Eindhoven, 119 voor Utrecht) en de pons-beantwoording — Eindhovens pakket geïnspecteerd: géén pons-objecten; de gebiedsaanwijzing "ruimtelijke regels tijdelijk deel nog in werking" (16 artikelen) is daar de functionele bruidschatgrens.
+- Hele-instrument documentstructuur (wId-boom) per instrument in de index: anchoring en toekomstige wId-grounding los van het bevraagde punt.
+- Alles geland in de data lake (bronze pakket / silver caches+indices+export / gold runs) voor beide instrumenten.
 - Herhaalbare offline-herberekening op gecachte DSO-antwoorden.
 - Bestaande RegelRecht-exporten en demo's voor beide instrumenten.
 
@@ -74,7 +80,7 @@ Bestuurlijk levert dit vijf concrete voordelen:
 - Bevraging op **pre-productie**-DSO; 1:1-vergelijking met de publieke productie-viewer vraagt een productie-API-sleutel.
 - Eindhoven-locatie is een **Woensel-proxy** (kadastraal perceel uit de plekinfo-URL was via open geocode niet eenduidig te pinnen).
 - Utrecht-punt (Domplein) raakt bewust weinig zone-gebonden regels (bijv. art. 5.3 kleine windturbine valt daar niet); coverage is locatie-afhankelijk.
-- Uitvoerbaarheid vereist nog **feiten buiten de wet-YAML** (punt-in-werkingsgebied, activiteitparameters, eventueel strijd met tijdelijk deel via Ruimtelijke plannen).
+- Uitvoerbaarheid: met een expliciet voorstel (fixture `voorstel/v1`) is de volledige formalized-hit getoetst; zonder voorstel blijven numerieke parameters en scenario's onthouding/scenario. De Utrechtse *artikel*-niveau GIO-koppeling (regel→GIO) blijft registratiezijdig; zones zijn inmiddels registratie-onafhankelijk bevestigd.
 - Geen autonome goedkeuring: formalisering blijft cite-or-abstain; mens op de knop blijft staan.
 
 **Bewust niet**
@@ -86,7 +92,7 @@ Bestuurlijk levert dit vijf concrete voordelen:
 
 1. **Ken de driedeling annotatie / toets / verkenning toe** als uitgangspunt voor AI-scenario's in de omgevingswet-praktijk.
 2. **Accepteer “onthouding” als volwaardig resultaat** — liever zichtbaar niet-rekenbaar dan een verzonnen besluit.
-3. **Geef mandaat voor de volgende technische stap:** één of twee bestuurlijk herkenbare use-cases (bijv. bouwhoogte-scenario Eindhoven; zonevraag Utrecht) end-to-end: DSO-feiten → RegelRecht-trace → AI-voorstel met scorecard.
+3. **Geef mandaat voor de volgende technische stap:** de geleverde end-to-end-keten (DSO-feiten → RegelRecht-trace → voorstel-scorecard + kantelpunt-sweep) uitbreiden naar meer bestuurlijk herkenbare use-cases en meer instrumenten (zonevraag Utrecht art. 5.3; andere gemeenten).
 4. **Regel productie-DSO-toegang** waar nodig voor vergelijking met wat burgers en ambtenaren in het loket zien.
 5. **Blijf bijdragen aan RegelRecht** (MinBZK): lokale regelgeving in het landelijke corpus vergroot hergebruik tussen overheden.
 
@@ -105,5 +111,7 @@ Bestuurlijk levert dit vijf concrete voordelen:
 - Overlap-index: `nldt/simulation/regelrecht/dso_overlap/out/overlap-index.json`
 - Eindhoven-rapport: `…/eindhoven__eindhoven-woensel-proxy.overlap.json`
 - Utrecht-rapport: `…/utrecht__utrecht-domplein.overlap.json`
-- Aanroep: `python -m nldt.simulation.regelrecht.dso_overlap.compare --instruments eindhoven,utrecht` (env: `DSO_API_KEY`, optioneel `RP_API_KEY`)
+- TPOD/IMOW-index (wId-anchoring, geo-feiten + GIO-adressen, activiteitstructuur, documentstructuur, pons-status): `…/*.tpod-index.json`; punt-toets: `…/*.toets.json`; kansenkaart: [POC_TPOD_IMOW_KANSEN.md](POC_TPOD_IMOW_KANSEN.md)
+- Alles in de data lake: `bronze/<poc>/dso-uitwisselpakket`, `silver/<poc>/dso-presenteren`, `silver/<poc>/regelrecht-export`, `gold/<poc>/regelrecht-runs` (sync via `nldt/scripts/lake_sync.py --poc eindhoven --poc utrecht`)
+- Aanroep: `python -m nldt.simulation.regelrecht.dso_overlap.compare --instruments eindhoven,utrecht --pakket` (sleutels in `.env`); index + toets: `python -m nldt.simulation.regelrecht.tpod --instruments eindhoven,utrecht --toets` (offline)
 - Integratieanalyse RegelRecht: [POC_REGELRECHT_INTEGRATION.md](POC_REGELRECHT_INTEGRATION.md)
