@@ -154,6 +154,40 @@ GOOD_PROPOSAL = {
     "bufferDistanceM": 300,
     "conditions": [],
     "rationale": "The quoted article fixes a 300 m attention distance to noise-sensitive objects inside the zone.",
+    "execution": {
+        "produces": {"legal_character": "TOETS"},
+        "parameters": [],
+        "input": [
+            {
+                "name": "in_gevoelige_zone",
+                "type": "boolean",
+                "description": "Geo-feit: binnen gevoelige zone.",
+                "source": {"description": "zone-engine / GIO"},
+            }
+        ],
+        "output": [{"name": "attention_ok", "type": "boolean", "description": "Attention predicate holds."}],
+        "actions": [
+            {
+                "output": "attention_ok",
+                "value": {
+                    "operation": "EQUALS",
+                    "subject": "$in_gevoelige_zone",
+                    "value": True,
+                },
+            }
+        ],
+    },
+    "zoneBinding": {
+        "inputs": {
+            "in_gevoelige_zone": {
+                "zoneIds": ["gevoelige_zone"],
+                "selection": "within",
+                "geometrySource": "provincial_gio",
+                "gioJoinId": "/join/id/regdata/pv26/2025/gio00000000-0000-0000-0000-000000000000/nld@2025-08-18;1",
+                "bufferDistanceM": 300,
+            }
+        }
+    },
 }
 
 

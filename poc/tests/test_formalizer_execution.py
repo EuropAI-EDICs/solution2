@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import copy
 import unittest
 from pathlib import Path
 
+import pipeline.agents as agents
 from pipeline.agents import NormAnalyst, NormFormalizer
 from pipeline.zone_projector import project_zone
 
@@ -72,6 +74,36 @@ class FormalizerExecutionTests(unittest.TestCase):
         self.assertEqual(rule.status, "ambiguous")
         self.assertIn("RegelRecht SoT", rule.reason)
         self.assertIn("lacks execution", rule.reason)
+
+    def test_llm_proposal_with_execution_dual_writes(self):
+        card = self._w03()
+        spec = agents.TEMPLATE_SPECS[card.evidenceId]
+        saved = agents.TEMPLATE_SPECS.pop(card.evidenceId)
+        try:
+            hook = _Hook({
+                "kind": "inclusion",
+                "zoneIds": ["gebied_kleine_windturbine"],
+                "rationale": "Art. 5.3 lid 1 via gated LLM with RegelRecht execution.",
+                "conditions": [],
+                "execution": copy.deepcopy(spec["execution"]),
+                "zoneBinding": copy.deepcopy(spec["zoneBinding"]),
+            })
+            formalizer = NormFormalizer(llm_hook=hook)
+            rule = formalizer.formalize([card])[0].to_dict()
+        finally:
+            agents.TEMPLATE_SPECS[card.evidenceId] = saved
+        self.assertEqual(rule["status"], "formalized")
+        self.assertIn("execution", rule)
+        self.assertIn("zoneBinding", rule)
+        self.assertEqual(rule["formalizedBy"], "norm-formalizer#test")
+        self.assertIn("llm_proposed", rule["appliesTo"]["contextTags"])
+        projected = project_zone(
+            rule["execution"], rule["zoneBinding"],
+            zone_semantics=rule["zoneSemantics"], rule_type=rule["ruleType"],
+        )
+        self.assertEqual(projected["zoneSelector"], rule["zoneSelector"])
+        self.assertEqual(projected["conditions"], rule["conditions"])
+        self.assertEqual(formalizer.last_coverage["llm_proposed"], 1)
 
 
 if __name__ == "__main__":

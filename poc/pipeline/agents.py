@@ -476,6 +476,41 @@ def _base_rule(
     return rule
 
 
+def _formalized_execution_rule(
+    card: NormCard,
+    *,
+    execution: Mapping[str, Any],
+    zone_binding: Optional[Mapping[str, Any]],
+    rule_type: str,
+    zone_semantics: str,
+    executable_ref: str,
+    extra_tags: Sequence[str] = (),
+    rationale: Optional[str] = None,
+    related: Optional[List[str]] = None,
+) -> Dict[str, Any]:
+    """Formalized rule with RegelRecht execution SoT and projected zone fields."""
+    exec_copy = copy.deepcopy(dict(execution))
+    zb_copy = copy.deepcopy(dict(zone_binding)) if zone_binding is not None else None
+    projected = project_zone(
+        exec_copy, zb_copy,
+        zone_semantics=zone_semantics, rule_type=rule_type,
+    )
+    return _base_rule(
+        card,
+        status="formalized",
+        rule_type=rule_type,
+        zone_semantics=zone_semantics,
+        executable_ref=executable_ref,
+        extra_tags=extra_tags,
+        rationale=rationale,
+        related=related,
+        zone_selector=projected["zoneSelector"],
+        conditions=projected["conditions"],
+        execution=exec_copy,
+        zone_binding=zb_copy,
+    )
+
+
 _NNN_GIO = "/join/id/regdata/pv26/2025/gio3111b509-00cb-46c0-9967-b8102f81c85f/nld@2025-08-18;803"
 _GROENE_CONTOUR_GIO = "/join/id/regdata/pv26/2025/gioee37db62-22b1-4334-bf89-7ddf4e5812c6/nld@2025-08-18;798"
 _GEBIED_WINDENERGIE_GIO = "/join/id/regdata/pv26/2025/giocc2ef601-3b25-4428-8808-e77ae1e47b4d/nld@2025-10-10;846"
@@ -545,56 +580,6 @@ class NormFormalizer:
 
     # -- internals ------------------------------------------------------------
 
-    def _llm_rule(self, card: NormCard, proposal: Mapping[str, Any]) -> Dict[str, Any]:
-        """Assemble a FormalRule from a *gated* S2 proposal.
-
-        The hook has already validated kind/zone grounding/quote grounding;
-        this builder remains deterministic: geometrySource/gioJoinId/caveat
-        come from the card's own geoBinding (never from the model), the
-        kind→ruleType/zoneSemantics/executableRef mapping is a fixed table,
-        and the seam stamps identity into ``formalizedBy``.
-        """
-        from pipeline.norm_llm import KIND_MAP
-
-        meta = KIND_MAP[proposal["kind"]]
-        gb_obj = getattr(card, "geoBinding", None)
-        gb: Dict[str, Any] = {}
-        if gb_obj is not None:
-            import dataclasses
-
-            gb = dataclasses.asdict(gb_obj) if dataclasses.is_dataclass(gb_obj) else dict(gb_obj)
-        zone_selector: Dict[str, Any] = {
-            "zoneIds": list(proposal["zoneIds"]),
-            "selection": meta["selection"],
-            "geometrySource": gb.get("geometrySource") or "national_source",
-        }
-        if gb.get("gioJoinId"):
-            zone_selector["gioJoinId"] = gb.get("gioJoinId")
-        if gb.get("caveat"):
-            zone_selector["caveat"] = gb.get("caveat")
-        if proposal.get("bufferDistanceM") is not None:
-            zone_selector["bufferDistanceM"] = proposal["bufferDistanceM"]
-        rule = _base_rule(
-            card,
-            status="formalized",
-            rule_type=meta["rule_type"],
-            zone_semantics=meta["zone_semantics"],
-            executable_ref=meta["executable_ref"],
-            extra_tags=("llm_proposed",),
-            rationale=(
-                str(proposal["rationale"]).rstrip(". ")
-                + ". [gated LLM proposal (S2); deterministic gates passed; human review required]"
-            ),
-            zone_selector=zone_selector,
-            conditions=list(proposal.get("conditions") or []),
-        )
-        stamp = getattr(self.llm_hook, "stamp", None)
-        if stamp:
-            agent, _, _version = self.run_ref.partition("#")
-            rule["formalizedBy"] = f"{agent}#{stamp}"
-        self._llm_proposed += 1
-        return rule
-
     def _formalize_card(self, card: NormCard) -> FormalRule:
         spec = TEMPLATE_SPECS.get(card.evidenceId)
         if spec is None:
@@ -620,7 +605,28 @@ class NormFormalizer:
                                 "for review instead of guessing."
                             ),
                         ))
-                    return FormalRule.from_dict(self._llm_rule(card, proposal))
+                    from pipeline.norm_llm import KIND_MAP
+
+                    meta = KIND_MAP[proposal["kind"]]
+                    rule = _formalized_execution_rule(
+                        card,
+                        execution=proposal["execution"],
+                        zone_binding=proposal.get("zoneBinding"),
+                        rule_type=meta["rule_type"],
+                        zone_semantics=meta["zone_semantics"],
+                        executable_ref=meta["executable_ref"],
+                        extra_tags=("llm_proposed",),
+                        rationale=(
+                            str(proposal["rationale"]).rstrip(". ")
+                            + ". [gated LLM proposal (S2); deterministic gates passed; human review required]"
+                        ),
+                    )
+                    stamp = getattr(self.llm_hook, "stamp", None)
+                    if stamp:
+                        agent, _, _version = self.run_ref.partition("#")
+                        rule["formalizedBy"] = f"{agent}#{stamp}"
+                    self._llm_proposed += 1
+                    return FormalRule.from_dict(rule)
             rule = _base_rule(
                 card,
                 status="ambiguous",
@@ -651,21 +657,16 @@ class NormFormalizer:
                 related=spec.get("related"),
             )
             if spec.get("execution") is not None:
-                # RegelRecht execution is the source of truth; zoneSelector and
-                # conditions are *projected* (dual-write), never hand-authored.
-                execution = copy.deepcopy(spec["execution"])
-                zone_binding = copy.deepcopy(spec.get("zoneBinding"))
-                projected = project_zone(
-                    execution, zone_binding,
-                    zone_semantics=common["zone_semantics"], rule_type=common["rule_type"],
-                )
-                rule = _base_rule(
+                rule = _formalized_execution_rule(
                     card,
-                    zone_selector=projected["zoneSelector"],
-                    conditions=projected["conditions"],
-                    execution=execution,
-                    zone_binding=zone_binding,
-                    **common,
+                    execution=spec["execution"],
+                    zone_binding=spec.get("zoneBinding"),
+                    rule_type=common["rule_type"],
+                    zone_semantics=common["zone_semantics"],
+                    executable_ref=common["executable_ref"],
+                    extra_tags=common.get("extra_tags", ()),
+                    rationale=common["rationale"],
+                    related=common.get("related"),
                 )
             else:
                 # Legacy zone/conditions template (no execution). The schema now
