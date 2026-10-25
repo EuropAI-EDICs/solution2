@@ -244,9 +244,10 @@
     box-shadow:0 10px 34px #000a;line-height:1.5}
   .kgtip b{color:var(--ink)} .kgtip .rv{color:#60a5fa} .kgtip .rf{color:#c084fc}
 
-  /* laya system-1 tab */
-  #view3.active{grid-template-columns:minmax(0,1fr) 330px}
-  @media(max-width:1150px){#view3.active{grid-template-columns:1fr}.telemetry{grid-column:1/-1}}
+  /* laya system-1 dock — full-width panel under the active PoC */
+  .layadock{grid-column:1 / -1;display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:14px;
+    padding-top:14px;border-top:1px solid var(--line);align-items:start}
+  @media(max-width:1150px){.layadock{grid-template-columns:1fr}}
   /* breda five-value tab */
   #view4.active{grid-template-columns:minmax(0,1fr) 330px}
   @media(max-width:1150px){#view4.active{grid-template-columns:1fr}}
@@ -317,7 +318,6 @@
   <div class="tabs">
     <div class="tab active" id="tab1" onclick="switchTab(1)">PoC-1 · wind, Utrecht</div>
     <div class="tab" id="tab2" onclick="switchTab(2)">PoC-2 · BP→OP, Eindhoven</div>
-    <div class="tab" id="tab3" onclick="switchTab(3)">Laya · System-1</div>
     <div class="tab" id="tab4" onclick="switchTab(4)">Breda · vijf-waarden</div>
   </div>
   <div class="controls">
@@ -337,8 +337,8 @@
 <div class="notebar">Every number, verdict and polygon below is read from the canonical run artifacts —
 PoC-1 in three tracks: wind <code>poc/runs/20260830T113234Z-wind</code>, zon <code>poc/runs/20260830T142439Z-zon</code>,
 bos <code>poc/runs/20260830T142446Z-bos</code>; PoC-2 <code>poc-bp2op/runs/20260830-124515-eindhoven</code>.
-Tab 3 embedt de echte predicties van <b>twee fine-tuned Laya System-1 modellen</b> —
-BP→OP Eindhoven (<code>simulation/laya_bp2op/</code>) en zone-keten Utrecht (<code>simulation/laya_utrecht/</code>);
+Onderaan PoC-1 en PoC-2 zit het paneel van <b>twee fine-tuned Laya System-1 modellen</b> —
+zone-keten Utrecht (<code>simulation/laya_utrecht/</code>) bij PoC-1, BP→OP Eindhoven (<code>simulation/laya_bp2op/</code>) bij PoC-2;
 de chat opent per dataset na de bijbehorende run.
 Tab 4 embedt de canonieke <b>Breda five-value scan</b>
 (<code>poc-breda/runs/20260913T192628Z-breda-scan</code>) — offline choropleth + golden Q&A na de scan-timeline.
@@ -436,6 +436,59 @@ Click any pipeline stage to jump there; <kbd>space</kbd> = play/pause, <kbd>→<
 
     <div class="card"><h3>run log</h3><div class="log" id="log1"></div></div>
   </aside>
+
+<!-- ================================================================ Laya System-1 -->
+<div class="layadock" id="layadock">
+  <div class="stagepane">
+
+    <div class="card">
+      <h3 id="layaTitle">laya · system-1 — zone-keten · Utrecht</h3>
+      <div class="cardbody">
+        <div class="counters" id="layaStats"></div>
+        <div class="kgnote" id="layaNote"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>live forward pass — vraag in, getypeerde keuze/score/onthouding uit</h3>
+      <div class="cardbody">
+        <div class="fp-in">
+          <input id="fpin" placeholder="bijv. 'geluidonderzoek bij evenementen' of een bronregel-tekst" onkeydown="if(event.key==='Enter')fpRun()">
+          <button class="ctl primary" onclick="fpRun()">▸ forward pass</button>
+        </div>
+        <div class="probchips" id="fpprobes"></div>
+        <div id="fpout"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>chat — bevraag Laya over de scenario-run</h3>
+      <div class="cardbody">
+        <div class="chatwrap">
+          <div class="chatlog" id="chatlog"></div>
+          <div class="chatgate" id="chatgate">
+            <div id="chatgateMsg">🔒 <b>De chat opent na een scenario-run.</b><br>
+              Draai eerst de run af — Laya antwoordt daarna
+              uitsluitend uit de run-artefacten en het getrainde model.</div>
+            <button class="ctl primary" id="chatGoBtn" onclick="layaGoRun()">▶ speel de run af</button>
+          </div>
+        </div>
+        <div class="chatin disabled" id="chatinrow">
+          <input id="chatin" placeholder="vraag naar een artikel, een onderwerp of de run-cijfers…" onkeydown="if(event.key==='Enter')chatSend()">
+          <button class="ctl primary" onclick="chatSend()">verstuur</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <aside class="telemetry">
+    <div class="card"><h3>trainingsdata</h3><div class="cardbody" id="layaTrain"></div></div>
+    <div class="card"><h3>evaluatie — distillatie-fideliteit</h3><div class="cardbody" id="layaEval"></div></div>
+    <div class="card"><h3>system-1 vs system-2</h3><div class="cardbody"><div class="kgnote" id="layaS12"></div></div></div>
+    <div class="card"><h3>run-status</h3><div class="cardbody"><div class="lvl" id="layaRunState" style="min-width:100%"><b>—</b>PoC-1-run nog niet afgerond<small>chat vergrendeld</small></div></div></div>
+  </aside>
+</div>
 </section>
 
 <!-- ================================================================ PoC-2 -->
@@ -561,64 +614,6 @@ Click any pipeline stage to jump there; <kbd>space</kbd> = play/pause, <kbd>→<
 
 </main>
 
-<!-- ================================================================ Laya System-1 -->
-<section class="view" id="view3">
-  <div class="stagepane">
-
-    <div class="card">
-      <h3 style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">laya · system-1 beslismodel — één forward pass, twee ketens
-        <span class="tracktabs" style="margin-left:auto;display:flex;gap:5px">
-          <button class="ttab ldstab active" data-l="eindhoven" onclick="switchLayaDs('eindhoven')">BP→OP · Eindhoven</button>
-          <button class="ttab ldstab" data-l="utrecht" onclick="switchLayaDs('utrecht')">zone-keten · Utrecht</button>
-        </span>
-      </h3>
-      <div class="cardbody">
-        <div class="counters" id="layaStats"></div>
-        <div class="kgnote" id="layaNote"></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>live forward pass — vraag in, getypeerde keuze/score/onthouding uit</h3>
-      <div class="cardbody">
-        <div class="fp-in">
-          <input id="fpin" placeholder="bijv. 'geluidonderzoek bij evenementen' of een bronregel-tekst" onkeydown="if(event.key==='Enter')fpRun()">
-          <button class="ctl primary" onclick="fpRun()">▸ forward pass</button>
-        </div>
-        <div class="probchips" id="fpprobes"></div>
-        <div id="fpout"></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>chat — bevraag Laya over de scenario-run</h3>
-      <div class="cardbody">
-        <div class="chatwrap">
-          <div class="chatlog" id="chatlog"></div>
-          <div class="chatgate" id="chatgate">
-            <div id="chatgateMsg">🔒 <b>De chat opent na een scenario-run.</b><br>
-              Draai eerst de run af — Laya antwoordt daarna
-              uitsluitend uit de run-artefacten en het getrainde model.</div>
-            <button class="ctl primary" id="chatGoBtn" onclick="layaGoRun()">▶ speel de run af</button>
-          </div>
-        </div>
-        <div class="chatin disabled" id="chatinrow">
-          <input id="chatin" placeholder="vraag naar een artikel, een onderwerp of de run-cijfers…" onkeydown="if(event.key==='Enter')chatSend()">
-          <button class="ctl primary" onclick="chatSend()">verstuur</button>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <aside class="telemetry">
-    <div class="card"><h3>trainingsdata</h3><div class="cardbody" id="layaTrain"></div></div>
-    <div class="card"><h3>evaluatie — distillatie-fideliteit</h3><div class="cardbody" id="layaEval"></div></div>
-    <div class="card"><h3>system-1 vs system-2</h3><div class="cardbody"><div class="kgnote" id="layaS12"></div></div></div>
-    <div class="card"><h3>run-status</h3><div class="cardbody"><div class="lvl" id="layaRunState" style="min-width:100%"><b>—</b>PoC-2-run nog niet afgerond<small>chat vergrendeld</small></div></div></div>
-  </aside>
-</section>
-
 <!-- ================================================================ Breda · vijf-waarden -->
 <section class="view" id="view4">
   <div class="stagepane">
@@ -644,15 +639,27 @@ Click any pipeline stage to jump there; <kbd>space</kbd> = play/pause, <kbd>→<
       <h3>autonome waarde · soevereiniteitsmanifest</h3>
       <div class="cardbody" id="b4-auto-body"></div>
     </div>
+    <div class="card" id="b4-laya-card">
+      <h3>Laya System-1 · Breda forward pass</h3>
+      <div class="cardbody">
+        <div class="fp-in">
+          <input id="fpin4" placeholder="buurtnaam of vraag, bijv. Belcrum…" onkeydown="if(event.key==='Enter')bredaFpRun()">
+          <button class="ctl primary" onclick="bredaFpRun()">▸ forward pass</button>
+        </div>
+        <div class="probchips" id="fpprobes4"></div>
+        <div id="fpout4" style="font-size:12px;color:var(--dim)"></div>
+        <div class="kgnote" id="b4-laya-meta" style="margin-top:8px"></div>
+      </div>
+    </div>
     <div class="card">
-      <h3>chat — golden Q&A over de scan</h3>
+      <h3>chat — golden Q&A + System-1 → System-2 handoff</h3>
       <div class="cardbody">
         <div class="probchips" id="probes4"></div>
         <div class="chatwrap">
           <div class="chatlog" id="chatlog4"></div>
           <div class="chatgate" id="chatgate4">
             <div>🔒 <b>Chat locked tot de scan-timeline klaar is.</b><br>
-              Speel PoC-4 af (intake → report) — daarna golden Q&A offline, cite-or-abstain.</div>
+              Speel PoC-4 af — daarna golden Q&A, Laya S1, en bij ungrounded/onder-gate System-2-handoff.</div>
             <button class="ctl primary" onclick="switchTab(4);sim4&&sim4.play()">▶ speel scan af</button>
           </div>
         </div>
@@ -667,6 +674,7 @@ Click any pipeline stage to jump there; <kbd>space</kbd> = play/pause, <kbd>→<
     <div class="card"><h3>pipeline</h3><div class="rail" id="rail4"></div></div>
     <div class="card"><h3>bronnen</h3><div class="cardbody" id="src4"></div></div>
     <div class="card"><h3>validatie</h3><div class="cardbody"><div class="levels" id="levels4"></div></div></div>
+    <div class="card"><h3>data lake</h3><div class="cardbody kgnote" id="lake4"></div></div>
     <div class="card"><h3>run log</h3><div class="log" id="log4"></div></div>
     <div class="done" id="done4"></div>
   </aside>
@@ -681,7 +689,7 @@ Click any pipeline stage to jump there; <kbd>space</kbd> = play/pause, <kbd>→<
   <a href="../poc-bp2op/README.md">PoC-2</a> (van bestemmingsplan naar omgevingsplan met AI, gemeente Eindhoven,
   Amsterdams aanpak as MC-1…12). Zone geometry is display-simplified (~300 m) purely for page weight;
   every area shown is the zone engine's own output. No network, no LLM at runtime — same contract as the PoCs.
-  Tab 3: <a href="https://github.com/NandhaKishorM/laya" target="_blank">Laya</a> System-1 beslismodel, fine-tuned op de
+  Onderaan PoC-1 en PoC-2: <a href="https://github.com/NandhaKishorM/laya" target="_blank">Laya</a> System-1 beslismodel, fine-tuned op de
   bestemmingsplan-/omgevingsplan-regels van de Eindhoven-run (<code>simulation/laya_bp2op/</code>: build_dataset → finetune →
   predict_export; laya 0.4.11, RLCD + kalibratie, 670 train-items, held-out 63 ongeziene artikelen: hoofdstuk 90% · band 83% ·
   jurist 90%). De predicties zijn offline geëxporteerd en geëmbed — de pagina draait zelf geen model.
@@ -736,8 +744,15 @@ class Sim {
 let sim1, sim2, sim4, active=1;
 const sim = ()=> active===1?sim1:active===4?sim4:sim2;
 function ctrl(a){ const s=sim(); if(!s) return; if(a==="play"){ s.timer? s.pause() : s.play(); } else if(a==="step") s.step(); else s.reset(); }
+function mountLaya(n){
+  const dock=$("layadock"); if(!dock) return;
+  const host=n===2?$("view2"):$("view1");
+  if(host && dock.parentElement!==host) host.appendChild(dock);
+  switchLayaDs(n===2?"eindhoven":"utrecht");
+}
 function switchTab(n){ if(n===active) return; const cur=sim(); if(cur) cur.pause(); active=n;
-  for(const k of [1,2,3,4]){ const t=$("tab"+k); if(t) t.classList.toggle("active",k===n);
+  if(n===1||n===2) mountLaya(n);
+  for(const k of [1,2,4]){ const t=$("tab"+k); if(t) t.classList.toggle("active",k===n);
     const v=$("view"+k); if(v) v.classList.toggle("active",k===n); }
   if(n===4) buildStatic4();
   const s=sim(); if(s) s.prog(); }
@@ -1058,7 +1073,7 @@ function makeSim1(){
   S(8,"report",2200,(a)=>{ chip1("report.html"); chip1("normcards.json"); chip1("normcards-rejected.json"); chip1("formalrules.json"); chip1("layers.json"); chip1("validation.json");
     $("done1").classList.add("on");
     $("done1").innerHTML = `<b>run ${esc(T.runId)} — verdict ${esc(T.verdict).toUpperCase()} (exit code 0).</b> AOI ${km(P1.aoi.areaKm2)} km² → ${esc(T.inclLabel)} → final opportunity zone <b>${km(final.areaKm2)} km²</b> (${pct(final.areaKm2)}% of the province) · ${T.cards.normCards} norm cards · ${T.cards.abstentions} abstentions · V3 independent re-execution IoU ${T.iou||"—"} · V4 human review pending by design. Duration ${T.durationS}s, one process, no LLM.
-      <br><b>Laya System-1 (utrecht)</b> is nu te bevragen: tab «Laya · System-1» → dataset «zone-keten · Utrecht».`;
+      <br><b>Laya System-1 (utrecht)</b> is nu te bevragen in het paneel onderaan (zone-keten · Utrecht).`;
     log1("report.html written — single file, Leaflet map + fallback tables, works from file://","ok");
     log1("Laya System-1 (utrecht) geünlockt: "+layaInfo("utrecht"),"data");
     layaUnlock("utrecht"); });
@@ -1272,7 +1287,7 @@ function buildSim2(){
       ${C.kennisbank} kennisbank-relaties → ${C.omzettabelRijen} omzettabel-rijen: ${C.voorgesteld} voorgesteld
       (${P2.kbDriven} kennisbank-gedreven), ${C.nieuweRegel} nieuwe-regel-voorstellen, <b>${C.needsHuman} wachten op de jurist</b>.
       Geen enkele rij is ooit 'gekoppeld' zonder mens — dat status-bestand is bewust uit het schema gehouden (MC-6).
-      <br><b>Laya System-1</b> is nu te bevragen: tab «Laya · System-1» — chat + live forward pass over deze run.`;
+      <br><b>Laya System-1</b> is nu te bevragen in het paneel onderaan — chat + live forward pass over deze run.`;
     layaUnlock("eindhoven");
     log2("MC-3/MC-7: omzettabel.json/.md + PROV + single-file report — elke rij: permalink + letterlijk citaat aan beide kanten","ok");
     log2("Laya System-1 (eindhoven) geünlockt: "+layaInfo("eindhoven"),"data"); });
@@ -1302,29 +1317,30 @@ function buildSim2(){
 const LAYA_DS = { eindhoven: P2.laya, utrecht: P1.laya };
 LAYA_DS.eindhoven.kind = "eindhoven";
 LAYA_DS.utrecht.kind = "utrecht";
-let curLaya = "eindhoven";
-let LY = LAYA_DS.eindhoven, LYM = LY.meta, LYQ = LY.questions, LYE = LY.eval;
+let curLaya = "utrecht";
+let LY = LAYA_DS.utrecht, LYM = LY.meta, LYQ = LY.questions, LYE = LY.eval;
 const BANDS = ["geen","zwak","mogelijk","sterk"];
 const FORCES = ["niet-bindend","interpreterend","bindend"];
 const layaOn = { eindhoven: false, utrecht: false };
 const layaUnlocked = ()=> layaOn[curLaya];
 function layaInfo(which){
   const m = LAYA_DS[which].meta;
-  return m.items.train+" train-items · gate "+m.gate+" — bevraagbaar in tab 3";
+  return m.items.train+" train-items · gate "+m.gate+" — bevraagbaar in het paneel onderaan";
 }
 function switchLayaDs(id){
   if(!LAYA_DS[id] || id===curLaya) return;
   curLaya = id;
   LY = LAYA_DS[id]; LYM = LY.meta; LYQ = LY.questions; LYE = LY.eval;
-  document.querySelectorAll(".ldstab").forEach(b=>b.classList.toggle("active", b.dataset.l===id));
+  bindLayaTok();
   buildLayaStatic(); renderGate();
-  $("fpout").innerHTML=""; $("fpin").value=""; tipHide();
+  $("fpout").innerHTML=""; $("fpin").value=""; $("chatlog").innerHTML=""; tipHide();
   if(layaUnlocked()) layaWelcome();
 }
 
 /* tokenizer twin of poc-bp2op pipeline/knowledgebank.normalize (fold, stopwords,
    suffixes, uni+bigram) — deterministic, same featurization as the matcher */
-const LSTOP = new Set(LY.tok.stop), LSUF = LY.tok.suf;
+let LSTOP = new Set(LY.tok.stop), LSUF = LY.tok.suf;
+function bindLayaTok(){ LSTOP = new Set(LY.tok.stop); LSUF = LY.tok.suf; }
 function lfold(t){ return t.normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase(); }
 function ltokens(text){
   const raw = text.match(/[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\-']{2,}/g)||[];
@@ -1434,6 +1450,9 @@ function fpProbeI(i){ const p=LY.probes[i]; if(!p) return;
   fpRun(LY.kind==="utrecht" ? (LY.cards[p.key][3]+" "+LY.cards[p.key][4]) : (p.label+" "+(LY.bron[p.bid][2]||""))); }
 
 function buildLayaStatic(){
+  $("layaTitle").textContent = LY.kind==="utrecht"
+    ? "laya · system-1 — zone-keten · Utrecht"
+    : "laya · system-1 — BP→OP · Eindhoven";
   const pc=(v,l,c)=>`<div class="counter"><div class="cv" style="color:${c||"var(--ink)"}">${v}</div><div class="cl">${l}</div></div>`;
   const pct=(h)=>Math.round(100*h.hit/h.n)+"%";
   if(LY.kind==="utrecht"){
@@ -1865,9 +1884,14 @@ function buildLevels4(){
   }).join("");
 }
 
-function bredaMsg(html, cls){
+const LY4 = P4.laya || null;
+const BREDA_GATE = (LY4 && LY4.gate != null) ? LY4.gate : 0.55;
+let bredaS2Live = false;
+let bredaS2Model = "";
+const BREDA_S2_PREF = ["qwen3:latest","qwen3","gemma4:12b-mlx","gemma4:31b-mlx","gemma4:12b","gemma4:31b","llama3.2","llama3.1","llama3"];
+function bredaMsg(html, cls, badge){
   const d=document.createElement("div"); d.className="msg "+(cls==="user"?"user":"laya");
-  if(cls!=="user") d.innerHTML=`<span class="bdg">breda scan</span>${html}`;
+  if(cls!=="user") d.innerHTML=`<span class="bdg">${esc(badge||"breda scan")}</span>${html}`;
   else d.textContent=html;
   $("chatlog4").appendChild(d); $("chatlog4").scrollTop=1e9;
 }
@@ -1887,28 +1911,189 @@ function bredaMatch(q){
   }
   return bestScore>=0.45 ? best : null;
 }
+function bredaNn(q, k){
+  if(!LY4||!LY4.nn) return [];
+  const stop=new Set((LY4.tok&&LY4.tok.stop)||[]);
+  const toks=normQ(q).split(" ").filter(t=>t&&!stop.has(t));
+  const vidx={}; (LY4.vocab||[]).forEach((t,i)=>vidx[t]=i);
+  const qtf={}; toks.forEach(t=>{ if(vidx[t]!=null) qtf[t]=(qtf[t]||0)+1; });
+  const qw={}; let nrm=0;
+  for(const t in qtf){ const w=qtf[t]*((LY4.idf&&LY4.idf[vidx[t]])||1); qw[vidx[t]]=w; nrm+=w*w; }
+  nrm=Math.sqrt(nrm)||1;
+  const hits=[];
+  for(const key in LY4.nn){
+    let dot=0;
+    for(const [vi,wv] of LY4.nn[key]) if(qw[vi]!=null) dot+=qw[vi]/nrm*wv;
+    if(dot>0) hits.push([dot,key]);
+  }
+  hits.sort((a,b)=>b[0]-a[0]);
+  return hits.slice(0,k||3);
+}
+function bredaS1Hint(question, code){
+  const b=buurtByCode(code)||{};
+  const p=(LY4&&LY4.preds&&LY4.preds[code])||{};
+  const conf=p.vc!=null?p.vc:0;
+  const under=conf<BREDA_GATE || (p.j!=null&&p.j>=0.5);
+  return {
+    question, runId:P4.runId,
+    buurtcode:code, buurtnaam:b.buurtnaam||((LY4.cards[code]||[])[2])||code,
+    primary_value:p.v, attention_band:p.bl, needs_human:!!(p.j>=0.5),
+    autonomous_ok:p.a, confidence:conf, gate:BREDA_GATE,
+    gate_reason: under ? (conf<BREDA_GATE?"under_gate":"needs_human") : "ok",
+    scores:b.scores||{}, missing:b.missing||[],
+    sourceIds:(P4.sources||[]).map(s=>s.id).filter(Boolean),
+  };
+}
+function bredaPickModel(names, forced){
+  if(forced && names.includes(forced)) return forced;
+  for(const pref of BREDA_S2_PREF){
+    if(names.includes(pref)) return pref;
+    const hit=names.find(n=>n===pref||n.startsWith(pref+":")||n.split(":")[0]===pref.split(":")[0]);
+    if(hit) return hit;
+  }
+  return names.find(n=>!n.includes(":cloud"))||names[0]||"";
+}
+async function bredaProbeS2(opts){
+  opts=opts||{};
+  const force=!!opts.force;
+  const want=opts.want; // from ?s2=1 or ?s2=live or auto
+  if(!want && !force) return false;
+  try{
+    const tags=await fetch("http://127.0.0.1:11434/api/tags",{method:"GET"});
+    if(!tags.ok) throw new Error("tags HTTP "+tags.status);
+    const j=await tags.json();
+    const names=(j.models||[]).map(m=>m.name||m.model).filter(Boolean);
+    const forced=(typeof URLSearchParams!=="undefined")
+      ? new URLSearchParams(location.search).get("s2model") : null;
+    bredaS2Model=bredaPickModel(names, forced);
+    if(!bredaS2Model) throw new Error("geen lokaal Ollama-model");
+    bredaS2Live=true;
+    return true;
+  }catch(e){
+    bredaS2Live=false; bredaS2Model="";
+    if(force||want){
+      console.warn("Breda S2 probe failed:", e);
+    }
+    return false;
+  }
+}
+function bredaRenderS1(code, why){
+  if(!LY4||!LY4.preds[code]) return;
+  const p=LY4.preds[code], g=LY4.gold[code], C=LY4.cards[code]||[];
+  const under=p.vc<BREDA_GATE || (p.j!=null&&p.j>=0.5);
+  const gate=under?` <b style="color:var(--amber)">→ onder de gate (${BREDA_GATE}): System-2</b>`:"";
+  $("fpout4").innerHTML =
+    `<b style="color:var(--cyan);font-family:var(--mono)">${esc(C[2]||code)}</b> · ${esc(C[1]||"")}
+     <span style="color:var(--faint)">(${esc(why||"forward pass")})</span><br>
+     ▸ primary <b>${esc(p.v||"—")}</b> (${(100*(p.vc||0)).toFixed(0)}% conf) · band <b>${esc(p.bl||"—")}</b>
+     · P(needs_human)=${(p.j||0).toFixed(2)} · autonomous <b>${esc(p.a||"—")}</b>${gate}<br>
+     ▸ gold: ${esc(g?g.v:"—")} · band ${g?g.b:"—"} · needs_human=${g?g.j:"—"}`;
+  const b=buurtByCode(code); if(b){ showBuurt(b); if(p.v&&WAARDE_LBL[p.v]) setWaarde(p.v); }
+  return under;
+}
+async function bredaFpRun(){
+  if(!LY4){ $("fpout4").textContent="Geen Breda-Laya predictions embedded."; return; }
+  const q=$("fpin4").value.trim(); if(!q) return;
+  let code=null, why="forward pass";
+  const byName=buurtByName(q);
+  if(byName&&LY4.preds[byName.buurtcode]){ code=byName.buurtcode; why="exacte buurt"; }
+  else {
+    const hits=bredaNn(q,3);
+    if(!hits.length){ $("fpout4").textContent="Geen match in System-1 index."; return; }
+    code=hits[0][1]; why=`nn ${(100*hits[0][0]).toFixed(0)}%`;
+  }
+  const under=bredaRenderS1(code, why);
+  if(under && bredaUnlocked){
+    const hint=bredaS1Hint(q, code);
+    await bredaSystem2(hint);
+  }
+}
+function bredaS2Prompt(hint){
+  return [
+    "System-2 · op basis van Laya System-1 (Breda).",
+    "Schrijf een kort narratief antwoord in het Nederlands.",
+    "Verzin GEEN cijfers — gebruik alleen scores/velden uit de hint hieronder.",
+    "Label het antwoord met: System-2 · op basis van Laya System-1 (Breda).",
+    "",
+    "HINT JSON:",
+    JSON.stringify(hint, null, 2),
+  ].join("\n");
+}
+async function bredaSystem2(hint){
+  if(!bredaS2Live){
+    // last chance: probe Ollama now (covers late start / file:// reopen)
+    await bredaProbeS2({want:true});
+  }
+  if(!bredaS2Live || !bredaS2Model){
+    bredaMsg(`Geen grounded golden match / S1 onder gate.<br>
+      <b>S1-hint</b> (voor System-2): <code style="white-space:pre-wrap">${esc(JSON.stringify(hint,null,0).slice(0,600))}</code><br>
+      Live S2: start Ollama lokaal, herlaad met <code>?tab=4&amp;s2=1</code>
+      (of open via <code>python3 -m http.server</code> als file:// CORS blokkeert).
+      Lake: <code>${esc((P4.lake&&P4.lake.goldLaya)||"")}</code>`,"bot","system-2 handoff");
+    return;
+  }
+  bredaMsg(`System-2 live… (<code>${esc(bredaS2Model)}</code>)`,"bot","system-2");
+  try{
+    const r=await fetch("http://127.0.0.1:11434/api/generate",{
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:bredaS2Model, prompt:bredaS2Prompt(hint), stream:false})
+    });
+    if(!r.ok){
+      const body=await r.text().catch(()=> "");
+      throw new Error("HTTP "+r.status+(body?": "+body.slice(0,180):""));
+    }
+    const j=await r.json();
+    const txt=(j.response||"").trim()||"(leeg antwoord)";
+    bredaMsg(esc(txt).replace(/\n/g,"<br>"),"bot","System-2 · op basis van Laya System-1 (Breda)");
+  }catch(e){
+    bredaMsg(`Live System-2 faalde (${esc(e.message||e)}).<br>
+      Tip: bij <code>file://</code> CORS → serve met
+      <code>cd simulation && python3 -m http.server 8765</code>
+      en open <code>http://127.0.0.1:8765/simulation.html?tab=4&amp;s2=1</code>.
+      Fallback: offline S1-hint.`,"bot","system-2 fallback");
+    // keep live flag so a later retry can succeed; show offline hint once
+    bredaMsg(`<b>S1-hint</b>: <code style="white-space:pre-wrap">${esc(JSON.stringify(hint,null,0).slice(0,600))}</code>`,
+      "bot","system-2 handoff");
+  }
+}
 function bredaWelcome(){
   $("chatlog4").innerHTML="";
-  bredaMsg(`Run <b>${esc(P4.runId)}</b> — ${P4.nBuurten} buurten, verdict <b>${esc(P4.verdict||"—")}</b>.
-    Ik beantwoord alleen golden vragen over deze offline scan (cite-or-abstain). Kies een probe of typ een vraag.`,"bot");
+  const s2=bredaS2Live?` · <b>s2=live</b> (<code>${esc(bredaS2Model||"?")}</code>)`:" · s2 offline (start Ollama + ?s2=1)";
+  bredaMsg(`Run <b>${esc(P4.runId)}</b> — ${P4.nBuurten} buurten · Laya S1 ${LY4?"embedded":"niet beschikbaar"}${s2}.
+    Golden Q&A eerst; anders S1-hint → System-2.`,"bot");
   const probes=(P4.qa||[]).filter(r=>r.probe).slice(0,6);
   $("probes4").innerHTML = probes.map(r=>
     `<button type="button" class="chipbtn" onclick="bredaAsk(${JSON.stringify(r.question)})">${esc(r.probe)}</button>`).join("");
+  if(LY4&&LY4.probes){
+    $("fpprobes4").innerHTML = LY4.probes.map(p=>
+      `<button type="button" class="chipbtn" onclick="$('fpin4').value=${JSON.stringify(p.naam||p.key)};bredaFpRun()">${esc(p.naam||p.key)}</button>`).join("");
+  }
 }
 function bredaAsk(q){ $("chatin4").value=q; bredaChatSend(); }
-function bredaChatSend(){
+async function bredaChatSend(){
   if(!bredaUnlocked){ bredaMsg("Chat locked — speel eerst de scan-timeline uit.","bot"); return; }
   const v=$("chatin4").value.trim(); if(!v) return;
   $("chatin4").value="";
   bredaMsg(v,"user");
   const hit=bredaMatch(v);
-  if(!hit){
-    bredaMsg("Geen grounded antwoord in de scan — herformuleer of kies een probe. (System-2: <code>ask_scan</code> buiten deze pagina.)","bot");
+  if(hit){
+    bredaMsg(esc(hit.answer).replace(/\n/g,"<br>"),"bot","golden");
+    if(hit.waarde && hit.waarde!=="alle" && WAARDE_LBL[hit.waarde]) setWaarde(hit.waarde);
+    if(hit.buurtnaam){ const b=buurtByName(hit.buurtnaam); if(b) showBuurt(b); }
     return;
   }
-  bredaMsg(esc(hit.answer).replace(/\n/g,"<br>"),"bot");
-  if(hit.waarde && hit.waarde!=="alle" && WAARDE_LBL[hit.waarde]) setWaarde(hit.waarde);
-  if(hit.buurtnaam){ const b=buurtByName(hit.buurtnaam); if(b) showBuurt(b); }
+  // ungrounded → S1 nearest + optional gate → System-2
+  let code=null, conf=0;
+  const byName=buurtByName(v);
+  if(byName) code=byName.buurtcode;
+  else if(LY4){ const hits=bredaNn(v,1); if(hits.length) code=hits[0][1]; }
+  if(code&&LY4&&LY4.preds[code]){
+    bredaRenderS1(code,"chat → S1");
+    conf=LY4.preds[code].vc||0;
+  }
+  const hint=bredaS1Hint(v, code||(selectedBuurt&&selectedBuurt.buurtcode)||"");
+  const under=!code || conf<BREDA_GATE || hint.needs_human;
+  if(under || !hit) await bredaSystem2(hint);
 }
 function bredaUnlock(){
   bredaUnlocked=true;
@@ -1922,11 +2107,25 @@ function bredaLock(){
   $("chatinrow4").classList.add("disabled");
   $("chatlog4").innerHTML="";
   $("probes4").innerHTML="";
+  if($("fpprobes4")) $("fpprobes4").innerHTML="";
+  if($("fpout4")) $("fpout4").innerHTML="";
 }
 
 function buildStatic4(){
   buildWaardeTabs(); buildMap4(); renderAuto(); buildSources4(); buildLevels4();
   renderRollup(curWaarde==="autonomous"?"spatial":curWaarde);
+  if($("lake4")&&P4.lake){
+    $("lake4").innerHTML =
+      `dataset <code>${esc(P4.lake.datasetId||"")}</code><br>
+       bronze CBS <code>${esc(P4.lake.bronzeCbs||"")}</code><br>
+       silver Laya <code>${esc(P4.lake.silverLaya||"")}</code><br>
+       gold preds <code>${esc(P4.lake.goldLaya||"")}</code>`;
+  }
+  if($("b4-laya-meta")){
+    $("b4-laya-meta").innerHTML = LY4
+      ? `checkpoint embedded · gate ${BREDA_GATE} · eval n=${(LY4.eval&&LY4.eval.n)||"—"} · lake gold preds`
+      : "Geen <code>predictions.json</code> — run <code>laya_breda/finetune.py</code> + <code>predict_export.py</code>.";
+  }
   tipHide();
 }
 function makeSim4(){
@@ -1959,7 +2158,7 @@ function makeSim4(){
   });
   S(5,"unlock",1200,()=>{
     stage4(5); bredaUnlock();
-    log4("chat geünlockt — golden Q&A (offline, cite-or-abstain)","ok");
+    log4("chat geünlockt — golden Q&A + Laya S1 → System-2 handoff","ok");
   });
   return new Sim(steps,{
     stage:(st)=>stage4(st),
@@ -1979,14 +2178,31 @@ buildRail4(); buildStatic4(); sim4=makeSim4(); sim1.prog();
 
 globalThis.__ds={ get sims(){return [sim1,sim2,sim4];}, switchTrack, switchTab,
   get layaOn(){return (id)=>layaOn[id||curLaya];}, fpRun, chatSend, nnBron, switchLayaDs,
-  get bredaOn(){return ()=>bredaUnlocked;}, setWaarde, bredaChatSend, bredaMatch,
-  get sim4(){return sim4;} };
+  get bredaOn(){return ()=>bredaUnlocked;}, setWaarde, bredaChatSend, bredaMatch, bredaFpRun, bredaNn,
+  get sim4(){return sim4;}, get bredaS2(){return ()=>bredaS2Live;} };
 if(typeof URLSearchParams!=="undefined"){
   const sp=new URLSearchParams((typeof location!=="undefined"?location.search:""));
+  const wantS2 = sp.get("s2")==="1" || sp.get("s2")==="live" || sp.get("s2")==="auto" || sp.has("s2");
+  // Auto-probe Ollama when ?s2 is set OR always try quietly so a running
+  // Ollama enables live S2 without a hard-coded model name.
+  const fromFile = typeof location!=="undefined" && location.protocol==="file:";
+  bredaProbeS2({want: wantS2 || true}).then(ok=>{
+    if(bredaUnlocked) bredaWelcome();
+    const meta=$("b4-laya-meta");
+    if(meta){
+      if(ok) meta.innerHTML = `System-2 live via Ollama · model <code>${esc(bredaS2Model)}</code>`;
+      else if(fromFile) meta.innerHTML =
+        `<b style="color:var(--amber)">System-2 geblokkeerd op file://</b> — Ollama weigert Origin null (403).
+         Serve: <code>cd simulation && python3 -m http.server 8765</code> →
+         <code>http://127.0.0.1:8765/simulation.html?tab=4</code>`;
+      else meta.innerHTML = `System-2 offline — is Ollama bereikbaar op :11434?`;
+    }
+  });
   const w0=sp.get("waarde");
   if(w0 && WAARDE_LBL[w0]) curWaarde=w0;
   const t=parseInt(sp.get("tab")||"0",10);
-  if(t>=1&&t<=4) switchTab(t);
+  if(t===3){ switchTab(2); const d=$("layadock"); if(d&&d.scrollIntoView) d.scrollIntoView({block:"start"}); }
+  else if(t>=1&&t<=4) switchTab(t);
   else if(curWaarde!=="spatial") paintWaarde(curWaarde);
 }
 </script>

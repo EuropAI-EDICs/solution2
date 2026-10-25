@@ -18,7 +18,7 @@ function stubEl(tag) {
     tag, style: {}, dataset: {}, children: [], _inner: "", _text: "",
     classList: { add() {}, remove() {}, toggle() {}, contains: () => false },
     setAttribute() {}, getAttribute: () => null, removeAttribute() {},
-    appendChild(c) { el.children.push(c); return c; },
+    appendChild(c) { el.children.push(c); c.parentElement = el; return c; },
     remove() {},
     querySelector: () => stubEl("q"),
     querySelectorAll: () => [],
@@ -75,7 +75,18 @@ try {
   }
   const n1 = ds.sims[0].steps.length, n2 = s2.steps.length;
   s2.jumpToStage(7); drain(600);
+  // dock follows the PoC tab: PoC-2 → eindhoven, PoC-1 → utrecht
+  ds.switchTab(2);
+  if (globalThis.document.getElementById("layadock").parentElement !== globalThis.document.getElementById("view2")) {
+    throw new Error("laya dock not mounted on PoC-2");
+  }
+  ds.switchTab(1);
+  if (globalThis.document.getElementById("layadock").parentElement !== globalThis.document.getElementById("view1")) {
+    throw new Error("laya dock not mounted on PoC-1");
+  }
+  ds.switchTab(2);
   if (!ds.layaOn()) throw new Error("laya chat not unlocked after poc2 run");
+  if (!ds.layaOn("eindhoven")) throw new Error("eindhoven chat not unlocked after poc2 run");
   // laya forward pass + chat intents on real embedded predictions
   ds.fpRun("geluidonderzoek bij evenementen");
   ds.fpRun("22.46 kennisbank");
