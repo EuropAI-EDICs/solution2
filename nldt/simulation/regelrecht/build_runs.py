@@ -2,7 +2,7 @@
 """Deterministische generator voor de RegelRecht-PoC-simulaties.
 
 Leest alléén echte artefacten (voorbeeld-YAML's + canonieke PoC-runs),
-her-valideert de YAML's tegen het vastgepinde regelrecht-schema v0.7.1,
+her-valideert de YAML's tegen het vastgepinde regelrecht-schema v0.8.11,
 berekent demo-cases met reference_engine (de norm), schrijft run-JSON's
 gevalideerd tegen simulation-run.schema.json, de golden set, en de
 single-file demo-pagina. Zie spec 2026-09-29-simulation-regelrecht-design.
@@ -23,7 +23,7 @@ import reference_engine
 DIR = pathlib.Path(__file__).resolve().parent
 ROOT = DIR.parents[2]
 
-REGELRECHT_SCHEMA_PATH = DIR / "schema" / "regelrecht-v0.7.1.schema.json"
+REGELRECHT_SCHEMA_PATH = DIR / "schema" / "regelrecht-v0.8.11.schema.json"
 RUN_SCHEMA_PATH = DIR / "simulation-run.schema.json"
 
 POC_CONFIGS = {
@@ -167,7 +167,7 @@ def build_utrecht_run(artifacts: dict, stamp: str) -> dict:
         "humanOnTheButtons": "v4_pending",
         "validations": [
             {"level": "V0", "verdict": "pass",
-             "evidence": "voorbeeld-YAML gevalideerd tegen regelrecht-schema v0.7.1"},
+             "evidence": "voorbeeld-YAML gevalideerd tegen regelrecht-schema v0.8.11"},
             {"level": "V2", "verdict": "pass",
              "evidence": "articleQuote letterlijk uit NC-W-03 (poc/corpus/normcards-wind.json)"},
             {"level": "V4", "verdict": "pending", "evidence": "jurittoets staat structureel open (MC-6)"},
@@ -215,7 +215,7 @@ def build_eindhoven_run(artifacts: dict, stamp: str) -> dict:
         "humanOnTheButtons": "v4_pending",
         "validations": [
             {"level": "V0", "verdict": "pass",
-             "evidence": "voorbeeld-YAML gevalideerd tegen regelrecht-schema v0.7.1"},
+             "evidence": "voorbeeld-YAML gevalideerd tegen regelrecht-schema v0.8.11"},
             {"level": "V2", "verdict": "pass",
              "evidence": "articleQuote letterlijk uit BR-001 (bronregels.json canonieke run)"},
             {"level": "V4", "verdict": "pending", "evidence": "jurittoets staat structureel open (MC-6)"},

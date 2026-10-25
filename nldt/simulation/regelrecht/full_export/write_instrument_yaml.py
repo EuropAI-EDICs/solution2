@@ -14,7 +14,7 @@ from formalize_to_rr import ArticleFormalization
 from split_cvdr_html import Article
 
 REGELRECHT_SCHEMA = (
-    paths.DIR.parent / "schema" / "regelrecht-v0.7.1.schema.json"
+    paths.DIR.parent / "schema" / "regelrecht-v0.8.11.schema.json"
 )
 REPORT_SCHEMA = paths.DIR / "formalization-report.schema.json"
 
@@ -32,8 +32,8 @@ def _build_doc(
     meta = paths.INSTRUMENTS[poc]
     doc: dict = {
         "$schema": (
-            "https://raw.githubusercontent.com/MinBZK/regelrecht/refs/heads/main/"
-            "schema/v0.7.1/schema.json"
+            "https://raw.githubusercontent.com/NederlandseDigitaleDienst/regelrecht/"
+            "main/schema/v0.8.11/schema.json"
         ),
         "$id": _slug(meta["title"]),
         "name": meta["title"],
