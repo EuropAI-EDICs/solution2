@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldt-toolbox/schemas/probe-taskset.schema.json",
+  "title": "Probe-taskset: taken met deterministische verwachtingen voor één adapter",
+  "type": "object",
+  "required": ["id", "adapter", "tasks"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "adapter": { "enum": ["deepagents"],
+      "description": "welke adapter voert deze taken uit" },
+    "tasks": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/task" } }
+  },
+  "$defs": {
+    "expect": {
+      "type": "object",
+      "required": ["check"],
+      "additionalProperties": false,
+      "properties": {
+        "check": { "enum": ["delegatesTo", "toolTraceIncludes", "answerContains",
+                            "answerNotContains", "slotgateAllows", "slotgateForbids"] },
+        "value": {},
+        "hard": { "type": "boolean", "default": false,
+          "description": "een gezakte harde check blokkeert adoptie, ook met --allow-fake" }
+      },
+      "allOf": [
+        { "if": { "properties": { "check": { "enum": ["delegatesTo", "toolTraceIncludes",
+                                                       "answerContains", "answerNotContains",
+                                                       "slotgateAllows", "slotgateForbids"] } } },
+          "then": { "required": ["value"] } }
+      ]
+    },
+    "task": {
+      "type": "object",
+      "required": ["id", "kind", "expect"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "kind": { "enum": ["route", "standalone", "static"],
+          "description": "route: orchestrator delegeert; standalone: één poc-agent; static: geen model, alleen slotgate/structuur" },
+        "question": { "type": "string", "minLength": 1,
+          "description": "route/standalone in llm-modus: de gebruikersvraag" },
+        "poc": { "type": "string",
+          "description": "standalone: de poc-agent om solo te draaien" },
+        "delegateTo": { "type": "string",
+          "description": "route in fake-modus: verplicht; de gescripte delegatie. In llm-modus wordt dit een échte gedragscheck via 'delegatesTo'" },
+        "fakeAnswer": { "type": "string",
+          "description": "fake-modus: het gescripte antwoord dat het model-stub teruggeeft; llm-modus negeert dit veld" },
+        "expect": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/expect" } }
+      }
+    }
+  }
+}

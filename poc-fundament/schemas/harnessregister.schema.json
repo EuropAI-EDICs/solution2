@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldt-toolbox/schemas/harnessregister.schema.json",
+  "title": "Harnessregister: gepinde versies van agent-harness-componenten (prompts, toolgrants, model-pinnen)",
+  "type": "object",
+  "required": ["poc", "harnesses"],
+  "additionalProperties": false,
+  "properties": {
+    "poc": { "type": "string", "minLength": 1 },
+    "harnesses": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/harness" } }
+  },
+  "$defs": {
+    "artifact": {
+      "type": "object",
+      "required": ["kind"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "enum": ["promptFile", "manifestPatch", "envPin"] },
+        "path": { "type": "string", "minLength": 1,
+          "description": "promptFile: pad t.o.v. de poc-root van het register" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "env": { "type": "object",
+          "description": "envPin: env-var → gepinde waarde, bv. DEEP_AGENT_MODEL" },
+        "note": { "type": "string" }
+      },
+      "allOf": [
+        { "if": { "properties": { "kind": { "const": "promptFile" } } },
+          "then": { "required": ["path", "sha256"] } },
+        { "if": { "properties": { "kind": { "const": "envPin" } } },
+          "then": { "required": ["env"] } }
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["probeId", "mode", "verdict"],
+      "additionalProperties": false,
+      "properties": {
+        "probeId": { "type": "string", "minLength": 1 },
+        "runDir": { "type": "string",
+          "description": "probe-uitvoermap met probe-evidence.json (mag lokaal zijn)" },
+        "mode": { "enum": ["fake", "llm"] },
+        "verdict": { "enum": ["pass", "fail"] },
+        "probedAt": { "type": "string" }
+      }
+    },
+    "harness": {
+      "type": "object",
+      "required": ["id", "title", "component", "target", "riskLevel", "version", "status", "artifact"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "title": { "type": "string", "minLength": 1 },
+        "component": { "enum": ["prompt", "toolGrants", "modelPin"] },
+        "target": { "type": "string", "minLength": 1,
+          "description": "wat wordt gepind: 'recipe_driver', 'poc/<naam>', 'roles/<naam>', 'orchestrator', 'subagent'" },
+        "riskLevel": { "enum": ["low", "medium", "high"] },
+        "version": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["actief", "kandidaat", "verworpen"] },
+        "artifact": { "$ref": "#/$defs/artifact" },
+        "adoptedFrom": { "type": "string",
+          "description": "id van de entry die deze verving (bij adoptie)" },
+        "probeEvidence": { "type": "array", "items": { "$ref": "#/$defs/evidence" } },
+        "prov": { "type": "object" },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}

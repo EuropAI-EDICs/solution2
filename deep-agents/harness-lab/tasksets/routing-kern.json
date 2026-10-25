@@ -1,0 +1,53 @@
+{
+  "id": "routing-kern",
+  "title": "Routing-kern: static-wiring + gescripte delegatie (fake-modus) zelfde taken in llm-modus",
+  "adapter": "deepagents",
+  "tasks": [
+    {
+      "id": "slotgate-kern",
+      "kind": "static",
+      "expect": [
+        { "check": "slotgateAllows",
+          "value": { "agent": "critic", "tools": ["validate_world_scene"] } },
+        { "check": "slotgateForbids",
+          "value": { "agent": "critic", "tools": ["run_minigim_live", "submit_request"] },
+          "hard": true },
+        { "check": "slotgateAllows",
+          "value": { "agent": "minigim", "tools": ["run_minigim_live", "list_recipes"] } }
+      ]
+    },
+    {
+      "id": "route-minigim",
+      "kind": "route",
+      "question": "Which recipes exist for the MiniGIM gebiedscheck and what inputs does it need?",
+      "delegateTo": "minigim",
+      "fakeAnswer": "The minigim specialist reports: the gebiedscheck recipe needs an AOI GeoJSON (plangrens).",
+      "expect": [
+        { "check": "delegatesTo", "value": "minigim", "hard": true },
+        { "check": "answerContains", "value": ["gebiedscheck"] },
+        { "check": "answerNotContains", "value": ["ik weet het niet", "no recipe"] }
+      ]
+    },
+    {
+      "id": "route-rijnland",
+      "kind": "route",
+      "question": "What does the Rijnland peil-conflict recipe require?",
+      "delegateTo": "rijnland",
+      "fakeAnswer": "The rijnland specialist reports: the peil conflict recipe needs the peilgebieden layer and practice water levels.",
+      "expect": [
+        { "check": "delegatesTo", "value": "rijnland" },
+        { "check": "answerContains", "value": ["rijnland"] }
+      ]
+    },
+    {
+      "id": "standalone-minigim",
+      "kind": "standalone",
+      "poc": "minigim",
+      "question": "Welke recepten zijn voor jou beschikbaar? Antwoord in het Nederlands.",
+      "fakeAnswer": "recepten: minigim-gebiedscheck met de 74-item Lijst-v0.91.",
+      "expect": [
+        { "check": "answerContains", "value": ["recepten"] }
+      ]
+    }
+  ]
+}

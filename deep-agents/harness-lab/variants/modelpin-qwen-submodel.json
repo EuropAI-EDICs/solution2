@@ -1,0 +1,16 @@
+{
+  "id": "modelpin-qwen-submodel",
+  "title": "Subagent-model pinnen op qwen3.6:27b-mlx (kandidaat)",
+  "notes": [
+    "Hypothese: qwen3.6:27b-mlx volgt de specialist-rollen beter dan gemma4:12b-mlx; afwegen tegen inferentietijd.",
+    "Vereist `ollama pull qwen3.6:27b-mlx` voor de llm-modus-probe.",
+    "Status: kandidaat \u2014 adoptie zet alleen de register-pin; de env-var DEEP_AGENT_SUBMODEL moet ook daar gezet worden waar runs starten (live_server/dashboard)."
+  ],
+  "components": [
+    {
+      "type": "modelPin",
+      "target": "subagent",
+      "env": { "DEEP_AGENT_SUBMODEL": "qwen3.6:27b-mlx" }
+    }
+  ]
+}
