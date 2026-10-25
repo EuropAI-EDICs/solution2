@@ -1,15 +1,51 @@
 {
   "WA-01": {
     "kind": "conditional",
-    "zone": {
-      "zoneIds": [
-        "vrijwaringszone_waterkering"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_vrijwaringszone_waterkering",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone vrijwaringszone_waterkering.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+      "output": [
+        {
+          "name": "result_wa_01",
+          "type": "boolean",
+          "description": "Uitkomst WA-01 (zone-regel conditional)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_wa_01",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_vrijwaringszone_waterkering",
+            "value": true
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_vrijwaringszone_waterkering": {
+          "zoneIds": [
+            "vrijwaringszone_waterkering"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+        }
+      }
+    },
     "extra_tags": [
       "conditional_within_vrijwaringszone_waterkering",
       "waterkerende_functie_beschermen"
@@ -19,15 +55,51 @@
   },
   "WA-02": {
     "kind": "exclusion",
-    "zone": {
-      "zoneIds": [
-        "waterbergingsgebied"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_waterbergingsgebied",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone waterbergingsgebied.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+      "output": [
+        {
+          "name": "result_wa_02",
+          "type": "boolean",
+          "description": "Uitkomst WA-02 (zone-regel exclusion)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_wa_02",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_waterbergingsgebied",
+            "value": false
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_waterbergingsgebied": {
+          "zoneIds": [
+            "waterbergingsgebied"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+        }
+      }
+    },
     "extra_tags": [
       "exclusion_waterbergingsgebied",
       "bestaande_uitbreidingsrechten_exception"
@@ -37,15 +109,51 @@
   },
   "WA-03": {
     "kind": "conditional",
-    "zone": {
-      "zoneIds": [
-        "overstroombaar_gebied"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_overstroombaar_gebied",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone overstroombaar_gebied.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+      "output": [
+        {
+          "name": "result_wa_03",
+          "type": "boolean",
+          "description": "Uitkomst WA-03 (zone-regel conditional)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_wa_03",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_overstroombaar_gebied",
+            "value": true
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_overstroombaar_gebied": {
+          "zoneIds": [
+            "overstroombaar_gebied"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+        }
+      }
+    },
     "extra_tags": [
       "conditional_within_overstroombaar_gebied",
       "binnendijks_buitendijks_objectdifferentiatie"

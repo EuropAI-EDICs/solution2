@@ -44,6 +44,9 @@ CARD = {
         "quote": "Een omgevingsplan dat betrekking heeft op locaties binnen het Gebied windenergie kan regels bevatten.",
         "uri": "https://lokaleregelgeving.overheid.nl/cvdr704250",
     },
+    "number": "5.4",
+    "text": "Een omgevingsplan dat betrekking heeft op locaties binnen het Gebied windenergie kan regels bevatten.",
+    "url": "https://lokaleregelgeving.overheid.nl/cvdr704250",
     "instrument": "Omgevingsverordening provincie Utrecht (CVDR704250, geldend 13-10-2025)",
     "legalForce": "binding",
     "theme": "energy:wind-groot-inclusion",
@@ -53,6 +56,26 @@ CARD = {
     "extractedAt": "2026-08-30",
     "appliesTo": {"objectType": "wind_turbine"},
 }
+
+
+def _exec_fixture(zone_id, buffer_m, want_inside):
+    """Minimal RegelRecht execution + zoneBinding matching a derived-zone fixture rule."""
+    name = f"in_{zone_id}"
+    out = f"result_{zone_id}"
+    return {
+        "execution": {
+            "produces": {"legal_character": "TOETS"},
+            "parameters": [],
+            "input": [{"name": name, "type": "boolean", "description": "Geo-feit",
+                       "source": {"description": "zone-engine fixture"}}],
+            "output": [{"name": out, "type": "boolean", "description": "uitkomst"}],
+            "actions": [{"output": out, "value": {
+                "operation": "EQUALS", "subject": f"${name}", "value": want_inside}}],
+        },
+        "zoneBinding": {"inputs": {name: {
+            "zoneIds": [zone_id], "selection": "within", "geometrySource": "derived",
+            "bufferDistanceM": buffer_m, "derivedFrom": zone_id}}},
+    }
 
 RULE_FORMALIZED = {
     "id": "FR-W-05",
@@ -64,6 +87,7 @@ RULE_FORMALIZED = {
     "zoneSelector": {"zoneIds": ["incl"], "selection": "within", "geometrySource": "derived",
                      "bufferDistanceM": 10, "derivedFrom": "incl"},
     "conditions": [],
+    **_exec_fixture("incl", 10, True),
     "executableRef": "engine.zone.within@poc-v1",
     "rationale": "Article 5.4 permits turbines inside the Gebied windenergie designation (GIO Bijlage II).",
     "formalizedBy": "norm-formalizer#deterministic-templates-v1",
@@ -80,6 +104,7 @@ RULE_EXCL = {
     "zoneSelector": {"zoneIds": ["excl"], "selection": "within", "geometrySource": "derived",
                      "bufferDistanceM": 5, "derivedFrom": "excl"},
     "conditions": [],
+    **_exec_fixture("excl", 5, False),
     "executableRef": "engine.zone.exclude_within@poc-v1",
     "rationale": "Toelichting to art. 5.4 excludes Natura 2000 and ganzenrust areas from the wind pathway.",
     "formalizedBy": "norm-formalizer#deterministic-templates-v1",

@@ -44,10 +44,13 @@ def project_zone(
         if name not in binding_inputs:
             raise ProjectionError(f"geo input {name!r} missing from zoneBinding.inputs")
 
+    units = {p["name"]: p["unit"] for p in (execution.get("parameters") or []) if p.get("unit")}
     conditions = []
     for leaf in leafs:
         if leaf["parameter"] in geo_names:
             continue  # encoded in zoneSelector
+        if leaf["parameter"] in units:
+            leaf["unit"] = units[leaf["parameter"]]
         conditions.append(leaf)
 
     zone_selector = None

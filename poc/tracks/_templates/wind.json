@@ -106,23 +106,69 @@
   },
   "W-05": {
     "kind": "inclusion",
-    "zone": {
-      "zoneIds": [
-        "gebied_windenergie"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [
+        {
+          "name": "capacity",
+          "type": "number",
+          "description": "capacity",
+          "unit": "MW"
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio",
-      "gioJoinId": "/join/id/regdata/pv26/2025/giocc2ef601-3b25-4428-8808-e77ae1e47b4d/nld@2025-10-10;846",
-      "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+      "input": [
+        {
+          "name": "in_gebied_windenergie",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone gebied_windenergie.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
+      ],
+      "output": [
+        {
+          "name": "result_w_05",
+          "type": "boolean",
+          "description": "Uitkomst W-05 (zone-regel inclusion)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_w_05",
+          "value": {
+            "operation": "AND",
+            "conditions": [
+              {
+                "operation": "GREATER_THAN_OR_EQUAL",
+                "subject": "$capacity",
+                "value": 3
+              },
+              {
+                "operation": "EQUALS",
+                "subject": "$in_gebied_windenergie",
+                "value": true
+              }
+            ]
+          }
+        }
+      ]
     },
-    "conditions": [
-      {
-        "parameter": "capacity",
-        "operator": ">=",
-        "value": 3,
-        "unit": "MW"
+    "zoneBinding": {
+      "inputs": {
+        "in_gebied_windenergie": {
+          "zoneIds": [
+            "gebied_windenergie"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio",
+          "gioJoinId": "/join/id/regdata/pv26/2025/giocc2ef601-3b25-4428-8808-e77ae1e47b4d/nld@2025-10-10;846",
+          "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+        }
       }
-    ],
+    },
     "extra_tags": [
       "inclusion_zone_gebied_windenergie",
       "clustering_required",
@@ -147,16 +193,52 @@
   },
   "W-08": {
     "kind": "exclusion",
-    "zone": {
-      "zoneIds": [
-        "natura_2000",
-        "ganzenrustgebied"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_natura_2000_ganzenrustgebied",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone natura_2000, ganzenrustgebied.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "national_source",
-      "caveat": "exclusion grounded in the toelichting on art. 5.4 (interpretive) + Omgevingsvisie 2021 (non-binding); no provincial GIO exists — geo analyst must attach national geometry with provenance"
+      "output": [
+        {
+          "name": "result_w_08",
+          "type": "boolean",
+          "description": "Uitkomst W-08 (zone-regel exclusion)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_w_08",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_natura_2000_ganzenrustgebied",
+            "value": false
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_natura_2000_ganzenrustgebied": {
+          "zoneIds": [
+            "natura_2000",
+            "ganzenrustgebied"
+          ],
+          "selection": "within",
+          "geometrySource": "national_source",
+          "caveat": "exclusion grounded in the toelichting on art. 5.4 (interpretive) + Omgevingsvisie 2021 (non-binding); no provincial GIO exists — geo analyst must attach national geometry with provenance"
+        }
+      }
+    },
     "extra_tags": [
       "exclusion_natura_2000",
       "exclusion_ganzenrustgebied"
@@ -176,24 +258,70 @@
   },
   "W-10": {
     "kind": "attention",
-    "zone": {
-      "zoneIds": [
-        "aandachtsgebied_stiltegebied"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [
+        {
+          "name": "buffer_distance",
+          "type": "number",
+          "description": "buffer_distance",
+          "unit": "m"
+        }
       ],
-      "selection": "within",
-      "geometrySource": "derived",
-      "derivedFrom": "stiltegebied",
-      "bufferDistanceM": 1500,
-      "caveat": "art. 9.25 lid 2 defines the Aandachtsgebied as a 1500 m zone around a Stiltegebied; the Stiltegebied GIO join-ids still need re-verification against Bijlage II (truncated in recon notes)"
+      "input": [
+        {
+          "name": "in_aandachtsgebied_stiltegebied",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone aandachtsgebied_stiltegebied.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
+      ],
+      "output": [
+        {
+          "name": "result_w_10",
+          "type": "boolean",
+          "description": "Uitkomst W-10 (zone-regel attention)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_w_10",
+          "value": {
+            "operation": "AND",
+            "conditions": [
+              {
+                "operation": "EQUALS",
+                "subject": "$buffer_distance",
+                "value": 1500
+              },
+              {
+                "operation": "EQUALS",
+                "subject": "$in_aandachtsgebied_stiltegebied",
+                "value": true
+              }
+            ]
+          }
+        }
+      ]
     },
-    "conditions": [
-      {
-        "parameter": "buffer_distance",
-        "operator": "==",
-        "value": 1500,
-        "unit": "m"
+    "zoneBinding": {
+      "inputs": {
+        "in_aandachtsgebied_stiltegebied": {
+          "zoneIds": [
+            "aandachtsgebied_stiltegebied"
+          ],
+          "selection": "within",
+          "geometrySource": "derived",
+          "derivedFrom": "stiltegebied",
+          "bufferDistanceM": 1500,
+          "caveat": "art. 9.25 lid 2 defines the Aandachtsgebied as a 1500 m zone around a Stiltegebied; the Stiltegebied GIO join-ids still need re-verification against Bijlage II (truncated in recon notes)"
+        }
       }
-    ],
+    },
     "extra_tags": [
       "attention_zone_aandachtsgebied_stiltegebied"
     ],
@@ -209,15 +337,51 @@
   },
   "W-12": {
     "kind": "conditional",
-    "zone": {
-      "zoneIds": [
-        "stiltegebied"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_stiltegebied",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone stiltegebied.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "GIO staat in Bijlage II van CVDR704250 maar de join-id is slechts afgekapt overgenomen in de recon-notities; her-verifieer tegen Bijlage II voor V3"
+      "output": [
+        {
+          "name": "result_w_12",
+          "type": "boolean",
+          "description": "Uitkomst W-12 (zone-regel conditional)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_w_12",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_stiltegebied",
+            "value": true
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_stiltegebied": {
+          "zoneIds": [
+            "stiltegebied"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "GIO staat in Bijlage II van CVDR704250 maar de join-id is slechts afgekapt overgenomen in de recon-notities; her-verifieer tegen Bijlage II voor V3"
+        }
+      }
+    },
     "extra_tags": [
       "conditional_inclusion_within_stiltegebied",
       "regionally_coordinated",
@@ -228,16 +392,52 @@
   },
   "W-13": {
     "kind": "conditional",
-    "zone": {
-      "zoneIds": [
-        "natuurnetwerk_nederland"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_natuurnetwerk_nederland",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone natuurnetwerk_nederland.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio",
-      "gioJoinId": "/join/id/regdata/pv26/2025/gio3111b509-00cb-46c0-9967-b8102f81c85f/nld@2025-08-18;803",
-      "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+      "output": [
+        {
+          "name": "result_w_13",
+          "type": "boolean",
+          "description": "Uitkomst W-13 (zone-regel conditional)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_w_13",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_natuurnetwerk_nederland",
+            "value": true
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_natuurnetwerk_nederland": {
+          "zoneIds": [
+            "natuurnetwerk_nederland"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio",
+          "gioJoinId": "/join/id/regdata/pv26/2025/gio3111b509-00cb-46c0-9967-b8102f81c85f/nld@2025-08-18;803",
+          "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+        }
+      }
+    },
     "extra_tags": [
       "nnn_quality_overlay"
     ],
@@ -246,16 +446,52 @@
   },
   "W-14": {
     "kind": "exclusion",
-    "zone": {
-      "zoneIds": [
-        "natuurnetwerk_nederland"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_natuurnetwerk_nederland",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone natuurnetwerk_nederland.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio",
-      "gioJoinId": "/join/id/regdata/pv26/2025/gio3111b509-00cb-46c0-9967-b8102f81c85f/nld@2025-08-18;803",
-      "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+      "output": [
+        {
+          "name": "result_w_14",
+          "type": "boolean",
+          "description": "Uitkomst W-14 (zone-regel exclusion)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_w_14",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_natuurnetwerk_nederland",
+            "value": false
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_natuurnetwerk_nederland": {
+          "zoneIds": [
+            "natuurnetwerk_nederland"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio",
+          "gioJoinId": "/join/id/regdata/pv26/2025/gio3111b509-00cb-46c0-9967-b8102f81c85f/nld@2025-08-18;803",
+          "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+        }
+      }
+    },
     "extra_tags": [
       "exclusion_natuurnetwerk_nederland",
       "lid_2_exceptions_discretionary"
@@ -265,23 +501,69 @@
   },
   "W-15": {
     "kind": "compensation",
-    "zone": {
-      "zoneIds": [
-        "groene_contour"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [
+        {
+          "name": "compensation_ratio_new_nature",
+          "type": "number",
+          "description": "compensation_ratio_new_nature",
+          "unit": "ratio"
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio",
-      "gioJoinId": "/join/id/regdata/pv26/2025/gioee37db62-22b1-4334-bf89-7ddf4e5812c6/nld@2025-08-18;798",
-      "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+      "input": [
+        {
+          "name": "in_groene_contour",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone groene_contour.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
+      ],
+      "output": [
+        {
+          "name": "result_w_15",
+          "type": "boolean",
+          "description": "Uitkomst W-15 (zone-regel compensation)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_w_15",
+          "value": {
+            "operation": "AND",
+            "conditions": [
+              {
+                "operation": "GREATER_THAN_OR_EQUAL",
+                "subject": "$compensation_ratio_new_nature",
+                "value": 1
+              },
+              {
+                "operation": "EQUALS",
+                "subject": "$in_groene_contour",
+                "value": true
+              }
+            ]
+          }
+        }
+      ]
     },
-    "conditions": [
-      {
-        "parameter": "compensation_ratio_new_nature",
-        "operator": ">=",
-        "value": 1,
-        "unit": "ratio"
+    "zoneBinding": {
+      "inputs": {
+        "in_groene_contour": {
+          "zoneIds": [
+            "groene_contour"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio",
+          "gioJoinId": "/join/id/regdata/pv26/2025/gioee37db62-22b1-4334-bf89-7ddf4e5812c6/nld@2025-08-18;798",
+          "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+        }
       }
-    ],
+    },
     "extra_tags": [
       "compensation_within_groene_contour"
     ],
@@ -325,16 +607,52 @@
   },
   "W-21": {
     "kind": "inclusion",
-    "zone": {
-      "zoneIds": [
-        "landelijk_gebied"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_landelijk_gebied",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone landelijk_gebied.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio",
-      "gioJoinId": "/join/id/regdata/pv26/2025/gio17d47ef4-f140-45b7-8809-c5068d74698f/nld@2025-10-10;843",
-      "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+      "output": [
+        {
+          "name": "result_w_21",
+          "type": "boolean",
+          "description": "Uitkomst W-21 (zone-regel inclusion)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_w_21",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_landelijk_gebied",
+            "value": true
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_landelijk_gebied": {
+          "zoneIds": [
+            "landelijk_gebied"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio",
+          "gioJoinId": "/join/id/regdata/pv26/2025/gio17d47ef4-f140-45b7-8809-c5068d74698f/nld@2025-10-10;843",
+          "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+        }
+      }
+    },
     "extra_tags": [
       "scope_landelijk_gebied",
       "stedelijk_gebied_out_of_scope"

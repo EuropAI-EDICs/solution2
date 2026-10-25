@@ -1,15 +1,51 @@
 {
   "BM-01": {
     "kind": "conditional",
-    "zone": {
-      "zoneIds": [
-        "gebied_energie_biomassa_landelijk"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_gebied_energie_biomassa_landelijk",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone gebied_energie_biomassa_landelijk.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+      "output": [
+        {
+          "name": "result_bm_01",
+          "type": "boolean",
+          "description": "Uitkomst BM-01 (zone-regel conditional)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_bm_01",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_gebied_energie_biomassa_landelijk",
+            "value": true
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_gebied_energie_biomassa_landelijk": {
+          "zoneIds": [
+            "gebied_energie_biomassa_landelijk"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+        }
+      }
+    },
     "extra_tags": [
       "conditional_within_gebied_energie_biomassa_landelijk",
       "kan_mits_energie_uit_biomassa",
@@ -22,15 +58,51 @@
   },
   "BM-02": {
     "kind": "conditional",
-    "zone": {
-      "zoneIds": [
-        "gebied_energie_biomassa_stedelijk"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_gebied_energie_biomassa_stedelijk",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone gebied_energie_biomassa_stedelijk.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+      "output": [
+        {
+          "name": "result_bm_02",
+          "type": "boolean",
+          "description": "Uitkomst BM-02 (zone-regel conditional)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_bm_02",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_gebied_energie_biomassa_stedelijk",
+            "value": true
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_gebied_energie_biomassa_stedelijk": {
+          "zoneIds": [
+            "gebied_energie_biomassa_stedelijk"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+        }
+      }
+    },
     "extra_tags": [
       "conditional_within_gebied_energie_biomassa_stedelijk",
       "geen_toestaan_tenzij_vier_voorwaarden",
