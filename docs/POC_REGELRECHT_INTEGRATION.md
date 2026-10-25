@@ -1,11 +1,12 @@
 # RegelRecht-integratie voor de PoC's (Utrecht & Eindhoven)
 
 Integratieanalyse van de LDT-toolbox-PoC's met
-[**RegelRecht**](https://github.com/MinBZK/regelrecht) (MinBZK): hoe de
+[**RegelRecht**](https://github.com/NederlandseDigitaleDienst/regelrecht) (Nederlandse Digitale Dienst, NDD; voorheen MinBZK): hoe de
 rule graphs van [PoC-1 Utrecht](POC_RULE_GRAPH.md) en
 [PoC-2 Eindhoven](POC_RULE_GRAPH_EINDHOVEN.md) op het regelrecht-platform
 aansluiten. Alle feiten over RegelRecht hieronder zijn geverifieerd tegen de
-repo's en het schema (versie **v0.7.1**, september 2026); beide voorbeeld-
+repo's en het schema (versie **v0.8.11**, oktober 2026; de eerste analyse
+dateert van v0.7.1, september 2026, onder de MinBZK-organisatie); beide voorbeeld-
 YAML's in [`examples/regelrecht/`](examples/regelrecht/) zijn daadwerkelijk
 gevalideerd tegen dat schema (zie [verificatie](#verificatie)).
 
@@ -18,9 +19,9 @@ Rust-engine (ook als WASM) uitgevoerd als beslislogica, met een volledige
 uitlegbare trail (`trace/v1`-schema) en gedragsconformiteit via
 Gherkin-scenario's per wet. De belangrijkste bouwstenen:
 
-- het **[corpus](https://github.com/MinBZK/regelrecht-corpus)**: ~22.000
+- het **[corpus](https://github.com/NederlandseDigitaleDienst/regelrecht-corpus)**: ~22.000
   wet-YAML's, geoogst uit het landelijke BWB;
-- het **versioned JSON Schema** (`schema/v0.7.1/schema.json`): een regeling
+- het **versioned JSON Schema** (`schema/v0.8.11/schema.json`): een regeling
   is metadata + `articles[]` met per artikel `number`, `text` (letterlijk,
   markdown), `url` en optioneel `machine_readable` — "an article without
   this key is carried as text only";
@@ -31,6 +32,22 @@ Gherkin-scenario's per wet. De belangrijkste bouwstenen:
   AND/OR/NOT, IF/cases, datum- en rekenoperaties);
 - de **workflow**: LLM-conversievoorstellen op aparte branches, menselijke
   goedkeuring via PR (de `draft-conversions`-aanpak).
+
+## Upstream NDD, schema v0.8.11 en NormCard herijking
+
+- **Upstream:** RegelRecht wordt onderhouden door de Nederlandse Digitale Dienst
+  ([NederlandseDigitaleDienst/regelrecht](https://github.com/NederlandseDigitaleDienst/regelrecht));
+  de voormalige `MinBZK/regelrecht`-verwijzingen zijn alleen nog historisch.
+  Het schema is vastgepind op **v0.8.11** met sha-check
+  (`nldt/simulation/regelrecht/schema/pin.json`, test `nldt.tests.test_regelrecht_schema_pin`).
+- **NormCard ≈ RegelRecht-artikel:** een NormCard draagt de artikelkern
+  `number` / `text` (letterlijk) / `url`, zoals `articles[]` in het schema.
+- **FormalRule dual-write:** `FormalRule.execution` (RegelRecht-vorm) is de
+  bron van waarheid; de zone-velden (`zoneSelector`/`zoneSemantics`) worden
+  via de `zone_projector` daaruit afgeleid (dual-write, hard fail bij
+  inconsistentie). `full_export` leest `execution` rechtstreeks. De
+  Rust-engine zit niet in de pipeline; er is geen upstream corpus-PR.
+- Ontwerp: [`2026-10-25-normcard-formalizer-regelrecht-design.md`](superpowers/specs/2026-10-25-normcard-formalizer-regelrecht-design.md).
 
 ## Waarom de PoC's en RegelRecht elkaar aanvullen
 
@@ -61,7 +78,7 @@ eerste omgevingsplan in het corpus kunnen dus uit deze PoC's komen.
 | PoC-concept | RegelRecht-equivalent | Opmerking |
 |---|---|---|
 | NormCard-bron: artikel + letterlijk citaat + CVDR-uri + versie | `articles[].{number, text, url}` + per element `legal_basis` | de PoC's citereen al verbatim met dieptelinks — dezelfde discipline |
-| verordening als geheel (CVDR704250 / CVDR696400) | metadata + `cvdr_id` | **hiaat**: `cvdr_id` bestond in schema v0.5.2 (het HHNK-bestand draagt het) maar is in v0.7.1 komen te vervallen; `additionalProperties` staat open, dus het veld valideert wél maar het law-model leest het niet meer |
+| verordening als geheel (CVDR704250 / CVDR696400) | metadata + `cvdr_id` | **hiaat**: `cvdr_id` bestond in schema v0.5.2 (het HHNK-bestand draagt het) maar is sinds v0.7.1 komen te vervallen; `additionalProperties` staat open, dus het veld valideert wél maar het law-model leest het niet meer |
 | `legalForce` / bevoegd gezag | `machine_readable.competent_authority` (RFC-009) | annotatie-only: de engine rekent hetzelfde, maar alleen het bevoegd gezag produceert een bindende uitkomst |
 | FormalRule `conditions` (bijv. `hub_height <= 20`) | `execution.actions` met `LESS_THAN_OR_EQUAL`/`EQUALS`/`AND`/`IF` | één-op-één vertaalbaar; zie het Utrecht-voorbeeld |
 | FormalRule `zoneSelector`/`zoneSemantics` | **geen equivalent** — wordt een booleaanse `input` | `inputField.source`: laat `regulation` weg "for external data sources that must be resolved outside the YAML" — de PoC levert het feit |
@@ -181,7 +198,7 @@ regelconversie, Utrecht de geometrie.
 
 ## Upstream-issues voor RegelRecht (geordend op impact)
 
-1. **`cvdr_id` herinvoeren** (bestond in v0.5.2, verdwenen in v0.7.1) —
+1. **`cvdr_id` herinvoeren** (bestond in v0.5.2, verdwenen in v0.7.1, ook niet terug in v0.8.11) —
    zonder CVDR-identificatie is lokale regelgeving alleen via de `url`
    herleidbaar; het HHNK-precedent laat zien dat de behoefte er is.
 2. **`legal_basis` en `references` zijn BWBR-only** (patroon `^BWBR\d{7}$`) —
@@ -196,7 +213,7 @@ regelconversie, Utrecht de geometrie.
 Beide voorbeeldbestanden zijn gevalideerd tegen het officiële schema:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/MinBZK/regelrecht/main/schema/v0.7.1/schema.json -o /tmp/regelrecht-schema.json
+curl -sL https://raw.githubusercontent.com/NederlandseDigitaleDienst/regelrecht/main/schema/v0.8.11/schema.json -o /tmp/regelrecht-schema.json
 nldt/.venv/bin/python - <<'PY'
 import json, yaml
 from jsonschema import Draft202012Validator
@@ -208,7 +225,7 @@ for f in ['docs/examples/regelrecht/omgevingsverordening-utrecht-art5.3.yaml',
 PY
 ```
 
-Beide: `VALID` (draft 2020-12, schema v0.7.1, 2026-09-29). De voorbeelden
+Beide: `VALID` (draft 2020-12, schema v0.8.11; vastgepind in `nldt/simulation/regelrecht/schema/`). De voorbeelden
 zijn demonstratoren: één artikel(paar) per bestand.
 
 ### Fase 1 volledig — instrument-export

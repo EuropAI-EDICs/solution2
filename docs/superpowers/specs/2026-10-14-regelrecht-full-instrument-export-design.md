@@ -3,6 +3,7 @@
 | | |
 |---|---|
 | **Datum** | 14 oktober 2026 |
+| **Versie-noot** | Sinds 25 okt 2026 is het schema v0.8.11 (NDD, `NederlandseDigitaleDienst/regelrecht`) i.p.v. v0.7.1 (MinBZK); zie [2026-10-25-normcard-formalizer-regelrecht-design.md](2026-10-25-normcard-formalizer-regelrecht-design.md). Onderstaande v0.7.1-verwijzingen zijn historisch. |
 | **Status** | goedgekeurd in brainstorm (§1–§3); klaar voor implementatieplan |
 | **Scope** | `nldt/simulation/regelrecht/full_export/`, uitbreiding `regelrecht-demo.html`, artefacten onder `full_export/out/` |
 | **Bronnen** | [POC_REGELRECHT_INTEGRATION.md](../../POC_REGELRECHT_INTEGRATION.md) · [2026-09-29-simulation-regelrecht-design.md](2026-09-29-simulation-regelrecht-design.md) · vastgepinde CVDR-HTML · PoC-corpora (`poc/`, `poc-bp2op/`) |
