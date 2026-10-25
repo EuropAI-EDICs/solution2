@@ -123,6 +123,9 @@ class AnalystStampingTests(unittest.TestCase):
 # S2 — LLMFormalizerHook + NormFormalizer wiring
 # --------------------------------------------------------------------------- #
 
+_QUOTE = (
+    "Binnen de gevoelige zone geldt een afstand van 300 meter tot geluidgevoelige objecten."
+)
 CARD = {
     "id": "NC-T-09",
     "evidenceId": "T-09",
@@ -130,9 +133,12 @@ CARD = {
     "source": {
         "docId": "S01", "article": "art. 9.99 lid 1",
         "version": "CVDR704250 geldend 13-10-2025",
-        "quote": "Binnen de gevoelige zone geldt een afstand van 300 meter tot geluidgevoelige objecten.",
+        "quote": _QUOTE,
         "quoteLanguage": "nl", "uri": "https://example.test/cvdr",
     },
+    "number": "9.99 lid 1",
+    "text": _QUOTE,
+    "url": "https://example.test/cvdr",
     "instrument": "artikeltekst",
     "legalForce": "binding",
     "theme": "energy:test",
@@ -202,7 +208,20 @@ class FormalizerHookGatingTests(unittest.TestCase):
         out = hook(CARD)
         self.assertEqual(out["kind"], "attention")
         self.assertEqual(out["bufferDistanceM"], 300)
+        self.assertIn("execution", out)
+        self.assertIn("zoneBinding", out)
+        self.assertEqual(out["execution"]["actions"], GOOD_PROPOSAL["execution"]["actions"])
         self.assertEqual(hook.accepted, 1)
+
+    def test_execution_geo_inputs_require_zone_binding(self):
+        proposal = {
+            **GOOD_PROPOSAL,
+            "zoneBinding": None,
+        }
+        del proposal["zoneBinding"]
+        hook = _formalizer_hook(json.dumps(proposal))
+        self.assertIsNone(hook(CARD))
+        self.assertEqual(hook.rejected[0]["kind"], "zonebinding-missing")
 
     def test_fabricated_zone_rejected(self):
         proposal = {**GOOD_PROPOSAL, "zoneIds": ["made_up_zone"]}
@@ -271,6 +290,8 @@ class FormalizerWiringTests(unittest.TestCase):
         rule = rules[0].to_dict()
         self.assertEqual(rule["status"], "formalized")
         self.assertEqual(rule["ruleType"], "zone_attention")
+        self.assertIn("execution", rule)
+        self.assertIn("zoneBinding", rule)
         self.assertEqual(rule["zoneSelector"]["bufferDistanceM"], 300)
         self.assertEqual(rule["zoneSelector"]["geometrySource"], "provincial_gio")
         self.assertEqual(rule["zoneSelector"]["gioJoinId"],

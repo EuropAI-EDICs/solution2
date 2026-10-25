@@ -30,7 +30,11 @@ plus the FormalRule schema/V0 in ``NormFormalizer``):
 3. quote grounding: every numeric condition ``value`` occurs verbatim in the
    card's Dutch quote (plain and integer spellings; sign folded) — the S7
    buffer-distance lesson applied at formalization time;
-4. identity stamping: the seam stamps ``llm-proposal.<model-slug>`` into
+4. RegelRecht shape: when ``execution`` is present it must carry a non-empty
+   ``actions`` array; geo boolean inputs in ``execution.input`` require a
+   matching ``zoneBinding.inputs`` entry with grounded ``zoneIds`` and
+   ``geometrySource`` (projection fails loudly otherwise);
+5. identity stamping: the seam stamps ``llm-proposal.<model-slug>`` into
    ``extractedBy`` / ``formalizedBy`` (schema ``agent#version`` pattern); the
    model never names itself.
 
@@ -251,11 +255,13 @@ class LLMFormalizerHook(_BaseHook):
          "zoneIds": ["gebied_..."],
          "bufferDistanceM": 300,            # attention only, optional
          "conditions": [{"parameter": "...", "operator": ">=", "value": 3, "unit": "MW"}],
-         "rationale": "why this reading follows from the quote"}
+         "rationale": "why this reading follows from the quote",
+         "execution": {...},                # RegelRecht SoT when formalizing
+         "zoneBinding": {"inputs": {...}}} # required when execution has geo inputs
 
-    ``NormFormalizer`` (not the model) assembles the FormalRule from it,
-    reusing the card's own geoBinding for geometrySource/gioJoinId — the
-    model can never inject a geometry source or GIO join id.
+    ``NormFormalizer`` projects ``execution`` + ``zoneBinding`` into
+    ``zoneSelector`` / ``conditions`` (dual-write). Proposals without
+    ``execution`` may still pass the hook but stay ``ambiguous`` downstream.
     """
 
     def __init__(self, allowed_zone_ids: Sequence[str], **kwargs) -> None:
@@ -327,14 +333,72 @@ class LLMFormalizerHook(_BaseHook):
             reject("rationale-invalid", f"rationale must be ≥ {CLAIM_MIN_CHARS} chars")
             return None
 
+        execution = proposal.get("execution")
+        zone_binding = proposal.get("zoneBinding")
+        if execution is not None:
+            if not isinstance(execution, dict):
+                reject("execution-invalid", "execution must be an object")
+                return None
+            actions = execution.get("actions")
+            if not isinstance(actions, list) or not actions:
+                reject("execution-invalid", "execution.actions must be a non-empty array")
+                return None
+            raw_inputs = execution.get("input") or []
+            if not isinstance(raw_inputs, list):
+                reject("execution-invalid", "execution.input must be an array")
+                return None
+            geo_names = {
+                i.get("name")
+                for i in raw_inputs
+                if isinstance(i, dict) and i.get("type") == "boolean" and i.get("name")
+            }
+            if geo_names:
+                if not isinstance(zone_binding, dict):
+                    reject("zonebinding-missing", "zoneBinding required when execution has geo boolean inputs")
+                    return None
+                binding_inputs = zone_binding.get("inputs")
+                if not isinstance(binding_inputs, dict):
+                    reject("zonebinding-invalid", "zoneBinding.inputs must be an object")
+                    return None
+                for name in geo_names:
+                    zb_entry = binding_inputs.get(name)
+                    if not isinstance(zb_entry, dict):
+                        reject(
+                            "zonebinding-incomplete",
+                            f"zoneBinding.inputs missing or invalid for geo input {name!r}",
+                        )
+                        return None
+                    zb_zones = zb_entry.get("zoneIds")
+                    if not isinstance(zb_zones, list) or not zb_zones or not all(isinstance(z, str) for z in zb_zones):
+                        reject("zonebinding-invalid", f"zoneBinding.inputs[{name!r}].zoneIds must be a non-empty string array")
+                        return None
+                    unknown_zb = [z for z in zb_zones if z not in allowed]
+                    if unknown_zb:
+                        reject(
+                            "zone-not-grounded",
+                            f"zoneBinding zone ids not available for this card (unknown: {unknown_zb})",
+                        )
+                        return None
+                    if not zb_entry.get("geometrySource"):
+                        reject(
+                            "zonebinding-invalid",
+                            f"zoneBinding.inputs[{name!r}] requires geometrySource",
+                        )
+                        return None
+
         self.accepted += 1
-        return {
+        out: Dict[str, Any] = {
             "kind": kind,
             "zoneIds": zone_ids,
             **({"bufferDistanceM": buffer_m} if buffer_m is not None else {}),
             "conditions": conditions,
             "rationale": rationale.strip(),
         }
+        if execution is not None:
+            out["execution"] = execution
+        if zone_binding is not None:
+            out["zoneBinding"] = zone_binding
+        return out
 
     @staticmethod
     def _system_prompt(quote: str) -> str:
