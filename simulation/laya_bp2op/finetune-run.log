@@ -1,0 +1,92 @@
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]Fetching 5 files: 100%|██████████| 5/5 [00:00<00:00, 2417.74it/s]
+W1024 19:51:21.802000 67052 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+items: train 744 (skipped {}) · eval 189 (skipped {})
+eval items 189 from /Users/marc/Projecten/ldttoolbox/simulation/laya_bp2op/data/eval.jsonl (skipped {}, 0 overlapping training/calibration items)
+train items 670, calibration items 74, eval items 189 (/Users/marc/Projecten/ldttoolbox/simulation/laya_bp2op/data/eval.jsonl), skipped {}, device mps
+optimizer budget: 670 train item(s), effective batch up to 64 (micro_batch 8 x grad_accum 8), 44 optimizer updates over 4 epoch(s)
+epoch 1/4 mean loss 1.0311
+epoch 2/4 mean loss 0.4173
+epoch 3/4 mean loss 0.3021
+epoch 4/4 mean loss 0.2074
+/Users/marc/Projecten/ldttoolbox/simulation/laya_bp2op/finetune.py:79: RuntimeWarning: laya.train: choice calibration: fitted on only 21 calibration items
+  summary = finetune(
+/Users/marc/Projecten/ldttoolbox/simulation/laya_bp2op/finetune.py:79: RuntimeWarning: laya.train: score calibration: fitted on only 24 calibration items
+  summary = finetune(
+/Users/marc/Projecten/ldttoolbox/simulation/laya_bp2op/finetune.py:79: RuntimeWarning: laya.train: noul calibration: fitted on only 29 calibration items
+  summary = finetune(
+
+=== Evaluation (before vs after fine-tuning on 189 held-out items from /Users/marc/Projecten/ldttoolbox/simulation/laya_bp2op/data/eval.jsonl) ===
+Metric                 Before         After          Delta         
+-----------------------------------------------------------------
+Accuracy               0.3175         0.9153         +0.5978       
+Loss                   2.9847         0.2890         -2.6957       
+ECE                    0.3556         0.0701         -0.2855       
+Brier (multi-class)    0.8932         0.1394         -0.7538       
+Brier (top-1)          0.2716         0.0695         -0.2021       
+Mean Confidence        0.6730         0.8840         +0.2110       
+-----------------------------------------------------------------
+
+checkpoint: /Users/marc/Projecten/ldttoolbox/simulation/laya_bp2op/checkpoints/bp2op-laya
+{
+  "train_items": 670,
+  "calibration_items": 74,
+  "eval_items": 189,
+  "skipped": {},
+  "epoch_loss": [
+    1.0310689296041216,
+    0.4172619599627242,
+    0.30211156313972815,
+    0.20740127667695993
+  ],
+  "temperature": [
+    1.043958306312561,
+    1.8034509420394897,
+    2.772080421447754
+  ],
+  "temperature_by_options": {},
+  "n_by_bucket": {
+    "noul:2": 29,
+    "choice:6-10": 21,
+    "score:3-5": 24
+  },
+  "calibration": {
+    "choice": {
+      "items": 21,
+      "temperature": 1.043958306312561,
+      "issues": [
+        "fitted on only 21 calibration items"
+      ],
+      "accuracy": 0.9047619047619048,
+      "mean_confidence": 0.8573381891628334
+    },
+    "score": {
+      "items": 24,
+      "temperature": 1.8034509420394897,
+      "issues": [
+        "fitted on only 24 calibration items"
+      ],
+      "accuracy": 0.9583333333333334,
+      "mean_confidence": 0.8570816515721073
+    },
+    "noul": {
+      "items": 29,
+      "temperature": 2.772080421447754,
+      "issues": [
+        "fitted on only 29 calibration items"
+      ],
+      "accuracy": 0.896551724137931,
+      "mean_confidence": 0.8768358019961873
+    }
+  },
+  "abstention_thresholds": {
+    "noul:2": 0.9343,
+    "choice:6-10": 0.2532,
+    "score:3-5": 0.4048
+  },
+  "train_report": {
+    "eval_source": "/Users/marc/Projecten/ldttoolbox/simulation/laya_bp2op/data/eval.jsonl",
+    "eval_mode": "held_out",
+    "is_held_out": true,
+    "eval_items": 189,
+    "note": "Metrics reflect independent held-out eva
+exit=0

@@ -12,6 +12,46 @@ node    simulation/verify_static.mjs     # headless smoke test of the page scrip
 open    simulation/simulation.html       # works from file:// — no server, no network
 ```
 
+## Laya · System-1 (tab 3) — twee datasets
+
+Real [Laya](https://github.com/NandhaKishorM/laya) decision models, fine-tuned
+per keten and embedded in the page (switcher top-right of the tab):
+
+**zone-keten · Utrecht** (`simulation/laya_utrecht/`) — trained on 84 unique
+NormCards from the 13 PoC-1 runs; four typed heads (`choice` regelstatus /
+`choice` zone-effect · `score` juridische werking · `noul` P(jurist)). Five
+whole tracks (water · mobiliteit · werken · recreatie · biomassa) held out:
+status 94% · effect 89% · jurist 100% · werking 100%. Chat unlocks after the
+PoC-1 run (any track) finishes.
+
+**BP→OP · Eindhoven** (`simulation/laya_bp2op/`) — trained on the 311
+bronregels of the conversion run; three heads (`choice` doel-hoofdstuk ·
+`score` match-band · `noul` P(jurist)), 63 artikelen held out: hoofdstuk 90% ·
+band 83% · jurist 90%. Chat unlocks after the PoC-2 run finishes.
+
+```bash
+# per dataset: build → fine-tune → export → embed
+python3 simulation/laya_utrecht/build_dataset.py    # 84 kaarten, 5 tracks held out
+python3 simulation/laya_bp2op/build_dataset.py      # 311 bronregels, 63 artikelen held out
+# fine-tune (deep-agents/laya_train/.venv — laya+torch, MPS, ~10 min each):
+deep-agents/laya_train/.venv/bin/python simulation/laya_utrecht/finetune.py
+deep-agents/laya_train/.venv/bin/python simulation/laya_bp2op/finetune.py
+deep-agents/laya_train/.venv/bin/python simulation/laya_utrecht/predict_export.py  # → predictions.json
+deep-agents/laya_train/.venv/bin/python simulation/laya_bp2op/predict_export.py   # → predictions.json
+python3 simulation/build_simulation.py              # embed both prediction sets
+```
+
+One case per bronregel (verbatim tekst from hoofdstuk 22/23), three typed
+heads — `choice` doel-hoofdstuk · `score` match-band (geen/zwak/mogelijk/sterk)
+· `noul` P(jurist) — gold from the run's own omzettabel/kennisbank. Held-out
+results (63 ongeziene artikelen): hoofdstuk 90% · band 83% · jurist 90%;
+confidence-gate 0.55 → onthouding → System 2 (jurist, V4), same contract as
+`deep-agents/laya_router.py`. The page embeds the exported predictions
+(offline at build time); free-text queries map deterministically to the
+nearest bronregel via the matcher's own featurization. The **chat unlocks
+after the PoC-2 scenario-run finishes** (deep-link: `?tab=3`).
+
+
 ## What you see
 
 **PoC-1 tab — the zone pipeline, three tracks.** A `wind | zon | bos` switcher

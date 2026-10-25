@@ -22,12 +22,34 @@ import json
 import math
 import re
 import sys
+from collections import Counter, defaultdict
 from pathlib import Path
 
+import importlib.util
+
 from shapely.geometry import shape
+from shapely.ops import unary_union
 
 ROOT = Path(__file__).resolve().parent.parent
+
+# Labels delen met viewer/context_map — zonder poc/ op sys.path te zetten
+# (dat zou poc-bp2op/pipeline.knowledgebank maskeren).
+_sl = importlib.util.spec_from_file_location(
+    "scenario_labels",
+    ROOT / "poc" / "pipeline" / "scenario_labels.py",
+)
+_scenario_labels = importlib.util.module_from_spec(_sl)
+assert _sl.loader is not None
+_sl.loader.exec_module(_scenario_labels)
+BASELINE_VERSCHIL = _scenario_labels.BASELINE_VERSCHIL
+scenario_kleur = _scenario_labels.scenario_kleur
+scenario_kort = _scenario_labels.scenario_kort
+scenario_verschil = _scenario_labels.scenario_verschil
+final_only_fc = _scenario_labels.final_only_fc
+
 AOI_CACHE = ROOT / "poc" / "data" / "cache" / "arcgis-provinciegrens.4326.geojson"
+UITDAGINGEN = ROOT / "poc" / "scenarios" / "uitdagingen.json"
+SCENARIO_RUNS = ROOT / "poc" / "scenario-runs"
 TEMPLATE = Path(__file__).resolve().parent / "template.html"
 OUT = Path(__file__).resolve().parent / "simulation.html"
 
@@ -83,6 +105,70 @@ def short(text: str, n: int = 110) -> str:
 
 def load(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _fc_display_rings(fc: dict) -> list:
+    """FeatureCollection → display rings van alleen de final-kanszone.
+
+    Scenario-GeoJSON bevat de hele keten; unie daarvan = hele provincie.
+    Alleen ``final`` geeft de vlekken zoals in de scenario-run.
+    """
+    geoms = []
+    for f in final_only_fc(fc).get("features") or []:
+        g = f.get("geometry")
+        if g:
+            try:
+                geoms.append(shape(g))
+            except Exception:
+                continue
+    if not geoms:
+        return []
+    merged = unary_union(geoms) if len(geoms) > 1 else geoms[0]
+    if merged.is_empty:
+        return []
+    return display_rings(merged)
+
+
+def build_sweep(track: str) -> list[dict]:
+    """Scenario-sweep voor een track: baseline + varianten met NL éénregel-verschil.
+
+    Geometrie uit de canonieke scenario-run; labels uit scenario_labels
+    (geen km² in de verklarende tekst).
+    """
+    uj = load(UITDAGINGEN)
+    run_id = (uj.get("scenarioRuns") or {}).get(track)
+    if not run_id:
+        return []
+    bron = SCENARIO_RUNS / run_id
+    rapport_pad = bron / "scenario-report.json"
+    if not rapport_pad.is_file():
+        return []
+    rapport = load(rapport_pad)
+    out: list[dict] = []
+    control = bron / "scenarios" / "CONTROL.geojson"
+    if control.is_file():
+        out.append({
+            "id": "CONTROL",
+            "label": "baseline (huidige regels)",
+            "verschil": BASELINE_VERSCHIL,
+            "color": "#5e5c64",
+            "isBaseline": True,
+            "geo": _fc_display_rings(load(control)),
+        })
+    for i, s in enumerate(rapport.get("scenarios") or []):
+        geo_pad = bron / str(s.get("geometryFile") or "")
+        if not geo_pad.is_file():
+            continue
+        delta = float(s.get("deltaVsControlKm2") or 0)
+        out.append({
+            "id": str(s.get("scenarioId") or geo_pad.stem),
+            "label": scenario_kort(s),
+            "verschil": scenario_verschil(s),
+            "color": scenario_kleur(i, delta),
+            "isBaseline": False,
+            "geo": _fc_display_rings(load(geo_pad)),
+        })
+    return out
 
 
 # ---------------------------------------------------------------- PoC-1 data
@@ -225,6 +311,90 @@ def build_track(name: str, meta: dict) -> dict:
         ],
         "validationLevels": levels,
         "kg": build_kg1(cards, formal, zones, rejected, layers_manifest),
+        "sweep": build_sweep(name),
+    }
+
+
+# -------------------------------------------------- Laya System-1 (PoC-1, Utrecht)
+#: fine-tuned on the Utrecht zone chain — see simulation/laya_utrecht/
+LAYA1_EXPORT = Path(__file__).resolve().parent / "laya_utrecht" / "predictions.json"
+
+
+def build_laya1() -> dict:
+    """Embed the real Laya System-1 model for the Utrecht zone chain (PoC-1).
+
+    Trained on 84 unique NormCards from the 13 PoC-1 runs (regelstatus /
+    zone_effect choice heads, needs_human noul, legal_force score — gold from
+    formalrules.json + decision-table.json + normcards.legalForce); five whole
+    tracks (water · mobiliteit · werken · recreatie · biomassa) held out for
+    evaluation. predict_export.py ran the fine-tuned checkpoint over every
+    card; the page embeds those predictions plus a deterministic nearest-
+    neighbour index (matcher featurization over claim+quote) so free-text
+    queries map to a card. No invented numbers.
+    """
+    if not LAYA1_EXPORT.exists():
+        sys.exit(f"missing {LAYA1_EXPORT} — run simulation/laya_utrecht/finetune.py + "
+                 f"predict_export.py first (deep-agents/laya_train/.venv)")
+    exp = json.loads(LAYA1_EXPORT.read_text(encoding="utf-8"))
+
+    laya_root = ROOT / "poc-bp2op"
+    if str(laya_root) not in sys.path:
+        sys.path.insert(0, str(laya_root))
+    from pipeline.knowledgebank import terms, _STOPWORDS, _SUFFIXES
+
+    # ---- nearest-neighbour index over claim + verbatim quote
+    docs = {k: c[3] + " " + c[4] for k, c in exp["cards"].items()}
+    tf = {k: Counter(terms(t)) for k, t in docs.items()}
+    n_docs = len(docs)
+    df = Counter()
+    for c in tf.values():
+        df.update(c.keys())
+    vocab = sorted({t for c in tf.values() for t in c})
+    vidx = {t: i for i, t in enumerate(vocab)}
+    idf = [round(math.log((1 + n_docs) / (1 + df[t])) + 1.0, 3) for t in vocab]
+    rows = {}
+    for k, c in tf.items():
+        w = {t: cnt * idf[vidx[t]] for t, cnt in c.items()}
+        nrm = math.sqrt(sum(v * v for v in w.values())) or 1.0
+        rows[k] = [[vidx[t], round(v / nrm, 4)]
+                   for t, v in sorted(w.items(), key=lambda kv: (-kv[1], kv[0]))[:24]]
+
+    # ---- probes: canonical-track cards spanning the outcome space
+    by_combo = {}
+    for k, c in sorted(exp["cards"].items()):
+        g = exp["gold"][k]
+        if c[0] in ("wind", "zon", "bos"):
+            by_combo.setdefault((g["s"], g["e"]), k)
+    order = [("formalized", "included"), ("formalized", "excluded"),
+             ("formalized", "conditional"), ("ambiguous", "ambiguous"),
+             ("rejected", "not_applicable"), ("formalized", "attention")]
+    picked, seen_tracks = [], set()
+    for combo in order:
+        k = by_combo.get(combo)
+        if k:
+            picked.append(k)
+            seen_tracks.add(exp["cards"][k][0])
+    for k, c in sorted(exp["cards"].items()):  # make sure zon & bos are represented
+        if c[0] in ("zon", "bos") and c[0] not in seen_tracks and len(picked) < 6:
+            picked.append(k)
+            seen_tracks.add(c[0])
+    probes = [{"key": k, "track": exp["cards"][k][0], "card": exp["cards"][k][1],
+               "art": exp["cards"][k][2],
+               "why": f"{exp['gold'][k]['s']} · {exp['gold'][k]['e']}"}
+              for k in picked[:6]]
+
+    return {
+        "meta": exp["model"],
+        "questions": exp["questions"],
+        "eval": exp["eval"],
+        "preds": exp["preds"],
+        "gold": exp["gold"],
+        "cards": exp["cards"],
+        "tok": {"stop": sorted(_STOPWORDS), "suf": list(_SUFFIXES)},
+        "vocab": vocab,
+        "idf": idf,
+        "nn": rows,
+        "probes": probes,
     }
 
 
@@ -234,6 +404,7 @@ def build_poc1() -> dict:
     return {
         "aoi": {"areaKm2": 1560.054, "geo": aoi_geo},
         "tracks": tracks,
+        "laya": build_laya1(),
     }
 
 
@@ -540,6 +711,101 @@ def build_kg1(cards: list, formal: list, zones: list, rejected: dict, layers_man
     }
 
 
+# ---------------------------------------------------------------- Laya System-1
+#: real Laya (github.com/NandhaKishorM/laya) fine-tuned on the BP->OP run —
+#: see simulation/laya_bp2op/ (build_dataset.py -> finetune.py -> predict_export.py)
+LAYA_EXPORT = Path(__file__).resolve().parent / "laya_bp2op" / "predictions.json"
+
+
+def build_laya(bron: list, doel: list, kb: list, tabel: list, doel_map: dict) -> dict:
+    """Embed the real Laya System-1 decision model for the PoC-2 chain.
+
+    The fine-tuned laya checkpoint (multilingual mmBERT-base, RLCD + temperature
+    calibration, trained on 248 bronregels / 744 items) runs offline at build
+    time over all 311 bronregels (predict_export.py); its typed outputs —
+    choice (doel-hoofdstuk) · score (match-band) · noul (needs-jurist) — are
+    embedded verbatim. The page adds only a deterministic nearest-neighbour
+    lookup (same tokenizer as the PoC matcher) so a free-text query maps to the
+    bronregel whose embedded Laya prediction is then shown. No invented numbers.
+    """
+    if not LAYA_EXPORT.exists():
+        sys.exit(
+            f"missing {LAYA_EXPORT} — run simulation/laya_bp2op/finetune.py + "
+            f"predict_export.py first (deep-agents/laya_train/.venv)"
+        )
+    exp = json.loads(LAYA_EXPORT.read_text(encoding="utf-8"))
+
+    laya_root = ROOT / "poc-bp2op"
+    if str(laya_root) not in sys.path:
+        sys.path.insert(0, str(laya_root))
+    from pipeline.knowledgebank import terms, _STOPWORDS, _SUFFIXES
+
+    # ---- nearest-neighbour index: query text -> bronregel (TF-IDF, matcher featurization)
+    tf = {b["id"]: Counter(terms(b["tekst"])) for b in bron}
+    n_docs = len(bron)
+    df = Counter()
+    for c in tf.values():
+        df.update(c.keys())
+    vocab = sorted({t for c in tf.values() for t in c})
+    vidx = {t: i for i, t in enumerate(vocab)}
+    idf = [round(math.log((1 + n_docs) / (1 + df[t])) + 1.0, 3) for t in vocab]
+    TOP = 24
+    rows = {}
+    for bid, c in tf.items():
+        w = {t: cnt * idf[vidx[t]] for t, cnt in c.items()}
+        nrm = math.sqrt(sum(v * v for v in w.values())) or 1.0
+        rows[bid] = [[vidx[t], round(v / nrm, 4)]
+                     for t, v in sorted(w.items(), key=lambda kv: (-kv[1], kv[0]))[:TOP]]
+
+    # ---- kennisbank discrete hits (for chat answers about official relations)
+    kb_by_art = {}
+    for k in kb:
+        m = re.search(r"(\d+\.\d+[a-z]?)", k["bronLabel"])
+        if m and m.group(1) not in kb_by_art and k.get("doelRegelId"):
+            kb_by_art[m.group(1)] = [k["doelRegelId"], k["id"], k["relatie"]]
+
+    # ---- probe set for the one-click forward-pass UI
+    tabel_by_ot = {r["id"]: r for r in tabel}
+    wanted = [("OT-001", "kennisbank-hit (tabel-score 1.0)"),
+              ("OT-002", "TF-IDF 'sterk', geen kennisbank"),
+              ("OT-043", "TF-IDF 'mogelijk'"),
+              ("OT-003", "'zwak' -> needs_human"),
+              ("OT-006", "geen match -> nieuwe regel")]
+    probes = []
+    for ot, why in wanted:
+        r = tabel_by_ot[ot]
+        b = br_map_of(bron, r["bronRegelId"])
+        probes.append({"ot": ot, "bid": b["id"], "art": b["locator"]["artikel"],
+                       "label": short(b["locator"]["label"], 60), "why": why})
+
+    hfds = {}
+    for d in doel:
+        loc = d["locator"]
+        hfds.setdefault(str(loc["hoofdstukNr"]), short(loc["hoofdstukTitel"], 44))
+
+    return {
+        "meta": exp["model"],
+        "questions": exp["questions"],
+        "eval": exp["eval"],
+        "preds": exp["preds"],
+        "gold": exp["gold"],
+        "tok": {"stop": sorted(_STOPWORDS), "suf": list(_SUFFIXES)},
+        "vocab": vocab,
+        "idf": idf,
+        "nn": rows,
+        "dr": {d["id"]: d["locator"]["artikel"] for d in doel},
+        "hfds": hfds,
+        "kbArt": kb_by_art,
+        "bron": {b["id"]: [b["locator"]["artikel"], short(b["locator"]["label"], 60),
+                           short(b["tekst"], 130), b["docId"]] for b in bron},
+        "probes": probes,
+    }
+
+
+def br_map_of(bron, bid):
+    return next(b for b in bron if b["id"] == bid)
+
+
 def build_poc2() -> dict:
     run = POC2_RUN
     summary = load(run / "run_summary.json")
@@ -626,6 +892,7 @@ def build_poc2() -> dict:
         },
         "portfolio": summary["portfolio"],
         "businessCase": summary["businessCase"],
+        "laya": build_laya(bron, doel, kb, tabel, doel_map),
     }
 
 
@@ -650,11 +917,29 @@ def main() -> int:
         print(f"  poc1/{name}: run {tr['runId']} — {len(tr['engine'])} engine steps + "
               f"{len(tr['markers'])} markers, final {tr['engine'][-1]['areaKm2']} km2, "
               f"{tr['cards']['normCards']} cards, {len(tr['decision'])} dt-rows, "
-              f"kg {len(tr['kg']['n'])} nodes/{len(tr['kg']['e'])} edges")
+              f"kg {len(tr['kg']['n'])} nodes/{len(tr['kg']['e'])} edges, "
+              f"sweep {len(tr.get('sweep') or [])} scenarios")
+    l1 = data["poc1"]["laya"]
+    e1 = l1["eval"]
+    print(f"  laya1 (utrecht): {e1['n']} held-out kaarten (5 ongeziene tracks) — "
+          f"status {e1['regelstatus']['hit']}/{e1['regelstatus']['n']}, "
+          f"effect {e1['zone_effect']['hit']}/{e1['zone_effect']['n']}, "
+          f"jurist {e1['needs_human']['hit']}/{e1['needs_human']['n']}, "
+          f"werking {e1['legal_force']['hit']}/{e1['legal_force']['n']} · "
+          f"{e1['abstentions']} onder de gate · {l1['meta']['latencyMs']} ms/predict")
     kg2 = data["poc2"]["kg"]
     print(f"  poc2: {n_cells} grid cells, {len(data['poc2']['samples'])} sample rows, "
           f"kb {data['poc2']['kb']['total']} relations, kg {len(kg2['e'])} edges "
           f"({kg2['c']['used']} reused by matcher)")
+    ly = data["poc2"]["laya"]
+    ev = ly["eval"]
+    m = ly["meta"]
+    print(f"  laya: {m['base'].split('—')[0].strip()} fine-tuned · {m['items']['train']} train/"
+          f"{m['items']['eval']} eval-items · {ev['n']} held-out artikelen — "
+          f"hoofdstuk {ev['doel_hoofdstuk']['hit']}/{ev['doel_hoofdstuk']['n']}, "
+          f"band {ev['match_band']['hit']}/{ev['match_band']['n']}, "
+          f"jurist {ev['needs_jurist']['hit']}/{ev['needs_jurist']['n']} · "
+          f"{ev['abstentions']} onder de gate · {m['latencyMs']} ms/predict")
     return 0
 
 

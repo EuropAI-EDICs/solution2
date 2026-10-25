@@ -75,8 +75,27 @@ try {
   }
   const n1 = ds.sims[0].steps.length, n2 = s2.steps.length;
   s2.jumpToStage(7); drain(600);
+  if (!ds.layaOn()) throw new Error("laya chat not unlocked after poc2 run");
+  // laya forward pass + chat intents on real embedded predictions
+  ds.fpRun("geluidonderzoek bij evenementen");
+  ds.fpRun("22.46 kennisbank");
+  const chat = (v) => { globalThis.document.getElementById("chatin").value = v; ds.chatSend(); };
+  for (const q of ["22.1", "wat zijn je cijfers", "onthoudingen", "jurist", "kennisbank",
+                   "hoeveel regels gaan naar hoofdstuk 10", "run samenvatting", "xyzzy onbekend"]) chat(q);
+  if (!ds.nnBron("milieubelastende activiteiten", 1)[0]) throw new Error("nnBron empty");
+  // utrecht dataset: unlocked by the sim1 report steps driven above
+  ds.switchLayaDs("utrecht");
+  if (!ds.layaOn("utrecht")) throw new Error("utrecht chat not unlocked after poc1 runs");
+  ds.fpRun("windturbines nabij natura 2000");
+  const chatU = (v) => { globalThis.document.getElementById("chatin").value = v; ds.chatSend(); };
+  for (const q of ["5.1", "wat zijn je cijfers", "onthoudingen", "jurist",
+                   "hoeveel km is de eindzone", "welke regels zijn uitgesloten",
+                   "tracks overzicht", "xyzzy onbekend"]) chatU(q);
+  ds.switchLayaDs("eindhoven");
+  if (!ds.layaOn("eindhoven")) throw new Error("eindhoven chat lost after ds switch");
   ds.sims[0].reset(); s2.reset(); drain();
-  console.log(`OK — script evaluated; poc1 tracks driven through every step (${n1} steps on active track), sim2 ${n2} steps, timers drained`);
+  if (ds.layaOn()) throw new Error("laya chat not re-locked after reset");
+  console.log(`OK — script evaluated; poc1 tracks driven through every step (${n1} steps on active track), sim2 ${n2} steps, laya fp+chat driven, timers drained`);
 } catch (e) {
   console.error("FAIL:", e && e.stack ? e.stack.split("\n").slice(0, 6).join("\n") : e);
   process.exit(1);

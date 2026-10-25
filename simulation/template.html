@@ -177,6 +177,10 @@
   .glegend .sw{width:13px;height:13px;border-radius:3.5px;flex:none}
   .glegend .li b{font-family:var(--mono);color:var(--ink);margin-left:auto}
   .sweepcount{font-family:var(--mono);font-size:12px;color:var(--cyan);margin-bottom:9px}
+  .sweeptabs{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 10px}
+  .sweeptabs .ttab{max-width:100%;text-align:left;line-height:1.3;white-space:normal;height:auto;padding:6px 10px}
+  .sweepverschil{padding:10px 12px;border-left:4px solid #e5a50a;background:#1a1520;border-radius:0 8px 8px 0;
+    font-size:13px;font-weight:500;color:var(--ink);line-height:1.4;min-height:2.6em}
 
   .samples{display:flex;flex-direction:column;gap:10px}
   .sample{display:none;border:1px solid var(--line2);border-radius:11px;overflow:hidden}
@@ -240,7 +244,50 @@
     box-shadow:0 10px 34px #000a;line-height:1.5}
   .kgtip b{color:var(--ink)} .kgtip .rv{color:#60a5fa} .kgtip .rf{color:#c084fc}
 
+  /* laya system-1 tab */
+  #view3.active{grid-template-columns:minmax(0,1fr) 330px}
+  @media(max-width:1150px){#view3.active{grid-template-columns:1fr}.telemetry{grid-column:1/-1}}
+  .fp-in{display:flex;gap:8px;margin-bottom:10px}
+  .fp-in input,.chatin input{flex:1;padding:9px 12px;border-radius:9px;border:1px solid var(--line2);
+    background:var(--panel2);color:var(--ink);font-size:12.5px;font-family:var(--mono);min-width:0}
+  .fp-in input:focus,.chatin input:focus{outline:none;border-color:#3b82f6aa}
+  .probchips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+  .chipbtn{font-family:var(--mono);font-size:10.5px;padding:4px 9px;border-radius:7px;border:1px dashed var(--line2);
+    background:var(--panel2);color:var(--dim);cursor:pointer;transition:all .15s}
+  .chipbtn:hover{color:var(--ink);border-color:#3b82f6aa;border-style:solid}
+  .verdict{display:flex;gap:9px;align-items:flex-start;padding:10px 12px;border-radius:10px;border:1px solid var(--line2);
+    background:var(--panel2);font-size:12.5px;margin-top:10px;line-height:1.5}
+  .verdict .vi{font-size:16px;line-height:1.2}
+  .verdict.ok{border-color:#14532d;background:#0d2016}
+  .verdict.soft{border-color:#78350f;background:#241703}
+  .verdict b{color:var(--ink)} .verdict .sc{font-family:var(--mono)}
+  .barrow{display:grid;grid-template-columns:150px 1fr 52px;gap:8px;align-items:center;font-size:11px;color:var(--dim);margin-top:6px}
+  .barrow .track{height:9px;background:var(--line);border-radius:5px;overflow:hidden}
+  .barrow .fill{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .6s}
+  .barrow.top .fill{background:linear-gradient(90deg,var(--green2),#166534)}
+  .barrow .n{font-family:var(--mono);color:var(--ink);text-align:right}
+  .tokrow{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+  .tok{font-family:var(--mono);font-size:10px;background:#082f36;border:1px solid #155e75;color:var(--cyan);border-radius:6px;padding:2px 7px}
+  .chatwrap{position:relative}
+  .chatlog{height:320px;overflow:auto;display:flex;flex-direction:column;gap:9px;padding:4px 2px}
+  .msg{max-width:90%;padding:8px 12px;border-radius:12px;font-size:12.5px;line-height:1.55;animation:fadein .3s}
+  .msg.user{align-self:flex-end;background:#13233d;border:1px solid #3b82f655;border-bottom-right-radius:4px;color:var(--ink)}
+  .msg.laya{align-self:flex-start;background:var(--panel2);border:1px solid var(--line2);border-bottom-left-radius:4px;color:var(--dim)}
+  .msg.laya b{color:var(--ink)}
+  .msg .bdg{display:inline-block;font-family:var(--mono);font-size:9px;color:#7dd3fc;background:#1e3a5f;
+    border-radius:4px;padding:1px 6px;margin-bottom:5px;letter-spacing:.5px;text-transform:uppercase}
+  .msg .trc{display:block;margin-top:6px;padding-top:6px;border-top:1px dashed var(--line);font-size:10px;color:var(--faint);font-family:var(--mono)}
+  .msg code{font-family:var(--mono);color:var(--cyan);font-size:11px}
+  .chatin{display:flex;gap:8px;margin-top:10px;transition:opacity .3s}
+  .chatin.disabled{opacity:.35}
+  .chatin.disabled input,.chatin.disabled button{pointer-events:none}
+  .chatgate{position:absolute;inset:-4px;background:#0b1220e8;border:1px dashed var(--line2);border-radius:12px;
+    display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;text-align:center;
+    padding:24px;font-size:12.5px;color:var(--dim);z-index:5;line-height:1.6}
+  .chatgate.off{display:none}
+
   footer{padding:18px;color:var(--faint);font-size:11.5px;border-top:1px solid var(--line);margin-top:10px;line-height:1.7}
+
   .done{display:none;margin-top:4px;padding:14px;border-radius:12px;border:1px solid #14532d;background:linear-gradient(135deg,#0d2016,#0a1512);
     font-size:13px;color:var(--dim)}
   .done.on{display:block;animation:fadein .5s}
@@ -255,6 +302,7 @@
   <div class="tabs">
     <div class="tab active" id="tab1" onclick="switchTab(1)">PoC-1 · wind, Utrecht</div>
     <div class="tab" id="tab2" onclick="switchTab(2)">PoC-2 · BP→OP, Eindhoven</div>
+    <div class="tab" id="tab3" onclick="switchTab(3)">Laya · System-1</div>
   </div>
   <div class="controls">
     <button class="ctl primary" id="btnPlay" onclick="ctrl('play')">▶ play</button>
@@ -273,6 +321,9 @@
 <div class="notebar">Every number, verdict and polygon below is read from the canonical run artifacts —
 PoC-1 in three tracks: wind <code>poc/runs/20260830T113234Z-wind</code>, zon <code>poc/runs/20260830T142439Z-zon</code>,
 bos <code>poc/runs/20260830T142446Z-bos</code>; PoC-2 <code>poc-bp2op/runs/20260830-124515-eindhoven</code>.
+Tab 3 embedt de echte predicties van <b>twee fine-tuned Laya System-1 modellen</b> —
+BP→OP Eindhoven (<code>simulation/laya_bp2op/</code>) en zone-keten Utrecht (<code>simulation/laya_utrecht/</code>);
+de chat opent per dataset na de bijbehorende run.
 Click any pipeline stage to jump there; <kbd>space</kbd> = play/pause, <kbd>→</kbd> = step.</div>
 
 <main>
@@ -295,6 +346,14 @@ Click any pipeline stage to jump there; <kbd>space</kbd> = play/pause, <kbd>→<
       <div class="oplabel" id="oplabel">intake…</div>
       <div class="areabadge"><div class="a" id="areaBig">0</div><div class="u" id="areaUnit">km² opportunity zone</div></div>
       <div class="legend" id="legend1"></div>
+    </div>
+    <div class="card" id="sweepcard">
+      <h3>scenario-sweep — wat verandert t.o.v. de baseline?</h3>
+      <div class="cardbody">
+        <p style="font-size:12px;color:var(--dim);margin:0 0 4px">Kies een scenario: de kaart toont de zone, de regel eronder zegt in één zin wat er anders is (geen km²).</p>
+        <div class="sweeptabs" id="sweeptabs"></div>
+        <div class="sweepverschil" id="sweepverschil">—</div>
+      </div>
     </div>
     <div class="card" id="p-graph1">
       <h3 style="display:flex;gap:10px;flex-wrap:wrap;align-items:baseline">rule graph — artikel → NormCard → FormalRule → geo layer → zone
@@ -484,6 +543,64 @@ Click any pipeline stage to jump there; <kbd>space</kbd> = play/pause, <kbd>→<
 
 </main>
 
+<!-- ================================================================ Laya System-1 -->
+<section class="view" id="view3">
+  <div class="stagepane">
+
+    <div class="card">
+      <h3 style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">laya · system-1 beslismodel — één forward pass, twee ketens
+        <span class="tracktabs" style="margin-left:auto;display:flex;gap:5px">
+          <button class="ttab ldstab active" data-l="eindhoven" onclick="switchLayaDs('eindhoven')">BP→OP · Eindhoven</button>
+          <button class="ttab ldstab" data-l="utrecht" onclick="switchLayaDs('utrecht')">zone-keten · Utrecht</button>
+        </span>
+      </h3>
+      <div class="cardbody">
+        <div class="counters" id="layaStats"></div>
+        <div class="kgnote" id="layaNote"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>live forward pass — vraag in, getypeerde keuze/score/onthouding uit</h3>
+      <div class="cardbody">
+        <div class="fp-in">
+          <input id="fpin" placeholder="bijv. 'geluidonderzoek bij evenementen' of een bronregel-tekst" onkeydown="if(event.key==='Enter')fpRun()">
+          <button class="ctl primary" onclick="fpRun()">▸ forward pass</button>
+        </div>
+        <div class="probchips" id="fpprobes"></div>
+        <div id="fpout"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>chat — bevraag Laya over de scenario-run</h3>
+      <div class="cardbody">
+        <div class="chatwrap">
+          <div class="chatlog" id="chatlog"></div>
+          <div class="chatgate" id="chatgate">
+            <div id="chatgateMsg">🔒 <b>De chat opent na een scenario-run.</b><br>
+              Draai eerst de run af — Laya antwoordt daarna
+              uitsluitend uit de run-artefacten en het getrainde model.</div>
+            <button class="ctl primary" id="chatGoBtn" onclick="layaGoRun()">▶ speel de run af</button>
+          </div>
+        </div>
+        <div class="chatin disabled" id="chatinrow">
+          <input id="chatin" placeholder="vraag naar een artikel, een onderwerp of de run-cijfers…" onkeydown="if(event.key==='Enter')chatSend()">
+          <button class="ctl primary" onclick="chatSend()">verstuur</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <aside class="telemetry">
+    <div class="card"><h3>trainingsdata</h3><div class="cardbody" id="layaTrain"></div></div>
+    <div class="card"><h3>evaluatie — distillatie-fideliteit</h3><div class="cardbody" id="layaEval"></div></div>
+    <div class="card"><h3>system-1 vs system-2</h3><div class="cardbody"><div class="kgnote" id="layaS12"></div></div></div>
+    <div class="card"><h3>run-status</h3><div class="cardbody"><div class="lvl" id="layaRunState" style="min-width:100%"><b>—</b>PoC-2-run nog niet afgerond<small>chat vergrendeld</small></div></div></div>
+  </aside>
+</section>
+
 <div class="kgtip" id="kgtip"></div>
 
 <footer>
@@ -493,6 +610,10 @@ Click any pipeline stage to jump there; <kbd>space</kbd> = play/pause, <kbd>→<
   <a href="../poc-bp2op/README.md">PoC-2</a> (van bestemmingsplan naar omgevingsplan met AI, gemeente Eindhoven,
   Amsterdams aanpak as MC-1…12). Zone geometry is display-simplified (~300 m) purely for page weight;
   every area shown is the zone engine's own output. No network, no LLM at runtime — same contract as the PoCs.
+  Tab 3: <a href="https://github.com/NandhaKishorM/laya" target="_blank">Laya</a> System-1 beslismodel, fine-tuned op de
+  bestemmingsplan-/omgevingsplan-regels van de Eindhoven-run (<code>simulation/laya_bp2op/</code>: build_dataset → finetune →
+  predict_export; laya 0.4.11, RLCD + kalibratie, 670 train-items, held-out 63 ongeziene artikelen: hoofdstuk 90% · band 83% ·
+  jurist 90%). De predicties zijn offline geëxporteerd en geëmbed — de pagina draait zelf geen model.
 </footer>
 
 <script>
@@ -543,8 +664,8 @@ let sim1, sim2, active=1;
 const sim = ()=> active===1?sim1:sim2;
 function ctrl(a){ const s=sim(); if(a==="play"){ s.timer? s.pause() : s.play(); } else if(a==="step") s.step(); else s.reset(); }
 function switchTab(n){ if(n===active) return; sim().pause(); active=n;
-  $("tab1").classList.toggle("active",n===1); $("tab2").classList.toggle("active",n===2);
-  $("view1").classList.toggle("active",n===1); $("view2").classList.toggle("active",n===2);
+  for(const k of [1,2,3]){ $("tab"+k).classList.toggle("active",k===n);
+    const v=$("view"+k); if(v) v.classList.toggle("active",k===n); }
   sim().prog(); }
 document.addEventListener("keydown",(e)=>{ if(e.target.tagName==="SELECT"||e.target.tagName==="INPUT") return;
   if(e.code==="Space"){ e.preventDefault(); ctrl("play"); } if(e.code==="ArrowRight"){ e.preventDefault(); ctrl("step"); } });
@@ -592,16 +713,63 @@ function buildMap(){
     "stroke-dasharray":"5 5",opacity:0,style:"transition:opacity .8s"},svg);
   el("path",{id:"zonefill",d:"",fill:"#22c55e",opacity:0,style:"transition:opacity .8s"},svg);
   el("path",{id:"zonestroke",d:"",fill:"none",stroke:"#4ade80","stroke-width":1.6,opacity:0,style:"transition:opacity .8s"},svg);
+  // scenario-sweep overlays: baseline (grijs) + gekozen variant
+  el("path",{id:"sweepbase",d:"",fill:"#5e5c64",opacity:0,style:"transition:opacity .5s"},svg);
+  el("path",{id:"sweepfill",d:"",fill:"#1a7f37",opacity:0,style:"transition:opacity .5s"},svg);
+  el("path",{id:"sweepstroke",d:"",fill:"none",stroke:"#1a7f37","stroke-width":1.8,opacity:0,style:"transition:opacity .5s"},svg);
   T.markers.forEach((m,i)=>{ el("path",{id:"mk"+i,d:ringsPath(m.geo),fill:"url(#h-"+({attention:"attention",conditional:"cond",compensation:"comp"}[m.kind])+")",
     stroke:{attention:"#f59e0b",conditional:"#eab308",compensation:"#22c55e"}[m.kind],"stroke-width":.8,"stroke-dasharray":"3 3",opacity:0,style:"transition:opacity .9s"},svg); });
   el("path",{id:"flash",d:"",fill:"#ef4444",opacity:0,style:"transition:opacity .25s"},svg);
   el("path",{id:"aoi2",d:ringsPath(P1.aoi.geo),fill:"none",stroke:"#93c5fd","stroke-width":1.4,
     "stroke-dasharray":"1600","stroke-dashoffset":"1600",style:"transition:stroke-dashoffset 2.2s ease"},svg);
 }
+let curSweep = 0;
+function buildSweep(){
+  const sweeps = T1().sweep || [];
+  const card = $("sweepcard");
+  if(!sweeps.length){ card.style.display="none"; return; }
+  card.style.display="";
+  $("sweeptabs").innerHTML = sweeps.map((s,i)=>{
+    const sw = `<span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${s.color};margin-right:6px;vertical-align:middle"></span>`;
+    return `<button type="button" class="ttab${i===curSweep?" active":""}" data-i="${i}" onclick="selectSweep(${i})">${sw}${esc(s.label)}</button>`;
+  }).join("");
+  selectSweep(Math.min(curSweep, sweeps.length-1));
+}
+function selectSweep(i){
+  const sweeps = T1().sweep || [];
+  if(!sweeps[i]) return;
+  curSweep = i;
+  document.querySelectorAll("#sweeptabs .ttab").forEach((b,j)=>b.classList.toggle("active", j===i));
+  const s = sweeps[i];
+  $("sweepverschil").textContent = s.verschil;
+  const base = sweeps.find(x=>x.isBaseline) || sweeps[0];
+  const baseEl = $("sweepbase"), fill=$("sweepfill"), stroke=$("sweepstroke");
+  if(!baseEl) return;
+  // dim pipeline zone while comparing scenarios
+  const zf=$("zonefill"), zs=$("zonestroke");
+  if(zf){ zf.style.opacity=0; zs.style.opacity=0; }
+  if(s.isBaseline){
+    baseEl.setAttribute("d", ringsPath(s.geo||[]));
+    baseEl.style.opacity=.28;
+    fill.style.opacity=0; stroke.style.opacity=0;
+  } else {
+    baseEl.setAttribute("d", ringsPath(base.geo||[]));
+    baseEl.style.opacity=.18;
+    fill.setAttribute("d", ringsPath(s.geo||[]));
+    fill.setAttribute("fill", s.color);
+    stroke.setAttribute("d", ringsPath(s.geo||[]));
+    stroke.setAttribute("stroke", s.color);
+    fill.style.opacity=.38; stroke.style.opacity=1;
+  }
+  setLbl(`<b>scenario-sweep</b> — ${esc(s.label)}`);
+}
 function setZone(geo, color){ $("zonefill").setAttribute("d", ringsPath(geo));
   $("zonestroke").setAttribute("d", ringsPath(geo));
   if(color){ $("zonefill").setAttribute("fill",color); $("zonestroke").setAttribute("stroke",color); }
-  $("zonefill").style.opacity=.34; $("zonestroke").style.opacity=1; }
+  $("zonefill").style.opacity=.34; $("zonestroke").style.opacity=1;
+  // pipeline-animatie heeft voorrang: sweep-overlay tijdelijk weg
+  ["sweepbase","sweepfill","sweepstroke"].forEach(id=>{ const n=$(id); if(n) n.style.opacity=0; });
+  document.querySelectorAll("#sweeptabs .ttab").forEach(b=>b.classList.remove("active")); }
 function flashPrev(prevGeo){ if(!prevGeo) return; $("flash").setAttribute("d", ringsPath(prevGeo));
   $("flash").style.opacity=.4; setTimeout(()=>$("flash").style.opacity=0, 520); }
 
@@ -677,13 +845,13 @@ function stageCls(i){ for(let k=0;k<STAGES1.length;k++){ const s=$("st1-"+k); if
 function switchTrack(t){
   if(t===curTrack || !P1.tracks[t]) return;
   if(sim1) sim1.pause();
-  curTrack=t;
-  document.querySelectorAll(".ttab").forEach(b=>b.classList.toggle("active",b.dataset.t===t));
+  curTrack=t; curSweep=0;
+  document.querySelectorAll(".tracktabs .ttab").forEach(b=>b.classList.toggle("active",b.dataset.t===t));
   buildStatic1(); sim1=makeSim1(); sim1.prog();
 }
 function buildStatic1(){
   const T=T1();
-  buildMap(); buildLegend1(); buildWaterfall(); buildDTable(); buildTelemetry1(); buildKG1();
+  buildMap(); buildLegend1(); buildWaterfall(); buildDTable(); buildTelemetry1(); buildKG1(); buildSweep();
   tipHide();
   ["quote1","ledger1","dist1"].forEach(id=>$(id).classList.remove("on"));
   document.querySelectorAll("#levels1 .lvl").forEach(l=>l.classList.remove("pass","pending"));
@@ -808,10 +976,13 @@ function makeSim1(){
 
   S(8,"report",2200,(a)=>{ chip1("report.html"); chip1("normcards.json"); chip1("normcards-rejected.json"); chip1("formalrules.json"); chip1("layers.json"); chip1("validation.json");
     $("done1").classList.add("on");
-    $("done1").innerHTML = `<b>run ${esc(T.runId)} — verdict ${esc(T.verdict).toUpperCase()} (exit code 0).</b> AOI ${km(P1.aoi.areaKm2)} km² → ${esc(T.inclLabel)} → final opportunity zone <b>${km(final.areaKm2)} km²</b> (${pct(final.areaKm2)}% of the province) · ${T.cards.normCards} norm cards · ${T.cards.abstentions} abstentions · V3 independent re-execution IoU ${T.iou||"—"} · V4 human review pending by design. Duration ${T.durationS}s, one process, no LLM.`;
-    log1("report.html written — single file, Leaflet map + fallback tables, works from file://","ok"); });
+    $("done1").innerHTML = `<b>run ${esc(T.runId)} — verdict ${esc(T.verdict).toUpperCase()} (exit code 0).</b> AOI ${km(P1.aoi.areaKm2)} km² → ${esc(T.inclLabel)} → final opportunity zone <b>${km(final.areaKm2)} km²</b> (${pct(final.areaKm2)}% of the province) · ${T.cards.normCards} norm cards · ${T.cards.abstentions} abstentions · V3 independent re-execution IoU ${T.iou||"—"} · V4 human review pending by design. Duration ${T.durationS}s, one process, no LLM.
+      <br><b>Laya System-1 (utrecht)</b> is nu te bevragen: tab «Laya · System-1» → dataset «zone-keten · Utrecht».`;
+    log1("report.html written — single file, Leaflet map + fallback tables, works from file://","ok");
+    log1("Laya System-1 (utrecht) geünlockt: "+layaInfo("utrecht"),"data");
+    layaUnlock("utrecht"); });
 
-  const reset1=()=>{ buildStatic1(); };
+  const reset1=()=>{ buildStatic1(); layaLock("utrecht"); };
   return new Sim(steps, { reset: reset1,
     stage:(st, idx)=>{ stageCls(idx); kg1Set(st); },
     playing:(p)=>{ $("btnPlay").textContent = p?"⏸ pause":"▶ play"; $("btnPlay").classList.toggle("primary",!p); } });
@@ -1019,8 +1190,11 @@ function buildSim2(){
     $("done2").innerHTML=`<b>run ${esc(P2.runId)} — verdict PASS (V4 pending by design).</b> ${C.bronRegels} bronregels · ${C.doelRegels} doelregels ·
       ${C.kennisbank} kennisbank-relaties → ${C.omzettabelRijen} omzettabel-rijen: ${C.voorgesteld} voorgesteld
       (${P2.kbDriven} kennisbank-gedreven), ${C.nieuweRegel} nieuwe-regel-voorstellen, <b>${C.needsHuman} wachten op de jurist</b>.
-      Geen enkele rij is ooit 'gekoppeld' zonder mens — dat status-bestand is bewust uit het schema gehouden (MC-6).`;
-    log2("MC-3/MC-7: omzettabel.json/.md + PROV + single-file report — elke rij: permalink + letterlijk citaat aan beide kanten","ok"); });
+      Geen enkele rij is ooit 'gekoppeld' zonder mens — dat status-bestand is bewust uit het schema gehouden (MC-6).
+      <br><b>Laya System-1</b> is nu te bevragen: tab «Laya · System-1» — chat + live forward pass over deze run.`;
+    layaUnlock("eindhoven");
+    log2("MC-3/MC-7: omzettabel.json/.md + PROV + single-file report — elke rij: permalink + letterlijk citaat aan beide kanten","ok");
+    log2("Laya System-1 (eindhoven) geünlockt: "+layaInfo("eindhoven"),"data"); });
 
   const reset2=()=>{ if(sweepTimer){clearInterval(sweepTimer); sweepTimer=null;} if(sampleTimer){clearInterval(sampleTimer); sampleTimer=null;}
     if(kgTimer){clearInterval(kgTimer); kgTimer=null;}
@@ -1037,14 +1211,464 @@ function buildSim2(){
       $(id).querySelector(".cv").textContent="0"; $(id).querySelector(".cv").dataset.v="0";});
     $("dialArc").style.strokeDasharray="0 999"; $("dialVal").textContent="0%"; $("dialVal").removeAttribute("data-v");
     $("v3note2").textContent=""; $("log2").innerHTML=""; $("done2").classList.remove("on");
-    document.querySelectorAll("#rail2 .stage").forEach(s=>s.classList.remove("active","done")); };
+    document.querySelectorAll("#rail2 .stage").forEach(s=>s.classList.remove("active","done"));
+    layaLock("eindhoven"); };
   sim2 = new Sim(steps, { reset: reset2, stage:(i)=>stageCls2(false,i),
     playing:(p)=>{ $("btnPlay").textContent = p?"⏸ pause":"▶ play"; $("btnPlay").classList.toggle("primary",!p); } });
 }
 
+/* ================================================================ Laya System-1 view */
+const LAYA_DS = { eindhoven: P2.laya, utrecht: P1.laya };
+LAYA_DS.eindhoven.kind = "eindhoven";
+LAYA_DS.utrecht.kind = "utrecht";
+let curLaya = "eindhoven";
+let LY = LAYA_DS.eindhoven, LYM = LY.meta, LYQ = LY.questions, LYE = LY.eval;
+const BANDS = ["geen","zwak","mogelijk","sterk"];
+const FORCES = ["niet-bindend","interpreterend","bindend"];
+const layaOn = { eindhoven: false, utrecht: false };
+const layaUnlocked = ()=> layaOn[curLaya];
+function layaInfo(which){
+  const m = LAYA_DS[which].meta;
+  return m.items.train+" train-items · gate "+m.gate+" — bevraagbaar in tab 3";
+}
+function switchLayaDs(id){
+  if(!LAYA_DS[id] || id===curLaya) return;
+  curLaya = id;
+  LY = LAYA_DS[id]; LYM = LY.meta; LYQ = LY.questions; LYE = LY.eval;
+  document.querySelectorAll(".ldstab").forEach(b=>b.classList.toggle("active", b.dataset.l===id));
+  buildLayaStatic(); renderGate();
+  $("fpout").innerHTML=""; $("fpin").value=""; tipHide();
+  if(layaUnlocked()) layaWelcome();
+}
+
+/* tokenizer twin of poc-bp2op pipeline/knowledgebank.normalize (fold, stopwords,
+   suffixes, uni+bigram) — deterministic, same featurization as the matcher */
+const LSTOP = new Set(LY.tok.stop), LSUF = LY.tok.suf;
+function lfold(t){ return t.normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase(); }
+function ltokens(text){
+  const raw = text.match(/[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\-']{2,}/g)||[];
+  const out=[];
+  for(const t of raw){ let f=lfold(t);
+    if(LSTOP.has(f)||f.length<3||/^\d+$/.test(f)) continue;
+    for(const suf of LSUF){ if(f.length-suf.length>=4 && f.endsWith(suf)){ f=f.slice(0,-suf.length); break; } }
+    out.push(f); }
+  return out;
+}
+function lterms(text){ const t=ltokens(text); return t.concat(t.slice(1).map((b,i)=>t[i]+"_"+b)); }
+
+/* nearest bronregel via embedded TF-IDF index (query -> bronregel -> laya's
+   real embedded prediction; the model itself ran offline at build time) */
+function nnBron(text, n){
+  const qc={}; for(const t of lterms(text)) qc[t]=(qc[t]||0)+1;
+  let qn=0; for(const t in qc){ const w=qc[t]*LY.idf[LY.vocab.indexOf(t)]||0; qn+=w*w; }
+  qn=Math.sqrt(qn)||1;
+  const scored=[];
+  for(const bid in LY.nn){ let num=0;
+    for(const [vi,w] of LY.nn[bid]){ const t=LY.vocab[vi];
+      if(qc[t]) num+=qc[t]*(LY.idf[vi]||0)*w; }
+    if(num>0) scored.push([num/qn,bid]); }
+  scored.sort((a,b)=>b[0]-a[0]);
+  return scored.slice(0,n||1);
+}
+
+function fpVerdict(pred){
+  const gated = LY.kind==="utrecht" ? pred.sc : pred.hc;
+  if(gated < LYM.gate)
+    return `<div class="verdict soft"><div class="vi">✋</div><div><b>Onthouding — onder de confidence-gate (${gated} &lt; ${LYM.gate}).</b><br>
+      Laya geeft hier <b>geen beslissing</b> maar een doorzet naar System 2: de jurist (V4). Zo werkt ook
+      <code>deep-agents/laya_router.py</code>: geen verified confidence, geen beslissing.</div></div>`;
+  if(LY.kind==="utrecht"){
+    const st = LYQ.regelstatus.options[pred.s]||pred.s;
+    const ef = LYQ.zone_effect.options[pred.e]||pred.e;
+    const j = pred.j>=0.5 ? `<b>ja — V4-juristoets</b> (P=${pred.j.toFixed(2)})` : `nee (P=${pred.j.toFixed(2)})`;
+    return `<div class="verdict ok"><div class="vi">▸</div><div>
+      <b>${esc(st)}</b> · confidence ${(100*pred.sc).toFixed(0)}%<br>${esc(ef)} ·
+      juridische werking <b>${pred.fl}</b> (${pred.f.toFixed(2)} op rubriek 0–2) · jurist nodig: ${j}</div></div>`;
+  }
+  const h = LYQ.doel_hoofdstuk.options[pred.h]||pred.h;
+  const g = pred.bl==="geen" ? "geen passende doelregel" : `band <b>${pred.bl}</b> (${pred.b.toFixed(2)} op rubriek 0–3)`;
+  const j = pred.j>=0.5 ? `<b>ja — jurist-toets (V4) verplicht</b> (P=${pred.j.toFixed(2)})`
+                        : `nee (P=${pred.j.toFixed(2)})`;
+  return `<div class="verdict ok"><div class="vi">▸</div><div>
+    <b>${esc(h)}</b> · confidence ${(100*pred.hc).toFixed(0)}%<br>${g} · jurist nodig: ${j}</div></div>`;
+}
+
+function fpProbs(pred){
+  if(LY.kind==="utrecht"){
+    const rows = Object.entries(pred.sp).sort((a,b)=>b[1]-a[1]).slice(0,3);
+    const mx = rows[0][1]||1e-9;
+    return `<div style="margin-top:10px">` + rows.map(([k,v],i)=>
+      `<div class="barrow${i===0?" top":""}"><span>${esc(LYQ.regelstatus.options[k]||k)}</span>
+       <div class="track"><div class="fill" style="width:${(100*v/mx).toFixed(0)}%"></div></div>
+       <span class="n">${(100*v).toFixed(1)}%</span></div>`).join("") +
+      `</div><div style="font-size:10.5px;color:var(--faint);margin-top:7px;font-family:var(--mono)">zone-effect: ${esc(LYQ.zone_effect.options[pred.e]||pred.e)} (${(100*pred.ec).toFixed(0)}% conf) ·
+       werking (score-head): ${FORCES.map((b,i)=>`${i}·${b}`).join("  ")} — verwacht ${pred.f.toFixed(2)} → <b style="color:var(--ink)">${pred.fl}</b> · noul P(jurist)=${pred.j.toFixed(2)}</div>`;
+  }
+  const rows = Object.entries(pred.p).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const mx = rows[0][1]||1e-9;
+  return `<div style="margin-top:10px">` + rows.map(([k,v],i)=>
+    `<div class="barrow${i===0?" top":""}"><span>${esc(LYQ.doel_hoofdstuk.options[k]||k)}</span>
+     <div class="track"><div class="fill" style="width:${(100*v/mx).toFixed(0)}%"></div></div>
+     <span class="n">${(100*v).toFixed(1)}%</span></div>`).join("") +
+    `</div><div style="font-size:10.5px;color:var(--faint);margin-top:7px;font-family:var(--mono)">match-band (score-head): ${BANDS.map((b,i)=>`${i}·${b}`).join("  ")} — verwacht ${pred.b.toFixed(2)} → <b style="color:var(--ink)">${pred.bl}</b> · noul P(jurist)=${pred.j.toFixed(2)}</div>`;
+}
+
+function fpRender(query, scored){
+  const out=$("fpout");
+  if(!scored.length){
+    const corpus = LY.kind==="utrecht" ? "de Utrechtse normkaarten (Omgevingsverordening)" : "hfd 22/23, Eindhoven";
+    out.innerHTML=`<div class="verdict soft"><div class="vi">∅</div><div>Geen enkele kaart deelt termen met “${esc(query)}” — ${corpus} heeft er geen tegenhanger voor. Vraag het de jurist.</div></div>`; return; }
+  const [sim,k]=scored[0];
+  const pred=LY.preds[k], gold=LY.gold[k];
+  if(LY.kind==="utrecht"){
+    const C=LY.cards[k];
+    const acc = pred.s===gold.s ? "✓" : "≠";
+    out.innerHTML =
+      `<div style="font-size:11px;color:var(--faint);font-family:var(--mono);margin-top:8px">
+        tekst → dichtstbijzijnde NormCard (tf-idf cos ${(100*sim).toFixed(0)}%) → <b style="color:var(--cyan)">${esc(C[1])} · ${esc(C[0])}</b> → laya's embedded predictie</div>
+      <div style="font-size:11.5px;color:var(--dim);margin:6px 0 2px;border-left:3px solid #155e75;padding:4px 10px;background:#082f36;border-radius:0 8px 8px 0">${esc(C[3])}<br>“${esc(C[4])}…”</div>
+      ${fpVerdict(pred)}${fpProbs(pred)}
+      <div style="font-size:10.5px;color:var(--faint);margin-top:8px;font-family:var(--mono)">
+        pipeline (System-2 goud): ${gold.s} · ${gold.e} · werking ${FORCES[gold.f]} (art. ${esc(gold.art)}) · laya ${acc}</div>`;
+    return;
+  }
+  const B=LY.bron[k];
+  const drArt = gold.tabel[0] ? LY.dr[gold.tabel[0]] : null;
+  const acc = pred.h===gold.h ? "✓" : "≠";
+  out.innerHTML =
+    `<div style="font-size:11px;color:var(--faint);font-family:var(--mono);margin-top:8px">
+      tekst → dichtstbijzijnde bronregel (tf-idf cos ${(100*sim).toFixed(0)}%) → <b style="color:var(--cyan)">${k} · ${esc(B[1])}</b> → laya's embedded predictie</div>
+    <div style="font-size:11.5px;color:var(--dim);margin:6px 0 2px;border-left:3px solid #78350f;padding:4px 10px;background:#241703;border-radius:0 8px 8px 0">“${esc(B[2])}…”</div>
+    ${fpVerdict(pred)}${fpProbs(pred)}
+    <div style="font-size:10.5px;color:var(--faint);margin-top:8px;font-family:var(--mono)">
+      omzettabel (System-2 goud): ${gold.h==="geen_match"?"geen match":("hfd "+gold.h.replace("hfd","")+" · "+gold.band)} · tabel-top ${drArt?("art. "+drArt+" ("+gold.tabel[1]+", "+gold.tabel[2]+(gold.tabel[3]?" · kennisbank":"")+")"):"—"} · laya ${acc}</div>`;
+}
+function fpRun(probe){
+  const q = typeof probe==="string" ? probe : $("fpin").value.trim();
+  if(!q) return;
+  if(typeof probe!=="string") $("fpin").value=q;
+  fpRender(q, nnBron(q,3));
+}
+function fpProbeI(i){ const p=LY.probes[i]; if(!p) return;
+  fpRun(LY.kind==="utrecht" ? (LY.cards[p.key][3]+" "+LY.cards[p.key][4]) : (p.label+" "+(LY.bron[p.bid][2]||""))); }
+
+function buildLayaStatic(){
+  const pc=(v,l,c)=>`<div class="counter"><div class="cv" style="color:${c||"var(--ink)"}">${v}</div><div class="cl">${l}</div></div>`;
+  const pct=(h)=>Math.round(100*h.hit/h.n)+"%";
+  if(LY.kind==="utrecht"){
+    $("layaStats").innerHTML =
+      pc(LYM.items.train,"train-items (66 kaarten × 4 vragen)")+
+      pc(LYE.n,"held-out kaarten (5 ongeziene tracks)","var(--cyan)")+
+      pc(pct(LYE.regelstatus),"regelstatus juist","var(--green)")+
+      pc(pct(LYE.zone_effect),"zone-effect juist","var(--green)")+
+      pc(pct(LYE.needs_human),"jurist-signaal juist","var(--green)")+
+      pc(LYM.latencyMs+" ms","één forward pass per kaart");
+    $("layaNote").innerHTML =
+      `<b style="color:var(--ink)">Laya</b> (<a href="https://github.com/NandhaKishorM/laya" target="_blank">github.com/NandhaKishorM/laya</a>) is een
+       <b>niet-autoregressieve System-1 beslis-engine</b>: geen tekstgeneratie, één forward pass per getypeerde vraag — niets te parsen, niets te hallucineren.
+       Dit checkpoint: <code>${esc(LYM.base)}</code>, fine-tuned met RLCD + temperatuurkalibratie op de
+       <b>Utrechtse zone-keten</b>: 84 unieke NormCards uit 13 PoC-1-runs (wind · zon · bos · water · bodem · landschap · mobiliteit · landbouw · wonen · recreatie · biomassa · werken · energietoets)
+       op de Omgevingsverordening provincie Utrecht. Vier getypeerde koppen:
+       <span class="tok">choice — regelstatus</span> <span class="tok">choice — zone-effect</span> <span class="tok">score — juridische werking 0–2</span> <span class="tok">noul — P(jurist)</span>.
+       Confidence-gate ${LYM.gate}: daaronder geen beslissing maar <b>onthouding → System 2</b> (de jurist, V4) — zelfde contract als
+       <code>deep-agents/laya_router.py</code>. Vijf hele tracks (water · mobiliteit · werken · recreatie · biomassa) zijn
+       <b>volledig held-out</b>: de evaluatie meet generalisatie naar ongeziene tracks. Getraind/gerund offline in de build (MPS);
+       de pagina embedt de echte predicties — ${LYM.nPred} stuks, gemiddeld ${LYM.latencyMs} ms per predict bij export.`;
+    $("layaTrain").innerHTML =
+      `<div class="covfacts">
+        <div class="row"><span>traincases</span><b>66 kaarten (8 tracks) · 264 items</b></div>
+        <div class="row"><span>calibratie-items</span><b>${LYM.items.calib}</b></div>
+        <div class="row"><span>epochs (RLCD)</span><b>${LYM.epochs}</b></div>
+        <div class="row"><span>seed</span><b>${LYM.seed}</b></div>
+        <div class="row"><span>framework</span><b>laya 0.4.11 · PyTorch/MPS</b></div>
+        <div class="row"><span>checkpoint</span><b style="font-size:10px">simulation/laya_utrecht/checkpoints/utrecht-laya</b></div>
+      </div>`;
+    $("layaEval").innerHTML =
+      `<div class="covfacts">
+        <div class="row"><span>held-out split</span><b>${LYE.n} kaarten · tracks water/mobiliteit/werken/recreatie/biomassa</b></div>
+        <div class="row"><span>regelstatus (choice)</span><b>${LYE.regelstatus.hit}/${LYE.regelstatus.n} (${pct(LYE.regelstatus)})</b></div>
+        <div class="row"><span>zone_effect (choice)</span><b>${LYE.zone_effect.hit}/${LYE.zone_effect.n} (${pct(LYE.zone_effect)})</b></div>
+        <div class="row"><span>needs_human (noul)</span><b>${LYE.needs_human.hit}/${LYE.needs_human.n} (${pct(LYE.needs_human)})</b></div>
+        <div class="row"><span>legal_force (score)</span><b>${LYE.legal_force.hit}/${LYE.legal_force.n} (${pct(LYE.legal_force)})</b></div>
+        <div class="row"><span>gem. confidence</span><b>${LYE.meanConfidence}</b></div>
+        <div class="row"><span>onder de gate → onthouding</span><b>${LYE.abstentions}</b></div>
+      </div>`;
+    $("layaS12").innerHTML =
+      `<b style="color:var(--ink)">System 1</b> = laya: snel, getypeerd, gecalibreerd — <i>suggereert</i> status/effect/werking/jurist in één pass.<br>
+       <b style="color:var(--ink)">System 2</b> = de zone-pipeline + jurist: NormCard-formalisatie, V0–V3-validatie en de V4-juristoets blijven de autoriteit.
+       Ambigue (open) normen gaan altijd naar de jurist — cite-or-abstain geldt onverkomen.<br><br>
+       Zie ook <code>docs/GENAI_SEAMS.md</code> — GenAI zit achter de knoppen, nooit aan het stuur.`;
+    $("fpprobes").innerHTML = LY.probes.map((p,i)=>
+      `<button class="chipbtn" onclick="fpProbeI(${i})">${esc(p.card)} · art. ${esc(p.art)} — ${esc(p.why)}</button>`).join("");
+    return;
+  }
+  $("layaStats").innerHTML =
+    pc(LYM.items.train,"train-items (248 regels × 3 vragen)")+
+    pc(LYE.n,"held-out regels (ongeziene artikelen)","var(--cyan)")+
+    pc(pct(LYE.doel_hoofdstuk),"hoofdstuk-keuze juist","var(--green)")+
+    pc(pct(LYE.match_band),"band-rubriek juist","var(--green)")+
+    pc(pct(LYE.needs_jurist),"jurist-signaal juist","var(--green)")+
+    pc(LYM.latencyMs+" ms","één forward pass per regel");
+  $("layaNote").innerHTML =
+    `<b style="color:var(--ink)">Laya</b> (<a href="https://github.com/NandhaKishorM/laya" target="_blank">github.com/NandhaKishorM/laya</a>) is een
+     <b>niet-autoregressieve System-1 beslis-engine</b>: geen tekstgeneratie, één forward pass per getypeerde vraag — niets te parsen, niets te hallucineren.
+     Dit checkpoint: <code>${esc(LYM.base)}</code>, fine-tuned met RLCD + temperatuurkalibratie op de
+     <b>bestemmingsplan- en omgevingsplan-regels</b> van de Eindhovense conversie-run (311 bronregels hfd 22/23 ↔ 762 doelregels hfd 1–21).
+     Drie getypeerde koppen: <span class="tok">choice — doel-hoofdstuk</span> <span class="tok">score — match-band 0–3</span> <span class="tok">noul — P(jurist)</span>.
+     Confidence-gate ${LYM.gate}: daaronder geen beslissing maar <b>onthouding → System 2</b> (de jurist, V4) — zelfde contract als
+     <code>deep-agents/laya_router.py</code>. Getraind/gerund offline in de build (MPS); de pagina embedt de echte predicties — ${LYM.nPred} stuks, gemiddeld ${LYM.latencyMs} ms per predict bij export.`;
+  $("layaTrain").innerHTML =
+    `<div class="covfacts">
+      <div class="row"><span>traincases</span><b>248 bronregels · 744 items</b></div>
+      <div class="row"><span>calibratie-items</span><b>${LYM.items.calib}</b></div>
+      <div class="row"><span>epochs (RLCD)</span><b>${LYM.epochs}</b></div>
+      <div class="row"><span>seed</span><b>${LYM.seed}</b></div>
+      <div class="row"><span>framework</span><b>laya 0.4.11 · PyTorch/MPS</b></div>
+      <div class="row"><span>checkpoint</span><b style="font-size:10px">simulation/laya_bp2op/checkpoints/bp2op-laya</b></div>
+    </div>`;
+  $("layaEval").innerHTML =
+    `<div class="covfacts">
+      <div class="row"><span>held-out split</span><b>${LYE.n} regels · 63 ongeziene artikelen</b></div>
+      <div class="row"><span>doel_hoofdstuk (choice)</span><b>${LYE.doel_hoofdstuk.hit}/${LYE.doel_hoofdstuk.n} (${pct(LYE.doel_hoofdstuk)})</b></div>
+      <div class="row"><span>match_band (score)</span><b>${LYE.match_band.hit}/${LYE.match_band.n} (${pct(LYE.match_band)})</b></div>
+      <div class="row"><span>needs_jurist (noul)</span><b>${LYE.needs_jurist.hit}/${LYE.needs_jurist.n} (${pct(LYE.needs_jurist)})</b></div>
+      <div class="row"><span>gem. confidence</span><b>${LYE.meanConfidence}</b></div>
+      <div class="row"><span>onder de gate → onthouding</span><b>${LYE.abstentions}</b></div>
+    </div>`;
+  $("layaS12").innerHTML =
+    `<b style="color:var(--ink)">System 1</b> = laya: snel, getypeerd, gecalibreerd — <i>suggereert</i> hoofdstuk/band/jurist in één pass.<br>
+     <b style="color:var(--ink)">System 2</b> = de pipeline + jurist: TF-IDF/kennisbank-matcher, V0–V3-validatie en de V4-juristoets blijven de autoriteit (MC-6).
+     Laya's voorstellen zijn <b>nooit</b> een koppeling: onder de gate of band 'zwak'/'geen' gaat de rij automatisch naar de jurist.<br><br>
+     Zie ook <code>docs/GENAI_SEAMS.md</code> — GenAI zit achter de knoppen, nooit aan het stuur.`;
+  $("fpprobes").innerHTML = LY.probes.map((p,i)=>
+    `<button class="chipbtn" onclick="fpProbeI(${i})">${p.ot} · art. ${p.art} — ${esc(p.why)}</button>`).join("");
+}
+
+/* --- chat: gate tot de bijbehorende scenario-run is afgerond, dan
+       deterministische intent-routing over run-artefacten + laya-predicties --- */
+function chatMsg(html, who, badge, trace){
+  const d=document.createElement("div"); d.className="msg "+(who||"laya");
+  d.innerHTML=(badge?`<span class="bdg">${badge}</span>`:"")+html+(trace?`<span class="trc">${trace}</span>`:"");
+  $("chatlog").appendChild(d); $("chatlog").scrollTop=1e9;
+}
+function layaWelcome(){
+  if(LY.kind==="utrecht"){
+    chatMsg(`Run <b>${esc(T1().runId)}</b> (${esc(curTrack)}) is afgerond — ik ben <b>Laya</b>, het System-1 beslismodel, getraind op ${LYM.items.train} items van de Utrechtse zone-keten (84 NormCards, 13 tracks).
+      Vraag me naar een <b>artikel</b> (bijv. “5.1” of “6.4”), een <b>onderwerp</b> (bijv. “natura 2000”, “geluid”), de <b>run-cijfers</b> of mijn eigen <b>evaluatie</b>.`,"laya","laya · system-1 · utrecht");
+  } else {
+    chatMsg(`Run <b>${esc(P2.runId)}</b> is afgerond — ik ben <b>Laya</b>, het System-1 beslismodel, getraind op de ${LYM.items.train} train-items van deze conversie-run.
+      Vraag me naar een <b>artikel</b> (bijv. “22.1” of “22.46”), een <b>onderwerp</b> (bijv. “geluid”, “bouwen”, “evenementen”), of de <b>run-cijfers</b>.`,"laya","laya · system-1 · eindhoven");
+  }
+}
+function renderGate(){
+  const on = layaOn[curLaya];
+  $("chatgate").classList.toggle("off", on);
+  $("chatinrow").classList.toggle("disabled", !on);
+  const ut = curLaya==="utrecht";
+  $("chatgateMsg").innerHTML = ut
+    ? `🔒 <b>De chat opent na een scenario-run.</b><br>Draai eerst de PoC-1-run (wind · zon · bos, Utrecht) af — Laya antwoordt daarna uitsluitend uit de run-artefacten en het getrainde model.`
+    : `🔒 <b>De chat opent na een scenario-run.</b><br>Draai eerst de PoC-2-run (BP→OP, Eindhoven) af — Laya antwoordt daarna uitsluitend uit de run-artefacten en het getrainde model.`;
+  $("chatGoBtn").textContent = ut ? "▶ speel de PoC-1-run af" : "▶ speel de PoC-2-run af";
+  const rs=$("layaRunState");
+  if(layaOn.utrecht && layaOn.eindhoven){
+    rs.innerHTML=`<b style="color:var(--green)">✓</b>Beide runs afgerond — chat actief per dataset<small>utrecht + eindhoven ontgrendeld</small>`;
+  } else if(on){
+    rs.innerHTML=`<b style="color:var(--green)">✓</b>${ut?"PoC-1":"PoC-2"}-run afgerond — chat actief<small>antwoorden uit run-artefacten + laya-predicties</small>`;
+  } else {
+    rs.innerHTML=`<b>—</b>${ut?"PoC-1":"PoC-2"}-run nog niet afgerond<small>chat vergrendeld</small>`;
+  }
+  rs.classList.toggle("pass", on);
+}
+function layaUnlock(which){
+  which = which || curLaya;
+  if(layaOn[which]) return;
+  layaOn[which] = true;
+  if(which===curLaya && layaUnlocked()) layaWelcome();
+  renderGate();
+}
+function layaLock(which){
+  which = which || curLaya;
+  layaOn[which] = false;
+  renderGate();
+}
+function layaGoRun(){
+  if(curLaya==="utrecht"){ switchTab(1); sim1.jumpToStage(0); sim1.play(); }
+  else { switchTab(2); sim2.jumpToStage(0); sim2.play(); }
+}
+
+const INTENTS_EIN = [
+  {re:/\b(hoe|wat) (zijn|is) (je |mijn )?(cijfers|stats|resultaten|evaluatie|kwaliteit|nauwkeurigheid)\b|hoe (goed|nauwkeurig) ben je/i, fn:()=>{
+    const ev=LYE;
+    chatMsg(`Op <b>${ev.n} ongeziene bronregels</b> (63 artikelen die niet in de training zaten):
+      doel-hoofdstuk <b>${Math.round(100*ev.doel_hoofdstuk.hit/ev.doel_hoofdstuk.n)}%</b> ·
+      match-band <b>${Math.round(100*ev.match_band.hit/ev.match_band.n)}%</b> ·
+      jurist-signaal <b>${Math.round(100*ev.needs_jurist.hit/ev.needs_jurist.n)}%</b> juist.
+      Gemiddelde confidence ${ev.meanConfidence}; ${ev.abstentions} predicties bleven onder de gate (${LYM.gate}) en werden onthoudingen.`,"laya","evaluatie",
+      `laya_bp2op/predictions.json · held-out split in build_dataset.py`);}},
+
+  {re:/\b(onthoud|abstain|onzeker|gate|weiger)\b/i, fn:()=>{
+    const under=Object.entries(LY.preds).filter(([b,p])=>p.hc<LYM.gate);
+    chatMsg(`${under.length} van ${LYM.nPred} predicties zitten onder de confidence-gate <b>${LYM.gate}</b> — die geef ik níet als beslissing:
+      <table style="border-collapse:collapse;font-size:11px;margin-top:6px">`+
+      under.slice(0,6).map(([b,p])=>`<tr><td style="padding:2px 10px 2px 0;color:var(--cyan);font-family:var(--mono)">${b}</td>
+        <td style="padding:2px 10px 2px 0">conf ${p.hc.toFixed(2)}</td><td style="padding:2px 0">→ jurist (V4)</td></tr>`).join("")+
+      `</table>Bij de router geldt hetzelfde contract: <code>passes_confidence_gate()</code> in <code>deep-agents/laya_router.py</code>.`,"laya","onthouding");}},
+
+  {re:/\b(hoofdstuk|verdeling|distributie)\b.*\b(10|alle|overzicht)\b|\bwaar ?(heen|naar)\b.*\bmeeste\b/i, fn:()=>{
+    const C={}; for(const b in LY.preds){ const h=LY.preds[b].h; C[h]=(C[h]||0)+1; }
+    const rows=Object.entries(C).sort((a,b)=>b[1]-a[1]);
+    chatMsg(`Mijn keuzes over alle ${LYM.nPred} bronregels:`+
+      rows.map(([h,n])=>`<br>· <b>${esc(LYQ.doel_hoofdstuk.options[h]||h)}</b> — ${n} regels (${Math.round(100*n/LYM.nPred)}%)`).join("")+
+      `<br><br>De omzettabel laat hetzelfde beeld zien: hoofdstuk 10 (milieubelastende activiteiten) is het grote opvanghuis van de bruidschat.`,"laya","verdeling");}},
+
+  {re:/\bcounters?|cijfers|run-?(samenvatting|summary)|resultaat|coverage|match-?ratio\b/i, fn:()=>{
+    const C=P2.counts;
+    chatMsg(`Run <b>${esc(P2.runId)}</b>: ${C.bronRegels} bronregels · ${C.doelRegels} doelregels · ${C.kennisbank} kennisbank-relaties →
+      ${C.omzettabelRijen} omzettabel-rijen: <b>${C.voorgesteld}</b> voorgesteld (${P2.kbDriven} kennisbank-gedreven) ·
+      ${C.nieuweRegel} nieuwe-regel-voorstellen · <b>${C.needsHuman} wachten op de jurist</b>.
+      Match-ratio ${(100*P2.coverage.perBronDocument[0].matchRatio).toFixed(1)}% → gereedheid '${P2.coverage.perBronDocument[0].gereedheid}'.`,"laya","run");}},
+
+  {re:/\bjurist|v4|human|mens\b/i, fn:()=>{
+    const n=Object.values(LY.gold).filter(g=>g.jurist).length;
+    const pj=Object.entries(LY.preds).filter(([b,p])=>p.j>=0.5).length;
+    chatMsg(`De jurist (V4) is in deze keten <b>structureel de beslisser</b>: ${n} van ${LYM.nPred} regels hebben status needs_human/nieuwe_regel.
+      Mijn noul-kop zet er <b>${pj}</b> rode vlaggen bij (P(jurist) ≥ 0.5) — signaal, nooit beslissing (MC-6: "de mens blijft op de knoppen").`,"laya","jurist");}},
+
+  {re:/\bkennisbank|kennis ?bank|eerder|b02|b03\b/i, fn:()=>{
+    const kbHit=Object.values(LY.gold).filter(g=>g.tabel[3]).length;
+    chatMsg(`De kennisbank telt <b>${P2.kb.total}</b> relaties (${P2.kb.vervangt} 'vervangt' · ${P2.kb.voortzetting} 'voortzetting') uit de wijzigingsbesluiten
+      B02 (262) en B03 (12); B04's 9 duplicaten vielen af. <b>${kbHit}</b> omzettabel-rijen rijden op zo'n officiële relatie (score 1.0) —
+      eerder conversiewerk dat opnieuw wordt gebruikt, precies MC-5.`,"laya","kennisbank");}},
+];
+
+const INTENTS_UTR = [
+  {re:/\b(hoe|wat) (zijn|is) (je |mijn )?(cijfers|stats|resultaten|evaluatie|kwaliteit|nauwkeurigheid)\b|hoe (goed|nauwkeurig) ben je/i, fn:()=>{
+    const ev=LYE;
+    chatMsg(`Op <b>${ev.n} ongeziene NormCards</b> — de vijf tracks water, mobiliteit, werken, recreatie en biomassa zaten níet in de training:
+      regelstatus <b>${Math.round(100*ev.regelstatus.hit/ev.regelstatus.n)}%</b> ·
+      zone-effect <b>${Math.round(100*ev.zone_effect.hit/ev.zone_effect.n)}%</b> ·
+      jurist-signaal <b>${Math.round(100*ev.needs_human.hit/ev.needs_human.n)}%</b> ·
+      juridische werking <b>${Math.round(100*ev.legal_force.hit/ev.legal_force.n)}%</b> juist.
+      Gemiddelde confidence ${ev.meanConfidence}; ${ev.abstentions} predictie onder de gate (${LYM.gate}) → onthouding.`,"laya","evaluatie",
+      `laya_utrecht/predictions.json · held-out tracks in build_dataset.py`);}},
+
+  {re:/\b(onthoud|abstain|onzeker|gate|weiger)\b/i, fn:()=>{
+    const under=Object.entries(LY.preds).filter(([b,p])=>p.sc<LYM.gate);
+    chatMsg(`${under.length} van ${LYM.nPred} kaart-predicties zit onder de confidence-gate <b>${LYM.gate}</b> — die geef ik níet als beslissing:
+      <table style="border-collapse:collapse;font-size:11px;margin-top:6px">`+
+      under.slice(0,6).map(([b,p])=>`<tr><td style="padding:2px 10px 2px 0;color:var(--cyan);font-family:var(--mono)">${b}</td>
+        <td style="padding:2px 10px 2px 0">conf ${p.sc.toFixed(2)}</td><td style="padding:2px 0">→ jurist (V4)</td></tr>`).join("")+
+      `</table>Zelfde contract als <code>passes_confidence_gate()</code> in <code>deep-agents/laya_router.py</code>.`,"laya","onthouding");}},
+
+  {re:/\babstent|geen citaat|cite or abstain\b/i, fn:()=>{
+    const T=T1();
+    chatMsg(`De Norm Analyst hanteert <b>cite-or-abstain</b>: geen geverifieerd citaat uit het instrument, geen regel. In deze track
+      (${esc(curTrack)}, run ${esc(T.runId)}) zijn <b>${T.abstentions.length}</b> topics onthouden:`+
+      T.abstentions.slice(0,5).map(a=>`<br>· <b>${esc(a.topic)}</b> — ${esc(a.reason)}`).join("")+
+      (T.abstentions.length>5?`<br>· …`:""),"laya","abstenties");}},
+
+  {re:/\b(counters?|cijfers|run-?(samenvatting|summary)|resultaat|km|uitkomst|hoe groot|hoeveel)\b/i, fn:()=>{
+    const T=T1();
+    chatMsg(`Track <b>${esc(curTrack)}</b> · run <b>${esc(T.runId)}</b> (verdict ${esc(T.verdict).toUpperCase()}):
+      ${T.cards.normCards} norm cards · ${T.cards.abstentions} abstenties · ${T.cards.formalized} formalized / ${T.cards.ambiguous} ambigue (→V4) / ${T.cards.rejectedRules} rejected ·
+      eindzone <b>${km(T.engine[T.engine.length-1].areaKm2)} km²</b> van de ${km(P1.aoi.areaKm2)} km² provincie ·
+      V3 IoU ${T.iou||"—"} · duur ${T.durationS}s.`,"laya","run");}},
+
+  {re:/\b(jurist|v4|human|mens|ambigu|open norm)\b/i, fn:()=>{
+    const n=Object.values(LY.gold).filter(g=>g.jurist).length;
+    const pj=Object.entries(LY.preds).filter(([b,p])=>p.j>=0.5).length;
+    chatMsg(`Open normen gaan altijd naar de jurist: <b>${n}</b> van ${LYM.nPred} kaarten is 'ambiguous' → V4.
+      Mijn noul-kop zet er <b>${pj}</b> vlaggen bij (P(jurist) ≥ 0.5) — signaal, nooit beslissing. In de actieve track (${esc(curTrack)}):
+      ${T1().cards.ambiguous} ambigue kaarten van ${T1().cards.normCards}.`,"laya","jurist");}},
+
+  {re:/\b(uitgesloten|exclusie|carv|afgevallen|natura|bescherm)\b/i, fn:()=>{
+    const ex=Object.entries(LY.gold).filter(([k,g])=>g.e==="excluded");
+    chatMsg(`<b>Hard exclusies</b> — regels die gebied wegcijferen (${ex.length} kaarten over alle tracks):`+
+      ex.slice(0,5).map(([k,g])=>`<br>· <b style="color:var(--cyan);font-family:var(--mono)">${esc(LY.cards[k][1])}</b> (${esc(LY.cards[k][0])}, art. ${esc(g.art)}) — ${esc(LYQ.zone_effect.options.excluded)}`).join("")+
+      `<br>In de actieve track (${esc(curTrack)}) tekent de kaart de exclusiestappen zelf — zie de area-waterfall.`,"laya","exclusies");}},
+
+  {re:/\b(track|wind|zon|bos|water|landschap|wonen)\b.*\b(aantal|overzicht|hoeveel kaarten|verdeling|tracks)\b|\bverdeling\b/i, fn:()=>{
+    const C={}; for(const k in LY.cards){ const t=LY.cards[k][0]; C[t]=(C[t]||0)+1; }
+    chatMsg(`De trainingscorpus beslaat <b>${Object.keys(C).length} tracks</b> (${LYM.nPred} unieke kaarten):`+
+      Object.entries(C).sort((a,b)=>b[1]-a[1]).map(([t,n])=>`<br>· ${esc(t)} — ${n} kaarten`).join("")+
+      `<br>Held-out voor de evaluatie: water, mobiliteit, werken, recreatie en biomassa.`,"laya","tracks");}},
+];
+
+function chatSend(){
+  if(!layaUnlocked()) return;
+  const q=$("chatin").value.trim(); if(!q) return;
+  $("chatin").value="";
+  chatMsg(esc(q),"user");
+
+  for(const it of (LY.kind==="utrecht"?INTENTS_UTR:INTENTS_EIN)){ if(it.re.test(q)){ it.fn(); return; } }
+
+  if(LY.kind==="eindhoven"){
+    const art=q.match(/\b22\.\d{1,3}[a-z]?\b/i);
+    if(art){
+      const a=art[0].toLowerCase();
+      const bids=Object.keys(LY.preds).filter(b=>LY.bron[b][0].toLowerCase()===a);
+      if(bids.length){
+        bids.slice(0,3).forEach(b=>chatPredRow(b, `artikel ${a}`));
+        return;
+      }
+      chatMsg(`Artikel <b>${esc(a)}</b> zit niet in de bronpopulatie (hoofdstuk 22/23) — de bruidschat telt 311 regels. Probeer bijv. 22.1, 22.3, 22.43 of 22.46.`,"laya","artikel");
+      return;
+    }
+  } else {
+    const art=q.match(/\b(\d{1,2}\.\d{1,2})\b/);
+    if(art){
+      const a=art[1].toLowerCase();
+      const keys=Object.keys(LY.preds).filter(k=>String(LY.cards[k][2]).toLowerCase().indexOf(a)===0);
+      if(keys.length){
+        keys.slice(0,3).forEach(k=>chatPredRow(k, `artikel ${a}`));
+        return;
+      }
+      chatMsg(`Artikel <b>${esc(a)}</b> zit niet in de kaartencorpus van deze tracks. Probeer bijv. 5.1, 5.3, 5.5 of 6.4.`,"laya","artikel");
+      return;
+    }
+  }
+  const hits=nnBron(q,3);
+  if(hits.length && hits[0][0]>0.05){
+    const what = LY.kind==="utrecht" ? "NormCard(s)" : "bronregel(n)";
+    chatMsg(`Geen directe match — ik zoek de <b>dichtstbijzijnde ${what}</b> (tf-idf, zelfde featurization als de matcher) en geef mijn embedded predictie:`,"laya","tekst-zoek");
+    hits.slice(0,2).forEach(([s,b])=>chatPredRow(b, `overeenkomst ${(100*s).toFixed(0)}%`));
+    return;
+  }
+  const corpus = LY.kind==="utrecht" ? "de Utrechtse normkaarten" : "hfd 22/23 Eindhoven";
+  chatMsg(`Daar heb ik geen grondslag voor: niets in de trainingscorpus (${corpus}) of de run-artefacten raakt “${esc(q)}”.
+    Dit is een beslist model, geen chatbot — onthouding is hier het eerlijke antwoord. Vraag naar een artikel, onderwerp of de run-cijfers.`,"laya","onthouding");
+}
+function chatPredRow(k, why){
+  const p=LY.preds[k], g=LY.gold[k];
+  if(LY.kind==="utrecht"){
+    const C=LY.cards[k];
+    const gate=p.sc<LYM.gate?` <b style="color:var(--amber)">→ onder de gate: onthouding, jurist beslist</b>`:"";
+    chatMsg(`<b style="color:var(--cyan);font-family:var(--mono)">${esc(C[1])}</b> · ${esc(C[0])} · art. ${esc(C[2])} <span style="color:var(--faint)">(${why})</span><br>
+      ${esc(C[3])}<br>“${esc(C[4])}…”<br>
+      ▸ mijn pass: <b>${esc(LYQ.regelstatus.options[p.s]||p.s)}</b> (${(100*p.sc).toFixed(0)}% conf) · effect <b>${esc(p.e)}</b> · werking ${p.fl} (${p.f.toFixed(2)}) · P(jurist)=${p.j.toFixed(2)}${gate}<br>
+      ▸ pipeline: ${g.s} · ${g.e} · werking ${FORCES[g.f]}${p.s===g.s?" · ✓ zelfde status":" · ≠ andere status"}`,
+      "laya","forward pass",`${p.sc<LYM.gate?"ONTHOUDING":"predictie"} · track ${C[0]} · predictie geëxporteerd uit het fine-tuned checkpoint (${LYM.latencyMs} ms/pass bij export)`);
+    return;
+  }
+  const B=LY.bron[k];
+  const drArt=g.tabel[0]?LY.dr[g.tabel[0]]:null;
+  const gate=p.hc<LYM.gate?` <b style="color:var(--amber)">→ onder de gate: onthouding, jurist beslist</b>`:"";
+  chatMsg(`<b style="color:var(--cyan);font-family:var(--mono)">${k}</b> · ${esc(B[1])} <span style="color:var(--faint)">(${why})</span><br>
+    “${esc(B[2])}…”<br>
+    ▸ mijn pass: <b>${esc(LYQ.doel_hoofdstuk.options[p.h]||p.h)}</b> (${(100*p.hc).toFixed(0)}% conf) · band <b>${p.bl}</b> (${p.b.toFixed(2)}) · P(jurist)=${p.j.toFixed(2)}${gate}<br>
+    ▸ omzettabel: ${g.h==="geen_match"?"geen match":("hfd "+g.h.replace("hfd","")+" · "+g.band)}${drArt?` · top-voorstel art. ${drArt}${g.tabel[3]?" (kennisbank)":""}`:""}${p.h===g.h?" · ✓ zelfde hoofdstuk":" · ≠ ander hoofdstuk"}`,
+    "laya","forward pass",`${p.hc<LYM.gate?"ONTHOUDING":"predictie"} · bron: ${B[3]} · predictie geëxporteerd uit het fine-tuned checkpoint (${LYM.latencyMs} ms/pass bij export)`);
+}
+
+buildLayaStatic(); renderGate();
+
 buildRail1(); buildStatic1(); sim1=makeSim1(); buildSim2(); sim1.prog();
 
-globalThis.__ds={ get sims(){return [sim1,sim2];}, switchTrack };
+globalThis.__ds={ get sims(){return [sim1,sim2];}, switchTrack,
+  get layaOn(){return (id)=>layaOn[id||curLaya];}, fpRun, chatSend, nnBron, switchLayaDs };
+if(typeof URLSearchParams!=="undefined"){ const t=parseInt(new URLSearchParams(
+  (typeof location!=="undefined"?location.search:"")).get("tab")||"0",10);
+  if(t>=1&&t<=3) switchTab(t); }
 </script>
 </body>
 </html>
