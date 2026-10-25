@@ -485,12 +485,36 @@ class RegelRechtContractTests(unittest.TestCase):
         contracts.validate(payload, "formal-rule")
 
 
+def _synthetic_valid_norm_card_dict() -> dict:
+    """Schema-valid NormCard including article core (number/text/url), not from corpus."""
+    source = {
+        "id": "S07",
+        "version": "CVDR704250, geldend van 13-10-2025 t/m heden",
+        "url": "https://lokaleregelgeving.overheid.nl/cvdr704250",
+        "retrieved_at": "2026-08-30",
+    }
+    evidence = {
+        "id": "W-97",
+        "sourceId": "S07",
+        "instrument": "Omgevingsverordening provincie Utrecht (CVDR704250) - artikeltekst",
+        "article": "art. 6.4, eerste lid",
+        "quote_nl": "Geverifieerde quote die ruim lang genoeg is voor de schema-minimum.",
+        "theme": "energy:wind-test",
+        "url": "https://lokaleregelgeving.overheid.nl/cvdr704250",
+        "verified": True,
+    }
+    card = NormAnalyst().read({"evidence": [evidence], "sources": {"S07": source}})[0]
+    payload = card.to_dict()
+    contracts.validate(payload, "norm-card")
+    return payload
+
+
 class NegativeValidationTests(unittest.TestCase):
     """An intentionally bad card (and other artifacts) must fail validation."""
 
     @classmethod
     def setUpClass(cls):
-        cls.good = load_json("normcards-wind.json")[0]
+        cls.good = _synthetic_valid_norm_card_dict()
 
     def test_bad_quote_too_short(self):
         bad = copy.deepcopy(self.good)
