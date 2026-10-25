@@ -16,6 +16,10 @@ sys.path.insert(0, str(FULL))
 from split_cvdr_html import split_instrument, write_articles_json  # noqa: E402
 import paths  # noqa: E402
 
+# Must match the stamp of the committed artefacts in full_export/out, runs/ and
+# regelrecht-demo.html, so a normal test run leaves the worktree clean.
+COMMITTED_STAMP = "2026-10-25T12:00:00Z"
+
 
 class TestArticleSplitter(unittest.TestCase):
     def test_utrecht_contains_art_5_3(self):
@@ -191,7 +195,7 @@ class TestWriter(unittest.TestCase):
         al, orphans = align("utrecht", arts)
         form, report = formalize("utrecht", arts, al, orphans)
         path = write_instrument_yaml(
-            "utrecht", arts, form, stamp="2026-10-14T00:00:00Z", report=report
+            "utrecht", arts, form, stamp=COMMITTED_STAMP, report=report
         )
         doc = yaml.safe_load(path.read_text())
         schema = json.loads(
@@ -247,7 +251,7 @@ class TestDemoBuild(unittest.TestCase):
     def test_demo_contains_index_and_coverage(self):
         from build_full_demo import build_demo
 
-        build_demo(stamp="2026-10-14T00:00:00Z")
+        build_demo(stamp=COMMITTED_STAMP)
         html = (ROOT / "nldt/simulation/regelrecht-demo.html").read_text()
         self.assertNotIn("__INDEX_UTRECHT__", html)
         self.assertIn("article-select", html)
@@ -263,7 +267,7 @@ class TestBuildAll(unittest.TestCase):
             sys.executable,
             str(FULL / "build_all.py"),
             "--stamp",
-            "2026-10-14T12:00:00Z",
+            COMMITTED_STAMP,
         ]
         subprocess.check_call(cmd, cwd=ROOT)
         u1 = (FULL / "out/utrecht-cvdr704250.yaml").read_bytes()
@@ -279,7 +283,7 @@ class TestBuildAll(unittest.TestCase):
                 sys.executable,
                 str(ROOT / "nldt/simulation/regelrecht/build_runs.py"),
                 "--stamp",
-                "2026-10-14T12:00:00Z",
+                COMMITTED_STAMP,
             ],
             cwd=ROOT,
         )

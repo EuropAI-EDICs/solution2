@@ -39,6 +39,11 @@ def project_zone(
         leafs.extend(_walk_conditions(act.get("value") or act))
 
     geo_names = {i["name"] for i in (execution.get("input") or []) if i.get("type") == "boolean"}
+    if len(geo_names) > 1:
+        raise ProjectionError(
+            f"multiple geo inputs {sorted(geo_names)!r}; v1 supports exactly one "
+            "(map multiple zones to a single geo input via zoneBinding.inputs)"
+        )
     binding_inputs = (zone_binding or {}).get("inputs") or {}
     for name in geo_names:
         if name not in binding_inputs:
@@ -55,8 +60,8 @@ def project_zone(
 
     zone_selector = None
     if geo_names:
-        # one primary geo input for v1 (AND of equals-true already filtered)
-        primary = sorted(geo_names)[0]
+        # exactly one geo input (enforced above)
+        (primary,) = geo_names
         zb = binding_inputs[primary]
         zone_selector = {
             "zoneIds": list(zb["zoneIds"]),

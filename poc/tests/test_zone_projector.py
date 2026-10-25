@@ -63,5 +63,16 @@ class ZoneProjectorTests(unittest.TestCase):
         with self.assertRaises(ProjectionError):
             project_zone(bad, {}, zone_semantics="none", rule_type="procedural_condition")
 
+    def test_multiple_geo_inputs_raise(self):
+        import copy
+        ex = copy.deepcopy(EXEC_53)
+        ex["input"].append({"name": "in_gebied_b", "type": "boolean", "description": "Geo-feit 2"})
+        binding = copy.deepcopy(BINDING_53)
+        binding["inputs"]["in_gebied_b"] = {
+            "zoneIds": ["b"], "selection": "within", "geometrySource": "provincial_gio",
+        }
+        with self.assertRaises(ProjectionError):
+            project_zone(ex, binding, zone_semantics="inclusion", rule_type="zone_inclusion")
+
 if __name__ == "__main__":
     unittest.main()

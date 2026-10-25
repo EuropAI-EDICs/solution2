@@ -273,7 +273,10 @@ def main(argv=None) -> int:
         sys.path.insert(0, str(DIR / "full_export"))
         from build_full_demo import build_demo  # noqa: WPS433
 
-        build_demo(stamp=args.stamp)
+        build_demo(
+            stamp=args.stamp,
+            out_html=None if outdir == DIR else outdir / "regelrecht-demo.html",
+        )
         return 0
 
     template = (DIR / "regelrecht-demo.template.html").read_text(encoding="utf-8")
