@@ -15,33 +15,87 @@
   },
   "W-03": {
     "kind": "inclusion",
-    "zone": {
-      "zoneIds": [
-        "gebied_kleine_windturbine"
-      ],
-      "selection": "within",
-      "geometrySource": "provincial_gio",
-      "gioJoinId": "/join/id/regdata/pv26/2025/gio73f71441-6b83-4be5-9fef-293714578255/nld@2025-10-10;822",
-      "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
-    },
-    "conditions": [
-      {
-        "parameter": "hub_height",
-        "operator": "<=",
-        "value": 20,
-        "unit": "m"
-      },
-      {
-        "parameter": "location",
-        "operator": "==",
-        "value": "existing_building_plot"
-      }
-    ],
+    "rule_type": "zone_inclusion",
+    "zone_semantics": "inclusion",
+    "executable_ref": "engine.zone.within@poc-v1",
     "extra_tags": [
-      "inclusion_zone_gebied_kleine_windturbine"
+      "inclusion_zone_gebied_kleine_windturbine",
+      "ashoogte_le_20m",
+      "on_or_adjacent_to_existing_building_plot"
     ],
-    "rationale": "Art. 5.3 lid 1 permits, within the 'Gebied kleine windturbine' (GIO Bijlage II), rules allowing a turbine up to 20 m hub height on/at an existing building plot; both the zone and both conditions are quoted verbatim in NC-W-03.",
-    "executable_ref": "engine.zone.within@poc-v1"
+    "rationale": "Art. 5.3 lid 1 — execution SoT (RegelRecht); zone dual-write via projector.",
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [
+        {
+          "name": "ashoogte_m",
+          "type": "number",
+          "description": "As van de voorgestelde windturbine, in meters."
+        },
+        {
+          "name": "op_of_in_aansluiting_op_bestaand_bouwperceel",
+          "type": "boolean",
+          "description": "Op of in aansluiting op bestaand bouwperceel."
+        }
+      ],
+      "input": [
+        {
+          "name": "in_gebied_kleine_windturbine",
+          "type": "boolean",
+          "description": "Geo-feit: binnen Gebied kleine windturbine.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
+      ],
+      "output": [
+        {
+          "name": "toegestaan_kleine_windturbine",
+          "type": "boolean",
+          "description": "Of omgevingsplan hier mag toestaan."
+        }
+      ],
+      "actions": [
+        {
+          "output": "toegestaan_kleine_windturbine",
+          "value": {
+            "operation": "AND",
+            "conditions": [
+              {
+                "operation": "LESS_THAN_OR_EQUAL",
+                "subject": "$ashoogte_m",
+                "value": 20
+              },
+              {
+                "operation": "EQUALS",
+                "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+                "value": true
+              },
+              {
+                "operation": "EQUALS",
+                "subject": "$in_gebied_kleine_windturbine",
+                "value": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "zoneBinding": {
+      "inputs": {
+        "in_gebied_kleine_windturbine": {
+          "zoneIds": [
+            "gebied_kleine_windturbine"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio",
+          "gioJoinId": "/join/id/regdata/pv26/2025/gio73f71441-6b83-4be5-9fef-293714578255/nld@2025-10-10;822",
+          "caveat": "GIO-versie uit Bijlage II CVDR704250 (geldend 13-10-2025)"
+        }
+      }
+    }
   },
   "W-04": {
     "kind": "ambiguous",

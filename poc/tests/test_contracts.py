@@ -542,9 +542,9 @@ class NegativeValidationTests(unittest.TestCase):
             contracts.validate(bad, "norm-card")
 
     def test_formalized_rule_without_zoneselector_rejected(self):
-        rules = load_json("formalrules-wind.json")
-        formalized = next(r for r in rules if r["status"] == "formalized")
-        bad = copy.deepcopy(formalized)
+        # synthetic rule WITH execution: only the missing zoneSelector may fail
+        bad = RegelRechtContractTests._formalized_rule(self)
+        contracts.validate(copy.deepcopy(bad), "formal-rule")  # baseline is valid
         del bad["zoneSelector"]
         with self.assertRaises(contracts.ContractError):
             contracts.validate(bad, "formal-rule")

@@ -25,6 +25,7 @@ all 13 canonieke tracks (declaratieve bron: pipeline.track_config).
 
 from __future__ import annotations
 
+import copy
 import json
 import re
 from pathlib import Path
@@ -33,10 +34,12 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Union
 try:  # normal import when poc/ is on sys.path (tests, python3 -m pipeline.agents)
     from pipeline import contracts, track_config
     from pipeline.contracts import FormalRule, NormCard
+    from pipeline.zone_projector import project_zone
 except ImportError:  # pragma: no cover - direct script execution inside poc/pipeline
     import contracts as contracts  # type: ignore[no-redef]
     import track_config as track_config  # type: ignore[no-redef]
     from contracts import FormalRule, NormCard  # type: ignore[no-redef]
+    from zone_projector import project_zone  # type: ignore[no-redef]
 
 CORPUS_DIR = Path(__file__).resolve().parents[1] / "corpus"
 SOURCES_PATH = CORPUS_DIR / "sources.json"
@@ -437,6 +440,8 @@ def _base_rule(
     rationale: Optional[str] = None,
     zone_selector: Optional[Dict[str, Any]] = None,
     conditions: Optional[List[Dict[str, Any]]] = None,
+    execution: Optional[Dict[str, Any]] = None,
+    zone_binding: Optional[Dict[str, Any]] = None,
     related: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
     tags = list(card.appliesTo.contextTags or [])
@@ -458,6 +463,10 @@ def _base_rule(
         rule["zoneSelector"] = zone_selector
     if conditions is not None:
         rule["conditions"] = conditions
+    if execution is not None:
+        rule["execution"] = execution
+    if zone_binding is not None:
+        rule["zoneBinding"] = zone_binding
     if related:
         rule["relatedNormCardIds"] = related
     if reason is not None:
@@ -478,6 +487,22 @@ _OUDE_BOSGROEIPLAATSEN_GIO = "/join/id/regdata/pv26/2025/gio3940cf76-bee0-4a1a-8
 #: deterministic templates, keyed by evidence id. kind:
 #: inclusion | exclusion | attention | conditional | compensation | ambiguous | reject
 TEMPLATE_SPECS: Dict[str, Dict[str, Any]] = track_config.load_templates()
+
+
+#: per-kind defaults for deterministic zone templates (a template may override
+#: rule_type / zone_semantics / executable_ref explicitly).
+_ZONE_KINDS: Dict[str, Dict[str, str]] = {
+    "inclusion": {"rule_type": "zone_inclusion", "zone_semantics": "inclusion",
+                  "executable_ref": "engine.zone.within@poc-v1"},
+    "exclusion": {"rule_type": "zone_exclusion", "zone_semantics": "exclusion",
+                  "executable_ref": "engine.zone.exclude_within@poc-v1"},
+    "attention": {"rule_type": "zone_attention", "zone_semantics": "attention",
+                  "executable_ref": "engine.zone.buffer@poc-v1"},
+    "conditional": {"rule_type": "zone_conditional", "zone_semantics": "conditional",
+                    "executable_ref": "engine.zone.within@poc-v1"},
+    "compensation": {"rule_type": "compensation_requirement", "zone_semantics": "compensation",
+                     "executable_ref": "engine.compensation.ratio@poc-v1"},
+}
 
 
 class NormFormalizer:
@@ -579,6 +604,22 @@ class NormFormalizer:
             if self.llm_hook is not None:
                 proposal = self.llm_hook(card.to_dict())
                 if proposal is not None:
+                    if not proposal.get("execution"):
+                        # RegelRecht execution is the SoT; a zone-only proposal
+                        # cannot be formalized (follow-up: LLM authors execution).
+                        return FormalRule.from_dict(_base_rule(
+                            card,
+                            status="ambiguous",
+                            rule_type="unsupported_claim",
+                            zone_semantics="none",
+                            executable_ref=_REVIEW_REF,
+                            reason="llm proposal lacks execution (RegelRecht SoT)",
+                            rationale=(
+                                "S2 proposal carried only a zone/conditions sketch; formalized "
+                                "rules require machine_readable.execution, so the card is flagged "
+                                "for review instead of guessing."
+                            ),
+                        ))
                     return FormalRule.from_dict(self._llm_rule(card, proposal))
             rule = _base_rule(
                 card,
@@ -598,71 +639,44 @@ class NormFormalizer:
             return FormalRule.from_dict(rule)
 
         kind = spec["kind"]
-        if kind == "inclusion":
-            rule = _base_rule(
-                card,
+        if kind in _ZONE_KINDS:
+            defaults = _ZONE_KINDS[kind]
+            common: Dict[str, Any] = dict(
                 status="formalized",
-                rule_type="zone_inclusion",
-                zone_semantics="inclusion",
-                executable_ref=spec.get("executable_ref", "engine.zone.within@poc-v1"),
+                rule_type=spec.get("rule_type", defaults["rule_type"]),
+                zone_semantics=spec.get("zone_semantics", defaults["zone_semantics"]),
+                executable_ref=spec.get("executable_ref", defaults["executable_ref"]),
                 extra_tags=spec.get("extra_tags", ()),
                 rationale=spec["rationale"],
-                zone_selector=dict(spec["zone"]),
-                conditions=list(spec.get("conditions", [])),
                 related=spec.get("related"),
             )
-        elif kind == "exclusion":
-            rule = _base_rule(
-                card,
-                status="formalized",
-                rule_type="zone_exclusion",
-                zone_semantics="exclusion",
-                executable_ref=spec.get("executable_ref", "engine.zone.exclude_within@poc-v1"),
-                extra_tags=spec.get("extra_tags", ()),
-                rationale=spec["rationale"],
-                zone_selector=dict(spec["zone"]),
-                conditions=list(spec.get("conditions", [])),
-                related=spec.get("related"),
-            )
-        elif kind == "attention":
-            rule = _base_rule(
-                card,
-                status="formalized",
-                rule_type="zone_attention",
-                zone_semantics="attention",
-                executable_ref=spec.get("executable_ref", "engine.zone.buffer@poc-v1"),
-                extra_tags=spec.get("extra_tags", ()),
-                rationale=spec["rationale"],
-                zone_selector=dict(spec["zone"]),
-                conditions=list(spec.get("conditions", [])),
-                related=spec.get("related"),
-            )
-        elif kind == "conditional":
-            rule = _base_rule(
-                card,
-                status="formalized",
-                rule_type="zone_conditional",
-                zone_semantics="conditional",
-                executable_ref=spec.get("executable_ref", "engine.zone.within@poc-v1"),
-                extra_tags=spec.get("extra_tags", ()),
-                rationale=spec["rationale"],
-                zone_selector=dict(spec["zone"]),
-                conditions=list(spec.get("conditions", [])),
-                related=spec.get("related"),
-            )
-        elif kind == "compensation":
-            rule = _base_rule(
-                card,
-                status="formalized",
-                rule_type="compensation_requirement",
-                zone_semantics="compensation",
-                executable_ref=spec.get("executable_ref", "engine.compensation.ratio@poc-v1"),
-                extra_tags=spec.get("extra_tags", ()),
-                rationale=spec["rationale"],
-                zone_selector=dict(spec["zone"]),
-                conditions=list(spec.get("conditions", [])),
-                related=spec.get("related"),
-            )
+            if spec.get("execution") is not None:
+                # RegelRecht execution is the source of truth; zoneSelector and
+                # conditions are *projected* (dual-write), never hand-authored.
+                execution = copy.deepcopy(spec["execution"])
+                zone_binding = copy.deepcopy(spec.get("zoneBinding"))
+                projected = project_zone(
+                    execution, zone_binding,
+                    zone_semantics=common["zone_semantics"], rule_type=common["rule_type"],
+                )
+                rule = _base_rule(
+                    card,
+                    zone_selector=projected["zoneSelector"],
+                    conditions=projected["conditions"],
+                    execution=execution,
+                    zone_binding=zone_binding,
+                    **common,
+                )
+            else:
+                # Legacy zone/conditions template (no execution). The schema now
+                # requires ``execution`` for formalized rules, so this fails
+                # validation until the template is lifted to execution (Task 5).
+                rule = _base_rule(
+                    card,
+                    zone_selector=dict(spec["zone"]),
+                    conditions=list(spec.get("conditions", [])),
+                    **common,
+                )
         elif kind == "ambiguous":
             rule = _base_rule(
                 card,
@@ -707,6 +721,18 @@ class NormFormalizer:
                 )
             if rule.status == "formalized" and (rule.zoneSelector is None or rule.conditions is None):
                 raise RuntimeError(f"formalized rule {rule.id} lacks zoneSelector/conditions")
+            if rule.status == "formalized" and rule.execution is not None:
+                # dual-write equivalence: stored zone fields must equal a fresh projection
+                projected = project_zone(
+                    rule.execution, rule.zoneBinding,
+                    zone_semantics=rule.zoneSemantics, rule_type=rule.ruleType,
+                )
+                stored = rule.to_dict()
+                if projected["zoneSelector"] != stored.get("zoneSelector") or \
+                        projected["conditions"] != stored.get("conditions"):
+                    raise RuntimeError(
+                        f"rule {rule.id}: zoneSelector/conditions diverge from execution projection"
+                    )
             if rule.status != "formalized" and (rule.conditions or rule.zoneSelector):
                 raise RuntimeError(
                     f"non-formalized rule {rule.id} must not carry executable predicates"
