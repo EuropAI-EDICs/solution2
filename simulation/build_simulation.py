@@ -50,6 +50,7 @@ final_only_fc = _scenario_labels.final_only_fc
 AOI_CACHE = ROOT / "poc" / "data" / "cache" / "arcgis-provinciegrens.4326.geojson"
 UITDAGINGEN = ROOT / "poc" / "scenarios" / "uitdagingen.json"
 SCENARIO_RUNS = ROOT / "poc" / "scenario-runs"
+CORPUS = ROOT / "poc" / "corpus"
 TEMPLATE = Path(__file__).resolve().parent / "template.html"
 OUT = Path(__file__).resolve().parent / "simulation.html"
 
@@ -76,6 +77,8 @@ POC1_TRACKS = {
     },
 }
 POC2_RUN = ROOT / "poc-bp2op" / "runs" / "20260830-124515-eindhoven"
+POC4_RUN = ROOT / "poc-breda" / "runs" / "20260913T192628Z-breda-scan"
+BREDA_QA = Path(__file__).resolve().parent / "breda_qa.json"
 
 # display-only simplification (the run itself used 2 m; the simulation coarse-tunes
 # further purely for page weight — areas shown remain the engine's own numbers)
@@ -105,6 +108,73 @@ def short(text: str, n: int = 110) -> str:
 
 def load(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def validate_breda_qa(qa: list[dict], buurtnamen: set[str]) -> None:
+    """Fail the build if a golden Q&A row references an unknown buurt."""
+    for i, row in enumerate(qa):
+        if not isinstance(row, dict):
+            raise ValueError(f"breda_qa[{i}] must be an object")
+        for key in ("id", "question", "answer"):
+            if not row.get(key):
+                raise ValueError(f"breda_qa[{i}] missing {key}")
+        naam = row.get("buurtnaam")
+        if naam and naam not in buurtnamen:
+            raise ValueError(f"breda_qa[{i}] buurtnaam {naam!r} not in scan")
+
+
+def _as_list(data, *keys: str) -> list:
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict):
+        for k in keys:
+            if k in data and isinstance(data[k], list):
+                return data[k]
+    raise ValueError(f"expected list (or dict with keys {keys}), got {type(data).__name__}")
+
+
+def _load_track_list(track: str, stem: str, run: Path, *keys: str) -> list:
+    """Prefer RegelRecht-herijkte corpus; fall back to the frozen run artifact."""
+    corp = CORPUS / f"{stem}-{track}.json"
+    path = corp if corp.is_file() else run / f"{stem}.json"
+    return _as_list(load(path), *keys)
+
+
+def _rule_zone_ids(rule: dict) -> list[str]:
+    """Zone ids from dual-write ``zoneSelector``, else ``zoneBinding.inputs``."""
+    zs = (rule.get("zoneSelector") or {}).get("zoneIds") or []
+    if zs:
+        return list(zs)
+    binding = (rule.get("zoneBinding") or {}).get("inputs") or {}
+    out: list[str] = []
+    for meta in binding.values():
+        if isinstance(meta, dict):
+            out.extend(meta.get("zoneIds") or [])
+    return out
+
+
+def _execution_summary(rule: dict) -> list[str]:
+    """Tooltip lines for RegelRecht ``execution`` (SoT) + projected zone ids."""
+    ex = rule.get("execution")
+    if not isinstance(ex, dict):
+        return [short(rule.get("reason") or rule.get("rationale") or "", 200)]
+    produces = (ex.get("produces") or {}).get("legal_character") or "—"
+    n_params = len(ex.get("parameters") or [])
+    n_in = len(ex.get("input") or [])
+    n_act = len(ex.get("actions") or [])
+    lines = [
+        f"RegelRecht execution (SoT) · {produces}",
+        f"{n_params} parameters · {n_in} inputs · {n_act} actions",
+    ]
+    zids = _rule_zone_ids(rule)
+    if zids:
+        lines.append("zone projectie: " + ", ".join(zids[:4]) + ("…" if len(zids) > 4 else ""))
+    else:
+        lines.append("geen geo-zoneBinding (niet-ruimtelijke regel)")
+    why = rule.get("reason") or rule.get("rationale") or ""
+    if why:
+        lines.append(short(why, 160))
+    return lines
 
 
 def _fc_display_rings(fc: dict) -> list:
@@ -203,24 +273,22 @@ def build_track(name: str, meta: dict) -> dict:
     summary = load(run / "run_summary.json")
     zones = load(run / "zones.json")
     zones = zones if isinstance(zones, list) else zones.get("zones", zones)
-    formal = load(run / "formalrules.json")
-    formal = formal if isinstance(formal, list) else formal.get("rules", formal)
+    # Corpus carries RegelRecht execution + dual-write zone fields (NDD v0.8.11);
+    # zone geometries / validation stay on the frozen canonical run.
+    formal = _load_track_list(name, "formalrules", run, "rules")
     rationale = {r["id"]: r.get("rationale") or r.get("reason") or "" for r in formal}
     rejected = load(run / "normcards-rejected.json")
     dtable = load(run / "decision-table.json")
     drows = dtable if isinstance(dtable, list) else dtable.get("rows", dtable)
     report_input = load(run / "report_input.json")
     validation = load(run / "validation.json")
-    cards = load(run / "normcards.json")
-    cards = cards if isinstance(cards, list) else cards.get("cards", cards)
+    cards = _load_track_list(name, "normcards", run, "cards")
     layers_manifest = load(run / "layers.json")
     if not isinstance(layers_manifest, dict):
         layers_manifest = {}
 
     engine, markers = [], []
-    zone_ids_by_rule = {
-        r["id"]: (r.get("zoneSelector") or {}).get("zoneIds") or [] for r in formal
-    }
+    zone_ids_by_rule = {r["id"]: _rule_zone_ids(r) for r in formal}
 
     def _human(zids):
         names = [z.replace("_", " ") for z in zids]
@@ -286,6 +354,10 @@ def build_track(name: str, meta: dict) -> dict:
             "formalized": sum(1 for r in formal if r["status"] == "formalized"),
             "ambiguous": sum(1 for r in formal if r["status"] == "ambiguous"),
             "rejectedRules": sum(1 for r in formal if r["status"] == "rejected"),
+            "withExecution": sum(
+                1 for r in formal
+                if r.get("status") == "formalized" and isinstance(r.get("execution"), dict)
+            ),
         },
         "abstentions": [
             {"topic": a["topic"], "reason": short(a["reason"], 130)}
@@ -298,8 +370,13 @@ def build_track(name: str, meta: dict) -> dict:
         ],
         "quote": {
             "article": qcard["source"]["article"],
-            "quote": short(qcard["source"]["quote"], 220),
-            "url": qcard["source"].get("url", "https://lokaleregelgeving.overheid.nl/cvdr704250"),
+            "number": qcard.get("number") or qcard["source"]["article"],
+            "quote": short(qcard.get("text") or qcard["source"]["quote"], 220),
+            "url": (
+                qcard.get("url")
+                or qcard["source"].get("url")
+                or "https://lokaleregelgeving.overheid.nl/cvdr704250"
+            ),
         },
         "decision": [
             {
@@ -547,8 +624,8 @@ def build_kg1(cards: list, formal: list, zones: list, rejected: dict, layers_man
     """
     TOP, PITCH, GH = 34, 15, 26
     COLX = {"art": 178, "card": 430, "rule": 640, "layer": 800, "zone": 912}
-    CAP = {"art": "instrument · artikel", "card": "NormCards · cited",
-           "rule": "FormalRules", "layer": "geo layers (registry)", "zone": "ZoneResults"}
+    CAP = {"art": "instrument · artikel", "card": "NormCards · RR-artikelkern",
+           "rule": "FormalRules · execution", "layer": "geo layers (registry)", "zone": "ZoneResults"}
 
     nodes, groups = [], []   # node: dict(col,x,y,tx,anchor,label,cls,st,tip,dash?)
     cols = {k: {"y": TOP, "prev": None} for k in COLX}
@@ -602,10 +679,14 @@ def build_kg1(cards: list, formal: list, zones: list, rejected: dict, layers_man
     # ---- column 2: NormCards + abstentions
     card_idx = {}
     for c in cards:
+        num = c.get("number") or c["source"].get("article") or "—"
         card_idx[c["id"]] = add("card", c["id"], c["id"], "kgn-card", 1,
-                                tip(c["id"], f"theme: {c.get('theme', '—')}",
+                                tip(c["id"],
+                                    f"artikelkern number: {num}",
+                                    f"theme: {c.get('theme', '—')}",
                                     short(c["claim"], 200),
-                                    "“" + short(c["source"]["quote"], 160) + "”"),
+                                    "“" + short(c.get("text") or c["source"]["quote"], 160) + "”",
+                                    short(c.get("url") or c["source"].get("url") or "", 90)),
                                 f"NormCards — {len(cards)} cited")
     abs_idx = {}
     for a in rejected.get("abstentions", []):
@@ -622,15 +703,19 @@ def build_kg1(cards: list, formal: list, zones: list, rejected: dict, layers_man
              "rejected": "rejected (non-binding)"}
     STAT_ORDER = {"formalized": 0, "ambiguous": 1, "rejected": 2}
     for r in sorted(formal, key=lambda r: (STAT_ORDER.get(r["status"], 9), r["id"])):
+        rule_tip = [r["id"], f"status: {r['status']} · {r.get('ruleType', '') or '—'}"]
+        if r.get("status") == "formalized" and isinstance(r.get("execution"), dict):
+            rule_tip.extend(_execution_summary(r))
+        else:
+            rule_tip.append(short(r.get("reason") or r.get("rationale") or "", 200))
         rule_idx[r["id"]] = add("rule", r["id"], r["id"],
                                 "kgn-rule-" + r["status"][:2], 2,
-                                tip(r["id"], f"status: {r['status']} · {r.get('ruleType', '')}",
-                                    short(r.get("reason") or r.get("rationale") or "", 200)),
+                                tip(*rule_tip),
                                 f"{gname.get(r['status'], r['status'])} — {stat_n[r['status']]}")
 
     # ---- column 4: geo layers grouped by role (registry keys actually used)
     layer_idx = {}
-    used_keys = sorted(({zi for r in formal for zi in (r.get("zoneSelector") or {}).get("zoneIds", [])}
+    used_keys = sorted(({zi for r in formal for zi in _rule_zone_ids(r)}
                         | {o for z in zones for o in z.get("operands", [])})
                        & set(layers_manifest))
     ROLE_ORDER = {"inclusion": 0, "exclusion": 1, "conditional": 2, "compensation": 3,
@@ -687,7 +772,7 @@ def build_kg1(cards: list, formal: list, zones: list, rejected: dict, layers_man
         if r.get("normCardId") in card_idx:
             edge(card_idx[r["normCardId"]], rule_idx[r["id"]], "kge-rule", 2)
     for r in formal:
-        for zk in (r.get("zoneSelector") or {}).get("zoneIds", []):
+        for zk in _rule_zone_ids(r):
             if zk in layer_idx:
                 edge(rule_idx[r["id"]], layer_idx[zk], "kge-layer", 3)
     for z in zones:
@@ -699,10 +784,13 @@ def build_kg1(cards: list, formal: list, zones: list, rejected: dict, layers_man
 
     H = round(max(c["y"] for c in cols.values()) + 12)
     n_form = sum(1 for r in formal if r["status"] == "formalized")
+    n_ex = sum(1 for r in formal if r.get("status") == "formalized"
+               and isinstance(r.get("execution"), dict))
     return {
         "h": H,
         "cap": (f"{len(cards)} NormCards · {len(rejected.get('abstentions', []))} abstentions · "
-                f"{len(formal)} rules ({n_form} formalized) · {len(used_keys)} layers · {len(zone_idx)} zone results"),
+                f"{len(formal)} rules ({n_form} formalized, {n_ex} with execution) · "
+                f"{len(used_keys)} layers · {len(zone_idx)} zone results"),
         "cols": [{"x": COLX[k] - (165 if k == "art" else 10), "cap": CAP[k]} for k in COLX],
         "groups": groups, "hmax": H,
         "n": [{k: n[k] for k in ("x", "y", "tx", "anchor", "label", "cls", "st", "tip", "dash")}
@@ -896,14 +984,87 @@ def build_poc2() -> dict:
     }
 
 
+def build_breda() -> dict:
+    """Compact PoC-4 Breda five-value scan for simulation tab 4 (offline embed)."""
+    run = POC4_RUN
+    if not run.is_dir():
+        raise FileNotFoundError(f"missing PoC-4 run dir {run}")
+    summary = load(run / "run_summary.json")
+    vs = load(run / "value-scan.json")
+    val = load(run / "validation.json")
+    geo_fc = load(run / "geo-buurten.wgs84.geojson")
+    qa_raw = load(BREDA_QA)
+    qa = qa_raw if isinstance(qa_raw, list) else (qa_raw.get("items") or qa_raw.get("qa") or [])
+
+    buurten = []
+    for b in vs.get("buurten") or []:
+        scores = b.get("scores") or {}
+        buurten.append({
+            "buurtcode": b["buurtcode"],
+            "buurtnaam": b["buurtnaam"],
+            "wijkcode": b.get("wijkcode"),
+            "aantalInwoners": b.get("aantalInwoners"),
+            "scores": {
+                k: float((scores.get(k) or {}).get("score") or 0)
+                for k in ("democratic", "spatial", "economic", "social")
+            },
+            "missing": b.get("missing") or [],
+        })
+    validate_breda_qa(qa, {b["buurtnaam"] for b in buurten})
+
+    geo: dict[str, list] = {}
+    for f in geo_fc.get("features") or []:
+        props = f.get("properties") or {}
+        code = props.get("code") or props.get("buurtcode")
+        if not code or not f.get("geometry"):
+            continue
+        try:
+            geo[code] = display_rings(shape(f["geometry"]))
+        except Exception:
+            continue
+
+    levels = {}
+    for name, info in (val.get("validationLevels") or {}).items():
+        if isinstance(info, dict):
+            levels[name] = info.get("status") or info.get("verdict") or "—"
+        else:
+            levels[name] = str(info)
+
+    scan = vs.get("scan") if isinstance(vs.get("scan"), dict) else {}
+    return {
+        "runId": summary["runId"],
+        "verdict": summary.get("verdict"),
+        "nBuurten": summary.get("nBuurten", len(buurten)),
+        "scan": {k: scan[k] for k in ("id", "label", "generatedAt") if k in scan},
+        "values": vs.get("values") or {},
+        "sources": [
+            {
+                "id": s.get("id"),
+                "title": s.get("title") or s.get("name") or s.get("id"),
+                "url": s.get("url"),
+            }
+            for s in (vs.get("sources") or [])
+            if isinstance(s, dict)
+        ],
+        "buurten": buurten,
+        "rollup": vs.get("rollup") or {},
+        "geo": geo,
+        "validation": {"verdict": val.get("verdict"), "levels": levels},
+        "qa": qa,
+        "stages": ["intake", "fetch", "indicators", "validate", "report", "unlock"],
+    }
+
+
 def main() -> int:
     for name, meta in POC1_TRACKS.items():
         if not meta["run"].is_dir():
             sys.exit(f"missing PoC-1 {name} run dir {meta['run']}")
     if not POC2_RUN.is_dir():
         sys.exit(f"missing PoC-2 run dir {POC2_RUN}")
+    if not POC4_RUN.is_dir():
+        sys.exit(f"missing PoC-4 run dir {POC4_RUN}")
 
-    data = {"poc1": build_poc1(), "poc2": build_poc2()}
+    data = {"poc1": build_poc1(), "poc2": build_poc2(), "poc4": build_breda()}
     tpl = TEMPLATE.read_text(encoding="utf-8")
     marker = "/*__DATA__*/"
     if marker not in tpl:
@@ -931,6 +1092,9 @@ def main() -> int:
     print(f"  poc2: {n_cells} grid cells, {len(data['poc2']['samples'])} sample rows, "
           f"kb {data['poc2']['kb']['total']} relations, kg {len(kg2['e'])} edges "
           f"({kg2['c']['used']} reused by matcher)")
+    p4 = data["poc4"]
+    print(f"  poc4/breda: run {p4['runId']} — {p4['nBuurten']} buurten, "
+          f"{len(p4['geo'])} geo, {len(p4['qa'])} golden Q&A, verdict {p4.get('verdict')}")
     ly = data["poc2"]["laya"]
     ev = ly["eval"]
     m = ly["meta"]
