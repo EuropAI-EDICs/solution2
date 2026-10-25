@@ -8,9 +8,19 @@ artifacts**. No number, verdict or polygon is mocked.
 
 ```bash
 python3 simulation/build_simulation.py   # rebuild simulation.html from the runs
+# (needs shapely — e.g. conda python if system python lacks it)
 node    simulation/verify_static.mjs     # headless smoke test of the page script
 open    simulation/simulation.html       # works from file:// — no server, no network
 ```
+
+## Breda · vijf-waarden (tab 4)
+
+Offline embed of the canonical [PoC-4](../poc-breda/README.md) five-value scan
+(`poc-breda/runs/20260913T192628Z-breda-scan`): 56 buurten × four spatial scores
++ autonomous sovereignty manifest. Same Laya-style rhythm — short pipeline
+timeline, then unlock a golden Q&A chat (`simulation/breda_qa.json`, cite-or-abstain).
+
+Deep-link: `simulation.html?tab=4` (optional `&waarde=spatial|democratic|economic|social|autonomous`).
 
 ## Laya · System-1 (tab 3) — twee datasets
 

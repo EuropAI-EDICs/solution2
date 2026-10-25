@@ -95,7 +95,23 @@ try {
   if (!ds.layaOn("eindhoven")) throw new Error("eindhoven chat lost after ds switch");
   ds.sims[0].reset(); s2.reset(); drain();
   if (ds.layaOn()) throw new Error("laya chat not re-locked after reset");
-  console.log(`OK — script evaluated; poc1 tracks driven through every step (${n1} steps on active track), sim2 ${n2} steps, laya fp+chat driven, timers drained`);
+
+  // PoC-4 Breda five-value tab: timeline → unlock → golden chat
+  ds.switchTab(4);
+  const s4 = ds.sim4;
+  if (!s4 || s4.steps.length < 6) throw new Error("sim4 missing or too few steps");
+  s4.jumpToStage(5); drain();
+  if (!ds.bredaOn()) throw new Error("breda chat not unlocked after timeline");
+  globalThis.document.getElementById("chatin4").value = "Belcrum";
+  ds.bredaChatSend();
+  globalThis.document.getElementById("chatin4").value = "xyzzy onbekend";
+  ds.bredaChatSend();
+  ds.setWaarde("autonomous");
+  ds.setWaarde("democratic");
+  s4.reset(); drain();
+  if (ds.bredaOn()) throw new Error("breda chat not re-locked after reset");
+
+  console.log(`OK — script evaluated; poc1 tracks driven through every step (${n1} steps on active track), sim2 ${n2} steps, laya fp+chat driven, poc4 sim4 ${s4.steps.length} steps, timers drained`);
 } catch (e) {
   console.error("FAIL:", e && e.stack ? e.stack.split("\n").slice(0, 6).join("\n") : e);
   process.exit(1);
