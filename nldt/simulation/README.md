@@ -74,6 +74,9 @@ nldt/.venv/bin/python nldt/simulation/regelrecht/full_export/build_all.py --stam
 
 Schrijft `regelrecht/full_export/out/{utrecht,eindhoven}-cvdr*.yaml`,
 `*-formalization-report.json`, `*-articles.json` en herbouwt de demo.
+Schema: NDD RegelRecht **v0.8.11** (vastgepind, `regelrecht/schema/pin.json`); `full_export`
+leest `FormalRule.execution` als bron van waarheid (NormCard herijking:
+`docs/superpowers/specs/2026-10-25-normcard-formalizer-regelrecht-design.md`).
 Ontwerp: `docs/superpowers/specs/2026-10-14-regelrecht-full-instrument-export-design.md`.
 
 Smoke-runs (art. 5.3 / 10.2) blijven herbouwbaar via:

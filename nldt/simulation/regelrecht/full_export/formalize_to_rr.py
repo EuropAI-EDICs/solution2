@@ -10,18 +10,6 @@ import paths
 from align_evidence import Alignment
 from split_cvdr_html import Article
 
-OP_MAP = {
-    "<=": "LESS_THAN_OR_EQUAL",
-    ">=": "GREATER_THAN_OR_EQUAL",
-    "==": "EQUALS",
-    "!=": "NOT_EQUALS",
-    "<": "LESS_THAN",
-    ">": "GREATER_THAN",
-}
-
-SMOKE_UTRECHT_YAML = (
-    paths.ROOT / "docs/examples/regelrecht/omgevingsverordening-utrecht-art5.3.yaml"
-)
 SMOKE_EINDHOVEN_YAML = (
     paths.ROOT / "docs/examples/regelrecht/omgevingsplan-eindhoven-art22.1-en-10.2.yaml"
 )
@@ -37,14 +25,6 @@ class ArticleFormalization(TypedDict, total=False):
     source: str
 
 
-def _infer_type(value: Any) -> str:
-    if isinstance(value, bool):
-        return "boolean"
-    if isinstance(value, (int, float)) and not isinstance(value, bool):
-        return "number"
-    return "string"
-
-
 def _load_smoke_mr(yaml_path, article_number: str) -> dict:
     doc = yaml.safe_load(yaml_path.read_text(encoding="utf-8"))
     for art in doc["articles"]:
@@ -53,97 +33,38 @@ def _load_smoke_mr(yaml_path, article_number: str) -> dict:
     raise SystemExit(f"smoke YAML mist machine_readable voor art. {article_number}: {yaml_path}")
 
 
+# Golden-demo parity: RegelRecht endpoint/competent authority per FormalRule id
+# (FormalRule schema is closed, so these cannot live on the rule itself).
+RR_OVERRIDES: Dict[str, dict] = {
+    "FR-W-03": {
+        "endpoint": "kleine_windturbine_bestaand_bouwperceel",
+        "competent_authority": {
+            "name": "Bevoegd gezag omgevingsplan (gemeente binnen het Gebied kleine windturbine)",
+            "type": "CATEGORY",
+        },
+    },
+}
+
+
 def formal_rule_to_machine_readable(rule: dict, article: Article) -> dict:
-    """Map a formalized FormalRule to RegelRecht machine_readable."""
+    """Wrap FormalRule.execution (RegelRecht SoT) as article machine_readable."""
     if rule.get("status") != "formalized":
         raise ValueError(f"rule {rule.get('id')} is not formalized")
-
-    # Smoke: keep golden-case execution byte-compatible
-    if rule.get("id") == "FR-W-03":
-        return _load_smoke_mr(SMOKE_UTRECHT_YAML, "5.3")
-
-    params: List[dict] = []
-    conditions_ops: List[dict] = []
-    for c in rule.get("conditions") or []:
-        pname = c["parameter"]
-        # Special-case art. 5.3 enum → bool parameter name (generic path)
-        if c.get("value") == "existing_building_plot":
-            pname = "op_of_in_aansluiting_op_bestaand_bouwperceel"
-            val: Any = True
-            ptype = "boolean"
-        else:
-            val = c["value"]
-            ptype = (
-                "number"
-                if isinstance(c.get("value"), (int, float)) and c["operator"] != "=="
-                else _infer_type(c["value"])
-            )
-        params.append({"name": pname, "type": ptype, "description": pname})
-        conditions_ops.append(
-            {
-                "operation": OP_MAP[c["operator"]],
-                "subject": f"${pname}",
-                "value": val,
-            }
-        )
-
-    inputs: List[dict] = []
-    zs = rule.get("zoneSelector") or {}
-    zone_ids = zs.get("zoneIds") or []
-    for zid in zone_ids:
-        iname = f"in_{zid}"
-        inputs.append(
-            {
-                "name": iname,
-                "type": "boolean",
-                "description": f"Geo-feit: locatie binnen zone {zid}",
-                "source": {
-                    "description": (
-                        f"Buiten wet-YAML; GIO/zone-engine. joinId={zs.get('gioJoinId', '')}"
-                    )
-                },
-            }
-        )
-        if rule.get("zoneSemantics") == "exclusion":
-            conditions_ops.append(
-                {"operation": "EQUALS", "subject": f"${iname}", "value": False}
-            )
-        else:
-            conditions_ops.append(
-                {"operation": "EQUALS", "subject": f"${iname}", "value": True}
-            )
-
-    out_name = f"result_{article['number'].replace('.', '_')}"
-    if not conditions_ops:
-        if inputs:
-            value: Any = {
-                "operation": "EQUALS",
-                "subject": f"${inputs[0]['name']}",
-                "value": True,
-            }
-        else:
-            raise ValueError("formalized rule without conditions or zone")
-    elif len(conditions_ops) == 1:
-        value = conditions_ops[0]
-    else:
-        value = {"operation": "AND", "conditions": conditions_ops}
-
+    execution = rule.get("execution")
+    if not execution:
+        raise ValueError(f"rule {rule.get('id')} missing execution (RegelRecht SoT)")
+    override = RR_OVERRIDES.get(rule.get("id") or "", {})
+    endpoint = (
+        rule.get("rrEndpoint")
+        or override.get("endpoint")
+        or f"art_{article['number'].replace('.', '_')}"
+    )
     return {
-        "endpoint": f"art_{article['number'].replace('.', '_')}",
-        "competent_authority": {"name": "Bevoegd gezag", "type": "CATEGORY"},
-        "execution": {
-            "produces": {"legal_character": "TOETS"},
-            "parameters": params,
-            "input": inputs,
-            "output": [
-                {
-                    "name": out_name,
-                    "type": "boolean",
-                    "description": f"Uitkomst artikel {article['number']}",
-                }
-            ],
-            "actions": [{"output": out_name, "value": value}],
-        },
+        "endpoint": endpoint,
+        "competent_authority": rule.get("competentAuthority")
+        or override.get("competent_authority")
+        or {"name": "Bevoegd gezag", "type": "CATEGORY"},
+        "execution": execution,
     }
 
 

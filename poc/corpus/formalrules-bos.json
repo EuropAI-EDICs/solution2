@@ -27,6 +27,52 @@
       "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
     },
     "conditions": [],
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_groene_contour",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone groene_contour.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
+      ],
+      "output": [
+        {
+          "name": "result_b_01",
+          "type": "boolean",
+          "description": "Uitkomst B-01 (zone-regel inclusion)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_b_01",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_groene_contour",
+            "value": true
+          }
+        }
+      ]
+    },
+    "zoneBinding": {
+      "inputs": {
+        "in_groene_contour": {
+          "zoneIds": [
+            "groene_contour"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio",
+          "gioJoinId": "/join/id/regdata/pv26/2025/gioee37db62-22b1-4334-bf89-7ddf4e5812c6/nld@2025-08-18;798",
+          "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+        }
+      }
+    },
     "rationale": "CORE BOS RULE. Art. 6.4 lid 1 directs omgevingsplannen within the Groene contour to protect and create the possibilities to realise new nature; the contour is thereby the provincial search area (zoekgebied) for new nature — including forest planting via voluntary conversion, added to the NNN after realisation. Formalized as the opportunity inclusion for the forest_planting object type; the voluntary character (no obligation on individual landowners) is carried as a context tag, not a predicate."
   },
   {
@@ -63,6 +109,69 @@
         "unit": "ratio"
       }
     ],
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [
+        {
+          "name": "compensation_ratio_new_nature",
+          "type": "number",
+          "description": "compensation_ratio_new_nature",
+          "unit": "ratio"
+        }
+      ],
+      "input": [
+        {
+          "name": "in_groene_contour",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone groene_contour.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
+      ],
+      "output": [
+        {
+          "name": "result_b_02",
+          "type": "boolean",
+          "description": "Uitkomst B-02 (zone-regel compensation)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_b_02",
+          "value": {
+            "operation": "AND",
+            "conditions": [
+              {
+                "operation": "GREATER_THAN_OR_EQUAL",
+                "subject": "$compensation_ratio_new_nature",
+                "value": 1
+              },
+              {
+                "operation": "EQUALS",
+                "subject": "$in_groene_contour",
+                "value": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "zoneBinding": {
+      "inputs": {
+        "in_groene_contour": {
+          "zoneIds": [
+            "groene_contour"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio",
+          "gioJoinId": "/join/id/regdata/pv26/2025/gioee37db62-22b1-4334-bf89-7ddf4e5812c6/nld@2025-08-18;798",
+          "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+        }
+      }
+    },
     "rationale": "Art. 6.5 lid 2 under d requires >= 1:1 compensation with new nature within the contour for the remaining loss of new-nature possibilities. For the BOS track this is the contour's protection regime attached as an obligation (marker), mirroring FR-W-15 for wind; it never eliminates the zoekgebied itself."
   },
   {
@@ -92,6 +201,52 @@
       "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
     },
     "conditions": [],
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_oude_bosgroeiplaatsen",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone oude_bosgroeiplaatsen.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
+      ],
+      "output": [
+        {
+          "name": "result_b_03",
+          "type": "boolean",
+          "description": "Uitkomst B-03 (zone-regel conditional)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_b_03",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_oude_bosgroeiplaatsen",
+            "value": true
+          }
+        }
+      ]
+    },
+    "zoneBinding": {
+      "inputs": {
+        "in_oude_bosgroeiplaatsen": {
+          "zoneIds": [
+            "oude_bosgroeiplaatsen"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio",
+          "gioJoinId": "/join/id/regdata/pv26/2025/gio3940cf76-bee0-4a1a-8d51-aa0d49be7153/nld@2025-10-10;842",
+          "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+        }
+      }
+    },
     "rationale": "Art. 6.13 lid 1 is an instructieregel directing omgevingsplannen within the 'Waardevolle Houtopstanden - oude bosgroeiplaatsen' to protect and conserve the old-forest values present at those locations. The zone overlay is deterministic; whether a specific planting spares the values is a case-specific assessment marked for human review (V4), not guessed."
   },
   {

@@ -14,6 +14,10 @@ REL_DELTA_CEILING = 1e-3
 
 # Per-run stamps that a deterministic replay cannot and must not reproduce.
 _VOLATILE_KEYS = ("runId", "generatedAt", "computedAt", "formalizedAt", "extractedAt")
+# RegelRecht-additive fields (NormCard number/text/url; FormalRule execution/zoneBinding)
+# are SoT lifted after the frozen baseline runs were written; the baselines carry the
+# projected zoneSelector/conditions, which stay compared byte-for-byte.
+_RR_ADDITIVE_KEYS = ("number", "text", "url", "execution", "zoneBinding")
 
 
 def _latest(track: str) -> Path:
@@ -35,7 +39,7 @@ def _scrub(obj):
     """Drop run-id/tijdstempelvelden recursief zodat overgebleven dicts
     letterlijk vergelijkbaar zijn tussen replay en run-artefact."""
     if isinstance(obj, dict):
-        return {k: _scrub(v) for k, v in obj.items() if k not in _VOLATILE_KEYS}
+        return {k: _scrub(v) for k, v in obj.items() if k not in _VOLATILE_KEYS and k not in _RR_ADDITIVE_KEYS}
     if isinstance(obj, list):
         return [_scrub(v) for v in obj]
     return obj

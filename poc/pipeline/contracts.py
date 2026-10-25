@@ -244,6 +244,9 @@ class NormCard(_ContractMixin):
     evidenceId: str
     claim: str
     source: NormCardSource
+    number: str
+    text: str
+    url: str
     instrument: str
     legalForce: str
     theme: str
@@ -295,6 +298,10 @@ class FormalRule(_ContractMixin):
     formalizedAt: str
     zoneSelector: Optional[ZoneSelector] = None
     conditions: Optional[List[Condition]] = None
+    #: RegelRecht machine_readable.execution (source of truth) and its zone
+    #: binding; both kept as plain dicts (not nested dataclasses).
+    execution: Optional[Dict[str, Any]] = None
+    zoneBinding: Optional[Dict[str, Any]] = None
     relatedNormCardIds: Optional[List[str]] = None
     reason: Optional[str] = None
     rationale: Optional[str] = None

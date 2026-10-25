@@ -1,15 +1,51 @@
 {
   "WE-01": {
     "kind": "conditional",
-    "zone": {
-      "zoneIds": [
-        "landelijk_gebied"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_landelijk_gebied",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone landelijk_gebied.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stedelijk gebied hergebruikt uit de fase-3-wonen-track (zelfde service+laag)"
+      "output": [
+        {
+          "name": "result_we_01",
+          "type": "boolean",
+          "description": "Uitkomst WE-01 (zone-regel conditional)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_we_01",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_landelijk_gebied",
+            "value": true
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_landelijk_gebied": {
+          "zoneIds": [
+            "landelijk_gebied"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stedelijk gebied hergebruikt uit de fase-3-wonen-track (zelfde service+laag)"
+        }
+      }
+    },
     "extra_tags": [
       "conditional_within_landelijk_gebied",
       "functiewijziging_integrale_afweging_v4",
@@ -20,15 +56,51 @@
   },
   "WE-02": {
     "kind": "conditional",
-    "zone": {
-      "zoneIds": [
-        "landelijk_gebied"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_landelijk_gebied",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone landelijk_gebied.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stedelijk gebied hergebruikt uit de fase-3-wonen-track (zelfde service+laag)"
+      "output": [
+        {
+          "name": "result_we_02",
+          "type": "boolean",
+          "description": "Uitkomst WE-02 (zone-regel conditional)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_we_02",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_landelijk_gebied",
+            "value": true
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_landelijk_gebied": {
+          "zoneIds": [
+            "landelijk_gebied"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stedelijk gebied hergebruikt uit de fase-3-wonen-track (zelfde service+laag)"
+        }
+      }
+    },
     "extra_tags": [
       "conditional_within_landelijk_gebied",
       "functiewijzing_agrarisch_perceel_v4",
@@ -39,15 +111,51 @@
   },
   "WE-03": {
     "kind": "inclusion",
-    "zone": {
-      "zoneIds": [
-        "gebied_uitbreiding_bedrijventerrein"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_gebied_uitbreiding_bedrijventerrein",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone gebied_uitbreiding_bedrijventerrein.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stedelijk gebied hergebruikt uit de fase-3-wonen-track (zelfde service+laag)"
+      "output": [
+        {
+          "name": "result_we_03",
+          "type": "boolean",
+          "description": "Uitkomst WE-03 (zone-regel inclusion)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_we_03",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_gebied_uitbreiding_bedrijventerrein",
+            "value": true
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_gebied_uitbreiding_bedrijventerrein": {
+          "zoneIds": [
+            "gebied_uitbreiding_bedrijventerrein"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stedelijk gebied hergebruikt uit de fase-3-wonen-track (zelfde service+laag)"
+        }
+      }
+    },
     "extra_tags": [
       "inclusion_uitbreiding_bedrijventerrein",
       "acht_mitsen_v4_per_case",
@@ -58,15 +166,51 @@
   },
   "WE-04": {
     "kind": "inclusion",
-    "zone": {
-      "zoneIds": [
-        "stedelijk_gebied"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_stedelijk_gebied",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone stedelijk_gebied.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stedelijk gebied hergebruikt uit de fase-3-wonen-track (zelfde service+laag)"
+      "output": [
+        {
+          "name": "result_we_04",
+          "type": "boolean",
+          "description": "Uitkomst WE-04 (zone-regel inclusion)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_we_04",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_stedelijk_gebied",
+            "value": true
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_stedelijk_gebied": {
+          "zoneIds": [
+            "stedelijk_gebied"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stedelijk gebied hergebruikt uit de fase-3-wonen-track (zelfde service+laag)"
+        }
+      }
+    },
     "extra_tags": [
       "inclusion_stedelijk_gebied_bedrijventerreinen",
       "acht_mitsen_gelijk_aan_art_9_16_v4"
@@ -76,18 +220,54 @@
   },
   "WE-05": {
     "kind": "conditional",
-    "zone": {
-      "zoneIds": [
-        "kantoor_knooppunt_utrecht_centraal",
-        "kantoor_knooppunt_leidsche_rijn_centrum",
-        "reductielocaties",
-        "gebiedstransformatie_herstructurering"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_kantoor_knooppunt_utrecht_centraal_plus_3",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone kantoor_knooppunt_utrecht_centraal, kantoor_knooppunt_leidsche_rijn_centrum, reductielocaties, gebiedstransformatie_herstructurering.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stedelijk gebied hergebruikt uit de fase-3-wonen-track (zelfde service+laag)"
+      "output": [
+        {
+          "name": "result_we_05",
+          "type": "boolean",
+          "description": "Uitkomst WE-05 (zone-regel conditional)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_we_05",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_kantoor_knooppunt_utrecht_centraal_plus_3",
+            "value": true
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_kantoor_knooppunt_utrecht_centraal_plus_3": {
+          "zoneIds": [
+            "kantoor_knooppunt_utrecht_centraal",
+            "kantoor_knooppunt_leidsche_rijn_centrum",
+            "reductielocaties",
+            "gebiedstransformatie_herstructurering"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stedelijk gebied hergebruikt uit de fase-3-wonen-track (zelfde service+laag)"
+        }
+      }
+    },
     "extra_tags": [
       "conditional_kantoren_kaders_vier_gebieden",
       "lid_1_2_zone_loze_restrictie_in_tags",
@@ -100,15 +280,51 @@
   },
   "WE-06": {
     "kind": "conditional",
-    "zone": {
-      "zoneIds": [
-        "gebied_detailhandel_buiten_bestaand_winkelgebied"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_gebied_detailhandel_buiten_bestaand_winkelgebied",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone gebied_detailhandel_buiten_bestaand_winkelgebied.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stedelijk gebied hergebruikt uit de fase-3-wonen-track (zelfde service+laag)"
+      "output": [
+        {
+          "name": "result_we_06",
+          "type": "boolean",
+          "description": "Uitkomst WE-06 (zone-regel conditional)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_we_06",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_gebied_detailhandel_buiten_bestaand_winkelgebied",
+            "value": true
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_gebied_detailhandel_buiten_bestaand_winkelgebied": {
+          "zoneIds": [
+            "gebied_detailhandel_buiten_bestaand_winkelgebied"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json); Landelijk gebied / Stedelijk gebied hergebruikt uit de fase-3-wonen-track (zelfde service+laag)"
+        }
+      }
+    },
     "extra_tags": [
       "conditional_within_gebied_detailhandel_buiten_bestaand_winkelgebied",
       "subklasse_gescoped_verbod_detailhandel_v4_per_case",

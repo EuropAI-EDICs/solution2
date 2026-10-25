@@ -1,15 +1,51 @@
 {
   "LB-01": {
     "kind": "conditional",
-    "zone": {
-      "zoneIds": [
-        "gebied_agrarische_bedrijven"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_gebied_agrarische_bedrijven",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone gebied_agrarische_bedrijven.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+      "output": [
+        {
+          "name": "result_lb_01",
+          "type": "boolean",
+          "description": "Uitkomst LB-01 (zone-regel conditional)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_lb_01",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_gebied_agrarische_bedrijven",
+            "value": true
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_gebied_agrarische_bedrijven": {
+          "zoneIds": [
+            "gebied_agrarische_bedrijven"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+        }
+      }
+    },
     "extra_tags": [
       "conditional_within_gebied_agrarische_bedrijven",
       "geen_nieuwe_bouwpercelen_tenzij_verplaatsing_grondgebonden_bedrijf",
@@ -20,22 +56,68 @@
   },
   "LB-02": {
     "kind": "conditional",
-    "zone": {
-      "zoneIds": [
-        "landbouwontwikkelingsgebied"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [
+        {
+          "name": "expansion_surface",
+          "type": "number",
+          "description": "expansion_surface",
+          "unit": "ha"
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+      "input": [
+        {
+          "name": "in_landbouwontwikkelingsgebied",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone landbouwontwikkelingsgebied.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
+      ],
+      "output": [
+        {
+          "name": "result_lb_02",
+          "type": "boolean",
+          "description": "Uitkomst LB-02 (zone-regel conditional)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_lb_02",
+          "value": {
+            "operation": "AND",
+            "conditions": [
+              {
+                "operation": "LESS_THAN_OR_EQUAL",
+                "subject": "$expansion_surface",
+                "value": 2.5
+              },
+              {
+                "operation": "EQUALS",
+                "subject": "$in_landbouwontwikkelingsgebied",
+                "value": true
+              }
+            ]
+          }
+        }
+      ]
     },
-    "conditions": [
-      {
-        "parameter": "expansion_surface",
-        "operator": "<=",
-        "value": 2.5,
-        "unit": "ha"
+    "zoneBinding": {
+      "inputs": {
+        "in_landbouwontwikkelingsgebied": {
+          "zoneIds": [
+            "landbouwontwikkelingsgebied"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+        }
       }
-    ],
+    },
     "extra_tags": [
       "conditional_within_landbouwontwikkelingsgebied",
       "uitbreiding_niet_grondgebonden_max_2_5_ha",
@@ -46,15 +128,51 @@
   },
   "LB-03": {
     "kind": "exclusion",
-    "zone": {
-      "zoneIds": [
-        "landbouwstabiliseringsgebied"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_landbouwstabiliseringsgebied",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone landbouwstabiliseringsgebied.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+      "output": [
+        {
+          "name": "result_lb_03",
+          "type": "boolean",
+          "description": "Uitkomst LB-03 (zone-regel exclusion)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_lb_03",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_landbouwstabiliseringsgebied",
+            "value": false
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_landbouwstabiliseringsgebied": {
+          "zoneIds": [
+            "landbouwstabiliseringsgebied"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+        }
+      }
+    },
     "extra_tags": [
       "exclusion_landbouwstabiliseringsgebied",
       "activiteit_gescoped_verbod_niet_grondgebonden_uitbreiding",
@@ -65,15 +183,51 @@
   },
   "LB-04": {
     "kind": "conditional",
-    "zone": {
-      "zoneIds": [
-        "concentratiegebied_glastuinbouw"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_concentratiegebied_glastuinbouw",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone concentratiegebied_glastuinbouw.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+      "output": [
+        {
+          "name": "result_lb_04",
+          "type": "boolean",
+          "description": "Uitkomst LB-04 (zone-regel conditional)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_lb_04",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_concentratiegebied_glastuinbouw",
+            "value": true
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_concentratiegebied_glastuinbouw": {
+          "zoneIds": [
+            "concentratiegebied_glastuinbouw"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+        }
+      }
+    },
     "extra_tags": [
       "conditional_within_concentratiegebied_glastuinbouw",
       "bescherming_tegen_belemmering_glastuinbouw",
@@ -84,15 +238,51 @@
   },
   "LB-05": {
     "kind": "exclusion",
-    "zone": {
-      "zoneIds": [
-        "gebied_glastuinbouw_niet_toegestaan"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_gebied_glastuinbouw_niet_toegestaan",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone gebied_glastuinbouw_niet_toegestaan.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+      "output": [
+        {
+          "name": "result_lb_05",
+          "type": "boolean",
+          "description": "Uitkomst LB-05 (zone-regel exclusion)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_lb_05",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_gebied_glastuinbouw_niet_toegestaan",
+            "value": false
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_gebied_glastuinbouw_niet_toegestaan": {
+          "zoneIds": [
+            "gebied_glastuinbouw_niet_toegestaan"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+        }
+      }
+    },
     "extra_tags": [
       "exclusion_gebied_glastuinbouw_niet_toegestaan",
       "tenzij_verplaatsing_ronde_venen_polder_derde_bedijking",
@@ -103,15 +293,51 @@
   },
   "LB-06": {
     "kind": "exclusion",
-    "zone": {
-      "zoneIds": [
-        "gebied_beperken_bodembewerking"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_gebied_beperken_bodembewerking",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone gebied_beperken_bodembewerking.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+      "output": [
+        {
+          "name": "result_lb_06",
+          "type": "boolean",
+          "description": "Uitkomst LB-06 (zone-regel exclusion)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_lb_06",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_gebied_beperken_bodembewerking",
+            "value": false
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_gebied_beperken_bodembewerking": {
+          "zoneIds": [
+            "gebied_beperken_bodembewerking"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+        }
+      }
+    },
     "extra_tags": [
       "exclusion_gebied_beperken_bodembewerking",
       "veenblootleggende_bodembewerking_agrarisch_gebruik",

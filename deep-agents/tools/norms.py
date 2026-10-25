@@ -44,6 +44,8 @@ def search_norms(query: str, track: str | None = None) -> list[dict[str, Any]]:
             {
                 "id": card.get("id"),
                 "claim": card.get("claim", "")[:400],
+                "number": card.get("number"),
+                "text": (card.get("text") or "")[:400],
                 "source": {k: source.get(k) for k in ("docId", "article", "version") if source.get(k)},
                 "legalForce": card.get("legalForce"),
                 "verified": card.get("verified"),

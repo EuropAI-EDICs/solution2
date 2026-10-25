@@ -9,6 +9,7 @@ reasons — use those as calibration before drafting).
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +21,37 @@ HERE = Path(__file__).resolve().parents[1]
 REPO_ROOT = HERE.parent
 CORPUS_DIR = REPO_ROOT / "poc" / "corpus"
 RULE_SCHEMA = REPO_ROOT / "poc" / "schemas" / "formal-rule.schema.json"
+POC_DIR = REPO_ROOT / "poc"
+
+
+def _zone_projector():
+    """Lazy import of poc/pipeline/zone_projector (same sys.path pattern as tools/utrecht.py)."""
+    if str(POC_DIR) not in sys.path:
+        sys.path.insert(0, str(POC_DIR))
+    from pipeline.zone_projector import ProjectionError, project_zone
+
+    return ProjectionError, project_zone
+
+
+def _projection_errors(rule: dict[str, Any]) -> list[str]:
+    """For status 'formalized': zone fields must equal project_zone(execution, zoneBinding)."""
+    if rule.get("status") != "formalized":
+        return []
+    if not rule.get("execution"):
+        return ["execution: required for formalized rules (RegelRecht execution is the source of truth)"]
+    projection_error, project_zone = _zone_projector()
+    try:
+        proj = project_zone(
+            rule["execution"],
+            rule.get("zoneBinding"),
+            zone_semantics=rule["zoneSemantics"],
+            rule_type=rule["ruleType"],
+        )
+    except (projection_error, KeyError, TypeError, AttributeError) as exc:
+        return [f"zone projection failed: {exc}"]
+    if proj["zoneSelector"] != rule.get("zoneSelector") or proj["conditions"] != rule.get("conditions"):
+        return ["zone fields must equal zone_projector(execution): zoneSelector/conditions are derived, do not hand-author them"]
+    return []
 
 
 def get_formal_rules(track: str | None = None, norm_card_id: str | None = None) -> list[dict[str, Any]]:
@@ -60,14 +92,17 @@ def validate_formal_rule(rule_json: str) -> dict[str, Any]:
         return {"passed": False, "errors": [f"invalid JSON: {exc}"], "ruleId": None}
     schema = json.loads(RULE_SCHEMA.read_text(encoding="utf-8"))
     errors = sorted(jsonschema.Draft202012Validator(schema).iter_errors(rule), key=str)
+    messages = [f"{'/'.join(map(str, e.path)) or '<root>'}: {e.message}" for e in errors[:8]]
+    if not errors and isinstance(rule, dict):
+        messages = _projection_errors(rule)
     result = {
-        "passed": not errors,
-        "errors": [f"{'/'.join(map(str, e.path)) or '<root>'}: {e.message}" for e in errors[:8]],
+        "passed": not messages,
+        "errors": messages,
         "ruleId": rule.get("id") if isinstance(rule, dict) else None,
     }
     journal.append(
         "tool_result",
         "formalizer",
-        f"validate_formal_rule('{result['ruleId']}') → {'PASS' if result['passed'] else 'FAIL'} ({len(errors)} error(s))",
+        f"validate_formal_rule('{result['ruleId']}') → {'PASS' if result['passed'] else 'FAIL'} ({len(messages)} error(s))",
     )
     return result

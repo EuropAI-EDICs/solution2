@@ -114,8 +114,12 @@ def _cap_cases(poc: str, doc: dict, report: dict) -> List[dict]:
     return cases
 
 
-def build_demo(stamp: str) -> None:
-    """Fill template placeholders and write nldt/simulation/regelrecht-demo.html."""
+def build_demo(stamp: str, out_html: "pathlib.Path | None" = None) -> None:
+    """Fill template placeholders and write the demo page.
+
+    Default target is nldt/simulation/regelrecht-demo.html; pass ``out_html`` to
+    write elsewhere (e.g. a temp dir) without touching the committed artefact.
+    """
     # Ensure legacy runs exist (16 golden base)
     runs = {poc: _load_run(poc) for poc in ("utrecht", "eindhoven")}
     reports = {poc: _load_report(poc) for poc in ("utrecht", "eindhoven")}
@@ -206,6 +210,7 @@ def build_demo(stamp: str) -> None:
         if ph in page:
             raise SystemExit(f"placeholder niet vervangen: {ph}")
 
-    out_html = REGELRECHT_DIR.parent / "regelrecht-demo.html"
+    if out_html is None:
+        out_html = REGELRECHT_DIR.parent / "regelrecht-demo.html"
     out_html.write_text(page, encoding="utf-8")
     print(f"OK demo {out_html} golden={len(golden)} (16+{len(cap)})")

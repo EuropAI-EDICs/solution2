@@ -123,6 +123,9 @@ class AnalystStampingTests(unittest.TestCase):
 # S2 — LLMFormalizerHook + NormFormalizer wiring
 # --------------------------------------------------------------------------- #
 
+_QUOTE = (
+    "Binnen de gevoelige zone geldt een afstand van 300 meter tot geluidgevoelige objecten."
+)
 CARD = {
     "id": "NC-T-09",
     "evidenceId": "T-09",
@@ -130,9 +133,12 @@ CARD = {
     "source": {
         "docId": "S01", "article": "art. 9.99 lid 1",
         "version": "CVDR704250 geldend 13-10-2025",
-        "quote": "Binnen de gevoelige zone geldt een afstand van 300 meter tot geluidgevoelige objecten.",
+        "quote": _QUOTE,
         "quoteLanguage": "nl", "uri": "https://example.test/cvdr",
     },
+    "number": "9.99 lid 1",
+    "text": _QUOTE,
+    "url": "https://example.test/cvdr",
     "instrument": "artikeltekst",
     "legalForce": "binding",
     "theme": "energy:test",
@@ -154,6 +160,40 @@ GOOD_PROPOSAL = {
     "bufferDistanceM": 300,
     "conditions": [],
     "rationale": "The quoted article fixes a 300 m attention distance to noise-sensitive objects inside the zone.",
+    "execution": {
+        "produces": {"legal_character": "TOETS"},
+        "parameters": [],
+        "input": [
+            {
+                "name": "in_gevoelige_zone",
+                "type": "boolean",
+                "description": "Geo-feit: binnen gevoelige zone.",
+                "source": {"description": "zone-engine / GIO"},
+            }
+        ],
+        "output": [{"name": "attention_ok", "type": "boolean", "description": "Attention predicate holds."}],
+        "actions": [
+            {
+                "output": "attention_ok",
+                "value": {
+                    "operation": "EQUALS",
+                    "subject": "$in_gevoelige_zone",
+                    "value": True,
+                },
+            }
+        ],
+    },
+    "zoneBinding": {
+        "inputs": {
+            "in_gevoelige_zone": {
+                "zoneIds": ["gevoelige_zone"],
+                "selection": "within",
+                "geometrySource": "provincial_gio",
+                "gioJoinId": "/join/id/regdata/pv26/2025/gio00000000-0000-0000-0000-000000000000/nld@2025-08-18;1",
+                "bufferDistanceM": 300,
+            }
+        }
+    },
 }
 
 
@@ -168,7 +208,20 @@ class FormalizerHookGatingTests(unittest.TestCase):
         out = hook(CARD)
         self.assertEqual(out["kind"], "attention")
         self.assertEqual(out["bufferDistanceM"], 300)
+        self.assertIn("execution", out)
+        self.assertIn("zoneBinding", out)
+        self.assertEqual(out["execution"]["actions"], GOOD_PROPOSAL["execution"]["actions"])
         self.assertEqual(hook.accepted, 1)
+
+    def test_execution_geo_inputs_require_zone_binding(self):
+        proposal = {
+            **GOOD_PROPOSAL,
+            "zoneBinding": None,
+        }
+        del proposal["zoneBinding"]
+        hook = _formalizer_hook(json.dumps(proposal))
+        self.assertIsNone(hook(CARD))
+        self.assertEqual(hook.rejected[0]["kind"], "zonebinding-missing")
 
     def test_fabricated_zone_rejected(self):
         proposal = {**GOOD_PROPOSAL, "zoneIds": ["made_up_zone"]}
@@ -237,6 +290,8 @@ class FormalizerWiringTests(unittest.TestCase):
         rule = rules[0].to_dict()
         self.assertEqual(rule["status"], "formalized")
         self.assertEqual(rule["ruleType"], "zone_attention")
+        self.assertIn("execution", rule)
+        self.assertIn("zoneBinding", rule)
         self.assertEqual(rule["zoneSelector"]["bufferDistanceM"], 300)
         self.assertEqual(rule["zoneSelector"]["geometrySource"], "provincial_gio")
         self.assertEqual(rule["zoneSelector"]["gioJoinId"],

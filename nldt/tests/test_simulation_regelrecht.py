@@ -219,7 +219,7 @@ class TestGeneratorUtrecht(unittest.TestCase):
 
     def test_yaml_revalidation_evidence(self):
         v0 = [v for v in self.run_data["validations"] if v["level"] == "V0"]
-        self.assertTrue(any("v0.7.1" in v["evidence"] for v in v0))
+        self.assertTrue(any("v0.8.11" in v["evidence"] for v in v0))
 
 
 class TestGeneratorEindhoven(unittest.TestCase):

@@ -61,6 +61,31 @@ def _load_json(path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _overlay_corpus_execution(track: str, rules: List[dict]) -> List[dict]:
+    """Frozen runs predate RegelRecht execution SoT; take execution/zoneBinding
+    from the live corpus (same id + normCardId) for formalized rules lacking it."""
+    corpus = paths.ROOT / f"poc/corpus/formalrules-{track}.json"
+    if not corpus.exists():
+        return rules
+    by_id = {r["id"]: r for r in _load_json(corpus)}
+    out: List[dict] = []
+    for rule in rules:
+        src = by_id.get(rule.get("id"))
+        if (
+            rule.get("status") == "formalized"
+            and not rule.get("execution")
+            and src is not None
+            and src.get("normCardId") == rule.get("normCardId")
+            and src.get("execution")
+        ):
+            rule = dict(rule)
+            rule["execution"] = src["execution"]
+            if src.get("zoneBinding"):
+                rule["zoneBinding"] = src["zoneBinding"]
+        out.append(rule)
+    return out
+
+
 def _align_utrecht(
     articles: List[Article],
 ) -> Tuple[Dict[str, Alignment], List[dict]]:
@@ -116,7 +141,7 @@ def _align_utrecht(
             fr_path = corpus if corpus.exists() else fr_path
         if not fr_path.exists():
             continue
-        for rule in _load_json(fr_path):
+        for rule in _overlay_corpus_execution(track, _load_json(fr_path)):
             ncid = rule.get("normCardId")
             card = cards_by_id.get(ncid)
             if card is None:

@@ -1,15 +1,51 @@
 {
   "RC-01": {
     "kind": "inclusion",
-    "zone": {
-      "zoneIds": [
-        "gebied_bovenlokaal_dagrecreatieterrein"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_gebied_bovenlokaal_dagrecreatieterrein",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone gebied_bovenlokaal_dagrecreatieterrein.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+      "output": [
+        {
+          "name": "result_rc_01",
+          "type": "boolean",
+          "description": "Uitkomst RC-01 (zone-regel inclusion)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_rc_01",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_gebied_bovenlokaal_dagrecreatieterrein",
+            "value": true
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_gebied_bovenlokaal_dagrecreatieterrein": {
+          "zoneIds": [
+            "gebied_bovenlokaal_dagrecreatieterrein"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+        }
+      }
+    },
     "extra_tags": [
       "inclusion_bovenlokaal_dagrecreatieterrein",
       "drie_mitsen_v4_per_case",
@@ -20,15 +56,51 @@
   },
   "RC-02": {
     "kind": "inclusion",
-    "zone": {
-      "zoneIds": [
-        "recreatiezone"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_recreatiezone",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone recreatiezone.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+      "output": [
+        {
+          "name": "result_rc_02",
+          "type": "boolean",
+          "description": "Uitkomst RC-02 (zone-regel inclusion)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_rc_02",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_recreatiezone",
+            "value": true
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_recreatiezone": {
+          "zoneIds": [
+            "recreatiezone"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json)"
+        }
+      }
+    },
     "extra_tags": [
       "inclusion_recreatiezone",
       "lid_2_nieuwe_voorzieningen_lid_3_verstedelijking_mits_twee",

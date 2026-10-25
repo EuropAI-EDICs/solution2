@@ -61,22 +61,93 @@
       "geometrySource": "provincial_gio",
       "selection": "within",
       "gioJoinId": "/join/id/regdata/pv26/2025/gio73f71441-6b83-4be5-9fef-293714578255/nld@2025-10-10;822",
-      "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+      "caveat": "GIO-versie uit Bijlage II CVDR704250 (geldend 13-10-2025)"
     },
     "conditions": [
       {
-        "parameter": "hub_height",
+        "parameter": "ashoogte_m",
         "operator": "<=",
-        "value": 20,
-        "unit": "m"
+        "value": 20
       },
       {
-        "parameter": "location",
+        "parameter": "op_of_in_aansluiting_op_bestaand_bouwperceel",
         "operator": "==",
-        "value": "existing_building_plot"
+        "value": true
       }
     ],
-    "rationale": "Art. 5.3 lid 1 permits, within the 'Gebied kleine windturbine' (GIO Bijlage II), rules allowing a turbine up to 20 m hub height on/at an existing building plot; both the zone and both conditions are quoted verbatim in NC-W-03."
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [
+        {
+          "name": "ashoogte_m",
+          "type": "number",
+          "description": "As van de voorgestelde windturbine, in meters."
+        },
+        {
+          "name": "op_of_in_aansluiting_op_bestaand_bouwperceel",
+          "type": "boolean",
+          "description": "Op of in aansluiting op bestaand bouwperceel."
+        }
+      ],
+      "input": [
+        {
+          "name": "in_gebied_kleine_windturbine",
+          "type": "boolean",
+          "description": "Geo-feit: binnen Gebied kleine windturbine.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
+      ],
+      "output": [
+        {
+          "name": "toegestaan_kleine_windturbine",
+          "type": "boolean",
+          "description": "Of omgevingsplan hier mag toestaan."
+        }
+      ],
+      "actions": [
+        {
+          "output": "toegestaan_kleine_windturbine",
+          "value": {
+            "operation": "AND",
+            "conditions": [
+              {
+                "operation": "LESS_THAN_OR_EQUAL",
+                "subject": "$ashoogte_m",
+                "value": 20
+              },
+              {
+                "operation": "EQUALS",
+                "subject": "$op_of_in_aansluiting_op_bestaand_bouwperceel",
+                "value": true
+              },
+              {
+                "operation": "EQUALS",
+                "subject": "$in_gebied_kleine_windturbine",
+                "value": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "zoneBinding": {
+      "inputs": {
+        "in_gebied_kleine_windturbine": {
+          "zoneIds": [
+            "gebied_kleine_windturbine"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio",
+          "gioJoinId": "/join/id/regdata/pv26/2025/gio73f71441-6b83-4be5-9fef-293714578255/nld@2025-10-10;822",
+          "caveat": "GIO-versie uit Bijlage II CVDR704250 (geldend 13-10-2025)"
+        }
+      }
+    },
+    "rationale": "Art. 5.3 lid 1 — execution SoT (RegelRecht); zone dual-write via projector."
   },
   {
     "id": "FR-W-04",
@@ -134,6 +205,69 @@
         "unit": "MW"
       }
     ],
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [
+        {
+          "name": "capacity",
+          "type": "number",
+          "description": "capacity",
+          "unit": "MW"
+        }
+      ],
+      "input": [
+        {
+          "name": "in_gebied_windenergie",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone gebied_windenergie.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
+      ],
+      "output": [
+        {
+          "name": "result_w_05",
+          "type": "boolean",
+          "description": "Uitkomst W-05 (zone-regel inclusion)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_w_05",
+          "value": {
+            "operation": "AND",
+            "conditions": [
+              {
+                "operation": "GREATER_THAN_OR_EQUAL",
+                "subject": "$capacity",
+                "value": 3
+              },
+              {
+                "operation": "EQUALS",
+                "subject": "$in_gebied_windenergie",
+                "value": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "zoneBinding": {
+      "inputs": {
+        "in_gebied_windenergie": {
+          "zoneIds": [
+            "gebied_windenergie"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio",
+          "gioJoinId": "/join/id/regdata/pv26/2025/giocc2ef601-3b25-4428-8808-e77ae1e47b4d/nld@2025-10-10;846",
+          "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+        }
+      }
+    },
     "rationale": "CORE WIND RULE. Art. 5.4 lid 1 permits, within the 'Gebied windenergie' (GIO Bijlage II), turbines of >= 3 MW when clustered in a fitting combination and with a removal duty; the numeric threshold and zone are quoted verbatim, the clustering/removal duties are carried as procedural context tags."
   },
   {
@@ -201,6 +335,52 @@
       "caveat": "exclusion grounded in the toelichting on art. 5.4 (interpretive) + Omgevingsvisie 2021 (non-binding); no provincial GIO exists — geo analyst must attach national geometry with provenance"
     },
     "conditions": [],
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_natura_2000_ganzenrustgebied",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone natura_2000, ganzenrustgebied.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
+      ],
+      "output": [
+        {
+          "name": "result_w_08",
+          "type": "boolean",
+          "description": "Uitkomst W-08 (zone-regel exclusion)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_w_08",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_natura_2000_ganzenrustgebied",
+            "value": false
+          }
+        }
+      ]
+    },
+    "zoneBinding": {
+      "inputs": {
+        "in_natura_2000_ganzenrustgebied": {
+          "zoneIds": [
+            "natura_2000",
+            "ganzenrustgebied"
+          ],
+          "selection": "within",
+          "geometrySource": "national_source",
+          "caveat": "exclusion grounded in the toelichting on art. 5.4 (interpretive) + Omgevingsvisie 2021 (non-binding); no provincial GIO exists — geo analyst must attach national geometry with provenance"
+        }
+      }
+    },
     "relatedNormCardIds": [
       "NC-W-22"
     ],
@@ -259,6 +439,70 @@
         "unit": "m"
       }
     ],
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [
+        {
+          "name": "buffer_distance",
+          "type": "number",
+          "description": "buffer_distance",
+          "unit": "m"
+        }
+      ],
+      "input": [
+        {
+          "name": "in_aandachtsgebied_stiltegebied",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone aandachtsgebied_stiltegebied.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
+      ],
+      "output": [
+        {
+          "name": "result_w_10",
+          "type": "boolean",
+          "description": "Uitkomst W-10 (zone-regel attention)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_w_10",
+          "value": {
+            "operation": "AND",
+            "conditions": [
+              {
+                "operation": "EQUALS",
+                "subject": "$buffer_distance",
+                "value": 1500
+              },
+              {
+                "operation": "EQUALS",
+                "subject": "$in_aandachtsgebied_stiltegebied",
+                "value": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "zoneBinding": {
+      "inputs": {
+        "in_aandachtsgebied_stiltegebied": {
+          "zoneIds": [
+            "aandachtsgebied_stiltegebied"
+          ],
+          "selection": "within",
+          "geometrySource": "derived",
+          "derivedFrom": "stiltegebied",
+          "bufferDistanceM": 1500,
+          "caveat": "art. 9.25 lid 2 defines the Aandachtsgebied as a 1500 m zone around a Stiltegebied; the Stiltegebied GIO join-ids still need re-verification against Bijlage II (truncated in recon notes)"
+        }
+      }
+    },
     "rationale": "Art. 9.25 gives a fully deterministic geometry: buffer the Stiltegebied by 1500 m (EPSG:28992). The zone is an attention zone (toetsingskader for art. 9.27/9.28), not a blanket exclusion."
   },
   {
@@ -310,6 +554,51 @@
       "caveat": "GIO staat in Bijlage II van CVDR704250 maar de join-id is slechts afgekapt overgenomen in de recon-notities; her-verifieer tegen Bijlage II voor V3"
     },
     "conditions": [],
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_stiltegebied",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone stiltegebied.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
+      ],
+      "output": [
+        {
+          "name": "result_w_12",
+          "type": "boolean",
+          "description": "Uitkomst W-12 (zone-regel conditional)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_w_12",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_stiltegebied",
+            "value": true
+          }
+        }
+      ]
+    },
+    "zoneBinding": {
+      "inputs": {
+        "in_stiltegebied": {
+          "zoneIds": [
+            "stiltegebied"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "GIO staat in Bijlage II van CVDR704250 maar de join-id is slechts afgekapt overgenomen in de recon-notities; her-verifieer tegen Bijlage II voor V3"
+        }
+      }
+    },
     "rationale": "Art. 9.28 lid 1 allows wind turbines within a Stiltegebied only under its five conditions (regional coordination, fitting clustering, effect minimisation, alignment with the art. 9.26 objective, removal duty). The zone overlay is deterministic; the conditions are procedural and are marked for human assessment (V4), not guessed."
   },
   {
@@ -338,6 +627,52 @@
       "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
     },
     "conditions": [],
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_natuurnetwerk_nederland",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone natuurnetwerk_nederland.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
+      ],
+      "output": [
+        {
+          "name": "result_w_13",
+          "type": "boolean",
+          "description": "Uitkomst W-13 (zone-regel conditional)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_w_13",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_natuurnetwerk_nederland",
+            "value": true
+          }
+        }
+      ]
+    },
+    "zoneBinding": {
+      "inputs": {
+        "in_natuurnetwerk_nederland": {
+          "zoneIds": [
+            "natuurnetwerk_nederland"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio",
+          "gioJoinId": "/join/id/regdata/pv26/2025/gio3111b509-00cb-46c0-9967-b8102f81c85f/nld@2025-08-18;803",
+          "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+        }
+      }
+    },
     "rationale": "Art. 6.2 lid 1 is an instructieregel directing omgevingsplannen to protect and develop the NNN; formalized as a conditional overlay on the NNN GIO. The operative prohibition is FR-W-14."
   },
   {
@@ -368,6 +703,52 @@
       "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
     },
     "conditions": [],
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_natuurnetwerk_nederland",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone natuurnetwerk_nederland.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
+      ],
+      "output": [
+        {
+          "name": "result_w_14",
+          "type": "boolean",
+          "description": "Uitkomst W-14 (zone-regel exclusion)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_w_14",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_natuurnetwerk_nederland",
+            "value": false
+          }
+        }
+      ]
+    },
+    "zoneBinding": {
+      "inputs": {
+        "in_natuurnetwerk_nederland": {
+          "zoneIds": [
+            "natuurnetwerk_nederland"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio",
+          "gioJoinId": "/join/id/regdata/pv26/2025/gio3111b509-00cb-46c0-9967-b8102f81c85f/nld@2025-08-18;803",
+          "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+        }
+      }
+    },
     "rationale": "Art. 6.3 lid 1 forbids omgevingsplan rules allowing activities with adverse effects on the NNN's essential characteristics/values or its quality, area or cohesion — the operative basis for zone elimination. Lid 2 exceptions (great public interest, meerwaardebenadering, beperkte wijziging) are discretionary and always require compensation; the deterministic engine applies the default exclusion."
   },
   {
@@ -404,6 +785,69 @@
         "unit": "ratio"
       }
     ],
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [
+        {
+          "name": "compensation_ratio_new_nature",
+          "type": "number",
+          "description": "compensation_ratio_new_nature",
+          "unit": "ratio"
+        }
+      ],
+      "input": [
+        {
+          "name": "in_groene_contour",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone groene_contour.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
+      ],
+      "output": [
+        {
+          "name": "result_w_15",
+          "type": "boolean",
+          "description": "Uitkomst W-15 (zone-regel compensation)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_w_15",
+          "value": {
+            "operation": "AND",
+            "conditions": [
+              {
+                "operation": "GREATER_THAN_OR_EQUAL",
+                "subject": "$compensation_ratio_new_nature",
+                "value": 1
+              },
+              {
+                "operation": "EQUALS",
+                "subject": "$in_groene_contour",
+                "value": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "zoneBinding": {
+      "inputs": {
+        "in_groene_contour": {
+          "zoneIds": [
+            "groene_contour"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio",
+          "gioJoinId": "/join/id/regdata/pv26/2025/gioee37db62-22b1-4334-bf89-7ddf4e5812c6/nld@2025-08-18;798",
+          "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+        }
+      }
+    },
     "rationale": "Art. 6.5 lid 1 forbids limiting new-nature possibilities inside the Groene contour; lid 2 under d requires >= 1:1 compensation with new nature within the contour, and the toelichting states that wind turbines placed inside the contour trigger this. Not an elimination: an obligation attached to affected parcels."
   },
   {
@@ -527,6 +971,52 @@
       "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
     },
     "conditions": [],
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_landelijk_gebied",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone landelijk_gebied.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
+      ],
+      "output": [
+        {
+          "name": "result_w_21",
+          "type": "boolean",
+          "description": "Uitkomst W-21 (zone-regel inclusion)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_w_21",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_landelijk_gebied",
+            "value": true
+          }
+        }
+      ]
+    },
+    "zoneBinding": {
+      "inputs": {
+        "in_landelijk_gebied": {
+          "zoneIds": [
+            "landelijk_gebied"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio",
+          "gioJoinId": "/join/id/regdata/pv26/2025/gio17d47ef4-f140-45b7-8809-c5068d74698f/nld@2025-10-10;843",
+          "caveat": "GIO-versie overgenomen uit Bijlage II van CVDR704250 (geldend 13-10-2025); DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus de join-id is geciteerd uit de geconsolideerde regelingtekst (S07)"
+        }
+      }
+    },
     "rationale": "Art. 9.2/9.3 divide the province and forbid urbanisation in the Landelijk gebied unless the verordening provides otherwise (which arts. 5.3/5.4 do for wind); the toelichting to art. 5.4 confirms the verordening has no wind-energy provisions for the stedelijk gebied, so the provincial wind pathway is scoped to the landelijk gebied."
   },
   {

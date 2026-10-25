@@ -282,3 +282,5 @@ prompt-targets op disk == geregistreerd, model-pinnen == model_config-defaults.
 
 - Wire a `run_recipe` tool to the Cookbook + OGC process backends (per POC).
 - Consider a store/checkpointer for multi-turn sessions with shared POC memory.
+
+Note: the `harnessregister` tests require the `harness-lab` scaffold (`deep-agents/harness-lab`); it is kept intentionally and should not be removed until a follow-up decides otherwise.

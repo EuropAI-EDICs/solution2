@@ -1,15 +1,51 @@
 {
   "BO-01": {
     "kind": "exclusion",
-    "zone": {
-      "zoneIds": [
-        "grondwater_beschermingszone"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_grondwater_beschermingszone",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone grondwater_beschermingszone.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json): umbrella 'Grondwaterbeschermingszone', live geverifieerd als de vereniging van de zeven letterlijke aanwijzingsgebieden van art. 3.7/3.9/3.10 (taak-8-verslag)"
+      "output": [
+        {
+          "name": "result_bo_01",
+          "type": "boolean",
+          "description": "Uitkomst BO-01 (zone-regel exclusion)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_bo_01",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_grondwater_beschermingszone",
+            "value": false
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_grondwater_beschermingszone": {
+          "zoneIds": [
+            "grondwater_beschermingszone"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json): umbrella 'Grondwaterbeschermingszone', live geverifieerd als de vereniging van de zeven letterlijke aanwijzingsgebieden van art. 3.7/3.9/3.10 (taak-8-verslag)"
+        }
+      }
+    },
     "extra_tags": [
       "exclusion_grondwater_beschermingszone",
       "risicovolle_activiteiten_geweigerd_v4_per_case"
@@ -19,15 +55,51 @@
   },
   "BO-03": {
     "kind": "exclusion",
-    "zone": {
-      "zoneIds": [
-        "grondwater_beschermingszone"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_grondwater_beschermingszone",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone grondwater_beschermingszone.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json): umbrella 'Grondwaterbeschermingszone', live geverifieerd als de vereniging van de zeven letterlijke aanwijzingsgebieden van art. 3.7/3.9/3.10 (taak-8-verslag)"
+      "output": [
+        {
+          "name": "result_bo_03",
+          "type": "boolean",
+          "description": "Uitkomst BO-03 (zone-regel exclusion)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_bo_03",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_grondwater_beschermingszone",
+            "value": false
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_grondwater_beschermingszone": {
+          "zoneIds": [
+            "grondwater_beschermingszone"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json): umbrella 'Grondwaterbeschermingszone', live geverifieerd als de vereniging van de zeven letterlijke aanwijzingsgebieden van art. 3.7/3.9/3.10 (taak-8-verslag)"
+        }
+      }
+    },
     "extra_tags": [
       "exclusion_grondwater_beschermingszone",
       "verbod_nieuwe_begraafplaats_uitstrooiveld_dierenbegraafplaats"
@@ -37,15 +109,51 @@
   },
   "BO-04": {
     "kind": "conditional",
-    "zone": {
-      "zoneIds": [
-        "grondwater_beschermingszone"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_grondwater_beschermingszone",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone grondwater_beschermingszone.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json): umbrella 'Grondwaterbeschermingszone', live geverifieerd als de vereniging van de zeven letterlijke aanwijzingsgebieden van art. 3.7/3.9/3.10 (taak-8-verslag)"
+      "output": [
+        {
+          "name": "result_bo_04",
+          "type": "boolean",
+          "description": "Uitkomst BO-04 (zone-regel conditional)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_bo_04",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_grondwater_beschermingszone",
+            "value": true
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_grondwater_beschermingszone": {
+          "zoneIds": [
+            "grondwater_beschermingszone"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json): umbrella 'Grondwaterbeschermingszone', live geverifieerd als de vereniging van de zeven letterlijke aanwijzingsgebieden van art. 3.7/3.9/3.10 (taak-8-verslag)"
+        }
+      }
+    },
     "extra_tags": [
       "conditional_within_grondwater_beschermingszone",
       "rekening_houden_grondwaterkwaliteit"
@@ -55,15 +163,51 @@
   },
   "BO-05": {
     "kind": "conditional",
-    "zone": {
-      "zoneIds": [
-        "gesloten_stortplaats"
+    "execution": {
+      "produces": {
+        "legal_character": "TOETS"
+      },
+      "parameters": [],
+      "input": [
+        {
+          "name": "in_gesloten_stortplaats",
+          "type": "boolean",
+          "description": "Geo-feit: locatie binnen zone gesloten_stortplaats.",
+          "source": {
+            "description": "Buiten wet-YAML; zone-engine / GIO."
+          }
+        }
       ],
-      "selection": "within",
-      "geometrySource": "provincial_gio_unverified",
-      "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json): umbrella 'Grondwaterbeschermingszone', live geverifieerd als de vereniging van de zeven letterlijke aanwijzingsgebieden van art. 3.7/3.9/3.10 (taak-8-verslag)"
+      "output": [
+        {
+          "name": "result_bo_05",
+          "type": "boolean",
+          "description": "Uitkomst BO-05 (zone-regel conditional)."
+        }
+      ],
+      "actions": [
+        {
+          "output": "result_bo_05",
+          "value": {
+            "operation": "EQUALS",
+            "subject": "$in_gesloten_stortplaats",
+            "value": true
+          }
+        }
+      ]
     },
-    "conditions": [],
+    "zoneBinding": {
+      "inputs": {
+        "in_gesloten_stortplaats": {
+          "zoneIds": [
+            "gesloten_stortplaats"
+          ],
+          "selection": "within",
+          "geometrySource": "provincial_gio_unverified",
+          "caveat": "Werkingsgebied-GIO van CVDR704250 (geldend 13-10-2025); de join-id is niet overgenomen in de geciteerde artikelttekst en de DSO Omgevingsdocumenten Downloaden API gaf HTTP 401 zonder API-key, dus geen gioJoinId citeerbaar; geometrie komt uit de agrest IMOW-open-data-alias (aliasNote in layers.json): umbrella 'Grondwaterbeschermingszone', live geverifieerd als de vereniging van de zeven letterlijke aanwijzingsgebieden van art. 3.7/3.9/3.10 (taak-8-verslag)"
+        }
+      }
+    },
     "extra_tags": [
       "conditional_within_gesloten_stortplaats",
       "provincial_jurisdiction_marker"
