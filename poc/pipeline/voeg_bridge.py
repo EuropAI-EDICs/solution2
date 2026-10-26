@@ -89,6 +89,8 @@ def llm_call(
         payload = json.loads(lines[-1])
     except json.JSONDecodeError as exc:
         raise VoegUnavailable(f"voeg stdout geen JSON: {exc}: {lines[-1][:200]}") from exc
+    if not isinstance(payload, dict):
+        raise VoegUnavailable(f"voeg stdout geen JSON-object: {lines[-1][:200]}")
     if proc.returncode == 0 and payload.get("ok"):
         data = payload.get("data")
         if not isinstance(data, dict):

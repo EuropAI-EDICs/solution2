@@ -1,6 +1,7 @@
 #!/bin/sh
-# voeg-smoke — éen offline S2-call via replay + éen decide tegen de fake
-# sidecar. Draait zonder netwerk en zonder MLX.
+# voeg-smoke — éen decide tegen de fake Laya-sidecar (hoge band → accept,
+# geen LLM-call) + ledger-leeg-check over die runs. Draait zonder netwerk
+# en zonder MLX.
 set -e
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 VOEG="${VOEG_BIN:-$ROOT/../rustharness/target/debug/voeg}"

@@ -74,3 +74,10 @@ def test_missing_binary_raises(scratch, monkeypatch):
     monkeypatch.setenv("VOEG_BIN", str(scratch / "bestaat-niet"))
     with pytest.raises(voeg_bridge.VoegUnavailable):
         voeg_bridge.llm_call("e", "m", "S", "U", 1.0)
+
+
+def test_non_dict_payload_raises(scratch, monkeypatch):
+    stub = StubVoeg(scratch, "[1, 2]", 0)
+    monkeypatch.setenv("VOEG_BIN", stub.as_env()["VOEG_BIN"])
+    with pytest.raises(voeg_bridge.VoegUnavailable):
+        voeg_bridge.llm_call("e", "m", "S", "U", 1.0)
