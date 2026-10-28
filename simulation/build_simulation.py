@@ -79,6 +79,7 @@ POC1_TRACKS = {
 POC2_RUN = ROOT / "poc-bp2op" / "runs" / "20260830-124515-eindhoven"
 POC4_RUN = ROOT / "poc-breda" / "runs" / "20260913T192628Z-breda-scan"
 BREDA_QA = Path(__file__).resolve().parent / "breda_qa.json"
+LAYA_BREDA_EXPORT = Path(__file__).resolve().parent / "laya_breda" / "predictions.json"
 
 # display-only simplification (the run itself used 2 m; the simulation coarse-tunes
 # further purely for page weight — areas shown remain the engine's own numbers)
@@ -475,13 +476,22 @@ def build_laya1() -> dict:
     }
 
 
+#: BAG-bebouwing in de eindzones — build-time via de Clappform OGC-DT API
+#: (simulation/build_bag_cache.py). Optioneel: zonder cache valt het paneel weg.
+BAG_CACHE = Path(__file__).resolve().parent / "bag-cache.json"
+
+
 def build_poc1() -> dict:
     aoi_geo = display_rings(shape(load(AOI_CACHE)["features"][0]["geometry"]))
     tracks = {name: build_track(name, meta) for name, meta in POC1_TRACKS.items()}
+    bag = None
+    if BAG_CACHE.exists():
+        bag = json.loads(BAG_CACHE.read_text(encoding="utf-8"))
     return {
         "aoi": {"areaKm2": 1560.054, "geo": aoi_geo},
         "tracks": tracks,
         "laya": build_laya1(),
+        "bag": bag,
     }
 
 
@@ -1031,7 +1041,7 @@ def build_breda() -> dict:
             levels[name] = str(info)
 
     scan = vs.get("scan") if isinstance(vs.get("scan"), dict) else {}
-    return {
+    out = {
         "runId": summary["runId"],
         "verdict": summary.get("verdict"),
         "nBuurten": summary.get("nBuurten", len(buurten)),
@@ -1052,6 +1062,76 @@ def build_breda() -> dict:
         "validation": {"verdict": val.get("verdict"), "levels": levels},
         "qa": qa,
         "stages": ["intake", "fetch", "indicators", "validate", "report", "unlock"],
+        "lake": {
+            "datasetId": "20261025-breda-laya-s1",
+            "bronzeCbs": "lake://nldt-poc-lake/bronze/breda/cbs-buurten-2024/",
+            "silverLaya": "lake://nldt-poc-lake/silver/breda/laya/system1/20261025-breda-laya-s1/",
+            "goldLaya": "lake://nldt-poc-lake/gold/breda/laya/system1/20261025-breda-laya-s1/",
+            "goldRun": f"lake://nldt-poc-lake/gold/breda/runs/{summary['runId']}/",
+        },
+    }
+    if LAYA_BREDA_EXPORT.is_file():
+        out["laya"] = build_laya_breda()
+    return out
+
+
+def build_laya_breda() -> dict:
+    """Embed Breda Laya System-1 predictions + TF-IDF index over buurten."""
+    if not LAYA_BREDA_EXPORT.is_file():
+        raise FileNotFoundError(
+            f"missing {LAYA_BREDA_EXPORT} — run simulation/laya_breda/finetune.py + "
+            "predict_export.py first (deep-agents/laya_train/.venv)"
+        )
+    exp = json.loads(LAYA_BREDA_EXPORT.read_text(encoding="utf-8"))
+
+    laya_root = ROOT / "poc-bp2op"
+    if str(laya_root) not in sys.path:
+        sys.path.insert(0, str(laya_root))
+    from pipeline.knowledgebank import terms, _STOPWORDS, _SUFFIXES
+
+    docs = {k: " ".join(str(x) for x in c) for k, c in exp["cards"].items()}
+    tf = {k: Counter(terms(t)) for k, t in docs.items()}
+    n_docs = len(docs) or 1
+    df: Counter = Counter()
+    for c in tf.values():
+        df.update(c.keys())
+    vocab = sorted({t for c in tf.values() for t in c})
+    vidx = {t: i for i, t in enumerate(vocab)}
+    idf = [round(math.log((1 + n_docs) / (1 + df[t])) + 1.0, 3) for t in vocab]
+    rows = {}
+    for k, c in tf.items():
+        w = {t: cnt * idf[vidx[t]] for t, cnt in c.items()}
+        nrm = math.sqrt(sum(v * v for v in w.values())) or 1.0
+        rows[k] = [
+            [vidx[t], round(v / nrm, 4)]
+            for t, v in sorted(w.items(), key=lambda kv: (-kv[1], kv[0]))[:24]
+        ]
+
+    by_combo: dict = {}
+    for k, c in sorted(exp["cards"].items()):
+        g = exp["gold"][k]
+        by_combo.setdefault((g["v"], g["b"], bool(g["j"])), k)
+    probes = []
+    for combo, k in list(by_combo.items())[:6]:
+        probes.append({
+            "key": k,
+            "naam": exp["cards"][k][2],
+            "why": f"{combo[0]} · band {combo[1]} · needs_human={combo[2]}",
+        })
+
+    return {
+        "meta": exp["model"],
+        "questions": exp["questions"],
+        "eval": exp["eval"],
+        "preds": exp["preds"],
+        "gold": exp["gold"],
+        "cards": exp["cards"],
+        "tok": {"stop": sorted(_STOPWORDS), "suf": list(_SUFFIXES)},
+        "vocab": vocab,
+        "idf": idf,
+        "nn": rows,
+        "probes": probes,
+        "gate": exp["model"].get("gate", 0.55),
     }
 
 
@@ -1080,6 +1160,9 @@ def main() -> int:
               f"{tr['cards']['normCards']} cards, {len(tr['decision'])} dt-rows, "
               f"kg {len(tr['kg']['n'])} nodes/{len(tr['kg']['e'])} edges, "
               f"sweep {len(tr.get('sweep') or [])} scenarios")
+    if data["poc1"].get("bag"):
+        bt = data["poc1"]["bag"]["tracks"]
+        print("  bag: " + " · ".join(f"{k} {v['n']} panden ({v['bouwjaarBekend']} m.bouwjaar)" for k, v in bt.items()))
     l1 = data["poc1"]["laya"]
     e1 = l1["eval"]
     print(f"  laya1 (utrecht): {e1['n']} held-out kaarten (5 ongeziene tracks) — "

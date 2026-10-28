@@ -415,6 +415,8 @@ Click any pipeline stage to jump there; <kbd>space</kbd> = play/pause, <kbd>→<
       </div>
     </div></div>
 
+    <div class="card" id="bagcard" style="display:none"><h3>bebouwing in de eindzone — BAG (build-time)</h3><div class="cardbody" id="bagbody"></div></div>
+
     <div class="card"><h3>Norm Analyst — cite or abstain</h3><div class="cardbody">
       <div class="quote" id="quote1"></div>
       <div class="ledger" id="ledger1"></div>
@@ -907,8 +909,33 @@ function buildDTable(){
       <td style="padding:4px 8px;color:var(--dim)">${esc(r.criterion)}</td>
       <td style="padding:4px 8px;color:${eff[r.effect]||"var(--dim)"};white-space:nowrap">${r.effect}</td></tr>`).join("");
 }
+function buildBagPanel(){
+  const card=$("bagcard"), body=$("bagbody");
+  if(!P1.bag || !P1.bag.tracks){ card.style.display="none"; return; }
+  const b=P1.bag.tracks[curTrack];
+  if(!b){ card.style.display="none"; return; }
+  card.style.display="block"; card.style.opacity=0.22;
+  const decades=Object.entries(b.hist);
+  const mx=Math.max(...decades.map(d=>d[1]),1);
+  body.innerHTML =
+    `<div class="counters" style="grid-template-columns:1fr 1fr 1fr">
+       <div class="counter on"><div class="cv">${b.n}</div><div class="cl">BAG-panden in de eindzone</div></div>
+       <div class="counter on"><div class="cv">${b.bouwjaarBekend}</div><div class="cl">met bekend bouwjaar</div></div>
+       <div class="counter on"><div class="cv">${(100*b.bouwjaarBekend/Math.max(1,b.n)).toFixed(0)}%</div><div class="cl">dekking bouwjaar</div></div>
+     </div>
+     <div style="margin-top:10px">` +
+     decades.map(([dec,n])=>
+       `<div class="barrow"><span style="font-family:var(--mono)">${dec}s</span>
+        <div class="track"><div class="fill" style="width:${(100*n/mx).toFixed(0)}%;background:linear-gradient(90deg,var(--amber),#fbbf24)"></div></div>
+        <span class="n">${n}</span></div>`).join("") +
+     `</div>
+     <div style="font-size:10px;color:var(--faint);margin-top:8px;line-height:1.5">bron: PDOK BAG WFS via
+      <a href="https://api.ogc-digital-twin.clappform.com" target="_blank">OGC Digital Twin API</a>
+      (bag-panden-fetch, ${P1.bag.source.apiCalls} calls) · build-time gecached ${esc(P1.bag.fetchedAt)} ·
+      telling in RD New: pand telt bij centroïde in de zone of ≥50% overlap — zelfde contract als plot-bag-overlap</div>`;
+}
 function buildTelemetry1(){
-  const T=T1();
+  const T=T1(); buildBagPanel();
   $("ledger1").innerHTML = T.abstentions.map(a=>`<div class="item"><b>abstained:</b> ${esc(a.topic)}
      <span class="rsn">${esc(a.reason)}</span></div>`).join("");
   $("quote1").innerHTML = `“${esc(T.quote.quote)}”<i>art. ${esc(String(T.quote.number||T.quote.article))} — Omgevingsverordening provincie Utrecht, CVDR704250 ·
@@ -949,6 +976,7 @@ function buildStatic1(){
   buildMap(); buildLegend1(); buildWaterfall(); buildDTable(); buildTelemetry1(); buildKG1(); buildSweep();
   tipHide();
   ["quote1","ledger1","dist1"].forEach(id=>$(id).classList.remove("on"));
+  const bc=$("bagcard"); if(bc){ bc.style.opacity=0.22; }
   document.querySelectorAll("#levels1 .lvl").forEach(l=>l.classList.remove("pass","pending"));
   document.querySelectorAll("#arts1 .chip").forEach(c=>c.classList.remove("on"));
   ["c-aoi","c-cards","c-abst","c-fr","c-lay","c-zr"].forEach(id=>$(id).classList.remove("on","hit"));
@@ -1041,7 +1069,10 @@ function makeSim1(){
       setLbl(esc(s.label)+(s.zones&&s.zones.length?` — <b>${esc(s.zones.join(", "))}</b>`:"")+(s.ruleIds.length?` (${s.ruleIds.join(" · ")})`:""));
       if(s.note) log1(`${esc(s.label)} → ${km(s.areaKm2)} km² — ${esc(s.note)}`, s.kind==="exclusion"?"warn":"data");
       else log1(`${esc(s.label)} → ${km(s.areaKm2)} km²`,"data");
-      if(s.kind==="final") log1(`final zone = ${pct(s.areaKm2)}% of the province`,"ok"); });
+      if(s.kind==="final"){ log1(`final zone = ${pct(s.areaKm2)}% of the province`,"ok");
+        const bc=$("bagcard"); if(bc && P1.bag && P1.bag.tracks && P1.bag.tracks[curTrack]){
+          bc.style.opacity=1; const bb=P1.bag.tracks[curTrack];
+          log1(`BAG: ${bb.n} panden in de eindzone (${bb.bouwjaarBekend} met bouwjaar) — PDOK via OGC-DT API, build-time gecached`,"data"); } } });
   });
 
   if(T.markers.length){
@@ -1673,6 +1704,18 @@ const INTENTS_UTR = [
       ${T.cards.normCards} norm cards · ${T.cards.abstentions} abstenties · ${T.cards.formalized} formalized / ${T.cards.ambiguous} ambigue (→V4) / ${T.cards.rejectedRules} rejected ·
       eindzone <b>${km(T.engine[T.engine.length-1].areaKm2)} km²</b> van de ${km(P1.aoi.areaKm2)} km² provincie ·
       V3 IoU ${T.iou||"—"} · duur ${T.durationS}s.`,"laya","run");}},
+
+  {re:/\b(gebouwen|panden|bebouwing|woningen|bouwjaar|bag)\b/i, fn:()=>{
+    if(!P1.bag || !P1.bag.tracks){ chatMsg("Geen BAG-cache in deze build — draai <code>simulation/build_bag_cache.py</code> en herbouw.","laya","onthouding"); return; }
+    const b=P1.bag.tracks[curTrack];
+    const dec=Object.entries(b.hist).sort((a,c)=>c[1]-a[1]).slice(0,3);
+    chatMsg(`In de <b>eindzone van track ${esc(curTrack)}</b> staan <b>${b.n} BAG-panden</b>
+      (${b.bouwjaarBekend} met bekend bouwjaar). Grootste bouwjaar-decennia: `+
+      dec.map(([d,n])=>`<b>${d}s</b> (${n})`).join(" · ")+
+      `.<br>Bron: PDOK BAG WFS via de OGC Digital Twin API (<code>bag-panden-fetch</code>, ${P1.bag.source.apiCalls} calls),
+      build-time gecached op ${esc(P1.bag.fetchedAt)} — de pagina haalt zelf geen live data.`,"laya","bebouwing",
+      `telling RD New · centroïde-in-zone of ≥50% overlap · ${P1.bag.source.fetchedUnique} panden gesweeped`);
+    }},
 
   {re:/\b(jurist|v4|human|mens|ambigu|open norm)\b/i, fn:()=>{
     const n=Object.values(LY.gold).filter(g=>g.jurist).length;

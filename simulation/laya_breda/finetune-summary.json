@@ -1,0 +1,218 @@
+{
+  "train_items": 1336,
+  "calibration_items": 148,
+  "eval_items": 48,
+  "skipped": {},
+  "epoch_loss": [
+    0.48755065398011915,
+    0.09998882022740938,
+    0.13542116513687694,
+    0.08954116936304612
+  ],
+  "temperature": [
+    4.707948207855225,
+    2.13742733001709,
+    0.7908211350440979
+  ],
+  "temperature_by_options": {},
+  "n_by_bucket": {
+    "noul:2": 33,
+    "choice:2": 42,
+    "choice:3-5": 35,
+    "score:3-5": 38
+  },
+  "calibration": {
+    "choice": {
+      "items": 77,
+      "temperature": 4.707948207855225,
+      "issues": [],
+      "accuracy": 0.948051948051948,
+      "mean_confidence": 0.9600514662703292
+    },
+    "score": {
+      "items": 38,
+      "temperature": 2.13742733001709,
+      "issues": [
+        "fitted on only 38 calibration items"
+      ],
+      "accuracy": 0.9210526315789473,
+      "mean_confidence": 0.932339714927145
+    },
+    "noul": {
+      "items": 33,
+      "temperature": 0.7908211350440979,
+      "issues": [
+        "fitted on only 33 calibration items"
+      ],
+      "accuracy": 1.0,
+      "mean_confidence": 0.9567650465893222
+    }
+  },
+  "abstention_thresholds": {
+    "noul:2": 0.6253,
+    "choice:2": 0.9916,
+    "choice:3-5": 0.3059,
+    "score:3-5": 0.3558
+  },
+  "train_report": {
+    "eval_source": "/Users/marc/Projecten/ldttoolbox/simulation/laya_breda/data/eval.jsonl",
+    "eval_mode": "held_out",
+    "is_held_out": true,
+    "eval_items": 48,
+    "note": "Metrics reflect independent held-out evaluation.",
+    "before": {
+      "items": 48,
+      "loss": 1.5715,
+      "accuracy": 0.4583,
+      "mean_confidence": 0.7267,
+      "ece": 0.2817,
+      "brier": 0.7284,
+      "brier_top1": 0.2754,
+      "by_type": {
+        "choice": {
+          "items": 24,
+          "loss": 1.4128,
+          "accuracy": 0.5417,
+          "mean_confidence": 0.7393,
+          "ece": 0.2809,
+          "brier": 0.6462,
+          "brier_top1": 0.2308
+        },
+        "score": {
+          "items": 12,
+          "loss": 2.2795,
+          "accuracy": 0.25,
+          "mean_confidence": 0.5596,
+          "ece": 0.3096,
+          "brier": 0.9354,
+          "brier_top1": 0.2969
+        },
+        "noul": {
+          "items": 12,
+          "loss": 1.1809,
+          "accuracy": 0.5,
+          "mean_confidence": 0.8685,
+          "ece": 0.3685,
+          "brier": 0.686,
+          "brier_top1": 0.343
+        }
+      }
+    },
+    "after": {
+      "items": 48,
+      "loss": 0.7977,
+      "accuracy": 0.5208,
+      "mean_confidence": 0.5666,
+      "ece": 0.0755,
+      "brier": 0.4786,
+      "brier_top1": 0.1552,
+      "by_type": {
+        "choice": {
+          "items": 24,
+          "loss": 0.7042,
+          "accuracy": 0.5833,
+          "mean_confidence": 0.6383,
+          "ece": 0.0621,
+          "brier": 0.3789,
+          "brier_top1": 0.0759
+        },
+        "score": {
+          "items": 12,
+          "loss": 1.1026,
+          "accuracy": 0.3333,
+          "mean_confidence": 0.3516,
+          "ece": 0.0183,
+          "brier": 0.6695,
+          "brier_top1": 0.2254
+        },
+        "noul": {
+          "items": 12,
+          "loss": 0.6796,
+          "accuracy": 0.5833,
+          "mean_confidence": 0.6384,
+          "ece": 0.1594,
+          "brier": 0.4868,
+          "brier_top1": 0.2434
+        }
+      }
+    },
+    "comparison": {
+      "delta_accuracy": 0.0625,
+      "delta_loss": -0.7738,
+      "delta_ece": -0.2062,
+      "delta_brier": -0.2498,
+      "delta_brier_top1": -0.1202,
+      "delta_mean_confidence": -0.1601
+    },
+    "calibration": {
+      "choice": {
+        "items": 77,
+        "temperature": 4.707948207855225,
+        "issues": [],
+        "accuracy": 0.948051948051948,
+        "mean_confidence": 0.9600514662703292
+      },
+      "score": {
+        "items": 38,
+        "temperature": 2.13742733001709,
+        "issues": [
+          "fitted on only 38 calibration items"
+        ],
+        "accuracy": 0.9210526315789473,
+        "mean_confidence": 0.932339714927145
+      },
+      "noul": {
+        "items": 33,
+        "temperature": 0.7908211350440979,
+        "issues": [
+          "fitted on only 33 calibration items"
+        ],
+        "accuracy": 1.0,
+        "mean_confidence": 0.9567650465893222
+      }
+    },
+    "abstention_thresholds": {
+      "noul:2": 0.6253,
+      "choice:2": 0.9916,
+      "choice:3-5": 0.3059,
+      "score:3-5": 0.3558
+    },
+    "training": {
+      "epochs": 4,
+      "micro_batch": 8,
+      "grad_accum": 2,
+      "encoder_lr": 2.5e-05,
+      "head_lr": 0.0001,
+      "min_lr": 1e-06,
+      "weight_decay": 0.01,
+      "grad_clip": 1.0,
+      "loss": "rlcd",
+      "rl_samples": 4,
+      "sigma_start": 0.4,
+      "sigma_end": 0.1,
+      "w_sph": 0.75,
+      "w_rps": 1.0,
+      "shuffle_options": [],
+      "option_layout": null,
+      "freeze_encoder": false,
+      "calib_max": 400,
+      "calib_frac": 0.1,
+      "calib_seed": 20261025,
+      "seed": 20261025,
+      "max_len": null,
+      "head_max_len": null,
+      "amp": null,
+      "gradient_checkpointing": null,
+      "log_every": 100,
+      "label_smoothing": 0.0,
+      "text_column": "text",
+      "label_column": "label",
+      "question_id": "label",
+      "instructions": null,
+      "eval_data": "/Users/marc/Projecten/ldttoolbox/simulation/laya_breda/data/eval.jsonl",
+      "target_error": 0.1,
+      "min_abstain_n": 10
+    }
+  },
+  "output_dir": "/Users/marc/Projecten/ldttoolbox/simulation/laya_breda/checkpoints/breda-laya"
+}

@@ -13,14 +13,54 @@ node    simulation/verify_static.mjs     # headless smoke test of the page scrip
 open    simulation/simulation.html       # works from file:// — no server, no network
 ```
 
-## Breda · vijf-waarden (tab 4)
+## Breda · vijf-waarden (tab 4) — System-1 / System-2
 
 Offline embed of the canonical [PoC-4](../poc-breda/README.md) five-value scan
 (`poc-breda/runs/20260913T192628Z-breda-scan`): 56 buurten × four spatial scores
-+ autonomous sovereignty manifest. Same Laya-style rhythm — short pipeline
-timeline, then unlock a golden Q&A chat (`simulation/breda_qa.json`, cite-or-abstain).
++ autonomous sovereignty manifest, plus embedded **Laya System-1 (Breda)**
+predictions (`simulation/laya_breda/predictions.json`, dataset
+`20261025-breda-laya-s1`).
 
-Deep-link: `simulation.html?tab=4` (optional `&waarde=spatial|democratic|economic|social|autonomous`).
+### Spelen (offline)
+
+```bash
+open simulation/simulation.html?tab=4
+# of: open "simulation/simulation.html?tab=4&waarde=spatial"
+```
+
+1. Klik **▶ Play** op de PoC-4 timeline (of de knop in de chat-gate) — na
+   unlock openen golden Q&A + Laya S1.
+2. **System-1:** card *Laya System-1 · Breda forward pass* — typ een buurt
+   (bijv. `Belcrum`) of klik een probe → typed heads (primary_value,
+   attention_band, needs_human, autonomous_ok) + confidence-gate 0.55.
+3. **Golden Q&A:** chat met grounded vragen (cite-or-abstain).
+4. **System-2 handoff (offline):** stel een ungrounded vraag of raak een
+   under-gate / needs_human case → de chat toont een **S1-hint JSON**
+   (geen verzonnen cijfers) voor System-2.
+
+### System-2 live lab (Ollama)
+
+De pagina detecteert Ollama automatisch en kiest een geïnstalleerd model
+(`qwen3`, `gemma4:*`, … — override met `?s2model=qwen3:latest`).
+
+```bash
+ollama serve
+# bij file:// CORS-problemen: serve over http
+cd simulation && python3 -m http.server 8765
+open "http://127.0.0.1:8765/simulation.html?tab=4&s2=1"
+```
+
+Under-gate / ungrounded chat (of forward pass onder de gate) → live S2.
+Faalt Ollama → offline S1-hint.
+### System-2 via deep-agents
+
+```bash
+cd deep-agents && ollama serve   # + pull gemma/llama zoals README
+# start live / harness met PoC Breda; tool narrate_breda_s1_hint
+# plak de S1-hint uit de sim-chat (of laat de agent die tool aanroepen)
+```
+
+Lake URIs (medallion): `lake://nldt-poc-lake/silver|gold/breda/laya/system1/20261025-breda-laya-s1/`.
 
 ## Laya · System-1 (tab 3) — twee datasets
 
@@ -110,6 +150,23 @@ Controls: play / step / reset, 0.5–4× speed, click any stage to jump;
 `space` = play/pause, `→` = step; PoC-1 track switcher on the map header.
 
 ## Files
+
+## BAG-bebouwing in de PoC-1-eindzones (build-time cache)
+
+`simulation/build_bag_cache.py` veegt één keer de unie-bbox van de drie
+canonieke eindzones (wind · zon · bos) en cache't per track: aantal BAG-panden
+in de eindzone, aantal met bekend bouwjaar en een bouwjaar-histogram per
+decennium (`bag-cache.json`, gecommit). De pagina embedt de cijfers — geen
+geometrie, geen netwerk at runtime; het paneel verschijnt bij de
+final-zone-stap van elke track.
+
+Belangrijk: de `bag-panden-fetch`-process van de Clappform OGC Digital Twin API
+is betrouwbaar zolang één tile onder één WFS-pagina blijft (<1000 panden);
+daarboven breekt zijn interne paging af (gemeten: 994 teruggegeven terwijl
+PDOK er 87.776 telt). Het script controleert elke tile tegen PDOK's
+`resultType=hits` en haalt afwijkende tiles rechtstreeks van de PDOK BAG WFS
+(correcte paging; quadrant-splitsing bij PDOK's ~50k startIndex-cap). Provenance
+staat in de cache zelf (`tilesDirectPdok` / `tilesApiPagingBug`).
 
 | file | role |
 |---|---|
