@@ -16,7 +16,7 @@
 - `core/`, `adapters/`, `run.py`, `eval.py` importeren géén externe packages; alleen stdlib. `jsonschema` mag alléén in `core/runs.py::validate` (binnen een try/guard) en in tests/eval, gedraaid onder `../nldt/.venv/bin/python`.
 - Tests: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`.
 - Deterministische replay: geen muurklok in de canonieke run-inhoud; `runId`/`generatedAt` worden voor vergelijking gestript via `canonical()`.
-- Docstrings en teksten in het Nederlands (NFR-06 plain language); identifiers Engels.
+- Docstrings en teksten in het Nederlands (NFR-06 plain language); productie-identifiers Engels; testnamen mogen Nederlands zijn (repo-conventie, vergelijk `poc-breda/tests/`).
 - Bestandsstructuur volgt ontwerp §11 exact: `poc-gent/{packages,adapters,core,fixtures,schemas,tests}/`, `run.py`, `eval.py`, `runs/` (gitignored).
 - Commit per taak, conventional commits met scope `poc-gent`, Nederlandse samenvatting.
 - Herkomstlabels: `gebruiker` (uit gesprek), `correctie` (H1-correctie), `afgeleid` (GIS-afgeleid); `authentiek` is gereserveerd voor F2 (Magda).
@@ -185,6 +185,23 @@ def test_slot_zonder_vraag_faalt(tmp_path):
     _schrijf_pkg(tmp_path, manifest, _basis_tables())
     with pytest.raises(catalog.PackageError, match="vraag"):
         catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_kapotte_json_geeft_packageerror(tmp_path):
+    manifest = _basis_manifest()
+    pkg_dir = tmp_path / "packages" / manifest["packageId"]
+    (pkg_dir / "golden").mkdir(parents=True)
+    (pkg_dir / "manifest.json").write_text("{geen geldige json", encoding="utf-8")
+    with pytest.raises(catalog.PackageError, match="ongeldige JSON"):
+        catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_pointer_veld_ontbreekt_faalt(tmp_path):
+    manifest = _basis_manifest()
+    del manifest["decisionTables"]
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    with pytest.raises(catalog.PackageError, match="decisionTables"):
+        catalog.load_package(tmp_path, manifest["packageId"])
 ```
 
 Let op: `catalog.Path` werkt alleen als catalog.py `from pathlib import Path` heeft — schrijf in de test `from pathlib import Path` en gebruik `Path(__file__)`.
@@ -224,7 +241,10 @@ class Package:
 def _read_json(path: Path) -> dict:
     if not path.is_file():
         raise PackageError(f"bestand ontbreekt: {path}")
-    return json.loads(path.read_text(encoding="utf-8"))
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as err:
+        raise PackageError(f"ongeldige JSON in {path}: {err}") from err
 
 
 def _validate(manifest: dict, tables: dict) -> None:
@@ -244,6 +264,9 @@ def _validate(manifest: dict, tables: dict) -> None:
             raise PackageError(f"slot '{slot}' mist vraag-tekst")
     outputs = set()
     for check in manifest.get("gisChecks", []):
+        for veld in ("id", "layer", "input", "output"):
+            if veld not in check:
+                raise PackageError(f"gisCheck mist veld '{veld}': {check}")
         if check["input"] not in slots:
             raise PackageError(f"gisCheck '{check['id']}': onbekende input-slot '{check['input']}'")
         outputs.add(check["output"])
@@ -262,6 +285,9 @@ def _validate(manifest: dict, tables: dict) -> None:
 def load_package(poc_root: Path, package_id: str) -> Package:
     pkg_dir = poc_root / "packages" / package_id
     manifest = _read_json(pkg_dir / "manifest.json")
+    for pointer in ("decisionTables", "golden"):
+        if not manifest.get(pointer):
+            raise PackageError(f"manifest: verplicht veld '{pointer}' ontbreekt")
     tables = _read_json(pkg_dir / manifest["decisionTables"])
     golden_path = pkg_dir / manifest["golden"]
     if not golden_path.is_file():
@@ -276,7 +302,7 @@ def load_package(poc_root: Path, package_id: str) -> Package:
 - [ ] **Step 6: Draai de tests en verifieer slagen**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests/test_catalog.py -q`
-Expected: `3 passed`
+Expected: `5 passed`
 
 - [ ] **Step 7: Commit**
 
@@ -434,7 +460,7 @@ def zone_result(zones: dict, layer: str, lon: float, lat: float) -> str:
 - [ ] **Step 5: Draai de tests en verifieer slagen**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `7 passed` (3 catalog + 4 gis).
+Expected: `9 passed` (5 catalog + 4 gis).
 
 - [ ] **Step 6: Commit**
 
@@ -574,7 +600,7 @@ def evaluate(tables: dict, context: dict) -> dict:
 - [ ] **Step 4: Draai de tests en verifieer slagen**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `12 passed` (3 + 4 + 5).
+Expected: `14 passed` (5 + 4 + 5).
 
 - [ ] **Step 5: Commit**
 
@@ -702,7 +728,7 @@ def summary(manifest: dict, context: dict, herkomst: dict) -> dict:
 - [ ] **Step 4: Draai de tests en verifieer slagen**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `16 passed` (12 + 4).
+Expected: `18 passed` (14 + 4).
 
 - [ ] **Step 5: Commit**
 
@@ -808,7 +834,7 @@ def confirm_h1(manifest: dict, context: dict, herkomst: dict, corrections: dict,
 - [ ] **Step 4: Draai de tests en verifieer slagen**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `18 passed` (16 + 2).
+Expected: `20 passed` (18 + 2).
 
 - [ ] **Step 5: Commit**
 
@@ -1065,7 +1091,7 @@ def write_run(poc_root: Path, run: dict, events: list) -> Path:
 - [ ] **Step 5: Draai de tests en verifieer slagen**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `23 passed` (18 + 5).
+Expected: `25 passed` (20 + 5).
 
 - [ ] **Step 6: Commit**
 
@@ -1292,7 +1318,7 @@ def run_replay(poc_root: Path, package_id: str, persona_id: str,
 - [ ] **Step 5: Draai de tests en verifieer slagen**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `28 passed` (23 + 5).
+Expected: `30 passed` (25 + 5).
 
 - [ ] **Step 6: Commit**
 
@@ -1450,7 +1476,7 @@ Geen echte persoonsgegevens; alle gegevens zijn verzonnen fixtures.
 - [ ] **Step 4: Draai de volledige tests en commit**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `28 passed`.
+Expected: `30 passed`.
 
 ```bash
 git add poc-gent
@@ -1550,7 +1576,7 @@ if __name__ == "__main__":
 - [ ] **Step 4: Draai de tests en de CLI**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `29 passed` (28 + 1).
+Expected: `31 passed` (30 + 1).
 
 Run: `python3 eval.py`
 Expected: zes `OK`-regels (g1…g6), `determinisme: OK`, `golden: 6/6 geslaagd`, exit-code 0.
@@ -1690,7 +1716,7 @@ Expected: FAIL — `FileNotFoundError` (recipe bestaat nog niet).
 - [ ] **Step 4: Draai alle tests en verifieer slagen**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `30 passed` (29 + 1).
+Expected: `32 passed` (31 + 1).
 
 Run ter controle: `python3 eval.py`
 Expected: `golden: 6/6 geslaagd`, exit-code 0.
@@ -1706,7 +1732,7 @@ git commit -m "feat(poc-gent): centrale recipe- en baseline-registratie"
 
 ## Zelfcheck na afronding (executeur)
 
-1. `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` → `30 passed`.
+1. `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` → `32 passed`.
 2. `python3 eval.py` → `golden: 6/6 geslaagd`, `determinisme: OK`, exit 0.
 3. `python3 run.py --persona jeroen` → run-artefact met beide ontheffingen na adrescorrectie.
 4. `git log --oneline -10` → tien `feat(poc-gent)`-commits.
