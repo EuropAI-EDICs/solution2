@@ -1,0 +1,10 @@
+{
+  "id": "R-toegang",
+  "version": "2026.10",
+  "rules": [
+    {"id": "R1", "when": {"zoneLez": "in", "applicantType": "ondernemer"}, "then": {"transactions": ["ontheffing-lez"], "info": ["info-lez"]}, "legalBasis": "Gent LEZ-reglement — ontheffing zakelijk verkeer (illustratief)", "uitleg": "Uw adres ligt in de lage-emissiezone en u bent ondernemer: u hebt een LEZ-ontheffing nodig om met een voertuig het centrum in te rijden."},
+    {"id": "R2", "when": {"zoneAutovrij": "in", "applicantType": "ondernemer"}, "then": {"transactions": ["ontheffing-autovrij"]}, "legalBasis": "Gent verkeersplan — autovrij gebied (illustratief)", "uitleg": "Het adres ligt in het autovrije gebied: voor laden en lossen met een voertuig geldt een ontheffing autovrij gebied."},
+    {"id": "R3", "when": {"zoneLez": "niet-in", "zoneAutovrij": "niet-in"}, "then": {"transactions": [], "info": ["info-lez"]}, "legalBasis": "—", "uitleg": "Het adres ligt buiten de lage-emissiezone en buiten het autovrije gebied: voor dit adres is geen voertuigtoegangsvergunning nodig."}
+  ],
+  "unknownPolicy": "escalate"
+}

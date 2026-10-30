@@ -1,0 +1,35 @@
+{
+  "packageId": "gent-mobiliteit-ondernemer",
+  "version": "0.1.0",
+  "status": "concept",
+  "lifeEventCode": "GT-MOB-01",
+  "title": "GT-MOB-01 — Voertuigtoegang stadcentrum voor ondernemers",
+  "texts": {
+    "intro": "Ik help je regelen wat je nodig hebt rond voertuigtoegang in Gent, zoals de lage-emissiezone (LEZ) en het autovrije gebied.",
+    "scope": "Deze assistent gaat over voertuigtoegang bij werkzaamheden en levensgebeurtenissen in het Gentse stadscentrum.",
+    "aiToelichting": "Ik ben een AI-assistent van Stad Gent. Ik stel voor en leg uit; jij beslist en bevestigt.",
+    "weigering": "Als ik het niet zeker weet, zeg ik dat eerlijk en verbind ik je door met een medewerker.",
+    "escalatie": "Twijfel of een bijzondere situatie? Dan neemt een medewerker van Gentinfo het van me over."
+  },
+  "contextSchema": {
+    "slots": {
+      "applicantType": {"type": "enum", "values": ["burger", "ondernemer", "organisatie"], "required": true, "authenticSource": null, "vraag": "Bent u particulier, ondernemer of organisatie?"},
+      "address": {"type": "string", "required": true, "authenticSource": null, "vraag": "Op welk adres gaat u aan de slag?"},
+      "timing": {"type": "periode", "required": false, "authenticSource": null, "vraag": "Voor welke periode heeft u toegang nodig?"},
+      "vehicle": {"type": "kenteken", "required": false, "authenticSource": "magda:kenteken", "vraag": null},
+      "activity": {"type": "string", "required": true, "authenticSource": null, "vraag": "Wat gaat u precies doen?"},
+      "mandate": {"type": "referentie", "required": false, "authenticSource": "magda:mandate", "vraag": null}
+    }
+  },
+  "gisChecks": [
+    {"id": "lez", "layer": "gent-lez", "input": "address", "output": "zoneLez"},
+    {"id": "autovrij", "layer": "gent-autovrij", "input": "address", "output": "zoneAutovrij"}
+  ],
+  "decisionTables": "decision-tables.json",
+  "services": {
+    "ontheffing-lez": {"type": "inzending", "titel": "Ontheffing LEZ voor zakelijk verkeer", "uitleg": "Vergunning om met een voertuig de lage-emissiezone in te rijden."},
+    "ontheffing-autovrij": {"type": "inzending", "titel": "Ontheffing autovrij gebied (laden/lossen)", "uitleg": "Vergunning voor laden en lossen in het autovrije gebied."},
+    "info-lez": {"type": "info", "titel": "Informatie over de LEZ in Gent", "uitleg": "Uitleg over wanneer de LEZ geldt en voor wie."}
+  },
+  "golden": "golden/scenarios.jsonl"
+}
