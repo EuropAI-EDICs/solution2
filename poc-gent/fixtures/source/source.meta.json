@@ -1,5 +1,5 @@
 {
-  "gegenereerdOp": "2026-10-30T10:59:53+00:00",
+  "gegenereerdOp": "2026-10-30T18:17:53+00:00",
   "bronnen": {
     "gent-lez": {
       "dataset_id": "lage-emissie-zone-gent",
@@ -33,11 +33,24 @@
       "dienst": "OSM Nominatim (cache-bouw; productie-pad: BeSt Address API, FOD BOSA)",
       "licentie": "Data (c) OpenStreetMap contributors, ODbL 1.0 — https://osm.org/copyright",
       "url": "https://nominatim.openstreetmap.org/search"
+    },
+    "bestAddress": {
+      "productiepad": "productiepad officiële geocoding: BeSt Address Web API — https://opendata.bosa.be/download/best/bestinabox/best-webapi-user-guide.pdf (self-host via docker bosa/opendata-best-webapi); PoC gebruikt OSM Nominatim ( echt, ODbL)",
+      "pocGeocoder": "OSM Nominatim (ODbL)"
+    },
+    "vkbo": {
+      "bron": "https://geo.api.vlaanderen.be/VKBO/ogc/features/v1/collections/Vkbo/items",
+      "aantal": 200,
+      "licentie": "VKBO (Vlaanderen) — open data"
+    },
+    "gipod": {
+      "mode": "mock",
+      "fout": "publieke LDES-ingangen onbereikbaar: /api/v1/mobility-hindrances/{gipodId}/history: HTTP Error 401: Unauthorized; /api/v1/mobility-hindrances/{gipodId}/history/{position}: HTTP Error 401: Unauthorized; /api/v1/ldes/mobility-hindrances: HTTP Error 500: Internal Server Error",
+      "mock": "gipod-gent.json"
     }
   },
   "beschikbaarNogNietGecached": {
-    "kbo": "KBO/CBE open data (FOD Economie, gratis CSV) + VKBO geo — voor realistische ondernemersdossiers (F2)",
-    "gipod": "GIPOD open data (Athumi/Digitaal Vlaanderen) — innames/werken/evenementen openbaar domein (F2)"
+    "kbo": "KBO/CBE bulk-CSV (FOD Economie, gratis download) — zwaarder dan de via VKBO FeatureService ontsloten vestigingsdata; pas nodig voor dossiers buiten de Gentse bbox (latere fase)"
   },
   "geocodedAt": {
     "Korenmarkt 1, Gent": "2026-10-30T10:59:54+00:00",

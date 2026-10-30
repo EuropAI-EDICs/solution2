@@ -208,8 +208,7 @@ def build_cache() -> dict:
         "url": "https://nominatim.openstreetmap.org/search",
     }
     meta_document["beschikbaarNogNietGecached"] = {
-        "kbo": "KBO/CBE open data (FOD Economie, gratis CSV) + VKBO geo — voor realistische ondernemersdossiers (F2)",
-        "gipod": "GIPOD open data (Athumi/Digitaal Vlaanderen) — innames/werken/evenementen openbaar domein (F2)",
+        "kbo": "KBO/CBE bulk-CSV (FOD Economie, gratis download) — zwaarder dan de via VKBO FeatureService ontsloten vestigingsdata; pas nodig voor dossiers buiten de Gentse bbox (latere fase)",
     }
     _merge_adressen_meta(meta_document)
     (SOURCE_DIR / "source.meta.json").write_text(
