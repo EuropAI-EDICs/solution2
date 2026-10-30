@@ -17,7 +17,7 @@ class TestBuildGent(unittest.TestCase):
 
         cls.gent = build_gent()
 
-    def test_zeven_personas_met_verwachte_statussen(self):
+    def test_negen_personas_met_verwachte_statussen(self):
         statussen = {p["id"]: p["status"] for p in self.gent["personas"]}
         self.assertEqual(
             statussen,
@@ -29,8 +29,18 @@ class TestBuildGent(unittest.TestCase):
                 "jeroen": "gereed",
                 "ellen": "geweigerd",
                 "dirk": "blokkade",
+                "wim": "blokkade",
+                "nadia": "gereed",
             },
         )
+
+    def test_iam_auth_methode_en_loa_doorgegeven(self):
+        auth = {p["id"]: p["auth"] for p in self.gent["personas"]}
+        self.assertEqual(auth["sanne"]["methode"], "eudi-wallet")
+        self.assertEqual(auth["sanne"]["loa"], "substantial")
+        self.assertEqual(auth["wim"]["loa"], "low")
+        self.assertEqual(auth["nadia"]["methode"], "acm-idm")
+        self.assertNotIn("loa", auth["nadia"])
 
     def test_events_ketting_geverifieerd_voor_alle_personas(self):
         for p in self.gent["personas"]:
