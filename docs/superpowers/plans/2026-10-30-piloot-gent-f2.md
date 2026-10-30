@@ -884,7 +884,7 @@ Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests/test_runs.py -q`
 Expected: eerst faalt `test_minimale_run_valideert_tegen_schema` op het oude transaction-blok (RED), na de aanpassingen `7 passed` (6 + 1). Daarna faalt de volledige suite nog in `test_pipeline` — alleen de twee tests die `runs.validate` aanroepen (sanne + escalatie) falen op `ValidationError: 'status' is a required property` (verwacht — pipeline produceert nog v1.0-runs; taak 8 lost dat op).
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: enkel `test_pipeline`-tests falen (5 stuks), de rest groen.
+Expected: enkel `test_pipeline`-tests falen (de twee die `runs.validate` aanroepen), de rest groen.
 
 - [ ] **Step 4: Commit**
 
