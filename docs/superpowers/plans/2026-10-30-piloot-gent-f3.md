@@ -14,7 +14,7 @@
 
 - Alle code draait met `python3` (3.11+) zonder netwerk; geen echte persoonsgegevens — echte open-registerdata (VKBO) mag als broncache; persona's blijven synthetisch.
 - `core/`, `adapters/`, `run.py`, `eval.py` stdlib-only; `jsonschema` alléén in `core/runs.py::validate` en tests/eval onder `../nldt/.venv/bin/python`.
-- Tests: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` (na F3: `94 passed` voor de poc-gent-suite; de simulation-embedtests lopen apart).
+- Tests: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` (na F3: `97 passed` voor de poc-gent-suite; de simulation-embedtests lopen apart).
 - Deterministische replay: geen muurklok in canonieke run-inhoud; ontvangstbewijzen zijn deterministisch afgeleid (hash-gebaseerd), niet `random`.
 - Docstrings/teksten Nederlands; productie-identifiers Engels; testnamen mogen Nederlands.
 - Commit per taak, conventional commits scope `poc-gent` (sim-tab: scope `simulation`), Nederlandse samenvatting.
@@ -69,6 +69,20 @@ def test_gipod_mockfallback_levert_testdata_en_mode():
         assert {"id", "straat", "type", "van", "tot"} <= set(inn)
 
 
+def test_gipod_mock_wordt_nooit_herschreven(tmp_path, monkeypatch):
+    (tmp_path / "source").mkdir()
+    import shutil
+    mock = POC_ROOT / "fixtures" / "source" / "gipod-gent.json"
+    doel = tmp_path / "source" / "gipod-gent.json"
+    shutil.copy(mock, doel)
+    foraf = doel.read_text(encoding="utf-8")
+    monkeypatch.setattr(fetch_sources, "SOURCE_DIR", tmp_path / "source")
+    monkeypatch.setattr(fetch_sources, "GIPOD_SWAGGER", "https://onbereikbaar.voor.test/swagger.json")
+    uitslag = fetch_sources.haal_gipod(POC_ROOT)
+    assert uitslag["mode"] == "mock"
+    assert doel.read_text(encoding="utf-8") == foraf
+
+
 def test_best_address_productiepad_geregistreerd():
     assert "bestinabox" in fetch_sources.BEST_ADDRESS_PAD.lower()
 ```
@@ -118,6 +132,11 @@ def haal_vkbo(poc_root: Path, bbox: str = "3.700,51.030,3.760,51.080", limit: in
 
 
 def haal_gipod(poc_root: Path) -> dict:
+    """Publieke GIPOD-LDES proberen; de echt-cache (gipod-gent-echt.json) is
+    een fetch-artefact en wordt níet gecommit. De gecommitte mock-fixture
+    (gipod-gent.json) is de stabiele offline testbasis en wordt nooit
+    herschreven of herlabeld."""
+    echt_pad = SOURCE_DIR / "gipod-gent-echt.json"
     try:
         swagger = _fetch_json(GIPOD_SWAGGER)
         kandidaten = []
@@ -126,32 +145,31 @@ def haal_gipod(poc_root: Path) -> dict:
                 continue
             get = operaties.get("get") or {}
             if "Auth policies" in (get.get("description") or ""):
-                continue  # auth-policy-endpoint is geen publieke ingang
+                continue
             kandidaten.append(pad)
         if not kandidaten:
             raise RuntimeError("geen publiek (auth-vrij) mobilityhindrance-pad in swagger")
-        ldes, fouten = None, []
+        proef = None
+        gebruikte_url = None
+        fouten = []
         for kandidaat in kandidaten[:3]:
             url = f"https://gipod.api.vlaanderen.be{kandidaat}" if kandidaat.startswith("/") else kandidaat
             try:
-                ldes = url
                 proef = _fetch_json(url)
+                gebruikte_url = url
                 break
             except Exception as poging:
                 fouten.append(f"{kandidaat}: {poging}")
-        if ldes is None or "proef" not in dir():
+        if proef is None:
             raise RuntimeError("publieke LDES-ingangen onbereikbaar: " + "; ".join(fouten))
-        (SOURCE_DIR / "gipod-gent.json").write_text(
-            json.dumps({"mode": "echt", "bron": ldes, "ruw": proef}, ensure_ascii=False), encoding="utf-8")
-        return {"mode": "echt", "bron": ldes}
-    except Exception as fout:  # netwerk/auth/404 — fallback op meegeleverde testdata
-        pad = SOURCE_DIR / "gipod-gent.json"
-        if not pad.is_file():
+        echt_pad.write_text(json.dumps({"mode": "echt", "bron": gebruikte_url, "ruw": proef},
+                                       ensure_ascii=False), encoding="utf-8")
+        return {"mode": "echt", "bron": gebruikte_url}
+    except Exception as fout:
+        mock_pad = SOURCE_DIR / "gipod-gent.json"
+        if not mock_pad.is_file():
             raise RuntimeError(f"GIPOD onbereikbaar en geen mock aanwezig: {fout}")
-        data = json.loads(pad.read_text(encoding="utf-8"))
-        data["mode"] = "mock"
-        pad.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-        return {"mode": "mock", "fout": str(fout)}
+        return {"mode": "mock", "fout": str(fout), "mock": mock_pad.name}
 ```
 
 Maak de mock-testdata `poc-gent/fixtures/source/gipod-gent.json`:
@@ -159,7 +177,7 @@ Maak de mock-testdata `poc-gent/fixtures/source/gipod-gent.json`:
 ```json
 {
   "mode": "mock",
-  "bron": "GIPOD (Athumi/Digitaal Vlaanderen) — publieke LDES/OGC-Features; testdata zolang publieke ingang auth vereist",
+  "bron": "GIPOD (Athumi/Digitaal Vlaanderen) — publieke LDES bereikbaar; dit is de stabiele offline testdata-mock (echt-cache: gipod-gent-echt.json na --bronnen)",
   "innames": [
     {"id": "GP-2026-0001", "straat": "Korenmarkt", "type": "grondwerk", "van": "2026-11-02", "tot": "2026-11-06"},
     {"id": "GP-2026-0002", "straat": "Veldstraat", "type": "evenement", "van": "2026-12-12", "tot": "2026-12-13"}
@@ -245,7 +263,7 @@ en ná de bestaande per-bron-lus in `authenticSources`:
         raise PackageError("authenticSources bevat meerdere entries voor dezelfde bron (één doelbinding per bron)")
 ```
 
-- [ ] **Step 4: Alle tests** → `80 passed` (77 + 3).
+- [ ] **Step 4: Alle tests** → `83 passed` (80 + 3).
 
 - [ ] **Step 5: Commit** → `git add … && git commit -m "feat(poc-gent): pakketconfig v0.3.0 — documenteneisen + vereistAuth- en broncontroles"`
 
@@ -343,7 +361,7 @@ def controleer(manifest: dict, service_id: str, aangeleverd: list[dict]) -> dict
     return {"volledig": volledig, "bevindingen": bevindingen}
 ```
 
-- [ ] **Step 4: Alle tests** → `84 passed` (80 + 4). **Step 5: Commit** → `feat(poc-gent): documentenmodule met compleetheids- en veiligheidscontroles`
+- [ ] **Step 4: Alle tests** → `87 passed` (83 + 4). **Step 5: Commit** → `feat(poc-gent): documentenmodule met compleetheids- en veiligheidscontroles`
 
 ---
 
@@ -457,7 +475,7 @@ def dien_in(package_id: str, persona_id: str, formulieren: list[dict]) -> list[d
     return resultaten
 ```
 
-- [ ] **Step 4: Alle tests** → `88 passed` (84 + 4). **Step 5: Commit** → `feat(poc-gent): backoffice-mock en idempotente submit-engine met ontvangstbewijs`
+- [ ] **Step 4: Alle tests** → `91 passed` (87 + 4). **Step 5: Commit** → `feat(poc-gent): backoffice-mock en idempotente submit-engine met ontvangstbewijs`
 
 ---
 
@@ -528,7 +546,7 @@ def test_events_bevatten_geen_ruwe_schets_of_adres():
     assert "loodgieter" not in tekst  # woord uit sanne's schets
 ```
 
-- [ ] **Step 2: Falen** → `KeyError: 'submission'` e.a. **Step 3: Implementeer** fase-3 volgens het interface boven (spiegel de F2-fase-2-structuur; documenten vóór H4; `submit.dien_in` alleen na verdict `gegeven`; vervolgsamenvatting opbouwen uit ontvangst + open bevindingen). **Step 4: Alle tests** → `94 passed` (89 + 5; de 2 eerder falende validerende pipeline-tests zijn nu weer groen). **Step 5: Commit** → `feat(poc-gent): pipeline fase-3 — documenten, H4, inzending met ontvangstbewijs, vervolgsamenvatting, event-masking`
+- [ ] **Step 2: Falen** → `KeyError: 'submission'` e.a. **Step 3: Implementeer** fase-3 volgens het interface boven (spiegel de F2-fase-2-structuur; documenten vóór H4; `submit.dien_in` alleen na verdict `gegeven`; vervolgsamenvatting opbouwen uit ontvangst + open bevindingen). **Step 4: Alle tests** → `97 passed` (92 + 5; de 2 eerder falende validerende pipeline-tests zijn nu weer groen). **Step 5: Commit** → `feat(poc-gent): pipeline fase-3 — documenten, H4, inzending met ontvangstbewijs, vervolgsamenvatting, event-masking`
 
 ---
 
@@ -541,7 +559,7 @@ def test_events_bevatten_geen_ruwe_schets_of_adres():
 
 **Interfaces:** nieuwe persona's: `ilse` (ondernemer, Korenmarkt — Magda-record aanwezig Euro 6, maar géén kentekenbewijs → D0-blokkade; edge `document-ontbreekt`) en `hanne` (ondernemer, Korenmarkt, documenten geldig, `inzendingBevestigen: "geweigerd"`; edge `weigert-inzending`). Golden: g9 ilse → status `blokkade`; g10 hanne → `geweigerd` met ontvangst `niet-ingediend`; g11 sanne → `gereed` mét ontvangst `geaccepteerd`. Alle bestaande golden-regels ongewijzigd (sanne e.a. krijgen via `documenten.json` en default `inzendingBevestigen: "gegeven"` automatisch inzending).
 
-- Stappen: fixtures uitbreiden (identiteiten + magda voor ilse/hanne; documenten per taak 3 + hanne's te grote variant vervalt — hanne levert geldige documenten en weigert alleen H4; de te-grote testcase staat al in `test_documents` als unit); golden +3; catalogus-counttest 8 → 11; suite `94 passed`; eval smoke `11/11`. Commit: `feat(poc-gent): personas ilse en hanne + golden g9-g11 voor document- en H4-randpaden`.
+- Stappen: fixtures uitbreiden (identiteiten + magda voor ilse/hanne; documenten per taak 3 + hanne's te grote variant vervalt — hanne levert geldige documenten en weigert alleen H4; de te-grote testcase staat al in `test_documents` als unit); golden +3; catalogus-counttest 8 → 11; suite `97 passed`; eval smoke `11/11`. Commit: `feat(poc-gent): personas ilse en hanne + golden g9-g11 voor document- en H4-randpaden`.
 
 ---
 
@@ -555,7 +573,7 @@ def test_events_bevatten_geen_ruwe_schets_of_adres():
 - `run.py` print na status: ontvangstbewijzen (`  ontvangst: <service> → <referentie> (<status>)`) en de vervolgsamenvatting (`  nog te doen:` regels), en bij weigering de stopmelding. Nieuwe vlag `--status --persona <id>`: herhaalt de replay en print per transactie `ingediend als <referentie> · <status>` of `niet ingediend (<reden>)` — FR-19-mockvorm (geen aparte backoffice-query; documentatie vermeldt productiepad polling INT-06).
 - README: Fase 1+2+3-beschrijving, `--status`-voorbeeld, broncatalogus-verwijzing (VKBO/GIPOD/BeSt).
 - Smokes: `python3 run.py --persona sanne | head -12` (ontvangst + vervolgsamenvatting), `python3 run.py --status --persona hanne | head -4` (niet ingediend), `python3 eval.py` → `11/11`.
-- Suite blijft `95 passed`. Commit: `feat(poc-gent): ontvangstbewijs en vervolgsamenvatting in CLI; --status raadpleging; README F3`.
+- Suite blijft `97 passed`. Commit: `feat(poc-gent): ontvangstbewijs en vervolgsamenvatting in CLI; --status raadpleging; README F3`.
 
 ---
 
