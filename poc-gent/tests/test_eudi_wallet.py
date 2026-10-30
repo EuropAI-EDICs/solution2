@@ -101,6 +101,25 @@ def test_pid_met_ongeldig_loa_faalt_dicht():
         eudi_wallet.verifieer(POC_ROOT, presentatie, request)
 
 
+def test_presentatie_zonder_aangevraagde_claims_faalt_dicht():
+    request = eudi_wallet.presentation_request(DOELBINDING)
+    presentatie = eudi_wallet.presenteer(POC_ROOT, "sanne", request)
+    for c in presentatie["vp"]:
+        if c["credential"] == "machtiging":
+            c["claims"] = {}
+    with pytest.raises(eudi_wallet.WalletFout, match="mist aangevraagde claims"):
+        eudi_wallet.verifieer(POC_ROOT, presentatie, request)
+
+
+def test_presentatie_met_credential_buiten_aanvraag_faalt_dicht():
+    request = eudi_wallet.presentation_request(DOELBINDING)
+    presentatie = eudi_wallet.presenteer(POC_ROOT, "sanne", request)
+    presentatie["vp"].append({"credential": "rijbewijs", "issuer": "itsme-belgie-mock",
+                              "claims": {"categorie": "B"}})
+    with pytest.raises(eudi_wallet.WalletFout, match="buiten de aanvraag"):
+        eudi_wallet.verifieer(POC_ROOT, presentatie, request)
+
+
 def test_claims_valideert_tegen_nldt_wallet_claims_schema():
     import jsonschema
     schema = json.loads((POC_ROOT.parent / "nldt" / "schemas" / "wallet-claims.schema.json")
@@ -121,3 +140,4 @@ def test_wallets_sluiten_aan_op_personas_en_identiteiten():
         assert attestaties["pid"]["claims"]["sub"] == identiteiten[pid]["pseudoniem"]
         assert attestaties["pid"]["claims"]["loa"] in eudi_wallet.LOA_ORDER
         assert "machtiging" in attestaties
+        assert attestaties["machtiging"]["claims"]["mandaten"] == identiteiten[pid]["mandaten"]

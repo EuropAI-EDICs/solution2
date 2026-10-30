@@ -36,6 +36,8 @@ def _acm_authenticatie_stap(poc_root: Path, persona_id: str) -> tuple[dict, dict
 
 def run_replay(poc_root: Path, package_id: str, persona_id: str,
                override_slots: dict | None = None, auth_methode: str = "eudi") -> tuple[dict, list]:
+    if auth_methode not in ("eudi", "acmidm"):
+        raise ValueError(f"onbekende auth_methode: {auth_methode!r} (eudi|acmidm)")
     pkg = catalog.load_package(poc_root, package_id)
     persona = load_personas(poc_root)[persona_id]
     events: list = []

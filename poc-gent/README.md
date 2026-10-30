@@ -28,7 +28,9 @@ Magda-prefill → validatie → H3-concept) van het referentiepakket
   mandaatcontrole); wie géén wallet heeft, valt terug op ACM/IDM (vrije
   uitweg) — zie persona `nadia` (fallback) en `wim` (LoA `low` → waarborg-
   blokkade + Gentinfo-overname). Mock-beperking: het ACM/IDM-pad modelleert
-  géén LoA; productie-ACM/IDM koppelt zijn eigen waarborg (INT-01). Plan:
+  géén LoA; productie-ACM/IDM koppelt zijn eigen waarborg (INT-01): het
+  ACM/IDM-equivalent moet minimaal hetzelfde `minLoA`-contract claimen,
+  anders is `vereiste_loa` op dat pad een dode letter. Plan:
   [`docs/superpowers/plans/2026-10-30-piloot-gent-iam-eudi-wallet.md`](../docs/superpowers/plans/2026-10-30-piloot-gent-iam-eudi-wallet.md).
 
 ## Gebruik

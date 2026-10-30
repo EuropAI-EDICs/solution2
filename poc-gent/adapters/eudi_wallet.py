@@ -75,11 +75,16 @@ def presenteer(poc_root: Path, persona_id: str, request: dict) -> dict:
 
 def verifieer(poc_root: Path, presentatie: dict, request: dict) -> dict:
     """RP-kant: verificatie tegen lokale vertrouwensankers — fail-closed bij
-    nonce-mismatch, ontbrende credentials, onbekende issuer, onthulling buiten
-    de aanvraag of een pid zonder geldig sub/loa."""
+    nonce-mismatch, credentials buiten de aanvraag, ontbrekende credentials,
+    onbekende issuer, ontbrekende aangevraagde claims, onthulling buiten de
+    aanvraag of een pid zonder geldig sub/loa."""
     if presentatie.get("presentation_request_nonce") != request["nonce"]:
         raise WalletFout("nonce komt niet overeen met de presentatie-aanvraag")
     ankers = _laad(poc_root)["vertrouwensankers"]
+    gevraagde_types = {q["credential"] for q in request["credentials_query"]}
+    for item in presentatie.get("vp", []):
+        if item.get("credential") not in gevraagde_types:
+            raise WalletFout(f"presentatie bevat credential buiten de aanvraag: '{item.get('credential')}'")
     onthuld: dict[str, dict] = {}
     for query in request["credentials_query"]:
         item = next((c for c in presentatie.get("vp", [])
@@ -89,6 +94,9 @@ def verifieer(poc_root: Path, presentatie: dict, request: dict) -> dict:
         if item.get("issuer") not in ankers.get(query["credential"], []):
             raise WalletFout(f"issuer '{item.get('issuer')}' staat niet in de vertrouwensankers "
                              f"voor '{query['credential']}'")
+        ontbreekt = [c for c in query["claims"] if c not in item.get("claims", {})]
+        if ontbreekt:
+            raise WalletFout(f"presentatie mist aangevraagde claims voor '{query['credential']}': {ontbreekt}")
         buiten = set(item.get("claims", {})) - set(query["claims"])
         if buiten:
             raise WalletFout(f"presentatie onthult claims buiten de aanvraag "

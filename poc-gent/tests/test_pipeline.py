@@ -3,10 +3,18 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from core import events as events_mod
 from core import pipeline, runs
 
 POC_ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_onbekende_auth_methode_faalt_dicht():
+    with pytest.raises(ValueError, match="auth_methode"):
+        pipeline.run_replay(POC_ROOT, "gent-mobiliteit-ondernemer", "sanne",
+                            auth_methode="bestaatniet")
 
 
 def test_sanne_krijgt_bele_ontheffingen_met_uitleg():
