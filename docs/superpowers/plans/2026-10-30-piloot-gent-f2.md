@@ -14,7 +14,7 @@
 
 - Alle code draait met `python3` (3.11+) zonder netwerk; geen echte persoonsgegevens — alleen persona-fixtures (mocks).
 - `core/`, `adapters/`, `run.py`, `eval.py` importeren géén externe packages; alleen stdlib. `jsonschema` mag alléén in `core/runs.py::validate` (binnen de functie) en in tests/eval, gedraaid onder `../nldt/.venv/bin/python`.
-- Tests: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` (na F2: `71 passed`).
+- Tests: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` (na F2: `74 passed`).
 - Deterministische replay: geen muurklok in canonieke run-inhoud; `runId`/`generatedAt` gestript via `canonical()`.
 - Docstrings en teksten in het Nederlands (plain language); productie-identifiers Engels; testnamen mogen Nederlands zijn (repo-conventie).
 - Commit per taak, conventional commits met scope `poc-gent`, Nederlandse samenvatting.
@@ -59,11 +59,28 @@ def test_authenticsource_zonder_purpose_faalt(tmp_path):
         catalog.load_package(tmp_path, manifest["packageId"])
 
 
-def test_formulierbron_moet_slot_of_magda_zijn(tmp_path):
+@pytest.mark.parametrize("referentie", ["bestaat-niet:ergens", "magda:kenteken"])
+def test_formulierbron_moet_slot_of_magda_met_pad_zijn(tmp_path, referentie):
     manifest = _basis_manifest()
-    manifest["services"]["ontheffing-lez"]["formulier"][0]["bron"] = "bestaat-niet:ergens"
+    manifest["services"]["ontheffing-lez"]["formulier"][0]["bron"] = referentie
     _schrijf_pkg(tmp_path, manifest, _basis_tables())
     with pytest.raises(catalog.PackageError, match="formulierbron"):
+        catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_formulierregel_zonder_veld_faalt(tmp_path):
+    manifest = _basis_manifest()
+    del manifest["services"]["ontheffing-lez"]["formulier"][0]["veld"]
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    with pytest.raises(catalog.PackageError, match="'veld'"):
+        catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_dubbele_authenticsource_faalt(tmp_path):
+    manifest = _basis_manifest()
+    manifest["authenticSources"].append(dict(manifest["authenticSources"][0]))
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    with pytest.raises(catalog.PackageError, match="meerdere entries"):
         catalog.load_package(tmp_path, manifest["packageId"])
 
 
@@ -144,6 +161,8 @@ Voeg in `_validate` toe, ná de gisChecks-lus en vóór de regelvalidatie (en ge
         if slots.get(bron.get("slot", ""), {}).get("authenticSource") != bron.get("source"):
             raise PackageError(f"authenticSource '{bron.get('slot')}' wijkt af van het slot-authenticSource")
     gedeclareerd = {b.get("slot") for b in bronnen}
+    if len(bronnen) != len(gedeclareerd):
+        raise PackageError("authenticSources bevat meerdere entries voor hetzelfde slot")
     authentieke_slots = {s for s, spec in slots.items() if spec.get("authenticSource")}
     if gedeclareerd != authentieke_slots:
         raise PackageError(f"authenticSources dekken de authentieke slots niet: {gedeclareerd} ≠ {authentieke_slots}")
@@ -152,11 +171,16 @@ Voeg in `_validate` toe, ná de gisChecks-lus en vóór de regelvalidatie (en ge
             if not service.get("formulier"):
                 raise PackageError(f"dienst '{service_id}': inzending zonder formulier")
         for regel in service.get("formulier", []):
+            if not regel.get("veld"):
+                raise PackageError(f"dienst '{service_id}': formulierregel mist een niet-lege 'veld'")
             referentie = regel.get("bron", "")
-            geldig = referentie.startswith("slot:") and referentie[5:] in slots
-            geldig = geldig or referentie.split(".")[0] in {b["source"] for b in bronnen}
+            if referentie.startswith("slot:"):
+                geldig = referentie[5:] in slots
+            else:
+                tool, _, pad = referentie.partition(".")
+                geldig = bool(pad) and tool in {b["source"] for b in bronnen}
             if not geldig:
-                raise PackageError(f"dienst '{service_id}': onbekende formulierbron '{referentie}'")
+                raise PackageError(f"dienst '{service_id}': onbekende of onvolledige formulierbron '{referentie}'")
         velden = {regel["veld"] for regel in service.get("formulier", [])}
         for check in service.get("validaties", []):
             for veld in check.get("wanneer", {}):
@@ -171,7 +195,7 @@ Voeg in `_validate` toe, ná de gisChecks-lus en vóór de regelvalidatie (en ge
 - [ ] **Step 5: Draai alle tests**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `47 passed` (43 + 4).
+Expected: `50 passed` (43 + 7).
 
 - [ ] **Step 6: Commit**
 
@@ -288,7 +312,7 @@ def geldig_mandaat(identiteit: dict, context: dict) -> bool:
 - [ ] **Step 5: Draai alle tests**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `50 passed` (47 + 3).
+Expected: `53 passed` (50 + 3).
 
 - [ ] **Step 6: Commit**
 
@@ -416,7 +440,7 @@ def raadpleeg(manifest: dict, tool: str, purpose: str, poc_root: Path, persona_i
 - [ ] **Step 5: Draai alle tests**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `54 passed` (50 + 4).
+Expected: `57 passed` (53 + 4).
 
 - [ ] **Step 6: Commit**
 
@@ -551,7 +575,7 @@ def bouw(manifest: dict, service_id: str, context: dict, herkomst: dict, records
 - [ ] **Step 4: Draai alle tests**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `58 passed` (54 + 4).
+Expected: `61 passed` (57 + 4).
 
 - [ ] **Step 5: Commit**
 
@@ -672,7 +696,7 @@ def valideer(manifest: dict, service_id: str, formulier: dict) -> dict:
 - [ ] **Step 4: Draai alle tests**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `62 passed` (58 + 4).
+Expected: `65 passed` (61 + 4).
 
 - [ ] **Step 5: Commit**
 
@@ -759,7 +783,7 @@ def decide_h2(manifest: dict, context: dict, identiteit: dict, service_ids: list
 - [ ] **Step 4: Draai alle tests**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `65 passed` (62 + 3 nieuwe gates-tests).
+Expected: `68 passed` (65 + 3 nieuwe gates-tests).
 
 - [ ] **Step 5: Commit**
 
@@ -1078,7 +1102,7 @@ En vervang in de `run`-opbouw: `"schemaVersion": "1.0"` → `"1.1"`, en het `tra
 - [ ] **Step 5: Draai alle tests**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `71 passed` (66 + 5).
+Expected: `74 passed` (69 + 5).
 
 - [ ] **Step 6: Commit**
 
@@ -1165,7 +1189,7 @@ en voeg onder de bestaande doctrine-bullets toe:
 - [ ] **Step 4: Draai alles en smoke**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `71 passed` (geen nieuwe pytest-tests; de bestaande golden-test dekt de status-uitbreiding).
+Expected: `74 passed` (geen nieuwe pytest-tests; de bestaande golden-test dekt de status-uitbreiding).
 
 Run: `python3 eval.py` → acht regels, allemaal OK (g1…g8), `determinisme: OK`, `golden: 8/8 geslaagd`, exit 0.
 
@@ -1184,7 +1208,7 @@ git commit -m "feat(poc-gent): status in eval en CLI; README F2"
 
 ## Zelfcheck na afronding (executeur)
 
-1. `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` → `71 passed`.
+1. `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` → `74 passed`.
 2. `python3 eval.py` → `golden: 8/8 geslaagd`, `determinisme: OK`, exit 0.
 3. `python3 run.py --persona sanne | head -6` → `status: gereed`, `transactie: ontheffing-lez`, `ontheffing-autovrij`.
 4. `python3 run.py --persona ellen | head -6` → `status: geweigerd`.
