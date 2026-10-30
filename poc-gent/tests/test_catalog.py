@@ -48,3 +48,20 @@ def test_slot_zonder_vraag_faalt(tmp_path):
     _schrijf_pkg(tmp_path, manifest, _basis_tables())
     with pytest.raises(catalog.PackageError, match="vraag"):
         catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_kapotte_json_geeft_packageerror(tmp_path):
+    manifest = _basis_manifest()
+    pkg_dir = tmp_path / "packages" / manifest["packageId"]
+    (pkg_dir / "golden").mkdir(parents=True)
+    (pkg_dir / "manifest.json").write_text("{geen geldige json", encoding="utf-8")
+    with pytest.raises(catalog.PackageError, match="ongeldige JSON"):
+        catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_pointer_veld_ontbreekt_faalt(tmp_path):
+    manifest = _basis_manifest()
+    del manifest["decisionTables"]
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    with pytest.raises(catalog.PackageError, match="decisionTables"):
+        catalog.load_package(tmp_path, manifest["packageId"])

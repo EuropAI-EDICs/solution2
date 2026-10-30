@@ -23,7 +23,10 @@ class Package:
 def _read_json(path: Path) -> dict:
     if not path.is_file():
         raise PackageError(f"bestand ontbreekt: {path}")
-    return json.loads(path.read_text(encoding="utf-8"))
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as err:
+        raise PackageError(f"ongeldige JSON in {path}: {err}") from err
 
 
 def _validate(manifest: dict, tables: dict) -> None:
@@ -43,6 +46,9 @@ def _validate(manifest: dict, tables: dict) -> None:
             raise PackageError(f"slot '{slot}' mist vraag-tekst")
     outputs = set()
     for check in manifest.get("gisChecks", []):
+        for veld in ("id", "layer", "input", "output"):
+            if veld not in check:
+                raise PackageError(f"gisCheck mist veld '{veld}': {check}")
         if check["input"] not in slots:
             raise PackageError(f"gisCheck '{check['id']}': onbekende input-slot '{check['input']}'")
         outputs.add(check["output"])
@@ -61,6 +67,9 @@ def _validate(manifest: dict, tables: dict) -> None:
 def load_package(poc_root: Path, package_id: str) -> Package:
     pkg_dir = poc_root / "packages" / package_id
     manifest = _read_json(pkg_dir / "manifest.json")
+    for pointer in ("decisionTables", "golden"):
+        if not manifest.get(pointer):
+            raise PackageError(f"manifest: verplicht veld '{pointer}' ontbreekt")
     tables = _read_json(pkg_dir / manifest["decisionTables"])
     golden_path = pkg_dir / manifest["golden"]
     if not golden_path.is_file():
