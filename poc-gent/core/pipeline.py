@@ -1,8 +1,12 @@
 """Replay-pipeline: intake → intake-gate-vragen → GIS → H1 → routing (fase-1),
-daarna H2-gegevensgebruik/authenticatie, Magda-prefill, validatie en H3 (fase-2).
+daarna H2-gegevensgebruik/authenticatie, Magda-prefill, validatie en H3 (fase-2),
+daarna documentencontrole, H4-inzendingspoort en inzending met ontvangstbewijs
+en vervolgsamenvatting (fase-3).
 IAM: H2 authenticeert standaard via de EUDI-wallet-mock (nldt/16-doctrine);
 zonder wallet valt de run terug op ACM/IDM (vrije uitweg), en `auth_methode`
 forceert een route.
+SEC-05: de events bevatten geen ruwe situatieschets of feitwaarden — alleen
+hashes en namen; het run-artefact blijft volledig (verantwoording + audit).
 
 Replay-modus: de uitslagen van seam S1 (intentie-extractie) en S2
 (vraagformulering) komen deterministisch uit de persona-fixture; de
@@ -10,12 +14,13 @@ LLM-poot komt in een latere fase (ontwerp §5)."""
 
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import datetime, timezone
 from pathlib import Path
 
 from adapters import acm_idm_mock, eudi_wallet, magda_mock
-from core import catalog, context, gates, rules, runs
+from core import catalog, context, documents, gates, rules, runs, submit
 from core import events as events_mod
 from core import prefill, validate
 
@@ -34,6 +39,86 @@ def _acm_authenticatie_stap(poc_root: Path, persona_id: str) -> tuple[dict, dict
     return identiteit, stap
 
 
+def _aangeleverde_documenten(poc_root: Path, persona_id: str) -> list[dict] | None:
+    """Replay-stand-in voor de bewijzen die de gebruiker aanlevert (FR-12).
+    Een ontbrekende fixture-entry betekent dat de replay voor deze persona geen
+    documenten modelleert (n.v.t.); een lege lijst wél (D0-geval, zie ilse in
+    taak 7). De IAM-persona's wim/nadia volgen in de fixture-uitbreiding van
+    taak 7."""
+    data = json.loads((poc_root / "fixtures" / "documenten.json").read_text(encoding="utf-8"))
+    return data["personas"].get(persona_id)
+
+
+def _fase3(poc_root: Path, manifest: dict, persona: dict, persona_id: str, package_id: str,
+           transacties: list, formulieren: list, validatie_uitslagen: list,
+           status: str, open_redenen: list, steps: list, events: list) -> tuple[dict, str]:
+    """Fase-3 na H3: documentencontrole (FR-12) → H4-inzendingspoort → inzending
+    met ontvangstbewijs en vervolgsamenvatting (FR-16/FR-19). Mutateert steps en
+    events; geeft het submission-blok terug samen met de definitieve status."""
+    ontvangst = {"transacties": [{"service": sv, "referentie": None, "status": "niet-ingediend"}
+                                 for sv in transacties]}
+    vervolg = {"gereed": [], "open": []}
+
+    def _nvt_submission(h4_verdict: str, documenten: dict) -> dict:
+        return {"h4": {"verdict": h4_verdict, "bevestigdOp": "n.v.t."},
+                "documenten": documenten, "ontvangst": ontvangst, "vervolgsamenvatting": vervolg}
+
+    if status not in ("gereed", "gereed-met-waarschuwing") or not transacties:
+        vervolg["open"] = list(open_redenen) or ["Geen aanvragen om in te dienen — je kreeg alleen informatie."]
+        return _nvt_submission("n.v.t.", {"status": "n.v.t.", "bevindingen": []}), status
+
+    aangeleverd = _aangeleverde_documenten(poc_root, persona_id)
+    if aangeleverd is None:
+        documenten = {"status": "n.v.t.", "bevindingen": []}
+    else:
+        bevindingen: list[dict] = []
+        for sv in transacties:
+            for bevinding in documents.controleer(manifest, sv, aangeleverd)["bevindingen"]:
+                if bevinding not in bevindingen:  # zelfde eis geldt voor meerdere transacties
+                    bevindingen.append(bevinding)
+        documenten = {"status": "onvolledig" if bevindingen else "volledig",
+                      "bevindingen": bevindingen}
+
+    blokkades = [b for b in documenten["bevindingen"] if b["ernst"] == "blokkade"]
+    if blokkades:
+        vervolg["open"] = open_redenen + [b["melding"] for b in blokkades]
+        return _nvt_submission("n.v.t.", documenten), "blokkade"
+
+    events_mod.emit(events, "gate_request",
+                    {"gate": "H4", "transacties": transacties, "samenvatting": "concept + bewijzen"})
+    verdict = persona.get("inzendingBevestigen", "gegeven")
+    steps.append({"stepId": "h4-inzending", "title": "Je bevestigt de inzending van je aanvraag",
+                  "actor": "mens", "genAiTestPoint": "—",
+                  "dataUsed": [f"{manifest['services'][sv]['titel']} — concept + bewijzen" for sv in transacties],
+                  "consent": verdict, "handover": None, "kpiEvents": [],
+                  "prov": {"sources": ["H4-bevestiging door gebruiker"]}})
+    events_mod.emit(events, "gate_verdict", {"gate": "H4", "verdict": verdict})
+    if verdict != "gegeven":
+        vervolg["open"] = ["Je bevestigde de inzending niet — er is niets ingediend."]
+        return _nvt_submission("geweigerd", documenten), "geweigerd"
+
+    resultaten = submit.dien_in(package_id, persona_id, formulieren)
+    ontvangst = {"transacties": resultaten}
+    steps.append({"stepId": "ontvangstbewijs", "title": "Je krijgt per aanvraag een ontvangstbewijs",
+                  "actor": "partij", "genAiTestPoint": "—",
+                  "dataUsed": [f"{r['service']}: {r['referentie']}" for r in resultaten],
+                  "consent": "n.v.t.", "handover": None, "kpiEvents": [],
+                  "prov": {"sources": ["District09-vergunningen (mock v1, INT-03)"]}})
+    for resultaat in resultaten:
+        events_mod.emit(events, "inzending", {"service": resultaat["service"],
+                                              "referentie": resultaat["referentie"]})
+    vervolg["gereed"] = [f"{manifest['services'][r['service']]['titel']} ingediend — referentie {r['referentie']}"
+                         for r in resultaten]
+    vervolg["open"] = ([b["melding"] for u in validatie_uitslagen for b in u["bevindingen"]
+                        if b["ernst"] == "waarschuwing"]
+                       + [b["melding"] for b in documenten["bevindingen"] if b["ernst"] == "waarschuwing"]
+                       + ["Volg de status van je aanvragen via Gentinfo."])
+    events_mod.emit(events, "vervolgsamenvatting", vervolg)
+    return {"h4": {"verdict": "gegeven", "bevestigdOp": "replay (persona-fixture)"},
+            "documenten": documenten, "ontvangst": ontvangst,
+            "vervolgsamenvatting": vervolg}, status
+
+
 def run_replay(poc_root: Path, package_id: str, persona_id: str,
                override_slots: dict | None = None, auth_methode: str = "eudi") -> tuple[dict, list]:
     if auth_methode not in ("eudi", "acmidm"):
@@ -45,8 +130,9 @@ def run_replay(poc_root: Path, package_id: str, persona_id: str,
     slots = dict(persona["intentSlots"])
     if override_slots:
         slots.update(override_slots)
+    schets_hash = hashlib.sha256(persona["situatieschets"].encode("utf-8")).hexdigest()[:16]
     events_mod.emit(events, "intake_genomen",
-                    {"situatieschets": persona["situatieschets"], "slots_uit_intentie": sorted(slots)})
+                    {"situatieschetsHash": schets_hash, "slots_uit_intentie": sorted(slots)})
 
     vragen = context.open_questions(pkg.manifest, slots)
     antwoorden = persona.get("antwoorden", {})
@@ -62,7 +148,8 @@ def run_replay(poc_root: Path, package_id: str, persona_id: str,
                         {"id": check["id"], "layer": check["layer"], "resultaat": ctx.get(check["output"])})
 
     events_mod.emit(events, "gate_request",
-                    {"gate": "H1", "voorstel": context.summary(pkg.manifest, ctx, herkomst)})
+                    {"gate": "H1", "feitnamen": [r["feit"] for r in
+                                                 context.summary(pkg.manifest, ctx, herkomst)["regels"]]})
     corrections = persona.get("corrections", {})
     if corrections:
         ctx, herkomst = gates.confirm_h1(pkg.manifest, ctx, herkomst, corrections, poc_root)
@@ -108,9 +195,11 @@ def run_replay(poc_root: Path, package_id: str, persona_id: str,
     validatie_blok = {"transacties": []}
     status = "gereed"
     h3_blok = {"verdict": "n.v.t.", "correcties": {}}
+    open_redenen: list[str] = []  # reden-teksten voor vervolgsamenvatting.open bij stoppen
 
     if routing["outcome"] == "escalatie":
         status = "escalatie"
+        open_redenen.append("Geen regel van toepassing: een medewerker van Gentinfo beoordeelt je situatie verder.")
     elif vereist_auth:
         uitleg_h2 = gates.h2_uitleg(pkg.manifest, vereist_auth)
         events_mod.emit(events, "gate_request", {"gate": "H2", "uitleg": uitleg_h2})
@@ -118,6 +207,7 @@ def run_replay(poc_root: Path, package_id: str, persona_id: str,
         if toestemming == "geweigerd":
             status = "geweigerd"
             auth_blok["toestemming"] = "geweigerd"
+            open_redenen.append("Je weigerde het gebruik van je gegevens — er is niets opgehaald of ingediend.")
             events_mod.emit(events, "gate_verdict", {"gate": "H2", "verdict": "geweigerd"})
             steps.append({"stepId": "h2-gegevensgebruik", "title": "Je beslist of we je gegevens mogen gebruiken",
                           "actor": "mens", "genAiTestPoint": "—",
@@ -159,6 +249,7 @@ def run_replay(poc_root: Path, package_id: str, persona_id: str,
                 auth_blok["onthuldeClaims"] = identiteit["onthuldeClaims"]
             if not besluit["doorgang"]:
                 status = "blokkade"
+                open_redenen.append(besluit["reden"])
                 stap_ids = {"loa": "h2-loa-blokkade", "mandaat": "h2-mandaatblokkade"}
                 blokkade_titel = ("Je wallet geeft te weinig waarborg — een medewerker helpt verder"
                                   if besluit["oorzaak"] == "loa"
@@ -189,6 +280,8 @@ def run_replay(poc_root: Path, package_id: str, persona_id: str,
                     events_mod.emit(events, "validatie", {"service": service_id, "status": uitslag["status"]})
                 status = max((u["status"] for u in validatie_blok["transacties"]),
                              key=lambda s: ergste[s], default="gereed")
+                open_redenen.extend(b["melding"] for u in validatie_blok["transacties"]
+                                    for b in u["bevindingen"] if b["ernst"] == "blokkade")
                 h3_blok = {"verdict": "gegeven", "correcties": {}}
                 steps.append({"stepId": "h3-conceptbeoordeling", "title": "Je beoordeelt het concept van je aanvraag",
                               "actor": "mens", "genAiTestPoint": "—",
@@ -200,8 +293,13 @@ def run_replay(poc_root: Path, package_id: str, persona_id: str,
                     {"service": u["service"], "status": u["status"]} for u in validatie_blok["transacties"]]})
                 events_mod.emit(events, "gate_verdict", {"gate": "H3", "verdict": "gegeven", "correcties": {}})
 
+    submission_blok, status = _fase3(poc_root, pkg.manifest, persona, persona_id, package_id,
+                                     transacties, prefill_blok["transacties"],
+                                     validatie_blok["transacties"], status, open_redenen,
+                                     steps, events)
+
     run = {
-        "schemaVersion": "1.1", "runId": runs.new_run_id(persona_id),
+        "schemaVersion": "1.2", "runId": runs.new_run_id(persona_id),
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "recipeId": package_id, "processId": "gent-transactional-run", "mode": "replay",
         "scenario": persona_id, "steps": steps, "stopConditions": [], "kpiSnapshot": [],
@@ -212,6 +310,7 @@ def run_replay(poc_root: Path, package_id: str, persona_id: str,
                         "auth": auth_blok,
                         "prefill": prefill_blok,
                         "validatie": validatie_blok,
-                        "h3": h3_blok},
+                        "h3": h3_blok,
+                        "submission": submission_blok},
     }
     return run, events

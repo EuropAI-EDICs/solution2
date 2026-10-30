@@ -1,4 +1,6 @@
-"""F1-replay end-to-end: personas → gate → GIS → H1 → routing (FR-03/04/05/06/07/23)."""
+"""Replay end-to-end: personas → gate → GIS → H1 → routing (fase-1), H2/prefill/H3
+(fase-2, IAM EUDI-wallet/ACM-IDM) en fase-3 documenten/H4/inzending (FR-12/16)
+met SEC-05-event-masking."""
 
 import json
 from pathlib import Path
@@ -150,3 +152,50 @@ def test_maria_zonder_transacties_slaat_auth_over():
     assert run["transaction"]["status"] == "gereed"
     assert run["transaction"]["auth"]["authenticatie"] == "niet-uitgevoerd"
     assert run["transaction"]["auth"]["toestemming"] == "n.v.t."
+
+
+def test_sanne_rondt_inzending_af_met_ontvangstbewijs():
+    run, log = pipeline.run_replay(POC_ROOT, "gent-mobiliteit-ondernemer", "sanne")
+    runs.validate(run, POC_ROOT)
+    ontvangst = run["transaction"]["submission"]["ontvangst"]["transacties"]
+    assert len(ontvangst) == 2
+    assert all(t["status"] == "geaccepteerd" and t["referentie"].startswith("GENT-") for t in ontvangst)
+    assert run["transaction"]["submission"]["h4"]["verdict"] == "gegeven"
+    assert any(e["kind"] == "inzending" for e in log)
+    assert run["transaction"]["submission"]["vervolgsamenvatting"]["gereed"]
+
+
+def test_hanne_weigert_h4_en_stopt_voor_inzending():
+    run, _log = pipeline.run_replay(POC_ROOT, "gent-mobiliteit-ondernemer", "hanne")
+    runs.validate(run, POC_ROOT)
+    ontvangst = run["transaction"]["submission"]["ontvangst"]["transacties"]
+    assert all(t["status"] == "niet-ingediend" and t["referentie"] is None for t in ontvangst)
+    assert run["transaction"]["status"] == "geweigerd"
+
+
+def test_ilse_mist_verplicht_document():
+    run, _log = pipeline.run_replay(POC_ROOT, "gent-mobiliteit-ondernemer", "ilse")
+    runs.validate(run, POC_ROOT)
+    docs = run["transaction"]["submission"]["documenten"]
+    assert docs["status"] == "onvolledig"
+    assert docs["bevindingen"][0]["id"].startswith("D0-")
+    assert run["transaction"]["status"] == "blokkade"
+
+
+def test_events_bevatten_geen_ruwe_schets_of_adres():
+    run, log = pipeline.run_replay(POC_ROOT, "gent-mobiliteit-ondernemer", "sanne")
+    tekst = json.dumps(log)
+    assert "Korenmarkt 1, Gent" not in tekst
+    assert "loodgieter" not in tekst  # woord uit sanne's schets
+
+
+def test_ellen_weigering_levert_nvt_submission_zonder_inzending():
+    run, _log = pipeline.run_replay(POC_ROOT, "gent-mobiliteit-ondernemer", "ellen")
+    runs.validate(run, POC_ROOT)
+    submission = run["transaction"]["submission"]
+    assert submission["h4"] == {"verdict": "n.v.t.", "bevestigdOp": "n.v.t."}
+    assert submission["documenten"] == {"status": "n.v.t.", "bevindingen": []}
+    ontvangst = submission["ontvangst"]["transacties"]
+    assert ontvangst and all(t["status"] == "niet-ingediend" and t["referentie"] is None for t in ontvangst)
+    assert submission["vervolgsamenvatting"]["gereed"] == []
+    assert submission["vervolgsamenvatting"]["open"]  # reden-tekst van de H2-weigering
