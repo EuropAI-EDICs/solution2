@@ -17,7 +17,7 @@ def _build(address):
 
 
 def test_adrescorrectie_herberekent_zones_zonder_geconfirmeerde_feiten_te_verliezen():
-    ctx, herkomst = _build("Sint-Pietersplein 1, Gent")
+    ctx, herkomst = _build("Koningin Maria Hendrikaplein 1, Gent")
     assert ctx["zoneLez"] == "niet-in"
     ctx2, herkomst2 = gates.confirm_h1(MANIFEST, ctx, herkomst, {"address": "Korenmarkt 1, Gent"}, POC_ROOT)
     assert ctx2["address"] == "Korenmarkt 1, Gent"

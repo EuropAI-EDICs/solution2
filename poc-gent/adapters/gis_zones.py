@@ -13,14 +13,31 @@ class AddressError(Exception):
     """Adres staat niet in de fixture; productie: geocoding-service."""
 
 
+def _outer_rings(geometry: dict) -> list[list[tuple[float, float]]]:
+    """Buitenringen van Polygon én MultiPolygon (gaten genegeerd — PoC-restitutie)."""
+    if not geometry:
+        return []
+    if geometry.get("type") == "Polygon":
+        return [[tuple(p) for p in geometry["coordinates"][0]]]
+    if geometry.get("type") == "MultiPolygon":
+        return [[tuple(p) for p in poly[0]] for poly in geometry["coordinates"]]
+    return []
+
+
 def load_zones(poc_root: Path) -> dict:
     fc = json.loads((poc_root / "fixtures" / "gis-zones.geojson").read_text(encoding="utf-8"))
     zones: dict = {}
     for feat in fc["features"]:
         layer = feat["properties"]["layer"]
-        ring = [tuple(p) for p in feat["geometry"]["coordinates"][0]]
-        zones.setdefault(layer, []).append(ring)
+        zones.setdefault(layer, []).extend(_outer_rings(feat.get("geometry")))
     return zones
+
+
+def load_layer_versies(poc_root: Path) -> dict[str, str]:
+    """Versie per laag uit de cache (bronvermelding in herkomst, DATA-01)."""
+    fc = json.loads((poc_root / "fixtures" / "gis-zones.geojson").read_text(encoding="utf-8"))
+    return {feat["properties"]["layer"]: feat["properties"].get("versie", "onbekende brondata")
+            for feat in fc["features"]}
 
 
 def lookup_address(poc_root: Path, address: str) -> tuple[float, float]:
@@ -58,10 +75,12 @@ def apply_checks(manifest: dict, context: dict, herkomst: dict, poc_root: Path, 
     weg met afgeleid-herkomst. Mutatie van context/herkomst is bewust: de caller
     geeft kopieën mee (context.build / gates.confirm_h1)."""
     zones = load_zones(poc_root)
+    versies = load_layer_versies(poc_root)
     for check in manifest.get("gisChecks", []):
         adres = context.get(check["input"])
         if adres is None:
             continue
         lon, lat = lookup_address(poc_root, adres)
         context[check["output"]] = zone_result(zones, check["layer"], lon, lat)
-        herkomst[check["output"]] = {"label": "afgeleid", "bron": f"gis:{check['layer']} (fixture v1{suffix})"}
+        versie = versies.get(check["layer"], "onbekende brondata")
+        herkomst[check["output"]] = {"label": "afgeleid", "bron": f"gis:{check['layer']} ({versie}{suffix})"}

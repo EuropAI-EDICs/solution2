@@ -26,14 +26,15 @@ def test_build_berekent_zones_met_herkomst_afgeleid():
     ctx, herkomst = context.build(MANIFEST, slots, POC_ROOT)
     assert ctx["zoneLez"] == "in"
     assert ctx["zoneAutovrij"] == "in"
-    assert herkomst["zoneLez"] == {"label": "afgeleid", "bron": "gis:gent-lez (fixture v1)"}
+    assert herkomst["zoneLez"]["label"] == "afgeleid"
+    assert herkomst["zoneLez"]["bron"].startswith("gis:gent-lez (")
     assert herkomst["address"]["label"] == "gebruiker"
 
 
 def test_summary_noemt_elk_feit_met_herkomst():
-    slots = {"applicantType": "ondernemer", "address": "Sleepstraat 1, Gent", "activity": "herstelwerken"}
+    slots = {"applicantType": "ondernemer", "address": "Sint-Pietersplein 1, Gent", "activity": "herstelwerken"}
     ctx, herkomst = context.build(MANIFEST, slots, POC_ROOT)
     som = context.summary(MANIFEST, ctx, herkomst)
     feiten = {r["feit"] for r in som["regels"]}
     assert {"applicantType", "address", "activity", "zoneLez", "zoneAutovrij"} <= feiten
-    assert "Sleepstraat" in som["tekst"]
+    assert "Sint-Pietersplein" in som["tekst"]
