@@ -1395,7 +1395,7 @@ POC_ROOT = Path(__file__).resolve().parent
 if str(POC_ROOT) not in sys.path:
     sys.path.insert(0, str(POC_ROOT))
 
-from core import pipeline, runs  # noqa: E402
+from core import catalog, pipeline, runs  # noqa: E402
 
 
 def main() -> int:
@@ -1417,12 +1417,16 @@ def main() -> int:
         print(f"onbekende persona: {args.persona} (probeer --list-personas)", file=sys.stderr)
         return 2
 
-    run, events = pipeline.run_replay(POC_ROOT, args.package, args.persona)
+    try:
+        run, events = pipeline.run_replay(POC_ROOT, args.package, args.persona)
+    except catalog.PackageError as err:
+        print(f"pakketfout: {err}", file=sys.stderr)
+        return 2
     try:
         runs.validate(run, POC_ROOT)
     except ImportError:
         print("waarschuwing: jsonschema niet beschikbaar — schema-validatie overgeslagen "
-              "(draai onder nldt/.venv voor volledige controle)")
+              "(draai onder nldt/.venv voor volledige controle)", file=sys.stderr)
     runs.write_run(POC_ROOT, run, events)
 
     routing = run["transaction"]["routing"]
