@@ -31,6 +31,8 @@ def evaluate(package_id: str) -> int:
         print(f"{'OK  ' if ok else 'FAAL'} {scenario['scenarioId']}: "
               f"{routing['outcome']} {routing['paths']['transactions']} "
               f"[status {run['transaction']['status']}]")
+        if not ok:
+            print(f"  verwachte status: {expect.get('status', 'gereed')}")
         if ok:
             passed += 1
         else:
