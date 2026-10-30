@@ -31,3 +31,25 @@ def test_correctie_op_authentiek_slot_wordt_geweigerd():
     ctx, herkomst = _build("Korenmarkt 1, Gent")
     with pytest.raises(ValueError, match="authentiek"):
         gates.confirm_h1(MANIFEST, ctx, herkomst, {"vehicle": "1-ABC-123"}, POC_ROOT)
+
+
+def test_h2_uitleg_noemt_bronnen_en_doelbinding():
+    uitleg = gates.h2_uitleg(MANIFEST, ["ontheffing-lez"])
+    bronnen = {b["tool"] for b in uitleg["bronnen"]}
+    assert bronnen == {"magda:kenteken"}
+    assert all(b["purpose"] for b in uitleg["bronnen"])
+    assert "authenticatie" in uitleg["waarom"].lower() or "authenticatie" in uitleg["waarom"]
+
+
+def test_decide_h2_blokkeert_zonder_geldig_mandaat():
+    from adapters import acm_idm_mock
+    identiteit = acm_idm_mock.authenticate(POC_ROOT, "ellen")
+    besluit = gates.decide_h2(MANIFEST, {}, identiteit, ["ontheffing-lez"])
+    assert besluit["doorgang"] is False
+    assert "mandaat" in besluit["reden"].lower() or "mandaat" in besluit["reden"]
+
+
+def test_decide_h2_sta_door_zonder_mandaten():
+    from adapters import acm_idm_mock
+    identiteit = acm_idm_mock.authenticate(POC_ROOT, "sanne")
+    assert gates.decide_h2(MANIFEST, {}, identiteit, ["ontheffing-lez"])["doorgang"] is True
