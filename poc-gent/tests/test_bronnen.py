@@ -29,3 +29,21 @@ def test_gipod_mockfallback_levert_testdata_en_mode():
 
 def test_best_address_productiepad_geregistreerd():
     assert "bestinabox" in fetch_sources.BEST_ADDRESS_PAD.lower()
+
+
+def test_vkbo_witruimte_commerciele_naam_valt_terug_op_afgekorte():
+    features = [{"type": "Feature", "properties": {
+        "Commerciele_naam": "  ", "Afgekorte_naam": "Testbouw",
+        "AR_straat": "Korenmarkt", "AR_huisnr": "1", "AR_postcode": "9000",
+        "Datum_inschrijving": "2015-03-02"}}]
+    rijen = fetch_sources.normaliseer_vkbo(features)
+    assert rijen[0]["naam"] == "Testbouw"
+
+
+def test_vkbo_witruimte_busnr_wordt_niet_opgenomen():
+    features = [{"type": "Feature", "properties": {
+        "Commerciele_naam": "BVBA Testbouw", "AR_straat": "Korenmarkt",
+        "AR_huisnr": "3", "AR_busnr": "   ", "AR_postcode": "9040",
+        "Datum_inschrijving": "2003-01-18"}}]
+    rijen = fetch_sources.normaliseer_vkbo(features)
+    assert rijen[0]["huisnr"] == "3"
