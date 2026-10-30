@@ -59,6 +59,8 @@ def _validate(manifest: dict, tables: dict) -> None:
         raise PackageError("manifest.services is leeg")
     bronnen = manifest.get("authenticSources", [])
     gedeclareerd = {b.get("slot") for b in bronnen}
+    if len(bronnen) != len(gedeclareerd):
+        raise PackageError("authenticSources bevat meerdere entries voor hetzelfde slot")
     authentieke_slots = {s for s, spec in slots.items() if spec.get("authenticSource")}
     for bron in bronnen:
         if not bron.get("purpose"):
@@ -72,11 +74,16 @@ def _validate(manifest: dict, tables: dict) -> None:
             if not service.get("formulier"):
                 raise PackageError(f"dienst '{service_id}': inzending zonder formulier")
         for regel in service.get("formulier", []):
+            if not regel.get("veld"):
+                raise PackageError(f"dienst '{service_id}': formulierregel mist een niet-lege 'veld'")
             referentie = regel.get("bron", "")
-            geldig = referentie.startswith("slot:") and referentie[5:] in slots
-            geldig = geldig or referentie.split(".")[0] in {b["source"] for b in bronnen}
+            if referentie.startswith("slot:"):
+                geldig = referentie[5:] in slots
+            else:
+                tool, _, pad = referentie.partition(".")
+                geldig = bool(pad) and tool in {b["source"] for b in bronnen}
             if not geldig:
-                raise PackageError(f"dienst '{service_id}': onbekende formulierbron '{referentie}'")
+                raise PackageError(f"dienst '{service_id}': onbekende of onvolledige formulierbron '{referentie}'")
         velden = {regel["veld"] for regel in service.get("formulier", [])}
         for check in service.get("validaties", []):
             for veld in check.get("wanneer", {}):

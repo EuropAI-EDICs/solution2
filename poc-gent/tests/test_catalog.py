@@ -125,11 +125,28 @@ def test_authenticsource_zonder_purpose_faalt(tmp_path):
         catalog.load_package(tmp_path, manifest["packageId"])
 
 
-def test_formulierbron_moet_slot_of_magda_zijn(tmp_path):
+@pytest.mark.parametrize("referentie", ["bestaat-niet:ergens", "magda:kenteken"])
+def test_formulierbron_moet_slot_of_magda_met_pad_zijn(tmp_path, referentie):
     manifest = _basis_manifest()
-    manifest["services"]["ontheffing-lez"]["formulier"][0]["bron"] = "bestaat-niet:ergens"
+    manifest["services"]["ontheffing-lez"]["formulier"][0]["bron"] = referentie
     _schrijf_pkg(tmp_path, manifest, _basis_tables())
     with pytest.raises(catalog.PackageError, match="formulierbron"):
+        catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_formulierregel_zonder_veld_faalt(tmp_path):
+    manifest = _basis_manifest()
+    del manifest["services"]["ontheffing-lez"]["formulier"][0]["veld"]
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    with pytest.raises(catalog.PackageError, match="'veld'"):
+        catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_dubbele_authenticsource_faalt(tmp_path):
+    manifest = _basis_manifest()
+    manifest["authenticSources"].append(dict(manifest["authenticSources"][0]))
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    with pytest.raises(catalog.PackageError, match="meerdere entries"):
         catalog.load_package(tmp_path, manifest["packageId"])
 
 
