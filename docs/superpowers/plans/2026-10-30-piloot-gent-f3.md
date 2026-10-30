@@ -490,9 +490,9 @@ def dien_in(package_id: str, persona_id: str, formulieren: list[dict]) -> list[d
   `{"h4": {"verdict": "gegeven"|"geweigerd"|"n.v.t.", "bevestigdOp": str}, "documenten": {"status": "volledig"|"onvolledig"|"n.v.t.", "bevindingen": [ {id, ernst, melding} ]}, "ontvangst": {"transacties": [{"service", "referentie", "status": "geaccepteerd"|"in-wachtrij"|"afgewezen"|"technisch-mislukt"|"niet-ingediend"}]}, "vervolgsamenvatting": {"gereed": [str], "open": [str]}}`
   — bij H4-weigering/blokkade/escalatie: `ontvangst.transacties` bevat per transactie `status: "niet-ingediend"` zonder referentie-veld? Nee: schema-eenvoud — `"referentie": {"type": ["string", "null"]}`; `vervolgsamenvatting.open` benoemt dan de te ondernemen actie.
 
-- [ ] **Step 1:** Breid het schema uit (const 1.2; `$defs.submissionH4`, `submissionDocumenten`, `ontvangstTransactie`, `vervolgsamenvatting` met `additionalProperties: false`; required-uitbreiding `transaction` + `"submission"`).
+- [ ] **Step 1:** Breid het schema uit (const 1.2; `$defs.submissionH4`, `submissionDocumenten`, `ontvangstTransactie`, `vervolgsamenvatting` met `additionalProperties: false`; required-uitbreiding `transaction` + `"submission"`). *IAM-integratie (2026-10-30):* het auth-blok (in `$defs.transaction.properties.auth`) heeft sinds de IAM-track óók optionele velden `methode` (eudi-wallet|acm-idm), `loa` (low|substantial|high) en `onthuldeClaims` (unieke strings) — die blijven ongewijzigd staan; raak ze niet aan en werk de structuur waar `transaction` gedefinieerd is in de daadwerkelijke bestandsvorm bij.
 - [ ] **Step 2:** Werk `_minimale_run()` bij: `"schemaVersion": "1.2"` en een geldig `submission`-blok (`h4: n.v.t.`, `documenten: n.v.t.` met lege bevindingen, lege ontvangst, lege vervolgsamenvatting-lijsten). Nieuwe test `test_schema_verwerpt_zonder_submission` (verwijder het blok → ValidationError).
-- [ ] **Step 3:** `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests/test_runs.py -q` → `8 passed` (7 + 1); daarna faalt de suite uitsluitend op de validerende pipeline-tests (verwachte tussenfase, zoals bij F2-T7).
+- [ ] **Step 3:** `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests/test_runs.py -q` → `8 passed` (7 + 1); daarna falen in de suite uitsluitend de tests die `runs.validate` aanroepen (verwachte tussenfase op `ValidationError: 'submission' is a required property`, zoals bij F2-T7 — door de IAM-track kunnen dat er meer dan twee zijn).
 - [ ] **Step 4: Commit** → `feat(poc-gent): run-schema v1.2 met submission-blok (H4, documenten, ontvangst, vervolgsamenvatting)`
 
 ---
@@ -546,7 +546,7 @@ def test_events_bevatten_geen_ruwe_schets_of_adres():
     assert "loodgieter" not in tekst  # woord uit sanne's schets
 ```
 
-- [ ] **Step 2: Falen** → `KeyError: 'submission'` e.a. **Step 3: Implementeer** fase-3 volgens het interface boven (spiegel de F2-fase-2-structuur; documenten vóór H4; `submit.dien_in` alleen na verdict `gegeven`; vervolgsamenvatting opbouwen uit ontvangst + open bevindingen). **Step 4: Alle tests** → `97 passed` (92 + 5; de 2 eerder falende validerende pipeline-tests zijn nu weer groen). **Step 5: Commit** → `feat(poc-gent): pipeline fase-3 — documenten, H4, inzending met ontvangstbewijs, vervolgsamenvatting, event-masking`
+- [ ] **Step 2: Falen** → `KeyError: 'submission'` e.a. **Step 3: Implementeer** fase-3 volgens het interface boven (spiegel de F2-fase-2-structuur; documenten vóór H4; `submit.dien_in` alleen na verdict `gegeven`; vervolgsamenvatting opbouwen uit ontvangst + open bevindingen). **Step 4: Alle tests** → `120 passed` (IAM-basis 114 + 1 schematest + 5 fase-3-tests; de bij T5 falende validerende pipeline-tests zijn nu weer groen). **Step 5: Commit** → `feat(poc-gent): pipeline fase-3 — documenten, H4, inzending met ontvangstbewijs, vervolgsamenvatting, event-masking`
 
 ---
 
@@ -583,7 +583,7 @@ def test_events_bevatten_geen_ruwe_schets_of_adres():
 - Modify: `simulation/build_simulation.py` (`build_gent`: `submission`-blok meenemen), `simulation/template.html` (view5: ontvangstkaart + vervolgsamenvatting + documentbevindingen; sim5-stappen uit de run-stappen incl. nieuwe stappen — generiek al het geval), `simulation/verify_static.mjs` (drive ilse/hanne), `simulation/test_build_gent.py`
 - Test: `simulation/test_build_gent.py` uitbreiding (+2: ontvangstbewijzen aanwezig voor sanne/geen voor hanne; events bevatten geen adresstring).
 
-Stappen: `build_gent()` neemt `t["submission"]` over in de persona-dict; template voegt achter het statuskaartje een ontvangst/vervolg-blok toe (alleen als `submission.ontvangst.transacties` niet-leeg of `vervolgsamenvatting.open` niet-leeg); verifier rijdt `gentPersona("ilse")` en `gentPersona("hanne")`; build + `node verify_static.mjs` exit 0; suite `99 passed` (95 poc-gent + 4→6 test_build_gent… let op: poc-gent-suite telt niet test_build_gent; zelfcheck noemt beide). Commit (scope `simulation`): `feat(simulation): Gent-tab fase 3 — ontvangstbewijs, vervolgsamenvatting en documentbevindingen`.
+Stappen: `build_gent()` neemt `t["submission"]` over in de persona-dict; template voegt achter het statuskaartje een ontvangst/vervolg-blok toe (alleen als `submission.ontvangst.transacties` niet-leeg of `vervolgsamenvatting.open` niet-leeg); verifier rijdt `gentPersona("ilse")` en `gentPersona("hanne")`; build + `node verify_static.mjs` exit 0; poc-gent-suite blijft `120 passed`; `simulation/test_build_gent.py` groeit van 6 naar 8 tests (ontvangstbewijzen + masking). Commit (scope `simulation`): `feat(simulation): Gent-tab fase 3 — ontvangstbewijs, vervolgsamenvatting en documentbevindingen`.
 
 ---
 
