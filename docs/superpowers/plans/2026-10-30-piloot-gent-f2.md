@@ -901,6 +901,7 @@ git commit -m "feat(poc-gent): run-schema v1.1 met auth, prefill, validatie, h3 
 - Modify: `poc-gent/core/pipeline.py`
 - Modify: `poc-gent/fixtures/personas.json`
 - Modify: `poc-gent/packages/gent-mobiliteit-ondernemer/golden/scenarios.jsonl`
+- Modify: `poc-gent/tests/test_catalog.py` (golden-counttest 6 → 8, consequentie van g7/g8)
 - Test: `poc-gent/tests/test_pipeline.py`
 
 **Interfaces:**
@@ -1067,7 +1068,7 @@ En implementeer na de bestaande routing/fase-1 en vóór het samenstellen van `r
                 ergste = {"gereed": 0, "gereed-met-waarschuwing": 1, "blokkade": 2}
                 for service_id in transacties:
                     formulier = prefill.bouw(pkg.manifest, service_id, ctx, herkomst, records)
-                    uitslag = validate.valideer(pkg.manifest, service_id, formulier)
+                    uitslag = {"service": service_id, **validate.valideer(pkg.manifest, service_id, formulier)}
                     prefill_blok["transacties"].append(formulier)
                     validatie_blok["transacties"].append(uitslag)
                     events_mod.emit(events, "prefill", {"service": service_id, "ontbrekend": formulier["ontbrekend"]})
@@ -1107,7 +1108,7 @@ Expected: `74 passed` (69 + 5).
 - [ ] **Step 6: Commit**
 
 ```bash
-git add poc-gent/core/pipeline.py poc-gent/fixtures/personas.json poc-gent/packages/gent-mobiliteit-ondernemer/golden/scenarios.jsonl poc-gent/tests/test_pipeline.py
+git add poc-gent/core/pipeline.py poc-gent/fixtures/personas.json poc-gent/packages/gent-mobiliteit-ondernemer/golden/scenarios.jsonl poc-gent/tests/test_pipeline.py poc-gent/tests/test_catalog.py
 git commit -m "feat(poc-gent): pipeline fase-2 — H2, authenticatie, Magda-prefill, validatie, H3"
 ```
 
