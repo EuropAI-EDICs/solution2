@@ -873,8 +873,8 @@ git commit -m "feat(poc-gent): H1-contextbevestiging met correcties"
 **Interfaces:**
 - Consumes: niets uit eerdere taken (onafhankelijke bouwstenen); taak 7 combineert ze.
 - Produces:
-  - `events.emit(events: list, kind: str, payload: dict) -> dict` — append sha256-gechained event `{"seq", "ts", "kind", "payload", "prevHash", "hash"}`; genesis `prevHash` = 64 nullen.
-  - `events.verify_chain(events: list) -> bool`.
+  - `events.emit(events: list, kind: str, payload: dict) -> dict` — append sha256-gechained event `{"seq", "ts", "kind", "payload", "prevHash", "hash"}`; genesis `prevHash` = 64 nullen; hash-basis omvat `kind`, `payload`, `prev`, `seq` én `ts` (volledig tamper-evident).
+  - `events.verify_chain(events: list) -> bool` — herberekent de ketting met lopende prev en controleert `seq == index`.
   - `runs.new_run_id(persona: str) -> str` — vorm `YYYYMMDDTHHMMSSZ-gent-transactional-<persona>`.
   - `runs.canonical(run: dict) -> dict` — kopie zonder `runId`/`generatedAt`.
   - `runs.validate(run: dict, poc_root: Path) -> None` — `jsonschema.validate` tegen `schemas/gent-run.schema.json` (ImportError als jsonschema ontbreekt; caller vangt af).
@@ -979,6 +979,19 @@ def test_tamper_breekt_de_ketting():
     assert events.verify_chain(log) is False
 
 
+def test_ts_en_prevhash_tamper_breekt_de_keten():
+    log: list = []
+    events.emit(log, "start", {"v": 1})
+    events.emit(log, "routing", {"outcome": "paden"})
+    log[0]["ts"] = "1999-01-01T00:00:00+00:00"
+    assert events.verify_chain(log) is False
+    log2: list = []
+    events.emit(log2, "start", {"v": 1})
+    events.emit(log2, "routing", {"outcome": "paden"})
+    log2[1]["prevHash"] = "0" * 64
+    assert events.verify_chain(log2) is False
+
+
 def _minimale_run():
     return {
         "schemaVersion": "1.0", "runId": runs.new_run_id("test"), "generatedAt": "2026-10-30T00:00:00+00:00",
@@ -1044,23 +1057,28 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
-def _hash(kind: str, payload: dict, prev: str) -> str:
-    basis = json.dumps({"kind": kind, "payload": payload, "prev": prev}, sort_keys=True, ensure_ascii=False)
+def _hash(kind: str, payload: dict, prev: str, seq: int, ts: str) -> str:
+    basis = json.dumps({"kind": kind, "payload": payload, "prev": prev, "seq": seq, "ts": ts},
+                       sort_keys=True, ensure_ascii=False)
     return hashlib.sha256(basis.encode("utf-8")).hexdigest()
 
 
 def emit(events: list, kind: str, payload: dict) -> dict:
     prev = events[-1]["hash"] if events else GENESIS
-    event = {"seq": len(events), "ts": _now(), "kind": kind, "payload": payload,
-             "prevHash": prev, "hash": _hash(kind, payload, prev)}
+    seq = len(events)
+    ts = _now()
+    event = {"seq": seq, "ts": ts, "kind": kind, "payload": payload,
+             "prevHash": prev, "hash": _hash(kind, payload, prev, seq, ts)}
     events.append(event)
     return event
 
 
 def verify_chain(events: list) -> bool:
     prev = GENESIS
-    for ev in events:
-        if ev["prevHash"] != prev or ev["hash"] != _hash(ev["kind"], ev["payload"], prev):
+    for index, ev in enumerate(events):
+        if ev["seq"] != index:
+            return False
+        if ev["prevHash"] != prev or ev["hash"] != _hash(ev["kind"], ev["payload"], prev, ev["seq"], ev["ts"]):
             return False
         prev = ev["hash"]
     return True
@@ -1108,7 +1126,7 @@ def write_run(poc_root: Path, run: dict, events: list) -> Path:
 - [ ] **Step 5: Draai de tests en verifieer slagen**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `27 passed` (22 + 5).
+Expected: `28 passed` (22 + 6).
 
 - [ ] **Step 6: Commit**
 
@@ -1335,7 +1353,7 @@ def run_replay(poc_root: Path, package_id: str, persona_id: str,
 - [ ] **Step 5: Draai de tests en verifieer slagen**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `32 passed` (27 + 5).
+Expected: `33 passed` (28 + 5).
 
 - [ ] **Step 6: Commit**
 
@@ -1493,7 +1511,7 @@ Geen echte persoonsgegevens; alle gegevens zijn verzonnen fixtures.
 - [ ] **Step 4: Draai de volledige tests en commit**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `32 passed`.
+Expected: `33 passed`.
 
 ```bash
 git add poc-gent
@@ -1593,7 +1611,7 @@ if __name__ == "__main__":
 - [ ] **Step 4: Draai de tests en de CLI**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `33 passed` (32 + 1).
+Expected: `34 passed` (33 + 1).
 
 Run: `python3 eval.py`
 Expected: zes `OK`-regels (g1…g6), `determinisme: OK`, `golden: 6/6 geslaagd`, exit-code 0.
@@ -1733,7 +1751,7 @@ Expected: FAIL — `FileNotFoundError` (recipe bestaat nog niet).
 - [ ] **Step 4: Draai alle tests en verifieer slagen**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `34 passed` (33 + 1).
+Expected: `35 passed` (34 + 1).
 
 Run ter controle: `python3 eval.py`
 Expected: `golden: 6/6 geslaagd`, exit-code 0.
@@ -1749,7 +1767,7 @@ git commit -m "feat(poc-gent): centrale recipe- en baseline-registratie"
 
 ## Zelfcheck na afronding (executeur)
 
-1. `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` → `34 passed`.
+1. `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` → `35 passed`.
 2. `python3 eval.py` → `golden: 6/6 geslaagd`, `determinisme: OK`, exit 0.
 3. `python3 run.py --persona jeroen` → run-artefact met beide ontheffingen na adrescorrectie.
 4. `git log --oneline -10` → tien `feat(poc-gent)`-commits.
