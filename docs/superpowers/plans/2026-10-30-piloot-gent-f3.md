@@ -97,11 +97,14 @@ def normaliseer_vkbo(features: list[dict]) -> list[dict]:
     rijen = []
     for f in features:
         p = f.get("properties") or {}
+        busnr = (p.get("AR_busnr") or "").strip()
         rijen.append({
-            "naam": p.get("Commerciele_naam") or p.get("Afgekorte_naam") or "onbekend",
-            "straat": p.get("AR_straat") or "",
-            "huisnr": (p.get("AR_huisnr") or "") + ((" bus " + p["AR_busnr"]) if p.get("AR_busnr") else ""),
-            "postcode": p.get("AR_postcode") or "",
+            "naam": (p.get("Commerciele_naam") or "").strip()
+                    or (p.get("Afgekorte_naam") or "").strip() or "onbekend",
+            "straat": (p.get("AR_straat") or "").strip(),
+            "huisnr": ((p.get("AR_huisnr") or "").strip()
+                       + (f" bus {busnr}" if busnr else "")),
+            "postcode": (p.get("AR_postcode") or "").strip(),
             "inschrijving": (p.get("Datum_inschrijving") or "")[:10],
         })
     return rijen
@@ -117,11 +120,27 @@ def haal_vkbo(poc_root: Path, bbox: str = "3.700,51.030,3.760,51.080", limit: in
 def haal_gipod(poc_root: Path) -> dict:
     try:
         swagger = _fetch_json(GIPOD_SWAGGER)
-        paden = [p for p in swagger.get("paths", {}) if "mobilityhindrance" in p.lower()]
-        if not paden:
-            raise RuntimeError("geen publiek mobilityhindrance-pad in swagger")
-        ldes = paden[0]
-        proef = _fetch_json(f"https://gipod.api.vlaanderen.be{ldes}" if ldes.startswith("/") else ldes)
+        kandidaten = []
+        for pad, operaties in swagger.get("paths", {}).items():
+            if "mobilityhindrance" not in pad.lower().replace("-", ""):
+                continue
+            get = operaties.get("get") or {}
+            if "Auth policies" in (get.get("description") or ""):
+                continue  # auth-policy-endpoint is geen publieke ingang
+            kandidaten.append(pad)
+        if not kandidaten:
+            raise RuntimeError("geen publiek (auth-vrij) mobilityhindrance-pad in swagger")
+        ldes, fouten = None, []
+        for kandidaat in kandidaten[:3]:
+            url = f"https://gipod.api.vlaanderen.be{kandidaat}" if kandidaat.startswith("/") else kandidaat
+            try:
+                ldes = url
+                proef = _fetch_json(url)
+                break
+            except Exception as poging:
+                fouten.append(f"{kandidaat}: {poging}")
+        if ldes is None or "proef" not in dir():
+            raise RuntimeError("publieke LDES-ingangen onbereikbaar: " + "; ".join(fouten))
         (SOURCE_DIR / "gipod-gent.json").write_text(
             json.dumps({"mode": "echt", "bron": ldes, "ruw": proef}, ensure_ascii=False), encoding="utf-8")
         return {"mode": "echt", "bron": ldes}
@@ -157,8 +176,10 @@ Smoke (netwerk): `python3 fetch_sources.py --bronnen` → print VKBO-aantal (>0)
 
 - [ ] **Step 5: Commit**
 
+Run eerst `python3 fetch_sources.py --bronnen` zodat `fixtures/source/vkbo-gent.json` gevuld is, en commit de cache mee (committed-cache-doctrine, zoals de F1.5-zonecaches):
+
 ```bash
-git add poc-gent/fetch_sources.py poc-gent/fixtures/source/gipod-gent.json poc-gent/tests/test_bronnen.py
+git add poc-gent/fetch_sources.py poc-gent/fixtures/source/gipod-gent.json poc-gent/fixtures/source/vkbo-gent.json poc-gent/tests/test_bronnen.py
 git commit -m "feat(poc-gent): bronnenlaag F3 — VKBO echt (OGC Features), GIPOD echt-of-mock, BeSt Address productiepad"
 ```
 
