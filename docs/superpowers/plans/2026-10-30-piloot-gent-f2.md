@@ -1151,6 +1151,8 @@ en de printregel door:
         print(f"{'OK  ' if ok else 'FAAL'} {scenario['scenarioId']}: "
               f"{routing['outcome']} {routing['paths']['transactions']} "
               f"[status {run['transaction']['status']}]")
+        if not ok:
+            print(f"  verwachte status: {expect.get('status', 'gereed')}")
 ```
 
 - [ ] **Step 2: Breid run.py uit**
@@ -1211,6 +1213,6 @@ git commit -m "feat(poc-gent): status in eval en CLI; README F2"
 
 1. `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` → `74 passed`.
 2. `python3 eval.py` → `golden: 8/8 geslaagd`, `determinisme: OK`, exit 0.
-3. `python3 run.py --persona sanne | head -6` → `status: gereed`, `transactie: ontheffing-lez`, `ontheffing-autovrij`.
+3. `python3 run.py --persona sanne | head -8` → `status: gereed`, `transactie: ontheffing-lez`, `ontheffing-autovrij`.
 4. `python3 run.py --persona ellen | head -8` → `status: geweigerd`.
 5. `python3 run.py --persona dirk | head -10` → `status: blokkade` + V1-melding.
