@@ -9,10 +9,12 @@ Bronnen (Modellicentie Gratis Hergebruik, Stad Gent open data):
 Adressen: optioneel `--geocode` via OSM Nominatim (ODbL, attributie in meta);
 productie-pad is de officiële BeSt Address API (zie source.meta.json).
 
-CLI:  python3 fetch_sources.py [--geocode] [--check]
+CLI:  python3 fetch_sources.py [--geocode] [--check] [--bronnen]
   --geocode : vernieuw fixtures/addresses.json via Nominatim (netwerk, 1 req/sec)
   --check   : print zone-uitkomsten per fixture-adres (offline) ter herleiding
               van de golden set
+  --bronnen : breid de broncache uit: VKBO (echt, keyless OGC Features) en
+              GIPOD (publieke LDES, bij falen mock-testdata) — netwerk
 """
 
 from __future__ import annotations
@@ -58,6 +60,12 @@ ADRESSEN = [
     "Koningin Maria Hendrikaplein 1, Gent",     # buiten beide (station Gent-Sint-Pieters)
     "Veldstraat 1, Gent",                       # centrum, binnen beide
 ]
+
+BEST_ADDRESS_PAD = ("productiepad officiële geocoding: BeSt Address Web API — "
+                    "https://opendata.bosa.be/download/best/bestinabox/best-webapi-user-guide.pdf "
+                    "(self-host via docker bosa/opendata-best-webapi); PoC gebruikt OSM Nominatim ( echt, ODbL)")
+VKBO_URL = "https://geo.api.vlaanderen.be/VKBO/ogc/features/v1/collections/Vkbo/items"
+GIPOD_SWAGGER = "https://gipod.api.vlaanderen.be/swagger/v1/swagger.json"
 
 
 def _fetch_json(url: str) -> dict:
@@ -108,6 +116,48 @@ def normaliseer(layer: str, features: list[dict], versie: str) -> list[dict]:
             "geometry": feature.get("geometry"),
         })
     return uit
+
+
+def normaliseer_vkbo(features: list[dict]) -> list[dict]:
+    rijen = []
+    for f in features:
+        p = f.get("properties") or {}
+        rijen.append({
+            "naam": p.get("Commerciele_naam") or p.get("Afgekorte_naam") or "onbekend",
+            "straat": p.get("AR_straat") or "",
+            "huisnr": (p.get("AR_huisnr") or "") + ((" bus " + p["AR_busnr"]) if p.get("AR_busnr") else ""),
+            "postcode": p.get("AR_postcode") or "",
+            "inschrijving": (p.get("Datum_inschrijving") or "")[:10],
+        })
+    return rijen
+
+
+def haal_vkbo(poc_root: Path, bbox: str = "3.700,51.030,3.760,51.080", limit: int = 200) -> dict:
+    data = _fetch_json(f"{VKBO_URL}?bbox={bbox}&limit={limit}")
+    rijen = normaliseer_vkbo(data.get("features", []))
+    (SOURCE_DIR / "vkbo-gent.json").write_text(json.dumps(rijen, ensure_ascii=False, indent=2), encoding="utf-8")
+    return {"bron": VKBO_URL, "aantal": len(rijen), "licentie": "VKBO (Vlaanderen) — open data"}
+
+
+def haal_gipod(poc_root: Path) -> dict:
+    try:
+        swagger = _fetch_json(GIPOD_SWAGGER)
+        paden = [p for p in swagger.get("paths", {}) if "mobilityhindrance" in p.lower()]
+        if not paden:
+            raise RuntimeError("geen publiek mobilityhindrance-pad in swagger")
+        ldes = paden[0]
+        proef = _fetch_json(f"https://gipod.api.vlaanderen.be{ldes}" if ldes.startswith("/") else ldes)
+        (SOURCE_DIR / "gipod-gent.json").write_text(
+            json.dumps({"mode": "echt", "bron": ldes, "ruw": proef}, ensure_ascii=False), encoding="utf-8")
+        return {"mode": "echt", "bron": ldes}
+    except Exception as fout:  # netwerk/auth/404 — fallback op meegeleverde testdata
+        pad = SOURCE_DIR / "gipod-gent.json"
+        if not pad.is_file():
+            raise RuntimeError(f"GIPOD onbereikbaar en geen mock aanwezig: {fout}")
+        data = json.loads(pad.read_text(encoding="utf-8"))
+        data["mode"] = "mock"
+        pad.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        return {"mode": "mock", "fout": str(fout)}
 
 
 def build_cache() -> dict:
@@ -205,13 +255,28 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="poc-gent broncache-bouw (F1.5)")
     ap.add_argument("--geocode", action="store_true", help="vernieuw adrescoördinaten via Nominatim")
     ap.add_argument("--check", action="store_true", help="print zone-uitkomsten per fixture-adres (offline)")
+    ap.add_argument("--bronnen", action="store_true",
+                    help="breid uit met VKBO (echt) en GIPOD (echt-of-mock) — netwerk")
     args = ap.parse_args()
     if args.check:
         zone_rapport()
         return 0
     meta_document = build_cache()
+    meta_document["bronnen"]["bestAddress"] = {
+        "productiepad": BEST_ADDRESS_PAD,
+        "pocGeocoder": "OSM Nominatim (ODbL)",
+    }
+    if args.bronnen:
+        vkbo = haal_vkbo(POC_ROOT)
+        gipod = haal_gipod(POC_ROOT)
+        meta_document["bronnen"]["vkbo"] = vkbo
+        meta_document["bronnen"]["gipod"] = gipod
+        print(f"vkbo: {vkbo['aantal']} ondernemingen | {vkbo['bron']} | {vkbo['licentie']}")
+        print(f"gipod: mode {gipod['mode']}" + (f" | {gipod['bron']}" if gipod.get("bron") else ""))
+    (SOURCE_DIR / "source.meta.json").write_text(
+        json.dumps(meta_document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     for laag, info in meta_document["bronnen"].items():
-        if laag == "adressen":
+        if laag in ("adressen", "bestAddress", "vkbo", "gipod"):
             continue
         print(f"{laag}: {info['titel']} | {info['licentie']} | versie {info['versie']} "
               f"| {info['featuresNaFilter']}/{info['featuresRuwwerk']} features")
