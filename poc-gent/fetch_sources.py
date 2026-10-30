@@ -143,6 +143,11 @@ def haal_vkbo(poc_root: Path, bbox: str = "3.700,51.030,3.760,51.080", limit: in
 
 
 def haal_gipod(poc_root: Path) -> dict:
+    """Publieke GIPOD-LDES proberen; de echt-cache (gipod-gent-echt.json) is
+    een fetch-artefact en wordt níet gecommit. De gecommitte mock-fixture
+    (gipod-gent.json) is de stabiele offline testbasis en wordt nooit
+    herschreven of herlabeld."""
+    echt_pad = SOURCE_DIR / "gipod-gent-echt.json"
     try:
         swagger = _fetch_json(GIPOD_SWAGGER)
         kandidaten = []
@@ -155,28 +160,27 @@ def haal_gipod(poc_root: Path) -> dict:
             kandidaten.append(pad)
         if not kandidaten:
             raise RuntimeError("geen publiek (auth-vrij) mobilityhindrance-pad in swagger")
-        ldes, fouten = None, []
+        proef = None
+        gebruikte_url = None
+        fouten = []
         for kandidaat in kandidaten[:3]:
             url = f"https://gipod.api.vlaanderen.be{kandidaat}" if kandidaat.startswith("/") else kandidaat
             try:
-                ldes = url
                 proef = _fetch_json(url)
+                gebruikte_url = url
                 break
             except Exception as poging:
                 fouten.append(f"{kandidaat}: {poging}")
-        if ldes is None or "proef" not in dir():
+        if proef is None:
             raise RuntimeError("publieke LDES-ingangen onbereikbaar: " + "; ".join(fouten))
-        (SOURCE_DIR / "gipod-gent.json").write_text(
-            json.dumps({"mode": "echt", "bron": ldes, "ruw": proef}, ensure_ascii=False), encoding="utf-8")
-        return {"mode": "echt", "bron": ldes}
+        echt_pad.write_text(json.dumps({"mode": "echt", "bron": gebruikte_url, "ruw": proef},
+                                       ensure_ascii=False), encoding="utf-8")
+        return {"mode": "echt", "bron": gebruikte_url}
     except Exception as fout:  # netwerk/auth/404 — fallback op meegeleverde testdata
-        pad = SOURCE_DIR / "gipod-gent.json"
-        if not pad.is_file():
+        mock_pad = SOURCE_DIR / "gipod-gent.json"
+        if not mock_pad.is_file():
             raise RuntimeError(f"GIPOD onbereikbaar en geen mock aanwezig: {fout}")
-        data = json.loads(pad.read_text(encoding="utf-8"))
-        data["mode"] = "mock"
-        pad.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-        return {"mode": "mock", "fout": str(fout)}
+        return {"mode": "mock", "fout": str(fout), "mock": mock_pad.name}
 
 
 def build_cache() -> dict:

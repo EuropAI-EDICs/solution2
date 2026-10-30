@@ -47,3 +47,17 @@ def test_vkbo_witruimte_busnr_wordt_niet_opgenomen():
         "Datum_inschrijving": "2003-01-18"}}]
     rijen = fetch_sources.normaliseer_vkbo(features)
     assert rijen[0]["huisnr"] == "3"
+
+
+def test_gipod_mock_wordt_nooit_herschreven(tmp_path, monkeypatch):
+    (tmp_path / "source").mkdir()
+    import shutil
+    mock = POC_ROOT / "fixtures" / "source" / "gipod-gent.json"
+    doel = tmp_path / "source" / "gipod-gent.json"
+    shutil.copy(mock, doel)
+    foraf = doel.read_text(encoding="utf-8")
+    monkeypatch.setattr(fetch_sources, "SOURCE_DIR", tmp_path / "source")
+    monkeypatch.setattr(fetch_sources, "GIPOD_SWAGGER", "https://onbereikbaar.voor.test/swagger.json")
+    uitslag = fetch_sources.haal_gipod(POC_ROOT)
+    assert uitslag["mode"] == "mock"
+    assert doel.read_text(encoding="utf-8") == foraf
