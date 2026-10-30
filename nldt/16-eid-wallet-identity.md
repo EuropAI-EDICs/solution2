@@ -11,7 +11,7 @@ code exists).
 | Status | Plan (2026-09-14) · replaces the identity items of BK-3 in [14](14-beleidskompas-integration.md) §8 · **W6a done (2026-09-15): real Keycloak machine credentials for agents** |
 | Legal frame | eIDAS (EU) 910/2014 + amending Regulation (EU) 2024/1183; ARF v2.x |
 | External | [EC EUDI Wallet](https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/694487738/EU+Digital+Identity+Wallet+Home) · [eu-digital-identity-wallet](https://github.com/eu-digital-identity-wallet) · [italia/eudi-wallet-it-python](https://github.com/italia/eudi-wallet-it-python) |
-| Related | [07](07-trust-and-governance.md) · [10](10-toolbox-integration.md) (Keycloak) · [`../docs/GENAI_SEAMS.md`](../docs/GENAI_SEAMS.md) (receipt trail) · [`services/common/auth.py`](services/common/auth.py) |
+| Related | [07](07-trust-and-governance.md) · [10](10-toolbox-integration.md) (Keycloak) · [`../docs/GENAI_SEAMS.md`](../docs/GENAI_SEAMS.md) (receipt trail) · [`services/common/auth.py`](services/common/auth.py) · Gent-piloot-consumer (ARF-vormige replay-mock): [`../poc-gent/adapters/eudi_wallet.py`](../poc-gent/adapters/eudi_wallet.py) |
 
 ---
 

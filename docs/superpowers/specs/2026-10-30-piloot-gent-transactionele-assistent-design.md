@@ -6,7 +6,7 @@
 | **Status** | ter review (na keuzes uit sessie 2026-10-30) |
 | **Scope** | uitgebreid ontwerp van de Gent-piloot: blauwdruk die de lege EUROPAI D3.1-secties (§2.3 architectuur, §2.4 afhankelijkheden, §4.x KPI/testen/risico's) ontwerpt én de basis voor een werkend prototype `poc-gent/` in dit repo, met gemockte Vlaamse diensten |
 | **Niet in scope** | productie-integraties met echte ACM/IDM-, Magda-, GIS- of District09-systemen · echte persoonsgegevens · DPIA-uitvoering · M/O-prioritering per eis · definitieve transactiekeuze door Stad Gent · frontend-productie-widget |
-| **Bronnen** | [`pilootgent/Gent pilot.pdf`](../../pilootgent/Gent pilot.pdf) (EUROPAI D3.1 Pilot Plans-template Stad Gent; tekstextract: `pilootgent/gent-pilot.txt`) · [HCS life-events](../../nldt/04-recipes-and-processes.md) (THK-recipes, `hcs-life-event-run`, G1–G5) · [`nldt/schemas/hcs-run.schema.json`](../../nldt/schemas/hcs-run.schema.json) · [HITL-ontwerp 2026-10-07](2026-10-07-hitl-mens-agent-grens-design.md) (interrupt_on, SqliteSaver, resume) · [`deep-agents/hcs_intake.py`](../../deep-agents/hcs_intake.py) (LLM-intake + deterministische gate) · [GENAI_SEAMS](../../docs/GENAI_SEAMS.md) · [edic-asset-map](../../nldt/recipes/edic-asset-map.json) (`assetClass: hcs-life-event`) |
+| **Bronnen** | [`pilootgent/Gent pilot.pdf`](../../pilootgent/Gent pilot.pdf) (EUROPAI D3.1 Pilot Plans-template Stad Gent; tekstextract: `pilootgent/gent-pilot.txt`) · [HCS life-events](../../nldt/04-recipes-and-processes.md) (THK-recipes, `hcs-life-event-run`, G1–G5) · [`nldt/schemas/hcs-run.schema.json`](../../nldt/schemas/hcs-run.schema.json) · [HITL-ontwerp 2026-10-07](2026-10-07-hitl-mens-agent-grens-design.md) (interrupt_on, SqliteSaver, resume) · [`deep-agents/hcs_intake.py`](../../deep-agents/hcs_intake.py) (LLM-intake + deterministische gate) · [GENAI_SEAMS](../../docs/GENAI_SEAMS.md) · [edic-asset-map](../../nldt/recipes/edic-asset-map.json) (`assetClass: hcs-life-event`) · [`nldt/16-eid-wallet-identity.md`](../../nldt/16-eid-wallet-identity.md) (EUDI-wallet-doctrine voor het IAM-stuk) |
 | **Sessie-keuzes** | doel: **blauwdruk + repo-prototype** (geen alleen-papieren architectuur) · transactiekeuze: **generiek ontwerp, keuze open** — beslislogica als configuratie-artefact, met één vervangbaar referentiepakket voor aantoonbaarheid |
 
 ## Besluiten
@@ -233,6 +233,7 @@ execute-modus (live met mocks) — zoals het HCS-patroon.
 | Adapter | Prototype | Productie-aanzet | Eisen |
 |---|---|---|---|
 | ACM/IDM | mock-token + persona-identiteit/machtiging uit fixture | ACM/IDM-diensten Digital Vlaanderen | INT-01, FR-09 |
+| EUDI-wallet (IAM) | ARF-vormige wallet-mock ([`nldt/16`](../../nldt/16-eid-wallet-identity.md), optie C): PID- + machtigingsattestaties per persona, selectieve onthulling, LoA-gate per dienst (`minLoa` in het pakketmanifest), ACM/IDM blijft fallback (vrije uitweg) | Belgische EUDI-wallet (itsme-traject) via OpenID4VP als relying party — pluggable verifier-edge, claims conform `wallet-claims.schema.json` | INT-01, FR-09, DATA-minimalisatie |
 | Magda | MCP-vormige mockserver met fixture-profielen (RRN/ondernemer, kenteken) — het plan noemt zelf "Magda (MCP)" | Magda-webdiensten via MCP-contract, doelbinding per `authenticSources`-slot | INT-02, FR-10/11 |
 | GIS-zonecheck | LEZ/autovrije zone als lokale geojson-fixtures + punt-in-polygoon | interne GIS-diensten Stad Gent (adres → zones) | FR-23, workflow stap 3 |
 | Backoffice District09 | mock met versioned contract, idempotente submit, ontvangstbewijs + async-status (polling) | vergevorderde API-contracten, correlatie-id's | INT-03/04/06, FR-16, NFR-04 |
@@ -320,7 +321,7 @@ KPI-01/02/03/04 op min. aanvaard; elk H-event correct gelogd; exit-test geslaagd
 | Orchestratie/agents | deep-agents (LangGraph) — repo-asset, OSS | idem hosting | Python-runtime | OSS, geen lock-in |
 | Transactiekern | Python stdlib-first + jsonschema (repo-doctrine) | overal | geen | volledig portable |
 | RAG/embeddings | niet voor kernfeiten: geversioneerde broncatalogus (git); embeddings hooguit voor vraag-routing | lokaal | geen (optioneel) | weglaten zonder functieverlies |
-| Authenticatie/IAM | ACM/IDM (Digital Vlaanderen) | Vlaanderen | beschikbaarheid, mandatenmodel | goedgekeurd equivalent (INT-01) |
+| Authenticatie/IAM | ACM/IDM (Digital Vlaanderen); EUDI-wallet als EU-equivalent naast ACM/IDM ([`nldt/16`](../../nldt/16-eid-wallet-identity.md): mock-first RP-edge, later Belgische EUDI-wallet/itsme) | Vlaanderen / EU (eIDAS 2) | beschikbaarheid, mandatenmodel, wallet-RP-registratie | goedgekeurd equivalent (INT-01): wallet-route en ACM/IDM-route zijn uitwisselbaar achter dezelfde H2-gate |
 | Authentieke bronnen | Magda-diensten, MCP-contract | Vlaanderen | doelbinding, beschikbaarheid | goedgekeurd equivalent per bron (INT-02) |
 | GIS | interne GIS-diensten Stad Gent | Stad Gent | zone-lagen actueel | open zonegegevens + lokale fixtures in prototype |
 | Backoffice | District09-systemen | Stad Gent | versioned contracts, idempotentie | adapters per contract; mock vooraf |
@@ -358,6 +359,11 @@ poc-gent/
   patroon).
 - Statusraadpleging/vervolgacties (FR-19) meebouwen in F3 als tweede modus van het
   backoffice-mockcontract.
+- **IAM-tussentitel (2026-10-30, parallel aan F3):** EUDI-wallet-route voor H2 —
+  [`plans/2026-10-30-piloot-gent-iam-eudi-wallet.md`](../plans/2026-10-30-piloot-gent-iam-eudi-wallet.md):
+  wallet-mock met selectieve onthulling en LoA-gate (`minLoa` per dienst),
+  ACM/IDM als fallback; run-schema blijft 1.1 (auth-blok krijgt alleen
+  optionele velden; F3-T5 reserveert 1.2 voor submission).
 
 ## 12. Eisenverwantschap (ontwerpelement per eis)
 
