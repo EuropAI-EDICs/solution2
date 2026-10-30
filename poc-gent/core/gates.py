@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from adapters import acm_idm_mock, gis_zones
+from adapters import acm_idm_mock, eudi_wallet, gis_zones
 
 
 def confirm_h1(manifest: dict, context: dict, herkomst: dict, corrections: dict, poc_root: Path) -> tuple[dict, dict]:
@@ -42,9 +42,29 @@ def h2_uitleg(manifest: dict, service_ids: list[str]) -> dict:
     return {"bronnen": bronnen, "waarom": waarom}
 
 
+def vereiste_loa(manifest: dict, service_ids: list[str]) -> str:
+    """Hoogste vereiste waarborgsniveau onder de diensten (default low) —
+    configuratie is data: `minLoA` staat in het pakketmanifest."""
+    vereist = [manifest["services"][sv].get("minLoA", "low") for sv in service_ids
+               if sv in manifest.get("services", {})]
+    if not vereist:
+        return "low"
+    return max(vereist, key=lambda loa: eudi_wallet.LOA_ORDER[loa])
+
+
 def decide_h2(manifest: dict, context: dict, identiteit: dict, service_ids: list[str]) -> dict:
-    """Mandaatcontrole vóór gegevensgebruik: zonder geldig mandaat geen doorgang
-    — de menselijke route geldt (AI-05-geest)."""
+    """Waarborg- en mandaatcontrole vóór gegevensgebruik: de wallet-loa moet
+    aan de vereiste minLoA voldoen en zonder geldig mandaat is er geen
+    doorgang — de menselijke route geldt (AI-05-geest). Het ACM/IDM-pad
+    modelleert geen loa; productie-ACM/IDM koppelt zijn eigen waarborg (INT-01)."""
+    loa = identiteit.get("loa")
+    if loa is not None:
+        min_loa = vereiste_loa(manifest, service_ids)
+        if eudi_wallet.LOA_ORDER[loa] < eudi_wallet.LOA_ORDER[min_loa]:
+            return {"doorgang": False, "oorzaak": "loa",
+                    "reden": f"Waarborg onvoldoende: voor deze aanvraag is minimaal niveau '{min_loa}' nodig, "
+                             f"uw wallet gaf '{loa}'. Een medewerker van Gentinfo helpt u verder."}
     if not acm_idm_mock.geldig_mandaat(identiteit, context):
-        return {"doorgang": False, "reden": "Mandaat niet geverifieerd: overname door een medewerker (Gentinfo) voor de mandatencontrole."}
-    return {"doorgang": True, "reden": "geverifieerd"}
+        return {"doorgang": False, "oorzaak": "mandaat",
+                "reden": "Mandaat niet geverifieerd: overname door een medewerker (Gentinfo) voor de mandatencontrole."}
+    return {"doorgang": True, "oorzaak": "geen", "reden": "geverifieerd"}

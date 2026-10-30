@@ -53,3 +53,29 @@ def test_decide_h2_sta_door_zonder_mandaten():
     from adapters import acm_idm_mock
     identiteit = acm_idm_mock.authenticate(POC_ROOT, "sanne")
     assert gates.decide_h2(MANIFEST, {}, identiteit, ["ontheffing-lez"])["doorgang"] is True
+
+
+def test_vereiste_loa_is_de_hoogste_onder_de_diensten():
+    assert gates.vereiste_loa(MANIFEST, ["ontheffing-lez", "ontheffing-autovrij"]) == "substantial"
+    assert gates.vereiste_loa(MANIFEST, ["info-lez"]) == "low"
+
+
+def test_decide_h2_blokkeert_bij_te_laag_waarborgsniveau():
+    identiteit = {"pseudoniem": "rrn-••••329", "loa": "low", "mandaten": []}
+    besluit = gates.decide_h2(MANIFEST, {}, identiteit, ["ontheffing-lez"])
+    assert besluit["doorgang"] is False
+    assert besluit["oorzaak"] == "loa"
+    assert "waarborg" in besluit["reden"].lower()
+
+
+def test_decide_h2_sta_door_met_voldoende_waarborg():
+    identiteit = {"pseudoniem": "rrn-••••481", "loa": "substantial", "mandaten": []}
+    besluit = gates.decide_h2(MANIFEST, {}, identiteit, ["ontheffing-lez"])
+    assert besluit == {"doorgang": True, "oorzaak": "geen", "reden": "geverifieerd"}
+
+
+def test_decide_h2_zonder_loa_slaat_waarborgcheck_over():
+    from adapters import acm_idm_mock
+    identiteit = acm_idm_mock.authenticate(POC_ROOT, "sanne")  # ACM/IDM-pad: geen loa-veld
+    assert "loa" not in identiteit
+    assert gates.decide_h2(MANIFEST, {}, identiteit, ["ontheffing-lez"])["doorgang"] is True

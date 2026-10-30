@@ -78,6 +78,8 @@ def _validate(manifest: dict, tables: dict) -> None:
                 raise PackageError(f"dienst '{service_id}': inzending zonder formulier")
         if "vereistAuth" not in service or not isinstance(service.get("vereistAuth"), bool):
             raise PackageError(f"dienst '{service_id}': vereistAuth moet een bool zijn")
+        if service.get("minLoA") is not None and service["minLoA"] not in ("low", "substantial", "high"):
+            raise PackageError(f"dienst '{service_id}': ongeldig minLoA '{service['minLoA']}' (low|substantial|high)")
         if service.get("type") == "inzending" and service.get("vereistAuth") is not True:
             raise PackageError(f"dienst '{service_id}': inzending vereist vereistAuth true")
         if service.get("type") == "inzending" and not service.get("documenten"):

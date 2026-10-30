@@ -174,6 +174,20 @@ def test_vereistauth_verplicht_en_true_voor_inzendingen(tmp_path):
         catalog.load_package(tmp_path, manifest["packageId"])
 
 
+def test_ongeldig_minloa_faalt(tmp_path):
+    manifest = _basis_manifest()
+    manifest["services"]["ontheffing-lez"]["minLoA"] = "super-duper"
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    with pytest.raises(catalog.PackageError, match="minLoA"):
+        catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_referentiepakket_vereist_substantial_voor_inzendingen():
+    pkg = catalog.load_package(POC_ROOT, "gent-mobiliteit-ondernemer")
+    for service_id in ("ontheffing-lez", "ontheffing-autovrij"):
+        assert pkg.manifest["services"][service_id]["minLoA"] == "substantial"
+
+
 def test_dubbele_bron_faalt(tmp_path):
     manifest = _basis_manifest()
     manifest["authenticSources"].append({"slot": "timing", "source": "magda:kenteken", "purpose": "tweede doel"})
