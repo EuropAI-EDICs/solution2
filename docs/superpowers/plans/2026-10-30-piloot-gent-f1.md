@@ -1470,7 +1470,7 @@ print('laatste run ok:', run['runId'], '| events:', len(events))
 "
 ```
 
-Expected: `laatste run ok: …-gent-transactional-<persona> | events: N` met N ≥ 7.
+Expected: `laatste run ok: …-gent-transactional-<persona> | events: N` met N ≥ 6 (volledige persona's: 6; met gate-vraag of escalatie: 7).
 
 - [ ] **Step 3: Schrijf de README**
 
