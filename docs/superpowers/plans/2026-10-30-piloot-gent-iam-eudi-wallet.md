@@ -77,8 +77,8 @@
 
 ## Zelfcheck na afronding (executeur)
 
-1. `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` → alles groen (aantal na Task 3 vastleggen).
+1. `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` → `114 passed`.
 2. `python3 eval.py` → `golden: 10/10 geslaagd`, `determinisme: OK`, exit 0.
-3. `python3 run.py --persona sanne | head -10` → `auth: eudi-wallet (loa substantial)`; `--persona wim` → LoA-blokkade; `--persona nadia` → fallback; `--auth acmidm` → klassiek.
-4. `cd ../simulation && ../nldt/.venv/bin/python build_simulation.py` → gent-regel met 11 persona's; `node verify_static.mjs` → exit 0.
+3. `python3 run.py --persona sanne | head -10` → `auth: eudi-wallet (loa substantial, onthuld: loa, mandaten, sub)`; `--persona wim` → LoA-blokkade; `--persona nadia` → fallback; `--auth acmidm` → klassiek.
+4. `cd ../simulation && ../nldt/.venv/bin/python build_simulation.py` → gent-regel met 9 persona's (na F3-T7: 11); `node verify_static.mjs` → exit 0.
 5. Events-ketting geldig op alle nieuwe paden (`verify_chain`).

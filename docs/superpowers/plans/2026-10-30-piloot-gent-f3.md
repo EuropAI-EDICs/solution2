@@ -14,7 +14,7 @@
 
 - Alle code draait met `python3` (3.11+) zonder netwerk; geen echte persoonsgegevens — echte open-registerdata (VKBO) mag als broncache; persona's blijven synthetisch.
 - `core/`, `adapters/`, `run.py`, `eval.py` stdlib-only; `jsonschema` alléén in `core/runs.py::validate` en tests/eval onder `../nldt/.venv/bin/python`.
-- Tests: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` (na F3: `97 passed` voor de poc-gent-suite; de simulation-embedtests lopen apart).
+- Tests: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` (poc-gent-suite groen; baseline na de IAM-track 2026-10-30: `114 passed` — F3-taken tellen hun eigen tests op; de simulation-embedtests lopen apart).
 - Deterministische replay: geen muurklok in canonieke run-inhoud; ontvangstbewijzen zijn deterministisch afgeleid (hash-gebaseerd), niet `random`.
 - Docstrings/teksten Nederlands; productie-identifiers Engels; testnamen mogen Nederlands.
 - Commit per taak, conventional commits scope `poc-gent` (sim-tab: scope `simulation`), Nederlandse samenvatting.
@@ -550,16 +550,16 @@ def test_events_bevatten_geen_ruwe_schets_of_adres():
 
 ---
 
-### Task 7: Personas/golden — ilse (document ontbreekt), hanne (H4-weigering), g9–g11
+### Task 7: Personas/golden — ilse (document ontbreekt), hanne (H4-weigering), g11–g13
 
 **Files:**
-- Modify: `poc-gent/fixtures/personas.json`, `poc-gent/fixtures/magda.json`, `poc-gent/fixtures/identiteiten.json`, `poc-gent/fixtures/documenten.json`
-- Modify: `poc-gent/packages/gent-mobiliteit-ondernemer/golden/scenarios.jsonl`, `poc-gent/tests/test_catalog.py` (golden-count 8 → 11)
+- Modify: `poc-gent/fixtures/personas.json`, `poc-gent/fixtures/magda.json`, `poc-gent/fixtures/identiteiten.json`, `poc-gent/fixtures/wallets.json`, `poc-gent/fixtures/documenten.json`
+- Modify: `poc-gent/packages/gent-mobiliteit-ondernemer/golden/scenarios.jsonl`, `poc-gent/tests/test_catalog.py` (golden-count 10 → 13)
 - Test: `poc-gent/tests/test_pipeline.py` (gedekt door taak 6; counttest in catalog)
 
-**Interfaces:** nieuwe persona's: `ilse` (ondernemer, Korenmarkt — Magda-record aanwezig Euro 6, maar géén kentekenbewijs → D0-blokkade; edge `document-ontbreekt`) en `hanne` (ondernemer, Korenmarkt, documenten geldig, `inzendingBevestigen: "geweigerd"`; edge `weigert-inzending`). Golden: g9 ilse → status `blokkade`; g10 hanne → `geweigerd` met ontvangst `niet-ingediend`; g11 sanne → `gereed` mét ontvangst `geaccepteerd`. Alle bestaande golden-regels ongewijzigd (sanne e.a. krijgen via `documenten.json` en default `inzendingBevestigen: "gegeven"` automatisch inzending).
+**Interfaces:** nieuwe persona's: `ilse` (ondernemer, Korenmarkt — Magda-record aanwezig Euro 6, maar géén kentekenbewijs → D0-blokkade; edge `document-ontbreekt`) en `hanne` (ondernemer, Korenmarkt, documenten geldig, `inzendingBevestigen: "geweigerd"`; edge `weigert-inzending`). Golden: g11 ilse → status `blokkade`; g12 hanne → `geweigerd` met ontvangst `niet-ingediend`; g13 sanne → `gereed` mét ontvangst `geaccepteerd`. Alle bestaande golden-regels ongewijzigd (sanne e.a. krijgen via `documenten.json` en default `inzendingBevestigen: "gegeven"` automatisch inzending). *Planamendement 2026-10-30 (IAM-track):* g9/g10 zijn toegewezen aan de EUDI-wallet-scenario's (wim: LoA-blokkade; nadia: ACM/IDM-fallback — zie [`2026-10-30-piloot-gent-iam-eudi-wallet.md`](2026-10-30-piloot-gent-iam-eudi-wallet.md)); ilse/hanne krijgen óók wallets in `wallets.json` (loa `substantial`) zodat zij standaard via de EUDI-wallet-route authentiseren.
 
-- Stappen: fixtures uitbreiden (identiteiten + magda voor ilse/hanne; documenten per taak 3 + hanne's te grote variant vervalt — hanne levert geldige documenten en weigert alleen H4; de te-grote testcase staat al in `test_documents` als unit); golden +3; catalogus-counttest 8 → 11; suite `97 passed`; eval smoke `11/11`. Commit: `feat(poc-gent): personas ilse en hanne + golden g9-g11 voor document- en H4-randpaden`.
+- Stappen: fixtures uitbreiden (identiteiten + magda + wallets voor ilse/hanne; documenten per taak 3 + hanne's te grote variant vervalt — hanne levert geldige documenten en weigert alleen H4; de te-grote testcase staat al in `test_documents` als unit); golden +3; catalogus-counttest 10 → 13; suite groen (baseline IAM-track 114 passed + F3-eigen tests); eval smoke `13/13`. Commit: `feat(poc-gent): personas ilse en hanne + golden g11-g13 voor document- en H4-randpaden`.
 
 ---
 
@@ -572,8 +572,8 @@ def test_events_bevatten_geen_ruwe_schets_of_adres():
 **Interfaces:**
 - `run.py` print na status: ontvangstbewijzen (`  ontvangst: <service> → <referentie> (<status>)`) en de vervolgsamenvatting (`  nog te doen:` regels), en bij weigering de stopmelding. Nieuwe vlag `--status --persona <id>`: herhaalt de replay en print per transactie `ingediend als <referentie> · <status>` of `niet ingediend (<reden>)` — FR-19-mockvorm (geen aparte backoffice-query; documentatie vermeldt productiepad polling INT-06).
 - README: Fase 1+2+3-beschrijving, `--status`-voorbeeld, broncatalogus-verwijzing (VKBO/GIPOD/BeSt).
-- Smokes: `python3 run.py --persona sanne | head -12` (ontvangst + vervolgsamenvatting), `python3 run.py --status --persona hanne | head -4` (niet ingediend), `python3 eval.py` → `11/11`.
-- Suite blijft `97 passed`. Commit: `feat(poc-gent): ontvangstbewijs en vervolgsamenvatting in CLI; --status raadpleging; README F3`.
+- Smokes: `python3 run.py --persona sanne | head -12` (ontvangst + vervolgsamenvatting), `python3 run.py --status --persona hanne | head -4` (niet ingediend), `python3 eval.py` → `13/13`.
+- Suite blijft groen (baseline IAM-track 114 passed + F3-eigen tests). Commit: `feat(poc-gent): ontvangstbewijs en vervolgsamenvatting in CLI; --status raadpleging; README F3`.
 
 ---
 
@@ -589,8 +589,8 @@ Stappen: `build_gent()` neemt `t["submission"]` over in de persona-dict; templat
 
 ## Zelfcheck na afronding (executeur)
 
-1. `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` → `94 passed`.
-2. `python3 eval.py` → `golden: 11/11 geslaagd`, `determinisme: OK`, exit 0.
+1. `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` → groen (baseline IAM-track 114 passed + F3-eigen tests).
+2. `python3 eval.py` → `golden: 13/13 geslaagd`, `determinisme: OK`, exit 0.
 3. `python3 run.py --persona sanne | head -12` → ontvangstbewijzen + vervolgsamenvatting; `--persona ilse` → D0-blokkade; `--persona hanne` → geweigerd/niet-ingediend.
 4. `python3 run.py --status --persona sanne | head -4` → referenties.
-5. `cd ../simulation && ../nldt/.venv/bin/python build_simulation.py` → gent-regel met 9 persona's; `node verify_static.mjs` → OK (exit 0).
+5. `cd ../simulation && ../nldt/.venv/bin/python build_simulation.py` → gent-regel met 11 persona's (9 na de IAM-track + ilse/hanne); `node verify_static.mjs` → OK (exit 0).
