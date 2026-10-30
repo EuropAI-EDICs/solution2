@@ -23,6 +23,19 @@ def test_tamper_breekt_de_ketting():
     assert events.verify_chain(log) is False
 
 
+def test_ts_en_prevhash_tamper_breekt_de_keten():
+    log: list = []
+    events.emit(log, "start", {"v": 1})
+    events.emit(log, "routing", {"outcome": "paden"})
+    log[0]["ts"] = "1999-01-01T00:00:00+00:00"
+    assert events.verify_chain(log) is False
+    log2: list = []
+    events.emit(log2, "start", {"v": 1})
+    events.emit(log2, "routing", {"outcome": "paden"})
+    log2[1]["prevHash"] = "0" * 64
+    assert events.verify_chain(log2) is False
+
+
 def _minimale_run():
     return {
         "schemaVersion": "1.0", "runId": runs.new_run_id("test"), "generatedAt": "2026-10-30T00:00:00+00:00",
