@@ -106,3 +106,36 @@ def test_golden_regel_zonder_expect_faalt(tmp_path):
     (pkg_dir / "golden" / "scenarios.jsonl").write_text('{"scenarioId": "g1", "persona": "sanne"}\n', encoding="utf-8")
     with pytest.raises(catalog.PackageError, match="'expect'"):
         catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_authenticsources_hebben_doelbinding_en_dekken_slots():
+    pkg = catalog.load_package(POC_ROOT, "gent-mobiliteit-ondernemer")
+    bronnen = {b["slot"]: b for b in pkg.manifest["authenticSources"]}
+    authentieke_slots = {s for s, spec in pkg.manifest["contextSchema"]["slots"].items()
+                         if spec.get("authenticSource")}
+    assert set(bronnen) == authentieke_slots
+    assert all(b["purpose"] for b in bronnen.values())
+
+
+def test_authenticsource_zonder_purpose_faalt(tmp_path):
+    manifest = _basis_manifest()
+    manifest["authenticSources"].append({"slot": "activity", "source": "magia:bestaat-niet", "purpose": ""})
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    with pytest.raises(catalog.PackageError, match="purpose"):
+        catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_formulierbron_moet_slot_of_magda_zijn(tmp_path):
+    manifest = _basis_manifest()
+    manifest["services"]["ontheffing-lez"]["formulier"][0]["bron"] = "bestaat-niet:ergens"
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    with pytest.raises(catalog.PackageError, match="formulierbron"):
+        catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_validatiesleutel_moet_in_formulier_zitten(tmp_path):
+    manifest = _basis_manifest()
+    manifest["services"]["ontheffing-lez"]["validaties"][0]["wanneer"] = {"bestaatniet": "Euro 4"}
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    with pytest.raises(catalog.PackageError, match="validatie"):
+        catalog.load_package(tmp_path, manifest["packageId"])

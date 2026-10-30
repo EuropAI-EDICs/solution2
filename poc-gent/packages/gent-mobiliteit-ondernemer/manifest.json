@@ -1,6 +1,6 @@
 {
   "packageId": "gent-mobiliteit-ondernemer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "status": "concept",
   "lifeEventCode": "GT-MOB-01",
   "title": "GT-MOB-01 — Voertuigtoegang stadcentrum voor ondernemers",
@@ -25,11 +25,46 @@
     {"id": "lez", "layer": "gent-lez", "input": "address", "output": "zoneLez"},
     {"id": "autovrij", "layer": "gent-autovrij", "input": "address", "output": "zoneAutovrij"}
   ],
+  "authenticSources": [
+    {"slot": "vehicle", "source": "magda:kenteken", "purpose": "beoordelen van het recht op een LEZ-ontheffing"},
+    {"slot": "mandate", "source": "magda:mandate", "purpose": "vaststellen of u namens een ander mag handelen"}
+  ],
   "decisionTables": "decision-tables.json",
   "services": {
-    "ontheffing-lez": {"type": "inzending", "titel": "Ontheffing LEZ voor zakelijk verkeer", "uitleg": "Vergunning om met een voertuig de lage-emissiezone in te rijden."},
-    "ontheffing-autovrij": {"type": "inzending", "titel": "Ontheffing autovrij gebied (laden/lossen)", "uitleg": "Vergunning voor laden en lossen in het autovrije gebied."},
-    "info-lez": {"type": "info", "titel": "Informatie over de LEZ in Gent", "uitleg": "Uitleg over wanneer de LEZ geldt en voor wie."}
+    "ontheffing-lez": {
+      "type": "inzending", "vereistAuth": true,
+      "titel": "Ontheffing LEZ voor zakelijk verkeer",
+      "uitleg": "Vergunning om met een voertuig de lage-emissiezone in te rijden.",
+      "formulier": [
+        {"veld": "kenteken", "bron": "magda:kenteken.kenteken"},
+        {"veld": "euroklasse", "bron": "magda:kenteken.euroklasse"},
+        {"veld": "brandstof", "bron": "magda:kenteken.brandstof"},
+        {"veld": "adres-werkzaamheden", "bron": "slot:address"},
+        {"veld": "omschrijving-werkzaamheden", "bron": "slot:activity"},
+        {"veld": "aanvrager", "bron": "slot:applicantType"}
+      ],
+      "validaties": [
+        {"id": "V1-euroklasse", "wanneer": {"euroklasse": "Euro 4"}, "ernst": "blokkade",
+         "melding": "Uw voertuig (Euro 4) mag de lage-emissiezone niet in. Vervang het voertuig of vraag een menselijke beoordeling via Gentinfo."},
+        {"id": "V2-euroklasse", "wanneer": {"euroklasse": "Euro 5"}, "ernst": "waarschuwing",
+         "melding": "Controleer of uw diesel Euro 5 een geregistreerd roetfilter heeft; anders geldt de ontheffing niet."}
+      ]
+    },
+    "ontheffing-autovrij": {
+      "type": "inzending", "vereistAuth": true,
+      "titel": "Ontheffing autovrij gebied (laden/lossen)",
+      "uitleg": "Vergunning voor laden en lossen in het autovrije gebied.",
+      "formulier": [
+        {"veld": "kenteken", "bron": "magda:kenteken.kenteken"},
+        {"veld": "adres-werkzaamheden", "bron": "slot:address"},
+        {"veld": "omschrijving-werkzaamheden", "bron": "slot:activity"}
+      ],
+      "validaties": []
+    },
+    "info-lez": {"type": "info", "vereistAuth": false,
+      "titel": "Informatie over de LEZ in Gent",
+      "uitleg": "Uitleg over wanneer de LEZ geldt en voor wie.",
+      "formulier": [], "validaties": []}
   },
   "golden": "golden/scenarios.jsonl"
 }

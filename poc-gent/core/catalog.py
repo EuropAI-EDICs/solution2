@@ -57,6 +57,33 @@ def _validate(manifest: dict, tables: dict) -> None:
     services = manifest.get("services", {})
     if not services:
         raise PackageError("manifest.services is leeg")
+    bronnen = manifest.get("authenticSources", [])
+    gedeclareerd = {b.get("slot") for b in bronnen}
+    authentieke_slots = {s for s, spec in slots.items() if spec.get("authenticSource")}
+    for bron in bronnen:
+        if not bron.get("purpose"):
+            raise PackageError(f"authenticSource '{bron.get('slot')}' mist een niet-lege purpose")
+        if slots.get(bron.get("slot", ""), {}).get("authenticSource") != bron.get("source"):
+            raise PackageError(f"authenticSource '{bron.get('slot')}' wijkt af van het slot-authenticSource")
+    if gedeclareerd != authentieke_slots:
+        raise PackageError(f"authenticSources dekken de authentieke slots niet: {gedeclareerd} ≠ {authentieke_slots}")
+    for service_id, service in services.items():
+        if service.get("type") == "inzending":
+            if not service.get("formulier"):
+                raise PackageError(f"dienst '{service_id}': inzending zonder formulier")
+        for regel in service.get("formulier", []):
+            referentie = regel.get("bron", "")
+            geldig = referentie.startswith("slot:") and referentie[5:] in slots
+            geldig = geldig or referentie.split(".")[0] in {b["source"] for b in bronnen}
+            if not geldig:
+                raise PackageError(f"dienst '{service_id}': onbekende formulierbron '{referentie}'")
+        velden = {regel["veld"] for regel in service.get("formulier", [])}
+        for check in service.get("validaties", []):
+            for veld in check.get("wanneer", {}):
+                if veld not in velden:
+                    raise PackageError(f"dienst '{service_id}': validatie '{check.get('id')}' verwijst naar onbekend formulierveld '{veld}'")
+            if check.get("ernst") not in ("blokkade", "waarschuwing"):
+                raise PackageError(f"dienst '{service_id}': validatie '{check.get('id')}' heeft ongeldige ernst")
     rules = tables.get("rules", [])
     if not rules:
         raise PackageError("beslistabellen: 'rules' is leeg")
