@@ -1,6 +1,7 @@
 """Unit tests voor de Gent-embed (tab 5) in build_simulation.py."""
 from __future__ import annotations
 
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -17,7 +18,7 @@ class TestBuildGent(unittest.TestCase):
 
         cls.gent = build_gent()
 
-    def test_negen_personas_met_verwachte_statussen(self):
+    def test_elf_personas_met_verwachte_statussen(self):
         statussen = {p["id"]: p["status"] for p in self.gent["personas"]}
         self.assertEqual(
             statussen,
@@ -31,6 +32,8 @@ class TestBuildGent(unittest.TestCase):
                 "dirk": "blokkade",
                 "wim": "blokkade",
                 "nadia": "gereed",
+                "ilse": "blokkade",
+                "hanne": "geweigerd",
             },
         )
 
@@ -51,6 +54,34 @@ class TestBuildGent(unittest.TestCase):
         for p in self.gent["personas"]:
             for e in p["events"]:
                 self.assertEqual(set(e), {"seq", "kind"})
+
+    def test_ontvangstbewijzen_sanne_en_hanne(self):
+        """Fase-3: ontvangstbewijs (FR-16) en niet-ingediend in de embed."""
+        sanne = next(p for p in self.gent["personas"] if p["id"] == "sanne")
+        ontvangsten = sanne["submission"]["ontvangst"]["transacties"]
+        self.assertEqual(len(ontvangsten), 2)
+        for tr in ontvangsten:
+            self.assertEqual(tr["status"], "geaccepteerd")
+            self.assertTrue(tr["referentie"].startswith("GENT-"), msg=tr["referentie"])
+        self.assertTrue(sanne["submission"]["vervolgsamenvatting"]["gereed"])
+
+        hanne = next(p for p in self.gent["personas"] if p["id"] == "hanne")
+        for tr in hanne["submission"]["ontvangst"]["transacties"]:
+            self.assertEqual(tr["status"], "niet-ingediend")
+            self.assertIsNone(tr["referentie"])
+        self.assertEqual(hanne["submission"]["vervolgsamenvatting"]["gereed"], [])
+        self.assertTrue(hanne["submission"]["vervolgsamenvatting"]["open"])
+
+    def test_events_bevatten_geen_adresstring(self):
+        """De masking-claim van de embed (SEC-05) blijft geldig na fase-3:
+        events dragen alléén soort+volgnummer, dus geen adres of schets-woord."""
+        adressen = ("Korenmarkt 1, Gent", "Korenmarkt", "Sint-Pietersplein",
+                    "Koningin Maria Hendrikaplein")
+        for p in self.gent["personas"]:
+            tekst = json.dumps(p["events"], ensure_ascii=False)
+            for adres in adressen:
+                self.assertNotIn(adres, tekst, msg=f"{p['id']}: {adres} in events")
+            self.assertNotIn("loodgieter", tekst)  # woord uit sanne's schets
 
     def test_weigering_stopt_zonder_prefill(self):
         ellen = next(p for p in self.gent["personas"] if p["id"] == "ellen")

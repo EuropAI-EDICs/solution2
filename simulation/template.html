@@ -354,6 +354,8 @@
   .gevchip{font-size:10.5px;border:1px solid var(--line2);border-radius:6px;padding:0 5px;color:var(--faint)}
   .gchain{font-size:11.5px;margin-top:6px;color:#f87171}
   .gchain.ok{color:#34d399}
+  .gontv{font-size:12.5px;margin:4px 0}
+  .gontv code{font-family:var(--mono);color:var(--cyan);font-size:11px}
 </style>
 </head>
 <body>
@@ -388,7 +390,7 @@ zone-keten Utrecht (<code>simulation/laya_utrecht/</code>) bij PoC-1, BP→OP Ei
 de chat opent per dataset na de bijbehorende run.
 Tab 4 embedt de canonieke <b>Breda five-value scan</b>
 (<code>poc-breda/runs/20260913T192628Z-breda-scan</code>) — offline choropleth + golden Q&A na de scan-timeline.
-Tab 5 toont de <b>Gent EUROPAI-piloot</b> — deterministische fase 1+2-replay per persona (intake → GIS → H1 → H2/authenticatie → prefill → validatie → H3), gegenereerd tijdens de build door de poc-gent-engine tegen de echte Gentse zone-lagen; de events-ketting is geverifieerd.
+Tab 5 toont de <b>Gent EUROPAI-piloot</b> — deterministische fase 1+2+3-replay per persona (intake → GIS → H1 → H2/authenticatie → prefill → validatie → H3 → documenten → H4 → ontvangstbewijs), gegenereerd tijdens de build door de poc-gent-engine tegen de echte Gentse zone-lagen; de events-ketting is geverifieerd.
 Click any pipeline stage to jump there; <kbd>space</kbd> = play/pause, <kbd>→</kbd> = step.</div>
 
 <main>
@@ -2296,12 +2298,18 @@ function renderGentMeta(){
 }
 function renderGentStatic(){
   const p = gpersona(curGent);
+  const sub = p.submission || {};
+  const ontv = (sub.ontvangst && sub.ontvangst.transacties) || [];
+  const openRegels = (sub.vervolgsamenvatting && sub.vervolgsamenvatting.open) || [];
+  const docBev = (sub.documenten && sub.documenten.bevindingen) || [];
+  const vervolgToont = !!(ontv.length || openRegels.length || docBev.length);
   $("rail5").innerHTML = p.steps.map((s,i)=>`
     <div class="stage" id="st5-${i}" onclick="sim5.jumpToStage(${i})">
       <b>${i+1}. ${esc(s.title)}</b>
       <span class="gsub">${esc(s.actor)}${s.genAiTestPoint&&s.genAiTestPoint!=="—"?` · ${esc(s.genAiTestPoint)}`:""}${s.consent&&s.consent!=="n.v.t."?` · ${esc(s.consent)}`:""}</span>
     </div>`).join("")
-    + `<div class="stage" id="st5-${p.steps.length}" onclick="sim5.jumpToStage(${p.steps.length})"><b>status</b><span class="gsub">${esc(p.status)}</span></div>`;
+    + `<div class="stage" id="st5-${p.steps.length}" onclick="sim5.jumpToStage(${p.steps.length})"><b>status</b><span class="gsub">${esc(p.status)}</span></div>`
+    + (vervolgToont?`<div class="stage" id="st5-${p.steps.length+1}" onclick="sim5.jumpToStage(${p.steps.length+1})"><b>ontvangst &amp; vervolg</b><span class="gsub">${ontv.length?`${ontv.filter(t=>t.status!=="niet-ingediend").length}/${ontv.length} ingediend`:"geen aanvragen"}</span></div>`:"");
   const cards=[];
   cards.push(`<div class="gcard guser on"><div class="gwho">${esc(p.label)}</div><div class="gtxt">“${esc(p.situatieschets)}”</div></div>`);
   p.steps.forEach((s,i)=>{
@@ -2323,6 +2331,23 @@ function renderGentStatic(){
   const bev = (p.validatie.transacties||[]).flatMap(t=>(t.bevindingen||[]).map(b=>({service:t.service, b})));
   cards.push(`<div class="gcard gstatus" id="gc-${p.steps.length}"><div class="ghead"><b>status: ${esc(p.status)}</b><span class="gsub">${esc(p.outcome)}${(p.transactions||[]).length?" · "+p.transactions.map(x=>esc((G.serviceTitels||{})[x]||x)).join(" + "):""}</span></div>`
     + bev.map(({service,b})=>`<div class="gbev ${esc(b.ernst)}">${esc((G.serviceTitels||{})[service]||service)} — <b>${esc(b.id)}</b> ${esc(b.melding)}</div>`).join("") + `</div>`);
+  if (vervolgToont){
+    const ONTV_KLEUR = {geaccepteerd:"#34d399"};
+    const reden = openRegels[0] || "";   // per-transactie reden ontbreekt in het artefact — CLI-conventie: eerste open-regel
+    let vbody = ontv.map(t=>{
+      const titel = (G.serviceTitels||{})[t.service]||t.service;
+      if (t.status==="niet-ingediend")
+        return `<div class="gontv">${esc(titel)} — <span class="gbron">niet ingediend${reden?` (${esc(reden)})`:""}</span></div>`;
+      return `<div class="gontv">${esc(titel)} → <code>${esc(t.referentie||"—")}</code> ${gchip(t.status, ONTV_KLEUR[t.status]||"#f59e0b")}</div>`;
+    }).join("");
+    if (openRegels.length)
+      vbody += `<div class="ghead" style="margin-top:8px"><b>nog te doen</b></div>`
+        + openRegels.map(r=>`<div class="gontv">• ${esc(r)}</div>`).join("");
+    if (docBev.length)
+      vbody += `<div class="ghead" style="margin-top:8px"><b>documenten — ${esc(sub.documenten.status)}</b></div>`
+        + docBev.map(b=>`<div class="gbev ${esc(b.ernst)}"><b>${esc(b.id)}</b> ${esc(b.melding)}</div>`).join("");
+    cards.push(`<div class="gcard" id="gc-${p.steps.length+1}"><div class="ghead"><b>ontvangst &amp; vervolg</b></div>${vbody}</div>`);
+  }
   $("chat5").innerHTML = cards.join("");
   $("facts5").innerHTML = (p.context.regels||[]).map(r=>`
     <div class="gfact"><span class="gfk">${esc(r.feit)}</span><span>${esc(r.waarde)}</span>
@@ -2341,6 +2366,7 @@ function makeSim5(){
   }});
   p.steps.forEach((s,i)=>S(i, s.stepId, 1100));
   S(p.steps.length, "status", 1200);
+  S(p.steps.length+1, "ontvangst", 1100);   // ontvangst/vervolg-kaart (alleen aanwezig als er iets te tonen valt)
   return new Sim(steps,{
     stage:(st)=>gentStage(st),
     reset:()=>{ gentStage(-1); document.querySelectorAll("#chat5 .gcard").forEach(c=>c.classList.remove("on")); },

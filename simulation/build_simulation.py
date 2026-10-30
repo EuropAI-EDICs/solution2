@@ -1136,7 +1136,7 @@ def build_laya_breda() -> dict:
 
 
 def build_gent() -> dict:
-    """Gent EUROPAI-piloot voor tab 5: deterministische replay (fase 1+2) per
+    """Gent EUROPAI-piloot voor tab 5: deterministische replay (fase 1+2+3) per
     persona, gegenereerd door de echte poc-gent-engine tijdens de build. De
     events-ketting wordt geverifieerd; in de embedded data zitten alléén
     event-soorten en -volgnummers, geen persoonswaarden (SEC-05-geest)."""
@@ -1180,6 +1180,7 @@ def build_gent() -> dict:
             "validatie": t["validatie"],
             "h1": t["h1"],
             "h3": t["h3"],
+            "submission": t["submission"],
             "events": [{"seq": e["seq"], "kind": e["kind"]} for e in log],
             "chainOk": events.verify_chain(log),
         })
