@@ -179,3 +179,15 @@ Grounded in `poc/runs/20260830T113234Z-wind`, `poc/runs/20260830T142439Z-zon`,
 `poc/runs/20260830T142446Z-bos` and `poc-bp2op/runs/20260830-124515-eindhoven`;
 rebuild after new canonical runs by pointing `POC1_TRACKS` / `POC2_RUN` at the
 top of `build_simulation.py` at the new dirs.
+
+## Tab 5 — Gent transactie-piloot (EUROPAI)
+
+`build_gent()` in `build_simulation.py` genereert tijdens de build een
+deterministische fase 1+2-replay per persona (7 stuks) met de echte
+poc-gent-engine (`pipeline.run_replay`) tegen de echte Gentse zone-lagen
+(F1.5-broncache). De events-ketting wordt geverifieerd; in de embedded data
+staan alleen event-soorten en volgnummers, geen persoonswaarden. Zie ook
+`test_build_gent.py` en `docs/superpowers/specs/2026-10-30-piloot-gent-transactionele-assistent-design.md`.
+
+Openen: `open simulation/simulation.html?tab=5` (of klik de tab "Gent · transactie").
+Persona-switcher bovenin; ▶/stap/↺ besturen de replay zoals bij de andere PoC's.

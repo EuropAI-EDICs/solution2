@@ -139,9 +139,21 @@ try {
   ds.setWaarde("autonomous");
   ds.setWaarde("democratic");
   s4.reset(); drain();
+
+  // ---- Gent tab: sim5 + persona switches ---------------------------------
+  const s5 = ds.sims[3];
+  if (!s5 || s5.steps.length < 4) throw new Error("sim5 missing or too few steps");
+  s5.jumpToStage(s5.steps.length - 1); drain();
+  ds.gentPersona("dirk"); drain();
+  const s5d = ds.sims[3];
+  s5d.jumpToStage(s5d.steps.length - 1); drain();
+  ds.gentPersona("ellen"); drain();
+  const s5e = ds.sims[3];
+  s5e.play(); drain(4000); s5e.pause();
+  ds.gentPersona("sanne");
   if (ds.bredaOn()) throw new Error("breda chat not re-locked after reset");
 
-  console.log(`OK — script evaluated; poc1 tracks driven through every step (${n1} steps on active track), sim2 ${n2} steps, laya fp+chat driven, poc4 sim4 ${s4.steps.length} steps, timers drained`);
+  console.log(`OK — script evaluated; poc1 tracks driven through every step (${n1} steps on active track), sim2 ${n2} steps, laya fp+chat driven, poc4 sim4 ${s4.steps.length} steps, gent sim5 ${s5e.steps.length} steps (sanne/dirk/ellen), timers drained`);
 } catch (e) {
   console.error("FAIL:", e && e.stack ? e.stack.split("\n").slice(0, 6).join("\n") : e);
   process.exit(1);

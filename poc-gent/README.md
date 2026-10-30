@@ -23,6 +23,7 @@ Magda-prefill → validatie → H3-concept) van het referentiepakket
     python3 run.py --persona jeroen
     ../nldt/.venv/bin/python -m pytest tests -q     # volledige testsuite
     python3 eval.py                                  # golden-set evaluatie
+    (cd ../simulation && ../nldt/.venv/bin/python build_simulation.py)  # sim-tab 5
     python3 fetch_sources.py --check                 # zone-uitkomsten per adres (offline)
 
 ## Fixtures en echte brondata (F1.5)

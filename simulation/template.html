@@ -309,6 +309,51 @@
   .done.on{display:block;animation:fadein .5s}
   .done b{color:var(--green)}
   kbd{font-family:var(--mono);font-size:10.5px;background:var(--panel2);border:1px solid var(--line2);border-radius:5px;padding:1px 6px;color:var(--dim)}
+
+  /* gent transactie tab */
+  #view5 .rail{padding:8px;display:flex;flex-direction:column;gap:4px}
+  #rail5 .stage{display:block;font-size:12.5px;padding:8px 10px}
+  #rail5 .stage b{display:block}
+  #rail5 .stage .gsub{color:var(--faint);font-size:11px}
+  #rail5 .stage.on{border-left-color:#3b82f6}
+  #rail5 .stage.cur{background:#13223dcc}
+  .gwrap{padding:14px;min-height:540px;max-height:76vh;overflow:auto}
+  .gpers{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+  .gmeta2{color:var(--faint);font-size:11.5px;margin-bottom:12px;line-height:1.5}
+  .gchat{display:flex;flex-direction:column;gap:9px}
+  .gcard{display:none;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;background:var(--panel2)}
+  .gcard.on{display:block;animation:gf .35s ease}
+  @keyframes gf{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+  .guser{display:block;background:#13233d66;border-color:#3b82f655}
+  .gwho{font-size:11px;color:var(--faint)}
+  .gtxt{font-style:italic}
+  .ghead{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .gact{font-size:11px;padding:1px 8px;border-radius:8px;border:1px solid var(--line2);color:var(--faint)}
+  .gact-mens{color:#f59e0b;border-color:#f59e0b55}
+  .gact-agent{color:#3b82f6;border-color:#3b82f655}
+  .gact-partij{color:#22d3ee;border-color:#22d3ee55}
+  .gchip{font-size:10.5px;padding:0 6px;border:1px solid;border-radius:7px;white-space:nowrap}
+  .gdu{color:var(--faint);font-size:12px;margin:2px 0}
+  .guitleg{margin:6px 0;padding:6px 10px;border-left:3px solid #3b82f6;background:#13223333;font-size:13px}
+  .gbron{color:var(--faint);font-size:11px}
+  .gform{margin:8px 0;font-size:12.5px}
+  .gform table{border-collapse:collapse;margin-top:4px;width:100%}
+  .gform td{border-top:1px solid var(--line2);padding:3px 6px;vertical-align:top}
+  .gmiss{color:#f87171;font-size:11.5px}
+  .ghand{margin-top:6px;color:#f87171;font-size:12px}
+  .gstatus{border-color:#3b82f699}
+  .gbev{font-size:12.5px;margin:4px 0}
+  .gbev.blokkade{color:#f87171}
+  .gbev.waarschuwing{color:#f59e0b}
+  .gside{padding:12px}
+  .gside h3{margin:10px 0 6px;font-size:11.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.05em}
+  .gfact{display:flex;flex-wrap:wrap;gap:6px;font-size:12px;padding:3px 0;border-top:1px solid var(--line2)}
+  .gfk{color:var(--faint);min-width:88px}
+  .gauth{font-size:12px;color:var(--faint);line-height:1.5}
+  .gev{display:flex;flex-wrap:wrap;gap:4px}
+  .gevchip{font-size:10.5px;border:1px solid var(--line2);border-radius:6px;padding:0 5px;color:var(--faint)}
+  .gchain{font-size:11.5px;margin-top:6px;color:#f87171}
+  .gchain.ok{color:#34d399}
 </style>
 </head>
 <body>
@@ -319,6 +364,7 @@
     <div class="tab active" id="tab1" onclick="switchTab(1)">PoC-1 · wind, Utrecht</div>
     <div class="tab" id="tab2" onclick="switchTab(2)">PoC-2 · BP→OP, Eindhoven</div>
     <div class="tab" id="tab4" onclick="switchTab(4)">Breda · vijf-waarden</div>
+    <div class="tab" id="tab5" onclick="switchTab(5)">Gent · transactie</div>
   </div>
   <div class="controls">
     <button class="ctl primary" id="btnPlay" onclick="ctrl('play')">▶ play</button>
@@ -342,6 +388,7 @@ zone-keten Utrecht (<code>simulation/laya_utrecht/</code>) bij PoC-1, BP→OP Ei
 de chat opent per dataset na de bijbehorende run.
 Tab 4 embedt de canonieke <b>Breda five-value scan</b>
 (<code>poc-breda/runs/20260913T192628Z-breda-scan</code>) — offline choropleth + golden Q&A na de scan-timeline.
+Tab 5 toont de <b>Gent EUROPAI-piloot</b> — deterministische fase 1+2-replay per persona (intake → GIS → H1 → H2/authenticatie → prefill → validatie → H3), gegenereerd tijdens de build door de poc-gent-engine tegen de echte Gentse zone-lagen; de events-ketting is geverifieerd.
 Click any pipeline stage to jump there; <kbd>space</kbd> = play/pause, <kbd>→</kbd> = step.</div>
 
 <main>
@@ -617,6 +664,23 @@ Click any pipeline stage to jump there; <kbd>space</kbd> = play/pause, <kbd>→<
 </main>
 
 <!-- ================================================================ Breda · vijf-waarden -->
+<!-- ================================================================ Gent piloot (EUROPAI) -->
+<section class="view" id="view5">
+  <aside class="rail card" id="rail5"></aside>
+  <div class="gwrap card">
+    <div id="gentmeta"></div>
+    <div id="chat5" class="gchat"></div>
+  </div>
+  <aside class="card gside">
+    <h3>feiten &amp; herkomst</h3>
+    <div id="facts5" class="gfacts"></div>
+    <h3>authentieke bronnen</h3>
+    <div id="auth5" class="gauth"></div>
+    <h3>events-ketting</h3>
+    <div id="ev5" class="gev"></div>
+  </aside>
+</section>
+
 <section class="view" id="view4">
   <div class="stagepane">
     <div class="card">
@@ -743,8 +807,8 @@ class Sim {
     $("stepBar").style.width = (100*i/n)+"%"; }
 }
 
-let sim1, sim2, sim4, active=1;
-const sim = ()=> active===1?sim1:active===4?sim4:sim2;
+let sim1, sim2, sim4, sim5, active=1;
+const sim = ()=> active===1?sim1:active===4?sim4:active===5?sim5:sim2;
 function ctrl(a){ const s=sim(); if(!s) return; if(a==="play"){ s.timer? s.pause() : s.play(); } else if(a==="step") s.step(); else s.reset(); }
 function mountLaya(n){
   const dock=$("layadock"); if(!dock) return;
@@ -754,7 +818,7 @@ function mountLaya(n){
 }
 function switchTab(n){ if(n===active) return; const cur=sim(); if(cur) cur.pause(); active=n;
   if(n===1||n===2) mountLaya(n);
-  for(const k of [1,2,4]){ const t=$("tab"+k); if(t) t.classList.toggle("active",k===n);
+  for(const k of [1,2,4,5]){ const t=$("tab"+k); if(t) t.classList.toggle("active",k===n);
     const v=$("view"+k); if(v) v.classList.toggle("active",k===n); }
   if(n===4) buildStatic4();
   const s=sim(); if(s) s.prog(); }
@@ -2216,10 +2280,84 @@ function makeSim4(){
   });
 }
 
+
+/* ================================================================ Gent view */
+const G = DATA.gent;
+let curGent = G.personas[0].id;
+const LABEL_KLEUR = {authentiek:"#3b82f6", gebruiker:"#8b93a7", correctie:"#f59e0b", afgeleid:"#22d3ee"};
+function gpersona(id){ return G.personas.find(p=>p.id===id) || G.personas[0]; }
+function gchip(label, kleur){ return `<span class="gchip" style="color:${kleur};border-color:${kleur}55">${esc(label)}</span>`; }
+function renderGentMeta(){
+  $("gentmeta").innerHTML =
+    `<div class="gpers">${G.personas.map(p=>`
+      <button class="ttab ${p.id===curGent?'active':''}" onclick="gentPersona('${p.id}')" title="${esc(p.label)}${p.edge?' · edge: '+esc(p.edge):''}">${esc(p.id)}</button>`).join("")}</div>`
+    + `<div class="gmeta2"><code>${esc(G.lifeEventCode)}</code> · ${esc(G.packageId)} v${esc(G.version)} · `
+    + Object.entries(G.bronversies||{}).map(([k,v])=>`${esc(k)} — ${esc(v)}`).join(" · ") + `</div>`;
+}
+function renderGentStatic(){
+  const p = gpersona(curGent);
+  $("rail5").innerHTML = p.steps.map((s,i)=>`
+    <div class="stage" id="st5-${i}" onclick="sim5.jumpToStage(${i})">
+      <b>${i+1}. ${esc(s.title)}</b>
+      <span class="gsub">${esc(s.actor)}${s.genAiTestPoint&&s.genAiTestPoint!=="—"?` · ${esc(s.genAiTestPoint)}`:""}${s.consent&&s.consent!=="n.v.t."?` · ${esc(s.consent)}`:""}</span>
+    </div>`).join("")
+    + `<div class="stage" id="st5-${p.steps.length}" onclick="sim5.jumpToStage(${p.steps.length})"><b>status</b><span class="gsub">${esc(p.status)}</span></div>`;
+  const cards=[];
+  cards.push(`<div class="gcard guser on"><div class="gwho">${esc(p.label)}</div><div class="gtxt">“${esc(p.situatieschets)}”</div></div>`);
+  p.steps.forEach((s,i)=>{
+    let body = (s.dataUsed||[]).map(d=>`<div class="gdu">${esc(d)}</div>`).join("");
+    if(s.stepId==="routing" && (p.uitleg||[]).length){
+      body += p.uitleg.map(u=>`<div class="guitleg"><div>${esc(u.tekst)}</div><div class="gbron">${esc(u.bron)}</div></div>`).join("");
+    }
+    if(s.stepId==="h3-conceptbeoordeling" && (p.prefill.transacties||[]).length){
+      body += (p.prefill.transacties||[]).map(t=>{
+        const titel = (G.serviceTitels||{})[t.service]||t.service;
+        const velden = t.velden.map(v=>`<tr><td>${esc(v.veld)}</td><td>${esc(v.waarde===null?"—":v.waarde)}</td><td>${gchip(v.label, LABEL_KLEUR[v.label]||"#8b93a7")}</td><td class="gbron">${esc(v.bron)}</td></tr>`).join("");
+        return `<div class="gform"><b>${esc(titel)}</b><table>${velden}</table>${t.ontbrekend&&t.ontbrekend.length?`<div class="gmiss">ontbrekend: ${t.ontbrekend.map(esc).join(", ")}</div>`:""}</div>`;
+      }).join("");
+    }
+    const consent = s.consent&&s.consent!=="n.v.t." ? gchip("toestemming: "+s.consent, s.consent==="geweigerd"?"#f87171":"#34d399") : "";
+    const hand = s.handover ? `<div class="ghand">→ ${esc(s.handover.to)} — ${esc(s.handover.reason)}</div>` : "";
+    cards.push(`<div class="gcard" id="gc-${i}"><div class="ghead"><span class="gact gact-${esc(s.actor)}">${esc(s.actor)}</span><b>${esc(s.title)}</b>${consent}</div>${body}${hand}</div>`);
+  });
+  const bev = (p.validatie.transacties||[]).flatMap(t=>(t.bevindingen||[]).map(b=>({service:t.service, b})));
+  cards.push(`<div class="gcard gstatus" id="gc-${p.steps.length}"><div class="ghead"><b>status: ${esc(p.status)}</b><span class="gsub">${esc(p.outcome)}${(p.transactions||[]).length?" · "+p.transactions.map(x=>esc((G.serviceTitels||{})[x]||x)).join(" + "):""}</span></div>`
+    + bev.map(({service,b})=>`<div class="gbev ${esc(b.ernst)}">${esc((G.serviceTitels||{})[service]||service)} — <b>${esc(b.id)}</b> ${esc(b.melding)}</div>`).join("") + `</div>`);
+  $("chat5").innerHTML = cards.join("");
+  $("facts5").innerHTML = (p.context.regels||[]).map(r=>`
+    <div class="gfact"><span class="gfk">${esc(r.feit)}</span><span>${esc(r.waarde)}</span>
+    <span>${gchip(r.label, LABEL_KLEUR[r.label]||"#8b93a7")}<span class="gbron"> ${esc(r.bron)}</span></span></div>`).join("");
+  $("auth5").innerHTML = `authenticatie: <b>${esc(p.auth.authenticatie)}</b><br>toestemming: <b>${esc(p.auth.toestemming)}</b>${(p.auth.mandaten||[]).length?`<br>mandaten: ${p.auth.mandaten.length}`:""}`;
+  $("ev5").innerHTML = (p.events||[]).map(e=>`<span class="gevchip">${esc(e.kind)}</span>`).join("")
+    + `<div class="gchain ${p.chainOk?"ok":""}">${p.chainOk?"ketting ✓ geverifieerd (sha256; seq+ts in de hash-basis)":"ketting ✗"}</div>`;
+}
+function gentStage(st){ document.querySelectorAll("#rail5 .stage").forEach((e,i)=>e.classList.toggle("cur", i===st)); }
+function makeSim5(){
+  const p = gpersona(curGent);
+  const steps=[];
+  const S=(i,t,dur)=>steps.push({stage:i,t,dur,run:()=>{
+    const st=$("st5-"+i); if(st) st.classList.add("on");
+    const c=$("gc-"+i); if(c) c.classList.add("on");
+  }});
+  p.steps.forEach((s,i)=>S(i, s.stepId, 1100));
+  S(p.steps.length, "status", 1200);
+  return new Sim(steps,{
+    stage:(st)=>gentStage(st),
+    reset:()=>{ gentStage(-1); document.querySelectorAll("#chat5 .gcard").forEach(c=>c.classList.remove("on")); },
+    playing:()=>{}
+  });
+}
+function gentPersona(id){
+  if(sim5) sim5.pause();
+  curGent=id; renderGentMeta(); renderGentStatic();
+  sim5=makeSim5(); sim5.prog();
+}
+
 buildRail1(); buildStatic1(); sim1=makeSim1(); buildSim2();
 buildRail4(); buildStatic4(); sim4=makeSim4(); sim1.prog();
+renderGentMeta(); renderGentStatic(); sim5=makeSim5(); sim5.prog();
 
-globalThis.__ds={ get sims(){return [sim1,sim2,sim4];}, switchTrack, switchTab,
+globalThis.__ds={ get sims(){return [sim1,sim2,sim4,sim5];}, switchTrack, switchTab, gentPersona,
   get layaOn(){return (id)=>layaOn[id||curLaya];}, fpRun, chatSend, nnBron, switchLayaDs,
   get bredaOn(){return ()=>bredaUnlocked;}, setWaarde, bredaChatSend, bredaMatch, bredaFpRun, bredaNn,
   get sim4(){return sim4;}, get bredaS2(){return ()=>bredaS2Live;} };
@@ -2245,7 +2383,7 @@ if(typeof URLSearchParams!=="undefined"){
   if(w0 && WAARDE_LBL[w0]) curWaarde=w0;
   const t=parseInt(sp.get("tab")||"0",10);
   if(t===3){ switchTab(2); const d=$("layadock"); if(d&&d.scrollIntoView) d.scrollIntoView({block:"start"}); }
-  else if(t>=1&&t<=4) switchTab(t);
+  else if(t>=1&&t<=5) switchTab(t);
   else if(curWaarde!=="spatial") paintWaarde(curWaarde);
 }
 </script>

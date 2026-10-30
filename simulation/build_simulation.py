@@ -1135,6 +1135,65 @@ def build_laya_breda() -> dict:
     }
 
 
+def build_gent() -> dict:
+    """Gent EUROPAI-piloot voor tab 5: deterministische replay (fase 1+2) per
+    persona, gegenereerd door de echte poc-gent-engine tijdens de build. De
+    events-ketting wordt geverifieerd; in de embedded data zitten alléén
+    event-soorten en -volgnummers, geen persoonswaarden (SEC-05-geest)."""
+    gent_root = ROOT / "poc-gent"
+    if not (gent_root / "run.py").is_file():
+        sys.exit(f"missing poc-gent at {gent_root}")
+    sys.path.insert(0, str(gent_root))
+    try:
+        from adapters import gis_zones
+        from core import catalog, events, pipeline
+    finally:
+        sys.path.remove(str(gent_root))
+
+    package_id = "gent-mobiliteit-ondernemer"
+    pkg = catalog.load_package(gent_root, package_id)
+    personas = pipeline.load_personas(gent_root)
+    versies = gis_zones.load_layer_versies(gent_root)
+
+    out_personas = []
+    for pid, persona in personas.items():
+        run, log = pipeline.run_replay(gent_root, package_id, pid)
+        t = run["transaction"]
+        out_personas.append({
+            "id": pid,
+            "label": persona["label"]["nl"],
+            "edge": persona.get("edge"),
+            "situatieschets": persona["situatieschets"],
+            "status": t["status"],
+            "outcome": t["routing"]["outcome"],
+            "transactions": t["routing"]["paths"]["transactions"],
+            "uitleg": t["routing"]["uitleg"],
+            "steps": [
+                {"stepId": s["stepId"], "title": s["title"], "actor": s["actor"],
+                 "genAiTestPoint": s["genAiTestPoint"], "dataUsed": s["dataUsed"],
+                 "consent": s["consent"], "handover": s["handover"], "prov": s["prov"]}
+                for s in run["steps"]
+            ],
+            "context": t["context"],
+            "auth": t["auth"],
+            "prefill": t["prefill"],
+            "validatie": t["validatie"],
+            "h1": t["h1"],
+            "h3": t["h3"],
+            "events": [{"seq": e["seq"], "kind": e["kind"]} for e in log],
+            "chainOk": events.verify_chain(log),
+        })
+
+    return {
+        "packageId": pkg.manifest["packageId"],
+        "lifeEventCode": pkg.manifest["lifeEventCode"],
+        "version": pkg.manifest["version"],
+        "serviceTitels": {k: v.get("titel") for k, v in pkg.manifest["services"].items()},
+        "bronversies": versies,
+        "personas": out_personas,
+    }
+
+
 def main() -> int:
     for name, meta in POC1_TRACKS.items():
         if not meta["run"].is_dir():
@@ -1144,7 +1203,7 @@ def main() -> int:
     if not POC4_RUN.is_dir():
         sys.exit(f"missing PoC-4 run dir {POC4_RUN}")
 
-    data = {"poc1": build_poc1(), "poc2": build_poc2(), "poc4": build_breda()}
+    data = {"poc1": build_poc1(), "poc2": build_poc2(), "poc4": build_breda(), "gent": build_gent()}
     tpl = TEMPLATE.read_text(encoding="utf-8")
     marker = "/*__DATA__*/"
     if marker not in tpl:
@@ -1178,6 +1237,11 @@ def main() -> int:
     p4 = data["poc4"]
     print(f"  poc4/breda: run {p4['runId']} — {p4['nBuurten']} buurten, "
           f"{len(p4['geo'])} geo, {len(p4['qa'])} golden Q&A, verdict {p4.get('verdict')}")
+    g = data["gent"]
+    ok = sum(1 for p in g["personas"] if p["chainOk"])
+    print(f"  gent: {g['packageId']} v{g['version']} — {len(g['personas'])} persona's "
+          f"(events-ketting {ok}/{len(g['personas'])} geverifieerd), "
+          "statussen: " + ", ".join(f"{p['id']}={p['status']}" for p in g["personas"]))
     ly = data["poc2"]["laya"]
     ev = ly["eval"]
     m = ly["meta"]
