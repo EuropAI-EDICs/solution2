@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://ldttoolbox.example/poc-gent/schemas/gent-run.schema.json",
-  "title": "Gent transactional run (F1+F2+IAM: intake→context→GIS→routing→H1→H2 EUDI-wallet/ACM-IDM→prefill/validatie→H3)",
-  "description": "hcs-run-vorm (nldt/schemas/hcs-run.schema.json) plus transaction-blok, ontwerp 2026-10-30 §5 (fase 1+2; schema v1.1 met status/auth/prefill/validatie/h3; IAM-aanvulling: auth-blok optioneel methode/loa/onthuldeClaims voor de EUDI-wallet-route — achterwaarts compatibel, v1.2 is gereserveerd voor submission).",
+  "title": "Gent transactional run (F1+F2+IAM+F3: intake→context→GIS→routing→H1→H2 EUDI-wallet/ACM-IDM→prefill/validatie→H3→H4/submission)",
+  "description": "hcs-run-vorm (nldt/schemas/hcs-run.schema.json) plus transaction-blok, ontwerp 2026-10-30 §5 (fase 1+2; schema v1.1 met status/auth/prefill/validatie/h3; IAM-aanvulling: auth-blok optioneel methode/loa/onthuldeClaims voor de EUDI-wallet-route — achterwaarts compatibel; v1.2 voegt verplicht submission-blok toe: H4, documenten, ontvangst, vervolgsamenvatting).",
   "type": "object",
   "additionalProperties": false,
   "required": ["schemaVersion", "runId", "generatedAt", "recipeId", "processId", "mode", "scenario", "steps", "stopConditions", "kpiSnapshot", "transaction"],
   "properties": {
-    "schemaVersion": {"const": "1.1"},
+    "schemaVersion": {"const": "1.2"},
     "runId": {"type": "string"},
     "generatedAt": {"type": "string"},
     "recipeId": {"type": "string"},
@@ -39,7 +39,7 @@
     "transaction": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["context", "routing", "h1", "status", "auth", "prefill", "validatie", "h3"],
+      "required": ["context", "routing", "h1", "status", "auth", "prefill", "validatie", "h3", "submission"],
       "properties": {
         "context": {"type": "object", "required": ["tekst", "regels"], "additionalProperties": false, "properties": {"tekst": {"type": "string"}, "regels": {"type": "array", "items": {"$ref": "#/$defs/contextRegel"}}}},
         "routing": {
@@ -66,7 +66,16 @@
         "validatie": {"type": "object", "additionalProperties": false, "required": ["transacties"],
           "properties": {"transacties": {"type": "array", "items": {"$ref": "#/$defs/validatieTransactie"}}}},
         "h3": {"type": "object", "additionalProperties": false, "required": ["verdict", "correcties"],
-          "properties": {"verdict": {"enum": ["gegeven", "geweigerd", "n.v.t."]}, "correcties": {"type": "object"}}}
+          "properties": {"verdict": {"enum": ["gegeven", "geweigerd", "n.v.t."]}, "correcties": {"type": "object"}}},
+        "submission": {"type": "object", "additionalProperties": false,
+          "required": ["h4", "documenten", "ontvangst", "vervolgsamenvatting"],
+          "properties": {
+            "h4": {"$ref": "#/$defs/submissionH4"},
+            "documenten": {"$ref": "#/$defs/submissionDocumenten"},
+            "ontvangst": {"type": "object", "additionalProperties": false, "required": ["transacties"],
+              "properties": {"transacties": {"type": "array", "items": {"$ref": "#/$defs/ontvangstTransactie"}}}},
+            "vervolgsamenvatting": {"$ref": "#/$defs/vervolgsamenvatting"}
+          }}
       }
     },
     "contextRegel": {
@@ -84,6 +93,18 @@
         "status": {"enum": ["gereed", "gereed-met-waarschuwing", "blokkade"]},
         "bevindingen": {"type": "array", "items": {"type": "object", "additionalProperties": false,
           "required": ["id", "ernst", "melding"],
-          "properties": {"id": {"type": "string"}, "ernst": {"enum": ["blokkade", "waarschuwing"]}, "melding": {"type": "string"}}}}}}
+          "properties": {"id": {"type": "string"}, "ernst": {"enum": ["blokkade", "waarschuwing"]}, "melding": {"type": "string"}}}}}},
+    "submissionH4": {"type": "object", "additionalProperties": false, "required": ["verdict", "bevestigdOp"],
+      "properties": {"verdict": {"enum": ["gegeven", "geweigerd", "n.v.t."]}, "bevestigdOp": {"type": "string"}}},
+    "submissionDocumenten": {"type": "object", "additionalProperties": false, "required": ["status", "bevindingen"],
+      "properties": {"status": {"enum": ["volledig", "onvolledig", "n.v.t."]},
+        "bevindingen": {"type": "array", "items": {"type": "object", "additionalProperties": false,
+          "required": ["id", "ernst", "melding"],
+          "properties": {"id": {"type": "string"}, "ernst": {"enum": ["blokkade", "waarschuwing"]}, "melding": {"type": "string"}}}}}},
+    "ontvangstTransactie": {"type": "object", "additionalProperties": false, "required": ["service", "referentie", "status"],
+      "properties": {"service": {"type": "string"}, "referentie": {"type": ["string", "null"]},
+        "status": {"enum": ["geaccepteerd", "in-wachtrij", "afgewezen", "technisch-mislukt", "niet-ingediend"]}}},
+    "vervolgsamenvatting": {"type": "object", "additionalProperties": false, "required": ["gereed", "open"],
+      "properties": {"gereed": {"type": "array", "items": {"type": "string"}}, "open": {"type": "array", "items": {"type": "string"}}}}
   }
 }
