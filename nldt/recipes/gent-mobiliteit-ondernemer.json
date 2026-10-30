@@ -1,0 +1,52 @@
+{
+  "id": "gent-mobiliteit-ondernemer",
+  "title": "GT-MOB-01 — Voertuigtoegang stadcentrum voor ondernemers (Gent)",
+  "description": "Transactionele life-event recipe voor de EUROPAI-WP3-piloot Stad Gent: ondernemers die herstelwerken uitvoeren in het centrum krijgen via gesprek + GIS-zonecheck (LEZ, autovrij gebied) de juiste ontheffingen voorgesteld met uitleg en legalBasis. F1: deterministische replay via gent-transactional-run; prefill/inzending volgen in F2/F3. Ontwerp: docs/superpowers/specs/2026-10-30-piloot-gent-transactionele-assistent-design.md.",
+  "version": "0.1.0",
+  "tags": ["hcs", "gent", "transactioneel", "GT-MOB-01", "europai"],
+  "requiredProcesses": ["gent-transactional-run"],
+  "inputs": {
+    "persona": {"type": "string", "description": "persona-id: sanne|ahmed|maria|fatima|jeroen", "required": false},
+    "mode": {"type": "string", "description": "replay|execute", "required": false}
+  },
+  "outputs": {"run": {"type": "json", "description": "Gent transactional run-artefact (intake→routing, F1)"}},
+  "steps": [
+    {
+      "id": "life-event",
+      "processId": "gent-transactional-run",
+      "title": "F1-run 'voertuigtoegang voor ondernemers'",
+      "inputs": {"recipeId": "gent-mobiliteit-ondernemer", "persona": "${recipe.inputs.persona}", "mode": "${recipe.inputs.mode}"},
+      "outputs": {"run": "run"},
+      "backend": "local"
+    }
+  ],
+  "riskLevel": "medium",
+  "service": {
+    "dish": "the-key",
+    "lifeEventCode": "GT-MOB-01",
+    "serviceType": "reactive",
+    "blueprintSteps": [1, 2, 3, 4, 5],
+    "parties": [
+      {"name": "Stad Gent — mobiliteit", "role": "lead — regels en ontheffingen"},
+      {"name": "District09", "role": "backoffice-systemen"},
+      {"name": "Digital Vlaanderen", "role": "ACM/IDM + Magda (F2)"}
+    ],
+    "legalBasis": [
+      {"basis": "Gent LEZ-reglement / verkeersplan autovrij gebied (illustratief — vaststelling volgt bij pakkegoedkeuring)", "timeLimit": "beslistermijn volgens pakkegoedkeuring"}
+    ],
+    "humanMeasure": {
+      "handover": ["onbekend adres of geen passende regel → Gentinfo (H5)"],
+      "exceptions": ["mandaten/bewind", "collectief vervoer"]
+    },
+    "localVariant": "zone-lagen LEZ/autovrij via interne GIS-diensten Stad Gent",
+    "genAiTestPoints": [
+      {"point": "G1", "description": "intake vraagt alleen wat niet uit authentieke bronnen komt (once-only)", "testCases": ["fatima: onvolledige situatieschets", "vehicle-slot wordt nooit gevraagd (magda:kenteken)"]},
+      {"point": "G2", "description": "routing draagt uitleg + legalBasis per vuurende regel", "testCases": ["golden g1 (beide zones)", "golden g6 (escalatie)"]},
+      {"point": "G5", "description": "geen passende regel → menselijke overname Gentinfo", "testCases": ["golden g6"]}
+    ],
+    "kpis": [
+      {"kpi": "routingnauwkeurigheid", "kpiType": "outcome", "unit": "%", "outcomeLens": "Z", "baseline": "n.v.t. (prototypefase)", "target": "≥95", "dataSource": "journal/runs", "frequency": "per release", "kviRollup": "EUROPAI D3.1-ambitie efficiëntie/kwaliteit"}
+    ]
+  },
+  "cookbookUri": "http://localhost:8081/recipes/gent-mobiliteit-ondernemer"
+}
