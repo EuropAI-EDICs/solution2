@@ -1194,9 +1194,9 @@ Expected: `74 passed` (geen nieuwe pytest-tests; de bestaande golden-test dekt d
 
 Run: `python3 eval.py` → acht regels, allemaal OK (g1…g8), `determinisme: OK`, `golden: 8/8 geslaagd`, exit 0.
 
-Run: `python3 run.py --persona dirk | head -8` → `uitkomst: paden`, beide transacties, `status: blokkade`, en de Euro 4-blokkademelding.
+Run: `python3 run.py --persona dirk | head -10` → `uitkomst: paden`, beide transacties, `status: blokkade`, en de Euro 4-blokkademelding.
 
-Run: `python3 run.py --persona ellen | head -6` → `status: geweigerd` en de stopmelding.
+Run: `python3 run.py --persona ellen | head -8` → `status: geweigerd` en de stopmelding.
 
 - [ ] **Step 5: Commit**
 
@@ -1212,5 +1212,5 @@ git commit -m "feat(poc-gent): status in eval en CLI; README F2"
 1. `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` → `74 passed`.
 2. `python3 eval.py` → `golden: 8/8 geslaagd`, `determinisme: OK`, exit 0.
 3. `python3 run.py --persona sanne | head -6` → `status: gereed`, `transactie: ontheffing-lez`, `ontheffing-autovrij`.
-4. `python3 run.py --persona ellen | head -6` → `status: geweigerd`.
-5. `python3 run.py --persona dirk | head -8` → `status: blokkade` + V1-melding.
+4. `python3 run.py --persona ellen | head -8` → `status: geweigerd`.
+5. `python3 run.py --persona dirk | head -10` → `status: blokkade` + V1-melding.
