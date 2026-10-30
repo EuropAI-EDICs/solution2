@@ -17,6 +17,9 @@ def _matches(when: dict, context: dict) -> tuple[bool, str]:
     return True, "alle voorwaarden voldaan"
 
 
+matches = _matches
+
+
 def evaluate(tables: dict, context: dict) -> dict:
     trace: list[dict] = []
     uitleg: list[dict] = []
