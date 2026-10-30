@@ -67,12 +67,21 @@ def _validate(manifest: dict, tables: dict) -> None:
             raise PackageError(f"authenticSource '{bron.get('slot')}' mist een niet-lege purpose")
         if slots.get(bron.get("slot", ""), {}).get("authenticSource") != bron.get("source"):
             raise PackageError(f"authenticSource '{bron.get('slot')}' wijkt af van het slot-authenticSource")
+    bronnen_zonder_dubbel = {b.get("source") for b in bronnen}
+    if len(bronnen_zonder_dubbel) != len(bronnen):
+        raise PackageError("authenticSources bevat meerdere entries voor dezelfde bron (één doelbinding per bron)")
     if gedeclareerd != authentieke_slots:
         raise PackageError(f"authenticSources dekken de authentieke slots niet: {gedeclareerd} ≠ {authentieke_slots}")
     for service_id, service in services.items():
         if service.get("type") == "inzending":
             if not service.get("formulier"):
                 raise PackageError(f"dienst '{service_id}': inzending zonder formulier")
+        if "vereistAuth" not in service or not isinstance(service.get("vereistAuth"), bool):
+            raise PackageError(f"dienst '{service_id}': vereistAuth moet een bool zijn")
+        if service.get("type") == "inzending" and service.get("vereistAuth") is not True:
+            raise PackageError(f"dienst '{service_id}': inzending vereist vereistAuth true")
+        if service.get("type") == "inzending" and not service.get("documenten"):
+            raise PackageError(f"dienst '{service_id}': inzending zonder documenten-eisen")
         for regel in service.get("formulier", []):
             if not regel.get("veld"):
                 raise PackageError(f"dienst '{service_id}': formulierregel mist een niet-lege 'veld'")

@@ -156,3 +156,28 @@ def test_validatiesleutel_moet_in_formulier_zitten(tmp_path):
     _schrijf_pkg(tmp_path, manifest, _basis_tables())
     with pytest.raises(catalog.PackageError, match="validatie"):
         catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_documenteneisen_verplicht_voor_inzendingen(tmp_path):
+    manifest = _basis_manifest()
+    del manifest["services"]["ontheffing-lez"]["documenten"]
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    with pytest.raises(catalog.PackageError, match="documenten"):
+        catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_vereistauth_verplicht_en_true_voor_inzendingen(tmp_path):
+    manifest = _basis_manifest()
+    del manifest["services"]["ontheffing-lez"]["vereistAuth"]
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    with pytest.raises(catalog.PackageError, match="vereistAuth"):
+        catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_dubbele_bron_faalt(tmp_path):
+    manifest = _basis_manifest()
+    manifest["authenticSources"].append({"slot": "timing", "source": "magda:kenteken", "purpose": "tweede doel"})
+    manifest["contextSchema"]["slots"]["timing"]["authenticSource"] = "magda:kenteken"
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    with pytest.raises(catalog.PackageError, match="bron"):
+        catalog.load_package(tmp_path, manifest["packageId"])
