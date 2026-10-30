@@ -357,7 +357,7 @@ def controleer(manifest: dict, service_id: str, aangeleverd: list[dict]) -> dict
         if doc.get("scanSchoon") is False:
             bevindingen.append({"id": f"D3-{eis['id']}", "ernst": "waarschuwing",
                                 "melding": "Virusscan niet schoon — bestand staat in quarantaine; lever opnieuw aan."})
-    volledig = not any(b["ernst"] == "blokkade" for b in bevindingen)
+    volledig = not bevindingen  # élke bevinding (ook een quarantaine-waarschuwing) maakt de set onvolledig
     return {"volledig": volledig, "bevindingen": bevindingen}
 ```
 
