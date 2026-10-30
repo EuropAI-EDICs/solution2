@@ -7,7 +7,7 @@
   "additionalProperties": false,
   "required": ["schemaVersion", "runId", "generatedAt", "recipeId", "processId", "mode", "scenario", "steps", "stopConditions", "kpiSnapshot", "transaction"],
   "properties": {
-    "schemaVersion": {"const": "1.0"},
+    "schemaVersion": {"const": "1.1"},
     "runId": {"type": "string"},
     "generatedAt": {"type": "string"},
     "recipeId": {"type": "string"},
@@ -39,7 +39,7 @@
     "transaction": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["context", "routing", "h1"],
+      "required": ["context", "routing", "h1", "status", "auth", "prefill", "validatie", "h3"],
       "properties": {
         "context": {"type": "object", "required": ["tekst", "regels"], "additionalProperties": false, "properties": {"tekst": {"type": "string"}, "regels": {"type": "array", "items": {"$ref": "#/$defs/contextRegel"}}}},
         "routing": {
@@ -51,12 +51,36 @@
             "uitleg": {"type": "array", "items": {"type": "object", "required": ["regelId", "tekst", "bron"], "additionalProperties": false, "properties": {"regelId": {"type": "string"}, "tekst": {"type": "string"}, "bron": {"type": "string"}}}}
           }
         },
-        "h1": {"type": "object", "required": ["verdict", "correcties"], "additionalProperties": false, "properties": {"verdict": {"enum": ["gegeven", "geweigerd"]}, "correcties": {"type": "object"}}}
+        "h1": {"type": "object", "required": ["verdict", "correcties"], "additionalProperties": false, "properties": {"verdict": {"enum": ["gegeven", "geweigerd"]}, "correcties": {"type": "object"}}},
+        "status": {"enum": ["gereed", "gereed-met-waarschuwing", "blokkade", "geweigerd", "escalatie"]},
+        "auth": {"type": "object", "additionalProperties": false,
+          "required": ["authenticatie", "toestemming", "mandaten"],
+          "properties": {"authenticatie": {"enum": ["uitgevoerd", "niet-uitgevoerd"]},
+                         "toestemming": {"enum": ["gegeven", "geweigerd", "n.v.t."]},
+                         "mandaten": {"type": "array"}}},
+        "prefill": {"type": "object", "additionalProperties": false, "required": ["transacties"],
+          "properties": {"transacties": {"type": "array", "items": {"$ref": "#/$defs/prefillTransactie"}}}},
+        "validatie": {"type": "object", "additionalProperties": false, "required": ["transacties"],
+          "properties": {"transacties": {"type": "array", "items": {"$ref": "#/$defs/validatieTransactie"}}}},
+        "h3": {"type": "object", "additionalProperties": false, "required": ["verdict", "correcties"],
+          "properties": {"verdict": {"enum": ["gegeven", "geweigerd", "n.v.t."]}, "correcties": {"type": "object"}}}
       }
     },
     "contextRegel": {
       "type": "object", "required": ["feit", "waarde", "label", "bron"], "additionalProperties": false,
       "properties": {"feit": {"type": "string"}, "waarde": {}, "label": {"enum": ["gebruiker", "correctie", "afgeleid", "authentiek"]}, "bron": {"type": "string"}}
-    }
+    },
+    "prefillTransactie": {"type": "object", "additionalProperties": false, "required": ["service", "velden", "ontbrekend"],
+      "properties": {"service": {"type": "string"}, "ontbrekend": {"type": "array", "items": {"type": "string"}},
+        "velden": {"type": "array", "items": {"type": "object", "additionalProperties": false,
+          "required": ["veld", "waarde", "label", "bron"],
+          "properties": {"veld": {"type": "string"}, "waarde": {}, "bron": {"type": "string"},
+            "label": {"enum": ["gebruiker", "correctie", "afgeleid", "authentiek"]}}}}}},
+    "validatieTransactie": {"type": "object", "additionalProperties": false, "required": ["service", "status", "bevindingen"],
+      "properties": {"service": {"type": "string"},
+        "status": {"enum": ["gereed", "gereed-met-waarschuwing", "blokkade"]},
+        "bevindingen": {"type": "array", "items": {"type": "object", "additionalProperties": false,
+          "required": ["id", "ernst", "melding"],
+          "properties": {"id": {"type": "string"}, "ernst": {"enum": ["blokkade", "waarschuwing"]}, "melding": {"type": "string"}}}}}}
   }
 }

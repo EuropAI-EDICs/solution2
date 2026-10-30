@@ -38,7 +38,7 @@ def test_ts_en_prevhash_tamper_breekt_de_keten():
 
 def _minimale_run():
     return {
-        "schemaVersion": "1.0", "runId": runs.new_run_id("test"), "generatedAt": "2026-10-30T00:00:00+00:00",
+        "schemaVersion": "1.1", "runId": runs.new_run_id("test"), "generatedAt": "2026-10-30T00:00:00+00:00",
         "recipeId": "gent-mobiliteit-ondernemer", "processId": "gent-transactional-run", "mode": "replay",
         "scenario": "test",
         "steps": [{"stepId": "routing", "title": "routing", "actor": "agent", "genAiTestPoint": "G2",
@@ -49,12 +49,28 @@ def _minimale_run():
             "context": {"tekst": "test", "regels": [{"feit": "address", "waarde": "Korenmarkt 1, Gent", "label": "gebruiker", "bron": "gesprek"}]},
             "routing": {"outcome": "paden", "paths": {"transactions": [], "info": []}, "trace": [], "uitleg": []},
             "h1": {"verdict": "gegeven", "correcties": {}},
+            "status": "geweigerd",
+            "auth": {"authenticatie": "niet-uitgevoerd", "toestemming": "geweigerd", "mandaten": []},
+            "prefill": {"transacties": []},
+            "validatie": {"transacties": []},
+            "h3": {"verdict": "n.v.t.", "correcties": {}},
         },
     }
 
 
 def test_minimale_run_valideert_tegen_schema():
     runs.validate(_minimale_run(), POC_ROOT)
+
+
+def test_schema_verwerpt_oude_versie():
+    run = _minimale_run()
+    run["schemaVersion"] = "1.0"
+    import jsonschema
+    try:
+        runs.validate(run, POC_ROOT)
+    except jsonschema.ValidationError:
+        return
+    raise AssertionError("ValidationError werd verwacht")
 
 
 def test_schema_verwerpt_onbekende_herkomstlabel():
