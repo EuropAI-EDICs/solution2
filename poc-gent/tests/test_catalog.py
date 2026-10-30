@@ -31,7 +31,7 @@ def test_referentiepakket_laadt():
     pkg = catalog.load_package(POC_ROOT, "gent-mobiliteit-ondernemer")
     assert pkg.manifest["lifeEventCode"] == "GT-MOB-01"
     assert len(pkg.tables["rules"]) == 3
-    assert len(pkg.golden) == 8
+    assert len(pkg.golden) == 10
 
 
 def test_onbekende_dienst_in_regel_faalt(tmp_path):

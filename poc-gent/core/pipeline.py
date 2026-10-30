@@ -1,5 +1,8 @@
 """Replay-pipeline: intake → intake-gate-vragen → GIS → H1 → routing (fase-1),
 daarna H2-gegevensgebruik/authenticatie, Magda-prefill, validatie en H3 (fase-2).
+IAM: H2 authenticeert standaard via de EUDI-wallet-mock (nldt/16-doctrine);
+zonder wallet valt de run terug op ACM/IDM (vrije uitweg), en `auth_methode`
+forceert een route.
 
 Replay-modus: de uitslagen van seam S1 (intentie-extractie) en S2
 (vraagformulering) komen deterministisch uit de persona-fixture; de
@@ -11,7 +14,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from adapters import acm_idm_mock, magda_mock
+from adapters import acm_idm_mock, eudi_wallet, magda_mock
 from core import catalog, context, gates, rules, runs
 from core import events as events_mod
 from core import prefill, validate
@@ -22,8 +25,17 @@ def load_personas(poc_root: Path) -> dict:
     return {p["id"]: p for p in data["personas"]}
 
 
+def _acm_authenticatie_stap(poc_root: Path, persona_id: str) -> tuple[dict, dict]:
+    identiteit = acm_idm_mock.authenticate(poc_root, persona_id)
+    stap = {"stepId": "acm-authenticatie", "title": "Je bevestigt wie je bent (ACM/IDM)",
+            "actor": "partij", "genAiTestPoint": "—",
+            "dataUsed": [identiteit["pseudoniem"]], "consent": "n.v.t.", "handover": None,
+            "kpiEvents": [], "prov": {"sources": ["ACM/IDM (mock v1)"]}}
+    return identiteit, stap
+
+
 def run_replay(poc_root: Path, package_id: str, persona_id: str,
-               override_slots: dict | None = None) -> tuple[dict, list]:
+               override_slots: dict | None = None, auth_methode: str = "eudi") -> tuple[dict, list]:
     pkg = catalog.load_package(poc_root, package_id)
     persona = load_personas(poc_root)[persona_id]
     events: list = []
@@ -111,22 +123,45 @@ def run_replay(poc_root: Path, package_id: str, persona_id: str,
                           "consent": "geweigerd", "handover": None, "kpiEvents": [],
                           "prov": {"sources": ["H2-weigering door gebruiker"]}})
         else:
-            identiteit = acm_idm_mock.authenticate(poc_root, persona_id)
+            if auth_methode == "eudi":
+                try:
+                    identiteit = eudi_wallet.authenticate(poc_root, persona_id, uitleg_h2["bronnen"])
+                    events_mod.emit(events, "wallet_presentatie",
+                                    {"loa": identiteit["loa"], "onthuld": identiteit["onthuldeClaims"]})
+                    auth_stap = {"stepId": "eudi-authenticatie",
+                                 "title": "Je bevestigt wie je bent (EUDI-wallet)",
+                                 "actor": "partij", "genAiTestPoint": "—",
+                                 "dataUsed": [f"claim: {c}" for c in identiteit["onthuldeClaims"]]
+                                            + [f"loa={identiteit['loa']}"],
+                                 "consent": "n.v.t.", "handover": None, "kpiEvents": [],
+                                 "prov": {"sources": ["EUDI-wallet (mock, ARF-shaped — nldt/16)"]}}
+                except eudi_wallet.GeenWallet as err:
+                    events_mod.emit(events, "auth_fallback",
+                                    {"van": "eudi-wallet", "naar": "acm-idm", "reden": str(err)})
+                    identiteit, auth_stap = _acm_authenticatie_stap(poc_root, persona_id)
+            else:
+                identiteit, auth_stap = _acm_authenticatie_stap(poc_root, persona_id)
             besluit = gates.decide_h2(pkg.manifest, ctx, identiteit, vereist_auth)
             steps.append({"stepId": "h2-gegevensgebruik", "title": "Je geeft toestemming om je gegevens op te halen",
                           "actor": "mens", "genAiTestPoint": "—",
                           "dataUsed": [b["tool"] + " — " + b["purpose"] for b in uitleg_h2["bronnen"]],
                           "consent": "gegeven", "handover": None, "kpiEvents": [],
                           "prov": {"sources": ["H2-toestemming door gebruiker"]}})
-            steps.append({"stepId": "acm-authenticatie", "title": "Je bevestigt wie je bent (ACM/IDM)",
-                          "actor": "partij", "genAiTestPoint": "—",
-                          "dataUsed": [identiteit["pseudoniem"]], "consent": "n.v.t.", "handover": None,
-                          "kpiEvents": [], "prov": {"sources": ["ACM/IDM (mock v1)"]}})
+            steps.append(auth_stap)
             events_mod.emit(events, "gate_verdict", {"gate": "H2", "verdict": "gegeven"})
-            auth_blok = {"authenticatie": "uitgevoerd", "toestemming": "gegeven", "mandaten": identiteit["mandaten"]}
+            auth_blok = {"authenticatie": "uitgevoerd", "toestemming": "gegeven",
+                         "mandaten": identiteit["mandaten"],
+                         "methode": identiteit.get("methode", "acm-idm")}
+            if "loa" in identiteit:
+                auth_blok["loa"] = identiteit["loa"]
+                auth_blok["onthuldeClaims"] = identiteit["onthuldeClaims"]
             if not besluit["doorgang"]:
                 status = "blokkade"
-                steps.append({"stepId": "h2-mandaatblokkade", "title": "Een medewerker controleert het mandaat",
+                stap_ids = {"loa": "h2-loa-blokkade", "mandaat": "h2-mandaatblokkade"}
+                blokkade_titel = ("Je wallet geeft te weinig waarborg — een medewerker helpt verder"
+                                  if besluit["oorzaak"] == "loa"
+                                  else "Een medewerker controleert het mandaat")
+                steps.append({"stepId": stap_ids[besluit["oorzaak"]], "title": blokkade_titel,
                               "actor": "mens", "genAiTestPoint": "G5", "dataUsed": [besluit["reden"]],
                               "consent": "gevraagd", "handover": {"reason": besluit["reden"], "to": "Gentinfo"},
                               "kpiEvents": [], "prov": {"sources": []}})

@@ -58,12 +58,55 @@ def test_sanne_doorloopt_tot_h3_gereed_met_authentieke_prefill():
     run, log = pipeline.run_replay(POC_ROOT, "gent-mobiliteit-ondernemer", "sanne")
     runs.validate(run, POC_ROOT)
     assert run["transaction"]["status"] == "gereed"
-    assert run["transaction"]["auth"] == {"authenticatie": "uitgevoerd", "toestemming": "gegeven", "mandaten": []}
+    assert run["transaction"]["auth"] == {"authenticatie": "uitgevoerd", "toestemming": "gegeven",
+                                          "mandaten": [], "methode": "eudi-wallet",
+                                          "loa": "substantial", "onthuldeClaims": ["loa", "mandaten", "sub"]}
     kenteken = [v for v in run["transaction"]["prefill"]["transacties"][0]["velden"] if v["veld"] == "kenteken"][0]
     assert kenteken["label"] == "authentiek"
     assert kenteken["bron"].startswith("magda:kenteken")
     assert run["transaction"]["h3"]["verdict"] == "gegeven"
     assert events_mod.verify_chain(log) is True
+
+
+def test_sanne_authenticeert_standaard_via_eudi_wallet():
+    run, log = pipeline.run_replay(POC_ROOT, "gent-mobiliteit-ondernemer", "sanne")
+    stappen = {s["stepId"] for s in run["steps"]}
+    assert "eudi-authenticatie" in stappen
+    assert "acm-authenticatie" not in stappen
+    presentaties = [e for e in log if e["kind"] == "wallet_presentatie"]
+    assert presentaties and presentaties[0]["payload"]["loa"] == "substantial"
+    assert "rrn-" not in json.dumps(presentaties)  # events blijven waardevrij (SEC-05)
+
+
+def test_wim_lage_loa_blokkeert_met_gentinfo_overname():
+    run, log = pipeline.run_replay(POC_ROOT, "gent-mobiliteit-ondernemer", "wim")
+    runs.validate(run, POC_ROOT)
+    assert run["transaction"]["status"] == "blokkade"
+    assert "h2-loa-blokkade" in {s["stepId"] for s in run["steps"]}
+    handovers = [e for e in log if e["kind"] == "handover"]
+    assert handovers and handovers[-1]["payload"]["naar"] == "Gentinfo"
+    assert run["transaction"]["prefill"]["transacties"] == []  # geen gegevensgebruik na blokkade
+    assert run["transaction"]["auth"]["loa"] == "low"
+
+
+def test_nadia_zonder_wallet_valt_terug_op_acm_idm():
+    run, log = pipeline.run_replay(POC_ROOT, "gent-mobiliteit-ondernemer", "nadia")
+    runs.validate(run, POC_ROOT)
+    assert run["transaction"]["status"] == "gereed"
+    fallbacks = [e for e in log if e["kind"] == "auth_fallback"]
+    assert fallbacks and fallbacks[0]["payload"]["naar"] == "acm-idm"
+    assert run["transaction"]["auth"]["methode"] == "acm-idm"
+    assert "loa" not in run["transaction"]["auth"]
+    assert "acm-authenticatie" in {s["stepId"] for s in run["steps"]}
+
+
+def test_acmidm_forceren_geeft_klassiek_pad():
+    run, log = pipeline.run_replay(POC_ROOT, "gent-mobiliteit-ondernemer", "sanne",
+                                   auth_methode="acmidm")
+    runs.validate(run, POC_ROOT)
+    assert run["transaction"]["auth"]["methode"] == "acm-idm"
+    assert "eudi-authenticatie" not in {s["stepId"] for s in run["steps"]}
+    assert not [e for e in log if e["kind"] == "wallet_presentatie"]
 
 
 def test_ellen_weigering_stopt_netjes_zonder_prefill():
