@@ -274,7 +274,7 @@ worden proxymaten gemeten en is de meetmethode voor de latere nulmeting al vastg
 |---|---|---|---|---|---|---|---|---|
 | KPI-01 Routingnauwkeurigheid | % golden scenario's met correcte diensten/vergunningen/transacties | n.v.t. (proxy) | ≥95% | ≥90% | expert-casevrije golden set per pakket | eval-runs in `runs/` | per release + maandelijks | pilot (prototype: repo) |
 | KPI-02 Regelcorrectheid | % correcte beslistabel-uitkomsten op golden cases | n.v.t. | 100% | 100% | deterministische regressie (engine, geen LLM) | harness | per config/modelwijziging | regelowner |
-| KPI-03 Brontraaceerbaarheid | % feitelijke uitspraken + prefill-waarden met geldige bronref | n.v.t. | 100% | 100% | groundedness-auditscript; weigeringen gelogd | audit + journal | per release | pilot |
+| KPI-03 Brontraceerbaarheid | % feitelijke uitspraken + prefill-waarden met geldige bronref | n.v.t. | 100% | 100% | groundedness-auditscript; weigeringen gelogd | audit + journal | per release | pilot |
 | KPI-04 Transactiesucces E2E | % scenario's intake→ontvangstbewijs zonder tussentijdse fout | n.v.t. | ≥19/20 | ≥18/20 | end-to-end harness met mocks | run-artefacten | per release | pilot |
 | KPI-05 Efficiëntie (proxy) | taakduur begeleide flow vs. gemodereerde reconstructie van de huidige situatie ("kartonnen nulmeting") | kartonnen nulmeting | −20% | −10% | voor-na-taakmeting (gemodereerd) | testrapport | 1× per fase | pilot + Gent |
 | KPI-06 Lastenverlichting (proxy) | aantal burgeraanraakmomenten/vragen vóór inzending | kartonnen nulmeting | ≤ verplichte slots, 0 retourvragen | +1 retourvraag | intake-gate-log + taakanalyse | journal | per release | pilot |

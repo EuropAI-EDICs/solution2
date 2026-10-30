@@ -152,7 +152,8 @@ def _schrijf_pkg(tmp_path, manifest, tables):
     (pkg_dir / "golden").mkdir(parents=True)
     (pkg_dir / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False), encoding="utf-8")
     (pkg_dir / "decision-tables.json").write_text(json.dumps(tables, ensure_ascii=False), encoding="utf-8")
-    (pkg_dir / "golden" / "scenarios.jsonl").write_text("{}\n", encoding="utf-8")
+    geldige_golden = '{"scenarioId": "t1", "persona": "sanne", "expect": {"outcome": "paden", "transactions": [], "info": []}}\n'
+    (pkg_dir / "golden" / "scenarios.jsonl").write_text(geldige_golden, encoding="utf-8")
 
 
 def _basis_manifest():
@@ -213,6 +214,34 @@ def test_kapotte_golden_regel_geeft_packageerror(tmp_path):
     (pkg_dir / "decision-tables.json").write_text(json.dumps(_basis_tables(), ensure_ascii=False), encoding="utf-8")
     (pkg_dir / "golden" / "scenarios.jsonl").write_text('{"scenarioId": "g1"}\n{kapot\n', encoding="utf-8")
     with pytest.raises(catalog.PackageError, match="ongeldige JSON-regel"):
+        catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_gischeck_input_niet_adres_faalt(tmp_path):
+    manifest = _basis_manifest()
+    manifest["gisChecks"][0]["input"] = "activity"
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    with pytest.raises(catalog.PackageError, match="input 'address'"):
+        catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_regel_zonder_when_faalt(tmp_path):
+    manifest = _basis_manifest()
+    tables = _basis_tables()
+    del tables["rules"][0]["when"]
+    _schrijf_pkg(tmp_path, manifest, tables)
+    with pytest.raises(catalog.PackageError, match="'when'"):
+        catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_golden_regel_zonder_expect_faalt(tmp_path):
+    manifest = _basis_manifest()
+    pkg_dir = tmp_path / "packages" / manifest["packageId"]
+    (pkg_dir / "golden").mkdir(parents=True)
+    (pkg_dir / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False), encoding="utf-8")
+    (pkg_dir / "decision-tables.json").write_text(json.dumps(_basis_tables(), ensure_ascii=False), encoding="utf-8")
+    (pkg_dir / "golden" / "scenarios.jsonl").write_text('{"scenarioId": "g1", "persona": "sanne"}\n', encoding="utf-8")
+    with pytest.raises(catalog.PackageError, match="'expect'"):
         catalog.load_package(tmp_path, manifest["packageId"])
 ```
 
@@ -279,13 +308,22 @@ def _validate(manifest: dict, tables: dict) -> None:
         for field_name in ("id", "layer", "input", "output"):
             if field_name not in check:
                 raise PackageError(f"gisCheck mist veld '{field_name}': {check}")
+        if check["input"] != "address":
+            raise PackageError(f"gisCheck '{check['id']}': F1 ondersteunt alleen input 'address' (gekregen: '{check['input']}')")
         if check["input"] not in slots:
             raise PackageError(f"gisCheck '{check['id']}': onbekende input-slot '{check['input']}'")
         outputs.add(check["output"])
     services = manifest.get("services", {})
     if not services:
         raise PackageError("manifest.services is leeg")
-    for rule in tables.get("rules", []):
+    rules = tables.get("rules", [])
+    if not rules:
+        raise PackageError("beslistabellen: 'rules' is leeg")
+    for rule in rules:
+        for field_name in ("id", "when", "then", "uitleg", "legalBasis"):
+            if not rule.get(field_name):
+                raise PackageError(f"regel mist veld '{field_name}' of is leeg: {rule.get('id', '?')}")
+    for rule in rules:
         for sv in rule.get("then", {}).get("transactions", []) + rule.get("then", {}).get("info", []):
             if sv not in services:
                 raise PackageError(f"regel '{rule.get('id')}': onbekende dienst '{sv}'")
@@ -310,6 +348,13 @@ def load_package(poc_root: Path, package_id: str) -> Package:
             golden.append(json.loads(regel))
         except json.JSONDecodeError as err:
             raise PackageError(f"ongeldige JSON-regel in {golden_path}: {err}") from err
+    for rij in golden:
+        for field_name in ("scenarioId", "persona", "expect"):
+            if field_name not in rij:
+                raise PackageError(f"golden-regel mist veld '{field_name}': {rij}")
+        for field_name in ("outcome", "transactions", "info"):
+            if field_name not in rij["expect"]:
+                raise PackageError(f"golden-verwachting mist veld '{field_name}': {rij.get('scenarioId', '?')}")
     _validate(manifest, tables)
     return Package(manifest=manifest, tables=tables, golden=golden)
 ```
@@ -472,6 +517,21 @@ def zone_result(zones: dict, layer: str, lon: float, lat: float) -> str:
         if point_in_ring(lon, lat, ring):
             return "in"
     return "niet-in"
+
+
+def apply_checks(manifest: dict, context: dict, herkomst: dict, poc_root: Path, suffix: str = "") -> None:
+    """Voer alle gisChecks uit het manifest uit op hun input-slot (F1: alleen
+    'address' — afgedwongen door de pakketlader) en schrijf de zone-uitkomsten
+    weg met afgeleid-herkomst. Mutatie van context/herkomst is bewust: de caller
+    geeft kopieën mee (context.build / gates.confirm_h1)."""
+    zones = load_zones(poc_root)
+    for check in manifest.get("gisChecks", []):
+        adres = context.get(check["input"])
+        if adres is None:
+            continue
+        lon, lat = lookup_address(poc_root, adres)
+        context[check["output"]] = zone_result(zones, check["layer"], lon, lat)
+        herkomst[check["output"]] = {"label": "afgeleid", "bron": f"gis:{check['layer']} (fixture v1{suffix})"}
 ```
 
 - [ ] **Step 5: Draai de tests en verifieer slagen**
@@ -576,7 +636,7 @@ Expected: FAIL — `ModuleNotFoundError: No module named 'core.rules'`.
 """Deterministische beslistabellen-engine met volledige trace (FR-06/07).
 
 Het model speelt hier geen rol: dezelfde tabellen + context geven altijd
-dezelfde uitkomst, en elke vuurpende regel draagt zijn uitleg en legalBasis.
+dezelfde uitkomst, en elke vurende regel draagt zijn uitleg en legalBasis.
 Geen passende regel → escalatie (ontwerp unknownPolicy: escalate, AI-05)."""
 
 from __future__ import annotations
@@ -719,12 +779,7 @@ def open_questions(manifest: dict, slots: dict) -> list[dict]:
 def build(manifest: dict, slots: dict, poc_root: Path) -> tuple[dict, dict]:
     context = dict(slots)
     herkomst = {slot: {"label": "gebruiker", "bron": "gesprek"} for slot in slots}
-    zones = gis_zones.load_zones(poc_root)
-    if "address" in context:
-        lon, lat = gis_zones.lookup_address(poc_root, context["address"])
-        for check in manifest.get("gisChecks", []):
-            context[check["output"]] = gis_zones.zone_result(zones, check["layer"], lon, lat)
-            herkomst[check["output"]] = {"label": "afgeleid", "bron": f"gis:{check['layer']} (fixture v1)"}
+    gis_zones.apply_checks(manifest, context, herkomst, poc_root)
     return context, herkomst
 
 
@@ -840,11 +895,7 @@ def confirm_h1(manifest: dict, context: dict, herkomst: dict, corrections: dict,
         context[slot] = waarde
         herkomst[slot] = {"label": "correctie", "bron": "gebruiker (H1)"}
     if "address" in corrections:
-        zones = gis_zones.load_zones(poc_root)
-        lon, lat = gis_zones.lookup_address(poc_root, context["address"])
-        for check in manifest.get("gisChecks", []):
-            context[check["output"]] = gis_zones.zone_result(zones, check["layer"], lon, lat)
-            herkomst[check["output"]] = {"label": "afgeleid", "bron": f"gis:{check['layer']} (fixture v1, na correctie)"}
+        gis_zones.apply_checks(manifest, context, herkomst, poc_root, suffix=", na correctie")
     return context, herkomst
 ```
 
@@ -1661,6 +1712,7 @@ def test_recipe_en_baseline_geregistreerd_en_consistent():
     baseline = json.loads((REPO / "nldt" / "recipes" / "baselines" / "gent-mobiliteit-ondernemer.baseline.json").read_text(encoding="utf-8"))
     manifest = json.loads((REPO / "poc-gent" / "packages" / "gent-mobiliteit-ondernemer" / "manifest.json").read_text(encoding="utf-8"))
     assert recipe["service"]["lifeEventCode"] == manifest["lifeEventCode"] == "GT-MOB-01"
+    assert baseline["recipeId"] == recipe["id"] == manifest["packageId"]
     assert recipe["requiredProcesses"] == ["gent-transactional-run"]
     assert baseline["stopConditions"] and baseline["goNoGo"]
 ```
@@ -1718,7 +1770,7 @@ Expected: FAIL — `FileNotFoundError` (recipe bestaat nog niet).
     "localVariant": "zone-lagen LEZ/autovrij via interne GIS-diensten Stad Gent",
     "genAiTestPoints": [
       {"point": "G1", "description": "intake vraagt alleen wat niet uit authentieke bronnen komt (once-only)", "testCases": ["fatima: onvolledige situatieschets", "vehicle-slot wordt nooit gevraagd (magda:kenteken)"]},
-      {"point": "G2", "description": "routing draagt uitleg + legalBasis per vuurende regel", "testCases": ["golden g1 (beide zones)", "golden g6 (escalatie)"]},
+      {"point": "G2", "description": "routing draagt uitleg + legalBasis per vurende regel", "testCases": ["golden g1 (beide zones)", "golden g6 (escalatie)"]},
       {"point": "G5", "description": "geen passende regel → menselijke overname Gentinfo", "testCases": ["golden g6"]}
     ],
     "kpis": [
@@ -1747,7 +1799,7 @@ Expected: FAIL — `FileNotFoundError` (recipe bestaat nog niet).
   "goNoGo": [
     "KPI-01 routingnauwkeurigheid ≥ 90% (minimaal aanvaard)",
     "KPI-02 regelcorrectheid 100% op golden cases",
-    "KPI-03 brontraaceerbaarheid 100% (uitleg zonder bron = faal)",
+    "KPI-03 brontraceerbaarheid 100% (uitleg zonder bron = faal)",
     "KPI-04 transactiesucces ≥ 18/20 end-to-end scenario's (F3)",
     "elk H-event correct gelogd in journal/events",
     "exit-test geslaagd (config-export + modelsubstitutie, F4)"
@@ -1774,7 +1826,7 @@ git commit -m "feat(poc-gent): centrale recipe- en baseline-registratie"
 
 ## Zelfcheck na afronding (executeur)
 
-1. `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` → `35 passed`.
+1. `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` → `38 passed` (35 + 3 contracttests uit de eindreview-fixgolf).
 2. `python3 eval.py` → `golden: 6/6 geslaagd`, `determinisme: OK`, exit 0.
 3. `python3 run.py --persona jeroen` → run-artefact met beide ontheffingen na adrescorrectie.
 4. `git log --oneline -10` → tien `feat(poc-gent)`-commits.
