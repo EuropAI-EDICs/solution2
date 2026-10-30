@@ -46,9 +46,9 @@ def _validate(manifest: dict, tables: dict) -> None:
             raise PackageError(f"slot '{slot}' mist vraag-tekst")
     outputs = set()
     for check in manifest.get("gisChecks", []):
-        for veld in ("id", "layer", "input", "output"):
-            if veld not in check:
-                raise PackageError(f"gisCheck mist veld '{veld}': {check}")
+        for field_name in ("id", "layer", "input", "output"):
+            if field_name not in check:
+                raise PackageError(f"gisCheck mist veld '{field_name}': {check}")
         if check["input"] not in slots:
             raise PackageError(f"gisCheck '{check['id']}': onbekende input-slot '{check['input']}'")
         outputs.add(check["output"])
@@ -74,6 +74,11 @@ def load_package(poc_root: Path, package_id: str) -> Package:
     golden_path = pkg_dir / manifest["golden"]
     if not golden_path.is_file():
         raise PackageError(f"golden-set ontbreekt: {golden_path}")
-    golden = [json.loads(regel) for regel in golden_path.read_text(encoding="utf-8").splitlines() if regel.strip()]
+    golden = []
+    for regel in [r for r in golden_path.read_text(encoding="utf-8").splitlines() if r.strip()]:
+        try:
+            golden.append(json.loads(regel))
+        except json.JSONDecodeError as err:
+            raise PackageError(f"ongeldige JSON-regel in {golden_path}: {err}") from err
     _validate(manifest, tables)
     return Package(manifest=manifest, tables=tables, golden=golden)
