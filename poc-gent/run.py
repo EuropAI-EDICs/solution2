@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""poc-gent CLI — F1: deterministische replay per persona.
+"""poc-gent CLI — fase 1+2: deterministische replay per persona.
 
 Voorbeeld: python3 run.py --persona jeroen
 """
@@ -18,7 +18,7 @@ from core import catalog, pipeline, runs  # noqa: E402
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Gent transactionele assistent — F1 replay")
+    ap = argparse.ArgumentParser(description="Gent transactionele assistent — replay fase 1+2")
     ap.add_argument("--package", default="gent-mobiliteit-ondernemer")
     ap.add_argument("--persona", default="sanne")
     ap.add_argument("--list-personas", action="store_true")

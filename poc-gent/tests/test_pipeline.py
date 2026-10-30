@@ -89,7 +89,8 @@ def test_bron_raadpleging_logt_sleutels_zonder_waarden():
     run, log = pipeline.run_replay(POC_ROOT, "gent-mobiliteit-ondernemer", "sanne")
     raadplegingen = [e for e in log if e["kind"] == "bron_raadpleging"]
     assert raadplegingen and all(set(r["payload"]["sleutels"]) <= {"kenteken", "euroklasse", "brandstof"} for r in raadplegingen)
-    assert all("waarde" not in json.dumps(r) or "sleutels" in r for r in raadplegingen)
+    assert all(set(r["payload"]) == {"tool", "purpose", "sleutels"} for r in raadplegingen)
+    assert "1-ABC-123" not in json.dumps(log)
 
 
 def test_maria_zonder_transacties_slaat_auth_over():
