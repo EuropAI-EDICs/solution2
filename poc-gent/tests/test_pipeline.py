@@ -1,5 +1,6 @@
 """F1-replay end-to-end: personas → gate → GIS → H1 → routing (FR-03/04/05/06/07/23)."""
 
+import json
 from pathlib import Path
 
 from core import events as events_mod
@@ -51,3 +52,49 @@ def test_canonieke_replay_is_deterministisch():
     r1, _ = pipeline.run_replay(POC_ROOT, "gent-mobiliteit-ondernemer", "ahmed")
     r2, _ = pipeline.run_replay(POC_ROOT, "gent-mobiliteit-ondernemer", "ahmed")
     assert runs.canonical(r1) == runs.canonical(r2)
+
+
+def test_sanne_doorloopt_tot_h3_gereed_met_authentieke_prefill():
+    run, log = pipeline.run_replay(POC_ROOT, "gent-mobiliteit-ondernemer", "sanne")
+    runs.validate(run, POC_ROOT)
+    assert run["transaction"]["status"] == "gereed"
+    assert run["transaction"]["auth"] == {"authenticatie": "uitgevoerd", "toestemming": "gegeven", "mandaten": []}
+    kenteken = [v for v in run["transaction"]["prefill"]["transacties"][0]["velden"] if v["veld"] == "kenteken"][0]
+    assert kenteken["label"] == "authentiek"
+    assert kenteken["bron"].startswith("magda:kenteken")
+    assert run["transaction"]["h3"]["verdict"] == "gegeven"
+    assert events_mod.verify_chain(log) is True
+
+
+def test_ellen_weigering_stopt_netjes_zonder_prefill():
+    run, log = pipeline.run_replay(POC_ROOT, "gent-mobiliteit-ondernemer", "ellen")
+    runs.validate(run, POC_ROOT)
+    assert run["transaction"]["status"] == "geweigerd"
+    assert run["transaction"]["prefill"]["transacties"] == []
+    assert run["transaction"]["h3"]["verdict"] == "n.v.t."
+    consent = [s for s in run["steps"] if s["stepId"] == "h2-gegevensgebruik"][0]["consent"]
+    assert consent == "geweigerd"
+
+
+def test_dirk_euro4_levert_blokkade_met_correctiepad():
+    run, _log = pipeline.run_replay(POC_ROOT, "gent-mobiliteit-ondernemer", "dirk")
+    runs.validate(run, POC_ROOT)
+    assert run["transaction"]["status"] == "blokkade"
+    bevindingen = run["transaction"]["validatie"]["transacties"][0]["bevindingen"]
+    assert bevindingen[0]["id"] == "V1-euroklasse"
+    assert "Vervang" in bevindingen[0]["melding"]
+
+
+def test_bron_raadpleging_logt_sleutels_zonder_waarden():
+    run, log = pipeline.run_replay(POC_ROOT, "gent-mobiliteit-ondernemer", "sanne")
+    raadplegingen = [e for e in log if e["kind"] == "bron_raadpleging"]
+    assert raadplegingen and all(set(r["payload"]["sleutels"]) <= {"kenteken", "euroklasse", "brandstof"} for r in raadplegingen)
+    assert all("waarde" not in json.dumps(r) or "sleutels" in r for r in raadplegingen)
+
+
+def test_maria_zonder_transacties_slaat_auth_over():
+    run, _log = pipeline.run_replay(POC_ROOT, "gent-mobiliteit-ondernemer", "maria")
+    runs.validate(run, POC_ROOT)
+    assert run["transaction"]["status"] == "gereed"
+    assert run["transaction"]["auth"]["authenticatie"] == "niet-uitgevoerd"
+    assert run["transaction"]["auth"]["toestemming"] == "n.v.t."

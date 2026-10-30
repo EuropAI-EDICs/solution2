@@ -1,4 +1,5 @@
-"""F1-replay: intake → intake-gate-vragen → GIS → H1 → routing.
+"""Replay-pipeline: intake → intake-gate-vragen → GIS → H1 → routing (fase-1),
+daarna H2-gegevensgebruik/authenticatie, Magda-prefill, validatie en H3 (fase-2).
 
 Replay-modus: de uitslagen van seam S1 (intentie-extractie) en S2
 (vraagformulering) komen deterministisch uit de persona-fixture; de
@@ -10,8 +11,10 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+from adapters import acm_idm_mock, magda_mock
 from core import catalog, context, gates, rules, runs
 from core import events as events_mod
+from core import prefill, validate
 
 
 def load_personas(poc_root: Path) -> dict:
@@ -84,13 +87,94 @@ def run_replay(poc_root: Path, package_id: str, persona_id: str,
                       "kpiEvents": [], "prov": {"sources": []}})
         events_mod.emit(events, "handover", {"gate": "H5", "naar": "Gentinfo", "reden": "geen regel van toepassing"})
 
+    transacties = routing["paths"]["transactions"]
+    vereist_auth = [sv for sv in transacties if pkg.manifest["services"][sv].get("vereistAuth")]
+    auth_blok = {"authenticatie": "niet-uitgevoerd", "toestemming": "n.v.t.", "mandaten": []}
+    prefill_blok = {"transacties": []}
+    validatie_blok = {"transacties": []}
+    status = "gereed"
+    h3_blok = {"verdict": "n.v.t.", "correcties": {}}
+
+    if routing["outcome"] == "escalatie":
+        status = "escalatie"
+    elif vereist_auth:
+        uitleg_h2 = gates.h2_uitleg(pkg.manifest, vereist_auth)
+        events_mod.emit(events, "gate_request", {"gate": "H2", "uitleg": uitleg_h2})
+        toestemming = persona.get("gebruikGegevens", "gegeven")
+        if toestemming == "geweigerd":
+            status = "geweigerd"
+            auth_blok["toestemming"] = "geweigerd"
+            events_mod.emit(events, "gate_verdict", {"gate": "H2", "verdict": "geweigerd"})
+            steps.append({"stepId": "h2-gegevensgebruik", "title": "Je beslist of we je gegevens mogen gebruiken",
+                          "actor": "mens", "genAiTestPoint": "—",
+                          "dataUsed": [b["tool"] + " — " + b["purpose"] for b in uitleg_h2["bronnen"]],
+                          "consent": "geweigerd", "handover": None, "kpiEvents": [],
+                          "prov": {"sources": ["H2-weigering door gebruiker"]}})
+        else:
+            identiteit = acm_idm_mock.authenticate(poc_root, persona_id)
+            besluit = gates.decide_h2(pkg.manifest, ctx, identiteit, vereist_auth)
+            steps.append({"stepId": "h2-gegevensgebruik", "title": "Je geeft toestemming om je gegevens op te halen",
+                          "actor": "mens", "genAiTestPoint": "—",
+                          "dataUsed": [b["tool"] + " — " + b["purpose"] for b in uitleg_h2["bronnen"]],
+                          "consent": "gegeven", "handover": None, "kpiEvents": [],
+                          "prov": {"sources": ["H2-toestemming door gebruiker"]}})
+            steps.append({"stepId": "acm-authenticatie", "title": "Je bevestigt wie je bent (ACM/IDM)",
+                          "actor": "partij", "genAiTestPoint": "—",
+                          "dataUsed": [identiteit["pseudoniem"]], "consent": "n.v.t.", "handover": None,
+                          "kpiEvents": [], "prov": {"sources": ["ACM/IDM (mock v1)"]}})
+            events_mod.emit(events, "gate_verdict", {"gate": "H2", "verdict": "gegeven"})
+            auth_blok = {"authenticatie": "uitgevoerd", "toestemming": "gegeven", "mandaten": identiteit["mandaten"]}
+            if not besluit["doorgang"]:
+                status = "blokkade"
+                steps.append({"stepId": "h2-mandaatblokkade", "title": "Een medewerker controleert het mandaat",
+                              "actor": "mens", "genAiTestPoint": "G5", "dataUsed": [besluit["reden"]],
+                              "consent": "gevraagd", "handover": {"reason": besluit["reden"], "to": "Gentinfo"},
+                              "kpiEvents": [], "prov": {"sources": []}})
+                events_mod.emit(events, "handover", {"gate": "H2", "naar": "Gentinfo", "reden": besluit["reden"]})
+            else:
+                records: dict = {}
+                for bron in uitleg_h2["bronnen"]:
+                    try:
+                        records[bron["tool"]] = magda_mock.raadpleeg(pkg.manifest, bron["tool"], bron["purpose"],
+                                                                    poc_root, persona_id)
+                    except KeyError:
+                        continue
+                    events_mod.emit(events, "bron_raadpleging",
+                                    {"tool": bron["tool"], "purpose": bron["purpose"],
+                                     "sleutels": sorted(records[bron["tool"]].keys())})
+                ergste = {"gereed": 0, "gereed-met-waarschuwing": 1, "blokkade": 2}
+                for service_id in transacties:
+                    formulier = prefill.bouw(pkg.manifest, service_id, ctx, herkomst, records)
+                    uitslag = {"service": service_id, **validate.valideer(pkg.manifest, service_id, formulier)}
+                    prefill_blok["transacties"].append(formulier)
+                    validatie_blok["transacties"].append(uitslag)
+                    events_mod.emit(events, "prefill", {"service": service_id, "ontbrekend": formulier["ontbrekend"]})
+                    events_mod.emit(events, "validatie", {"service": service_id, "status": uitslag["status"]})
+                status = max((u["status"] for u in validatie_blok["transacties"]),
+                             key=lambda s: ergste[s], default="gereed")
+                h3_blok = {"verdict": "gegeven", "correcties": {}}
+                steps.append({"stepId": "h3-conceptbeoordeling", "title": "Je beoordeelt het concept van je aanvraag",
+                              "actor": "mens", "genAiTestPoint": "—",
+                              "dataUsed": [f"{pkg.manifest['services'][u['service']]['titel']} — {u['status']}"
+                                           for u in validatie_blok["transacties"]],
+                              "consent": "gegeven", "handover": None, "kpiEvents": [],
+                              "prov": {"sources": ["H3-beoordeling door gebruiker"]}})
+                events_mod.emit(events, "gate_request", {"gate": "H3", "concept": [
+                    {"service": u["service"], "status": u["status"]} for u in validatie_blok["transacties"]]})
+                events_mod.emit(events, "gate_verdict", {"gate": "H3", "verdict": "gegeven", "correcties": {}})
+
     run = {
-        "schemaVersion": "1.0", "runId": runs.new_run_id(persona_id),
+        "schemaVersion": "1.1", "runId": runs.new_run_id(persona_id),
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "recipeId": package_id, "processId": "gent-transactional-run", "mode": "replay",
         "scenario": persona_id, "steps": steps, "stopConditions": [], "kpiSnapshot": [],
         "transaction": {"context": context.summary(pkg.manifest, ctx, herkomst),
                         "routing": routing,
-                        "h1": {"verdict": "gegeven", "correcties": corrections}},
+                        "h1": {"verdict": "gegeven", "correcties": corrections},
+                        "status": status,
+                        "auth": auth_blok,
+                        "prefill": prefill_blok,
+                        "validatie": validatie_blok,
+                        "h3": h3_blok},
     }
     return run, events
