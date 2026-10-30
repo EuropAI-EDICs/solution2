@@ -20,12 +20,7 @@ def open_questions(manifest: dict, slots: dict) -> list[dict]:
 def build(manifest: dict, slots: dict, poc_root: Path) -> tuple[dict, dict]:
     context = dict(slots)
     herkomst = {slot: {"label": "gebruiker", "bron": "gesprek"} for slot in slots}
-    zones = gis_zones.load_zones(poc_root)
-    if "address" in context:
-        lon, lat = gis_zones.lookup_address(poc_root, context["address"])
-        for check in manifest.get("gisChecks", []):
-            context[check["output"]] = gis_zones.zone_result(zones, check["layer"], lon, lat)
-            herkomst[check["output"]] = {"label": "afgeleid", "bron": f"gis:{check['layer']} (fixture v1)"}
+    gis_zones.apply_checks(manifest, context, herkomst, poc_root)
     return context, herkomst
 
 

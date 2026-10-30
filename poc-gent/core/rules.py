@@ -1,7 +1,7 @@
 """Deterministische beslistabellen-engine met volledige trace (FR-06/07).
 
 Het model speelt hier geen rol: dezelfde tabellen + context geven altijd
-dezelfde uitkomst, en elke vuurpende regel draagt zijn uitleg en legalBasis.
+dezelfde uitkomst, en elke vurende regel draagt zijn uitleg en legalBasis.
 Geen passende regel → escalatie (ontwerp unknownPolicy: escalate, AI-05)."""
 
 from __future__ import annotations

@@ -15,7 +15,8 @@ def _schrijf_pkg(tmp_path, manifest, tables):
     (pkg_dir / "golden").mkdir(parents=True)
     (pkg_dir / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False), encoding="utf-8")
     (pkg_dir / "decision-tables.json").write_text(json.dumps(tables, ensure_ascii=False), encoding="utf-8")
-    (pkg_dir / "golden" / "scenarios.jsonl").write_text("{}\n", encoding="utf-8")
+    geldige_golden = '{"scenarioId": "t1", "persona": "sanne", "expect": {"outcome": "paden", "transactions": [], "info": []}}\n'
+    (pkg_dir / "golden" / "scenarios.jsonl").write_text(geldige_golden, encoding="utf-8")
 
 
 def _basis_manifest():
@@ -76,4 +77,32 @@ def test_kapotte_golden_regel_geeft_packageerror(tmp_path):
     (pkg_dir / "decision-tables.json").write_text(json.dumps(_basis_tables(), ensure_ascii=False), encoding="utf-8")
     (pkg_dir / "golden" / "scenarios.jsonl").write_text('{"scenarioId": "g1"}\n{kapot\n', encoding="utf-8")
     with pytest.raises(catalog.PackageError, match="ongeldige JSON-regel"):
+        catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_gischeck_input_niet_adres_faalt(tmp_path):
+    manifest = _basis_manifest()
+    manifest["gisChecks"][0]["input"] = "activity"
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    with pytest.raises(catalog.PackageError, match="input 'address'"):
+        catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_regel_zonder_when_faalt(tmp_path):
+    manifest = _basis_manifest()
+    tables = _basis_tables()
+    del tables["rules"][0]["when"]
+    _schrijf_pkg(tmp_path, manifest, tables)
+    with pytest.raises(catalog.PackageError, match="'when'"):
+        catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_golden_regel_zonder_expect_faalt(tmp_path):
+    manifest = _basis_manifest()
+    pkg_dir = tmp_path / "packages" / manifest["packageId"]
+    (pkg_dir / "golden").mkdir(parents=True)
+    (pkg_dir / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False), encoding="utf-8")
+    (pkg_dir / "decision-tables.json").write_text(json.dumps(_basis_tables(), ensure_ascii=False), encoding="utf-8")
+    (pkg_dir / "golden" / "scenarios.jsonl").write_text('{"scenarioId": "g1", "persona": "sanne"}\n', encoding="utf-8")
+    with pytest.raises(catalog.PackageError, match="'expect'"):
         catalog.load_package(tmp_path, manifest["packageId"])

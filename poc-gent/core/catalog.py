@@ -49,13 +49,22 @@ def _validate(manifest: dict, tables: dict) -> None:
         for field_name in ("id", "layer", "input", "output"):
             if field_name not in check:
                 raise PackageError(f"gisCheck mist veld '{field_name}': {check}")
+        if check["input"] != "address":
+            raise PackageError(f"gisCheck '{check['id']}': F1 ondersteunt alleen input 'address' (gekregen: '{check['input']}')")
         if check["input"] not in slots:
             raise PackageError(f"gisCheck '{check['id']}': onbekende input-slot '{check['input']}'")
         outputs.add(check["output"])
     services = manifest.get("services", {})
     if not services:
         raise PackageError("manifest.services is leeg")
-    for rule in tables.get("rules", []):
+    rules = tables.get("rules", [])
+    if not rules:
+        raise PackageError("beslistabellen: 'rules' is leeg")
+    for rule in rules:
+        for field_name in ("id", "when", "then", "uitleg", "legalBasis"):
+            if not rule.get(field_name):
+                raise PackageError(f"regel mist veld '{field_name}' of is leeg: {rule.get('id', '?')}")
+    for rule in rules:
         for sv in rule.get("then", {}).get("transactions", []) + rule.get("then", {}).get("info", []):
             if sv not in services:
                 raise PackageError(f"regel '{rule.get('id')}': onbekende dienst '{sv}'")
@@ -80,5 +89,12 @@ def load_package(poc_root: Path, package_id: str) -> Package:
             golden.append(json.loads(regel))
         except json.JSONDecodeError as err:
             raise PackageError(f"ongeldige JSON-regel in {golden_path}: {err}") from err
+    for rij in golden:
+        for field_name in ("scenarioId", "persona", "expect"):
+            if field_name not in rij:
+                raise PackageError(f"golden-regel mist veld '{field_name}': {rij}")
+        for field_name in ("outcome", "transactions", "info"):
+            if field_name not in rij["expect"]:
+                raise PackageError(f"golden-verwachting mist veld '{field_name}': {rij.get('scenarioId', '?')}")
     _validate(manifest, tables)
     return Package(manifest=manifest, tables=tables, golden=golden)

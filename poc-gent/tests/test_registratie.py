@@ -11,5 +11,6 @@ def test_recipe_en_baseline_geregistreerd_en_consistent():
     baseline = json.loads((REPO / "nldt" / "recipes" / "baselines" / "gent-mobiliteit-ondernemer.baseline.json").read_text(encoding="utf-8"))
     manifest = json.loads((REPO / "poc-gent" / "packages" / "gent-mobiliteit-ondernemer" / "manifest.json").read_text(encoding="utf-8"))
     assert recipe["service"]["lifeEventCode"] == manifest["lifeEventCode"] == "GT-MOB-01"
+    assert baseline["recipeId"] == recipe["id"] == manifest["packageId"]
     assert recipe["requiredProcesses"] == ["gent-transactional-run"]
     assert baseline["stopConditions"] and baseline["goNoGo"]

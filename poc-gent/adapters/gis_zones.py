@@ -50,3 +50,18 @@ def zone_result(zones: dict, layer: str, lon: float, lat: float) -> str:
         if point_in_ring(lon, lat, ring):
             return "in"
     return "niet-in"
+
+
+def apply_checks(manifest: dict, context: dict, herkomst: dict, poc_root: Path, suffix: str = "") -> None:
+    """Voer alle gisChecks uit het manifest uit op hun input-slot (F1: alleen
+    'address' — afgedwongen door de pakketlader) en schrijf de zone-uitkomsten
+    weg met afgeleid-herkomst. Mutatie van context/herkomst is bewust: de caller
+    geeft kopieën mee (context.build / gates.confirm_h1)."""
+    zones = load_zones(poc_root)
+    for check in manifest.get("gisChecks", []):
+        adres = context.get(check["input"])
+        if adres is None:
+            continue
+        lon, lat = lookup_address(poc_root, adres)
+        context[check["output"]] = zone_result(zones, check["layer"], lon, lat)
+        herkomst[check["output"]] = {"label": "afgeleid", "bron": f"gis:{check['layer']} (fixture v1{suffix})"}
