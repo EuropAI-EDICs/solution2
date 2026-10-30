@@ -196,11 +196,23 @@ def test_kapotte_json_geeft_packageerror(tmp_path):
         catalog.load_package(tmp_path, manifest["packageId"])
 
 
-def test_pointer_veld_ontbreekt_faalt(tmp_path):
+@pytest.mark.parametrize("pointer", ["decisionTables", "golden"])
+def test_pointer_veld_ontbreekt_faalt(tmp_path, pointer):
     manifest = _basis_manifest()
-    del manifest["decisionTables"]
+    del manifest[pointer]
     _schrijf_pkg(tmp_path, manifest, _basis_tables())
-    with pytest.raises(catalog.PackageError, match="decisionTables"):
+    with pytest.raises(catalog.PackageError, match=pointer):
+        catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_kapotte_golden_regel_geeft_packageerror(tmp_path):
+    manifest = _basis_manifest()
+    pkg_dir = tmp_path / "packages" / manifest["packageId"]
+    (pkg_dir / "golden").mkdir(parents=True)
+    (pkg_dir / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False), encoding="utf-8")
+    (pkg_dir / "decision-tables.json").write_text(json.dumps(_basis_tables(), ensure_ascii=False), encoding="utf-8")
+    (pkg_dir / "golden" / "scenarios.jsonl").write_text('{"scenarioId": "g1"}\n{kapot\n', encoding="utf-8")
+    with pytest.raises(catalog.PackageError, match="ongeldige JSON-regel"):
         catalog.load_package(tmp_path, manifest["packageId"])
 ```
 
@@ -264,9 +276,9 @@ def _validate(manifest: dict, tables: dict) -> None:
             raise PackageError(f"slot '{slot}' mist vraag-tekst")
     outputs = set()
     for check in manifest.get("gisChecks", []):
-        for veld in ("id", "layer", "input", "output"):
-            if veld not in check:
-                raise PackageError(f"gisCheck mist veld '{veld}': {check}")
+        for field_name in ("id", "layer", "input", "output"):
+            if field_name not in check:
+                raise PackageError(f"gisCheck mist veld '{field_name}': {check}")
         if check["input"] not in slots:
             raise PackageError(f"gisCheck '{check['id']}': onbekende input-slot '{check['input']}'")
         outputs.add(check["output"])
@@ -292,7 +304,12 @@ def load_package(poc_root: Path, package_id: str) -> Package:
     golden_path = pkg_dir / manifest["golden"]
     if not golden_path.is_file():
         raise PackageError(f"golden-set ontbreekt: {golden_path}")
-    golden = [json.loads(regel) for regel in golden_path.read_text(encoding="utf-8").splitlines() if regel.strip()]
+    golden = []
+    for regel in [r for r in golden_path.read_text(encoding="utf-8").splitlines() if r.strip()]:
+        try:
+            golden.append(json.loads(regel))
+        except json.JSONDecodeError as err:
+            raise PackageError(f"ongeldige JSON-regel in {golden_path}: {err}") from err
     _validate(manifest, tables)
     return Package(manifest=manifest, tables=tables, golden=golden)
 ```
@@ -302,7 +319,7 @@ def load_package(poc_root: Path, package_id: str) -> Package:
 - [ ] **Step 6: Draai de tests en verifieer slagen**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests/test_catalog.py -q`
-Expected: `5 passed`
+Expected: `7 passed`
 
 - [ ] **Step 7: Commit**
 
@@ -460,7 +477,7 @@ def zone_result(zones: dict, layer: str, lon: float, lat: float) -> str:
 - [ ] **Step 5: Draai de tests en verifieer slagen**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `9 passed` (5 catalog + 4 gis).
+Expected: `11 passed` (7 catalog + 4 gis).
 
 - [ ] **Step 6: Commit**
 
@@ -600,7 +617,7 @@ def evaluate(tables: dict, context: dict) -> dict:
 - [ ] **Step 4: Draai de tests en verifieer slagen**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `14 passed` (5 + 4 + 5).
+Expected: `16 passed` (7 + 4 + 5).
 
 - [ ] **Step 5: Commit**
 
@@ -728,7 +745,7 @@ def summary(manifest: dict, context: dict, herkomst: dict) -> dict:
 - [ ] **Step 4: Draai de tests en verifieer slagen**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `18 passed` (14 + 4).
+Expected: `20 passed` (16 + 4).
 
 - [ ] **Step 5: Commit**
 
@@ -834,7 +851,7 @@ def confirm_h1(manifest: dict, context: dict, herkomst: dict, corrections: dict,
 - [ ] **Step 4: Draai de tests en verifieer slagen**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `20 passed` (18 + 2).
+Expected: `22 passed` (20 + 2).
 
 - [ ] **Step 5: Commit**
 
@@ -1091,7 +1108,7 @@ def write_run(poc_root: Path, run: dict, events: list) -> Path:
 - [ ] **Step 5: Draai de tests en verifieer slagen**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `25 passed` (20 + 5).
+Expected: `27 passed` (22 + 5).
 
 - [ ] **Step 6: Commit**
 
@@ -1318,7 +1335,7 @@ def run_replay(poc_root: Path, package_id: str, persona_id: str,
 - [ ] **Step 5: Draai de tests en verifieer slagen**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `30 passed` (25 + 5).
+Expected: `32 passed` (27 + 5).
 
 - [ ] **Step 6: Commit**
 
@@ -1476,7 +1493,7 @@ Geen echte persoonsgegevens; alle gegevens zijn verzonnen fixtures.
 - [ ] **Step 4: Draai de volledige tests en commit**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `30 passed`.
+Expected: `32 passed`.
 
 ```bash
 git add poc-gent
@@ -1576,7 +1593,7 @@ if __name__ == "__main__":
 - [ ] **Step 4: Draai de tests en de CLI**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `31 passed` (30 + 1).
+Expected: `33 passed` (32 + 1).
 
 Run: `python3 eval.py`
 Expected: zes `OK`-regels (g1…g6), `determinisme: OK`, `golden: 6/6 geslaagd`, exit-code 0.
@@ -1716,7 +1733,7 @@ Expected: FAIL — `FileNotFoundError` (recipe bestaat nog niet).
 - [ ] **Step 4: Draai alle tests en verifieer slagen**
 
 Run: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q`
-Expected: `32 passed` (31 + 1).
+Expected: `34 passed` (33 + 1).
 
 Run ter controle: `python3 eval.py`
 Expected: `golden: 6/6 geslaagd`, exit-code 0.
@@ -1732,7 +1749,7 @@ git commit -m "feat(poc-gent): centrale recipe- en baseline-registratie"
 
 ## Zelfcheck na afronding (executeur)
 
-1. `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` → `32 passed`.
+1. `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` → `34 passed`.
 2. `python3 eval.py` → `golden: 6/6 geslaagd`, `determinisme: OK`, exit 0.
 3. `python3 run.py --persona jeroen` → run-artefact met beide ontheffingen na adrescorrectie.
 4. `git log --oneline -10` → tien `feat(poc-gent)`-commits.
