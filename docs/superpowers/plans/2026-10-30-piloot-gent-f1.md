@@ -1830,3 +1830,34 @@ git commit -m "feat(poc-gent): centrale recipe- en baseline-registratie"
 2. `python3 eval.py` → `golden: 6/6 geslaagd`, `determinisme: OK`, exit 0.
 3. `python3 run.py --persona jeroen` → run-artefact met beide ontheffingen na adrescorrectie.
 4. `git log --oneline -10` → tien `feat(poc-gent)`-commits.
+
+---
+
+## F1.5 — Echte-data-laag (addendum, 30 oktober 2026)
+
+Doel (na gebruikersvraag "welke data is beschikbaar voor een betekenisvolle PoC"):
+de synthetische zone-fixtures vervangen door de échte Gentse open data, mét
+volledige herkomstregistratie; runs blijven offline (cache-bouw is een expliciete
+stap). Uitgevoerd direct na de eindreview-fixgolf, op dezelfde branch.
+
+### Besluiten
+
+| Keuze | Uitkomst |
+|---|---|
+| Zonebronnen | `lage-emissie-zone-gent` (→ laag `gent-lez`, versie 2026-06-30) en `sectoren-circulatieplan-gent` (→ `gent-autovrij`, filter op officiële veld `autovrijgebied` gevuld = klassen 1–5; voetgangersstraten buiten de laag), beide **Modellicentie Gratis Hergebruik**, 2/2 en 31/38 features |
+| Broncache | `fixtures/source/` met ruwe exports + `source.meta.json` (bron-URL's, licentie, versie/datum, feature-aantallen, geocode-tijdstippen); `fixtures/gis-zones.geojson` is de genormaliseerde afgeleide (layer + versie per feature) |
+| Adressen | OSM Nominatim gestructureerd én `viewbox+bounded` op Gent (vrije-tekst trof eerst verkeerde straten: Sleepstraat bij Gavere, Veldstraat bij Eeklo/Destelbergen); productie-pad BeSt Address API (FOD BOSA) vastgelegd in meta — F2 |
+| Golden-herleiding | Tegen de echte lagen: Korenmarkt 1 → LEZ+autovrij; Sint-Pietersplein 1 → alleen LEZ; Koningin Maria Hendrikaplein 1 (station) → buiten beide. Persona's ahmed/fatima → Sint-Pietersplein, maria/jeroen → stationsplein; golden-verwachtingen ongewijzigd van vorm, wél eerlijk herleid |
+| Adapter | `gis_zones.load_layer_versies` + versie-gedreven herkomststring `gis:<laag> (<versie>[, na correctie])` in `apply_checks` (DATA-01); `load_zones` accepteert Polygon én MultiPolygon (buitenringen, gaten genegeerd) |
+| Nog niet gecached | KBO/CBE + VKBO en GIPOD — beschikbaar, in `source.meta.json` als F2-backlog; Magda/ACM-IDM/District09 blijven mock |
+
+### Bestandsveranderingen
+
+- Create: `poc-gent/fetch_sources.py` (cache-bouw CLI: fetch/meta/normaliseer + `--geocode` + `--check`), `poc-gent/fixtures/source/{lage-emissie-zone-gent.json, sectoren-circulatieplan-gent.json, source.meta.json}`, `poc-gent/tests/test_fetch_sources.py`
+- Modify: `poc-gent/adapters/gis_zones.py` (load_layer_versies, _outer_rings, versie in apply_checks-bron), `poc-gent/core/pipeline.py` (prov hergebruikt herkomst-bron), `poc-gent/fixtures/{gis-zones.geojson, addresses.json, personas.json}`, `poc-gent/packages/gent-mobiliteit-ondernemer/golden/scenarios.jsonl` (g2-scenarioId), adresgebonden tests (`test_gis_zones`, `test_gates`, `test_context`), README (F1.5-sectie)
+
+### Verificatie
+
+- `../nldt/.venv/bin/python -m pytest tests -q` → `43 passed` (38 + 2 gis + 2 fetch_sources + 1 veldstraat)
+- `python3 eval.py` → `golden: 6/6 geslaagd`, `determinisme: OK`, exit 0 — nu tegen de échte Gentse lagen
+- `python3 run.py --persona jeroen` → beide ontheffingen na adrescorrectie (stationsplein → Korenmarkt)
