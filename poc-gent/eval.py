@@ -26,9 +26,11 @@ def evaluate(package_id: str) -> int:
         expect = scenario["expect"]
         ok = (routing["outcome"] == expect["outcome"]
               and routing["paths"]["transactions"] == expect["transactions"]
-              and routing["paths"]["info"] == expect["info"])
+              and routing["paths"]["info"] == expect["info"]
+              and run["transaction"]["status"] == expect.get("status", "gereed"))
         print(f"{'OK  ' if ok else 'FAAL'} {scenario['scenarioId']}: "
-              f"{routing['outcome']} {routing['paths']['transactions']}")
+              f"{routing['outcome']} {routing['paths']['transactions']} "
+              f"[status {run['transaction']['status']}]")
         if ok:
             passed += 1
         else:

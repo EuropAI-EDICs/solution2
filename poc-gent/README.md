@@ -1,6 +1,7 @@
 # poc-gent — Piloot Gent (EUROPAI WP3): transactionele levensgebeurtenis-assistent
 
-Fase 1 (intake → context → GIS → routing → H1) van het referentiepakket
+Fase 1 + 2 (intake → context → GIS → routing → H1 → H2-authenticatie →
+Magda-prefill → validatie → H3-concept) van het referentiepakket
 `gent-mobiliteit-ondernemer`. Ontwerp:
 [`docs/superpowers/specs/2026-10-30-piloot-gent-transactionele-assistent-design.md`](../docs/superpowers/specs/2026-10-30-piloot-gent-transactionele-assistent-design.md).
 
@@ -11,6 +12,10 @@ Fase 1 (intake → context → GIS → routing → H1) van het referentiepakket
   LLM-seams S1/S2 (LLM-poot komt in een latere fase).
 - Bewijs: elke run schrijft `runs/<runId>/run.json` (schema
   `schemas/gent-run.schema.json`) + `events.jsonl` (sha256-ketting).
+- F2 (H2–H3): authenticatie via ACM/IDM-mock, prefill uit de Magda-mock in
+  MCP-vorm mét doelbinding, zichtbare herkomstlabels (`authentiek`) per
+  formulierveld, deterministische validatie (blokkade/waarschuwing) en de
+  H3-conceptbeoordeling; weigering van gegevensgebruik stopt de run netjes.
 
 ## Gebruik
 

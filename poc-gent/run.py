@@ -57,6 +57,13 @@ def main() -> int:
         print(f"  informatie: {sv}")
     for u in routing["uitleg"]:
         print(f"  waarom: {u['tekst']}  [{u['bron']}]")
+    status = run["transaction"]["status"]
+    print(f"status:     {status}")
+    for uitslag in run["transaction"]["validatie"]["transacties"]:
+        for bevinding in uitslag["bevindingen"]:
+            print(f"  {bevinding['ernst']}: {bevinding['melding']}")
+    if run["transaction"]["auth"]["toestemming"] == "geweigerd":
+        print("  gestopt: je gaf geen toestemming om je gegevens op te halen")
     if routing["outcome"] == "escalatie":
         print("  overname: Gentinfo-medewerker (geen regel van toepassing)")
     print(f"events:     {len(events)} (hash-chained, events.jsonl)")
