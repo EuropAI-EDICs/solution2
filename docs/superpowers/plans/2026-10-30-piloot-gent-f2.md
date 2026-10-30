@@ -768,7 +768,7 @@ def h2_uitleg(manifest: dict, service_ids: list[str]) -> dict:
     bronnen = [{"tool": tool, "purpose": doelen[tool]} for tool in sorted(benodigd) if tool in doelen]
     waarom = ("Voor deze aanvraag hebben we een paar gegevens nodig die we niet aan u mogen vragen: "
               "die halen we veilig op bij de officiële bronnen, alléén voor het doel hierboven. "
-              "Daarom vragen we u zich eerst te authenticeren.")
+              "Daarom vragen we u eerst om een korte authenticatie.")
     return {"bronnen": bronnen, "waarom": waarom}
 
 
