@@ -16,11 +16,28 @@ Magda-prefill → validatie → H3-concept) van het referentiepakket
   MCP-vorm mét doelbinding, zichtbare herkomstlabels (`authentiek`) per
   formulierveld, deterministische validatie (blokkade/waarschuwing) en de
   H3-conceptbeoordeling; weigering van gegevensgebruik stopt de run netjes.
+- IAM — EUDI-wallet (2026-10-30): H2 authenticeert standaard via een
+  EUDI-wallet-mock conform de repo-walletdoctrine
+  ([`nldt/16`](../nldt/16-eid-wallet-identity.md), optie C — mock-first,
+  ARF-vormige enveloppen): `adapters/eudi_wallet.py` vraagt presentaties met
+  **selectieve onthulling** (alleen `sub`/`loa`/`mandaten`; de naam in de
+  fixture verlaat de wallet nooit), verifieert tegen lokale vertrouwensankers
+  (fail-closed) en produceert claims in de vorm van
+  [`wallet-claims.schema.json`](../nldt/schemas/wallet-claims.schema.json).
+  Diensten declareren `minLoA` in het manifest (LoA-gate vóór de
+  mandaatcontrole); wie géén wallet heeft, valt terug op ACM/IDM (vrije
+  uitweg) — zie persona `nadia` (fallback) en `wim` (LoA `low` → waarborg-
+  blokkade + Gentinfo-overname). Mock-beperking: het ACM/IDM-pad modelleert
+  géén LoA; productie-ACM/IDM koppelt zijn eigen waarborg (INT-01). Plan:
+  [`docs/superpowers/plans/2026-10-30-piloot-gent-iam-eudi-wallet.md`](../docs/superpowers/plans/2026-10-30-piloot-gent-iam-eudi-wallet.md).
 
 ## Gebruik
 
     python3 run.py --list-personas
     python3 run.py --persona jeroen
+    python3 run.py --persona wim                     # LoA-blokkade + Gentinfo-overname
+    python3 run.py --persona nadia                   # geen wallet → ACM/IDM-fallback
+    python3 run.py --persona sanne --auth acmidm     # klassieke route forceren
     ../nldt/.venv/bin/python -m pytest tests -q     # volledige testsuite
     python3 eval.py                                  # golden-set evaluatie
     (cd ../simulation && ../nldt/.venv/bin/python build_simulation.py)  # sim-tab 5
@@ -29,7 +46,10 @@ Magda-prefill → validatie → H3-concept) van het referentiepakket
 ## Fixtures en echte brondata (F1.5)
 
 - `fixtures/personas.json` — persona's incl. edge-cases (onvolledige schets,
-  adrescorrectie tijdens H1).
+  adrescorrectie tijdens H1, lage wallet-waarborg `wim`, geen wallet `nadia`).
+- `fixtures/wallets.json` — EUDI-wallet-mock per persona: PID-attestatie
+  (pseudoniem + loa, mét nooit-aangevraagde `naam`-claim) en machtigings-
+  attestatie (EBW-stijl), met lokale vertrouwensankers per attestatietype.
 - `fixtures/gis-zones.geojson` — **echte Gentse zone-afbakeningen** uit de open
   data van Stad Gent (beide `Modellicentie Gratis Hergebruik`), gecached onder
   `fixtures/source/` mét `source.meta.json` (bron-URL, versie/datum, licentie,

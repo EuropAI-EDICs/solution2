@@ -21,6 +21,8 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Gent transactionele assistent — replay fase 1+2")
     ap.add_argument("--package", default="gent-mobiliteit-ondernemer")
     ap.add_argument("--persona", default="sanne")
+    ap.add_argument("--auth", choices=["eudi", "acmidm"], default="eudi",
+                    help="authenticatieroute: EUDI-wallet-mock (standaard) of ACM/IDM-mock")
     ap.add_argument("--list-personas", action="store_true")
     args = ap.parse_args()
 
@@ -37,7 +39,8 @@ def main() -> int:
         return 2
 
     try:
-        run, events = pipeline.run_replay(POC_ROOT, args.package, args.persona)
+        run, events = pipeline.run_replay(POC_ROOT, args.package, args.persona,
+                                          auth_methode=args.auth)
     except catalog.PackageError as err:
         print(f"pakketfout: {err}", file=sys.stderr)
         return 2
@@ -59,6 +62,12 @@ def main() -> int:
         print(f"  waarom: {u['tekst']}  [{u['bron']}]")
     status = run["transaction"]["status"]
     print(f"status:     {status}")
+    auth = run["transaction"]["auth"]
+    if auth["authenticatie"] == "uitgevoerd":
+        regel = f"auth:       {auth.get('methode', 'acm-idm')}"
+        if "loa" in auth:
+            regel += f" (loa {auth['loa']}, onthuld: {', '.join(auth['onthuldeClaims'])})"
+        print(regel)
     for uitslag in run["transaction"]["validatie"]["transacties"]:
         for bevinding in uitslag["bevindingen"]:
             print(f"  {bevinding['ernst']}: {bevinding['melding']}")
