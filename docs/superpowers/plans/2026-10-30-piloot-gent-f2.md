@@ -138,15 +138,15 @@ Voeg in `_validate` toe, ná de gisChecks-lus en vóór de regelvalidatie (en ge
 
 ```python
     bronnen = manifest.get("authenticSources", [])
-    gedeclareerd = {b.get("slot") for b in bronnen}
-    authentieke_slots = {s for s, spec in slots.items() if spec.get("authenticSource")}
-    if gedeclareerd != authentieke_slots:
-        raise PackageError(f"authenticSources dekken de authentieke slots niet: {gedeclareerd} ≠ {authentieke_slots}")
     for bron in bronnen:
         if not bron.get("purpose"):
             raise PackageError(f"authenticSource '{bron.get('slot')}' mist een niet-lege purpose")
         if slots.get(bron.get("slot", ""), {}).get("authenticSource") != bron.get("source"):
             raise PackageError(f"authenticSource '{bron.get('slot')}' wijkt af van het slot-authenticSource")
+    gedeclareerd = {b.get("slot") for b in bronnen}
+    authentieke_slots = {s for s, spec in slots.items() if spec.get("authenticSource")}
+    if gedeclareerd != authentieke_slots:
+        raise PackageError(f"authenticSources dekken de authentieke slots niet: {gedeclareerd} ≠ {authentieke_slots}")
     for service_id, service in services.items():
         if service.get("type") == "inzending":
             if not service.get("formulier"):
