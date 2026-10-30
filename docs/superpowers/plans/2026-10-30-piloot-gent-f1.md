@@ -1577,8 +1577,8 @@ from core import catalog, pipeline, runs  # noqa: E402
 
 def evaluate(package_id: str) -> int:
     pkg = catalog.load_package(POC_ROOT, package_id)
-    geslaagd = 0
-    gefaald: list[str] = []
+    passed = 0
+    failed: list[str] = []
     for scenario in pkg.golden:
         run, _log = pipeline.run_replay(POC_ROOT, package_id, scenario["persona"],
                                         scenario.get("overrideSlots"))
@@ -1590,16 +1590,19 @@ def evaluate(package_id: str) -> int:
         print(f"{'OK  ' if ok else 'FAAL'} {scenario['scenarioId']}: "
               f"{routing['outcome']} {routing['paths']['transactions']}")
         if ok:
-            geslaagd += 1
+            passed += 1
         else:
-            gefaald.append(scenario["scenarioId"])
+            failed.append(scenario["scenarioId"])
 
-    r1, _ = pipeline.run_replay(POC_ROOT, package_id, "sanne")
-    r2, _ = pipeline.run_replay(POC_ROOT, package_id, "sanne")
-    deterministisch = runs.canonical(r1) == runs.canonical(r2)
-    print(f"determinisme: {'OK' if deterministisch else 'FAAL'}")
-    print(f"golden: {geslaagd}/{len(pkg.golden)} geslaagd")
-    return 0 if (not gefaald and deterministisch) else 1
+    first_persona = pkg.golden[0]["persona"]
+    r1, _ = pipeline.run_replay(POC_ROOT, package_id, first_persona)
+    r2, _ = pipeline.run_replay(POC_ROOT, package_id, first_persona)
+    deterministic = runs.canonical(r1) == runs.canonical(r2)
+    print(f"determinisme: {'OK' if deterministic else 'FAAL'}")
+    print(f"golden: {passed}/{len(pkg.golden)} geslaagd")
+    if failed:
+        print("gefaald: " + ", ".join(failed))
+    return 0 if (not failed and deterministic) else 1
 
 
 def main() -> int:
