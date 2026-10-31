@@ -14,7 +14,7 @@ POC_ROOT = Path(__file__).resolve().parent
 if str(POC_ROOT) not in sys.path:
     sys.path.insert(0, str(POC_ROOT))
 
-from core import catalog, kpis, pipeline, runs  # noqa: E402
+from core import catalog, exit_test, kpis, pipeline, runs  # noqa: E402
 
 
 def evaluate(package_id: str, rapport_pad: str | None = None) -> int:
@@ -52,6 +52,12 @@ def evaluate(package_id: str, rapport_pad: str | None = None) -> int:
         print("gefaald: " + ", ".join(failed))
 
     rapport = kpis.rapport(golden_runs, pkg.manifest)
+    exit_uitslag = exit_test.exit_test(POC_ROOT, package_id)
+    rapport["exit-test"] = exit_uitslag
+    if not exit_uitslag["geslaagd"]:
+        rapport["goNoGo"] = "NO-GO"
+        rapport["belemmeringen"].append(
+            f"exit-test: {exit_uitslag['identiek']}/{exit_uitslag['herleidingen']} herleidingen identiek")
     for naam, info in rapport["kpis"].items():
         if naam == "KPI-06":
             regel = (f"KPI-06 once-only (retourvragen): {info['authentieke_slot_vragen']} vragen "
@@ -64,6 +70,9 @@ def evaluate(package_id: str, rapport_pad: str | None = None) -> int:
         print(f"{regel} [{'OK' if info['ok'] else 'FAAL'}]")
     for bevinding in rapport["belemmeringen"]:
         print(f"  belemmering: {bevinding}")
+    exit_regel = (f"exit-test: {exit_uitslag['identiek']}/{exit_uitslag['herleidingen']} "
+                  f"herleidingen op de export identiek")
+    print(f"{exit_regel} [{'OK' if exit_uitslag['geslaagd'] else 'FAAL'}]")
     print(f"go/no-go: {rapport['goNoGo']}")
     if rapport_pad:
         pad = Path(rapport_pad)
@@ -101,9 +110,16 @@ def main() -> int:
     ap.add_argument("--rapport", metavar="PAD", help="schrijf het KPI/go-no-go-rapport als JSON naar dit pad")
     ap.add_argument("--injectie", action="store_true",
                     help="draai de adversariële injectiesuite i.p.v. de golden-set (KPI-08)")
+    ap.add_argument("--exit", action="store_true", dest="alleen_exit",
+                    help="draai alléén de exit-test (config-export + herleiding, KPI-09)")
     args = ap.parse_args()
     if args.injectie:
         return injectie_suite(args.package)
+    if args.alleen_exit:
+        uitslag = exit_test.exit_test(POC_ROOT, args.package)
+        print(f"exit-test: {uitslag['identiek']}/{uitslag['herleidingen']} herleidingen op de export identiek")
+        print(uitslag["modelsubstitutie"])
+        return 0 if uitslag["geslaagd"] else 1
     return evaluate(args.package, args.rapport)
 
 
