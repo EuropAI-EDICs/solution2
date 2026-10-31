@@ -8,8 +8,8 @@ code exists).
 
 | | |
 |---|---|
-| Status | Plan (2026-09-14) · replaces the identity items of BK-3 in [14](14-beleidskompas-integration.md) §8 · **W6a done (2026-09-15): real Keycloak machine credentials for agents** |
-| Legal frame | eIDAS (EU) 910/2014 + amending Regulation (EU) 2024/1183; ARF v2.x |
+| Status | Plan (2026-09-14) · replaces the identity items of BK-3 in [14](14-beleidskompas-integration.md) §8 · **W6a done (2026-09-15): real Keycloak machine credentials for agents** · **W2-evaluatie 2026-10-31** (besluit open, G8 — zie [research](../docs/research/eudi-wallet-w2-evaluatie.md)) |
+| Legal frame | eIDAS (EU) 910/2014 + amending Regulation (EU) 2024/1183; ARF **3.0.0** (sinds juli 2026, nieuw conformance-kader; voorheen 2.x) |
 | External | [EC EUDI Wallet](https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/694487738/EU+Digital+Identity+Wallet+Home) · [eu-digital-identity-wallet](https://github.com/eu-digital-identity-wallet) · [italia/eudi-wallet-it-python](https://github.com/italia/eudi-wallet-it-python) |
 | Related | [07](07-trust-and-governance.md) · [10](10-toolbox-integration.md) (Keycloak) · [`../docs/GENAI_SEAMS.md`](../docs/GENAI_SEAMS.md) (receipt trail) · [`services/common/auth.py`](services/common/auth.py) · Gent-piloot-consumer (ARF-vormige replay-mock): [`../poc-gent/adapters/eudi_wallet.py`](../poc-gent/adapters/eudi_wallet.py) |
 
@@ -71,7 +71,7 @@ don't rebuild — again.
 
 | Option | Description | Verdict |
 |---|---|---|
-| **A — Keycloak broker** | EUDI Wallet → Keycloak (OpenID4VP verifier; OID4VCI issuance shipped Jan 2026, verifier via community extension) → OIDC tokens → existing `keycloak` auth mode introspects | ✅ Long-run production path — Keycloak *is* the EU LDT Toolbox identity building block; but verifier support is extension-grade today and the testbed has no IM instance running |
+| **A — Keycloak broker** | EUDI Wallet → Keycloak (OpenID4VP verifier; OID4VCI issuance shipped Jan 2026, verifier via community extension) → OIDC tokens → existing `keycloak` auth mode introspects | ✅ Long-run production path — Keycloak *is* the EU LDT Toolbox identity building block; ~~verifier support is extension-grade today~~ **update 2026-10-31: OID4VP-verifier sinds Keycloak 26.8 in core, maar experimenteel** (W2-evaluatie); de testbed-IM-instantie ontbreekt nog steeds |
 | **B — Python RP edge (pyeudiw-style)** | A small `services/auth_wallet/` FastAPI service implementing the OpenID4VP relying party (Italy's pyeudiw is the Python reference toolchain) and issuing internal nLDT tokens | ✅ Direct control, Python-native, testbed-friendly; more code we own; verify pyeudiw license/profile fit before adopting |
 | **C — Pluggable verifier behind our own token edge** | Build the token-issuance + claims plumbing with a `VerifierBackend` interface: a **mock wallet/verifier** now (testable today, no NL wallet needed), a pyeudiw adapter (B) or Keycloak (A) later | ✅ **Recommended** — the token edge, claims model and governance wiring are durable regardless of which verifier wins; protocol-truth lands when the backend adapter does |
 
@@ -237,6 +237,17 @@ anonymous/expired/insufficient-credential calls behave fail-closed — all in
 the test suite.
 
 ### W2 — Real OpenID4VP backend (1–2 sprints; decision-gated)
+
+**Status:** evaluatie verricht 2026-10-31 — zie
+[`docs/research/eudi-wallet-w2-evaluatie.md`](../docs/research/eudi-wallet-w2-evaluatie.md).
+Kernbevindingen: pyeudiw is **Apache-2.0** (licentie-belemmering weg) met de
+diepste OpenID4VP-dekking (DCQL, X.509 + Federation-trust, status list);
+Keycloak **26.8** (2026-10-01) levert een OID4VP-verifier in core, maar
+**experimenteel** (en `issuer_info` ontbreekt nog) — "extension-grade" uit de
+opties-tabel hieronder is daarmee achterhaald. ARF staat op **3.0.0** met een
+nieuw conformance-kader. **Besluit open (G8)**; voorstel: pyeudiw-adapter
+achter de bestaande `VerifierBackend`-interface, Keycloak-GA monitoren als
+productieconvergentie (besluit 1 blijft).
 
 - Evaluate pyeudiw (license, ARF/DCQL conformance, Dutch profile deltas)
   vs Keycloak verifier extension (deploy with toolbox IM per
@@ -413,7 +424,13 @@ implementation plan and findings, never silent.
 - Keycloak OpenID4VCI (Jan 2026):
   <https://www.keycloak.org/2026/01/issue-credentials-over-openid4vci> ·
   Keycloak wallet-verifier discussion:
-  <https://github.com/keycloak/keycloak/discussions/47346>
+  <https://github.com/keycloak/keycloak/discussions/47346> ·
+  Keycloak 26.8 (okt 2026) — OID4VCI + experimentele OID4VP-verifier in core:
+  <https://www.keycloak.org/2026/10/keycloak-2680-released> ·
+  `issuer_info`-hiaat: <https://github.com/keycloak/keycloak/issues/53293>
+- ARF 3.0.0 + conformance-kader (juli 2026):
+  <https://github.com/eu-digital-identity-wallet/eudi-doc-architecture-and-reference-framework> ·
+  <https://conformance.eudi.dev>
 - NL: <https://www.nldigitalgovernment.nl/overview/identity/id-wallet/> ·
   EU pilots (POTENTIAL incl. NL):
   <https://digital-strategy.ec.europa.eu/en/policies/eudi-wallet-implementation>
