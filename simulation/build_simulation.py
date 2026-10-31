@@ -1149,7 +1149,7 @@ def _publiek_auth(auth: dict) -> dict:
 # SVG-paden zodat de simulatie zelf geen geo-logica nodig heeft.
 
 KAART_VIEWBOX = (720.0, 520.0)
-KAART_BUFFER_M = 60.0
+KAART_BUFFER_M = 150.0
 
 
 def _gis_zones_module():
@@ -1236,16 +1236,21 @@ def _afstand_tot_route(punt, punten):
     return beste
 
 
-def kies_gewenste_route(routes, innames, buffer_m=KAART_BUFFER_M):
-    """De door Gent gewenste route: het fewest innames binnen de omleidings-
-    buffer; bij gelijkspel de primaire (snelste) route. Retourneert
+def kies_gewenste_route(routes, innames, buffer_m=KAART_BUFFER_M, doel=None):
+    """De door Gent gewenste route: het minst vermijdbare innames binnen de
+    omleidingsbuffer; bij gelijkspel de primaire (snelste) route. Innames bij
+    het gedeelde eindpunt zijn onvermijdelijk en tellen dus niet mee voor de
+    keuze (ze blijven wél zichtbaar als 'op route'). Retourneert
     (gewenst-label, {label: [innames op die route]})."""
     tellingen = {label: [i for i in innames
                          if _afstand_tot_route(i["coord"], route["punten"]) <= buffer_m]
                  for label, route in routes.items() if route}
     if not tellingen:
         return None, {}
-    gewenst = min(tellingen, key=lambda label: (len(tellingen[label]), label != "primaire"))
+    vermijdbaar = [i for i in innames
+                   if doel is None or _afstand_tot_route(i["coord"], [doel, doel]) > buffer_m]
+    keuze = {label: [i for i in rij if i in vermijdbaar] for label, rij in tellingen.items()}
+    gewenst = min(keuze, key=lambda label: (len(keuze[label]), label != "primaire"))
     return gewenst, tellingen
 
 
@@ -1273,7 +1278,7 @@ def _kaart_blok(kaart, zones, pid):
         return None
     innames = kaart.get("innames") or []
     labels = {"primaire": route.get("primaire"), "alternatief": route.get("alternatief")}
-    gewenst, tellingen = kies_gewenste_route(labels, innames)
+    gewenst, tellingen = kies_gewenste_route(labels, innames, doel=route["doelCoord"])
     if gewenst is None:
         return None
     grens = kaart.get("grens")
@@ -1282,7 +1287,9 @@ def _kaart_blok(kaart, zones, pid):
         if res:
             vangnet += res["punten"][::5]
     project = _maak_projectie(_kaart_bbox(grens, vangnet))
-    omzeild = {i["id"] for label, rij in tellingen.items() if label != gewenst for i in rij}
+    op_gewenst = {i["id"] for i in tellingen.get(gewenst, [])}
+    omzeild = {i["id"] for label, rij in tellingen.items() if label != gewenst
+               for i in rij if i["id"] not in op_gewenst}
     return {
         "start": {"label": bedrijf["naam"], "adres": bedrijf["adres"]},
         "doel": route["doel"],

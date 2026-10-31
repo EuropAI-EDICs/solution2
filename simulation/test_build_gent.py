@@ -141,6 +141,16 @@ class TestBuildGent(unittest.TestCase):
         self.assertEqual(tellingen["alternatief"], [])
         gewenst_schoon, _ = kies_gewenste_route(routes, [])
         self.assertEqual(gewenst_schoon, "primaire")  # gelijkspel → snelste route
+        # inname bij het gedeelde eindpunt is onvermijdelijk en mag de keuze
+        # niet forceren: beide routes 'getroffen' → gelijkspel → primair
+        bij_doel = {"id": "GP-2", "straat": "Eindstraat", "type": "evenement",
+                    "van": "v", "tot": "t", "coord": [3.73, 51.05]}
+        gedeeld_eindpunt = {"primaire": {"punten": [[3.72, 51.05], [3.73, 51.05]]},
+                            "alternatief": {"punten": [[3.72, 51.06], [3.73, 51.05]]}}
+        gewenst_doel, tellingen_doel = kies_gewenste_route(gedeeld_eindpunt, [bij_doel], doel=[3.73, 51.05])
+        self.assertEqual(gewenst_doel, "primaire")
+        self.assertEqual(len(tellingen_doel["primaire"]), 1)
+        self.assertEqual(len(tellingen_doel["alternatief"]), 1)
 
     def test_bronversies_en_serviceTitels_aanwezig(self):
         self.assertIn("gent-lez", self.gent["bronversies"])

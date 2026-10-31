@@ -151,13 +151,19 @@ try {
   const s5e = ds.sims[3];
   s5e.play(); drain(4000); s5e.pause();
   ds.gentPersona("wim"); drain();
+  const kaartSvg = globalThis.document.getElementById("kaart5");
+  if (!kaartSvg || kaartSvg.childElementCount < 4) throw new Error("kaart5 svg niet gerenderd voor wim");
   ds.gentPersona("nadia"); drain();
   ds.gentPersona("ilse"); drain();
   ds.gentPersona("hanne"); drain();
-  ds.gentPersona("sanne");
+  ds.gentPersona("maria"); drain();
+  const kaartWrap = globalThis.document.getElementById("kaart5wrap");
+  if (kaartWrap && kaartWrap.style.display !== "none") throw new Error("kaart5 verborgen verwacht voor maria (geen voertuig)");
+  ds.gentPersona("sanne"); drain();
+  if (kaartWrap && kaartWrap.style.display === "none") throw new Error("kaart5 zichtbaar verwacht voor sanne");
   if (ds.bredaOn()) throw new Error("breda chat not re-locked after reset");
 
-  console.log(`OK — script evaluated; poc1 tracks driven through every step (${n1} steps on active track), sim2 ${n2} steps, laya fp+chat driven, poc4 sim4 ${s4.steps.length} steps, gent sim5 ${s5e.steps.length} steps (sanne/dirk/ellen/wim/nadia/ilse/hanne), timers drained`);
+  console.log(`OK — script evaluated; poc1 tracks driven through every step (${n1} steps on active track), sim2 ${n2} steps, laya fp+chat driven, poc4 sim4 ${s4.steps.length} steps, gent sim5 ${s5e.steps.length} steps (sanne/dirk/ellen/wim/nadia/ilse/hanne/maria) + kaartpanel gecontroleerd, timers drained`);
 } catch (e) {
   console.error("FAIL:", e && e.stack ? e.stack.split("\n").slice(0, 6).join("\n") : e);
   process.exit(1);
