@@ -1142,6 +1142,173 @@ def _publiek_auth(auth: dict) -> dict:
             "mandaatAantal": len(auth.get("mandaten", []))}
 
 
+# ---------------------------------------------------------------------------
+# Gent-tab: kaartpanel (F-kaart) — projectie, omleiding-buffer en routekeuze.
+# Alle geometrie komt uit de broncache (fixtures/source/kaart.json) en de
+# echte Gentse zone-lagen; de build rekent offline en levert kant-en-klare
+# SVG-paden zodat de simulatie zelf geen geo-logica nodig heeft.
+
+KAART_VIEWBOX = (720.0, 520.0)
+KAART_BUFFER_M = 60.0
+
+
+def _gis_zones_module():
+    gent_root = ROOT / "poc-gent"
+    if str(gent_root) not in sys.path:
+        sys.path.insert(0, str(gent_root))
+    from adapters import gis_zones
+    return gis_zones
+
+
+def _grens_ringen(grens):
+    if not grens:
+        return []
+    if grens.get("type") == "Polygon":
+        return [[tuple(p) for p in grens["coordinates"][0]]]
+    if grens.get("type") == "MultiPolygon":
+        return [[tuple(p) for p in poly[0]] for poly in grens["coordinates"]]
+    return []
+
+
+def _kaart_bbox(grens, extra_punten):
+    lon_min, lat_min, lon_max, lat_max = 3.63, 50.99, 3.83, 51.16  # Gent als vangnet
+    lons, lats = [], []
+    for ring in _grens_ringen(grens):
+        for lon, lat in ring:
+            lons.append(lon)
+            lats.append(lat)
+    for coord in extra_punten:
+        lons.append(coord[0])
+        lats.append(coord[1])
+    if lons:
+        marge = 0.012
+        lon_min, lon_max = min(lons) - marge, max(lons) + marge
+        lat_min, lat_max = min(lats) - marge, max(lats) + marge
+    return lon_min, lat_min, lon_max, lat_max
+
+
+def _maak_projectie(bbox, viewbox=KAART_VIEWBOX):
+    """WGS84 → SVG met breedtegraad-correctie (cos-lat) en behoud van aspect;
+    het resultaat centreert binnen de viewbox."""
+    lon_min, lat_min, lon_max, lat_max = bbox
+    breedte, hoogte = viewbox
+    cos_lat = math.cos(math.radians((lat_min + lat_max) / 2))
+    schaal = min(breedte / max((lon_max - lon_min) * cos_lat, 1e-9),
+                 hoogte / max(lat_max - lat_min, 1e-9))
+    x0 = (breedte - (lon_max - lon_min) * cos_lat * schaal) / 2
+    y0 = (hoogte - (lat_max - lat_min) * schaal) / 2
+
+    def project(coord):
+        lon, lat = coord[0], coord[1]
+        return (round(x0 + (lon - lon_min) * cos_lat * schaal, 1),
+                round(y0 + (lat_max - lat) * schaal, 1))
+
+    return project
+
+
+def _pad_ringen(ringen, project):
+    delen = []
+    for ring in ringen:
+        punten = [project(coord) for coord in ring]
+        delen.append("M " + " L ".join(f"{x} {y}" for x, y in punten) + " Z")
+    return " ".join(delen)
+
+
+def _pad_lijn(punten, project):
+    lijst = [project(coord) for coord in punten]
+    return "M " + " L ".join(f"{x} {y}" for x, y in lijst)
+
+
+def _afstand_tot_route(punt, punten):
+    """Minimale afstand in meters van punt tot de routepolylijn
+    (equirectangulaire benadering — nauwkeurig genoeg op stadsniveau)."""
+    lon0, lat0 = punt
+    coslat = math.cos(math.radians(lat0))
+    beste = float("inf")
+    for (lon1, lat1), (lon2, lat2) in zip(punten, punten[1:]):
+        x1, y1 = (lon1 - lon0) * 111320 * coslat, (lat1 - lat0) * 110540
+        x2, y2 = (lon2 - lon0) * 111320 * coslat, (lat2 - lat0) * 110540
+        dx, dy = x2 - x1, y2 - y1
+        lengte2 = dx * dx + dy * dy
+        teller = -(x1 * dx + y1 * dy)
+        t = 0.0 if lengte2 == 0 else max(0.0, min(1.0, teller / lengte2))
+        beste = min(beste, math.hypot(x1 + t * dx, y1 + t * dy))
+    return beste
+
+
+def kies_gewenste_route(routes, innames, buffer_m=KAART_BUFFER_M):
+    """De door Gent gewenste route: het fewest innames binnen de omleidings-
+    buffer; bij gelijkspel de primaire (snelste) route. Retourneert
+    (gewenst-label, {label: [innames op die route]})."""
+    tellingen = {label: [i for i in innames
+                         if _afstand_tot_route(i["coord"], route["punten"]) <= buffer_m]
+                 for label, route in routes.items() if route}
+    if not tellingen:
+        return None, {}
+    gewenst = min(tellingen, key=lambda label: (len(tellingen[label]), label != "primaire"))
+    return gewenst, tellingen
+
+
+def _zone_kruisingen(punten, zones):
+    """Kruist de route een zone-laag? (sampling van de routepunten tegen de
+    echte polygonen via de poc-gent GIS-helper)."""
+    gis = _gis_zones_module()
+    uit = {laag: False for laag in zones}
+    for laag, ringen in zones.items():
+        for coord in punten[::2]:
+            if any(gis.point_in_ring(coord[0], coord[1], ring) for ring in ringen):
+                uit[laag] = True
+                break
+    return uit
+
+
+def _kaart_blok(kaart, zones, pid):
+    """Kaartpaneel-data voor één persona: start (VKBO-bedrijfsadres waar het
+    kenteken geregistreerd staat), doel (werkadres), beide routes, de door
+    Gent gewenste variant, innames mét opRoute-vlaggen en kant-en-klare
+    SVG-paden. Persona's zonder routecache (maria) krijgen None."""
+    route = (kaart.get("routes") or {}).get(pid)
+    bedrijf = (kaart.get("bedrijven") or {}).get(pid)
+    if not route or not bedrijf or "coord" not in bedrijf:
+        return None
+    innames = kaart.get("innames") or []
+    labels = {"primaire": route.get("primaire"), "alternatief": route.get("alternatief")}
+    gewenst, tellingen = kies_gewenste_route(labels, innames)
+    if gewenst is None:
+        return None
+    grens = kaart.get("grens")
+    vangnet = [bedrijf["coord"], route["doelCoord"]] + [i["coord"] for i in innames]
+    for res in labels.values():
+        if res:
+            vangnet += res["punten"][::5]
+    project = _maak_projectie(_kaart_bbox(grens, vangnet))
+    omzeild = {i["id"] for label, rij in tellingen.items() if label != gewenst for i in rij}
+    return {
+        "start": {"label": bedrijf["naam"], "adres": bedrijf["adres"]},
+        "doel": route["doel"],
+        "gewenst": gewenst,
+        "routes": [{"label": label, "gewenst": label == gewenst,
+                    "afstand_m": res["afstand_m"], "duur_s": res["duur_s"]}
+                   for label, res in labels.items() if res],
+        "omzeil": [f"{i['straat']} ({i['type']}, tot {i['tot']})"
+                   for i in innames if i["id"] in omzeild],
+        "innames": [{**i, "opRoute": {label: i in rij for label, rij in tellingen.items()}}
+                    for i in innames],
+        "zones": _zone_kruisingen(labels[gewenst]["punten"], zones),
+        "svg": {"viewbox": [0, 0, int(KAART_VIEWBOX[0]), int(KAART_VIEWBOX[1])],
+                "grens": _pad_ringen(_grens_ringen(grens), project) if grens else "",
+                "zones": {laag: _pad_ringen(ringen, project) for laag, ringen in zones.items()},
+                "routes": {label: (_pad_lijn(res["punten"], project) if res else "")
+                           for label, res in labels.items()},
+                "start": project(bedrijf["coord"]),
+                "doel": project(route["doelCoord"]),
+                "innames": [project(i["coord"]) for i in innames]},
+        "bron": ("route & kaart: OSRM + Nominatim op OpenStreetMap (ODbL) · zones: Stad Gent "
+                 "open data (Modellicentie Gratis Hergebruik) · bedrijfsadres: VKBO/KBO "
+                 "open register · innames: GIPOD-mock (productiepad: GIPOD-LDES)"),
+    }
+
+
 def build_gent() -> dict:
     """Gent EUROPAI-piloot voor tab 5: deterministische replay (fase 1+2+3) per
     persona, gegenereerd door de echte poc-gent-engine tijdens de build. De
@@ -1158,6 +1325,9 @@ def build_gent() -> dict:
         sys.path.remove(str(gent_root))
 
     package_id = "gent-mobiliteit-ondernemer"
+    kaart_pad = gent_root / "fixtures" / "source" / "kaart.json"
+    kaart = json.loads(kaart_pad.read_text(encoding="utf-8")) if kaart_pad.is_file() else None
+    zone_ringen = gis_zones.load_zones(gent_root)
     pkg = catalog.load_package(gent_root, package_id)
     personas = pipeline.load_personas(gent_root)
     versies = gis_zones.load_layer_versies(gent_root)
@@ -1187,6 +1357,7 @@ def build_gent() -> dict:
             "validatie": t["validatie"],
             "h1": t["h1"],
             "h3": t["h3"],
+            "kaart": _kaart_blok(kaart, zone_ringen, pid) if kaart else None,
             "submission": t["submission"],
             "events": [{"seq": e["seq"], "kind": e["kind"]} for e in log],
             "chainOk": events.verify_chain(log),

@@ -106,11 +106,47 @@ class TestBuildGent(unittest.TestCase):
         kenteken = next(v for v in velden if v["veld"] == "kenteken")
         self.assertTrue(kenteken["bron"].startswith("magda:kenteken"))
 
+    def test_kaart_blok_voor_alle_kenteken_personas(self):
+        zonder = [p["id"] for p in self.gent["personas"] if not p.get("kaart")]
+        self.assertEqual(zonder, ["maria"])
+        for p in self.gent["personas"]:
+            kaart = p.get("kaart")
+            if not kaart:
+                continue
+            self.assertIn(kaart["gewenst"], ("primaire", "alternatief"))
+            self.assertTrue(kaart["start"]["label"] and kaart["doel"])
+            self.assertTrue(kaart["svg"]["routes"]["primaire"].startswith("M"))
+            self.assertTrue(kaart["svg"]["grens"].startswith("M"))
+            self.assertTrue(kaart["svg"]["zones"]["gent-lez"].startswith("M"))
+            self.assertTrue(kaart["zones"]["gent-lez"], "doel in de LEZ → route kruist de LEZ")
+            for coord in [kaart["svg"]["start"], kaart["svg"]["doel"], *kaart["svg"]["innames"]]:
+                self.assertTrue(0 <= coord[0] <= 720 and 0 <= coord[1] <= 520, coord)
+            labels = {r["label"] for r in kaart["routes"]}
+            self.assertIn("primaire", labels)
+
+    def test_routekeuze_en_afstand_tot_route(self):
+        from build_simulation import _afstand_tot_route, kies_gewenste_route
+
+        route = {"punten": [[3.72, 51.05], [3.73, 51.05]]}
+        self.assertAlmostEqual(_afstand_tot_route([3.725, 51.05], route["punten"]), 0.0, delta=5)
+        self.assertAlmostEqual(_afstand_tot_route([3.725, 51.06], route["punten"]), 1105.4, delta=10)  # 0,01° breedte ≈ 1,1 km
+
+        inname = {"id": "GP-1", "straat": "Teststraat", "type": "grondwerk",
+                  "van": "2026-11-02", "tot": "2026-11-06", "coord": [3.725, 51.05]}
+        routes = {"primaire": route,
+                  "alternatief": {"punten": [[3.72, 51.06], [3.73, 51.06]]}}
+        gewenst, tellingen = kies_gewenste_route(routes, [inname])
+        self.assertEqual(gewenst, "alternatief")
+        self.assertEqual(len(tellingen["primaire"]), 1)
+        self.assertEqual(tellingen["alternatief"], [])
+        gewenst_schoon, _ = kies_gewenste_route(routes, [])
+        self.assertEqual(gewenst_schoon, "primaire")  # gelijkspel → snelste route
+
     def test_bronversies_en_serviceTitels_aanwezig(self):
         self.assertIn("gent-lez", self.gent["bronversies"])
         self.assertIn("ontheffing-lez", self.gent["serviceTitels"])
         self.assertEqual(self.gent["lifeEventCode"], "GT-MOB-01")
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()
