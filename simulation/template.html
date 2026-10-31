@@ -319,6 +319,9 @@
 
   /* gent transactie tab */
   #view5 .rail{padding:8px;display:flex;flex-direction:column;gap:4px}
+  #view5 .gpkg{background:var(--bg2,#141a24);color:var(--ink,#e8ecf3);border:1px solid var(--line,#2a3342);
+    border-radius:7px;font:12px/1.4 var(--mono,monospace);padding:5px 8px;max-width:340px}
+  #view5 .gpkg:focus{outline:1px solid var(--cy,#22d3ee)}
   #rail5 .stage{display:block;font-size:12.5px;padding:8px 10px}
   #rail5 .stage b{display:block}
   #rail5 .stage .gsub{color:var(--faint);font-size:11px}
@@ -752,10 +755,9 @@
     <div class="gcols">
       <div id="chat5" class="gchat"></div>
       <div id="kaart5wrap" class="gkaartwrap" style="display:none">
-        <h3 class="gkaartkop"><span class="tekst-nl">route &amp; omleidingen</span><span class="tekst-en">route &amp; detours</span> <span class="gsub" id="kaart5meta"></span></h3>
+        <h3 class="gkaartkop"><span id="kaart5kop"></span> <span class="gsub" id="kaart5meta"></span></h3>
         <svg id="kaart5" viewBox="0 0 720 520" preserveAspectRatio="xMidYMid meet"></svg>
-        <div class="gkaartleg"><div class="tekst-nl"><span style="color:#3b82f6">━</span> primair (snelste) · <span style="color:#8b93a7">━</span> alternatief (dunner) · <span style="color:#22d3ee">━━</span> dik = door Gent aangeraden (minste innames) · <span style="color:#f59e0b">▲</span> inname (GIPOD) · <span style="color:#f59e0b">▨</span> lage-emissiezone · <span style="color:#f87171">▨</span> autovrij gebied · <span style="color:#34d399">●</span> start (bedrijf) · <span style="color:#f87171">●</span> doel · 🔍 scroll = inzoomen · sleep = verschuiven · dubbelklik = herstellen</div>
-        <div class="tekst-en"><span style="color:#3b82f6">━</span> primary (fastest) · <span style="color:#8b93a7">━</span> alternative (thinner) · <span style="color:#22d3ee">━━</span> thick = recommended by Ghent (fewest hindrances) · <span style="color:#f59e0b">▲</span> hindrance (GIPOD) · <span style="color:#f59e0b">▨</span> low-emission zone · <span style="color:#f87171">▨</span> car-free area · <span style="color:#34d399">●</span> start (company) · <span style="color:#f87171">●</span> destination · 🔍 scroll = zoom · drag = pan · double-click = reset</div></div>
+        <div class="gkaartleg" id="kaart5leg"></div>
         <div id="kaart5info" class="gkaartinfo"></div>
         <div class="gbron" id="kaart5bron"></div>
       </div>
@@ -2381,7 +2383,10 @@ function makeSim4(){
 
 
 /* ================================================================ Gent view */
-const G = DATA.gent;
+let G = DATA.gent;      // actieve levensgebeurtenis (dropdown wisselt dataset)
+let GPKG = "gent";      // datablok-sleutel: "gent" (ondernemer) | "gentBurger" (burger)
+const GP = [["gent","GT-MOB-01 · voertuigtoegang ondernemer","GT-MOB-01 · vehicle access entrepreneur"],
+            ["gentBurger","GT-VERH-01 · verhuizen (burger)","GT-VERH-01 · moving house (citizen)"]];
 let curGent = G.personas[0].id;
 const LABEL_KLEUR = {authentiek:"#3b82f6", gebruiker:"#8b93a7", correctie:"#f59e0b", afgeleid:"#22d3ee"};
 function gpersona(id){ return G.personas.find(p=>p.id===id) || G.personas[0]; }
@@ -2398,8 +2403,11 @@ const dienstTitel=(id)=> TT(esc((G.serviceTitels||{})[id]||id), esc((G.serviceTi
 
 function renderGentMeta(){
   $("gentmeta").innerHTML =
-    `<div class="gpers">${G.personas.map(p=>`
-      <button class="ttab ${p.id===curGent?'active':''}" onclick="gentPersona('${p.id}')" title="${esc(p.label)}${p.labelEn?' / '+esc(p.labelEn):''}${p.edge?' · edge: '+esc(p.edge):''}">${esc(p.id)}</button>`).join("")}</div>`
+    `<div class="gpers"><select class="gpkg" onchange="gentPackage(this.value)" title="${TT("levensgebeurtenis","life event")}">`
+    + GP.map(([k,nl,en])=>`<option value="${k}"${k===GPKG?" selected":""}>${TT(nl,en)}</option>`).join("")
+    + `</select>`
+    + G.personas.map(p=>`
+      <button class="ttab ${p.id===curGent?'active':''}" onclick="gentPersona('${p.id}')" title="${esc(p.label)}${p.labelEn?' / '+esc(p.labelEn):''}${p.edge?' · edge: '+esc(p.edge):''}">${esc(p.id)}</button>`).join("")+`</div>`
     + `<div class="gmeta2"><code>${esc(G.lifeEventCode)}</code> · ${esc(G.packageId)} v${esc(G.version)} · `
     + Object.entries(G.bronversies||{}).map(([k,v])=>`${esc(k)} — ${esc(v)}`).join(" · ") + `</div>`;
 }
@@ -2448,7 +2456,19 @@ function kaartStap(st){
   const aan = (d)=> d <= st;
   const nieuw = (d)=> d <= st && d > kaartLaatsteStap;
   let s = "";
-  if (z.grens) s += `<path d="${z.grens}" fill="none" stroke="#8b93a7" stroke-width="1.2" opacity=".45"/>`;
+  if (k.mode === "burger") {
+    // Burgerpakket GT-VERH-01: regeling-zones rond de nieuwe woning — geen routes.
+    if (z.grens) s += `<path d="${z.grens}" fill="none" stroke="#8b93a7" stroke-width="1.2" opacity=".45"/>`;
+    s += `<path d="${z.zones["gent-parkeertariefzone"]}" fill="#a78bfa1f" stroke="#a78bfa99" stroke-width="1.2"/>`;
+    s += `<path d="${z.zones["gent-bewonerszone"]}" fill="#34d39922" stroke="#34d39999" stroke-width="1.2"/>`;
+    s += `<path d="${z.zones["gent-lez"]}" fill="#f59e0b1f" stroke="#f59e0b99" stroke-width="1.2"/>`;
+    const startNieuw = kaartLaatsteStap < -1;
+    s += `<circle class="${startNieuw?"kpop":""}" cx="${z.start[0]}" cy="${z.start[1]}" r="7" fill="#34d399" stroke="#0e2a1c"><title>${esc(k.start.adres)}</title></circle>`;
+    s += `<text x="${z.start[0]+10}" y="${z.start[1]+4}" font-size="12" fill="#34d399">${esc(k.start.label)}</text>`;
+    $("kaart5").innerHTML = s;
+    kaartLaatsteStap = st;
+    return;
+  }
   s += `<path d="${z.zones["gent-lez"]}" fill="#f59e0b1f" stroke="#f59e0b99" stroke-width="1.2"/>`;
   s += `<path d="${z.zones["gent-autovrij"]}" fill="#f8717122" stroke="#f8717199" stroke-width="1.2"/>`;
   // de startlocatie komt uit de personagegevens en hoort bij de basisweergave:
@@ -2537,6 +2557,28 @@ function renderGentStatic(){
   if (!k || !k.svg) {
     kwrap.style.display = "none";
   } else {
+    const isBurger = k.mode === "burger";
+    $("kaart5kop").innerHTML = isBurger
+      ? TT("regeling-zones rond je nieuwe woning", "regulation zones around your new home")
+      : `<span class="tekst-nl">route &amp; omleidingen</span><span class="tekst-en">route &amp; detours</span>`;
+    $("kaart5leg").innerHTML = isBurger
+      ? `<div class="tekst-nl"><span style="color:#34d399">▨</span> bewonerszone · <span style="color:#a78bfa">▨</span> parkeertariefzone · <span style="color:#f59e0b">▨</span> lage-emissiezone · <span style="color:#34d399">●</span> nieuwe woning · 🔍 scroll = inzoomen · sleep = verschuiven · dubbelklik = herstellen</div>
+         <div class="tekst-en"><span style="color:#34d399">▨</span> residents' zone · <span style="color:#a78bfa">▨</span> paid-parking zone · <span style="color:#f59e0b">▨</span> low-emission zone · <span style="color:#34d399">●</span> new home · 🔍 scroll = zoom · drag = pan · double-click = reset</div>`
+      : `<div class="tekst-nl"><span style="color:#3b82f6">━</span> primair (snelste) · <span style="color:#8b93a7">━</span> alternatief (dunner) · <span style="color:#22d3ee">━━</span> dik = door Gent aangeraden (minste innames) · <span style="color:#f59e0b">▲</span> inname (GIPOD) · <span style="color:#f59e0b">▨</span> lage-emissiezone · <span style="color:#f87171">▨</span> autovrij gebied · <span style="color:#34d399">●</span> start (bedrijf) · <span style="color:#f87171">●</span> doel · 🔍 scroll = inzoomen · sleep = verschuiven · dubbelklik = herstellen</div>
+         <div class="tekst-en"><span style="color:#3b82f6">━</span> primary (fastest) · <span style="color:#8b93a7">━</span> alternative (thinner) · <span style="color:#22d3ee">━━</span> thick = recommended by Ghent (fewest hindrances) · <span style="color:#f59e0b">▲</span> hindrance (GIPOD) · <span style="color:#f59e0b">▨</span> low-emission zone · <span style="color:#f87171">▨</span> car-free area · <span style="color:#34d399">●</span> start (company) · <span style="color:#f87171">●</span> destination · 🔍 scroll = zoom · drag = pan · double-click = reset</div>`;
+    if (isBurger) {
+      $("kaart5meta").textContent = "";
+      const ZONE_LBL = {"gent-bewonerszone": ["bewonerszone","residents' zone"],
+                        "gent-parkeertariefzone": ["parkeertariefzone","paid-parking zone"],
+                        "gent-lez": ["lage-emissiezone","low-emission zone"]};
+      $("kaart5info").innerHTML =
+        `<div>${TT("nieuwe woning:","new home:")} <b>${esc(k.start.adres)}</b></div>`
+        + Object.keys(ZONE_LBL).filter(l=>k.zones[l]).map(l=>
+            `<div class="gdu">${TT(ZONE_LBL[l][0], ZONE_LBL[l][1])}: <b>${TT(k.zones[l]==="in"?"in":"buiten", k.zones[l]==="in"?"in":"outside")}</b></div>`).join("")
+        + (p.context&&p.context.regels||[]).filter(r=>String(r.feit).startsWith("afval"))
+            .map(r=>`<div class="gdu">${esc(r.feit)}: <b>${esc(r.waarde)}</b> <span class="gbron">${esc(r.bron)}</span></div>`).join("");
+      $("kaart5bron").innerHTML = TT(esc(k.bron), esc(k.bronEn));
+    } else {
     const fmt = (m)=> m>=1000 ? (m/1000).toFixed(1)+" km" : m+" m";
     const gw = k.routes.find(r=>r.gewenst);
     $("kaart5meta").textContent = ` — ${fmt(gw.afstand_m)} · ±${Math.round(gw.duur_s/60)} min`;
@@ -2548,7 +2590,8 @@ function renderGentStatic(){
       + (k.omzeil.length?`<div class="guitleg">${TT("omzeild:","avoided:")} ${k.omzeil.map((o,oi)=>TT(esc(o), esc((k.omzeilEn||[])[oi]))).join(" · ")}</div>`:"")
       + (k.zones["gent-lez"]?`<div class="gdu">${TT("de route kruist de lage-emissiezone"+(k.zones["gent-autovrij"]?" én het autovrije gebied":""), "the route crosses the low-emission zone"+(k.zones["gent-autovrij"]?" and the car-free area":""))} — ${TT("toegang via de aangevraagde ontheffing(en)","access via the requested exemption(s)")}</div>`:"")
       + k.innames.map(i=>`<div class="gdu">▲ ${esc(i.straat)} — ${TTV(i.type,typeEn)} (${esc(i.van)} → ${esc(i.tot)}) ${(i.opRoute.primaire||i.opRoute.alternatief)?`<b>${TT("op route","on route")}</b>`:TT("buiten de route","off the route")}</div>`).join("");
-    $("kaart5bron").innerHTML = TT(esc(k.bron), esc(k.bronEn));
+      $("kaart5bron").innerHTML = TT(esc(k.bron), esc(k.bronEn));
+    }
   }
   $("ev5").innerHTML = (p.events||[]).map(e=>`<span class="gevchip">${esc(e.kind)}</span>`).join("")
     + `<div class="gchain ${p.chainOk?"ok":""}">${p.chainOk?"ketting ✓ geverifieerd (sha256; seq+ts in de hash-basis)":"ketting ✗"}</div>`;
@@ -2578,12 +2621,20 @@ function gentPersona(id){
   curGent=id; renderGentMeta(); renderGentStatic();
   sim5=makeSim5(); sim5.prog();
 }
+function gentPackage(k){
+  if(k===GPKG || !DATA[k]) return;
+  if(sim5) sim5.pause();
+  GPKG=k; G=DATA[k]; curGent=G.personas[0].id;
+  kaartVB=null; kaartLaatsteStap=-99;
+  renderGentMeta(); renderGentStatic();
+  sim5=makeSim5(); sim5.prog();
+}
 
 buildRail1(); buildStatic1(); sim1=makeSim1(); buildSim2();
 buildRail4(); buildStatic4(); sim4=makeSim4(); sim1.prog();
 renderGentMeta(); renderGentStatic(); sim5=makeSim5(); sim5.prog();
 
-globalThis.__ds={ get sims(){return [sim1,sim2,sim4,sim5];}, switchTrack, switchTab, gentPersona,
+globalThis.__ds={ get sims(){return [sim1,sim2,sim4,sim5];}, switchTrack, switchTab, gentPersona, gentPackage,
   get layaOn(){return (id)=>layaOn[id||curLaya];}, fpRun, chatSend, nnBron, switchLayaDs,
   get bredaOn(){return ()=>bredaUnlocked;}, setWaarde, bredaChatSend, bredaMatch, bredaFpRun, bredaNn,
   get sim4(){return sim4;}, get bredaS2(){return ()=>bredaS2Live;} };

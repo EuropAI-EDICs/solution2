@@ -109,9 +109,13 @@ OSRM_URL = ("https://router.project-osrm.org/route/v1/driving/{van};{naar}"
 
 # Persona's mét geregistreerd voertuig (magda:kenteken): voor hen plot de
 # simulatie de route bedrijfsadres → werkadres; maria (burger zonder
-# voertuigrecord) krijgt geen kaartpanel.
+# voertuigrecord) krijgt geen kaart.
 KENTEEKEN_PERSONAS = ("sanne", "ahmed", "fatima", "jeroen", "ellen", "dirk", "wim",
                       "nadia", "ilse", "hanne")
+
+# Burgerpakket GT-VERH-01: de simulatie plot per persona de nieuwe woning
+# tegen de regeling-zones (bewoners/tarief/LEZ) — geen routes of innames.
+BURGER_PERSONAS = ("lisa", "tomas", "farah", "noor", "emma", "yana", "robrecht")
 
 
 def _fetch_json(url: str) -> dict:
@@ -490,6 +494,26 @@ def haal_kaart(poc_root: Path, kenteken_personas: tuple = KENTEEKEN_PERSONAS) ->
     return kaart
 
 
+def haal_kaart_burger(poc_root: Path, burger_personas: tuple = BURGER_PERSONAS) -> dict:
+    """Burgerkaart (GT-VERH-01): gemeentegrens + per persona de nieuwe woning
+    als startpunt. De regeling-zones (bewoners/tarief/LEZ) leest de build
+    rechtstreeks uit gis-zones.geojson — geen routes of innames."""
+    kaart_pad = SOURCE_DIR / "kaart.json"
+    grens = json.loads(kaart_pad.read_text(encoding="utf-8")).get("grens") \
+        if kaart_pad.is_file() else _haal_grens()
+    adressen = json.loads((poc_root / "fixtures" / "addresses.json").read_text(encoding="utf-8"))
+    personas = {p["id"]: p for p in json.loads(
+        (poc_root / "fixtures" / "personas.json").read_text(encoding="utf-8"))["personas"]}
+    uit = {"grens": grens, "personas": {}, "meta": {"fetchedAt": _now()}}
+    for pid in burger_personas:
+        doel = personas[pid].get("corrections", {}).get("address") or personas[pid]["intentSlots"]["address"]
+        if doel in adressen:
+            uit["personas"][pid] = {"adres": doel, "coord": adressen[doel]}
+    (SOURCE_DIR / "kaart-burger.json").write_text(
+        json.dumps(uit, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return uit
+
+
 def build_cache() -> dict:
     SOURCE_DIR.mkdir(parents=True, exist_ok=True)
     meta_document: dict = {"gegenereerdOp": _now(), "bronnen": {}}
@@ -524,12 +548,19 @@ def build_cache() -> dict:
 
 
 def _merge_adressen_meta(meta_document: dict) -> None:
-    """Houd eerdere geocode-informatie (fetchedAt per adres) bij een her-fetch."""
+    """Houd eerdere geocode-informatie (fetchedAt per adres) én bron-entries
+    uit andere cache-stappen (bijv. ivago-ophaalkalender, kaart, kaart-burger)
+    bij een her-fetch: elke CLI-run herbouwt alleen zijn eigen onderdelen."""
     pad = SOURCE_DIR / "source.meta.json"
     if pad.is_file():
         oud = json.loads(pad.read_text(encoding="utf-8"))
         if "geocodedAt" in oud:
             meta_document["geocodedAt"] = oud["geocodedAt"]
+        for sleutel, info in (oud.get("bronnen") or {}).items():
+            if sleutel not in meta_document["bronnen"]:
+                meta_document["bronnen"][sleutel] = info
+        if "beschikbaarNogNietGecached" in oud and "beschikbaarNogNietGecached" not in meta_document:
+            meta_document["beschikbaarNogNietGecached"] = oud["beschikbaarNogNietGecached"]
 
 
 def geocoden() -> None:
@@ -590,6 +621,9 @@ def main() -> int:
     ap.add_argument("--kaart", action="store_true",
                     help="bouw de kaart-cache (VKBO-bedrijfsadressen, OSRM-routes mét alternatief, "
                          "Gent-grens, innames-punten) — netwerk")
+    ap.add_argument("--kaart-burger", action="store_true",
+                    help="bouw de burgerkaart-cache (Gent-grens + nieuwe woning per burger-persona, "
+                         "offline uit de adrescache) — netwerk alléén bij ontbrekende grens")
     args = ap.parse_args()
     if args.check:
         zone_rapport()
@@ -624,10 +658,20 @@ def main() -> int:
         }
         print(f"kaart: {len(kaart['routes'])}/{len(KENTEEKEN_PERSONAS)} routes | "
               f"{len(kaart['innames'])} innames | grens: {'ja' if kaart['grens'] else 'nee'}")
+    if args.kaart_burger:
+        kaart_burger = haal_kaart_burger(POC_ROOT)
+        meta_document["bronnen"]["kaart-burger"] = {
+            "cache": "fixtures/source/kaart-burger.json",
+            "fetchedAt": kaart_burger["meta"]["fetchedAt"],
+            "personas": sorted(kaart_burger["personas"]),
+        }
+        print(f"kaart-burger: {len(kaart_burger['personas'])}/{len(BURGER_PERSONAS)} woningen "
+              f"| grens: {'ja' if kaart_burger['grens'] else 'nee'}")
     (SOURCE_DIR / "source.meta.json").write_text(
         json.dumps(meta_document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     for laag, info in meta_document["bronnen"].items():
-        if laag in ("adressen", "bestAddress", "vkbo", "gipod", "kaart", "ivago-ophaalkalender"):
+        if laag in ("adressen", "bestAddress", "vkbo", "gipod", "kaart", "kaart-burger",
+                    "ivago-ophaalkalender"):
             continue
         print(f"{laag}: {info['titel']} | {info['licentie']} | versie {info['versie']} "
               f"| {info['featuresNaFilter']}/{info['featuresRuwwerk']} features")

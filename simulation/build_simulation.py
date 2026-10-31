@@ -1350,11 +1350,50 @@ def _verrijk_met_en(p: dict) -> dict:
     return p
 
 
-def build_gent() -> dict:
+# Persona-filter per Gent-pakket: het burgerpakket deelt de fixture-ruimte,
+# maar het tab toont alléén de persona's van de gekozen levensgebeurtenis.
+GENT_PACKAGE_PERSONAS = {
+    "gent-mobiliteit-ondernemer": ("sanne", "ahmed", "maria", "fatima", "jeroen",
+                                   "ellen", "dirk", "wim", "nadia", "ilse", "hanne"),
+    "gent-verhuizen-burger": ("lisa", "tomas", "farah", "noor", "emma", "yana", "robrecht"),
+}
+
+
+def _kaart_blok_burger(kaart, zones, pid):
+    """Burgerkaart (GT-VERH-01): regeling-zones (bewoners, tarief, LEZ) rond
+    de nieuwe woning — geen routes/innames (dat is ondernemersmobiliteit)."""
+    entry = (kaart.get("personas") or {}).get(pid)
+    if not entry:
+        return None
+    coord = entry["coord"]
+    burger_zones = {laag: ringen for laag, ringen in zones.items()
+                    if laag in ("gent-bewonerszone", "gent-parkeertariefzone", "gent-lez")}
+    project = _maak_projectie(_kaart_bbox(kaart.get("grens"), [coord]))
+    gis = _gis_zones_module()
+    zone_uit = {laag: ("in" if any(gis.point_in_ring(coord[0], coord[1], ring) for ring in ringen)
+                       else "niet-in") for laag, ringen in burger_zones.items()}
+    start = project(coord)
+    return {"mode": "burger",
+            "start": {"label": "nieuwe woning", "adres": entry["adres"], "coord": coord},
+            "doel": entry["adres"], "zones": zone_uit, "gewenst": None,
+            "routes": [], "innames": [], "omzeil": [],
+            "svg": {"grens": _pad_ringen(_grens_ringen(kaart.get("grens")), project)
+                    if kaart.get("grens") else None,
+                    "zones": {laag: _pad_ringen(ringen, project)
+                              for laag, ringen in burger_zones.items()},
+                    "start": [start[0], start[1]], "routes": None, "innames": []},
+            "bron": "zones & kalender: Stad Gent open data (Modellicentie Gratis Hergebruik) · "
+                    "gemeentegrens: OSM/Nominatim (ODbL)"}
+
+
+def build_gent(package_id: str = "gent-mobiliteit-ondernemer") -> dict:
     """Gent EUROPAI-piloot voor tab 5: deterministische replay (fase 1+2+3) per
     persona, gegenereerd door de echte poc-gent-engine tijdens de build. De
     events-ketting wordt geverifieerd; in de embedded data zitten alléén
-    event-soorten en -volgnummers, geen persoonswaarden (SEC-05-geest)."""
+    event-soorten en -volgnummers, geen persoonswaarden (SEC-05-geest).
+    Eén Gent-tab, twee levensgebeurtenissen: de dropdown wisselt het pakket
+    (ondernemer GT-MOB-01 met routes/innames · burger GT-VERH-01 met
+    regeling-zones rond de nieuwe woning)."""
     gent_root = ROOT / "poc-gent"
     if not (gent_root / "run.py").is_file():
         sys.exit(f"missing poc-gent at {gent_root}")
@@ -1365,16 +1404,22 @@ def build_gent() -> dict:
     finally:
         sys.path.remove(str(gent_root))
 
-    package_id = "gent-mobiliteit-ondernemer"
-    kaart_pad = gent_root / "fixtures" / "source" / "kaart.json"
+    kaart_naam, kaart_blok_fn = {
+        "gent-mobiliteit-ondernemer": ("kaart.json", _kaart_blok),
+        "gent-verhuizen-burger": ("kaart-burger.json", _kaart_blok_burger),
+    }[package_id]
+    kaart_pad = gent_root / "fixtures" / "source" / kaart_naam
     kaart = json.loads(kaart_pad.read_text(encoding="utf-8")) if kaart_pad.is_file() else None
     zone_ringen = gis_zones.load_zones(gent_root)
     pkg = catalog.load_package(gent_root, package_id)
     personas = pipeline.load_personas(gent_root)
     versies = gis_zones.load_layer_versies(gent_root)
+    pakket_personas = GENT_PACKAGE_PERSONAS[package_id]
 
     out_personas = []
     for pid, persona in personas.items():
+        if pid not in pakket_personas:
+            continue
         run, log = pipeline.run_replay(gent_root, package_id, pid)
         t = run["transaction"]
         out_personas.append({
@@ -1398,7 +1443,7 @@ def build_gent() -> dict:
             "validatie": t["validatie"],
             "h1": t["h1"],
             "h3": t["h3"],
-            "kaart": _kaart_blok(kaart, zone_ringen, pid) if kaart else None,
+            "kaart": kaart_blok_fn(kaart, zone_ringen, pid) if kaart else None,
             "submission": t["submission"],
             "events": [{"seq": e["seq"], "kind": e["kind"]} for e in log],
             "chainOk": events.verify_chain(log),
@@ -1427,7 +1472,8 @@ def main() -> int:
     if not POC4_RUN.is_dir():
         sys.exit(f"missing PoC-4 run dir {POC4_RUN}")
 
-    data = {"poc1": build_poc1(), "poc2": build_poc2(), "poc4": build_breda(), "gent": build_gent()}
+    data = {"poc1": build_poc1(), "poc2": build_poc2(), "poc4": build_breda(), "gent": build_gent(),
+            "gentBurger": build_gent("gent-verhuizen-burger")}
     tpl = TEMPLATE.read_text(encoding="utf-8")
     marker = "/*__DATA__*/"
     if marker not in tpl:

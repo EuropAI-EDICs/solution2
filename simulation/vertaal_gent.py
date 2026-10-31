@@ -35,6 +35,21 @@ DICT: dict[str, str] = {
         "Ilse — mandatory registration certificate missing (missing document)",
     "Hanne — weigert de inzending bij H4":
         "Hanne — refuses the submission at H4",
+    # — burgerpakket GT-VERH-01: persona-labels —
+    "Lisa — verhuist naar een appartement aan de Veldstraat":
+        "Lisa — moves to an apartment on the Veldstraat",
+    "Tomas — verhuist naar Gentbrugge, geen parkeerregeling":
+        "Tomas — moves to Gentbrugge, no parking scheme",
+    "Farah — er staat al een bewonersvergunning op haar adres":
+        "Farah — a residents' permit already exists at her address",
+    "Noor — heeft een eigen garage bij haar nieuwe woning":
+        "Noor — has her own garage at her new home",
+    "Emma — geen voertuig op haar naam (verwacht blokkade)":
+        "Emma — no vehicle registered in her name (expects a block)",
+    "Yana — corrigeert het adres tijdens de contextcheck":
+        "Yana — corrects the address during the context check",
+    "Robrecht — weigert de inzending bij H4":
+        "Robrecht — refuses the submission at H4",
     # — situatieschetsen —
     "Ik ben zelfstandig loodgieter en moet volgende week herstelwerken uitvoeren aan een pand aan de Korenmarkt. Ik kom met mijn bestelwagen.":
         "I am a self-employed plumber and have to carry out repair work at a building on the Korenmarkt next week. I come by van.",
@@ -58,6 +73,21 @@ DICT: dict[str, str] = {
         "I am a self-employed contractor and have to carry out repair work at a building on the Korenmarkt next week. I have not been able to retrieve my registration certificate yet.",
     "Ik ben zelfstandig stukadoor en moet volgende week herstelwerken uitvoeren aan een pand aan de Korenmarkt.":
         "I am a self-employed plasterer and have to carry out repair work at a building on the Korenmarkt next week.",
+    # — burgerpakket GT-VERH-01: situatieschetsen —
+    "Ik verhuis volgende maand naar een appartement aan de Veldstraat en wil weten wat ik rond parkeren en afval moet regelen.":
+        "Next month I am moving to an apartment on the Veldstraat and want to know what to arrange about parking and waste.",
+    "Ik verhuis naar een flat aan de Ottergemsesteenweg-Zuid in Gentbrugge en wil weten wanneer mijn afval wordt opgehaald.":
+        "I am moving to a flat on the Ottergemsesteenweg-Zuid in Gentbrugge and want to know when my waste is collected.",
+    "Ik verhuis in met mijn partner aan de Veldstraat; hij heeft daar al een bewonersvergunning voor zijn auto.":
+        "I am moving in with my partner on the Veldstraat; he already has a residents' permit there for his car.",
+    "Ik verhuis naar een huis aan de Veldstraat met eigen garage, en overweeg toch een bewonersvergunning voor een tweede auto.":
+        "I am moving to a house on the Veldstraat with its own garage, and am still considering a residents' permit for a second car.",
+    "Ik verhuis naar de Veldstraat en wil een bewonersvergunning aanvragen, al staat er nog geen auto op mijn naam.":
+        "I am moving to the Veldstraat and want to apply for a residents' permit, although no car is registered in my name yet.",
+    "Ik verhuis binnen Gent — ik noemde eerst een adres bij het Sint-Pietersplein, maar het wordt de Veldstraat.":
+        "I am moving within Ghent — I first mentioned an address near the Sint-Pietersplein, but it will be the Veldstraat.",
+    "Ik verhuis naar een loft aan de Veldstraat en wil een bewonersvergunning aanvragen, maar ik twijfel nog.":
+        "I am moving to a loft on the Veldstraat and want to apply for a residents' permit, but I am still hesitating.",
     # — stap-titels —
     "Je vertelt wat je gaat doen": "You describe what you are going to do",
     "We vragen alleen wat nog niet bekend is": "We only ask what is not known yet",
@@ -75,6 +105,7 @@ DICT: dict[str, str] = {
     "Je beoordeelt het concept van je aanvraag": "You review the draft of your application",
     "Je bevestigt de inzending van je aanvraag": "You confirm the submission of your application",
     "Je krijgt per aanvraag een ontvangstbewijs": "You receive a receipt per application",
+    "We halen de afvalkalender van je straat op": "We fetch the collection calendar for your street",
     # — beslistabel-uitleg —
     "Uw adres ligt in de lage-emissiezone en u bent ondernemer: u hebt een LEZ-ontheffing nodig om met een voertuig het centrum in te rijden.":
         "Your address lies in the low-emission zone and you are an entrepreneur: you need a LEZ exemption to drive a vehicle into the centre.",
@@ -82,6 +113,15 @@ DICT: dict[str, str] = {
         "The address lies in the car-free area: loading and unloading with a vehicle requires a car-free-area exemption.",
     "Het adres ligt buiten de lage-emissiezone en buiten het autovrije gebied: voor dit adres is geen voertuigtoegangsvergunning nodig.":
         "The address lies outside the low-emission zone and outside the car-free area: no vehicle-access permit is needed for this address.",
+    # — burgerpakket GT-VERH-01: beslistabel-uitleg —
+    "Uw nieuwe adres ligt in een bewonerszone: u komt in aanmerking voor een bewonersvergunning (eerste gratis per gezin, tweede €300/jaar), gekoppeld aan één kenteken.":
+        "Your new address lies in a residents' zone: you qualify for a residents' permit (first one free per household, second €300/year), linked to one number plate.",
+    "Uw adres ligt buiten een bewonerszone maar binnen een parkeertariefzone: parkeren gebeurt tegen het geldende tarief; een bewonersvergunning is hier niet mogelijk.":
+        "Your address lies outside a residents' zone but inside a paid-parking zone: parking is at the applicable rate; a residents' permit is not possible here.",
+    "Uw adres ligt buiten bewoners- en tariefzone: er geldt geen bijzondere parkeerregeling voor uw adres.":
+        "Your address lies outside the residents' and paid-parking zones: no special parking scheme applies to your address.",
+    "Uw nieuwe adres ligt in de lage-emissiezone: met een oudere wagen heeft u een dagenpas nodig.":
+        "Your new address lies in the low-emission zone: with an older vehicle you need a day pass.",
     # — vaste meldingen en vervolgregels —
     "Controleer of uw diesel Euro 5 een geregistreerd roetfilter heeft; anders geldt de ontheffing niet.":
         "Check whether your Euro 5 diesel has a registered soot filter; otherwise the exemption does not apply.",
@@ -99,10 +139,30 @@ DICT: dict[str, str] = {
     "Je bevestigde de inzending niet — er is niets ingediend.":
         "You did not confirm the submission — nothing was submitted.",
     "Volg de status van je aanvragen via Gentinfo.": "Follow the status of your applications via Gentinfo.",
+    # — burgerpakket GT-VERH-01: vaste meldingen —
+    "Er staat al een bewonersvergunning op dit adres: dit wordt de tweede vergunning (€300/jaar, tarief 2026).":
+        "A residents' permit already exists at this address: this will be the second permit (€300/year, 2026 rate).",
+    "U heeft eigen parkeergelegenheid: u komt hooguit in aanmerking voor een tijdelijke vergunning. De beoordeling gebeurt door de dienst Parkeren.":
+        "You have your own parking facility: you qualify at most for a temporary permit. The assessment is done by the Parking department.",
     # — diensttitels, documenttitels, vragen, doelbindingen —
     "Ontheffing LEZ voor zakelijk verkeer": "LEZ exemption for commercial traffic",
     "Ontheffing autovrij gebied (laden/lossen)": "Car-free-area exemption (loading/unloading)",
     "Informatie over de LEZ in Gent": "Information about the LEZ in Ghent",
+    # — burgerpakket GT-VERH-01: diensttitels, vragen, doelbindingen —
+    "Bewonersvergunning parkeren (1e of 2e)": "Residents' parking permit (1st or 2nd)",
+    "Afvalophaling op uw nieuwe adres (IVAGO)": "Waste collection at your new address (IVAGO)",
+    "Parkeren tegen tarief in uw buurt": "Paid parking in your area",
+    "Lage-emissiezone: dagenpas bij ouder voertuig": "Low-emission zone: day pass for older vehicles",
+    "Naar welk adres verhuist u?": "Which address are you moving to?",
+    "Heeft u eigen parkeergelegenheid (garage of oprit) bij uw nieuwe adres?":
+        "Do you have your own parking facility (garage or driveway) at your new address?",
+    "vaststellen van het kenteken voor de bewonersvergunning":
+        "establishing the number plate for the residents' permit",
+    "vaststellen of er al een bewonersvergunning op het adres geldt":
+        "establishing whether a residents' permit already applies at the address",
+    # — burgerpakket GT-VERH-01: kaart-bronregel —
+    "zones & kalender: Stad Gent open data (Modellicentie Gratis Hergebruik) · gemeentegrens: OSM/Nominatim (ODbL)":
+        "zones & calendar: City of Ghent open data (Free Re-use Licence) · city boundary: OSM/Nominatim (ODbL)",
     "Kentekenbewijs van het voertuig": "Vehicle registration certificate",
     "Bent u particulier, ondernemer of organisatie?": "Are you a private individual, entrepreneur or organisation?",
     "Op welk adres gaat u aan de slag?": "At which address will you be working?",
@@ -123,6 +183,8 @@ def _p(nl: str, en) -> _PATROON:
 
 
 PATRONEN = [
+    _p(r"Ontbrekend gegeven: (.+) — vraag het aan bij de bronhouder\.",
+       lambda g: f"Missing data: {g[0]} — request it from the data holder."),
     _p(r"Uw voertuig \(([^)]+)\) mag de lage-emissiezone niet in\. Vervang het voertuig of vraag een menselijke beoordeling via Gentinfo\.",
        lambda g: f"Your vehicle ({g[0]}) is not allowed into the low-emission zone. Replace the vehicle or request a human assessment via Gentinfo."),
     _p(r"Ontbrekend document: (.+)\.",
