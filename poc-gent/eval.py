@@ -73,11 +73,38 @@ def evaluate(package_id: str, rapport_pad: str | None = None) -> int:
     return 0 if (not failed and deterministic and rapport["goNoGo"] == "GO") else 1
 
 
+def injectie_suite(package_id: str) -> int:
+    """Adversariële injectiesuite (KPI-08/SEC-03, F4): elke schending is een
+    open bevinding; 0 vereist voor go."""
+    from core import injectie
+
+    resultaten = injectie.voer_uit(POC_ROOT, package_id)
+    per_categorie: dict[str, list[dict]] = {}
+    for resultaat in resultaten:
+        per_categorie.setdefault(resultaat["categorie"], []).append(resultaat)
+    for categorie in sorted(per_categorie):
+        rijen = per_categorie[categorie]
+        geslaagd = sum(1 for r in rijen if r["geslaagd"])
+        print(f"injectie {categorie}: {geslaagd}/{len(rijen)} weerstand geboden")
+        for r in rijen:
+            for schending in r["schendingen"]:
+                print(f"  schending {r['id']}: {schending}")
+    geslaagd = sum(1 for r in resultaten if r["geslaagd"])
+    print(f"injectie: {geslaagd}/{len(resultaten)} weerstand geboden — "
+          f"KPI-08: {len(resultaten) - geslaagd} open bevindingen")
+    return 0 if geslaagd == len(resultaten) else 1
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Golden-set evaluatie poc-gent")
     ap.add_argument("--package", default="gent-mobiliteit-ondernemer")
     ap.add_argument("--rapport", metavar="PAD", help="schrijf het KPI/go-no-go-rapport als JSON naar dit pad")
-    return evaluate(ap.parse_args().package, ap.parse_args().rapport)
+    ap.add_argument("--injectie", action="store_true",
+                    help="draai de adversariële injectiesuite i.p.v. de golden-set (KPI-08)")
+    args = ap.parse_args()
+    if args.injectie:
+        return injectie_suite(args.package)
+    return evaluate(args.package, args.rapport)
 
 
 if __name__ == "__main__":

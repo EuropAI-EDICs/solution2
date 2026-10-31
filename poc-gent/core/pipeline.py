@@ -39,14 +39,16 @@ def _acm_authenticatie_stap(poc_root: Path, persona_id: str) -> tuple[dict, dict
     return identiteit, stap
 
 
-def _aangeleverde_documenten(poc_root: Path, persona_id: str) -> list[dict] | None:
+def _aangeleverde_documenten(poc_root: Path, persona: dict) -> list[dict] | None:
     """Replay-stand-in voor de bewijzen die de gebruiker aanlevert (FR-12).
-    Een ontbrekende fixture-entry betekent dat de replay voor deze persona geen
-    documenten modelleert (n.v.t.); een lege lijst wél (D0-geval, zie ilse in
-    taak 7). De IAM-persona's wim/nadia volgen in de fixture-uitbreiding van
-    taak 7."""
+    Een `documenten`-key op de persona (bijv. via persona_override in de
+    injectiesuite) wint van de fixture; een ontbrekende fixture-entry
+    betekent dat de replay voor deze persona geen documenten modelleert
+    (n.v.t.); een lege lijst wél (D0-geval, zie ilse)."""
+    if "documenten" in persona:
+        return persona["documenten"]
     data = json.loads((poc_root / "fixtures" / "documenten.json").read_text(encoding="utf-8"))
-    return data["personas"].get(persona_id)
+    return data["personas"].get(persona["id"])
 
 
 def _fase3(poc_root: Path, manifest: dict, persona: dict, persona_id: str, package_id: str,
@@ -67,7 +69,7 @@ def _fase3(poc_root: Path, manifest: dict, persona: dict, persona_id: str, packa
         vervolg["open"] = list(open_redenen) or ["Geen aanvragen om in te dienen — je kreeg alleen informatie."]
         return _nvt_submission("n.v.t.", {"status": "n.v.t.", "bevindingen": []}), status
 
-    aangeleverd = _aangeleverde_documenten(poc_root, persona_id)
+    aangeleverd = _aangeleverde_documenten(poc_root, persona)
     if aangeleverd is None:
         documenten = {"status": "n.v.t.", "bevindingen": []}
     else:
@@ -120,11 +122,16 @@ def _fase3(poc_root: Path, manifest: dict, persona: dict, persona_id: str, packa
 
 
 def run_replay(poc_root: Path, package_id: str, persona_id: str,
-               override_slots: dict | None = None, auth_methode: str = "eudi") -> tuple[dict, list]:
+               override_slots: dict | None = None, auth_methode: str = "eudi",
+               persona_override: dict | None = None) -> tuple[dict, list]:
     if auth_methode not in ("eudi", "acmidm"):
         raise ValueError(f"onbekende auth_methode: {auth_methode!r} (eudi|acmidm)")
     pkg = catalog.load_package(poc_root, package_id)
     persona = load_personas(poc_root)[persona_id]
+    if persona_override:
+        # Harness-uitbreiding (injectiesuite, F4): adversariale invoer op de
+        # seams zonder globale fixture-mutatie; override wint boven de fixture.
+        persona = {**persona, **persona_override}
     events: list = []
 
     slots = dict(persona["intentSlots"])

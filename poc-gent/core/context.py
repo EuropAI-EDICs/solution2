@@ -20,7 +20,14 @@ def open_questions(manifest: dict, slots: dict) -> list[dict]:
 def build(manifest: dict, slots: dict, poc_root: Path) -> tuple[dict, dict]:
     context = dict(slots)
     herkomst = {slot: {"label": "gebruiker", "bron": "gesprek"} for slot in slots}
-    gis_zones.apply_checks(manifest, context, herkomst, poc_root)
+    try:
+        gis_zones.apply_checks(manifest, context, herkomst, poc_root)
+    except gis_zones.AddressError:
+        # Onbekend (of adversarieel) adres: nooit gokken — zones worden
+        # onbekend en de beslistabellen escaleren (unknownPolicy: escalate).
+        for check in manifest.get("gisChecks", []):
+            context[check["output"]] = "onbekend-adres"
+            herkomst[check["output"]] = {"label": "afgeleid", "bron": "gis:adres-niet-gevonden"}
     return context, herkomst
 
 
