@@ -152,7 +152,13 @@ try {
   s5e.play(); drain(4000); s5e.pause();
   ds.gentPersona("wim"); drain();
   const kaartSvg = globalThis.document.getElementById("kaart5");
-  if (!kaartSvg || kaartSvg.childElementCount < 4) throw new Error("kaart5 svg niet gerenderd voor wim");
+  const kaartTags = () => (kaartSvg.innerHTML.match(/<[a-zA-Z]/g) || []).length;
+  if (!kaartSvg || kaartTags() !== 3) throw new Error("kaart5 toont bij persona-switch alléén de basislagen (gekregen: " + kaartTags() + ")");
+  const s5k = ds.sims[3];
+  s5k.jumpToStage(0); drain();
+  if (kaartTags() !== 6) throw new Error("kaart5 plot na de intake-stap alléén de startlocatie (gekregen: " + kaartTags() + ")");
+  s5k.jumpToStage(s5k.steps.length - 1); drain();
+  if (kaartTags() < 15) throw new Error("kaart5 volledige lagen (routes+innames+doel) verwacht na de routing-stap (gekregen: " + kaartTags() + ")");
   ds.gentPersona("nadia"); drain();
   ds.gentPersona("ilse"); drain();
   ds.gentPersona("hanne"); drain();

@@ -350,11 +350,17 @@
   .gfact{display:flex;flex-wrap:wrap;gap:6px;font-size:12px;padding:3px 0;border-top:1px solid var(--line2)}
   .gfk{color:var(--faint);min-width:88px}
   .gauth{font-size:12px;color:var(--faint);line-height:1.5}
-  .gkaartwrap{margin-top:14px;border-top:1px solid var(--line2);padding-top:10px}
+  .gcols{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,44%);gap:16px;align-items:start}
+  .gkaartwrap{position:sticky;top:0;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;background:var(--panel2)}
   .gkaartkop{margin:2px 0 6px}
-  #kaart5{width:100%;max-width:720px;height:auto;background:#0d1626;border:1px solid var(--line2);border-radius:10px;display:block;margin:6px 0}
+  #kaart5{width:100%;height:auto;aspect-ratio:720/520;background:#0d1626;border:1px solid var(--line2);border-radius:10px;display:block;margin:6px 0}
   .gkaartinfo{font-size:12.5px;line-height:1.65;display:flex;flex-direction:column;gap:2px}
   .gkaartleg{color:var(--faint);font-size:11px;margin-top:2px;line-height:1.6}
+  .kdraw{stroke-dasharray:1;stroke-dashoffset:1;animation:kdraw 1.2s ease forwards}
+  @keyframes kdraw{to{stroke-dashoffset:0}}
+  .kpop{animation:kpop .5s ease}
+  @keyframes kpop{from{opacity:0}to{opacity:1}}
+  @media (max-width:1100px){.gcols{grid-template-columns:1fr}.gkaartwrap{position:static}}
   .gev{display:flex;flex-wrap:wrap;gap:4px}
   .gevchip{font-size:10.5px;border:1px solid var(--line2);border-radius:6px;padding:0 5px;color:var(--faint)}
   .gchain{font-size:11.5px;margin-top:6px;color:#f87171}
@@ -676,13 +682,15 @@ Click any pipeline stage to jump there; <kbd>space</kbd> = play/pause, <kbd>→<
   <aside class="rail card" id="rail5"></aside>
   <div class="gwrap card">
     <div id="gentmeta"></div>
-    <div id="chat5" class="gchat"></div>
-    <div id="kaart5wrap" class="gkaartwrap" style="display:none">
-      <h3 class="gkaartkop">route &amp; omleidingen <span class="gsub" id="kaart5meta"></span></h3>
-      <svg id="kaart5" viewBox="0 0 720 520" preserveAspectRatio="xMidYMid meet"></svg>
-      <div class="gkaartleg"><span style="color:#3b82f6">━</span> primair (snelste) · <span style="color:#8b93a7">╌╌</span> alternatief · <span style="color:#22d3ee">━━</span> dik = door Gent aangeraden (minste innames) · <span style="color:#f59e0b">▲</span> inname (GIPOD) · <span style="color:#f59e0b">▨</span> lage-emissiezone · <span style="color:#f87171">▨</span> autovrij gebied · <span style="color:#34d399">●</span> start (bedrijf) · <span style="color:#f87171">●</span> doel</div>
-      <div id="kaart5info" class="gkaartinfo"></div>
-      <div class="gbron" id="kaart5bron"></div>
+    <div class="gcols">
+      <div id="chat5" class="gchat"></div>
+      <div id="kaart5wrap" class="gkaartwrap" style="display:none">
+        <h3 class="gkaartkop">route &amp; omleidingen <span class="gsub" id="kaart5meta"></span></h3>
+        <svg id="kaart5" viewBox="0 0 720 520" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="gkaartleg"><span style="color:#3b82f6">━</span> primair (snelste) · <span style="color:#8b93a7">━</span> alternatief (dunner) · <span style="color:#22d3ee">━━</span> dik = door Gent aangeraden (minste innames) · <span style="color:#f59e0b">▲</span> inname (GIPOD) · <span style="color:#f59e0b">▨</span> lage-emissiezone · <span style="color:#f87171">▨</span> autovrij gebied · <span style="color:#34d399">●</span> start (bedrijf) · <span style="color:#f87171">●</span> doel</div>
+        <div id="kaart5info" class="gkaartinfo"></div>
+        <div class="gbron" id="kaart5bron"></div>
+      </div>
     </div>
   </div>
   <aside class="card gside">
@@ -2308,6 +2316,38 @@ function renderGentMeta(){
     + `<div class="gmeta2"><code>${esc(G.lifeEventCode)}</code> · ${esc(G.packageId)} v${esc(G.version)} · `
     + Object.entries(G.bronversies||{}).map(([k,v])=>`${esc(k)} — ${esc(v)}`).join(" · ") + `</div>`;
 }
+let kaartLaatsteStap = -99;
+
+function kaartStap(st){
+  const p = gpersona(curGent);
+  const wrap = $("kaart5wrap");
+  if (!p.kaart || !p.kaart.svg){ wrap.style.display = "none"; return; }
+  wrap.style.display = "block";
+  const k = p.kaart, z = k.svg;
+  const ri = Math.max(0, (p.steps||[]).findIndex(s=>s.stepId==="routing"));
+  const aan = (d)=> d <= st;
+  const nieuw = (d)=> d <= st && d > kaartLaatsteStap;
+  let s = "";
+  if (z.grens) s += `<path d="${z.grens}" fill="none" stroke="#8b93a7" stroke-width="1.2" opacity=".45"/>`;
+  s += `<path d="${z.zones["gent-lez"]}" fill="#f59e0b1f" stroke="#f59e0b99" stroke-width="1.2"/>`;
+  s += `<path d="${z.zones["gent-autovrij"]}" fill="#f8717122" stroke="#f8717199" stroke-width="1.2"/>`;
+  if (aan(0)) {
+    s += `<circle class="${nieuw(0)?"kpop":""}" cx="${z.start[0]}" cy="${z.start[1]}" r="7" fill="#34d399" stroke="#0e2a1c"><title>start: ${esc(k.start.label)} — kenteken geregistreerd op het bedrijf</title></circle>`;
+    s += `<text x="${z.start[0]+10}" y="${z.start[1]+4}" font-size="12" fill="#34d399">${esc(k.start.label)}</text>`;
+  }
+  if (aan(ri)) {
+    if (z.routes.alternatief)
+      s += `<path class="${nieuw(ri)?"kdraw":""}" pathLength="1" d="${z.routes.alternatief}" fill="none" stroke="#8b93a7" stroke-width="2.5" opacity=".95"/>`;
+    s += `<path class="${nieuw(ri)?"kdraw":""}" pathLength="1" d="${z.routes.primaire}" fill="none" stroke="#3b82f6" stroke-width="2.5" opacity="${k.gewenst==="primaire"?"1":".7"}"/>`;
+    s += `<path class="${nieuw(ri)?"kdraw":""}" pathLength="1" d="${z.routes[k.gewenst]}" fill="none" stroke="${k.gewenst==="primaire"?"#3b82f6":"#8b93a7"}" stroke-width="5.5" stroke-linecap="round" opacity=".95"/>`;
+    z.innames.forEach((c,i)=>{ s += `<polygon class="${nieuw(ri)?"kpop":""}" points="${c[0]},${c[1]-8} ${c[0]-7},${c[1]+6} ${c[0]+7},${c[1]+6}" fill="#f59e0b" stroke="#ffd28a"><title>${esc(k.innames[i].straat)} — ${esc(k.innames[i].type)} (${esc(k.innames[i].van)} → ${esc(k.innames[i].tot)})</title></polygon>`; });
+    s += `<circle class="${nieuw(ri)?"kpop":""}" cx="${z.doel[0]}" cy="${z.doel[1]}" r="7" fill="#f87171" stroke="#3d1111"><title>doel: ${esc(k.doel)}</title></circle>`;
+    s += `<text x="${z.doel[0]-10}" y="${z.doel[1]-10}" font-size="12" fill="#f87171" text-anchor="end">${esc(k.doel)}</text>`;
+  }
+  $("kaart5").innerHTML = s;
+  kaartLaatsteStap = st;
+}
+
 function renderGentStatic(){
   const p = gpersona(curGent);
   const sub = p.submission || {};
@@ -2365,27 +2405,13 @@ function renderGentStatic(){
     <div class="gfact"><span class="gfk">${esc(r.feit)}</span><span>${esc(r.waarde)}</span>
     <span>${gchip(r.label, LABEL_KLEUR[r.label]||"#8b93a7")}<span class="gbron"> ${esc(r.bron)}</span></span></div>`).join("");
   $("auth5").innerHTML = `authenticatie: <b>${esc(p.auth.authenticatie)}</b><br>toestemming: <b>${esc(p.auth.toestemming)}</b>${p.auth.methode?`<br>via ${esc(p.auth.methode)}${p.auth.loa?` (loa ${esc(p.auth.loa)})`:""}`:""}${p.auth.mandaatAantal?`<br>mandaten: ${p.auth.mandaatAantal}`:""}`;
+  kaartLaatsteStap = -99;
+  kaartStap(-1);
   const k = p.kaart;
   const kwrap = $("kaart5wrap");
   if (!k || !k.svg) {
     kwrap.style.display = "none";
   } else {
-    kwrap.style.display = "block";
-    const z = k.svg;
-    $("kaart5").setAttribute("viewBox", z.viewbox.join(" "));
-    let inner = "";
-    if (z.grens) inner += `<path d="${z.grens}" fill="none" stroke="#8b93a7" stroke-width="1" opacity=".5"/>`;
-    inner += `<path d="${z.zones["gent-lez"]}" fill="#f59e0b22" stroke="#f59e0b99" stroke-width="1"/>`;
-    inner += `<path d="${z.zones["gent-autovrij"]}" fill="#f8717122" stroke="#f8717199" stroke-width="1"/>`;
-    if (z.routes.alternatief) inner += `<path d="${z.routes.alternatief}" fill="none" stroke="#8b93a7" stroke-width="2" stroke-dasharray="7 5"/>`;
-    inner += `<path d="${z.routes.primaire}" fill="none" stroke="#3b82f6" stroke-width="2.5" opacity="${k.gewenst==="primaire"?"1":".7"}"/>`;
-    inner += `<path d="${z.routes[k.gewenst]}" fill="none" stroke="${k.gewenst==="primaire"?"#3b82f6":"#8b93a7"}" stroke-width="5" stroke-linecap="round" opacity=".9"/>`;
-    z.innames.forEach((c,i)=>{ inner += `<polygon points="${c[0]},${c[1]-7} ${c[0]-6},${c[1]+5} ${c[0]+6},${c[1]+5}" fill="#f59e0b" stroke="#ffd28a"><title>${esc(k.innames[i].straat)} — ${esc(k.innames[i].type)} (${esc(k.innames[i].van)} → ${esc(k.innames[i].tot)})</title></polygon>`; });
-    inner += `<circle cx="${z.start[0]}" cy="${z.start[1]}" r="6" fill="#34d399" stroke="#0e2a1c"><title>start: ${esc(k.start.label)}</title></circle>`;
-    inner += `<circle cx="${z.doel[0]}" cy="${z.doel[1]}" r="6" fill="#f87171" stroke="#3d1111"><title>doel: ${esc(k.doel)}</title></circle>`;
-    inner += `<text x="${z.start[0]+9}" y="${z.start[1]+4}" font-size="11" fill="#34d399">${esc(k.start.label)}</text>`;
-    inner += `<text x="${z.doel[0]-9}" y="${z.doel[1]-9}" font-size="11" fill="#f87171" text-anchor="end">${esc(k.doel)}</text>`;
-    $("kaart5").innerHTML = inner;
     const fmt = (m)=> m>=1000 ? (m/1000).toFixed(1)+" km" : m+" m";
     const gw = k.routes.find(r=>r.gewenst);
     $("kaart5meta").textContent = ` — ${fmt(gw.afstand_m)} · ±${Math.round(gw.duur_s/60)} min`;
@@ -2401,7 +2427,10 @@ function renderGentStatic(){
   $("ev5").innerHTML = (p.events||[]).map(e=>`<span class="gevchip">${esc(e.kind)}</span>`).join("")
     + `<div class="gchain ${p.chainOk?"ok":""}">${p.chainOk?"ketting ✓ geverifieerd (sha256; seq+ts in de hash-basis)":"ketting ✗"}</div>`;
 }
-function gentStage(st){ document.querySelectorAll("#rail5 .stage").forEach((e,i)=>e.classList.toggle("cur", i===st)); }
+function gentStage(st){
+  document.querySelectorAll("#rail5 .stage").forEach((e,i)=>e.classList.toggle("cur", i===st));
+  kaartStap(st);
+}
 function makeSim5(){
   const p = gpersona(curGent);
   const steps=[];

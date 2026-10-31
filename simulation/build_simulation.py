@@ -1171,20 +1171,19 @@ def _grens_ringen(grens):
 
 
 def _kaart_bbox(grens, extra_punten):
-    lon_min, lat_min, lon_max, lat_max = 3.63, 50.99, 3.83, 51.16  # Gent als vangnet
-    lons, lats = [], []
-    for ring in _grens_ringen(grens):
-        for lon, lat in ring:
-            lons.append(lon)
-            lats.append(lat)
-    for coord in extra_punten:
-        lons.append(coord[0])
-        lats.append(coord[1])
-    if lons:
-        marge = 0.012
-        lon_min, lon_max = min(lons) - marge, max(lons) + marge
-        lat_min, lat_max = min(lats) - marge, max(lats) + marge
-    return lon_min, lat_min, lon_max, lat_max
+    """Zoom op de route zelf: bounding box over routes, markers en innames met
+    een relatieve marge (minimaal een kwartstraat); de gemeentegrens en de
+    zone-lagen worden er randvullend uitgeknipt (context buiten de viewbox)."""
+    lons = [c[0] for c in extra_punten]
+    lats = [c[1] for c in extra_punten]
+    if not lons:
+        for ring in _grens_ringen(grens):
+            lons += [lon for lon, _ in ring]
+            lats += [lat for _, lat in ring]
+    if not lons:
+        return 3.63, 50.99, 3.83, 51.16  # Gent als vangnet
+    marge = max(0.004, 0.16 * (max(lons) - min(lons)), 0.16 * (max(lats) - min(lats)))
+    return min(lons) - marge, min(lats) - marge, max(lons) + marge, max(lats) + marge
 
 
 def _maak_projectie(bbox, viewbox=KAART_VIEWBOX):
@@ -1285,8 +1284,8 @@ def _kaart_blok(kaart, zones, pid):
     vangnet = [bedrijf["coord"], route["doelCoord"]] + [i["coord"] for i in innames]
     for res in labels.values():
         if res:
-            vangnet += res["punten"][::5]
-    project = _maak_projectie(_kaart_bbox(grens, vangnet))
+            vangnet += res["punten"][::2]
+    project = _maak_projectie(_kaart_bbox(None, vangnet))
     op_gewenst = {i["id"] for i in tellingen.get(gewenst, [])}
     omzeild = {i["id"] for label, rij in tellingen.items() if label != gewenst
                for i in rij if i["id"] not in op_gewenst}
