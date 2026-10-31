@@ -2331,10 +2331,12 @@ function kaartStap(st){
   if (z.grens) s += `<path d="${z.grens}" fill="none" stroke="#8b93a7" stroke-width="1.2" opacity=".45"/>`;
   s += `<path d="${z.zones["gent-lez"]}" fill="#f59e0b1f" stroke="#f59e0b99" stroke-width="1.2"/>`;
   s += `<path d="${z.zones["gent-autovrij"]}" fill="#f8717122" stroke="#f8717199" stroke-width="1.2"/>`;
-  if (aan(0)) {
-    s += `<circle class="${nieuw(0)?"kpop":""}" cx="${z.start[0]}" cy="${z.start[1]}" r="7" fill="#34d399" stroke="#0e2a1c"><title>start: ${esc(k.start.label)} — kenteken geregistreerd op het bedrijf</title></circle>`;
-    s += `<text x="${z.start[0]+10}" y="${z.start[1]+4}" font-size="12" fill="#34d399">${esc(k.start.label)}</text>`;
-  }
+  // de startlocatie komt uit de personagegevens en hoort bij de basisweergave:
+  // ook na een reset (stap -1) blijft de kaart zo gevuld — het startpunt
+  // verschijnt alleen niet opnieuw als er niets nieuws gebeurde.
+  const startNieuw = kaartLaatsteStap < -1;
+  s += `<circle class="${startNieuw?"kpop":""}" cx="${z.start[0]}" cy="${z.start[1]}" r="7" fill="#34d399" stroke="#0e2a1c"><title>start: ${esc(k.start.label)} — kenteken geregistreerd op het bedrijf</title></circle>`;
+  s += `<text x="${z.start[0]+10}" y="${z.start[1]+4}" font-size="12" fill="#34d399">${esc(k.start.label)}</text>`
   if (aan(ri)) {
     if (z.routes.alternatief)
       s += `<path class="${nieuw(ri)?"kdraw":""}" pathLength="1" d="${z.routes.alternatief}" fill="none" stroke="#8b93a7" stroke-width="2.5" opacity=".95"/>`;

@@ -55,10 +55,10 @@ daaruit het kaartpanel: gemeentegrens, LEZ/autovrij-zones (echte
 Gentse lagen), beide routes, innames, en de **door Gent gewenste route** =
 minst vermijdbare innames binnen 150 m (innames bij het gedeelde eindpunt zijn
 onvermijdelijk en tellen niet mee; bij gelijkspel de snelste route). Maria
-(burger zonder voertuigrecord) krijgt geen kaart. In de simulatie bouwt de
-kaart zich op met de replay-stappen (intake → startlocatie, routing →
-routes/innames/doel) en staat het panel naast de agentlog, ingezoomd op
-centrum en route.
+(burger zonder voertuigrecord) krijgt geen kaart. In de simulatie staat de startlocatie
+al in de basisweergave (dus ook na een reset), tekenen de routes en
+innames zich in vanaf de routing-stap en staat het panel naast de
+agentlog, ingezoomd op centrum en route.
 
 ## Evaluatielaag (F4)
 

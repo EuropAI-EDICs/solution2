@@ -153,12 +153,14 @@ try {
   ds.gentPersona("wim"); drain();
   const kaartSvg = globalThis.document.getElementById("kaart5");
   const kaartTags = () => (kaartSvg.innerHTML.match(/<[a-zA-Z]/g) || []).length;
-  if (!kaartSvg || kaartTags() !== 3) throw new Error("kaart5 toont bij persona-switch alléén de basislagen (gekregen: " + kaartTags() + ")");
+  if (!kaartSvg || kaartTags() !== 6) throw new Error("kaart5 toont bij persona-switch basis + startlocatie (gekregen: " + kaartTags() + ")");
   const s5k = ds.sims[3];
   s5k.jumpToStage(0); drain();
-  if (kaartTags() !== 6) throw new Error("kaart5 plot na de intake-stap alléén de startlocatie (gekregen: " + kaartTags() + ")");
+  if (kaartTags() !== 6) throw new Error("kaart5 blijft bij de intake-stap op basis + start (gekregen: " + kaartTags() + ")");
   s5k.jumpToStage(s5k.steps.length - 1); drain();
   if (kaartTags() < 15) throw new Error("kaart5 volledige lagen (routes+innames+doel) verwacht na de routing-stap (gekregen: " + kaartTags() + ")");
+  s5k.reset(); drain();
+  if (kaartTags() !== 6 || kaartSvg.innerHTML.indexOf("circle") < 0) throw new Error("kaart5 blijft na reset gevuld met basis + startlocatie (gekregen: " + kaartTags() + ")");
   ds.gentPersona("nadia"); drain();
   ds.gentPersona("ilse"); drain();
   ds.gentPersona("hanne"); drain();

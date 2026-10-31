@@ -77,11 +77,12 @@
 ### Nabestelling (gebruikerswensen, zelfde dag)
 
 De eerste oplevering is naar gebruikerswens bijgesteld (commit volgt direct):
-1. **Stap-opbouw**: de kaart bouwt zich op met de replay — bij persona-switch
-   alléén de basislagen; bij de intake-stap verschijnt de startlocatie (bedrijfsadres
-   uit de personagegevens); vanaf de routing-stap tekenen de routes (met
+1. **Stap-opbouw**: de kaart bouwt zich op met de replay — de basisweergave
+   (zones + startlocatie uit de personagegevens) staat er vanaf het begin en
+   óók na een reset (vaste constate van de gebruiker: bij reset leek de kaart
+   te verdwijnen); vanaf de routing-stap tekenen de routes (met
    tekenanimatie), innames en het doel zich in. De verifier controleert de
-   tussenstanden (3 → 6 → ≥15 openingstags).
+   tussenstanden incl. de reset (6 → 6 → ≥15 → 6 openingstags).
 2. **Zoom**: bounding box over routes/markers/innames (relatieve marge), niet
    meer de hele gemeente; grens en zones vullen randvullend uit de viewbox.
 3. **Layout**: kaartpanel staat náást de agentlog (tweekoloms grid, sticky),
