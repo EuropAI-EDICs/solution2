@@ -19,7 +19,7 @@
   header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,#0b1220f2,#0b1220e8);
     border-bottom:1px solid var(--line);backdrop-filter:blur(6px);padding:10px 18px;
     display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-  header h1{font-size:15px;margin:0;font-weight:650;letter-spacing:.2px}
+  header h1{font-size:20px;margin:0;font-weight:700;letter-spacing:.2px}
   header h1 small{color:var(--dim);font-weight:400;margin-left:8px}
   .tabs{display:flex;gap:6px;margin-left:8px}
   .tab{padding:7px 14px;border:1px solid var(--line2);border-radius:9px;background:var(--panel2);
@@ -38,8 +38,12 @@
   .progress{height:4px;background:var(--line);border-radius:3px;margin-top:5px;overflow:hidden}
   .progress > div{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .3s}
 
-  .notebar{padding:7px 18px;font-size:12px;color:var(--dim);background:#0d1626;border-bottom:1px solid var(--line)}
-  .notebar code{font-family:var(--mono);color:var(--cyan);font-size:11px}
+  .tabkoppen{padding:12px 18px 10px;background:#0d1626;border-bottom:1px solid var(--line)}
+  .tabkop{display:none}
+  .tabkop.on{display:block}
+  .tabkop-titel{font-size:22px;font-weight:750;letter-spacing:.2px;margin:0 0 4px}
+  .tabkop-tekst{font-size:14.5px;color:var(--dim);line-height:1.55;max-width:1150px}
+  .tabkop code{font-family:var(--mono);color:var(--cyan);font-size:12.5px}
 
   main{padding:16px 18px 40px}
   .view{display:none;grid-template-columns:250px minmax(0,1fr) 330px;gap:14px}
@@ -395,16 +399,36 @@
   </div>
 </header>
 
-<div class="notebar">Every number, verdict and polygon below is read from the canonical run artifacts —
-PoC-1 in three tracks: wind <code>poc/runs/20260830T113234Z-wind</code>, zon <code>poc/runs/20260830T142439Z-zon</code>,
-bos <code>poc/runs/20260830T142446Z-bos</code>; PoC-2 <code>poc-bp2op/runs/20260830-124515-eindhoven</code>.
-Onderaan PoC-1 en PoC-2 zit het paneel van <b>twee fine-tuned Laya System-1 modellen</b> —
-zone-keten Utrecht (<code>simulation/laya_utrecht/</code>) bij PoC-1, BP→OP Eindhoven (<code>simulation/laya_bp2op/</code>) bij PoC-2;
-de chat opent per dataset na de bijbehorende run.
-Tab 4 embedt de canonieke <b>Breda five-value scan</b>
-(<code>poc-breda/runs/20260913T192628Z-breda-scan</code>) — offline choropleth + golden Q&A na de scan-timeline.
-Tab 5 toont de <b>Gent EUROPAI-piloot</b> — deterministische fase 1+2+3-replay per persona (intake → GIS → H1 → H2/authenticatie → prefill → validatie → H3 → documenten → H4 → ontvangstbewijs), gegenereerd tijdens de build door de poc-gent-engine tegen de echte Gentse zone-lagen; de events-ketting is geverifieerd.
-Click any pipeline stage to jump there; <kbd>space</kbd> = play/pause, <kbd>→</kbd> = step.</div>
+<div class="tabkoppen">
+  <div class="tabkop on" id="kop1">
+    <div class="tabkop-titel">PoC-1 · wind, zon &amp; bos — omgevingsverordening Provincie Utrecht</div>
+    <div class="tabkop-tekst">Every number, verdict and polygon below is read from the canonical run artifacts —
+      drie tracks: wind <code>poc/runs/20260830T113234Z-wind</code>, zon <code>poc/runs/20260830T142439Z-zon</code>,
+      bos <code>poc/runs/20260830T142446Z-bos</code>.
+      Onderaan: het paneel van de <b>fine-tuned Laya System-1 zone-keten Utrecht</b> (<code>simulation/laya_utrecht/</code>) —
+      de chat opent na de run. Klik een fase om te springen; <kbd>spatie</kbd> = play/pause, <kbd>→</kbd> = stap.</div>
+  </div>
+  <div class="tabkop" id="kop2">
+    <div class="tabkop-titel">PoC-2 · bestemmingsplan → omgevingsplan — Eindhoven</div>
+    <div class="tabkop-tekst">Every number, verdict and rule below is read from the canonical run artifact
+      <code>poc-bp2op/runs/20260830-124515-eindhoven</code>.
+      Onderaan: het paneel van de <b>fine-tuned Laya System-1 BP→OP-keten Eindhoven</b> (<code>simulation/laya_bp2op/</code>) —
+      de chat opent na de run. Klik een fase om te springen; <kbd>spatie</kbd> = play/pause, <kbd>→</kbd> = stap.</div>
+  </div>
+  <div class="tabkop" id="kop4">
+    <div class="tabkop-titel">Breda · vijf-waarden scan</div>
+    <div class="tabkop-tekst">De canonieke <b>Breda five-value scan</b>
+      (<code>poc-breda/runs/20260913T192628Z-breda-scan</code>) — offline choropleth + golden Q&amp;A na de scan-timeline.
+      Klik een fase om te springen; <kbd>spatie</kbd> = play/pause, <kbd>→</kbd> = stap.</div>
+  </div>
+  <div class="tabkop" id="kop5">
+    <div class="tabkop-titel">Gent · transactionele levensgebeurtenis-assistent — EUROPAI WP3</div>
+    <div class="tabkop-tekst">Deterministische fase 1+2+3-replay per persona (intake → GIS → H1 → H2/authenticatie →
+      prefill → validatie → H3 → documenten → H4 → ontvangstbewijs), gegenereerd tijdens de build door de
+      poc-gent-engine tegen de echte Gentse zone-lagen; de events-ketting is geverifieerd.
+      Klik een fase om te springen; <kbd>spatie</kbd> = play/pause, <kbd>→</kbd> = stap.</div>
+  </div>
+</div>
 
 <main>
 
@@ -843,7 +867,8 @@ function mountLaya(n){
 function switchTab(n){ if(n===active) return; const cur=sim(); if(cur) cur.pause(); active=n;
   if(n===1||n===2) mountLaya(n);
   for(const k of [1,2,4,5]){ const t=$("tab"+k); if(t) t.classList.toggle("active",k===n);
-    const v=$("view"+k); if(v) v.classList.toggle("active",k===n); }
+    const v=$("view"+k); if(v) v.classList.toggle("active",k===n);
+    const kop=$("kop"+k); if(kop) kop.classList.toggle("on",k===n); }
   if(n===4) buildStatic4();
   const s=sim(); if(s) s.prog(); }
 document.addEventListener("keydown",(e)=>{ if(e.target.tagName==="SELECT"||e.target.tagName==="INPUT") return;
