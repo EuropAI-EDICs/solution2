@@ -71,3 +71,19 @@ def test_voer_uit_biedt_weerstand_op_alle_aanvallen():
     assert len(resultaten) >= 30
     for resultaat in resultaten:
         assert resultaat["schendingen"] == [], f"{resultaat['id']}: {resultaat['schendingen']}"
+
+
+def test_burgerpakket_heeft_eigen_aanvalspersoonas_en_slots():
+    lijst = injectie.aanvallen(POC_ROOT, "gent-verhuizen-burger")
+    assert len(lijst) == 24  # 5 direct×address + 4 schets + 4 documentnaam + 5 tool + 6 exfiltratie
+    assert {a["persona"] for a in lijst} == {"lisa", "yana", "tomas"}
+    adressen = [a for a in lijst if a["slot"] == "address"]
+    assert all(a["controle"] == "adres" for a in adressen)
+    overige = [a for a in lijst if a["slot"] == "parkeergelegenheid"]
+    assert all(a["controle"] == "routing-gelijk" for a in overige)
+
+
+def test_voer_uit_biedt_weerstand_op_alle_burgeraanvallen():
+    resultaten = injectie.voer_uit(POC_ROOT, "gent-verhuizen-burger")
+    for resultaat in resultaten:
+        assert resultaat["schendingen"] == [], f"{resultaat['id']}: {resultaat['schendingen']}"
