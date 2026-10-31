@@ -74,6 +74,19 @@
 - Modify: `poc-gent/README.md` (kaart-cache-stap `--kaart` + bronnen), eventueel planamendementen.
 - Zelfcheck: `cd poc-gent && ../nldt/.venv/bin/python -m pytest tests -q` groen; `cd ../simulation && ../nldt/.venv/bin/python build_simulation.py && node verify_static.mjs` groen mét kaart; `python3 eval.py` ongewijzigd GO (kaart raakt de engine niet).
 
+### Nabestelling (gebruikerswensen, zelfde dag)
+
+De eerste oplevering is naar gebruikerswens bijgesteld (commit volgt direct):
+1. **Stap-opbouw**: de kaart bouwt zich op met de replay — bij persona-switch
+   alléén de basislagen; bij de intake-stap verschijnt de startlocatie (bedrijfsadres
+   uit de personagegevens); vanaf de routing-stap tekenen de routes (met
+   tekenanimatie), innames en het doel zich in. De verifier controleert de
+   tussenstanden (3 → 6 → ≥15 openingstags).
+2. **Zoom**: bounding box over routes/markers/innames (relatieve marge), niet
+   meer de hele gemeente; grens en zones vullen randvullend uit de viewbox.
+3. **Layout**: kaartpanel staat náást de agentlog (tweekoloms grid, sticky),
+   niet langer eronder.
+
 ## Zelfcheck na afronding (executeur)
 
 1. poc-gent-suite groen (143 + kaart-cache-units).
