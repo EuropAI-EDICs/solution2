@@ -1,0 +1,11 @@
+{
+  "id": "R-verhuizen-burger",
+  "version": "2026.10",
+  "rules": [
+    {"id": "RB1", "when": {"applicantType": "burger", "zoneBewoners": "in"}, "then": {"transactions": ["bewonerskaart"], "info": ["info-afvalkalender"]}, "legalBasis": "Gent parkeerreglement — bewonersvergunningen (stad.gent, tarief 2026)", "uitleg": "Uw nieuwe adres ligt in een bewonerszone: u komt in aanmerking voor een bewonersvergunning (eerste gratis per gezin, tweede €300/jaar), gekoppeld aan één kenteken."},
+    {"id": "RB2", "when": {"applicantType": "burger", "zoneBewoners": "niet-in", "zoneTarief": "in"}, "then": {"transactions": [], "info": ["info-parkeren-tarief", "info-afvalkalender"]}, "legalBasis": "Gent parkeerreglement — parkeertariefzones (open data Stad Gent)", "uitleg": "Uw adres ligt buiten een bewonerszone maar binnen een parkeertariefzone: parkeren gebeurt tegen het geldende tarief; een bewonersvergunning is hier niet mogelijk."},
+    {"id": "RB3", "when": {"applicantType": "burger", "zoneBewoners": "niet-in", "zoneTarief": "niet-in"}, "then": {"transactions": [], "info": ["info-afvalkalender"]}, "legalBasis": "—", "uitleg": "Uw adres ligt buiten bewoners- en tariefzone: er geldt geen bijzondere parkeerregeling voor uw adres."},
+    {"id": "RB4", "when": {"applicantType": "burger", "zoneLez": "in"}, "then": {"transactions": [], "info": ["info-lez-burger"]}, "legalBasis": "Gent LEZ-reglement — dagenpassen (stad.gent/lez)", "uitleg": "Uw nieuwe adres ligt in de lage-emissiezone: met een oudere wagen heeft u een dagenpas nodig."}
+  ],
+  "unknownPolicy": "escalate"
+}

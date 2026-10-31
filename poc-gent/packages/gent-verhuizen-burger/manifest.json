@@ -1,0 +1,74 @@
+{
+  "packageId": "gent-verhuizen-burger",
+  "version": "0.1.0",
+  "status": "concept",
+  "lifeEventCode": "GT-VERH-01",
+  "title": "GT-VERH-01 — Verhuizen naar Gent: parkeren, afval en LEZ voor burgers",
+  "texts": {
+    "intro": "Ik help je regelen wat je nodig hebt wanneer je naar Gent verhuist: parkeren bij je nieuwe adres, afvalophaling en de lage-emissiezone.",
+    "scope": "Deze assistent gaat over gemeentelijke regelingen voor burgers bij een verhuizing binnen of naar Gent.",
+    "aiToelichting": "Ik ben een AI-assistent van Stad Gent. Ik stel voor en leg uit; jij beslist en bevestigt.",
+    "weigering": "Als ik het niet zeker weet, zeg ik dat eerlijk en verbind ik je door met een medewerker.",
+    "escalatie": "Twijfel of een bijzondere situatie? Dan neemt een medewerker van Gentinfo het van me over.",
+    "contextZin": "U bent {applicantType} en verhuist naar: {address}. Eigen parkeergelegenheid: {parkeergelegenheid}."
+  },
+  "contextSchema": {
+    "slots": {
+      "applicantType": {"type": "enum", "values": ["burger", "ondernemer", "organisatie"], "required": true, "authenticSource": null, "vraag": "Bent u particulier, ondernemer of organisatie?"},
+      "address": {"type": "string", "required": true, "authenticSource": null, "vraag": "Naar welk adres verhuist u?"},
+      "parkeergelegenheid": {"type": "enum", "values": ["ja", "nee"], "required": true, "authenticSource": null, "vraag": "Heeft u eigen parkeergelegenheid (garage of oprit) bij uw nieuwe adres?"},
+      "vehicle": {"type": "kenteken", "required": false, "authenticSource": "magda:kenteken", "vraag": null},
+      "bestaandeVergunningen": {"type": "enum", "values": ["aanwezig", "geen"], "required": false, "authenticSource": "gent:parkeervergunningen", "vraag": null}
+    }
+  },
+  "gisChecks": [
+    {"id": "bewonerszone", "layer": "gent-bewonerszone", "input": "address", "output": "zoneBewoners"},
+    {"id": "tariefzone", "layer": "gent-parkeertariefzone", "input": "address", "output": "zoneTarief"},
+    {"id": "lez", "layer": "gent-lez", "input": "address", "output": "zoneLez"}
+  ],
+  "dataChecks": [
+    {"id": "afvalkalender", "dataset": "ivago-ophaalkalender", "input": "address",
+     "outputs": ["afvalRest", "afvalPmd", "afvalGlas", "afvalPapier"], "unknownPolicy": "fallback"}
+  ],
+  "authenticSources": [
+    {"slot": "vehicle", "source": "magda:kenteken", "purpose": "vaststellen van het kenteken voor de bewonersvergunning"},
+    {"slot": "bestaandeVergunningen", "source": "gent:parkeervergunningen", "purpose": "vaststellen of er al een bewonersvergunning op het adres geldt"}
+  ],
+  "submission": {"contract": "district09-parkeervergunningen"},
+  "kpiDrempels": {"kpi01_min": 90.0, "kpi01_doel": 95.0, "kpi02_min": 100.0, "kpi03_min": 100.0, "kpi04_min": 90.0},
+  "decisionTables": "decision-tables.json",
+  "services": {
+    "bewonerskaart": {
+      "type": "inzending", "vereistAuth": true, "minLoA": "substantial",
+      "titel": "Bewonersvergunning parkeren (1e of 2e)",
+      "uitleg": "Jaarlijkse vergunning om als bewoner van een bewonerszone in uw eigen zone te parkeren; de eerste per gezin/adres is gratis, de tweede kost €300 per jaar (tarief 2026). Aan elke vergunning is exact één kenteken gekoppeld. Domicilie- en voertuiggegevens worden gecontroleerd via authentieke bronnen.",
+      "documenten": [],
+      "formulier": [
+        {"veld": "kenteken", "bron": "magda:kenteken.kenteken"},
+        {"veld": "vergunning-op-adres", "bron": "gent:parkeervergunningen.status"},
+        {"veld": "adres-domicilie", "bron": "slot:address"},
+        {"veld": "eigen-parkeergelegenheid", "bron": "slot:parkeergelegenheid"},
+        {"veld": "aanvrager", "bron": "slot:applicantType"}
+      ],
+      "validaties": [
+        {"id": "V1-tweede-vergunning", "wanneer": {"vergunning-op-adres": "aanwezig"}, "ernst": "waarschuwing",
+         "melding": "Er staat al een bewonersvergunning op dit adres: dit wordt de tweede vergunning (€300/jaar, tarief 2026)."},
+        {"id": "V2-eigen-parkeergelegenheid", "wanneer": {"eigen-parkeergelegenheid": "ja"}, "ernst": "waarschuwing",
+         "melding": "U heeft eigen parkeergelegenheid: u komt hooguit in aanmerking voor een tijdelijke vergunning. De beoordeling gebeurt door de dienst Parkeren."}
+      ]
+    },
+    "info-afvalkalender": {"type": "info", "vereistAuth": false,
+      "titel": "Afvalophaling op uw nieuwe adres (IVAGO)",
+      "uitleg": "Ophaaldagen per fractie voor uw straat, uit de IVAGO-ophaalkalender (open data). Staat uw straat er niet bij, raadpleeg dan gent.be/recycle of de Recycle!-app.",
+      "formulier": [], "validaties": []},
+    "info-parkeren-tarief": {"type": "info", "vereistAuth": false,
+      "titel": "Parkeren tegen tarief in uw buurt",
+      "uitleg": "Uw adres ligt in een parkeertariefzone maar buiten een bewonerszone: u heeft geen recht op een bewonersvergunning. Betalen kan aan de parkeerautomaat of via de app; zie stad.gent/parkeren.",
+      "formulier": [], "validaties": []},
+    "info-lez-burger": {"type": "info", "vereistAuth": false,
+      "titel": "Lage-emissiezone: dagenpas bij ouder voertuig",
+      "uitleg": "Uw nieuwe adres ligt in de lage-emissiezone. Met een oudere diesel of benzineauto heeft u een dagenpas (of een geldige ontheffing) nodig; controleer uw euroklasse op stad.gent/lez.",
+      "formulier": [], "validaties": []}
+  },
+  "golden": "golden/scenarios.jsonl"
+}
