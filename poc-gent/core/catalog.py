@@ -45,6 +45,7 @@ def _validate(manifest: dict, tables: dict) -> None:
         if spec.get("authenticSource") is None and "vraag" not in spec:
             raise PackageError(f"slot '{slot}' mist vraag-tekst")
     outputs = set()
+    data_outputs: set = set()
     for check in manifest.get("gisChecks", []):
         for field_name in ("id", "layer", "input", "output"):
             if field_name not in check:
@@ -54,6 +55,18 @@ def _validate(manifest: dict, tables: dict) -> None:
         if check["input"] not in slots:
             raise PackageError(f"gisCheck '{check['id']}': onbekende input-slot '{check['input']}'")
         outputs.add(check["output"])
+    for check in manifest.get("dataChecks", []):
+        for field_name in ("id", "dataset", "input", "outputs"):
+            if field_name not in check or not check[field_name]:
+                raise PackageError(f"dataCheck mist veld '{field_name}': {check}")
+        if check["input"] not in slots:
+            raise PackageError(f"dataCheck '{check['id']}': onbekende input-slot '{check['input']}'")
+        if check.get("unknownPolicy", "escalate") not in ("escalate", "fallback"):
+            raise PackageError(f"dataCheck '{check['id']}': ongeldig unknownPolicy (escalate|fallback)")
+        for out in check["outputs"]:
+            if out in slots or out in outputs or out in data_outputs:
+                raise PackageError(f"dataCheck '{check['id']}': output-botsing op '{out}'")
+            data_outputs.add(out)
     services = manifest.get("services", {})
     if not services:
         raise PackageError("manifest.services is leeg")
@@ -114,7 +127,7 @@ def _validate(manifest: dict, tables: dict) -> None:
             if sv not in services:
                 raise PackageError(f"regel '{rule.get('id')}': onbekende dienst '{sv}'")
         for key in rule.get("when", {}):
-            if key not in slots and key not in outputs:
+            if key not in slots and key not in outputs and key not in data_outputs:
                 raise PackageError(f"regel '{rule.get('id')}': onbekende when-sleutel '{key}'")
 
 
@@ -142,4 +155,13 @@ def load_package(poc_root: Path, package_id: str) -> Package:
             if field_name not in rij["expect"]:
                 raise PackageError(f"golden-verwachting mist veld '{field_name}': {rij.get('scenarioId', '?')}")
     _validate(manifest, tables)
+    if manifest.get("dataChecks"):
+        register_pad = poc_root / "fixtures" / "source" / "source.meta.json"
+        if not register_pad.is_file():
+            raise PackageError("broncatalogus ontbreekt: fixtures/source/source.meta.json")
+        bronnen = json.loads(register_pad.read_text(encoding="utf-8")).get("bronnen", {})
+        for check in manifest["dataChecks"]:
+            if check["dataset"] not in bronnen:
+                raise PackageError(f"dataCheck '{check['id']}': dataset '{check['dataset']}' "
+                                   "staat niet in de broncatalogus (fixtures/source/source.meta.json)")
     return Package(manifest=manifest, tables=tables, golden=golden)

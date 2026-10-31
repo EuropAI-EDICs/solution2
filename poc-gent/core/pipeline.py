@@ -153,6 +153,10 @@ def run_replay(poc_root: Path, package_id: str, persona_id: str,
     for check in pkg.manifest.get("gisChecks", []):
         events_mod.emit(events, "gis_check",
                         {"id": check["id"], "layer": check["layer"], "resultaat": ctx.get(check["output"])})
+    for check in pkg.manifest.get("dataChecks", []):
+        events_mod.emit(events, "data_check",
+                        {"id": check["id"], "dataset": check["dataset"],
+                         "resultaten": {out: ctx.get(out) for out in check["outputs"]}})
 
     events_mod.emit(events, "gate_request",
                     {"gate": "H1", "feitnamen": [r["feit"] for r in
@@ -188,6 +192,13 @@ def run_replay(poc_root: Path, package_id: str, persona_id: str,
          "consent": "n.v.t.", "handover": None, "kpiEvents": [{"kpi": "routingnauwkeurigheid", "effect": routing["outcome"]}],
          "prov": {"sources": [u["bron"] for u in routing["uitleg"]] or ["geen"]}},
     ]
+    if pkg.manifest.get("dataChecks"):
+        steps.insert(3, {"stepId": "data-lookup", "title": "We halen de afvalkalender van je straat op",
+                         "actor": "agent", "genAiTestPoint": "—",
+                         "dataUsed": [f"{out}={ctx.get(out)}"
+                                      for c in pkg.manifest["dataChecks"] for out in c["outputs"]],
+                         "consent": "n.v.t.", "handover": None, "kpiEvents": [],
+                         "prov": {"sources": ["dataset:ivago-ophaalkalender (open data Stad Gent/IVAGO)"]}})
     if routing["outcome"] == "escalatie":
         steps.append({"stepId": "escalatie", "title": "We leggen het voor aan een medewerker", "actor": "mens",
                       "genAiTestPoint": "G5", "dataUsed": [], "consent": "gevraagd",

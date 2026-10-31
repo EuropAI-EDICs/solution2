@@ -195,3 +195,59 @@ def test_dubbele_bron_faalt(tmp_path):
     _schrijf_pkg(tmp_path, manifest, _basis_tables())
     with pytest.raises(catalog.PackageError, match="bron"):
         catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def _schrijf_bronregister(tmp_path):
+    (tmp_path / "fixtures" / "source").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "fixtures" / "source" / "source.meta.json").write_text(
+        json.dumps({"bronnen": {"ivago-ophaalkalender": {"versie": "x"}}}), encoding="utf-8")
+
+
+_DATACHECK = {"id": "afvalkalender", "dataset": "ivago-ophaalkalender",
+              "input": "address", "outputs": ["afvalRest"], "unknownPolicy": "fallback"}
+
+
+def test_datacheck_laadt_en_output_is_when_matchbaar(tmp_path):
+    _schrijf_bronregister(tmp_path)
+    manifest = _basis_manifest()
+    manifest["dataChecks"] = [dict(_DATACHECK)]
+    tables = _basis_tables()
+    tables["rules"][0]["when"]["afvalRest"] = "maandag"
+    _schrijf_pkg(tmp_path, manifest, tables)
+    pkg = catalog.load_package(tmp_path, manifest["packageId"])
+    assert pkg.manifest["dataChecks"][0]["id"] == "afvalkalender"
+
+
+def test_datacheck_zonder_bronregister_faalt(tmp_path):
+    manifest = _basis_manifest()
+    manifest["dataChecks"] = [dict(_DATACHECK)]
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    with pytest.raises(catalog.PackageError, match="broncatalogus"):
+        catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_datacheck_dataset_niet_geregistreerd_faalt(tmp_path):
+    (tmp_path / "fixtures" / "source").mkdir(parents=True)
+    (tmp_path / "fixtures" / "source" / "source.meta.json").write_text(
+        json.dumps({"bronnen": {"andere-bron": {}}}), encoding="utf-8")
+    manifest = _basis_manifest()
+    manifest["dataChecks"] = [dict(_DATACHECK)]
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    with pytest.raises(catalog.PackageError, match="staat niet in de broncatalogus"):
+        catalog.load_package(tmp_path, manifest["packageId"])
+
+
+@pytest.mark.parametrize("mutatie,match", [
+    (lambda m: m["dataChecks"][0].pop("outputs"), "'outputs'"),
+    (lambda m: m["dataChecks"][0].update(input="stad"), "onbekende input-slot"),
+    (lambda m: m["dataChecks"][0].update(outputs=["applicantType"]), "output-botsing"),
+    (lambda m: m["dataChecks"][0].update(unknownPolicy="boe"), "ongeldig unknownPolicy"),
+])
+def test_kapotte_datacheck_faalt(tmp_path, mutatie, match):
+    _schrijf_bronregister(tmp_path)
+    manifest = _basis_manifest()
+    manifest["dataChecks"] = [dict(_DATACHECK)]
+    mutatie(manifest)
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    with pytest.raises(catalog.PackageError, match=match):
+        catalog.load_package(tmp_path, manifest["packageId"])

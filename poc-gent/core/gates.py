@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from adapters import acm_idm_mock, eudi_wallet, gis_zones
+from adapters import acm_idm_mock, data_lookups, eudi_wallet, gis_zones
 
 
 def confirm_h1(manifest: dict, context: dict, herkomst: dict, corrections: dict, poc_root: Path) -> tuple[dict, dict]:
@@ -23,6 +23,7 @@ def confirm_h1(manifest: dict, context: dict, herkomst: dict, corrections: dict,
         herkomst[slot] = {"label": "correctie", "bron": "gebruiker (H1)"}
     if "address" in corrections:
         gis_zones.apply_checks(manifest, context, herkomst, poc_root, suffix=", na correctie")
+        data_lookups.apply_checks(manifest, context, herkomst, poc_root, suffix=", na correctie")
     return context, herkomst
 
 

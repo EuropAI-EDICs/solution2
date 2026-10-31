@@ -38,3 +38,42 @@ def test_summary_noemt_elk_feit_met_herkomst():
     feiten = {r["feit"] for r in som["regels"]}
     assert {"applicantType", "address", "activity", "zoneLez", "zoneAutovrij"} <= feiten
     assert "Sint-Pietersplein" in som["tekst"]
+
+
+def test_summary_contextzin_is_per_pakket_configureerbaar():
+    manifest = {**MANIFEST, "texts": {**MANIFEST["texts"],
+                                      "contextZin": "U bent {applicantType} en wilt: {activity}."}}
+    ctx = {"applicantType": "ondernemer", "activity": "herstelwerken", "address": "Korenmarkt 1, Gent"}
+    herkomst = {s: {"label": "gebruiker", "bron": "gesprek"} for s in ctx}
+    som = context.summary(manifest, ctx, herkomst)
+    assert som["tekst"] == "U bent ondernemer en wilt: herstelwerken."
+
+
+def test_summary_default_zin_blijft_ongewijzigd_oud_gedrag():
+    ctx = {"applicantType": "burger", "address": "Veldstraat 1, Gent"}  # geen activity
+    herkomst = {s: {"label": "gebruiker", "bron": "gesprek"} for s in ctx}
+    som = context.summary(MANIFEST, ctx, herkomst)
+    assert som["tekst"] == "U bent burger en wilt: onbekend. Adres: Veldstraat 1, Gent."
+
+
+def test_summary_noemt_datacheck_outputs_met_herkomst():
+    manifest = {**MANIFEST, "dataChecks": [
+        {"id": "afvalkalender", "dataset": "ivago-ophaalkalender", "input": "address",
+         "outputs": ["afvalPmd"], "unknownPolicy": "fallback"}]}
+    ctx = {"applicantType": "ondernemer", "address": "Veldstraat 1, Gent",
+           "afvalPmd": "maandag"}
+    herkomst = {s: {"label": "gebruiker", "bron": "gesprek"} for s in ctx}
+    herkomst["afvalPmd"] = {"label": "afgeleid", "bron": "dataset:ivago-ophaalkalender (test)"}
+    som = context.summary(manifest, ctx, herkomst)
+    regel = next(r for r in som["regels"] if r["feit"] == "afvalPmd")
+    assert regel["waarde"] == "maandag" and regel["bron"].startswith("dataset:")
+
+
+def test_build_voert_datachecks_uit_naast_gis():
+    manifest = {**MANIFEST, "dataChecks": [
+        {"id": "afvalkalender", "dataset": "ivago-ophaalkalender", "input": "address",
+         "outputs": ["afvalPmd", "afvalRest"], "unknownPolicy": "fallback"}]}
+    ctx, herkomst = context.build(manifest, {"applicantType": "burger",
+                                             "address": "Veldstraat 1, Gent"}, POC_ROOT)
+    assert ctx["afvalPmd"] == "maandag"   # echte IVAGO-cache: Veldstraat Z1B
+    assert herkomst["afvalPmd"]["bron"].startswith("dataset:ivago-ophaalkalender")
