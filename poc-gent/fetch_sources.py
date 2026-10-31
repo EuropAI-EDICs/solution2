@@ -9,12 +9,15 @@ Bronnen (Modellicentie Gratis Hergebruik, Stad Gent open data):
 Adressen: optioneel `--geocode` via OSM Nominatim (ODbL, attributie in meta);
 productie-pad is de officiële BeSt Address API (zie source.meta.json).
 
-CLI:  python3 fetch_sources.py [--geocode] [--check] [--bronnen]
+CLI:  python3 fetch_sources.py [--geocode] [--check] [--bronnen] [--kaart]
   --geocode : vernieuw fixtures/addresses.json via Nominatim (netwerk, 1 req/sec)
   --check   : print zone-uitkomsten per fixture-adres (offline) ter herleiding
               van de golden set
   --bronnen : breid de broncache uit: VKBO (echt, keyless OGC Features) en
               GIPOD (publieke LDES, bij falen mock-testdata) — netwerk
+  --kaart   : bouw fixtures/source/kaart.json: VKBO-bedrijfsadressen,
+              OSRM-routes mét alternatief, Gentse gemeentegrens en
+              innames-punten — netwerk
 """
 
 from __future__ import annotations
@@ -66,6 +69,15 @@ BEST_ADDRESS_PAD = ("productiepad officiële geocoding: BeSt Address Web API —
                     "(self-host via docker bosa/opendata-best-webapi); PoC gebruikt OSM Nominatim ( echt, ODbL)")
 VKBO_URL = "https://geo.api.vlaanderen.be/VKBO/ogc/features/v1/collections/Vkbo/items"
 GIPOD_SWAGGER = "https://gipod.api.vlaanderen.be/swagger/v1/swagger.json"
+NOMINATIM = "https://nominatim.openstreetmap.org"
+OSRM_URL = ("https://router.project-osrm.org/route/v1/driving/{van};{naar}"
+            "?alternatives=true&overview=simplified&geometries=geojson")
+
+# Persona's mét geregistreerd voertuig (magda:kenteken): voor hen plot de
+# simulatie de route bedrijfsadres → werkadres; maria (burger zonder
+# voertuigrecord) krijgt geen kaartpanel.
+KENTEEKEN_PERSONAS = ("sanne", "ahmed", "fatima", "jeroen", "ellen", "dirk", "wim",
+                      "nadia", "ilse", "hanne")
 
 
 def _fetch_json(url: str) -> dict:
@@ -183,6 +195,144 @@ def haal_gipod(poc_root: Path) -> dict:
         return {"mode": "mock", "fout": str(fout), "mock": mock_pad.name}
 
 
+def bedrijf_toewijzing(vkbo_rijen: list[dict], persona_ids: tuple[str, ...]) -> dict:
+    """Deterministische toewijzing persona → KBO/VKBO-bedrijfsadres (het adres
+    waar het kenteken geregistreerd staat in de replay): gesorteerde rijen met
+    vaste offset per persona — stabiel zolang de broncache niet ververst."""
+    rijen = sorted((rij for rij in vkbo_rijen
+                    if rij.get("straat") and rij.get("huisnr") and rij.get("postcode")),
+                   key=lambda rij: (rij["naam"], rij["straat"], rij["huisnr"]))
+    if not rijen:
+        raise ValueError("vkbo-cache bevat geen bruikbare bedrijfsadressen")
+    uit = {}
+    for offset, pid in enumerate(persona_ids):
+        rij = rijen[offset % len(rijen)]
+        uit[pid] = {"naam": rij["naam"],
+                    "adres": f"{rij['straat']} {rij['huisnr']}, {rij['postcode']} Gent"}
+    return uit
+
+
+def dun_punten(punten: list, max_punten: int = 80) -> list:
+    """Polylijn gelijkmatig verdunnen voor een compacte embed; eerste en
+    laatste punt blijven altijd staan."""
+    if len(punten) <= max_punten:
+        return [list(p) for p in punten]
+    stap = (len(punten) - 1) / (max_punten - 1)
+    return [list(punten[round(i * stap)]) for i in range(max_punten)]
+
+
+def _geocode(straat_en_huisnr: str, cache_sleutel: str | None = None) -> list[float] | None:
+    """Coördinaat voor een Gent-adres: eerst de gecommitte adrescache, daarna
+    Nominatim gestructureerd én begrensd op Gent (1 req/s)."""
+    from urllib.parse import urlencode
+
+    sleutel = cache_sleutel or f"{straat_en_huisnr}, Gent"
+    cache_pad = POC_ROOT / "fixtures" / "addresses.json"
+    cache = json.loads(cache_pad.read_text(encoding="utf-8")) if cache_pad.is_file() else {}
+    if sleutel in cache:
+        return cache[sleutel]
+    query = urlencode({"format": "json", "limit": 5, "street": straat_en_huisnr,
+                       "city": "Gent", "country": "Belgium",
+                       "viewbox": "3.630,50.990,3.830,51.160", "bounded": "1"})
+    resultaten = _fetch_json(f"{NOMINATIM}/search?{query}")
+    time.sleep(1.1)
+    treffers = [r for r in resultaten if r.get("addresstype") in ("house", "building", "road")] \
+        or [r for r in resultaten if "Gent, Oost-Vlaanderen" in r.get("display_name", "")]
+    if not treffers:
+        return None
+    return [float(treffers[0]["lon"]), float(treffers[0]["lat"])]
+
+
+def _haal_grens() -> dict | None:
+    """Gentse gemeentegrens als GeoJSON-polygoon (Nominatim/OSM)."""
+    from urllib.parse import urlencode
+
+    query = urlencode({"q": "Gent, Oost-Vlaanderen, Belgium", "format": "json",
+                       "polygon_geojson": "1", "limit": "1"})
+    resultaten = _fetch_json(f"{NOMINATIM}/search?{query}")
+    time.sleep(1.1)
+    return (resultaten[0].get("geojson") or None) if resultaten else None
+
+
+def _haal_route(van: list[float], naar: list[float]) -> dict | None:
+    """Route mét alternatief via de OSRM-demo-server (OpenStreetMap, ODbL):
+    primair (snelste) en alternatief, punten gedaan voor de embed."""
+    data = _fetch_json(OSRM_URL.format(van=f"{van[0]},{van[1]}", naar=f"{naar[0]},{naar[1]}"))
+    routes = data.get("routes") or []
+    if not routes:
+        return None
+
+    def _vorm(route: dict) -> dict:
+        return {"punten": dun_punten(route["geometry"]["coordinates"]),
+                "afstand_m": round(route["distance"]),
+                "duur_s": round(route["duration"])}
+
+    return {"primaire": _vorm(routes[0]),
+            "alternatief": _vorm(routes[1]) if len(routes) > 1 else None}
+
+
+def haal_kaart(poc_root: Path, kenteken_personas: tuple = KENTEEKEN_PERSONAS) -> dict:
+    """Netwerkstap (F-kaart): bedrijfsadressen uit de VKBO-cache (KBO-open
+    register, deterministische toewijzing), geocoding (adrescache → Nominatim),
+    routes mét alternatief (OSRM/OSM), de Gentse gemeentegrens en
+    innames-punten uit de GIPOD-cache — naar fixtures/source/kaart.json."""
+    source = poc_root / "fixtures" / "source"
+    vkbo = json.loads((source / "vkbo-gent.json").read_text(encoding="utf-8"))
+    gipod = json.loads((source / "gipod-gent.json").read_text(encoding="utf-8"))
+    personas = {p["id"]: p for p in json.loads(
+        (poc_root / "fixtures" / "personas.json").read_text(encoding="utf-8"))["personas"]}
+
+    bedrijven = bedrijf_toewijzing(vkbo, kenteken_personas)
+    routes: dict = {}
+    for pid in kenteken_personas:
+        bedrijf = bedrijven[pid]
+        straat_huisnr = bedrijf["adres"].split(",")[0]
+        start = _geocode(straat_huisnr, cache_sleutel=bedrijf["adres"])
+        persona = personas[pid]
+        doel_adres = persona.get("corrections", {}).get("address") or persona["intentSlots"]["address"]
+        doel = _geocode(doel_adres)
+        if start is None or doel is None:
+            print(f"WAARSCHUWING: geen coördinaten voor {pid} ({bedrijf['adres']} → {doel_adres})",
+                  file=sys.stderr)
+            continue
+        bedrijf["coord"] = start
+        routes[pid] = {"doel": doel_adres, "doelCoord": doel, **_haal_route(start, doel)}
+
+    innames = []
+    for inname in gipod.get("innames", []):
+        coord = _geocode(f"{inname['straat']} 1", cache_sleutel=f"{inname['straat']} 1, Gent")
+        if coord:
+            innames.append({**inname, "coord": coord,
+                            "bron": f"gipod-{gipod.get('mode', 'mock')} (punt via adrescache/Nominatim)"})
+
+    kaart = {
+        "grens": _haal_grens(),
+        "bedrijven": bedrijven,
+        "routes": routes,
+        "innames": innames,
+        "meta": {
+            "bronnen": {
+                "osrm": {"url": OSRM_URL.split("?")[0], "dienst": "OSRM demo-server op OpenStreetMap",
+                         "licentie": "ODbL — © OpenStreetMap-contributors", "fetchDatum": _now()},
+                "nominatim": {"url": f"{NOMINATIM}/search", "licentie": "ODbL — © OpenStreetMap-contributors",
+                              "fetchDatum": _now()},
+                "vkbo": {"bron": VKBO_URL, "licentie": "open registerdata KBO/VKBO (Digital Vlaanderen)",
+                         "selectie": "deterministisch — zie bedrijf_toewijzing"},
+                "gipod": {"mode": gipod.get("mode"), "licentie": "Modellicentie Gratis Hergebruik",
+                          "geometrie": "mock: straat-punt via adrescache"},
+            },
+            "productiepaden": {
+                "geocoding": BEST_ADDRESS_PAD,
+                "innames": "GIPOD LDES mobility-hindrances (WKT Lambert72 → WGS84)",
+            },
+            "fetchedAt": _now(),
+        },
+    }
+    (source / "kaart.json").write_text(json.dumps(kaart, ensure_ascii=False, indent=2) + "\n",
+                                        encoding="utf-8")
+    return kaart
+
+
 def build_cache() -> dict:
     SOURCE_DIR.mkdir(parents=True, exist_ok=True)
     meta_document: dict = {"gegenereerdOp": _now(), "bronnen": {}}
@@ -279,6 +429,9 @@ def main() -> int:
     ap.add_argument("--check", action="store_true", help="print zone-uitkomsten per fixture-adres (offline)")
     ap.add_argument("--bronnen", action="store_true",
                     help="breid uit met VKBO (echt) en GIPOD (echt-of-mock) — netwerk")
+    ap.add_argument("--kaart", action="store_true",
+                    help="bouw de kaart-cache (VKBO-bedrijfsadressen, OSRM-routes mét alternatief, "
+                         "Gent-grens, innames-punten) — netwerk")
     args = ap.parse_args()
     if args.check:
         zone_rapport()
@@ -295,10 +448,19 @@ def main() -> int:
         meta_document["bronnen"]["gipod"] = gipod
         print(f"vkbo: {vkbo['aantal']} ondernemingen | {vkbo['bron']} | {vkbo['licentie']}")
         print(f"gipod: mode {gipod['mode']}" + (f" | {gipod['bron']}" if gipod.get("bron") else ""))
+    if args.kaart:
+        kaart = haal_kaart(POC_ROOT)
+        meta_document["bronnen"]["kaart"] = {
+            "cache": "fixtures/source/kaart.json",
+            "fetchedAt": kaart["meta"]["fetchedAt"],
+            "onderdelen": sorted(kaart["meta"]["bronnen"]),
+        }
+        print(f"kaart: {len(kaart['routes'])}/{len(KENTEEKEN_PERSONAS)} routes | "
+              f"{len(kaart['innames'])} innames | grens: {'ja' if kaart['grens'] else 'nee'}")
     (SOURCE_DIR / "source.meta.json").write_text(
         json.dumps(meta_document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     for laag, info in meta_document["bronnen"].items():
-        if laag in ("adressen", "bestAddress", "vkbo", "gipod"):
+        if laag in ("adressen", "bestAddress", "vkbo", "gipod", "kaart"):
             continue
         print(f"{laag}: {info['titel']} | {info['licentie']} | versie {info['versie']} "
               f"| {info['featuresNaFilter']}/{info['featuresRuwwerk']} features")
