@@ -2352,7 +2352,7 @@ function renderGentStatic(){
   $("facts5").innerHTML = (p.context.regels||[]).map(r=>`
     <div class="gfact"><span class="gfk">${esc(r.feit)}</span><span>${esc(r.waarde)}</span>
     <span>${gchip(r.label, LABEL_KLEUR[r.label]||"#8b93a7")}<span class="gbron"> ${esc(r.bron)}</span></span></div>`).join("");
-  $("auth5").innerHTML = `authenticatie: <b>${esc(p.auth.authenticatie)}</b><br>toestemming: <b>${esc(p.auth.toestemming)}</b>${(p.auth.mandaten||[]).length?`<br>mandaten: ${p.auth.mandaten.length}`:""}`;
+  $("auth5").innerHTML = `authenticatie: <b>${esc(p.auth.authenticatie)}</b><br>toestemming: <b>${esc(p.auth.toestemming)}</b>${p.auth.methode?`<br>via ${esc(p.auth.methode)}${p.auth.loa?` (loa ${esc(p.auth.loa)})`:""}`:""}${p.auth.mandaatAantal?`<br>mandaten: ${p.auth.mandaatAantal}`:""}`;
   $("ev5").innerHTML = (p.events||[]).map(e=>`<span class="gevchip">${esc(e.kind)}</span>`).join("")
     + `<div class="gchain ${p.chainOk?"ok":""}">${p.chainOk?"ketting ✓ geverifieerd (sha256; seq+ts in de hash-basis)":"ketting ✗"}</div>`;
 }

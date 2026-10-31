@@ -1135,6 +1135,13 @@ def build_laya_breda() -> dict:
     }
 
 
+def _publiek_auth(auth: dict) -> dict:
+    """Sim-embed is een publiek artefact: mandaatdetails blijven achter
+    (SEC-05-geest, net als bij de events) — alléén het aantal gaat mee."""
+    return {**{k: v for k, v in auth.items() if k != "mandaten"},
+            "mandaatAantal": len(auth.get("mandaten", []))}
+
+
 def build_gent() -> dict:
     """Gent EUROPAI-piloot voor tab 5: deterministische replay (fase 1+2+3) per
     persona, gegenereerd door de echte poc-gent-engine tijdens de build. De
@@ -1175,7 +1182,7 @@ def build_gent() -> dict:
                 for s in run["steps"]
             ],
             "context": t["context"],
-            "auth": t["auth"],
+            "auth": _publiek_auth(t["auth"]),
             "prefill": t["prefill"],
             "validatie": t["validatie"],
             "h1": t["h1"],

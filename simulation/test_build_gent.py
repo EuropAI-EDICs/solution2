@@ -45,6 +45,14 @@ class TestBuildGent(unittest.TestCase):
         self.assertEqual(auth["nadia"]["methode"], "acm-idm")
         self.assertNotIn("loa", auth["nadia"])
 
+    def test_embed_maskeert_mandaatdetails(self):
+        tekst = json.dumps(self.gent["personas"], ensure_ascii=False)
+        self.assertNotIn("bewindvoering", tekst)
+        self.assertNotIn("moeder", tekst)
+        for p in self.gent["personas"]:
+            self.assertNotIn("mandaten", p["auth"])
+            self.assertIn("mandaatAantal", p["auth"])
+
     def test_events_ketting_geverifieerd_voor_alle_personas(self):
         for p in self.gent["personas"]:
             self.assertTrue(p["chainOk"], msg=f"ketting faalt voor {p['id']}")
