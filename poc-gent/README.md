@@ -43,6 +43,20 @@ ontvangstbewijs en vervolgsamenvatting) van het referentiepakket
   alleen hashes en namen; het run-artefact blijft volledig (verantwoording +
   audit).
 
+## Kaart & route (open data)
+
+`python3 fetch_sources.py --kaart` bouwt `fixtures/source/kaart.json`: per
+kenteken-persona het VKBO/KBO-bedrijfsadres (deterministische selectie uit de
+open-registercache — daar staat het kenteken geregistreerd), geocoding
+(adrescache → Nominatim/OSM, ODbL; productiepad BeSt Address), de OSRM-route
+mét alternatief (OpenStreetMap), de Gentse gemeentegrens (Nominatim-polygoon)
+en innames-punten uit de GIPOD-cache. Het Gent-tabblad in de simulatie plot
+daaruit het kaartpanel: gemeentegrens, LEZ/autovrij-zones (echte
+Gentse lagen), beide routes, innames, en de **door Gent gewenste route** =
+minst vermijdbare innames binnen 150 m (innames bij het gedeelde eindpunt zijn
+onvermijdelijk en tellen niet mee; bij gelijkspel de snelste route). Maria
+(burger zonder voertuigrecord) krijgt geen kaart.
+
 ## Evaluatielaag (F4)
 
 - **KPI-rapport + go/no-go** (`core/kpis.py`): `python3 eval.py` meet KPI-01
