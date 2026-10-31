@@ -87,6 +87,10 @@ De eerste oplevering is naar gebruikerswens bijgesteld (commit volgt direct):
    meer de hele gemeente; grens en zones vullen randvullend uit de viewbox.
 3. **Layout**: kaartpanel staat náást de agentlog (tweekoloms grid, sticky),
    niet langer eronder.
+4. **Interactieve zoom** (nabestelling): scrollen op de kaart zoomt in/uit
+   rond de cursor, slepen verschuift het beeld, dubbelklik herstelt de
+   basisweergave — zonder externe dependencies (viewBox-manipulatie); bij
+   persona-switch wordt de zoom teruggezet.
 
 ## Zelfcheck na afronding (executeur)
 

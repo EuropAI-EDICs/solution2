@@ -354,6 +354,8 @@
   .gkaartwrap{position:sticky;top:0;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;background:var(--panel2)}
   .gkaartkop{margin:2px 0 6px}
   #kaart5{width:100%;height:auto;aspect-ratio:720/520;background:#0d1626;border:1px solid var(--line2);border-radius:10px;display:block;margin:6px 0}
+  #kaart5{cursor:grab}
+  #kaart5.grijp{cursor:grabbing}
   .gkaartinfo{font-size:12.5px;line-height:1.65;display:flex;flex-direction:column;gap:2px}
   .gkaartleg{color:var(--faint);font-size:11px;margin-top:2px;line-height:1.6}
   .kdraw{stroke-dasharray:1;stroke-dashoffset:1;animation:kdraw 1.2s ease forwards}
@@ -687,7 +689,7 @@ Click any pipeline stage to jump there; <kbd>space</kbd> = play/pause, <kbd>→<
       <div id="kaart5wrap" class="gkaartwrap" style="display:none">
         <h3 class="gkaartkop">route &amp; omleidingen <span class="gsub" id="kaart5meta"></span></h3>
         <svg id="kaart5" viewBox="0 0 720 520" preserveAspectRatio="xMidYMid meet"></svg>
-        <div class="gkaartleg"><span style="color:#3b82f6">━</span> primair (snelste) · <span style="color:#8b93a7">━</span> alternatief (dunner) · <span style="color:#22d3ee">━━</span> dik = door Gent aangeraden (minste innames) · <span style="color:#f59e0b">▲</span> inname (GIPOD) · <span style="color:#f59e0b">▨</span> lage-emissiezone · <span style="color:#f87171">▨</span> autovrij gebied · <span style="color:#34d399">●</span> start (bedrijf) · <span style="color:#f87171">●</span> doel</div>
+        <div class="gkaartleg"><span style="color:#3b82f6">━</span> primair (snelste) · <span style="color:#8b93a7">━</span> alternatief (dunner) · <span style="color:#22d3ee">━━</span> dik = door Gent aangeraden (minste innames) · <span style="color:#f59e0b">▲</span> inname (GIPOD) · <span style="color:#f59e0b">▨</span> lage-emissiezone · <span style="color:#f87171">▨</span> autovrij gebied · <span style="color:#34d399">●</span> start (bedrijf) · <span style="color:#f87171">●</span> doel · 🔍 scroll = inzoomen · sleep = verschuiven · dubbelklik = herstellen</div>
         <div id="kaart5info" class="gkaartinfo"></div>
         <div class="gbron" id="kaart5bron"></div>
       </div>
@@ -2316,6 +2318,39 @@ function renderGentMeta(){
     + `<div class="gmeta2"><code>${esc(G.lifeEventCode)}</code> · ${esc(G.packageId)} v${esc(G.version)} · `
     + Object.entries(G.bronversies||{}).map(([k,v])=>`${esc(k)} — ${esc(v)}`).join(" · ") + `</div>`;
 }
+let kaartVB = null;   // actieve viewBox bij zoom/pan; null = basisweergave
+
+function kaartZoomInit(){
+  const svg = $("kaart5");
+  if (!svg || svg.__zoominit) return;
+  svg.__zoominit = true;
+  const basis = ()=> (kaartVB ? null : [0,0,720,520]);
+  const nu = ()=> kaartVB ? kaartVB.slice() : [0,0,720,520];
+  const zet = (vb)=>{ kaartVB = vb; svg.setAttribute("viewBox", vb.join(" ")); };
+  const naarSvg = (ev)=>{
+    const r = svg.getBoundingClientRect ? svg.getBoundingClientRect() : {left:0,top:0,width:720,height:520};
+    const [x,y,w,h] = nu();
+    return [x + (ev.clientX-r.left)/r.width*w, y + (ev.clientY-r.top)/r.height*h];
+  };
+  const zoom = (factor, cx, cy)=>{
+    const [x,y,w,h] = nu();
+    const nw = Math.min(720, Math.max(45, w/factor)), nh = nw*h/w;
+    zet([cx-(cx-x)*nw/w, cy-(cy-y)*nh/h, nw, nh]);
+  };
+  svg.addEventListener("wheel", (ev)=>{ ev.preventDefault();
+    const [cx,cy] = naarSvg(ev); zoom(ev.deltaY<0?1.22:1/1.22, cx, cy); }, {passive:false});
+  svg.addEventListener("dblclick", (ev)=>{ ev.preventDefault(); zet([0,0,720,520]); });
+  let sleep = null;
+  svg.addEventListener("pointerdown", (ev)=>{ sleep = {x:ev.clientX, y:ev.clientY, vb:nu()};
+    svg.classList.add("grijp"); });
+  svg.addEventListener("pointermove", (ev)=>{ if(!sleep) return;
+    const r = svg.getBoundingClientRect ? svg.getBoundingClientRect() : {left:0,top:0,width:720,height:520};
+    const [x,y,w,h] = sleep.vb;
+    zet([x-(ev.clientX-sleep.x)*w/r.width, y-(ev.clientY-sleep.y)*h/r.height, w, h]); });
+  if (globalThis.addEventListener)
+    globalThis.addEventListener("pointerup", ()=>{ sleep = null; svg.classList.remove("grijp"); });
+}
+
 let kaartLaatsteStap = -99;
 
 function kaartStap(st){
@@ -2408,6 +2443,9 @@ function renderGentStatic(){
     <span>${gchip(r.label, LABEL_KLEUR[r.label]||"#8b93a7")}<span class="gbron"> ${esc(r.bron)}</span></span></div>`).join("");
   $("auth5").innerHTML = `authenticatie: <b>${esc(p.auth.authenticatie)}</b><br>toestemming: <b>${esc(p.auth.toestemming)}</b>${p.auth.methode?`<br>via ${esc(p.auth.methode)}${p.auth.loa?` (loa ${esc(p.auth.loa)})`:""}`:""}${p.auth.mandaatAantal?`<br>mandaten: ${p.auth.mandaatAantal}`:""}`;
   kaartLaatsteStap = -99;
+  kaartZoomInit();
+  kaartVB = null;
+  $("kaart5").setAttribute("viewBox", "0 0 720 520");
   kaartStap(-1);
   const k = p.kaart;
   const kwrap = $("kaart5wrap");
