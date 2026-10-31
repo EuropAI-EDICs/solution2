@@ -6,6 +6,45 @@ ontvangstbewijs en vervolgsamenvatting) van het referentiepakket
 `gent-mobiliteit-ondernemer`. Ontwerp:
 [`docs/superpowers/specs/2026-10-30-piloot-gent-transactionele-assistent-design.md`](../docs/superpowers/specs/2026-10-30-piloot-gent-transactionele-assistent-design.md).
 
+## Twee levensgebeurtenissen (multi-package)
+
+De engine is pakket-onafhankelijk (`--package` op run.py/eval.py); naast het
+ondernemerspakket draait het **burgerpakket `gent-verhuizen-burger`**
+(GT-VERH-01 "Ik verhuis naar Gent"; ontwerp:
+[2026-10-31](../docs/superpowers/specs/2026-10-31-piloot-gent-verhuizen-burger-design.md))
+met vier diensten op échte Gentse open data:
+
+- **`bewonerskaart`** (transactie): aanvraag 1e/2e bewonersvergunning volgens
+  de echte Gentse voorwaarden (gedomicilieerd in een bewonerszone, één
+  kenteken per vergunning, 1e gratis per gezin, 2e €300/jaar). Validaties:
+  V1 al een vergunning op het adres (waarschuwing, via mock-bron
+  `gent:parkeervergunningen` mét doelbinding) en V2 eigen parkeergelegenheid
+  (waarschuwing); een ontbrekend kenteken is de bestaande V0-blokkade.
+  Inzending gaat naar backoffice-contract `district09-parkeervergunningen`
+  (`submission.contract` per pakket configureerbaar).
+- **`info-afvalkalender`**: ophaaldag per fractie voor de straat, uit de
+  IVAGO-ophaalkalender 2026–2027 (171k records; Modellicentie Gratis
+  Hergebruik) — via de nieuwe generieke **`dataChecks`**-capaciteit naast
+  `gisChecks`: dataset-lookups op straatnaam mét herkomstlabel en per check
+  `unknownPolicy: escalate|fallback` (onbekende straat valt terug op een
+  neutrale tekst; het adres zelf escaleert via de GIS-checks).
+- **`info-parkeren-tarief`** en **`info-lez-burger`**: zone-afhankelijke info
+  (parkeertariefzones; dagenpas bij oudere wagen in de LEZ).
+
+Nieuwe lagen in `fixtures/gis-zones.geojson`: `gent-bewonerszone`
+(bewonerszones-gent, 20 features) en `gent-parkeertariefzone`
+(parkeertariefzones-gent, 81 features). Burger-persona's (gedeelde
+fixture-ruimte): lisa (happy flow Veldstraat), tomas (Gentbrugge, geen
+regeling), farah (2e vergunning), noor (garage), emma (geen voertuig →
+blokkade), yana (adrescorrectie), robrecht (H4-weigering). De
+injectiesuite draait per pakket (`fixtures/injecties.json → pakketten`):
+34 aanvallen (ondernemer) + 24 (burger), alle met weerstand geboden.
+
+    python3 run.py --package gent-verhuizen-burger --persona lisa
+    ../nldt/.venv/bin/python eval.py --package gent-verhuizen-burger
+    ../nldt/.venv/bin/python eval.py --injectie --package gent-verhuizen-burger
+    python3 fetch_sources.py --afval --kaart-burger   # cache verversen (netwerk)
+
 - Configuratie is data: levensgebeurtenis-pakketten onder `packages/`
   (manifest + beslistabellen + golden set), geladen via `core/catalog.py`.
 - LLM stelt voor, engine beslist, mens bevestigt: de F1-replay is volledig
@@ -173,7 +212,11 @@ Broncatalogus (DATA-02 in het klein): `fixtures/source/source.meta.json` legt
 per bron de URL's, versie/datum, licentie en filters vast. Stand van de bronnen:
 
 - Stad Gent-zone-lagen (LEZ, autovrij): **echt** (Modellicentie Gratis
-  Hergebruik), gecached onder `fixtures/source/`.
+  Hergebruik), gecached onder `fixtures/source/`. Idem de burger-lagen
+  `gent-bewonerszone` en `gent-parkeertariefzone`, plus de
+  IVAGO-afvalophaalkalender 2026–2027 als `dataChecks`-bron
+  (`fixtures/source/afvalkalender.json`, per fixture-straat gevatted tot
+  modus-ophaaldag per fractie; `--afval` verversen).
 - VKBO: **echt** — keyless OGC Features van `geo.api.vlaanderen.be` (bbox
   Gent), gecached als `fixtures/source/vkbo-gent.json`.
 - GIPOD: **echt-of-mock** — bij verversen wordt de publieke LDES geprobeerd

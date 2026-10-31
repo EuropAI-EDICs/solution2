@@ -182,12 +182,20 @@ top of `build_simulation.py` at the new dirs.
 
 ## Tab 5 — Gent transactie-piloot (EUROPAI)
 
-`build_gent()` in `build_simulation.py` genereert tijdens de build een
-deterministische fase 1+2-replay per persona (7 stuks) met de echte
-poc-gent-engine (`pipeline.run_replay`) tegen de echte Gentse zone-lagen
-(F1.5-broncache). De events-ketting wordt geverifieerd; in de embedded data
-staan alleen event-soorten en volgnummers, geen persoonswaarden. Zie ook
-`test_build_gent.py` en `docs/superpowers/specs/2026-10-30-piloot-gent-transactionele-assistent-design.md`.
+`build_gent(package_id)` in `build_simulation.py` genereert tijdens de build
+deterministische fase 1+2+3-replays per persona met de echte poc-gent-engine
+(`pipeline.run_replay`) tegen de echte Gentse zone-lagen (F1.5-broncache).
+De events-ketting wordt geverifieerd; in de embedded data staan alleen
+event-soorten en volgnummers, geen persoonswaarden. Zie ook
+`test_build_gent.py`/`test_build_gent_burger.py` en
+`docs/superpowers/specs/2026-10-30-piloot-gent-transactionele-assistent-design.md`.
+
+**Eén tab, twee levensgebeurtenissen:** de dropdown bovenin wisselt tussen
+- **GT-MOB-01 · ondernemer** (11 persona's, route/innames-kaart) en
+- **GT-VERH-01 · verhuizen burger** (7 persona's, regeling-zones-kaart:
+  bewonerszone/tariefzone/LEZ rond de nieuwe woning, plus de
+  IVAGO-afvalkalender-feiten uit de `dataChecks`-bron; ontwerp:
+  `docs/superpowers/specs/2026-10-31-piloot-gent-verhuizen-burger-design.md`).
 
 Openen: `open simulation/simulation.html?tab=5` (of klik de tab "Gent · transactie").
-Persona-switcher bovenin; ▶/stap/↺ besturen de replay zoals bij de andere PoC's.
+Dropdown + persona-switcher bovenin; ▶/stap/↺ besturen de replay zoals bij de andere PoC's.
