@@ -43,6 +43,12 @@ def apply_checks(manifest: dict, context: dict, herkomst: dict, poc_root: Path,
                 context[out] = gevonden[out]["dag"]
                 herkomst[out] = {"label": "afgeleid",
                                  "bron": f"dataset:{check['dataset']} ({kalender['versie']}{suffix})"}
+            elif gevonden is not None:
+                # Straat bekend in de kalender, maar deze fractie wordt er
+                # niet (via deze route) ingezameld — bijv. glas via containers.
+                context[out] = "onbekend"
+                herkomst[out] = {"label": "afgeleid",
+                                 "bron": f"dataset:{check['dataset']} (geen {out}-inzameling bekend voor deze straat{suffix})"}
             elif check.get("unknownPolicy", "escalate") == "fallback":
                 context[out] = "onbekend"
                 herkomst[out] = {"label": "afgeleid",

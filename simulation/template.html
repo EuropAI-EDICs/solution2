@@ -2390,7 +2390,7 @@ const GP = [["gent","GT-MOB-01 · voertuigtoegang ondernemer","GT-MOB-01 · vehi
 let curGent = G.personas[0].id;
 const LABEL_KLEUR = {authentiek:"#3b82f6", gebruiker:"#8b93a7", correctie:"#f59e0b", afgeleid:"#22d3ee"};
 function gpersona(id){ return G.personas.find(p=>p.id===id) || G.personas[0]; }
-function gchip(label, kleur){ return `<span class="gchip" style="color:${kleur};border-color:${kleur}55">${esc(label)}</span>`; }
+function gchip(label, kleur){ return `<span class="gchip" style="color:${kleur};border-color:${kleur}55">${label}</span>`; }  // label is al veilig HTML (TT/TTV escapen hun inhoud)
 const TT=(nl,en)=> (en&&en!==nl)?`<span class="tekst-nl">${nl}</span><span class="tekst-en">${en}</span>`:nl;
 const TTV=(waarde,map)=> TT(esc(waarde), esc((map&&map[waarde])||waarde));
 const EN={status:{"gereed":"complete","gereed-met-waarschuwing":"complete with warning","blokkade":"blocked","geweigerd":"refused","escalatie":"escalation"},
@@ -2544,7 +2544,7 @@ function renderGentStatic(){
   $("chat5").innerHTML = cards.join("");
   $("facts5").innerHTML = (p.context.regels||[]).map(r=>`
     <div class="gfact"><span class="gfk">${esc(r.feit)}</span><span>${esc(r.waarde)}</span>
-    <span>${gchip(r.label, LABEL_KLEUR[r.label]||"#8b93a7")}<span class="gbron"> ${esc(r.bron)}</span></span></div>`).join("");
+    <span>${gchip(TTV(r.label,EN.label), LABEL_KLEUR[r.label]||"#8b93a7")}<span class="gbron"> ${esc(r.bron)}</span></span></div>`).join("");
   const authEn = {"uitgevoerd":"performed","niet-uitgevoerd":"not performed"};
   $("auth5").innerHTML = `${TT("authenticatie:","authentication:")} <b>${TTV(p.auth.authenticatie,authEn)}</b><br>${TT("toestemming:","consent:")} <b>${TTV(p.auth.toestemming,EN.consent)}</b>${p.auth.methode?`<br>${TT("via","via")} ${esc(p.auth.methode)}${p.auth.loa?` (loa ${esc(p.auth.loa)})`:""}`:""}${p.auth.mandaatAantal?`<br>${TT("mandaten:","mandates:")} ${p.auth.mandaatAantal}`:""}`;
   kaartLaatsteStap = -99;

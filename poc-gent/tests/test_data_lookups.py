@@ -45,6 +45,17 @@ def test_onbekende_straat_fallback(tmp_path):
     assert herkomst["afvalRest"]["label"] == "afgeleid"
 
 
+def test_straat_bekend_fractie_afwezig_krijgt_eigen_herkomst(tmp_path):
+    """Ottergemsesteenweg-Zuid: glas wordt daar niet via de kalender ingezameld —
+    de straat is wél bekend, dus de bron mag niet 'straat niet in cache' zeggen."""
+    _cache(tmp_path, straten={"ottergemsesteenweg-zuid": {"afvalRest": {"dag": "vrijdag"}}})
+    ctx, herkomst = {"address": "Ottergemsesteenweg-Zuid 1, Gent"}, {}
+    data_lookups.apply_checks({"dataChecks": [CHECK]}, ctx, herkomst, tmp_path)
+    assert ctx["afvalRest"] == "vrijdag"
+    assert ctx["afvalPmd"] == "onbekend"
+    assert "geen afvalPmd-inzameling bekend" in herkomst["afvalPmd"]["bron"]
+
+
 def test_onbekende_straat_escalate_waarde(tmp_path):
     _cache(tmp_path)
     check = {**CHECK, "unknownPolicy": "escalate"}
