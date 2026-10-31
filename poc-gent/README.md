@@ -43,6 +43,34 @@ ontvangstbewijs en vervolgsamenvatting) van het referentiepakket
   alleen hashes en namen; het run-artefact blijft volledig (verantwoording +
   audit).
 
+## Evaluatielaag (F4)
+
+- **KPI-rapport + go/no-go** (`core/kpis.py`): `python3 eval.py` meet KPI-01
+  (routingnauwkeurigheid), KPI-02 (regelcorrectheid), KPI-03
+  (brontraceerbaarheid), KPI-04 (transactiesucces E2E), KPI-06 (once-only:
+  nooit vragen om authentieke slots) en de H-event-consistentie, met de
+  drempels uit de function-baseline; `--rapport <pad>` schrijft het
+  JSON-rapport. Het zesde criterium (exit-test) draait standaard mee in het
+  go/no-go-oordeel.
+- **Injectiesuite** (`core/injectie.py`, `fixtures/injecties.json`):
+  `python3 eval.py --injectie` draait 34 adversariële aanvallen op de echte
+  seams (vrije-tekst-slots, situatieschets, documentnamen) in vier categorieën
+  (direct/indirect/tool-misbruik/exfiltratie), telkens tegen een schone
+  zuster-run: gebruikersinhoud blijft data (payload alléén als waarde),
+  bronraadpleging blijft binnen de zuster-run (deelverzameling), events blijven
+  waardevrij (SEC-05) en gegevens van andere persona's blijven afwezig. Een
+  onbekend/adversarieel adres escaleert bewust naar Gentinfo (unknownPolicy:
+  escalate — nooit gokken).
+- **Exit-test** (`core/exit_test.py`): `python3 eval.py --exit` exporteert
+  pakket + fixtures naar een schone root en herleidt de golden set daartegen:
+  13/13 canonieke uitslagen identiek (REP-01). Modelsubstitutie is in de
+  prototypefase modelvrij ("geen model, zelfde uitkomsten"); de
+  productievariant volgt bij de LLM-poot.
+- **EDIC-registratie**: voorbereid in het
+  [F4-plan](../docs/superpowers/plans/2026-10-31-piloot-gent-f4.md) (taak 4);
+  commit geblokkeerd op het lopende NOVEX-werk in
+  `nldt/recipes/edic-asset-map.json`.
+
 ## Gebruik
 
     python3 run.py --list-personas
@@ -54,7 +82,10 @@ ontvangstbewijs en vervolgsamenvatting) van het referentiepakket
     python3 run.py --persona hanne                   # H4-weigering → niets ingediend
     python3 run.py --status --persona sanne          # statusraadpleging (FR-19-mock)
     ../nldt/.venv/bin/python -m pytest tests -q     # volledige testsuite
-    python3 eval.py                                  # golden-set evaluatie
+    python3 eval.py                                  # golden + KPI-rapport + go/no-go
+    python3 eval.py --rapport runs/kpi-rapport.json  # KPI-rapport als JSON
+    python3 eval.py --injectie                        # adversariële suite (34 aanvallen)
+    python3 eval.py --exit                            # config-export + herleiding
     (cd ../simulation && ../nldt/.venv/bin/python build_simulation.py)  # sim-tab 5
     python3 fetch_sources.py --check                 # zone-uitkomsten per adres (offline)
 
