@@ -44,6 +44,9 @@
   .tabkop-titel{font-size:22px;font-weight:750;letter-spacing:.2px;margin:0 0 4px}
   .tabkop-tekst{font-size:14.5px;color:var(--dim);line-height:1.55;max-width:1150px}
   .tabkop code{font-family:var(--mono);color:var(--cyan);font-size:12.5px}
+  .tekst-en{display:none}
+  body.engels .tekst-en{display:block}
+  body.engels .tekst-nl{display:none}
 
   main{padding:0 18px 40px}  /* panelen sluiten direct op de kop-balk aan */
   .view{display:none;grid-template-columns:250px minmax(0,1fr) 330px;gap:14px}
@@ -378,12 +381,13 @@
 <body>
 
 <header>
-  <h1>LDT Toolbox — pipeline simulation <small>both PoCs, replayed from their real run artifacts</small></h1>
+  <h1>LDT Toolbox — pipeline simulation
+    <small><span class="tekst-nl">beide pilots, gerepliceerd vanuit hun echte run-artefacten</span><span class="tekst-en">both pilots, replayed from their real run artifacts</span></small></h1>
   <div class="tabs">
     <div class="tab active" id="tab1" onclick="switchTab(1)">PoC-1 · wind, Utrecht</div>
     <div class="tab" id="tab2" onclick="switchTab(2)">PoC-2 · BP→OP, Eindhoven</div>
-    <div class="tab" id="tab4" onclick="switchTab(4)">Breda · vijf-waarden</div>
-    <div class="tab" id="tab5" onclick="switchTab(5)">Gent · transactie</div>
+    <div class="tab" id="tab4" onclick="switchTab(4)"><span class="tekst-nl">Breda · vijf-waarden</span><span class="tekst-en">Breda · five-value</span></div>
+    <div class="tab" id="tab5" onclick="switchTab(5)"><span class="tekst-nl">Gent · transactie</span><span class="tekst-en">Gent · transaction</span></div>
   </div>
   <div class="controls">
     <button class="ctl primary" id="btnPlay" onclick="ctrl('play')">▶ play</button>
@@ -395,38 +399,75 @@
       <option value="2">2×</option>
       <option value="4">4×</option>
     </select>
+    <button class="ctl" id="btnLang" onclick="wisselTaal()" title="switch language / wissel taal">taal: NL</button>
     <div class="progress-wrap"><b id="stepLabel">—</b><div class="progress"><div id="stepBar"></div></div></div>
   </div>
 </header>
 
 <div class="tabkoppen">
   <div class="tabkop on" id="kop1">
-    <div class="tabkop-titel">PoC-1 · wind, zon &amp; bos — omgevingsverordening Provincie Utrecht</div>
-    <div class="tabkop-tekst">Every number, verdict and polygon below is read from the canonical run artifacts —
-      drie tracks: wind <code>poc/runs/20260830T113234Z-wind</code>, zon <code>poc/runs/20260830T142439Z-zon</code>,
-      bos <code>poc/runs/20260830T142446Z-bos</code>.
-      Onderaan: het paneel van de <b>fine-tuned Laya System-1 zone-keten Utrecht</b> (<code>simulation/laya_utrecht/</code>) —
-      de chat opent na de run. Klik een fase om te springen; <kbd>spatie</kbd> = play/pause, <kbd>→</kbd> = stap.</div>
+    <div class="tekst-nl">
+      <div class="tabkop-titel">PoC-1 · wind, zon &amp; bos — omgevingsverordening Provincie Utrecht</div>
+      <div class="tabkop-tekst">Elk getal, elke uitspraak en elke polygoon hieronder komt uit de canonieke run-artefacten —
+        drie tracks: wind <code>poc/runs/20260830T113234Z-wind</code>, zon <code>poc/runs/20260830T142439Z-zon</code>,
+        bos <code>poc/runs/20260830T142446Z-bos</code>.
+        Onderaan: het paneel van de <b>fine-tuned Laya System-1 zone-keten Utrecht</b> (<code>simulation/laya_utrecht/</code>) —
+        de chat opent na de run. Klik een fase om te springen; <kbd>spatie</kbd> = play/pause, <kbd>→</kbd> = stap.</div>
+    </div>
+    <div class="tekst-en">
+      <div class="tabkop-titel">PoC-1 · wind, solar &amp; forest — Omgevingsverordening, Province of Utrecht</div>
+      <div class="tabkop-tekst">Every number, verdict and polygon below is read from the canonical run artifacts —
+        three tracks: wind <code>poc/runs/20260830T113234Z-wind</code>, solar <code>poc/runs/20260830T142439Z-zon</code>,
+        forest <code>poc/runs/20260830T142446Z-bos</code>.
+        At the bottom: the <b>fine-tuned Laya System-1 zone chain for Utrecht</b> (<code>simulation/laya_utrecht/</code>) —
+        the chat opens after the run. Click any stage to jump; <kbd>space</kbd> = play/pause, <kbd>→</kbd> = step.</div>
+    </div>
   </div>
   <div class="tabkop" id="kop2">
-    <div class="tabkop-titel">PoC-2 · bestemmingsplan → omgevingsplan — Eindhoven</div>
-    <div class="tabkop-tekst">Every number, verdict and rule below is read from the canonical run artifact
-      <code>poc-bp2op/runs/20260830-124515-eindhoven</code>.
-      Onderaan: het paneel van de <b>fine-tuned Laya System-1 BP→OP-keten Eindhoven</b> (<code>simulation/laya_bp2op/</code>) —
-      de chat opent na de run. Klik een fase om te springen; <kbd>spatie</kbd> = play/pause, <kbd>→</kbd> = stap.</div>
+    <div class="tekst-nl">
+      <div class="tabkop-titel">PoC-2 · bestemmingsplan → omgevingsplan — Eindhoven</div>
+      <div class="tabkop-tekst">Elk getal, elke uitspraak en elke regel hieronder komt uit het canonieke run-artefact
+        <code>poc-bp2op/runs/20260830-124515-eindhoven</code>.
+        Onderaan: het paneel van de <b>fine-tuned Laya System-1 BP→OP-keten Eindhoven</b> (<code>simulation/laya_bp2op/</code>) —
+        de chat opent na de run. Klik een fase om te springen; <kbd>spatie</kbd> = play/pause, <kbd>→</kbd> = stap.</div>
+    </div>
+    <div class="tekst-en">
+      <div class="tabkop-titel">PoC-2 · zoning plan → environment plan — Eindhoven</div>
+      <div class="tabkop-tekst">Every number, verdict and rule below is read from the canonical run artifact
+        <code>poc-bp2op/runs/20260830-124515-eindhoven</code>.
+        At the bottom: the <b>fine-tuned Laya System-1 BP→OP chain for Eindhoven</b> (<code>simulation/laya_bp2op/</code>) —
+        the chat opens after the run. Click any stage to jump; <kbd>space</kbd> = play/pause, <kbd>→</kbd> = step.</div>
+    </div>
   </div>
   <div class="tabkop" id="kop4">
-    <div class="tabkop-titel">Breda · vijf-waarden scan</div>
-    <div class="tabkop-tekst">De canonieke <b>Breda five-value scan</b>
-      (<code>poc-breda/runs/20260913T192628Z-breda-scan</code>) — offline choropleth + golden Q&amp;A na de scan-timeline.
-      Klik een fase om te springen; <kbd>spatie</kbd> = play/pause, <kbd>→</kbd> = stap.</div>
+    <div class="tekst-nl">
+      <div class="tabkop-titel">Breda · vijf-waarden scan</div>
+      <div class="tabkop-tekst">De canonieke <b>Breda five-value scan</b>
+        (<code>poc-breda/runs/20260913T192628Z-breda-scan</code>) — offline choropleth + golden Q&amp;A na de scan-timeline.
+        Klik een fase om te springen; <kbd>spatie</kbd> = play/pause, <kbd>→</kbd> = stap.</div>
+    </div>
+    <div class="tekst-en">
+      <div class="tabkop-titel">Breda · five-value scan</div>
+      <div class="tabkop-tekst">The canonical <b>Breda five-value scan</b>
+        (<code>poc-breda/runs/20260913T192628Z-breda-scan</code>) — offline choropleth + golden Q&amp;A after the scan timeline.
+        Click any stage to jump; <kbd>space</kbd> = play/pause, <kbd>→</kbd> = step.</div>
+    </div>
   </div>
   <div class="tabkop" id="kop5">
-    <div class="tabkop-titel">Gent · transactionele levensgebeurtenis-assistent — EUROPAI WP3</div>
-    <div class="tabkop-tekst">Deterministische fase 1+2+3-replay per persona (intake → GIS → H1 → H2/authenticatie →
-      prefill → validatie → H3 → documenten → H4 → ontvangstbewijs), gegenereerd tijdens de build door de
-      poc-gent-engine tegen de echte Gentse zone-lagen; de events-ketting is geverifieerd.
-      Klik een fase om te springen; <kbd>spatie</kbd> = play/pause, <kbd>→</kbd> = stap.</div>
+    <div class="tekst-nl">
+      <div class="tabkop-titel">Gent · transactionele levensgebeurtenis-assistent — EUROPAI WP3</div>
+      <div class="tabkop-tekst">Deterministische fase 1+2+3-replay per persona (intake → GIS → H1 → H2/authenticatie →
+        prefill → validatie → H3 → documenten → H4 → ontvangstbewijs), gegenereerd tijdens de build door de
+        poc-gent-engine tegen de echte Gentse zone-lagen; de events-ketting is geverifieerd.
+        Klik een fase om te springen; <kbd>spatie</kbd> = play/pause, <kbd>→</kbd> = stap.</div>
+    </div>
+    <div class="tekst-en">
+      <div class="tabkop-titel">Gent · transactional life-event assistant — EUROPAI WP3</div>
+      <div class="tabkop-tekst">Deterministic phase 1+2+3 replay per persona (intake → GIS → H1 → H2/authentication →
+        prefill → validation → H3 → documents → H4 → submission receipt), generated at build time by the poc-gent
+        engine against the real Gent zone layers; the events chain is verified.
+        Click any stage to jump; <kbd>space</kbd> = play/pause, <kbd>→</kbd> = step.</div>
+    </div>
   </div>
 </div>
 
@@ -864,6 +905,13 @@ function mountLaya(n){
   if(host && dock.parentElement!==host) host.appendChild(dock);
   switchLayaDs(n===2?"eindhoven":"utrecht");
 }
+function wisselTaal(){
+  const b = document.body || document.documentElement;
+  const en = b.classList.toggle("engels");
+  const knop = $("btnLang");
+  if (knop) knop.textContent = en ? "taal: EN" : "taal: NL";
+}
+
 function switchTab(n){ if(n===active) return; const cur=sim(); if(cur) cur.pause(); active=n;
   if(n===1||n===2) mountLaya(n);
   for(const k of [1,2,4,5]){ const t=$("tab"+k); if(t) t.classList.toggle("active",k===n);
