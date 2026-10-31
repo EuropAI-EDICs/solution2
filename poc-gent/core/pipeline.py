@@ -99,13 +99,13 @@ def _fase3(poc_root: Path, manifest: dict, persona: dict, persona_id: str, packa
         vervolg["open"] = ["Je bevestigde de inzending niet — er is niets ingediend."]
         return _nvt_submission("geweigerd", documenten), "geweigerd"
 
-    resultaten = submit.dien_in(package_id, persona_id, formulieren)
+    resultaten = submit.dien_in(manifest, package_id, persona_id, formulieren)
     ontvangst = {"transacties": resultaten}
     steps.append({"stepId": "ontvangstbewijs", "title": "Je krijgt per aanvraag een ontvangstbewijs",
                   "actor": "partij", "genAiTestPoint": "—",
                   "dataUsed": [f"{r['service']}: {r['referentie']}" for r in resultaten],
                   "consent": "n.v.t.", "handover": None, "kpiEvents": [],
-                  "prov": {"sources": ["District09-vergunningen (mock v1, INT-03)"]}})
+                  "prov": {"sources": [f"{submit.contract_van(manifest)} (mock v1, INT-03)"]}})
     for resultaat in resultaten:
         events_mod.emit(events, "inzending", {"service": resultaat["service"],
                                               "referentie": resultaat["referentie"]})

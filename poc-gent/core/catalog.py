@@ -70,6 +70,8 @@ def _validate(manifest: dict, tables: dict) -> None:
     services = manifest.get("services", {})
     if not services:
         raise PackageError("manifest.services is leeg")
+    if "submission" in manifest and not str(manifest["submission"].get("contract", "")).strip():
+        raise PackageError("manifest.submission: niet-lege 'contract' vereist")
     bronnen = manifest.get("authenticSources", [])
     gedeclareerd = {b.get("slot") for b in bronnen}
     if len(bronnen) != len(gedeclareerd):

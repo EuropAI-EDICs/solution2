@@ -27,9 +27,23 @@ def test_onbekend_contract_faalt():
 
 def test_submit_een_transactie():
     formulieren = [{"service": "ontheffing-lez", "velden": [{"veld": "k", "waarde": "1-ABC-123"}], "ontbrekend": []}]
-    resultaat = submit.dien_in("gent-mobiliteit-ondernemer", "sanne", formulieren)
+    resultaat = submit.dien_in({}, "gent-mobiliteit-ondernemer", "sanne", formulieren)
     assert len(resultaat) == 1
     assert resultaat[0]["service"] == "ontheffing-lez"
     assert resultaat[0]["referentie"].startswith("GENT-")
-    opnieuw = submit.dien_in("gent-mobiliteit-ondernemer", "sanne", formulieren)
+    opnieuw = submit.dien_in({}, "gent-mobiliteit-ondernemer", "sanne", formulieren)
     assert opnieuw == resultaat
+
+
+def test_contract_uit_manifest():
+    manifest = {"submission": {"contract": "district09-parkeervergunningen"}}
+    resultaat = submit.dien_in(manifest, "gent-verhuizen-burger", "lisa",
+                               [{"service": "bewonerskaart", "velden": [], "ontbrekend": []}])
+    assert resultaat[0]["referentie"].startswith("GENT-")
+    assert resultaat[0]["status"] == "geaccepteerd"
+
+
+def test_contract_default_blijft_vergunningen():
+    assert submit.contract_van({}) == "district09-vergunningen"
+    assert submit.contract_van({"submission": {"contract": "district09-parkeervergunningen"}}) \
+        == "district09-parkeervergunningen"

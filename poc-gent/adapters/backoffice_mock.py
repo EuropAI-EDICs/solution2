@@ -4,7 +4,7 @@ statusmapping technisch→burgerlijk gebeurt in de pipeline (INT-06)."""
 
 from __future__ import annotations
 
-_CONTRACTEN = {"district09-vergunningen"}
+_CONTRACTEN = {"district09-vergunningen", "district09-parkeervergunningen"}
 _CACHE: dict[str, dict] = {}
 
 
