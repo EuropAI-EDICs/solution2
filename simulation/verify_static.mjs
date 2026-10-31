@@ -171,7 +171,21 @@ try {
   if (kaartWrap && kaartWrap.style.display === "none") throw new Error("kaart5 zichtbaar verwacht voor sanne");
   if (ds.bredaOn()) throw new Error("breda chat not re-locked after reset");
 
-  console.log(`OK — script evaluated; poc1 tracks driven through every step (${n1} steps on active track), sim2 ${n2} steps, laya fp+chat driven, poc4 sim4 ${s4.steps.length} steps, gent sim5 ${s5e.steps.length} steps (sanne/dirk/ellen/wim/nadia/ilse/hanne/maria) + kaartpanel gecontroleerd, timers drained`);
+  // ---- Gent burgerpakket GT-VERH-01 via de levensgebeurtenis-dropdown ------
+  ds.gentPackage("gentBurger"); drain();
+  const s5b = ds.sims[3];
+  if (!s5b || s5b.steps.length < 4) throw new Error("burger sim5 missing after package switch");
+  s5b.jumpToStage(s5b.steps.length - 1); drain();
+  ds.gentPersona("tomas"); drain();
+  const kbSvg = globalThis.document.getElementById("kaart5");
+  const kbTags = () => (kbSvg.innerHTML.match(/<[a-zA-Z]/g) || []).length;
+  if (!kbSvg || kbTags() !== 7) throw new Error("burgerkaart toont grens + 3 zones + woning (gekregen: " + (kbSvg ? kbTags() : "none") + ")");
+  if (kbSvg.innerHTML.indexOf("nieuwe woning") < 0) throw new Error("burgerkaart startpunt 'nieuwe woning' ontbreekt");
+  ds.gentPersona("robrecht"); drain();
+  ds.gentPackage("gent"); drain();
+  if (kaartTags() !== 6) throw new Error("terug op ondernemerspakket: kaart5 weer basis + start (gekregen: " + kaartTags() + ")");
+
+  console.log(`OK — script evaluated; poc1 tracks driven through every step (${n1} steps on active track), sim2 ${n2} steps, laya fp+chat driven, poc4 sim4 ${s4.steps.length} steps, gent sim5 ${s5e.steps.length} steps (sanne/dirk/ellen/wim/nadia/ilse/hanne/maria) + kaartpanel gecontroleerd incl. burgerpakket-switch, timers drained`);
 } catch (e) {
   console.error("FAIL:", e && e.stack ? e.stack.split("\n").slice(0, 6).join("\n") : e);
   process.exit(1);
