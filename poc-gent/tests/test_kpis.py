@@ -123,3 +123,10 @@ def test_rapport_once_only_schending_is_nogo():
     rap = kpis.rapport([(_run(), events_met_authentieke_vraag, _expect())], MANIFEST)
     assert rap["goNoGo"] == "NO-GO"
     assert any("once-only" in b or "authentiek" in b for b in rap["belemmeringen"])
+
+
+def test_drempels_per_pakket_configureerbaar():
+    manifest = {"kpiDrempels": {"kpi01_min": 80.0}}
+    d = kpis.drempels(manifest)
+    assert d["kpi01_min"] == 80.0 and d["kpi02_min"] == 100.0
+    assert kpis.drempels({}) == kpis.DREMPELS

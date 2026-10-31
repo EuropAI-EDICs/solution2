@@ -251,3 +251,21 @@ def test_kapotte_datacheck_faalt(tmp_path, mutatie, match):
     _schrijf_pkg(tmp_path, manifest, _basis_tables())
     with pytest.raises(catalog.PackageError, match=match):
         catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_inzending_met_expliciet_lege_documentenlijst_laadt(tmp_path):
+    """Bewonerskaart: authentieke bronnen dekken de bewijsstukken — een lege
+    lijst is een bewuste pakketkeuze, de sleutel blijft verplicht."""
+    manifest = _basis_manifest()
+    manifest["services"]["ontheffing-lez"]["documenten"] = []
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    pkg = catalog.load_package(tmp_path, manifest["packageId"])
+    assert pkg.manifest["services"]["ontheffing-lez"]["documenten"] == []
+
+
+def test_submission_contract_leeg_faalt(tmp_path):
+    manifest = _basis_manifest()
+    manifest["submission"] = {"contract": "  "}
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    with pytest.raises(catalog.PackageError, match="contract"):
+        catalog.load_package(tmp_path, manifest["packageId"])

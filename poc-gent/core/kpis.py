@@ -15,6 +15,12 @@ DREMPELS = {
 }
 
 
+def drempels(manifest: dict) -> dict:
+    """Per pakket configureerbaar (manifest.kpiDrempels); default = de
+    mobiliteitsbaseline. Onbekende keys blijven ongebruikt (fail-safe)."""
+    return {**DREMPELS, **(manifest or {}).get("kpiDrempels", {})}
+
+
 def routing_juist(run: dict, expect: dict) -> bool:
     """KPI-01-granulariteit: de juiste diensten (transacties + informatie)."""
     paths = run["transaction"]["routing"]["paths"]
@@ -112,12 +118,13 @@ def rapport(golden_runs: list[tuple[dict, list, dict]], manifest: dict) -> dict:
         c, t = h_events_consistent(events)
         h_correct, h_totaal = h_correct + c, h_totaal + t
     kpi_h = _pct((h_correct, h_totaal))
+    d = drempels(manifest)
 
     kpis_block = {
-        "KPI-01": {"waarde": kpi01, "drempel": DREMPELS["kpi01_min"], "doel": DREMPELS["kpi01_doel"], "ok": (kpi01 or 0) >= DREMPELS["kpi01_min"]},
-        "KPI-02": {"waarde": kpi02, "drempel": DREMPELS["kpi02_min"], "ok": kpi02 == DREMPELS["kpi02_min"]},
-        "KPI-03": {"waarde": kpi03, "drempel": DREMPELS["kpi03_min"], "ok": kpi03 == DREMPELS["kpi03_min"]},
-        "KPI-04": {"waarde": kpi04, "drempel": DREMPELS["kpi04_min"], "ok": kpi04 is None or kpi04 >= DREMPELS["kpi04_min"]},
+        "KPI-01": {"waarde": kpi01, "drempel": d["kpi01_min"], "doel": d["kpi01_doel"], "ok": (kpi01 or 0) >= d["kpi01_min"]},
+        "KPI-02": {"waarde": kpi02, "drempel": d["kpi02_min"], "ok": kpi02 == d["kpi02_min"]},
+        "KPI-03": {"waarde": kpi03, "drempel": d["kpi03_min"], "ok": kpi03 == d["kpi03_min"]},
+        "KPI-04": {"waarde": kpi04, "drempel": d["kpi04_min"], "ok": kpi04 is None or kpi04 >= d["kpi04_min"]},
         "KPI-06": {"authentieke_slot_vragen": authentieke_vragen, "vragen_totaal": vragen_totaal,
                    "ok": authentieke_vragen == 0},
         "H-events": {"waarde": kpi_h, "correct": h_correct, "totaal": h_totaal, "ok": kpi_h == 100.0},

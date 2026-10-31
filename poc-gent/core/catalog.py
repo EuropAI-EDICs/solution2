@@ -97,8 +97,9 @@ def _validate(manifest: dict, tables: dict) -> None:
             raise PackageError(f"dienst '{service_id}': ongeldig minLoA '{service['minLoA']}' (low|substantial|high)")
         if service.get("type") == "inzending" and service.get("vereistAuth") is not True:
             raise PackageError(f"dienst '{service_id}': inzending vereist vereistAuth true")
-        if service.get("type") == "inzending" and not service.get("documenten"):
-            raise PackageError(f"dienst '{service_id}': inzending zonder documenten-eisen")
+        if service.get("type") == "inzending" and "documenten" not in service:
+            raise PackageError(f"dienst '{service_id}': inzending zonder documenten-eisen "
+                               "(gebruik [] als authentieke bronnen volstaan)")
         for regel in service.get("formulier", []):
             if not regel.get("veld"):
                 raise PackageError(f"dienst '{service_id}': formulierregel mist een niet-lege 'veld'")
