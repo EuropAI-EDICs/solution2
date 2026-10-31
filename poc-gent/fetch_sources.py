@@ -24,8 +24,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 import time
+import unicodedata
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -160,6 +162,115 @@ def normaliseer(layer: str, features: list[dict], versie: str) -> list[dict]:
             "geometry": feature.get("geometry"),
         })
     return uit
+
+
+# Afvalkalender (IVAGO, open data Stad Gent): fracties per straat en datum.
+# Deterministisch gevatted: weekdag + eerste datum úit de rijen zelf — geen
+# 'nu'-berekening (replay-stabiliteit), geen grofvuil-slot in het burgerpakket.
+IVAGO_DATASET = "afvalophaalkalender-ivago-woongebied-gent-2026-2027"
+IVAGO_VELDEN = {"straat": "straatnaam", "fractie": "fracties", "datum": "datum"}
+IVAGO_FRACTIES = {"afvalRest": ("rest",), "afvalPmd": ("pmd",), "afvalGlas": ("glas",),
+                  "afvalPapier": ("papier",), "afvalGft": ("gft",)}
+DAG_NAMEN = ("maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag", "zondag")
+
+
+def straatnaam_norm(adres: str) -> str:
+    """'Veldstraat 1, Gent' → 'veldstraat': huisnummer/bus en gemeente eraf,
+    diakritiek gestript, kleine letters (cache-sleutel voor de afvalkalender)."""
+    deel = adres.split(",")[0]
+    zonder_nummer = re.sub(r"\s+\d+.*$", "", deel)
+    nkfd = unicodedata.normalize("NFKD", zonder_nummer)
+    ascii_ = "".join(c for c in nkfd if not unicodedata.combining(c))
+    return re.sub(r"\s+", " ", ascii_).strip().lower()
+
+
+def _norm_datum(raw: str) -> str | None:
+    for patroon in ("%Y-%m-%d", "%d/%m/%Y"):
+        try:
+            return datetime.strptime(raw.strip(), patroon).strftime("%Y-%m-%d")
+        except ValueError:
+            continue
+    return None
+
+
+def _rij_geldig_voor_nummer(rij: dict, huisnummer: int | None) -> bool:
+    """De dataset kent per ronde nummerbereiken (even/oneven zijdes). Een rij
+    geldt voor dit nummer als het bereik van de eigen zijde het nummer dekt;
+    alleen rijen zónder enkel bereik gelden voor de hele straat (een bereik
+    alléén aan de andere zijde sluit dit nummer uit)."""
+    if huisnummer is None:
+        return True
+    soort = "even" if huisnummer % 2 == 0 else "on"
+    van, tot = rij.get(f"{soort}_van"), rij.get(f"{soort}_tot")
+    if van is not None and tot is not None:
+        try:
+            return int(van) <= huisnummer <= int(tot)
+        except (TypeError, ValueError):
+            return True  # onleesbaar bereik: niet beperkend
+    return all(rij.get(veld) is None for veld in
+               ("even_van", "even_tot", "on_van", "on_tot"))
+
+
+def vatten_afval(rijen: list[dict], huisnummer: int | None = None) -> dict:
+    """Per fractie: modus-weekdag (de meest voorkomende ophaaldag — de kalender
+    publiceert verspreide datums o.a. door feestdagverschuivingen), alle
+    dagen, aantal en eerste datum. Deterministisch: alleen uit de rijen zelf,
+    geen 'nu'-berekening (replay-stabiliteit)."""
+    uit: dict[str, dict] = {}
+    for rij in rijen:
+        if not _rij_geldig_voor_nummer(rij, huisnummer):
+            continue
+        datum = _norm_datum(str(rij.get(IVAGO_VELDEN["datum"], "")))
+        if not datum:
+            continue
+        fracties = str(rij.get(IVAGO_VELDEN["fractie"], "")).lower()
+        weekdag = DAG_NAMEN[datetime.strptime(datum, "%Y-%m-%d").weekday()]
+        for slot, sleutels in IVAGO_FRACTIES.items():
+            if any(sleutel in fracties for sleutel in sleutels):
+                info = uit.setdefault(slot, {"eerste": datum, "dagen": [], "telling": {}})
+                info["eerste"] = min(info["eerste"], datum)
+                if weekdag not in info["dagen"]:
+                    info["dagen"].append(weekdag)
+                info["telling"][weekdag] = info["telling"].get(weekdag, 0) + 1
+    return {slot: {"dag": min(info["telling"], key=lambda d: (-info["telling"][d], DAG_NAMEN.index(d))),
+                   "dagen": sorted(info["dagen"], key=DAG_NAMEN.index),
+                   "aantal": sum(info["telling"].values()), "eerste": info["eerste"]}
+            for slot, info in uit.items()}
+
+
+def _huisnummer_uit_adres(adres: str) -> int | None:
+    match = re.search(r"(\d+)", adres.split(",")[0])
+    return int(match.group(1)) if match else None
+
+
+def haal_afvalkalender(poc_root: Path) -> dict:
+    """Per fixture-straat de IVAGO-rijen ophalen (where-query: klein en
+    deterministisch, gefilterd op het huisnummer van het fixture-adres) en
+    vatten naar fixtures/source/afvalkalender.json."""
+    from urllib.parse import urlencode
+
+    adressen = json.loads((poc_root / "fixtures" / "addresses.json").read_text(encoding="utf-8"))
+    kal_meta = _fetch_json(f"{PORTAL}/api/explore/v2.1/catalog/datasets/{IVAGO_DATASET}")
+    gewijzigd = ((kal_meta.get("metas") or {}).get("default") or {}).get("modified")
+    straten: dict[str, dict] = {}
+    for adres in adressen:
+        straat = straatnaam_norm(adres)
+        if straat in straten:
+            continue
+        ruwe_naam = adres.split(",")[0].rsplit(" ", 1)[0]
+        query = urlencode({"where": f'{IVAGO_VELDEN["straat"]}="{ruwe_naam}"', "limit": "-1"})
+        rijen = _fetch_json(
+            f"{PORTAL}/api/explore/v2.1/catalog/datasets/{IVAGO_DATASET}/records?{query}"
+        ).get("results", [])
+        if rijen:
+            straten[straat] = vatten_afval(rijen, _huisnummer_uit_adres(adres))
+        time.sleep(0.2)
+    document = {"dataset": "ivago-ophaalkalender",
+                "versie": f"{IVAGO_DATASET} (gewijzigd {str(gewijzigd)[:10]})",
+                "straten": straten}
+    (SOURCE_DIR / "afvalkalender.json").write_text(
+        json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return {"versie": document["versie"], "straten": len(straten), "aantalAdressen": len(adressen)}
 
 
 def normaliseer_vkbo(features: list[dict]) -> list[dict]:
@@ -474,6 +585,8 @@ def main() -> int:
     ap.add_argument("--check", action="store_true", help="print zone-uitkomsten per fixture-adres (offline)")
     ap.add_argument("--bronnen", action="store_true",
                     help="breid uit met VKBO (echt) en GIPOD (echt-of-mock) — netwerk")
+    ap.add_argument("--afval", action="store_true",
+                    help="bouw de IVAGO-afvalkalender-cache per fixture-straat — netwerk")
     ap.add_argument("--kaart", action="store_true",
                     help="bouw de kaart-cache (VKBO-bedrijfsadressen, OSRM-routes mét alternatief, "
                          "Gent-grens, innames-punten) — netwerk")
@@ -493,6 +606,15 @@ def main() -> int:
         meta_document["bronnen"]["gipod"] = gipod
         print(f"vkbo: {vkbo['aantal']} ondernemingen | {vkbo['bron']} | {vkbo['licentie']}")
         print(f"gipod: mode {gipod['mode']}" + (f" | {gipod['bron']}" if gipod.get("bron") else ""))
+    if args.afval:
+        afval = haal_afvalkalender(POC_ROOT)
+        meta_document["bronnen"]["ivago-ophaalkalender"] = {
+            "cache": "fixtures/source/afvalkalender.json", **afval,
+            "titel": "Afvalophaalkalender IVAGO woongebied Gent 2026-2027",
+            "licentie": "Modellicentie Gratis Hergebruik",
+            "url": f"{PORTAL}/explore/assets/{IVAGO_DATASET}",
+        }
+        print(f"afval: {afval['straten']}/{afval['aantalAdressen']} straten ({afval['versie']})")
     if args.kaart:
         kaart = haal_kaart(POC_ROOT)
         meta_document["bronnen"]["kaart"] = {
@@ -505,7 +627,7 @@ def main() -> int:
     (SOURCE_DIR / "source.meta.json").write_text(
         json.dumps(meta_document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     for laag, info in meta_document["bronnen"].items():
-        if laag in ("adressen", "bestAddress", "vkbo", "gipod", "kaart"):
+        if laag in ("adressen", "bestAddress", "vkbo", "gipod", "kaart", "ivago-ophaalkalender"):
             continue
         print(f"{laag}: {info['titel']} | {info['licentie']} | versie {info['versie']} "
               f"| {info['featuresNaFilter']}/{info['featuresRuwwerk']} features")
