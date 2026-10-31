@@ -63,8 +63,12 @@ def test_kaart_cache_vorm_en_meta(tmp_path, monkeypatch):
         if "nominatim" in url:
             if "polygon_geojson" in url:
                 return [{"geojson": {"type": "Polygon", "coordinates": [[[3.6, 51.0], [3.8, 51.0], [3.8, 51.1], [3.6, 51.0]]]}}]
+            from urllib.parse import parse_qs, urlparse
+            street = parse_qs(urlparse(url).query).get("street", [""])[0]
             return [{"lon": "3.718", "lat": "51.048", "addresstype": "house",
-                     "display_name": "Sleepstraat 1, 9000 Gent, Oost-Vlaanderen, België"}]
+                     "display_name": f"{street}, 9000 Gent, Oost-Vlaanderen, België",
+                     "address": {"road": street.rsplit(" ", 1)[0],
+                                 "city": "Gent", "postcode": "9000"}}]
         if "router.project-osrm.org" in url:
             return {"routes": [
                 {"distance": 871.2, "duration": 176.7, "geometry": {"coordinates": [[3.72, 51.05], [3.721, 51.055], [3.722, 51.055]]}},

@@ -52,6 +52,22 @@ LAYERS = {
         "soort": "records",
         "filter": "autovrijgebied is gevuld (Autovrij gebied 1–5); voetgangersstraten vallen buiten de laag",
     },
+    "gent-bewonerszone": {
+        "dataset_id": "bewonerszones-gent",
+        "url_export": f"{PORTAL}/api/explore/v2.1/catalog/datasets/bewonerszones-gent/exports/geojson",
+        "url_meta": f"{PORTAL}/api/explore/v2.1/catalog/datasets/bewonerszones-gent",
+        "url_portal": f"{PORTAL}/explore/assets/bewonerszones-gent",
+        "soort": "export",
+        "filter": None,
+    },
+    "gent-parkeertariefzone": {
+        "dataset_id": "parkeertariefzones-gent",
+        "url_export": f"{PORTAL}/api/explore/v2.1/catalog/datasets/parkeertariefzones-gent/exports/geojson",
+        "url_meta": f"{PORTAL}/api/explore/v2.1/catalog/datasets/parkeertariefzones-gent",
+        "url_portal": f"{PORTAL}/explore/assets/parkeertariefzones-gent",
+        "soort": "export",
+        "filter": None,
+    },
 }
 
 # Fixture-adressen voor de personas (cache-committed; herleid via --geocode).
@@ -62,11 +78,27 @@ ADRESSEN = [
     "Sint-Pietersplein 1, Gent",                # binnen LEZ, buiten autovrij gebied
     "Koningin Maria Hendrikaplein 1, Gent",     # buiten beide (station Gent-Sint-Pieters)
     "Veldstraat 1, Gent",                       # centrum, binnen beide
+    "Nederkouter 1, Gent",                      # burgerkandidaat: binnen singels/LEZ
+    "Sleepstraat 1, Gent",                      # burgerkandidaat: vergelijkingspunt buiten centrum-tariefzone
+    "Ottergemsesteenweg-Zuid 1, Gent",          # burgergolden: buiten bewoners-/tariefzone en LEZ (Gentbrugge)
 ]
 
 BEST_ADDRESS_PAD = ("productiepad officiële geocoding: BeSt Address Web API — "
                     "https://opendata.bosa.be/download/best/bestinabox/best-webapi-user-guide.pdf "
                     "(self-host via docker bosa/opendata-best-webapi); PoC gebruikt OSM Nominatim ( echt, ODbL)")
+# Stadsgarde voor Nominatim-treffers (met addressdetails): de straatnaam moet
+# exact kloppen én de gemeente 'Gent' zijn of de postcode tot de stad Gent
+# behoren. De display_name is onbetrouwbaar: '…, Hijfte, Lochristi, Gent,
+# Oost-Vlaanderen, … 9080, …' bevat het woord Gent als arrondissement, en
+# huisnummers zonder eigen object matchen los op andere straten
+# ('Oude Veldstraat' bij Veldstraat).
+GENT_POSTCODES = {"9000", "9030", "9031", "9032", "9040", "9041", "9051", "9052"}
+
+
+def _in_gent(resultaat: dict, straatnaam: str) -> bool:
+    adres = resultaat.get("address") or {}
+    return (adres.get("road") == straatnaam
+            and (adres.get("city") == "Gent" or adres.get("postcode") in GENT_POSTCODES))
 VKBO_URL = "https://geo.api.vlaanderen.be/VKBO/ogc/features/v1/collections/Vkbo/items"
 GIPOD_SWAGGER = "https://gipod.api.vlaanderen.be/swagger/v1/swagger.json"
 NOMINATIM = "https://nominatim.openstreetmap.org"
@@ -221,26 +253,40 @@ def dun_punten(punten: list, max_punten: int = 80) -> list:
     return [list(punten[round(i * stap)]) for i in range(max_punten)]
 
 
-def _geocode(straat_en_huisnr: str, cache_sleutel: str | None = None) -> list[float] | None:
-    """Coördinaat voor een Gent-adres: eerst de gecommitte adrescache, daarna
-    Nominatim gestructureerd én begrensd op Gent (1 req/s)."""
+def _nominatim_zoek(straat: str) -> list[dict]:
     from urllib.parse import urlencode
 
+    query = urlencode({"format": "json", "limit": 5, "street": straat,
+                       "city": "Gent", "country": "Belgium", "addressdetails": "1",
+                       "viewbox": "3.630,50.990,3.830,51.160", "bounded": "1"})
+    resultaten = _fetch_json(f"{NOMINATIM}/search?{query}")
+    time.sleep(1.1)
+    return resultaten
+
+
+def _gent_coord(straat_en_huisnr: str) -> list[float] | None:
+    """Coördinaat in de stad Gent voor een adres: eerst huisniveau, bij geen
+    treffers het straatcentroid — telkens mét de exacte straatnaam- en
+    stadsgarde (onbestaande huisnummers, bijv. Veldstraat 1, vallen terug op
+    de straat zelf)."""
+    straatnaam = straat_en_huisnr.rsplit(" ", 1)[0]  # huisnummer (of '1A') eraf
+    for poging in (straat_en_huisnr, straatnaam):
+        treffers = [r for r in _nominatim_zoek(poging) if _in_gent(r, straatnaam)]
+        treffers = [r for r in treffers if r.get("addresstype") in ("house", "building")] or treffers
+        if treffers:
+            return [float(treffers[0]["lon"]), float(treffers[0]["lat"])]
+    return None
+
+
+def _geocode(straat_en_huisnr: str, cache_sleutel: str | None = None) -> list[float] | None:
+    """Coördinaat voor een Gent-adres: eerst de gecommitte adrescache, daarna
+    Nominatim met stadsgarde (1 req/s)."""
     sleutel = cache_sleutel or f"{straat_en_huisnr}, Gent"
     cache_pad = POC_ROOT / "fixtures" / "addresses.json"
     cache = json.loads(cache_pad.read_text(encoding="utf-8")) if cache_pad.is_file() else {}
     if sleutel in cache:
         return cache[sleutel]
-    query = urlencode({"format": "json", "limit": 5, "street": straat_en_huisnr,
-                       "city": "Gent", "country": "Belgium",
-                       "viewbox": "3.630,50.990,3.830,51.160", "bounded": "1"})
-    resultaten = _fetch_json(f"{NOMINATIM}/search?{query}")
-    time.sleep(1.1)
-    treffers = [r for r in resultaten if r.get("addresstype") in ("house", "building", "road")] \
-        or [r for r in resultaten if "Gent, Oost-Vlaanderen" in r.get("display_name", "")]
-    if not treffers:
-        return None
-    return [float(treffers[0]["lon"]), float(treffers[0]["lat"])]
+    return _gent_coord(straat_en_huisnr)
 
 
 def _haal_grens() -> dict | None:
@@ -379,8 +425,12 @@ def geocoden() -> None:
     """Vernieuw fixtures/addresses.json via Nominatim (1 request/seconde).
 
     Gestructureerde zoekopdracht (street/city/country), begrensd op het Gentse
-    stadsgebied (viewbox+bounded): vrije-tekst-zoeking trof eerder gelijknamige
-    straten in omliggende gemeenten (Sleepstraat bij Gavere, Veldstraat bij Eeklo).
+    stadsgebied (viewbox+bounded, inclusief deelgemeenten als Gentbrugge — de
+    burger-adressen liggen buiten de singels) mét stadsgarde via
+    addressdetails: alleen treffers waarvan de gemeente 'Gent' is of de
+    postcode tot de stad Gent behoort tellen mee, dus gelijknamige straten in
+    omliggende gemeenten (Veldstraat bij Lochristi/Destelbergen, Sleepstraat
+    bij Gavere, Veldstraat bij Eeklo) vallen af.
     """
     from urllib.parse import urlencode
 
@@ -388,16 +438,11 @@ def geocoden() -> None:
     tijdstippen: dict[str, str] = {}
     for adres in ADRESSEN:
         straat_en_nummer = adres.replace(", Gent", "")
-        query = urlencode({"format": "json", "limit": 5, "street": straat_en_nummer,
-                           "city": "Gent", "country": "Belgium",
-                           "viewbox": "3.680,51.020,3.760,51.080", "bounded": "1"})
-        resultaten = _fetch_json(f"https://nominatim.openstreetmap.org/search?{query}")
-        treffers = [r for r in resultaten if r.get("addresstype") in ("house", "building")]
-        treffers = treffers or [r for r in resultaten if "Gent, Oost-Vlaanderen" in r.get("display_name", "")]
-        if not treffers:
+        coord = _gent_coord(straat_en_nummer)
+        if coord is None:
             print(f"WAARSCHUWING: geen Gent-treffer voor {adres}", file=sys.stderr)
             continue
-        adressen[adres] = [float(treffers[0]["lon"]), float(treffers[0]["lat"])]
+        adressen[adres] = coord
         tijdstippen[adres] = _now()
         time.sleep(1.1)
     (POC_ROOT / "fixtures" / "addresses.json").write_text(

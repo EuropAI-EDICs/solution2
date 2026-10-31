@@ -45,8 +45,29 @@ def test_onbekend_adres_faalt_duidelijk():
 
 def test_load_layer_versies_leest_versie_per_laag():
     versies = gis_zones.load_layer_versies(POC_ROOT)
-    assert set(versies) == {"gent-lez", "gent-autovrij"}
+    assert set(versies) == {"gent-lez", "gent-autovrij", "gent-bewonerszone",
+                            "gent-parkeertariefzone"}
     assert all(isinstance(v, str) and v for v in versies.values())
+
+
+def test_nieuwe_burgerlagen_bestaan_en_dekken_adressen():
+    zones = _zones()
+    assert zones["gent-bewonerszone"]       # bewonerszones-gent: 20 features
+    assert zones["gent-parkeertariefzone"]  # parkeertariefzones-gent: 81 features
+    # gepind tegen het --check-rapport (echte lagen, F1.5-doctrine):
+    lon, lat = gis_zones.lookup_address(POC_ROOT, "Veldstraat 1, Gent")
+    assert gis_zones.zone_result(zones, "gent-bewonerszone", lon, lat) == "in"
+    assert gis_zones.zone_result(zones, "gent-parkeertariefzone", lon, lat) == "in"
+    assert gis_zones.zone_result(zones, "gent-lez", lon, lat) == "in"
+
+
+def test_burgergolden_tomas_adres_pinning():
+    """Buiten-zone-adres voor het burgerpakket (Ottergemsesteenweg-Zuid,
+    Gentbrugge): niet in bewoners-, tarief- of LEZ-zone."""
+    zones = _zones()
+    lon, lat = gis_zones.lookup_address(POC_ROOT, "Ottergemsesteenweg-Zuid 1, Gent")
+    for laag in ("gent-bewonerszone", "gent-parkeertariefzone", "gent-lez"):
+        assert gis_zones.zone_result(zones, laag, lon, lat) == "niet-in", laag
 
 
 def test_load_zones_accepteert_multipolygon(tmp_path):
