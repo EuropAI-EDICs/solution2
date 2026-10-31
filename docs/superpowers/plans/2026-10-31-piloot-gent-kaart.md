@@ -92,6 +92,19 @@ De eerste oplevering is naar gebruikerswens bijgesteld (commit volgt direct):
    basisweergave — zonder externe dependencies (viewBox-manipulatie); bij
    persona-switch wordt de zoom teruggezet.
 
+### Nabestelling 5: volledige tweetaligheid Gent-tab (2026-10-31)
+
+De NL/EN-toggle dekt nu de héle paneelinhoud van het Gent-tab, niet alleen
+de koplaag: `simulation/vertaal_gent.py` is een presentatievertaling (dict +
+patronen voor geïnterpoleerde teksten — engine, pakket en run-artefacten
+blijven Nederlands); `build_gent` emit NL + `*En`-twins; de template rendert
+beide via de `tekst-nl`/`tekst-en`-spans en enum-maps (status, consent, actor,
+herkomstlabels, ontvangststatus, inname-typen). Volledigheid is
+testgedekt (`test_vertaal_gent.py`: `onbekend()` moet leeg zijn over alle 11
+persona's — nieuwe teksten vallen op in plaats van stil NL te blijven). De
+andere tabs draaien op historische run-artefacten en blijven onvertaald
+(kopteksten zijn wél tweetalig).
+
 ## Zelfcheck na afronding (executeur)
 
 1. poc-gent-suite groen (143 + kaart-cache-units).

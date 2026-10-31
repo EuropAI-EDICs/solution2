@@ -27,6 +27,8 @@ from pathlib import Path
 
 import importlib.util
 
+from vertaal_gent import VT_STATUS, vt
+
 from shapely.geometry import shape
 from shapely.ops import unary_union
 
@@ -1315,6 +1317,39 @@ def _kaart_blok(kaart, zones, pid):
     }
 
 
+def _verrijk_met_en(p: dict) -> dict:
+    """Presentatievertaling voor de NL/EN-toggle: NL blijft leidend, elke
+    getoonde tekst krijgt een *En-twin (vertaal_gent.vt; zie volledigheidstest)."""
+    p["labelEn"] = vt(p["label"])
+    p["situatieschetsEn"] = vt(p["situatieschets"])
+    p["statusEn"] = VT_STATUS.get(p["status"], p["status"])
+    p["outcomeEn"] = {"paden": "paths", "escalatie": "escalation"}.get(p["outcome"], p["outcome"])
+    for stap in p["steps"]:
+        stap["titleEn"] = vt(stap["title"])
+        stap["dataUsedEn"] = [vt(d, streng=False) for d in stap.get("dataUsed", [])]
+        if stap.get("handover"):
+            stap["handover"] = {**stap["handover"], "reasonEn": vt(stap["handover"]["reason"])}
+    for uitleg in p.get("uitleg", []):
+        uitleg["tekstEn"] = vt(uitleg["tekst"])
+    for uitslag in p["validatie"]["transacties"]:
+        for bevinding in uitslag.get("bevindingen", []):
+            bevinding["meldingEn"] = vt(bevinding["melding"])
+    vervolg = ((p.get("submission") or {}).get("vervolgsamenvatting")) or None
+    if vervolg:
+        vervolg["gereedEn"] = [vt(regel) for regel in vervolg.get("gereed", [])]
+        vervolg["openEn"] = [vt(regel) for regel in vervolg.get("open", [])]
+    documenten = (p.get("submission") or {}).get("documenten")
+    if documenten:
+        documenten["statusEn"] = {"volledig": "complete", "onvolledig": "incomplete",
+                                  "n.v.t.": "n/a"}.get(documenten["status"], documenten["status"])
+        for bevinding in documenten.get("bevindingen", []):
+            bevinding["meldingEn"] = vt(bevinding["melding"])
+    if p.get("kaart"):
+        p["kaart"]["bronEn"] = vt(p["kaart"]["bron"])
+        p["kaart"]["omzeilEn"] = [vt(regel) for regel in p["kaart"].get("omzeil", [])]
+    return p
+
+
 def build_gent() -> dict:
     """Gent EUROPAI-piloot voor tab 5: deterministische replay (fase 1+2+3) per
     persona, gegenereerd door de echte poc-gent-engine tijdens de build. De
@@ -1369,7 +1404,11 @@ def build_gent() -> dict:
             "chainOk": events.verify_chain(log),
         })
 
+    out_personas = [_verrijk_met_en(persoon) for persoon in out_personas]
     return {
+        "serviceTitelsEn": {k: vt(v) for k, v in {
+            dienst: pkg.manifest["services"][dienst].get("titel", dienst)
+            for dienst in pkg.manifest["services"]}.items()},
         "packageId": pkg.manifest["packageId"],
         "lifeEventCode": pkg.manifest["lifeEventCode"],
         "version": pkg.manifest["version"],

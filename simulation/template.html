@@ -752,20 +752,21 @@
     <div class="gcols">
       <div id="chat5" class="gchat"></div>
       <div id="kaart5wrap" class="gkaartwrap" style="display:none">
-        <h3 class="gkaartkop">route &amp; omleidingen <span class="gsub" id="kaart5meta"></span></h3>
+        <h3 class="gkaartkop"><span class="tekst-nl">route &amp; omleidingen</span><span class="tekst-en">route &amp; detours</span> <span class="gsub" id="kaart5meta"></span></h3>
         <svg id="kaart5" viewBox="0 0 720 520" preserveAspectRatio="xMidYMid meet"></svg>
-        <div class="gkaartleg"><span style="color:#3b82f6">━</span> primair (snelste) · <span style="color:#8b93a7">━</span> alternatief (dunner) · <span style="color:#22d3ee">━━</span> dik = door Gent aangeraden (minste innames) · <span style="color:#f59e0b">▲</span> inname (GIPOD) · <span style="color:#f59e0b">▨</span> lage-emissiezone · <span style="color:#f87171">▨</span> autovrij gebied · <span style="color:#34d399">●</span> start (bedrijf) · <span style="color:#f87171">●</span> doel · 🔍 scroll = inzoomen · sleep = verschuiven · dubbelklik = herstellen</div>
+        <div class="gkaartleg"><div class="tekst-nl"><span style="color:#3b82f6">━</span> primair (snelste) · <span style="color:#8b93a7">━</span> alternatief (dunner) · <span style="color:#22d3ee">━━</span> dik = door Gent aangeraden (minste innames) · <span style="color:#f59e0b">▲</span> inname (GIPOD) · <span style="color:#f59e0b">▨</span> lage-emissiezone · <span style="color:#f87171">▨</span> autovrij gebied · <span style="color:#34d399">●</span> start (bedrijf) · <span style="color:#f87171">●</span> doel · 🔍 scroll = inzoomen · sleep = verschuiven · dubbelklik = herstellen</div>
+        <div class="tekst-en"><span style="color:#3b82f6">━</span> primary (fastest) · <span style="color:#8b93a7">━</span> alternative (thinner) · <span style="color:#22d3ee">━━</span> thick = recommended by Ghent (fewest hindrances) · <span style="color:#f59e0b">▲</span> hindrance (GIPOD) · <span style="color:#f59e0b">▨</span> low-emission zone · <span style="color:#f87171">▨</span> car-free area · <span style="color:#34d399">●</span> start (company) · <span style="color:#f87171">●</span> destination · 🔍 scroll = zoom · drag = pan · double-click = reset</div></div>
         <div id="kaart5info" class="gkaartinfo"></div>
         <div class="gbron" id="kaart5bron"></div>
       </div>
     </div>
   </div>
   <aside class="card gside">
-    <h3>feiten &amp; herkomst</h3>
+    <h3><span class="tekst-nl">feiten &amp; herkomst</span><span class="tekst-en">facts &amp; provenance</span></h3>
     <div id="facts5" class="gfacts"></div>
-    <h3>authentieke bronnen</h3>
+    <h3><span class="tekst-nl">authentieke bronnen</span><span class="tekst-en">authentication &amp; sources</span></h3>
     <div id="auth5" class="gauth"></div>
-    <h3>events-ketting</h3>
+    <h3><span class="tekst-nl">events-ketting</span><span class="tekst-en">events chain</span></h3>
     <div id="ev5" class="gev"></div>
   </aside>
 </section>
@@ -907,6 +908,7 @@ function mountLaya(n){
 }
 function wisselTaal(){
   const b = document.body || document.documentElement;
+  if (!b || !b.classList || !b.classList.toggle) return;
   const en = b.classList.toggle("engels");
   const knop = $("btnLang");
   if (knop) knop.textContent = en ? "taal: EN" : "taal: NL";
@@ -2384,10 +2386,20 @@ let curGent = G.personas[0].id;
 const LABEL_KLEUR = {authentiek:"#3b82f6", gebruiker:"#8b93a7", correctie:"#f59e0b", afgeleid:"#22d3ee"};
 function gpersona(id){ return G.personas.find(p=>p.id===id) || G.personas[0]; }
 function gchip(label, kleur){ return `<span class="gchip" style="color:${kleur};border-color:${kleur}55">${esc(label)}</span>`; }
+const TT=(nl,en)=> (en&&en!==nl)?`<span class="tekst-nl">${nl}</span><span class="tekst-en">${en}</span>`:nl;
+const TTV=(waarde,map)=> TT(esc(waarde), esc((map&&map[waarde])||waarde));
+const EN={status:{"gereed":"complete","gereed-met-waarschuwing":"complete with warning","blokkade":"blocked","geweigerd":"refused","escalatie":"escalation"},
+  outcome:{"paden":"paths","escalatie":"escalation"},
+  consent:{"gegeven":"given","geweigerd":"refused","gevraagd":"asked","n.v.t.":"n/a"},
+  actor:{"mens":"human","partij":"party","agent":"agent"},
+  label:{"authentiek":"authentic","gebruiker":"user","correctie":"correction","afgeleid":"derived"},
+  ontvangst:{"geaccepteerd":"accepted","niet-ingediend":"not submitted","in-wachtrij":"queued","afgewezen":"rejected","technisch-mislukt":"technical failure"}};
+const dienstTitel=(id)=> TT(esc((G.serviceTitels||{})[id]||id), esc((G.serviceTitelsEn||{})[id]||id));
+
 function renderGentMeta(){
   $("gentmeta").innerHTML =
     `<div class="gpers">${G.personas.map(p=>`
-      <button class="ttab ${p.id===curGent?'active':''}" onclick="gentPersona('${p.id}')" title="${esc(p.label)}${p.edge?' · edge: '+esc(p.edge):''}">${esc(p.id)}</button>`).join("")}</div>`
+      <button class="ttab ${p.id===curGent?'active':''}" onclick="gentPersona('${p.id}')" title="${esc(p.label)}${p.labelEn?' / '+esc(p.labelEn):''}${p.edge?' · edge: '+esc(p.edge):''}">${esc(p.id)}</button>`).join("")}</div>`
     + `<div class="gmeta2"><code>${esc(G.lifeEventCode)}</code> · ${esc(G.packageId)} v${esc(G.version)} · `
     + Object.entries(G.bronversies||{}).map(([k,v])=>`${esc(k)} — ${esc(v)}`).join(" · ") + `</div>`;
 }
@@ -2443,15 +2455,15 @@ function kaartStap(st){
   // ook na een reset (stap -1) blijft de kaart zo gevuld — het startpunt
   // verschijnt alleen niet opnieuw als er niets nieuws gebeurde.
   const startNieuw = kaartLaatsteStap < -1;
-  s += `<circle class="${startNieuw?"kpop":""}" cx="${z.start[0]}" cy="${z.start[1]}" r="7" fill="#34d399" stroke="#0e2a1c"><title>start: ${esc(k.start.label)} — kenteken geregistreerd op het bedrijf</title></circle>`;
+  s += `<circle class="${startNieuw?"kpop":""}" cx="${z.start[0]}" cy="${z.start[1]}" r="7" fill="#34d399" stroke="#0e2a1c"><title>start/start: ${esc(k.start.label)} — kenteken geregistreerd op het bedrijf · vehicle registered at the company</title></circle>`;
   s += `<text x="${z.start[0]+10}" y="${z.start[1]+4}" font-size="12" fill="#34d399">${esc(k.start.label)}</text>`
   if (aan(ri)) {
     if (z.routes.alternatief)
       s += `<path class="${nieuw(ri)?"kdraw":""}" pathLength="1" d="${z.routes.alternatief}" fill="none" stroke="#8b93a7" stroke-width="2.5" opacity=".95"/>`;
     s += `<path class="${nieuw(ri)?"kdraw":""}" pathLength="1" d="${z.routes.primaire}" fill="none" stroke="#3b82f6" stroke-width="2.5" opacity="${k.gewenst==="primaire"?"1":".7"}"/>`;
     s += `<path class="${nieuw(ri)?"kdraw":""}" pathLength="1" d="${z.routes[k.gewenst]}" fill="none" stroke="${k.gewenst==="primaire"?"#3b82f6":"#8b93a7"}" stroke-width="5.5" stroke-linecap="round" opacity=".95"/>`;
-    z.innames.forEach((c,i)=>{ s += `<polygon class="${nieuw(ri)?"kpop":""}" points="${c[0]},${c[1]-8} ${c[0]-7},${c[1]+6} ${c[0]+7},${c[1]+6}" fill="#f59e0b" stroke="#ffd28a"><title>${esc(k.innames[i].straat)} — ${esc(k.innames[i].type)} (${esc(k.innames[i].van)} → ${esc(k.innames[i].tot)})</title></polygon>`; });
-    s += `<circle class="${nieuw(ri)?"kpop":""}" cx="${z.doel[0]}" cy="${z.doel[1]}" r="7" fill="#f87171" stroke="#3d1111"><title>doel: ${esc(k.doel)}</title></circle>`;
+    z.innames.forEach((c,i)=>{ s += `<polygon class="${nieuw(ri)?"kpop":""}" points="${c[0]},${c[1]-8} ${c[0]-7},${c[1]+6} ${c[0]+7},${c[1]+6}" fill="#f59e0b" stroke="#ffd28a"><title>${esc(k.innames[i].straat)} — ${esc(k.innames[i].type)}/${esc(({"grondwerk":"roadworks","evenement":"event"})[k.innames[i].type]||k.innames[i].type)} (${esc(k.innames[i].van)} → ${esc(k.innames[i].tot)})</title></polygon>`; });
+    s += `<circle class="${nieuw(ri)?"kpop":""}" cx="${z.doel[0]}" cy="${z.doel[1]}" r="7" fill="#f87171" stroke="#3d1111"><title>doel/destination: ${esc(k.doel)}</title></circle>`;
     s += `<text x="${z.doel[0]-10}" y="${z.doel[1]-10}" font-size="12" fill="#f87171" text-anchor="end">${esc(k.doel)}</text>`;
   }
   $("kaart5").innerHTML = s;
@@ -2467,54 +2479,54 @@ function renderGentStatic(){
   const vervolgToont = !!(ontv.length || openRegels.length || docBev.length);
   $("rail5").innerHTML = p.steps.map((s,i)=>`
     <div class="stage" id="st5-${i}" onclick="sim5.jumpToStage(${i})">
-      <b>${i+1}. ${esc(s.title)}</b>
-      <span class="gsub">${esc(s.actor)}${s.genAiTestPoint&&s.genAiTestPoint!=="—"?` · ${esc(s.genAiTestPoint)}`:""}${s.consent&&s.consent!=="n.v.t."?` · ${esc(s.consent)}`:""}</span>
+      <b>${i+1}. ${TT(esc(s.title), esc(s.titleEn))}</b>
+      <span class="gsub">${TTV(s.actor,EN.actor)}${s.genAiTestPoint&&s.genAiTestPoint!=="—"?` · ${esc(s.genAiTestPoint)}`:""}${s.consent&&s.consent!=="n.v.t."?` · ${TTV(s.consent,EN.consent)}`:""}</span>
     </div>`).join("")
-    + `<div class="stage" id="st5-${p.steps.length}" onclick="sim5.jumpToStage(${p.steps.length})"><b>status</b><span class="gsub">${esc(p.status)}</span></div>`
-    + (vervolgToont?`<div class="stage" id="st5-${p.steps.length+1}" onclick="sim5.jumpToStage(${p.steps.length+1})"><b>ontvangst &amp; vervolg</b><span class="gsub">${ontv.length?`${ontv.filter(t=>t.status!=="niet-ingediend").length}/${ontv.length} ingediend`:"geen aanvragen"}</span></div>`:"");
+    + `<div class="stage" id="st5-${p.steps.length}" onclick="sim5.jumpToStage(${p.steps.length})"><b>status</b><span class="gsub">${TTV(p.status,EN.status)}</span></div>`
+    + (vervolgToont?`<div class="stage" id="st5-${p.steps.length+1}" onclick="sim5.jumpToStage(${p.steps.length+1})"><b>${TT("ontvangst &amp; vervolg","receipt &amp; follow-up")}</b><span class="gsub">${ontv.length?`${ontv.filter(t=>t.status!=="niet-ingediend").length}/${ontv.length} ${TT("ingediend","submitted")}`:TT("geen aanvragen","no applications")}</span></div>`:"");
   const cards=[];
-  cards.push(`<div class="gcard guser on"><div class="gwho">${esc(p.label)}</div><div class="gtxt">“${esc(p.situatieschets)}”</div></div>`);
+  cards.push(`<div class="gcard guser on"><div class="gwho">${TT(esc(p.label), esc(p.labelEn))}</div><div class="gtxt">“${TT(esc(p.situatieschets), esc(p.situatieschetsEn))}”</div></div>`);
   p.steps.forEach((s,i)=>{
-    let body = (s.dataUsed||[]).map(d=>`<div class="gdu">${esc(d)}</div>`).join("");
+    let body = (s.dataUsed||[]).map((d,di)=>`<div class="gdu">${TT(esc(d), esc((s.dataUsedEn||[])[di]))}</div>`).join("");
     if(s.stepId==="routing" && (p.uitleg||[]).length){
-      body += p.uitleg.map(u=>`<div class="guitleg"><div>${esc(u.tekst)}</div><div class="gbron">${esc(u.bron)}</div></div>`).join("");
+      body += p.uitleg.map(u=>`<div class="guitleg"><div>${TT(esc(u.tekst), esc(u.tekstEn))}</div><div class="gbron">${esc(u.bron)}</div></div>`).join("");
     }
     if(s.stepId==="h3-conceptbeoordeling" && (p.prefill.transacties||[]).length){
       body += (p.prefill.transacties||[]).map(t=>{
-        const titel = (G.serviceTitels||{})[t.service]||t.service;
-        const velden = t.velden.map(v=>`<tr><td>${esc(v.veld)}</td><td>${esc(v.waarde===null?"—":v.waarde)}</td><td>${gchip(v.label, LABEL_KLEUR[v.label]||"#8b93a7")}</td><td class="gbron">${esc(v.bron)}</td></tr>`).join("");
-        return `<div class="gform"><b>${esc(titel)}</b><table>${velden}</table>${t.ontbrekend&&t.ontbrekend.length?`<div class="gmiss">ontbrekend: ${t.ontbrekend.map(esc).join(", ")}</div>`:""}</div>`;
+        const velden = t.velden.map(v=>`<tr><td>${esc(v.veld)}</td><td>${esc(v.waarde===null?"—":v.waarde)}</td><td>${gchip(TTV(v.label,EN.label), LABEL_KLEUR[v.label]||"#8b93a7")}</td><td class="gbron">${esc(v.bron)}</td></tr>`).join("");
+        return `<div class="gform"><b>${dienstTitel(t.service)}</b><table>${velden}</table>${t.ontbrekend&&t.ontbrekend.length?`<div class="gmiss">${TT("ontbrekend:","missing:")} ${t.ontbrekend.map(esc).join(", ")}</div>`:""}</div>`;
       }).join("");
     }
-    const consent = s.consent&&s.consent!=="n.v.t." ? gchip("toestemming: "+s.consent, s.consent==="geweigerd"?"#f87171":"#34d399") : "";
-    const hand = s.handover ? `<div class="ghand">→ ${esc(s.handover.to)} — ${esc(s.handover.reason)}</div>` : "";
-    cards.push(`<div class="gcard" id="gc-${i}"><div class="ghead"><span class="gact gact-${esc(s.actor)}">${esc(s.actor)}</span><b>${esc(s.title)}</b>${consent}</div>${body}${hand}</div>`);
+    const consent = s.consent&&s.consent!=="n.v.t." ? gchip(TT("toestemming: "+esc(s.consent), "consent: "+esc(EN.consent[s.consent]||s.consent)), s.consent==="geweigerd"?"#f87171":"#34d399") : "";
+    const hand = s.handover ? `<div class="ghand">→ ${esc(s.handover.to)} — ${TT(esc(s.handover.reason), esc(s.handover.reasonEn))}</div>` : "";
+    cards.push(`<div class="gcard" id="gc-${i}"><div class="ghead"><span class="gact gact-${esc(s.actor)}">${TTV(s.actor,EN.actor)}</span><b>${TT(esc(s.title), esc(s.titleEn))}</b>${consent}</div>${body}${hand}</div>`);
   });
   const bev = (p.validatie.transacties||[]).flatMap(t=>(t.bevindingen||[]).map(b=>({service:t.service, b})));
-  cards.push(`<div class="gcard gstatus" id="gc-${p.steps.length}"><div class="ghead"><b>status: ${esc(p.status)}</b><span class="gsub">${esc(p.outcome)}${(p.transactions||[]).length?" · "+p.transactions.map(x=>esc((G.serviceTitels||{})[x]||x)).join(" + "):""}</span></div>`
-    + bev.map(({service,b})=>`<div class="gbev ${esc(b.ernst)}">${esc((G.serviceTitels||{})[service]||service)} — <b>${esc(b.id)}</b> ${esc(b.melding)}</div>`).join("") + `</div>`);
+  cards.push(`<div class="gcard gstatus" id="gc-${p.steps.length}"><div class="ghead"><b>${TT("status: "+esc(p.status), "status: "+esc(p.statusEn))}</b><span class="gsub">${TT(esc(p.outcome), esc(p.outcomeEn))}${(p.transactions||[]).length?" · "+p.transactions.map(x=>dienstTitel(x)).join(" + "):""}</span></div>`
+    + bev.map(({service,b})=>`<div class="gbev ${esc(b.ernst)}">${dienstTitel(service)} — <b>${esc(b.id)}</b> ${TT(esc(b.melding), esc(b.meldingEn))}</div>`).join("") + `</div>`);
   if (vervolgToont){
     const ONTV_KLEUR = {geaccepteerd:"#34d399"};
-    const reden = openRegels[0] || "";   // per-transactie reden ontbreekt in het artefact — CLI-conventie: eerste open-regel
+    const openRegelsEn = (sub.vervolgsamenvatting && sub.vervolgsamenvatting.openEn) || [];
+    const reden = openRegels[0] || "", redenEn = openRegelsEn[0] || "";   // per-transactie reden ontbreekt in het artefact — CLI-conventie: eerste open-regel
     let vbody = ontv.map(t=>{
-      const titel = (G.serviceTitels||{})[t.service]||t.service;
       if (t.status==="niet-ingediend")
-        return `<div class="gontv">${esc(titel)} — <span class="gbron">niet ingediend${reden?` (${esc(reden)})`:""}</span></div>`;
-      return `<div class="gontv">${esc(titel)} → <code>${esc(t.referentie||"—")}</code> ${gchip(t.status, ONTV_KLEUR[t.status]||"#f59e0b")}</div>`;
+        return `<div class="gontv">${dienstTitel(t.service)} — <span class="gbron">${TT("niet ingediend","not submitted")}${reden?` (${TT(esc(reden), esc(redenEn))})`:""}</span></div>`;
+      return `<div class="gontv">${dienstTitel(t.service)} → <code>${esc(t.referentie||"—")}</code> ${gchip(TTV(t.status,EN.ontvangst), ONTV_KLEUR[t.status]||"#f59e0b")}</div>`;
     }).join("");
     if (openRegels.length)
-      vbody += `<div class="ghead" style="margin-top:8px"><b>nog te doen</b></div>`
-        + openRegels.map(r=>`<div class="gontv">• ${esc(r)}</div>`).join("");
+      vbody += `<div class="ghead" style="margin-top:8px"><b>${TT("nog te doen","still to do")}</b></div>`
+        + openRegels.map((r,ri)=>`<div class="gontv">• ${TT(esc(r), esc(openRegelsEn[ri]))}</div>`).join("");
     if (docBev.length)
-      vbody += `<div class="ghead" style="margin-top:8px"><b>documenten — ${esc(sub.documenten.status)}</b></div>`
-        + docBev.map(b=>`<div class="gbev ${esc(b.ernst)}"><b>${esc(b.id)}</b> ${esc(b.melding)}</div>`).join("");
-    cards.push(`<div class="gcard" id="gc-${p.steps.length+1}"><div class="ghead"><b>ontvangst &amp; vervolg</b></div>${vbody}</div>`);
+      vbody += `<div class="ghead" style="margin-top:8px"><b>${TT("documenten — "+esc(sub.documenten.status), "documents — "+esc(sub.documenten.statusEn))}</b></div>`
+        + docBev.map(b=>`<div class="gbev ${esc(b.ernst)}"><b>${esc(b.id)}</b> ${TT(esc(b.melding), esc(b.meldingEn))}</div>`).join("");
+    cards.push(`<div class="gcard" id="gc-${p.steps.length+1}"><div class="ghead"><b>${TT("ontvangst &amp; vervolg","receipt &amp; follow-up")}</b></div>${vbody}</div>`);
   }
   $("chat5").innerHTML = cards.join("");
   $("facts5").innerHTML = (p.context.regels||[]).map(r=>`
     <div class="gfact"><span class="gfk">${esc(r.feit)}</span><span>${esc(r.waarde)}</span>
     <span>${gchip(r.label, LABEL_KLEUR[r.label]||"#8b93a7")}<span class="gbron"> ${esc(r.bron)}</span></span></div>`).join("");
-  $("auth5").innerHTML = `authenticatie: <b>${esc(p.auth.authenticatie)}</b><br>toestemming: <b>${esc(p.auth.toestemming)}</b>${p.auth.methode?`<br>via ${esc(p.auth.methode)}${p.auth.loa?` (loa ${esc(p.auth.loa)})`:""}`:""}${p.auth.mandaatAantal?`<br>mandaten: ${p.auth.mandaatAantal}`:""}`;
+  const authEn = {"uitgevoerd":"performed","niet-uitgevoerd":"not performed"};
+  $("auth5").innerHTML = `${TT("authenticatie:","authentication:")} <b>${TTV(p.auth.authenticatie,authEn)}</b><br>${TT("toestemming:","consent:")} <b>${TTV(p.auth.toestemming,EN.consent)}</b>${p.auth.methode?`<br>${TT("via","via")} ${esc(p.auth.methode)}${p.auth.loa?` (loa ${esc(p.auth.loa)})`:""}`:""}${p.auth.mandaatAantal?`<br>${TT("mandaten:","mandates:")} ${p.auth.mandaatAantal}`:""}`;
   kaartLaatsteStap = -99;
   kaartZoomInit();
   kaartVB = null;
@@ -2528,14 +2540,15 @@ function renderGentStatic(){
     const fmt = (m)=> m>=1000 ? (m/1000).toFixed(1)+" km" : m+" m";
     const gw = k.routes.find(r=>r.gewenst);
     $("kaart5meta").textContent = ` — ${fmt(gw.afstand_m)} · ±${Math.round(gw.duur_s/60)} min`;
+    const typeEn = {"grondwerk":"roadworks","evenement":"event"};
     $("kaart5info").innerHTML =
-      `<div>start: <b>${esc(k.start.label)}</b> <span class="gbron">(${esc(k.start.adres)} — kenteken geregistreerd op het bedrijf · VKBO-open-register)</span></div>`
-      + `<div>doel: <b>${esc(k.doel)}</b></div>`
-      + k.routes.map(r=>`<div>${r.label==="primaire"?"primair (snelste)":"alternatief"}: ${fmt(r.afstand_m)} · ±${Math.round(r.duur_s/60)} min ${r.gewenst?`<span class="gchip" style="color:#22d3ee;border-color:#22d3ee88">door Gent aangeraden</span>`:""}</div>`).join("")
-      + (k.omzeil.length?`<div class="guitleg">omzeild: ${k.omzeil.map(esc).join(" · ")}</div>`:"")
-      + (k.zones["gent-lez"]?`<div class="gdu">de route kruist de lage-emissiezone${k.zones["gent-autovrij"]?" én het autovrije gebied":""} — toegang via de aangevraagde ontheffing(en)</div>`:"")
-      + k.innames.map(i=>`<div class="gdu">▲ ${esc(i.straat)} — ${esc(i.type)} (${esc(i.van)} → ${esc(i.tot)}) ${(i.opRoute.primaire||i.opRoute.alternatief)?"<b>op route</b>":"buiten de route"}</div>`).join("");
-    $("kaart5bron").textContent = k.bron;
+      `<div>${TT("start:","start:")} <b>${esc(k.start.label)}</b> <span class="gbron">(${esc(k.start.adres)} — ${TT("kenteken geregistreerd op het bedrijf · VKBO-open-register","vehicle registered at the company · VKBO open register")})</span></div>`
+      + `<div>${TT("doel:","destination:")} <b>${esc(k.doel)}</b></div>`
+      + k.routes.map(r=>`<div>${TT(r.label==="primaire"?"primair (snelste)":"alternatief", r.label==="primaire"?"primary (fastest)":"alternative")}: ${fmt(r.afstand_m)} · ±${Math.round(r.duur_s/60)} min ${r.gewenst?`<span class="gchip" style="color:#22d3ee;border-color:#22d3ee88">${TT("door Gent aangeraden","recommended by Ghent")}</span>`:""}</div>`).join("")
+      + (k.omzeil.length?`<div class="guitleg">${TT("omzeild:","avoided:")} ${k.omzeil.map((o,oi)=>TT(esc(o), esc((k.omzeilEn||[])[oi]))).join(" · ")}</div>`:"")
+      + (k.zones["gent-lez"]?`<div class="gdu">${TT("de route kruist de lage-emissiezone"+(k.zones["gent-autovrij"]?" én het autovrije gebied":""), "the route crosses the low-emission zone"+(k.zones["gent-autovrij"]?" and the car-free area":""))} — ${TT("toegang via de aangevraagde ontheffing(en)","access via the requested exemption(s)")}</div>`:"")
+      + k.innames.map(i=>`<div class="gdu">▲ ${esc(i.straat)} — ${TTV(i.type,typeEn)} (${esc(i.van)} → ${esc(i.tot)}) ${(i.opRoute.primaire||i.opRoute.alternatief)?`<b>${TT("op route","on route")}</b>`:TT("buiten de route","off the route")}</div>`).join("");
+    $("kaart5bron").innerHTML = TT(esc(k.bron), esc(k.bronEn));
   }
   $("ev5").innerHTML = (p.events||[]).map(e=>`<span class="gevchip">${esc(e.kind)}</span>`).join("")
     + `<div class="gchain ${p.chainOk?"ok":""}">${p.chainOk?"ketting ✓ geverifieerd (sha256; seq+ts in de hash-basis)":"ketting ✗"}</div>`;
