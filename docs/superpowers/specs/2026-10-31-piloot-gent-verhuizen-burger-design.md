@@ -7,7 +7,7 @@
 | **Scope** | tweede levensgebeurtenis-pakket `gent-verhuizen-burger` naast `gent-mobiliteit-ondernemer`: gemeentelijke regelingen voor burgers (bewonersvergunning, afval, parkeren, LEZ-info) gevoed door echte Gentse open data, inclusief engine-uitbreiding `dataChecks` en een tweede Gent-simulatietab |
 | **Niet in scope** | productie-integraties (District09-parkeerbackoffice, echte Magda/ACM-IDM) · LLM-seams live maken · premies/tarieven buiten de vier diensten · historiek-datasets (parkeertariefversies) · real-time data (parkeergaragebezetting) |
 | **Bronnen** | [Ontwerp 2026-10-30 transactionele assistent](2026-10-30-piloot-gent-transactionele-assistent-design.md) (architectuur, principes, H1–H5) · [`poc-gent/README.md`](../../poc-gent/README.md) (stand F1–F4) · [stad.gent — bewonersvergunningen](https://stad.gent/nl/mobiliteit-openbare-werken/parkeren/parkeren-op-straat/parkeervergunningen/bewonersvergunningen-voor-parkeren) (regels 2026) · data.stad.gent-datasets `bewonerszones-gent`, `parkeertariefzones-gent`, `afvalophaalkalender-ivago-woongebied-gent-2026-2027` (allen Modellicentie Gratis Hergebruik) |
-| **Sessie-keuzes** | use case: **verhuizen naar Gent** (meerdere regelingen achter één levensgebeurtenis) · simulatie: **ja, eigen tab naast het ondernemerstab** · niet-ruimtelijke data: **generiek `dataChecks`-mechanisme in de engine** (optie A), geen statische infoteksten |
+| **Sessie-keuzes** | use case: **verhuizen naar Gent** (meerdere regelingen achter één levensgebeurtenis) · simulatie: **ja, in het bestaande Gent-tab mét dropdown per levensgebeurtenis** (geen tweede tab) · niet-ruimtelijke data: **generiek `dataChecks`-mechanisme in de engine** (optie A), geen statische infoteksten |
 
 ## Besluiten
 
@@ -18,7 +18,7 @@
 | Nieuwe engine-capaciteit | `dataChecks`: generieke, data-gedreven dataset-lookups naast `gisChecks` (input: adres → straatnaam → lookup in gecachte open data → context-slots mét herkomstlabel), met per check een `unknownPolicy: escalate\|fallback` |
 | Regels | Bewonerskaart volgens de echte Gentse voorwaarden: gedomiceleerd in bewonerszone, één kenteken per vergunning, 1e gratis per gezin/adres, 2e €300/jaar (sinds 1-4-2026), eigen parkeergelegenheid beperkt recht |
 | Open data | Drie échte Gentse datasets via het bekende data.stad.gent-portaal: `bewonerszones-gent` (20), `parkeertariefzones-gent` (81), IVAGO-afvalophaalkalender 2026-2027 (±171k records: straat × fractie × datum); Modellicentie Gratis Hergebruik, gecached onder `fixtures/source/` mét `source.meta.json` |
-| Simulatie | `build_gent()` geparametriseerd; nieuw tabblad `gentBurger` met eigen kaartpanel (bewonerszones, tariefzones, LEZ, startpunt = nieuwe woning), NL/EN via `vertaal_gent.py`-uitbreiding onder de bestaande volledigheidstest |
+| Simulatie | `build_gent()` geparametriseerd; het bestaande Gent-tab krijgt een **dropdown per levensgebeurtenis** (geen tweede tab): de selectie wisselt dataset, persona-knoppen en kaartmodus (ondernemer = route/innames; burger = regeling-zones mét startpunt = nieuwe woning), NL/EN via `vertaal_gent.py`-uitbreiding onder de bestaande volledigheidstest |
 
 ### Overwegen alternatieven
 
@@ -132,10 +132,10 @@ ondernemerspakket. `fixtures/injecties.json`: tijdens implementatie verifiëren 
 de adversariële aanvallen óók de nieuwe slots (address-varianten, parkeergelegenheid) dekken;
 anders burger-injecties toevoegen in de bestaande categorieën.
 
-## 7. Simulatie (tab 6 `gentBurger`)
+## 7. Simulatie (één Gent-tab, dropdown per levensgebeurtenis)
 
-- `simulation/build_simulation.py::build_gent()` → geparametriseerd (`package_id`, root, persona-selectie); nieuw datablok `data["gentBurger"]` naast `data["gent"]`.
-- Kaartpanel: gemeentegrens, bewonerszones, tariefzones (nieuwe lagen), LEZ, startpunt = nieuwe woning (personaadres). Geen routes/innames — dat is ondernemersmobiliteit; de burgerkaart toont regeling-zones.
+- `simulation/build_simulation.py::build_gent()` → geparametriseerd (`package_id` + persona-filter per pakket); nieuw datablok `data["gentBurger"]` naast `data["gent"]`, maar **geen tweede tab**: het bestaande Gent-tab krijgt bovenin een dropdown met de levensgebeurtenissen (GT-MOB-01 ondernemer · GT-VERH-01 burger).
+- De dropdown wisselt de actieve dataset in de template-renderer (`G` wordt toewijsbaar), de persona-knoppen en de kaartmodus: ondernemer = route/innames-weergave (ongewijzigd), burger = regeling-zones (bewonerszones, tariefzones, LEZ) met startpunt = nieuwe woning. Geen routes/innames voor burgers — dat is ondernemersmobiliteit.
 - Panelen/opbouw volgen het bestaande Gent-tab (per-tab kop, agentlog, kaart naast de log, NL/EN-toggle); `simulation/vertaal_gent.py` uitbreiden — de volledigheidstest (`test_vertaal_gent.py`) dwingt af dat elke getoonde tekst vertaald is.
 - Nieuwe personen en teksten krijgen geen eigen vertaalmechanisme: zelfde woordenboekpatroon + `*En`-twins.
 
