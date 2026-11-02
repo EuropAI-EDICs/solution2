@@ -5,6 +5,7 @@ contractvorm af (FR-22, ontwerp §4)."""
 from __future__ import annotations
 
 import json
+from datetime import date
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -46,6 +47,7 @@ def _validate(manifest: dict, tables: dict) -> None:
             raise PackageError(f"slot '{slot}' mist vraag-tekst")
     outputs = set()
     data_outputs: set = set()
+    timing_outputs: set = set()
     for check in manifest.get("gisChecks", []):
         for field_name in ("id", "layer", "input", "output"):
             if field_name not in check:
@@ -69,6 +71,28 @@ def _validate(manifest: dict, tables: dict) -> None:
             if out in slots or out in outputs or out in data_outputs:
                 raise PackageError(f"dataCheck '{check['id']}': output-botsing op '{out}'")
             data_outputs.add(out)
+    for check in manifest.get("timingChecks", []):
+        for veld in ("id", "input", "output", "referentie", "klassen"):
+            if veld not in check or not check[veld]:
+                raise PackageError(f"timingCheck mist veld '{veld}': {check}")
+        if check["input"] not in slots:
+            raise PackageError(f"timingCheck '{check['id']}': onbekende input-slot '{check['input']}'")
+        try:
+            date.fromisoformat(str(check["referentie"]))
+        except ValueError:
+            raise PackageError(f"timingCheck '{check['id']}': referentie moet jjjj-mm-dd zijn") from None
+        klassen = check["klassen"]
+        if len(klassen) < 2:
+            raise PackageError(f"timingCheck '{check['id']}': minstens twee klassen")
+        for klas in klassen[:-1]:
+            if not str(klas.get("naam", "")).strip() or klas.get("maxDagen") is None:
+                raise PackageError(f"timingCheck '{check['id']}': elke klas behalve de laatste heeft naam+maxDagen")
+        if "maxDagen" in klassen[-1]:
+            raise PackageError(f"timingCheck '{check['id']}': de laatste klas is het vangnet zonder maxDagen")
+        if check["output"] in slots or check["output"] in outputs \
+                or check["output"] in data_outputs or check["output"] in timing_outputs:
+            raise PackageError(f"timingCheck '{check['id']}': output-botsing op '{check['output']}'")
+        timing_outputs.add(check["output"])
     services = manifest.get("services", {})
     if not services:
         raise PackageError("manifest.services is leeg")
@@ -108,7 +132,7 @@ def _validate(manifest: dict, tables: dict) -> None:
             referentie = regel.get("bron", "")
             if referentie.startswith("slot:"):
                 naam = referentie[5:]
-                geldig = naam in slots or naam in outputs or naam in data_outputs
+                geldig = naam in slots or naam in outputs or naam in data_outputs or naam in timing_outputs
             else:
                 tool, _, pad = referentie.partition(".")
                 geldig = bool(pad) and tool in {b["source"] for b in bronnen}
@@ -133,7 +157,8 @@ def _validate(manifest: dict, tables: dict) -> None:
             if sv not in services:
                 raise PackageError(f"regel '{rule.get('id')}': onbekende dienst '{sv}'")
         for key in rule.get("when", {}):
-            if key not in slots and key not in outputs and key not in data_outputs:
+            if key not in slots and key not in outputs and key not in data_outputs \
+                    and key not in timing_outputs:
                 raise PackageError(f"regel '{rule.get('id')}': onbekende when-sleutel '{key}'")
 
 

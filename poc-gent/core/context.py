@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from adapters import data_lookups, gis_zones
+from adapters import data_lookups, gis_zones, timing_checks
 
 DEFAULT_ZIN = "U bent {applicantType} en wilt: {activity}. Adres: {address}."
 
@@ -37,6 +37,7 @@ def build(manifest: dict, slots: dict, poc_root: Path) -> tuple[dict, dict]:
             context[check["output"]] = "onbekend-adres"
             herkomst[check["output"]] = {"label": "afgeleid", "bron": "gis:adres-niet-gevonden"}
     data_lookups.apply_checks(manifest, context, herkomst, poc_root)
+    timing_checks.apply_checks(manifest, context, herkomst, poc_root)
     return context, herkomst
 
 
@@ -53,6 +54,10 @@ def summary(manifest: dict, context: dict, herkomst: dict) -> dict:
         for out in check["outputs"]:
             if out in context:
                 regels.append({"feit": out, "waarde": context[out], **herkomst[out]})
+    for check in manifest.get("timingChecks", []):
+        if check["output"] in context:
+            regels.append({"feit": check["output"], "waarde": context[check["output"]],
+                           **herkomst[check["output"]]})
     zin = manifest.get("texts", {}).get("contextZin") or DEFAULT_ZIN
     tekst = zin.format_map(_Onbekend(context))
     return {"tekst": tekst, "regels": regels}

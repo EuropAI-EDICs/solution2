@@ -15,6 +15,11 @@ def laad_kalender(poc_root: Path) -> dict:
                       .read_text(encoding="utf-8"))
 
 
+def laad_feesten(poc_root: Path) -> dict:
+    return json.loads((poc_root / "fixtures" / "source" / "feestenkalender.json")
+                      .read_text(encoding="utf-8"))
+
+
 def _straat_van_adres(adres: str) -> str:
     deel = adres.split(",")[0]
     zonder_nummer = re.sub(r"\s+\d+.*$", "", deel)
@@ -30,13 +35,20 @@ def apply_checks(manifest: dict, context: dict, herkomst: dict, poc_root: Path,
     escalate (outputs 'onbekend-straat' → geen regel vuurt → Gentinfo).
     Mutatie van context/herkomst is bewust: de caller geeft kopieën mee
     (context.build / gates.confirm_h1)."""
-    kalenders = {"ivago-ophaalkalender": laad_kalender}
+    kalenders = {"ivago-ophaalkalender": laad_kalender, "gentse-feesten": laad_feesten}
     for check in manifest.get("dataChecks", []):
         adres = context.get(check["input"])
         if adres is None:
             continue
         kalender = kalenders[check["dataset"]](poc_root)
         straat = _straat_van_adres(adres)
+        if check["dataset"] == "gentse-feesten":
+            # straten-map: locatiestraten van de Gentse Feesten (curated)
+            for out in check["outputs"]:
+                context[out] = "in" if straat in kalender.get("straten", {}) else "niet-in"
+                herkomst[out] = {"label": "afgeleid",
+                                 "bron": f"dataset:gentse-feesten ({kalender['versie']})"}
+            continue
         gevonden = kalender.get("straten", {}).get(straat)
         for out in check["outputs"]:
             if gevonden and out in gevonden:

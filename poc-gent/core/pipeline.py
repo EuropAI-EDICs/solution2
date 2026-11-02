@@ -157,6 +157,10 @@ def run_replay(poc_root: Path, package_id: str, persona_id: str,
         events_mod.emit(events, "data_check",
                         {"id": check["id"], "dataset": check["dataset"],
                          "resultaten": {out: ctx.get(out) for out in check["outputs"]}})
+    for check in pkg.manifest.get("timingChecks", []):
+        events_mod.emit(events, "timing_check",
+                        {"id": check["id"], "referentie": check["referentie"],
+                         "klasse": ctx.get(check["output"])})
 
     events_mod.emit(events, "gate_request",
                     {"gate": "H1", "feitnamen": [r["feit"] for r in

@@ -93,6 +93,7 @@ ADRESSEN = [
     "Sleepstraat 1, Gent",                      # burgerkandidaat: vergelijkingspunt buiten centrum-tariefzone
     "Ottergemsesteenweg-Zuid 1, Gent",          # burgergolden: buiten bewoners-/tariefzone en LEZ (Gentbrugge)
     "Overpoortstraat 1, Gent",                  # kotgolden: studentenwijk, eigen kotzone
+    "Botermarkt 1, Gent",                       # eventgolden: Gentse Feesten-locatie (Stadhuis)
 ]
 
 BEST_ADDRESS_PAD = ("productiepad officiële geocoding: BeSt Address Web API — "
@@ -844,7 +845,7 @@ def main() -> int:
         json.dumps(meta_document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     for laag, info in meta_document["bronnen"].items():
         if laag in ("adressen", "bestAddress", "vkbo", "gipod", "kaart", "kaart-burger",
-                    "kaart-kot", "ivago-ophaalkalender", "kotregister"):
+                    "kaart-kot", "ivago-ophaalkalender", "kotregister", "gentse-feesten"):
             continue
         print(f"{laag}: {info['titel']} | {info['licentie']} | versie {info['versie']} "
               f"| {info['featuresNaFilter']}/{info['featuresRuwwerk']} features")

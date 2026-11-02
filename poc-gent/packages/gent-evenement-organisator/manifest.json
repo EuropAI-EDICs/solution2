@@ -1,0 +1,224 @@
+{
+  "packageId": "gent-evenement-organisator",
+  "version": "0.1.0",
+  "status": "concept",
+  "lifeEventCode": "GT-EVT-01",
+  "title": "GT-EVT-01 — Evenement organiseren: publieke ruimte bezetten",
+  "texts": {
+    "intro": "Ik help je regelen wat je nodig hebt om een evenement te organiseren: de aanvraag om publieke ruimte te bezetten, de aanlooptijden en de Gentse Feesten.",
+    "scope": "Deze assistent gaat over gemeentelijke regelingen voor organisatoren van evenementen op of aan het openbaar domein in Gent.",
+    "aiToelichting": "Ik ben een AI-assistent van Stad Gent. Ik stel voor en leg uit; jij beslist en bevestigt.",
+    "weigering": "Als ik het niet zeker weet, zeg ik dat eerlijk en verbind ik je door met een medewerker.",
+    "escalatie": "Twijfel of een bijzondere situatie? Dan neemt een medewerker van Gentinfo het van me over.",
+    "contextZin": "U bent {applicantType} en organiseert een evenement op {datum} aan: {address}. Type: {typeEvenement}."
+  },
+  "contextSchema": {
+    "slots": {
+      "applicantType": {
+        "type": "enum",
+        "values": [
+          "burger",
+          "ondernemer",
+          "organisatie"
+        ],
+        "required": true,
+        "authenticSource": null,
+        "vraag": "Bent u particulier, ondernemer of organisatie?"
+      },
+      "address": {
+        "type": "string",
+        "required": true,
+        "authenticSource": null,
+        "vraag": "Op welke locatie organiseert u het evenement?"
+      },
+      "datum": {
+        "type": "datum",
+        "required": true,
+        "authenticSource": null,
+        "vraag": "Op welke datum is het evenement (jjjj-mm-dd)?"
+      },
+      "typeEvenement": {
+        "type": "enum",
+        "values": [
+          "klein",
+          "groot",
+          "manifestatie"
+        ],
+        "required": true,
+        "authenticSource": null,
+        "vraag": "Wat voor evenement organiseert u?"
+      },
+      "openbaarDomein": {
+        "type": "enum",
+        "values": [
+          "ja",
+          "nee"
+        ],
+        "required": true,
+        "authenticSource": null,
+        "vraag": "Bezet u daarbij publieke ruimte (straat, plein, park)?"
+      }
+    }
+  },
+  "gisChecks": [
+    {
+      "id": "lez",
+      "layer": "gent-lez",
+      "input": "address",
+      "output": "zoneLez"
+    },
+    {
+      "id": "locatie",
+      "layer": "gent-kotzone",
+      "input": "address",
+      "output": "locatieIn"
+    }
+  ],
+  "dataChecks": [
+    {
+      "id": "feestenkalender",
+      "dataset": "gentse-feesten",
+      "input": "address",
+      "outputs": [
+        "inFeestenzone"
+      ],
+      "unknownPolicy": "fallback"
+    }
+  ],
+  "timingChecks": [
+    {
+      "id": "aanlooptijd",
+      "input": "datum",
+      "output": "aanlooptijd",
+      "referentie": "2026-11-02",
+      "klassen": [
+        {
+          "naam": "te-laat",
+          "maxDagen": 30
+        },
+        {
+          "naam": "kort-op-tijd",
+          "maxDagen": 90
+        },
+        {
+          "naam": "ruim-op-tijd"
+        }
+      ]
+    }
+  ],
+  "authenticSources": [],
+  "submission": {
+    "contract": "district09-evenementen"
+  },
+  "kpiDrempels": {
+    "kpi01_min": 90.0,
+    "kpi01_doel": 95.0,
+    "kpi02_min": 100.0,
+    "kpi03_min": 100.0,
+    "kpi04_min": 90.0
+  },
+  "decisionTables": "decision-tables.json",
+  "services": {
+    "evenement-aanvragen": {
+      "type": "inzending",
+      "vereistAuth": true,
+      "minLoA": "substantial",
+      "titel": "Evenement op publieke ruimte aanvragen",
+      "uitleg": "Aanvraag bij de stad om als organisator publieke ruimte te bezetten voor een evenement. De stad beoordeelt de aanvraag op termijn, veiligheid en overlappingen.",
+      "documenten": [],
+      "formulier": [
+        {
+          "veld": "evenement-locatie",
+          "bron": "slot:address"
+        },
+        {
+          "veld": "evenement-datum",
+          "bron": "slot:datum"
+        },
+        {
+          "veld": "aanlooptijd",
+          "bron": "slot:aanlooptijd"
+        },
+        {
+          "veld": "type-evenement",
+          "bron": "slot:typeEvenement"
+        },
+        {
+          "veld": "openbaar-domein",
+          "bron": "slot:openbaarDomein"
+        },
+        {
+          "veld": "feestenzone",
+          "bron": "slot:inFeestenzone"
+        }
+      ],
+      "validaties": [
+        {
+          "id": "V1-kort-op-tijd",
+          "wanneer": {
+            "aanlooptijd": "kort-op-tijd"
+          },
+          "ernst": "waarschuwing",
+          "melding": "Uw evenement is minder dan 90 dagen verwijderd: de beoordeling wordt krap — vroeg insturen is nodig."
+        },
+        {
+          "id": "V2-te-laat",
+          "wanneer": {
+            "aanlooptijd": "te-laat"
+          },
+          "ernst": "blokkade",
+          "melding": "Uw evenement is minder dan 30 dagen verwijderd: online aanvragen kan niet meer — een medewerker van Gentinfo beoordeelt of het nog kan."
+        },
+        {
+          "id": "V3-verleden",
+          "wanneer": {
+            "aanlooptijd": "verleden"
+          },
+          "ernst": "blokkade",
+          "melding": "De datum van uw evenement ligt in het verleden — controleer de datum of neem contact op met Gentinfo."
+        },
+        {
+          "id": "V4-groot",
+          "wanneer": {
+            "type-evenement": "groot"
+          },
+          "ernst": "waarschuwing",
+          "melding": "Groot evenement: een risicoanalyse en veiligheidsplan zijn vereist — de dienst Evenementen neemt contact op."
+        },
+        {
+          "id": "V5-feestenzone",
+          "wanneer": {
+            "feestenzone": "in"
+          },
+          "ernst": "waarschuwing",
+          "melding": "Uw locatie ligt in de Gentse Feesten-zone (demovereenvoudiging: straatgebonden, niet datumgebonden): coördineer met de feestencoördinator."
+        }
+      ]
+    },
+    "info-aanlooptijden": {
+      "type": "info",
+      "vereistAuth": false,
+      "titel": "Aanlooptijden voor evenementenaanvragen",
+      "uitleg": "Vraag tijdig aan: minimaal 30 dagen voor kleine evenementen, ruim 90 dagen voor grote evenementen met risicoanalyse (illustratieve termijnen voor deze demo).",
+      "formulier": [],
+      "validaties": []
+    },
+    "info-gentse-feesten": {
+      "type": "info",
+      "vereistAuth": false,
+      "titel": "Gentse Feesten: bezette locaties",
+      "uitleg": "Tijdens de Gentse Feesten (editie 2026: 10–19 juli) liggen locaties zoals het Stadhuis (Botermarkt), Dok Noord en de Recollettenlei vol met het feestenprogramma — coördineer uw evenement met de feestencoördinator.",
+      "formulier": [],
+      "validaties": []
+    },
+    "info-lez-bezoekers": {
+      "type": "info",
+      "vereistAuth": false,
+      "titel": "Lage-emissiezone: bezoekers en leveranciers",
+      "uitleg": "Uw locatie ligt in de lage-emissiezone: communiceer aan bezoekers en leveranciers met een oudere wagen dat een dagenpas nodig is.",
+      "formulier": [],
+      "validaties": []
+    }
+  },
+  "golden": "golden/scenarios.jsonl"
+}

@@ -1,0 +1,111 @@
+{
+  "id": "R-evenement-organisator",
+  "version": "2026.11",
+  "rules": [
+    {
+      "id": "RE1",
+      "when": {
+        "applicantType": "burger",
+        "aanlooptijd": "ruim-op-tijd",
+        "locatieIn": "in"
+      },
+      "then": {
+        "transactions": [
+          "evenement-aanvragen"
+        ],
+        "info": [
+          "info-aanlooptijden",
+          "info-gentse-feesten"
+        ]
+      },
+      "legalBasis": "Gent evenementenreglement — aanvraag publieke ruimte (stad.gent; termijnen illustratief)",
+      "uitleg": "Uw evenement ligt ruim genoeg vooruit: u kunt de bezetting van publieke ruimte online aanvragen."
+    },
+    {
+      "id": "RE2",
+      "when": {
+        "applicantType": "burger",
+        "aanlooptijd": "kort-op-tijd",
+        "locatieIn": "in"
+      },
+      "then": {
+        "transactions": [
+          "evenement-aanvragen"
+        ],
+        "info": [
+          "info-aanlooptijden",
+          "info-gentse-feesten"
+        ]
+      },
+      "legalBasis": "Gent evenementenreglement — aanvraag publieke ruimte (stad.gent; termijnen illustratief)",
+      "uitleg": "Uw evenement nadert: de aanvraag kan nog online, maar de beoordeling wordt krap — de waarschuwing verschijnt in uw aanvraag."
+    },
+    {
+      "id": "RE3",
+      "when": {
+        "applicantType": "burger",
+        "aanlooptijd": "te-laat",
+        "locatieIn": "in"
+      },
+      "then": {
+        "transactions": [
+          "evenement-aanvragen"
+        ],
+        "info": [
+          "info-aanlooptijden"
+        ]
+      },
+      "legalBasis": "Gent evenementenreglement — termijn (illustratief)",
+      "uitleg": "Uw evenement is minder dan 30 dagen verwijderd: de online aanvraag wordt geblokkeerd en een medewerker beoordeelt of er nog iets mogelijk is."
+    },
+    {
+      "id": "RE4",
+      "when": {
+        "applicantType": "burger",
+        "aanlooptijd": "verleden",
+        "locatieIn": "in"
+      },
+      "then": {
+        "transactions": [
+          "evenement-aanvragen"
+        ],
+        "info": [
+          "info-aanlooptijden"
+        ]
+      },
+      "legalBasis": "—",
+      "uitleg": "De opgegeven datum ligt in het verleden: de aanvraag wordt geblokkeerd tot de datum klopt."
+    },
+    {
+      "id": "RE5",
+      "when": {
+        "applicantType": "burger",
+        "zoneLez": "in"
+      },
+      "then": {
+        "transactions": [],
+        "info": [
+          "info-lez-bezoekers"
+        ]
+      },
+      "legalBasis": "Gent LEZ-reglement — dagenpassen (stad.gent/lez)",
+      "uitleg": "Uw locatie ligt in de lage-emissiezone: informeer bezoekers en leveranciers over de dagenpas."
+    },
+    {
+      "id": "RE6",
+      "when": {
+        "applicantType": "burger",
+        "locatieIn": "niet-in"
+      },
+      "then": {
+        "transactions": [],
+        "info": [
+          "info-aanlooptijden"
+        ]
+      },
+      "legalBasis": "Gent evenementenreglement — aanvraag publieke ruimte (stad.gent)",
+      "uitleg": "Uw locatie valt buiten het online aanvraaggebied van de stad: een medewerker van Gentinfo bekijkt met u wat wel kan."
+    }
+  ],
+  "unknownPolicy": "escalate"
+}

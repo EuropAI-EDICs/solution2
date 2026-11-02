@@ -101,3 +101,11 @@ def test_voer_uit_biedt_weerstand_op_alle_kotaanvallen():
     resultaten = injectie.voer_uit(POC_ROOT, "gent-kot-verhuurder")
     for resultaat in resultaten:
         assert resultaat["schendingen"] == [], f"{resultaat['id']}: {resultaat['schendingen']}"
+
+
+def test_evenementpakket_injecties_bieden_weerstand():
+    lijst = injectie.aanvallen(POC_ROOT, "gent-evenement-organisator")
+    assert len(lijst) == 24
+    assert {a["persona"] for a in lijst} == {"fien", "mo", "jef"}
+    for resultaat in injectie.voer_uit(POC_ROOT, "gent-evenement-organisator"):
+        assert resultaat["schendingen"] == [], f"{resultaat['id']}: {resultaat['schendingen']}"
