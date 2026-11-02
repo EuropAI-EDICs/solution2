@@ -46,7 +46,7 @@ def test_onbekend_adres_faalt_duidelijk():
 def test_load_layer_versies_leest_versie_per_laag():
     versies = gis_zones.load_layer_versies(POC_ROOT)
     assert set(versies) == {"gent-lez", "gent-autovrij", "gent-bewonerszone",
-                            "gent-parkeertariefzone"}
+                            "gent-parkeertariefzone", "gent-kotzone"}
     assert all(isinstance(v, str) and v for v in versies.values())
 
 
