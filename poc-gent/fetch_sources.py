@@ -70,6 +70,15 @@ LAYERS = {
         "soort": "export",
         "filter": None,
     },
+    "gent-kotzone": {
+        "dataset_id": "kotzones-gent",
+        "url_export": f"{PORTAL}/api/explore/v2.1/catalog/datasets/kotzones-gent/exports/geojson",
+        "url_meta": f"{PORTAL}/api/explore/v2.1/catalog/datasets/kotzones-gent",
+        "url_portal": f"{PORTAL}/explore/assets/kotzones-gent",
+        "soort": "export",
+        "filter": None,
+        "attribuut": "kotzone_na",
+    },
 }
 
 # Fixture-adressen voor de personas (cache-committed; herleid via --geocode).
@@ -83,6 +92,7 @@ ADRESSEN = [
     "Nederkouter 1, Gent",                      # burgerkandidaat: binnen singels/LEZ
     "Sleepstraat 1, Gent",                      # burgerkandidaat: vergelijkingspunt buiten centrum-tariefzone
     "Ottergemsesteenweg-Zuid 1, Gent",          # burgergolden: buiten bewoners-/tariefzone en LEZ (Gentbrugge)
+    "Overpoortstraat 1, Gent",                  # kotgolden: studentenwijk, eigen kotzone
 ]
 
 BEST_ADDRESS_PAD = ("productiepad officiële geocoding: BeSt Address Web API — "
@@ -612,9 +622,14 @@ def zone_rapport() -> None:
 
     zones = gis_zones.load_zones(POC_ROOT)
     versies = gis_zones.load_layer_versies(POC_ROOT)
+    attributen = gis_zones.load_ring_attributen(POC_ROOT)
     adressen = json.loads((POC_ROOT / "fixtures" / "addresses.json").read_text(encoding="utf-8"))
     for adres, (lon, lat) in adressen.items():
         resultaten = {laag: gis_zones.zone_result(zones, laag, lon, lat) for laag in sorted(zones)}
+        for laag in sorted(zones):
+            naam = gis_zones.attribuut_result(zones, attributen, laag, lon, lat)
+            if naam not in ("in", "niet-in"):
+                resultaten[f"{laag}={naam}"] = naam
         print(f"{adres}: {resultaten}  (lagen: {versies})")
 
 

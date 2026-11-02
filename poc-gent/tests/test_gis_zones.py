@@ -115,3 +115,13 @@ def test_apply_checks_attribuut_schrijft_naam(tmp_path):
         gis_zones.apply_checks(manifest, ctx, herkomst, tmp_path)
     assert ctx["kotzone"] == "Ledeganck"
     assert herkomst["kotzone"]["bron"].startswith("gis:gent-kotzone (v")
+
+
+def test_kotzone_pinning_fixture_adressen():
+    zones = gis_zones.load_zones(POC_ROOT)
+    attributen = gis_zones.load_ring_attributen(POC_ROOT)
+    assert len(attributen["gent-kotzone"]) == len(zones["gent-kotzone"])  # ring-dekking
+    for adres in ("Veldstraat 1, Gent", "Overpoortstraat 1, Gent"):
+        lon, lat = gis_zones.lookup_address(POC_ROOT, adres)
+        naam = gis_zones.attribuut_result(zones, attributen, "gent-kotzone", lon, lat)
+        assert naam not in ("niet-in", "in"), adres
