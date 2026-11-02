@@ -54,6 +54,8 @@ def _validate(manifest: dict, tables: dict) -> None:
             raise PackageError(f"gisCheck '{check['id']}': F1 ondersteunt alleen input 'address' (gekregen: '{check['input']}')")
         if check["input"] not in slots:
             raise PackageError(f"gisCheck '{check['id']}': onbekende input-slot '{check['input']}'")
+        if "attribuut" in check and not str(check["attribuut"]).strip():
+            raise PackageError(f"gisCheck '{check['id']}': attribuut moet een niet-lege tekst zijn")
         outputs.add(check["output"])
     for check in manifest.get("dataChecks", []):
         for field_name in ("id", "dataset", "input", "outputs"):

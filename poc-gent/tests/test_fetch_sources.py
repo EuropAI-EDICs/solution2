@@ -62,3 +62,14 @@ def test_vatten_afval_filtert_op_huisnummerbereik():
     assert oneven["afvalRest"]["aantal"] == 2          # hele straat + oneven
     even = fetch_sources.vatten_afval(rijen, huisnummer=10)
     assert even["afvalRest"]["aantal"] == 2            # hele straat + even
+
+
+def test_normaliseer_bewaart_attribuut_voor_kotzone(monkeypatch):
+    feature = {"type": "Feature",
+               "geometry": {"type": "Polygon", "coordinates": [[[3.72, 51.05], [3.73, 51.05], [3.73, 51.06], [3.72, 51.06], [3.72, 51.05]]]},
+               "properties": {"kotzone_na": "Ledeganck"}}
+    monkeypatch.setitem(fetch_sources.LAYERS, "gent-kotzone", {"attribuut": "kotzone_na"})
+    uit = fetch_sources.normaliseer("gent-kotzone", [feature], "v")
+    assert uit[0]["properties"]["attribuut"] == "Ledeganck"
+    zonder = fetch_sources.normaliseer("gent-lez", [_feature(None)], "v")
+    assert "attribuut" not in zonder[0]["properties"]

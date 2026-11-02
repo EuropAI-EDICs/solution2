@@ -269,3 +269,11 @@ def test_submission_contract_leeg_faalt(tmp_path):
     _schrijf_pkg(tmp_path, manifest, _basis_tables())
     with pytest.raises(catalog.PackageError, match="contract"):
         catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_gischeck_attribuut_leeg_faalt(tmp_path):
+    manifest = _basis_manifest()
+    manifest["gisChecks"][0]["attribuut"] = "  "
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    with pytest.raises(catalog.PackageError, match="attribuut"):
+        catalog.load_package(tmp_path, manifest["packageId"])

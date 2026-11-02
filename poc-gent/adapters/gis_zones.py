@@ -40,6 +40,31 @@ def load_layer_versies(poc_root: Path) -> dict[str, str]:
             for feat in fc["features"]}
 
 
+def load_ring_attributen(poc_root: Path) -> dict[str, list[str | None]]:
+    """Attribuutwaarde per ring, in dezelfde volgorde als load_zones per laag
+    ringen aanlevert (één feature kan meerdere ringen hebben: dezelfde waarde).
+    Lagen zonder attribuut leveren None per ring (binaire checks negeren dit)."""
+    fc = json.loads((poc_root / "fixtures" / "gis-zones.geojson").read_text(encoding="utf-8"))
+    attributen: dict[str, list] = {}
+    for feat in fc["features"]:
+        laag = feat["properties"]["layer"]
+        waarde = feat["properties"].get("attribuut")
+        attributen.setdefault(laag, []).extend([waarde] * len(_outer_rings(feat.get("geometry"))))
+    return attributen
+
+
+def attribuut_result(zones: dict, ring_attributen: dict, layer: str,
+                     lon: float, lat: float) -> str:
+    """Benoemde zone-lookup: attribuutwaarde van de eerste treffende ring;
+    lege waarde telt als 'in' (zone bestaat, naam onbekend in de bron)."""
+    for idx, ring in enumerate(zones.get(layer, [])):
+        if point_in_ring(lon, lat, ring):
+            waarden = ring_attributen.get(layer) or [None] * len(zones.get(layer, []))
+            waarde = waarden[idx] if idx < len(waarden) else None
+            return waarde if waarde else "in"
+    return "niet-in"
+
+
 def lookup_address(poc_root: Path, address: str) -> tuple[float, float]:
     addrs = json.loads((poc_root / "fixtures" / "addresses.json").read_text(encoding="utf-8"))
     if address not in addrs:
@@ -76,11 +101,17 @@ def apply_checks(manifest: dict, context: dict, herkomst: dict, poc_root: Path, 
     geeft kopieën mee (context.build / gates.confirm_h1)."""
     zones = load_zones(poc_root)
     versies = load_layer_versies(poc_root)
+    ring_attributen = load_ring_attributen(poc_root) \
+        if any(check.get("attribuut") for check in manifest.get("gisChecks", [])) else {}
     for check in manifest.get("gisChecks", []):
         adres = context.get(check["input"])
         if adres is None:
             continue
         lon, lat = lookup_address(poc_root, adres)
-        context[check["output"]] = zone_result(zones, check["layer"], lon, lat)
+        if check.get("attribuut"):
+            context[check["output"]] = attribuut_result(zones, ring_attributen,
+                                                        check["layer"], lon, lat)
+        else:
+            context[check["output"]] = zone_result(zones, check["layer"], lon, lat)
         versie = versies.get(check["layer"], "onbekende brondata")
         herkomst[check["output"]] = {"label": "afgeleid", "bron": f"gis:{check['layer']} ({versie}{suffix})"}

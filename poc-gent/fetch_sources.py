@@ -155,14 +155,22 @@ def laad_ruwe_laag(layer: str) -> list[dict]:
 
 
 def normaliseer(layer: str, features: list[dict], versie: str) -> list[dict]:
-    """Filter op de officiële afbakening en voorzie de interne layer-tag."""
+    """Filter op de officiële afbakening en voorzie de interne layer-tag;
+    bij een attribuut-config (benoemde zones, bijv. kotzones) bewaart de
+    normalisatie de attribuutwaarde per feature voor de gisCheck-lookup."""
     if layer == "gent-autovrij":
         features = [f for f in features if (f.get("properties") or {}).get("autovrijgebied")]
+    attribuutveld = LAYERS.get(layer, {}).get("attribuut")
     uit = []
     for feature in features:
+        properties = {"layer": layer, "versie": versie}
+        if attribuutveld:
+            waarde = (feature.get("properties") or {}).get(attribuutveld)
+            if waarde:
+                properties["attribuut"] = waarde
         uit.append({
             "type": "Feature",
-            "properties": {"layer": layer, "versie": versie},
+            "properties": properties,
             "geometry": feature.get("geometry"),
         })
     return uit
