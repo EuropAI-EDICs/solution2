@@ -77,3 +77,14 @@ def test_correctie_suffix_in_herkomst(tmp_path):
     data_lookups.apply_checks({"dataChecks": [CHECK]}, ctx, herkomst, tmp_path,
                               suffix=", na correctie")
     assert herkomst["afvalPmd"]["bron"].endswith("), na correctie)")
+
+
+def test_cache_dekt_heel_het_woongebied():
+    """Volledige IVAGO-cache (2.503 straten): elke willekeurige Gentse straat
+    antwoordt — geen fixture-filter meer (F1.5-doctrine)."""
+    kalender = data_lookups.laad_kalender(POC_ROOT)
+    assert len(kalender["straten"]) >= 2000
+    ctx, herkomst = {"address": "Kortrijksesteenweg 10, Gent"}, {}
+    data_lookups.apply_checks({"dataChecks": [CHECK]}, ctx, herkomst, POC_ROOT)
+    assert ctx["afvalPmd"] == "vrijdag"
+    assert herkomst["afvalPmd"]["label"] == "afgeleid"

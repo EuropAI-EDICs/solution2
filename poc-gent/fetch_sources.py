@@ -263,39 +263,31 @@ def vatten_afval(rijen: list[dict], huisnummer: int | None = None) -> dict:
             for slot, info in uit.items()}
 
 
-def _huisnummer_uit_adres(adres: str) -> int | None:
-    match = re.search(r"(\d+)", adres.split(",")[0])
-    return int(match.group(1)) if match else None
-
-
 def haal_afvalkalender(poc_root: Path) -> dict:
-    """Per fixture-straat de IVAGO-rijen ophalen (where-query: klein en
-    deterministisch, gefilterd op het huisnummer van het fixture-adres) en
-    vatten naar fixtures/source/afvalkalender.json."""
-    from urllib.parse import urlencode
-
-    adressen = json.loads((poc_root / "fixtures" / "addresses.json").read_text(encoding="utf-8"))
+    """Complete IVAGO-kalender ophalen (gepagineerd: de API capt op 100 rijen
+    per request) en per straat vatten — geen fixture-adresfilter meer, zodat
+    elke Gentse straat in het woongebied uit de cache antwoordt. Ruwe rijen
+    blijven een fetch-artefact; gecommit wordt alleen de vatting."""
     kal_meta = _fetch_json(f"{PORTAL}/api/explore/v2.1/catalog/datasets/{IVAGO_DATASET}")
     gewijzigd = ((kal_meta.get("metas") or {}).get("default") or {}).get("modified")
-    straten: dict[str, dict] = {}
-    for adres in adressen:
-        straat = straatnaam_norm(adres)
-        if straat in straten:
-            continue
-        ruwe_naam = adres.split(",")[0].rsplit(" ", 1)[0]
-        query = urlencode({"where": f'{IVAGO_VELDEN["straat"]}="{ruwe_naam}"', "limit": "-1"})
-        rijen = _fetch_json(
-            f"{PORTAL}/api/explore/v2.1/catalog/datasets/{IVAGO_DATASET}/records?{query}"
-        ).get("results", [])
-        if rijen:
-            straten[straat] = vatten_afval(rijen, _huisnummer_uit_adres(adres))
-        time.sleep(0.2)
+    # De records-API capt hard op 100 rijen per request; de export-endpoint
+    # levert de volledige dataset (171k rijen, ~40 s) in één keer.
+    rijen = _fetch_json(
+        f"{PORTAL}/api/explore/v2.1/catalog/datasets/{IVAGO_DATASET}/exports/json?limit=-1"
+    )
+    per_straat: dict[str, list[dict]] = {}
+    for rij in rijen:
+        naam = str(rij.get(IVAGO_VELDEN["straat"], "")).strip()
+        if naam:
+            per_straat.setdefault(naam, []).append(rij)
     document = {"dataset": "ivago-ophaalkalender",
                 "versie": f"{IVAGO_DATASET} (gewijzigd {str(gewijzigd)[:10]})",
-                "straten": straten}
+                "straten": {straatnaam_norm(f"{naam} 1, Gent"): vatten_afval(rijen_straat)
+                            for naam, rijen_straat in per_straat.items()}}
     (SOURCE_DIR / "afvalkalender.json").write_text(
         json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    return {"versie": document["versie"], "straten": len(straten), "aantalAdressen": len(adressen)}
+    return {"versie": document["versie"], "straten": len(document["straten"]),
+            "aantalRijen": len(rijen)}
 
 
 def normaliseer_vkbo(features: list[dict]) -> list[dict]:
@@ -686,7 +678,7 @@ def main() -> int:
             "licentie": "Modellicentie Gratis Hergebruik",
             "url": f"{PORTAL}/explore/assets/{IVAGO_DATASET}",
         }
-        print(f"afval: {afval['straten']}/{afval['aantalAdressen']} straten ({afval['versie']})")
+        print(f"afval: {afval['straten']} straten ({afval['aantalRijen']} rijen; {afval['versie']})")
     if args.kaart:
         kaart = haal_kaart(POC_ROOT)
         meta_document["bronnen"]["kaart"] = {

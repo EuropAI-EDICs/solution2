@@ -23,8 +23,9 @@ met vier diensten op échte Gentse open data:
   Inzending gaat naar backoffice-contract `district09-parkeervergunningen`
   (`submission.contract` per pakket configureerbaar).
 - **`info-afvalkalender`**: ophaaldag per fractie voor de straat, uit de
-  IVAGO-ophaalkalender 2026–2027 (171k records; Modellicentie Gratis
-  Hergebruik) — via de nieuwe generieke **`dataChecks`**-capaciteit naast
+  IVAGO-ophaalkalender 2026–2027 (171.150 rijen, **2.503 straten — de
+  volledige dataset**, Modellicentie Gratis Hergebruik) — via de nieuwe
+  generieke **`dataChecks`**-capaciteit naast
   `gisChecks`: dataset-lookups op straatnaam mét herkomstlabel en per check
   `unknownPolicy: escalate|fallback` (onbekende straat valt terug op een
   neutrale tekst; het adres zelf escaleert via de GIS-checks).
@@ -55,7 +56,13 @@ bij een match geeft de check de attribuutwaarde van het treffende feature
 terug — de laag `gent-kotzone` (kotzones-gent, 20 benoemde zones, versie
 2025-12-12) levert zo de kotzone-nám per adres (Overpoortstraat →
 "Sint-Pietersplein"), die ook als formulierbron dient (gis-uitkomsten
-zijn toegestane formulierbronnen). Persona's: wouter, saartje, gregory,
+zijn toegestane formulierbronnen). Bronkanttekening: de kotzones-dataset
+is zélf de zone-indeling van het koteloket/kotatgent (stal data), maar
+het **kotregister met gemelde koten heeft géén open API of dataset** —
+kot.stad.gent is antibot-beveiligd en data.stad.gent publiceert het
+register niet. `gent:kotregister` blijft daarom een expliciet als mock
+gemarkeerde productie-afhankelijkheid (data-overeenkomst met
+District09/koteloket nodig voor de echte koppeling). Persona's: wouter, saartje, gregory,
 lea, milan, karel. `python3 fetch_sources.py --kaart-kot` bouwt de
 kotkaart-cache; `--check` drukt voortaan zone-namen.
 
@@ -238,8 +245,9 @@ per bron de URL's, versie/datum, licentie en filters vast. Stand van de bronnen:
   Hergebruik), gecached onder `fixtures/source/`. Idem de burger-lagen
   `gent-bewonerszone` en `gent-parkeertariefzone`, plus de
   IVAGO-afvalophaalkalender 2026–2027 als `dataChecks`-bron
-  (`fixtures/source/afvalkalender.json`, per fixture-straat gevatted tot
-  modus-ophaaldag per fractie; `--afval` verversen).
+  (`fixtures/source/afvalkalender.json`: de volledige dataset per straat
+  gevatted tot modus-ophaaldag per fractie — records-API capt op 100 rijen,
+  dus de fetch gebruikt de export-endpoint; `--afval` verversen).
 - VKBO: **echt** — keyless OGC Features van `geo.api.vlaanderen.be` (bbox
   Gent), gecached als `fixtures/source/vkbo-gent.json`.
 - GIPOD: **echt-of-mock** — bij verversen wordt de publieke LDES geprobeerd
