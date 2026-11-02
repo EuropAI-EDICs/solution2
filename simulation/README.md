@@ -190,7 +190,7 @@ event-soorten en volgnummers, geen persoonswaarden. Zie ook
 `test_build_gent.py`/`test_build_gent_burger.py` en
 `docs/superpowers/specs/2026-10-30-piloot-gent-transactionele-assistent-design.md`.
 
-**Eén tab, drie levensgebeurtenissen:** de dropdown bovenin wisselt tussen
+**Eén tab, vier levensgebeurtenissen:** de dropdown bovenin wisselt tussen
 - **GT-MOB-01 · ondernemer** (11 persona's, route/innames-kaart),
 - **GT-VERH-01 · verhuizen burger** (7 persona's, regeling-zones-kaart:
   bewonerszone/tariefzone/LEZ rond de nieuwe woning, plus de
@@ -198,13 +198,17 @@ event-soorten en volgnummers, geen persoonswaarden. Zie ook
   `docs/superpowers/specs/2026-10-31-piloot-gent-verhuizen-burger-design.md`) en
 - **GT-KOT-01 · kot verhuren** (6 persona's, kotzone-kaart mét zone-naam
   uit het `gisChecks.attribuut`; ontwerp:
-  `docs/superpowers/specs/2026-11-01-piloot-gent-kot-verhuurder-design.md`).
+  `docs/superpowers/specs/2026-11-01-piloot-gent-kot-verhuurder-design.md`) en
+- **GT-EVT-01 · evenement organiseren** (6 persona's, LEZ-kaart rond de
+  eventlocatie, aanlooptijd-blokkades uit `timingChecks` en de Gentse
+  Feesten-voorbeelden in het infopaneel; ontwerp:
+  `docs/superpowers/specs/2026-11-02-piloot-gent-evenement-design.md`).
 
 Openen: `open simulation/simulation.html?tab=5` (of klik de tab "Gent · transactie").
 
 **Mailpakket:** `../nldt/.venv/bin/python build_simulation.py --gent-only` bouwt
 `simulation/gent-simulatie.html` — één zelfstandig bestand (~9 MB) met alléén
-de Gent-piloot: geen andere PoC-tabs of -data, de drie levensgebeurtenissen
+de Gent-piloot: geen andere PoC-tabs of -data, de vier levensgebeurtenissen
 achter de dropdown, en de 99 kotfoto's ingebed als data-URIs. Dubbelklikken
 opent het op elke laptop (geen server nodig); als bijlage mailen kan direct.
 Controle: `node simulation/verify_gent_only.mjs`.

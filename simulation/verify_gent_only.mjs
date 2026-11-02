@@ -84,10 +84,17 @@ try {
   const kotcard = globalThis.document.getElementById("kotcard").innerHTML;
   if (kotcard.indexOf("kot.stad.gent") < 0 || kotcard.indexOf("data:image/jpeg;base64,") < 0)
     throw new Error("willekeurig-kot-kaart zonder ingebedde foto");
+  ds.gentPackage("gentEvent"); drain();
+  const se = ds.sims[3]; se.jumpToStage(se.steps.length - 1); drain();
+  ds.gentPersona("gil"); drain();
+  const evTags = (globalThis.document.getElementById("kaart5").innerHTML.match(/<[a-zA-Z]/g) || []).length;
+  if (evTags !== 5) throw new Error("eventkaart onvolledig in gent-only (gekregen: " + evTags + ")");
+  if (globalThis.document.getElementById("kaart5info").innerHTML.indexOf("Gentse Feesten 2026") < 0)
+    throw new Error("feesten-voorbeelden ontbreken in gent-only eventkaart");
   ds.gentPackage("gent"); drain();
   if ((globalThis.document.getElementById("kaart5").innerHTML.match(/<[a-zA-Z]/g) || []).length !== 6)
     throw new Error("ondernemerskaart niet terug na pakket-wissels");
-  console.log("OK — gent-simulatie.html: alleen Gent actief, drie pakketten via de dropdown, kotfoto's ingebed, timers drained");
+  console.log("OK — gent-simulatie.html: alleen Gent actief, vier pakketten via de dropdown, kotfoto's ingebed, timers drained");
 } catch (e) {
   console.error("FAIL:", e && e.stack ? e.stack.split("\n").slice(0, 6).join("\n") : e);
   process.exit(1);

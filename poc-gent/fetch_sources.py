@@ -131,6 +131,9 @@ BURGER_PERSONAS = ("lisa", "tomas", "farah", "noor", "emma", "yana", "robrecht")
 # Kotpakket GT-KOT-01: per verhuurder het kotadres tegen de kotzone-laag.
 KOT_PERSONAS = ("wouter", "saartje", "gregory", "lea", "milan", "karel")
 
+# Evenementenpakket GT-EVT-01: per organisator de eventlocatie tegen de LEZ-laag.
+EVENT_PERSONAS = ("fien", "mo", "lorne", "nathalie", "gil", "jef")
+
 
 def _fetch_json(url: str) -> dict:
     request = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json"})
@@ -537,6 +540,10 @@ def haal_kaart_kot(poc_root: Path, kot_personas: tuple = KOT_PERSONAS) -> dict:
     return haal_kaart_persoonsadressen(poc_root, kot_personas, "kaart-kot.json")
 
 
+def haal_kaart_event(poc_root: Path, event_personas: tuple = EVENT_PERSONAS) -> dict:
+    return haal_kaart_persoonsadressen(poc_root, event_personas, "kaart-event.json")
+
+
 def _haal_html(url: str) -> str:
     request = urllib.request.Request(url, headers={"User-Agent": UA, "Accept-Encoding": "gzip"})
     with urllib.request.urlopen(request, timeout=60) as response:
@@ -774,6 +781,9 @@ def main() -> int:
     ap.add_argument("--kaart-kot", action="store_true",
                     help="bouw de kotkaart-cache (Gent-grens + kotadres per verhuurder-persona, "
                          "offline uit de adrescache) — netwerk alléén bij ontbrekende grens")
+    ap.add_argument("--kaart-event", action="store_true",
+                    help="bouw de eventkaart-cache (Gent-grens + locatie per organisator-persona, "
+                         "offline uit de adrescache) — netwerk alléén bij ontbrekende grens")
     args = ap.parse_args()
     if args.check:
         zone_rapport()
@@ -841,11 +851,20 @@ def main() -> int:
         }
         print(f"kaart-kot: {len(kaart_kot['personas'])}/{len(KOT_PERSONAS)} kotadressen "
               f"| grens: {'ja' if kaart_kot['grens'] else 'nee'}")
+    if args.kaart_event:
+        kaart_event = haal_kaart_event(POC_ROOT)
+        meta_document["bronnen"]["kaart-event"] = {
+            "cache": "fixtures/source/kaart-event.json",
+            "fetchedAt": kaart_event["meta"]["fetchedAt"],
+            "personas": sorted(kaart_event["personas"]),
+        }
+        print(f"kaart-event: {len(kaart_event['personas'])}/{len(EVENT_PERSONAS)} locaties "
+              f"| grens: {'ja' if kaart_event['grens'] else 'nee'}")
     (SOURCE_DIR / "source.meta.json").write_text(
         json.dumps(meta_document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     for laag, info in meta_document["bronnen"].items():
         if laag in ("adressen", "bestAddress", "vkbo", "gipod", "kaart", "kaart-burger",
-                    "kaart-kot", "ivago-ophaalkalender", "kotregister", "gentse-feesten"):
+                    "kaart-kot", "kaart-event", "ivago-ophaalkalender", "kotregister", "gentse-feesten"):
             continue
         print(f"{laag}: {info['titel']} | {info['licentie']} | versie {info['versie']} "
               f"| {info['featuresNaFilter']}/{info['featuresRuwwerk']} features")

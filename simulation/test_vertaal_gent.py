@@ -29,3 +29,9 @@ def test_bekende_vertalingen_spotcheck():
     assert "reference" in vertaal_gent.vt("Ontheffing LEZ voor zakelijk verkeer ingediend — referentie GENT-ABC123")
     assert vertaal_gent.vt("Uw voertuig (Euro 4) mag de lage-emissiezone niet in. "
                            "Vervang het voertuig of vraag een menselijke beoordeling via Gentinfo.").startswith("Your vehicle")
+
+
+def test_alle_eventembed_teksten_zijn_vertaald():
+    evt = build_gent("gent-evenement-organisator")
+    assert len(evt["personas"]) == 6
+    assert vertaal_gent.onbekend() == []

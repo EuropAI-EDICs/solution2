@@ -63,6 +63,19 @@ DICT: dict[str, str] = {
         "Milan — corrects the student-room address during the context check",
     "Karel — weigert de inzending bij H4":
         "Karel — refuses the submission at H4",
+    # — eventpakket GT-EVT-01: persona-labels —
+    "Fien — organiseert een straatfeest, ruim op tijd aangevraagd":
+        "Fien — organizes a street party, applied well in advance",
+    "Mo — vraagt het feest aan met kerst, net op tijd":
+        "Mo — applies for the party at Christmas, just in time",
+    "Lorne — wil over drie weken een feest, te laat voor online aanvraag":
+        "Lorne — wants a party in three weeks, too late to apply online",
+    "Nathalie — groot evenement, verwacht risicoanalyse":
+        "Nathalie — large event, expects a risk analysis",
+    "Gil — wil een pleintje bezetten op de Botermarkt, in de feestenzone":
+        "Gil — wants to occupy a square on the Botermarkt, in the festival zone",
+    "Jef — weigert de inzending bij H4":
+        "Jef — refuses the submission at H4",
     # — situatieschetsen —
     "Ik ben zelfstandig loodgieter en moet volgende week herstelwerken uitvoeren aan een pand aan de Korenmarkt. Ik kom met mijn bestelwagen.":
         "I am a self-employed plumber and have to carry out repair work at a building on the Korenmarkt next week. I come by van.",
@@ -114,6 +127,19 @@ DICT: dict[str, str] = {
         "I am going to rent out a student room — I first mentioned the wrong address in Gentbrugge, it will be the Overpoortstraat.",
     "Ik wil een studio aan de Overpoortstraat als kot melden, maar twijfel nog over de belasting.":
         "I want to notify a studio on the Overpoortstraat as a student room, but I am still hesitating about the tax.",
+    # — eventpakket GT-EVT-01: situatieschetsen —
+    "Ik wil volgend najaar een eendaags straatfeest aan de Veldstraat organiseren voor onze wijk.":
+        "Next autumn I want to organize a one-day street party on the Veldstraat for our neighbourhood.",
+    "Ik wil net voor kerst nog een klein buurtfeest aan de Veldstraat houden.":
+        "Just before Christmas I still want to hold a small neighbourhood party on the Veldstraat.",
+    "Ik wil eind november een eendaags feest aan de Veldstraat organiseren — de datum is al lang gepland.":
+        "At the end of November I want to organize a one-day party on the Veldstraat — the date has long been planned.",
+    "Onze vereniging wil volgend voorjaar een groot eendaags evenement aan de Veldstraat organiseren.":
+        "Next spring our association wants to organize a large one-day event on the Veldstraat.",
+    "Ik wil tijdens de zomer van 2027 een klein evenement op de Botermarkt bij het Stadhuis houden.":
+        "In the summer of 2027 I want to hold a small event on the Botermarkt near the City Hall.",
+    "Ik wil een eendaags straatevenement aan de Veldstraat organiseren, maar twijfel nog over de verzekering.":
+        "I want to organize a one-day street event on the Veldstraat, but I am still hesitating about the insurance.",
     # — stap-titels —
     "Je vertelt wat je gaat doen": "You describe what you are going to do",
     "We vragen alleen wat nog niet bekend is": "We only ask what is not known yet",
@@ -155,6 +181,19 @@ DICT: dict[str, str] = {
         "You are converting a home into student room(s): this requires an environmental permit before the rental.",
     "Uw adres valt buiten de kotzone-indeling: het koteloket beoordeelt de melding handmatig — u krijgt alleen de algemene informatie.":
         "Your address falls outside the kot-zone layout: the kot desk assesses the notification manually — you only receive the general information.",
+    # — eventpakket GT-EVT-01: beslistabel-uitleg —
+    "Uw evenement ligt ruim genoeg vooruit: u kunt de bezetting van publieke ruimte online aanvragen.":
+        "Your event is far enough ahead: you can apply online to occupy public space.",
+    "Uw evenement nadert: de aanvraag kan nog online, maar de beoordeling wordt krap — de waarschuwing verschijnt in uw aanvraag.":
+        "Your event is approaching: the application can still be filed online, but assessment becomes tight — the warning appears in your application.",
+    "Uw evenement is minder dan 30 dagen verwijderd: de online aanvraag wordt geblokkeerd en een medewerker beoordeelt of er nog iets mogelijk is.":
+        "Your event is less than 30 days away: the online application is blocked and a staff member assesses whether anything is still possible.",
+    "De opgegeven datum ligt in het verleden: de aanvraag wordt geblokkeerd tot de datum klopt.":
+        "The date given lies in the past: the application is blocked until the date is correct.",
+    "Uw locatie ligt in de lage-emissiezone: informeer bezoekers en leveranciers over de dagenpas.":
+        "Your location lies in the low-emission zone: inform visitors and suppliers about the day pass.",
+    "Uw locatie valt buiten het online aanvraaggebied van de stad: een medewerker van Gentinfo bekijkt met u wat wel kan.":
+        "Your location falls outside the city's online application area: a Gentinfo staff member will look with you at what is possible.",
     # — vaste meldingen en vervolgregels —
     "Controleer of uw diesel Euro 5 een geregistreerd roetfilter heeft; anders geldt de ontheffing niet.":
         "Check whether your Euro 5 diesel has a registered soot filter; otherwise the exemption does not apply.",
@@ -184,6 +223,17 @@ DICT: dict[str, str] = {
         "A conversion permit is required before you rent out the student room; apply for it first (see the environmental-permit information).",
     "Grote studentenresidenties krijgen een voorbehandeling via kot@stad.gent vóór de online melding.":
         "Large student residences receive pre-processing via kot@stad.gent before the online notification.",
+    # — eventpakket GT-EVT-01: vaste meldingen —
+    "Uw evenement is minder dan 90 dagen verwijderd: de beoordeling wordt krap — vroeg insturen is nodig.":
+        "Your event is less than 90 days away: assessment becomes tight — submitting early is necessary.",
+    "Uw evenement is minder dan 30 dagen verwijderd: online aanvragen kan niet meer — een medewerker van Gentinfo beoordeelt of het nog kan.":
+        "Your event is less than 30 days away: applying online is no longer possible — a Gentinfo staff member assesses whether it can still happen.",
+    "De datum van uw evenement ligt in het verleden — controleer de datum of neem contact op met Gentinfo.":
+        "Your event's date lies in the past — check the date or contact Gentinfo.",
+    "Groot evenement: een risicoanalyse en veiligheidsplan zijn vereist — de dienst Evenementen neemt contact op.":
+        "Large event: a risk analysis and safety plan are required — the Events department will contact you.",
+    "Uw locatie ligt in de Gentse Feesten-zone (demovereenvoudiging: straatgebonden, niet datumgebonden): coördineer met de feestencoördinator.":
+        "Your location lies in the Ghent Festival zone (demo simplification: street-based, not date-based): coordinate with the festival coordinator.",
     # — diensttitels, documenttitels, vragen, doelbindingen —
     "Ontheffing LEZ voor zakelijk verkeer": "LEZ exemption for commercial traffic",
     "Ontheffing autovrij gebied (laden/lossen)": "Car-free-area exemption (loading/unloading)",
@@ -204,9 +254,22 @@ DICT: dict[str, str] = {
     "Wat voor studentenhuisvesting verhuurt u?": "What type of student housing are you renting out?",
     "vaststellen of dit adres al als gemeld kot genoteerd staat":
         "establishing whether this address is already registered as a notified kot",
+    # — eventpakket GT-EVT-01: diensttitels en vragen —
+    "Evenement op publieke ruimte aanvragen": "Apply to occupy public space for an event",
+    "Aanlooptijden voor evenementenaanvragen": "Lead times for event applications",
+    "Gentse Feesten: bezette locaties": "Ghent Festival: occupied locations",
+    "Lage-emissiezone: bezoekers en leveranciers": "Low-emission zone: visitors and suppliers",
+    "Op welke locatie organiseert u het evenement?": "At which location are you organizing the event?",
+    "Op welke datum is het evenement (jjjj-mm-dd)?": "On which date is the event (yyyy-mm-dd)?",
+    "Wat voor evenement organiseert u?": "What kind of event are you organizing?",
+    "Bezet u daarbij publieke ruimte (straat, plein, park)?": "Will you occupy public space (street, square, park)?",
+    "bron: Gentse Feesten 2026 (open data, demo-selectie)":
+        "source: Ghent Festival 2026 (open data, demo selection)",
     # — kotpakket GT-KOT-01: kaart-bronregel —
     "kotzones: Stad Gent open data (Modellicentie Gratis Hergebruik) · gemeentegrens: OSM/Nominatim (ODbL)":
         "kot zones: City of Ghent open data (Free Re-use Licence) · city boundary: OSM/Nominatim (ODbL)",
+    "lez: Stad Gent open data (Modellicentie Gratis Hergebruik) · gemeentegrens: OSM/Nominatim (ODbL)":
+        "LEZ: City of Ghent open data (Free Re-use Licence) · city boundary: OSM/Nominatim (ODbL)",
     "Naar welk adres verhuist u?": "Which address are you moving to?",
     "Heeft u eigen parkeergelegenheid (garage of oprit) bij uw nieuwe adres?":
         "Do you have your own parking facility (garage or driveway) at your new address?",

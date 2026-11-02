@@ -2398,7 +2398,8 @@ let G = DATA.gent;      // actieve levensgebeurtenis (dropdown wisselt dataset)
 let GPKG = "gent";      // datablok-sleutel: "gent" | "gentBurger" | "gentKot"
 const GP = [["gent","GT-MOB-01 · voertuigtoegang ondernemer","GT-MOB-01 · vehicle access entrepreneur"],
             ["gentBurger","GT-VERH-01 · verhuizen (burger)","GT-VERH-01 · moving house (citizen)"],
-            ["gentKot","GT-KOT-01 · kot verhuren","GT-KOT-01 · renting out a student room"]];
+            ["gentKot","GT-KOT-01 · kot verhuren","GT-KOT-01 · renting out a student room"],
+            ["gentEvent","GT-EVT-01 · evenement organiseren","GT-EVT-01 · organizing an event"]];
 const GENT_ZONE_KLEUR = {"gent-parkeertariefzone": ["#a78bfa1f","#a78bfa99"],
                          "gent-bewonerszone": ["#34d39922","#34d39999"],
                          "gent-lez": ["#f59e0b1f","#f59e0b99"],
@@ -2489,7 +2490,7 @@ function kaartStap(st){
   const aan = (d)=> d <= st;
   const nieuw = (d)=> d <= st && d > kaartLaatsteStap;
   let s = "";
-  if (k.mode === "burger" || k.mode === "kot") {
+  if (k.mode === "burger" || k.mode === "kot" || k.mode === "event") {
     // Burger-/kotpakket: regeling-zones rond het adres — geen routes.
     if (z.grens) s += `<path d="${z.grens}" fill="none" stroke="#8b93a7" stroke-width="1.2" opacity=".45"/>`;
     for (const laag of GENT_ZONE_VOLGORDE) {
@@ -2604,11 +2605,12 @@ function renderGentStatic(){
   if (!k || !k.svg) {
     kwrap.style.display = "none";
   } else {
-    const zoneModus = k.mode === "burger" || k.mode === "kot";
+    const zoneModus = k.mode === "burger" || k.mode === "kot" || k.mode === "event";
     const isKot = k.mode === "kot";
+    const isEvent = k.mode === "event";
     $("kaart5kop").innerHTML = zoneModus
-      ? TT(isKot ? "kotzone rond je kotadres" : "regeling-zones rond je nieuwe woning",
-           isKot ? "kot zone around your student-room address" : "regulation zones around your new home")
+      ? TT(isKot ? "kotzone rond je kotadres" : isEvent ? "lage-emissiezone rond je eventlocatie" : "regeling-zones rond je nieuwe woning",
+           isKot ? "kot zone around your student-room address" : isEvent ? "low-emission zone around your event location" : "regulation zones around your new home")
       : `<span class="tekst-nl">route &amp; omleidingen</span><span class="tekst-en">route &amp; detours</span>`;
     $("kaart5leg").innerHTML = !zoneModus
       ? `<div class="tekst-nl"><span style="color:#3b82f6">━</span> primair (snelste) · <span style="color:#8b93a7">━</span> alternatief (dunner) · <span style="color:#22d3ee">━━</span> dik = door Gent aangeraden (minste innames) · <span style="color:#f59e0b">▲</span> inname (GIPOD) · <span style="color:#f59e0b">▨</span> lage-emissiezone · <span style="color:#f87171">▨</span> autovrij gebied · <span style="color:#34d399">●</span> start (bedrijf) · <span style="color:#f87171">●</span> doel · 🔍 scroll = inzoomen · sleep = verschuiven · dubbelklik = herstellen</div>
@@ -2616,6 +2618,9 @@ function renderGentStatic(){
       : (isKot
         ? `<div class="tekst-nl"><span style="color:#38bdf8">▨</span> kotzone (met zone-naam in het infopaneel) · <span style="color:#34d399">●</span> kotadres · 🔍 scroll = inzoomen · sleep = verschuiven · dubbelklik = herstellen</div>
            <div class="tekst-en"><span style="color:#38bdf8">▨</span> kot zone (zone name in the info panel) · <span style="color:#34d399">●</span> student-room address · 🔍 scroll = zoom · drag = pan · double-click = reset</div>`
+        : isEvent
+        ? `<div class="tekst-nl"><span style="color:#f59e0b">▨</span> lage-emissiezone · <span style="color:#34d399">●</span> eventlocatie · 🔍 scroll = inzoomen · sleep = verschuiven · dubbelklik = herstellen</div>
+           <div class="tekst-en"><span style="color:#f59e0b">▨</span> low-emission zone · <span style="color:#34d399">●</span> event location · 🔍 scroll = zoom · drag = pan · double-click = reset</div>`
         : `<div class="tekst-nl"><span style="color:#34d399">▨</span> bewonerszone · <span style="color:#a78bfa">▨</span> parkeertariefzone · <span style="color:#f59e0b">▨</span> lage-emissiezone · <span style="color:#34d399">●</span> nieuwe woning · 🔍 scroll = inzoomen · sleep = verschuiven · dubbelklik = herstellen</div>
            <div class="tekst-en"><span style="color:#34d399">▨</span> residents' zone · <span style="color:#a78bfa">▨</span> paid-parking zone · <span style="color:#f59e0b">▨</span> low-emission zone · <span style="color:#34d399">●</span> new home · 🔍 scroll = zoom · drag = pan · double-click = reset</div>`);
     if (zoneModus) {
@@ -2625,12 +2630,15 @@ function renderGentStatic(){
                         "gent-lez": ["lage-emissiezone","low-emission zone"],
                         "gent-kotzone": ["kotzone","kot zone"]};
       $("kaart5info").innerHTML =
-        `<div>${TT(isKot ? "kotadres:" : "nieuwe woning:", isKot ? "student-room address:" : "new home:")} <b>${esc(k.start.adres)}</b></div>`
+        `<div>${TT(isKot ? "kotadres:" : isEvent ? "eventlocatie:" : "nieuwe woning:", isKot ? "student-room address:" : isEvent ? "event location:" : "new home:")} <b>${esc(k.start.adres)}</b></div>`
         + (isKot && k.zoneNaam ? `<div class="gdu">${TT("kotzone:","kot zone:")} <b>${esc(k.zoneNaam)}</b></div>` : "")
         + Object.keys(ZONE_LBL).filter(l=>k.zones[l]).map(l=>
             `<div class="gdu">${TT(ZONE_LBL[l][0], ZONE_LBL[l][1])}: <b>${TT(k.zones[l]==="in"?"in":"buiten", k.zones[l]==="in"?"in":"outside")}</b></div>`).join("")
         + (p.context&&p.context.regels||[]).filter(r=>String(r.feit).startsWith("afval"))
-            .map(r=>`<div class="gdu">${esc(r.feit)}: <b>${esc(r.waarde)}</b> <span class="gbron">${esc(r.bron)}</span></div>`).join("");
+            .map(r=>`<div class="gdu">${esc(r.feit)}: <b>${esc(r.waarde)}</b> <span class="gbron">${esc(r.bron)}</span></div>`).join("")
+        + (G.feesten && GPKG==="gentEvent"
+            ? G.feesten.evenementen.slice(0,4).map(ev=>`<div class="gdu">🎪 ${esc(ev.naam)} — ${esc(ev.locatie)} (${esc(ev.datum)})</div>`).join("")
+              + `<div class="gbron">${TT("bron: Gentse Feesten 2026 (open data, demo-selectie)","source: Ghent Festival 2026 (open data, demo selection)")}</div>` : "");
       $("kaart5bron").innerHTML = TT(esc(k.bron), esc(k.bronEn));
     } else {
     const fmt = (m)=> m>=1000 ? (m/1000).toFixed(1)+" km" : m+" m";

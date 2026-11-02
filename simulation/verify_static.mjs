@@ -213,10 +213,21 @@ try {
     throw new Error("aanvraag-formulier volgt het geselecteerde kot niet");
   const statusNa = globalThis.document.getElementById("facts5").innerHTML;
   if (statusNa.indexOf("afval") < 0) throw new Error("afvalfeiten ontbreken bij kotselectie");
+  ds.gentPackage("gentEvent"); drain();
+  const se = ds.sims[3];
+  se.jumpToStage(se.steps.length - 1); drain();
+  ds.gentPersona("lorne"); drain();
+  const evWrap = globalThis.document.getElementById("kaart5wrap");
+  if (evWrap && evWrap.style.display === "none") throw new Error("eventkaart verwacht zichtbaar");
+  const evSvg = globalThis.document.getElementById("kaart5");
+  const evTags = (evSvg.innerHTML.match(/<[a-zA-Z]/g) || []).length;
+  if (evTags !== 5) throw new Error("eventkaart toont grens + lez + locatie (gekregen: " + evTags + ")");
+  const evInfo = globalThis.document.getElementById("kaart5info").innerHTML;
+  if (evInfo.indexOf("Gentse Feesten 2026") < 0) throw new Error("feesten-voorbeelden ontbreken in kaartinfo");
   ds.gentPackage("gent"); drain();
-  if (kaartTags() !== 6) throw new Error("terug op ondernemerspakket na kot: kaart5 weer basis + start (gekregen: " + kaartTags() + ")");
+  if (kaartTags() !== 6) throw new Error("terug op ondernemerspakket na event: kaart5 weer basis + start (gekregen: " + kaartTags() + ")");
 
-  console.log(`OK — script evaluated; poc1 tracks driven through every step (${n1} steps on active track), sim2 ${n2} steps, laya fp+chat driven, poc4 sim4 ${s4.steps.length} steps, gent sim5 ${s5e.steps.length} steps (sanne/dirk/ellen/wim/nadia/ilse/hanne/maria) + kaartpanel gecontroleerd incl. burger- en kotpakket-switch, timers drained`);
+  console.log(`OK — script evaluated; poc1 tracks driven through every step (${n1} steps on active track), sim2 ${n2} steps, laya fp+chat driven, poc4 sim4 ${s4.steps.length} steps, gent sim5 ${s5e.steps.length} steps (sanne/dirk/ellen/wim/nadia/ilse/hanne/maria) + kaartpanel gecontroleerd incl. burger-, kot- en eventpakket-switch, timers drained`);
 } catch (e) {
   console.error("FAIL:", e && e.stack ? e.stack.split("\n").slice(0, 6).join("\n") : e);
   process.exit(1);

@@ -5,6 +5,8 @@ Magda-prefill → validatie → H3-concept → documentencontrole → H4-inzendi
 ontvangstbewijs en vervolgsamenvatting) van het referentiepakket
 `gent-mobiliteit-ondernemer`. Ontwerp:
 [`docs/superpowers/specs/2026-10-30-piloot-gent-transactionele-assistent-design.md`](../docs/superpowers/specs/2026-10-30-piloot-gent-transactionele-assistent-design.md).
+Architectuur, uitgelijnd met de pilotdefinitie (D3.1 §2.1 "Operational
+workflow and human control"): [`ARCHITECTUUR.md`](ARCHITECTUUR.md).
 
 ## Twee levensgebeurtenissen (multi-package)
 

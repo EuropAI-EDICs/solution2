@@ -1360,6 +1360,7 @@ GENT_PACKAGE_PERSONAS = {
                                    "ellen", "dirk", "wim", "nadia", "ilse", "hanne"),
     "gent-verhuizen-burger": ("lisa", "tomas", "farah", "noor", "emma", "yana", "robrecht"),
     "gent-kot-verhuurder": ("wouter", "saartje", "gregory", "lea", "milan", "karel"),
+    "gent-evenement-organisator": ("fien", "mo", "lorne", "nathalie", "gil", "jef"),
 }
 
 
@@ -1417,6 +1418,30 @@ def _kaart_blok_burger(kaart, zones, pid):
                     "gemeentegrens: OSM/Nominatim (ODbL)"}
 
 
+def _kaart_blok_event(kaart, zones, pid):
+    """Eventkaart (GT-EVT-01): LEZ-zone rond de eventlocatie — bezoekers- en
+    leveranciersverkeer; geen routes/innames."""
+    entry = (kaart.get("personas") or {}).get(pid)
+    if not entry:
+        return None
+    coord = entry["coord"]
+    evt_zones = {laag: ringen for laag, ringen in zones.items() if laag == "gent-lez"}
+    project = _maak_projectie(_kaart_bbox(kaart.get("grens"), [coord]))
+    gis = _gis_zones_module()
+    zone_uit = {laag: gis.zone_result(evt_zones, laag, coord[0], coord[1]) for laag in evt_zones}
+    start = project(coord)
+    return {"mode": "event",
+            "start": {"label": "eventlocatie", "adres": entry["adres"], "coord": coord},
+            "doel": entry["adres"], "zones": zone_uit, "gewenst": None,
+            "routes": [], "innames": [], "omzeil": [],
+            "svg": {"grens": _pad_ringen(_grens_ringen(kaart.get("grens")), project)
+                    if kaart.get("grens") else None,
+                    "zones": {laag: _pad_ringen(ringen, project) for laag, ringen in evt_zones.items()},
+                    "start": [start[0], start[1]], "routes": None, "innames": []},
+            "bron": "lez: Stad Gent open data (Modellicentie Gratis Hergebruik) · "
+                    "gemeentegrens: OSM/Nominatim (ODbL)"}
+
+
 def build_gent(package_id: str = "gent-mobiliteit-ondernemer") -> dict:
     """Gent EUROPAI-piloot voor tab 5: deterministische replay (fase 1+2+3) per
     persona, gegenereerd door de echte poc-gent-engine tijdens de build. De
@@ -1439,6 +1464,7 @@ def build_gent(package_id: str = "gent-mobiliteit-ondernemer") -> dict:
         "gent-mobiliteit-ondernemer": ("kaart.json", _kaart_blok),
         "gent-verhuizen-burger": ("kaart-burger.json", _kaart_blok_burger),
         "gent-kot-verhuurder": ("kaart-kot.json", _kaart_blok_kot),
+        "gent-evenement-organisator": ("kaart-event.json", _kaart_blok_event),
     }[package_id]
     kaart_pad = gent_root / "fixtures" / "source" / kaart_naam
     kaart = json.loads(kaart_pad.read_text(encoding="utf-8")) if kaart_pad.is_file() else None
@@ -1670,10 +1696,17 @@ def bouw_gent_only() -> int:
     levensgebeurtenissen achter de dropdown, kotfoto's ingebed."""
     data = {"gent": build_gent(),
             "gentBurger": build_gent("gent-verhuizen-burger"),
-            "gentKot": build_gent("gent-kot-verhuurder")}
+            "gentKot": build_gent("gent-kot-verhuurder"),
+            "gentEvent": build_gent("gent-evenement-organisator")}
     kotregister = _kotregister_blok(ROOT / "poc-gent")
     if kotregister:
         data["gentKot"]["kotregister"] = kotregister
+    feesten_pad = ROOT / "poc-gent" / "fixtures" / "source" / "feestenkalender.json"
+    if feesten_pad.is_file():
+        feesten = json.loads(feesten_pad.read_text(encoding="utf-8"))
+        data["gentEvent"]["feesten"] = {"versie": feesten.get("versie"),
+                                        "periode": feesten.get("periode"),
+                                        "evenementen": feesten.get("evenementen")}
         ingebed = _beelden_als_data_uris(kotregister)
     else:
         ingebed = 0
@@ -1706,10 +1739,17 @@ def main() -> int:
 
     data = {"poc1": build_poc1(), "poc2": build_poc2(), "poc4": build_breda(), "gent": build_gent(),
             "gentBurger": build_gent("gent-verhuizen-burger"),
-            "gentKot": build_gent("gent-kot-verhuurder")}
+            "gentKot": build_gent("gent-kot-verhuurder"),
+            "gentEvent": build_gent("gent-evenement-organisator")}
     kotregister = _kotregister_blok(ROOT / "poc-gent")
     if kotregister:
         data["gentKot"]["kotregister"] = kotregister
+    feesten_pad = ROOT / "poc-gent" / "fixtures" / "source" / "feestenkalender.json"
+    if feesten_pad.is_file():
+        feesten = json.loads(feesten_pad.read_text(encoding="utf-8"))
+        data["gentEvent"]["feesten"] = {"versie": feesten.get("versie"),
+                                        "periode": feesten.get("periode"),
+                                        "evenementen": feesten.get("evenementen")}
         beelden_bron = ROOT / "poc-gent" / "fixtures" / "source" / "kot-beelden"
         if beelden_bron.is_dir():
             shutil.copytree(beelden_bron, OUT.parent / "kot-beelden", dirs_exist_ok=True)
