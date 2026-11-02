@@ -18,6 +18,8 @@ never re-derived from the simplified display geometry.
 """
 from __future__ import annotations
 
+import argparse
+import base64
 import json
 import math
 import re
@@ -1603,7 +1605,97 @@ def _kot_coord(gent_root: Path, adres_sleutel: str) -> list[float] | None:
     return adressen.get(adres_sleutel)
 
 
+GENT_ONLY_PAD = "gent-simulatie.html"
+
+
+def _beelden_als_data_uris(kotregister: dict) -> int:
+    """Kot-foto's inladen als data-URIs zodat het Gent-bestand één enkele
+    zelfstandige bijlage is (geen map met assets nodig op de laptop)."""
+    beelden_map = ROOT / "poc-gent" / "fixtures" / "source"
+    ingebed = 0
+    for kot in kotregister.get("koten", []):
+        if not kot.get("beeld"):
+            continue
+        pad = beelden_map / kot["beeld"]
+        if pad.is_file():
+            kot["beeld"] = "data:image/jpeg;base64," + base64.b64encode(pad.read_bytes()).decode("ascii")
+            ingebed += 1
+        else:
+            kot["beeld"] = None
+    return ingebed
+
+
+def _patch_gent_only(tpl: str) -> str:
+    """Template injecties voor de Gent-only-variant: alleen het Gent-tabblad
+    actief en zichtbaar, overige PoC-initialisatie uit (hun data ontbreekt)."""
+    vervangingen = [
+        ("<title>LDT Toolbox — pipeline simulation (PoC-1 · PoC-2)</title>",
+         "<title>Gent · EUROPAI transactiepiloot — simulatie</title>"),
+        ('<div class="tab active" id="tab1" onclick="switchTab(1)">PoC-1 · wind, Utrecht</div>',
+         '<div class="tab" id="tab1" style="display:none"></div>'),
+        ('<div class="tab" id="tab2" onclick="switchTab(2)">PoC-2 · BP→OP, Eindhoven</div>',
+         '<div class="tab" id="tab2" style="display:none"></div>'),
+        ('<div class="tab" id="tab4" onclick="switchTab(4)"><span class="tekst-nl">Breda · vijf-waarden</span><span class="tekst-en">Breda · five-value</span></div>',
+         '<div class="tab" id="tab4" style="display:none"></div>'),
+        ('<div class="tab" id="tab5"', '<div class="tab active" id="tab5"'),
+        ('<div class="tabkop on" id="kop1">', '<div class="tabkop" id="kop1">'),
+        ('<div class="tabkop" id="kop5">', '<div class="tabkop on" id="kop5">'),
+        ('<section class="view active" id="view1">', '<section class="view" id="view1">'),
+        ('<section class="view" id="view5">', '<section class="view active" id="view5">'),
+        ("let sim1, sim2, sim4, sim5, active=1;", "let sim1, sim2, sim4, sim5, active=5;"),
+        # top-level data-bindingen (bbox-IIFE e.d. draaien bij het laden):
+        # stubs, want de PoC-data ontbreekt in de Gent-only-variant
+        ("const P1 = DATA.poc1;", "const P1 = {aoi:{geo:[],areaKm2:0}, tracks:{}};"),
+        ("const P2 = DATA.poc2;", "const P2 = {grid:[], qa:[]};"),
+        ("const P4 = DATA.poc4;", "const P4 = {};"),
+        # laya-view bindt top-level op P1/P2 (kind, meta, questions, eval)
+        ("const LAYA_DS = { eindhoven: P2.laya, utrecht: P1.laya };",
+         "const LAYA_DS = { eindhoven: {kind: 'eindhoven', meta:{}, questions:[], eval:{}, "
+         "tok:{stop:[], suf:[]}, fp:{}, nGram:{}, preds:{}, pad:{}}, "
+         "utrecht: {kind: 'utrecht', meta:{}, questions:[], eval:{}, "
+         "tok:{stop:[], suf:[]}, fp:{}, nGram:{}, preds:{}, pad:{}} };"),
+        ("buildRail1(); buildStatic1(); sim1=makeSim1(); buildSim2();\nbuildRail4(); buildStatic4(); sim4=makeSim4(); sim1.prog();\n", ""),
+        # laya- en breda-init draaien top-level tegen de stubs
+        ("\nbuildLayaStatic(); renderGate();", "\n/* gent-only: laya-init uit */"),
+        ("else if(t>=1&&t<=5) switchTab(t);", "else if(t>=1&&t<=5) switchTab(5);"),
+    ]
+    for oud, nieuw_stuk in vervangingen:
+        assert oud in tpl, f"gent-only patchanker ontbreekt: {oud[:60]}"
+        tpl = tpl.replace(oud, nieuw_stuk, 1)
+    return tpl
+
+
+def bouw_gent_only() -> int:
+    """Volledig zelfstandige Gent-simulatie als één HTML-bestand: drie
+    levensgebeurtenissen achter de dropdown, kotfoto's ingebed."""
+    data = {"gent": build_gent(),
+            "gentBurger": build_gent("gent-verhuizen-burger"),
+            "gentKot": build_gent("gent-kot-verhuurder")}
+    kotregister = _kotregister_blok(ROOT / "poc-gent")
+    if kotregister:
+        data["gentKot"]["kotregister"] = kotregister
+        ingebed = _beelden_als_data_uris(kotregister)
+    else:
+        ingebed = 0
+    tpl = _patch_gent_only(TEMPLATE.read_text(encoding="utf-8"))
+    marker = "/*__DATA__*/"
+    if marker not in tpl:
+        sys.exit("template is missing the /*__DATA__*/ marker")
+    html = tpl.replace(marker, json.dumps(data, ensure_ascii=False, separators=(",", ":")), 1)
+    uit = ROOT / "simulation" / GENT_ONLY_PAD
+    uit.write_text(html, encoding="utf-8")
+    print(f"wrote {uit}  ({uit.stat().st_size/1024/1024:.1f} MB, {ingebed} kotfoto's ingebed)")
+    return 0
+
+
 def main() -> int:
+    ap = argparse.ArgumentParser(description="bouw de simulatie (of alleen het Gent-deel)")
+    ap.add_argument("--gent-only", action="store_true",
+                    help="bouw gent-simulatie.html: zelfstandig Gent-bestand (geen andere PoC's, "
+                         "kotfoto's ingebed) — een bijlage om te mailen")
+    args = ap.parse_args()
+    if args.gent_only:
+        return bouw_gent_only()
     for name, meta in POC1_TRACKS.items():
         if not meta["run"].is_dir():
             sys.exit(f"missing PoC-1 {name} run dir {meta['run']}")

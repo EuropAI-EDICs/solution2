@@ -201,6 +201,13 @@ event-soorten en volgnummers, geen persoonswaarden. Zie ook
   `docs/superpowers/specs/2026-11-01-piloot-gent-kot-verhuurder-design.md`).
 
 Openen: `open simulation/simulation.html?tab=5` (of klik de tab "Gent · transactie").
+
+**Mailpakket:** `../nldt/.venv/bin/python build_simulation.py --gent-only` bouwt
+`simulation/gent-simulatie.html` — één zelfstandig bestand (~9 MB) met alléén
+de Gent-piloot: geen andere PoC-tabs of -data, de drie levensgebeurtenissen
+achter de dropdown, en de 99 kotfoto's ingebed als data-URIs. Dubbelklikken
+opent het op elke laptop (geen server nodig); als bijlage mailen kan direct.
+Controle: `node simulation/verify_gent_only.mjs`.
 Dropdown + persona-switcher bovenin; ▶/stap/↺ besturen de replay zoals bij de andere PoC's.
 In het kotpakket staat onder de kaart de **willekeurig-kot-kaart**: een
 willekeurige advertentie uit de échte Kotatgent-kotenzoeker (foto, adres,
