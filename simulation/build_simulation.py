@@ -21,6 +21,7 @@ from __future__ import annotations
 import json
 import math
 import re
+import shutil
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -1492,6 +1493,23 @@ def build_gent(package_id: str = "gent-mobiliteit-ondernemer") -> dict:
     }
 
 
+def _kotregister_blok(gent_root: Path) -> dict | None:
+    """Echt Kotatgent-register (publieke kotenzoeker): willekeurig-kot-kaart
+    in de simulatie. Beelden verwijzen relatief naar simulation/kot-beelden/
+    (gekopieerd in main); titel/adres/prijs zijn brontekst en blijven NL."""
+    pad = gent_root / "fixtures" / "source" / "kotregister.json"
+    if not pad.is_file():
+        return None
+    register = json.loads(pad.read_text(encoding="utf-8"))
+    return {"bron": register.get("bron"),
+            "totaalInDatabase": register.get("totaalInDatabase"),
+            "beschikbaar": register.get("beschikbaarGepubliceerd"),
+            "koten": [{"titel": k["titel"], "adres": k["adres"], "type": k.get("type"),
+                       "prijs": k.get("prijs"), "conformiteitsattest": k.get("conformiteitsattest"),
+                       "beeld": k.get("beeld"), "url": k.get("url")}
+                      for k in register.get("koten", [])]}
+
+
 def main() -> int:
     for name, meta in POC1_TRACKS.items():
         if not meta["run"].is_dir():
@@ -1504,6 +1522,12 @@ def main() -> int:
     data = {"poc1": build_poc1(), "poc2": build_poc2(), "poc4": build_breda(), "gent": build_gent(),
             "gentBurger": build_gent("gent-verhuizen-burger"),
             "gentKot": build_gent("gent-kot-verhuurder")}
+    kotregister = _kotregister_blok(ROOT / "poc-gent")
+    if kotregister:
+        data["gentKot"]["kotregister"] = kotregister
+        beelden_bron = ROOT / "poc-gent" / "fixtures" / "source" / "kot-beelden"
+        if beelden_bron.is_dir():
+            shutil.copytree(beelden_bron, OUT.parent / "kot-beelden", dirs_exist_ok=True)
     tpl = TEMPLATE.read_text(encoding="utf-8")
     marker = "/*__DATA__*/"
     if marker not in tpl:

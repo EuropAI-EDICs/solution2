@@ -549,6 +549,19 @@ def _haal_html(url: str) -> str:
 KOTELOKET_ZOEKER = "https://kot.stad.gent/nl/vind-een-kot"
 
 
+def _haal_binary(url: str, doel: Path) -> None:
+    """Thumbnail downloaden naar de broncache (kot-beelden/); bij mislukking
+    stilletjes overslaan — het kot krijgt dan gewoon geen afbeelding."""
+    try:
+        request = urllib.request.Request(url, headers={"User-Agent": UA})
+        with urllib.request.urlopen(request, timeout=60) as response:
+            doel.parent.mkdir(parents=True, exist_ok=True)
+            doel.write_bytes(response.read())
+        time.sleep(0.2)
+    except Exception:
+        pass
+
+
 def haal_kotregister(poc_root: Path) -> dict:
     """Publieke Kotatgent-advertenties ophalen uit de kotenzoeker (server-
     rendered paginering; robots.txt staat publieke inhoud toe, het antibot-
@@ -578,11 +591,20 @@ def haal_kotregister(poc_root: Path) -> dict:
                 continue
             gezien.add(link.group(1))
             type_m = re.search(r'<span class="label[^"]*">\s*<span>\s*(Kamer|Studio)\s*</span>', stuk)
+            prijs_m = re.search(r"<strong>\s*(€\s*[\d.,]+\s*per maand)\s*</strong>", stuk)
+            beeld_m = re.search(r'<img[^>]+src="(/sites/default/files/styles/teaser/[^"]+)"', stuk)
+            slug = link.group(1).rsplit("/", 1)[-1]
+            beeld = f"kot-beelden/{slug}.jpg" if beeld_m else None
+            if beeld_m:
+                _haal_binary(f"{KOTELOKET_ZOEKER.rsplit('/nl/', 1)[0]}{beeld_m.group(1)}",
+                             SOURCE_DIR / "kot-beelden" / f"{slug}.jpg")
             artikelen.append({
                 "titel": titel,
                 "adres": adres,
                 "type": type_m.group(1).lower() if type_m else None,
+                "prijs": prijs_m.group(1) if prijs_m else None,
                 "conformiteitsattest": "conformity-certificate__status" in stuk,
+                "beeld": beeld,
                 "url": KOTELOKET_ZOEKER.rsplit("/nl/", 1)[0] + link.group(1),
             })
         if "Volgende pagina" not in html:

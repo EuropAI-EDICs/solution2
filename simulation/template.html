@@ -322,6 +322,11 @@
   #view5 .gpkg{background:var(--bg2,#141a24);color:var(--ink,#e8ecf3);border:1px solid var(--line,#2a3342);
     border-radius:7px;font:12px/1.4 var(--mono,monospace);padding:5px 8px;max-width:340px}
   #view5 .gpkg:focus{outline:1px solid var(--cy,#22d3ee)}
+  #view5 .kotcard{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}
+  #view5 .kotcard img{width:280px;max-width:100%;border-radius:8px;border:1px solid var(--line,#2a3342)}
+  #view5 .kotcard .kotinfo{display:flex;flex-direction:column;gap:6px;min-width:220px;flex:1}
+  #view5 .kotcard .kotinfo b{font-size:14px}
+  #view5 .kotcard .gbron a{color:var(--cy,#22d3ee)}
   #rail5 .stage{display:block;font-size:12.5px;padding:8px 10px}
   #rail5 .stage b{display:block}
   #rail5 .stage .gsub{color:var(--faint);font-size:11px}
@@ -761,6 +766,12 @@
         <div id="kaart5info" class="gkaartinfo"></div>
         <div class="gbron" id="kaart5bron"></div>
       </div>
+    </div>
+    <div class="card" id="kotwrap" style="display:none">
+      <h3 style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap"><span id="kotkop"></span>
+        <span class="gsub" id="kotkopmeta"></span>
+        <button class="ttab" style="margin-left:auto" onclick="gentRandomKot()" title="ander kot / another room">🎲</button></h3>
+      <div id="kotcard" class="kotcard"></div>
     </div>
   </div>
   <aside class="card gside">
@@ -2607,6 +2618,17 @@ function renderGentStatic(){
       $("kaart5bron").innerHTML = TT(esc(k.bron), esc(k.bronEn));
     }
   }
+  const kotwrap = $("kotwrap");
+  if (kotwrap) {
+    const reg = G.kotregister;
+    kotwrap.style.display = (GPKG === "gentKot" && reg) ? "block" : "none";
+    if (GPKG === "gentKot" && reg) {
+      $("kotkop").innerHTML = TT("willekeurig kot uit de Kotatgent-kotenzoeker",
+                                 "random room from the Kotatgent finder");
+      $("kotkopmeta").textContent = `${reg.beschikbaar}/${reg.totaalInDatabase}`;
+      if (!$("kotcard").innerHTML) gentRandomKot();
+    }
+  }
   $("ev5").innerHTML = (p.events||[]).map(e=>`<span class="gevchip">${esc(e.kind)}</span>`).join("")
     + `<div class="gchain ${p.chainOk?"ok":""}">${p.chainOk?"ketting ✓ geverifieerd (sha256; seq+ts in de hash-basis)":"ketting ✗"}</div>`;
 }
@@ -2643,12 +2665,27 @@ function gentPackage(k){
   renderGentMeta(); renderGentStatic();
   sim5=makeSim5(); sim5.prog();
 }
+function gentRandomKot(){
+  const reg = G.kotregister; if (!reg || !reg.koten || !reg.koten.length) return;
+  const kot = reg.koten[Math.floor(Math.random()*reg.koten.length)];
+  const attest = kot.conformiteitsattest
+    ? " " + gchip(TT("conformiteitsattest","conformity certificate"), "#34d399") : "";
+  $("kotcard").innerHTML =
+    (kot.beeld ? `<img src="${esc(kot.beeld)}" alt="${esc(kot.titel)}" loading="lazy" onerror="this.style.display='none'">` : "")
+    + `<div class="kotinfo"><b>${esc(kot.titel)}</b>`
+    + `<div>${TT("adres:","address:")} ${esc(kot.adres)}, Gent</div>`
+    + (kot.prijs ? `<div>${esc(kot.prijs)}</div>` : "")
+    + `<div>${esc(kot.type || "—")}${attest}</div>`
+    + `<div class="gbron"><a href="${esc(kot.url)}" target="_blank" rel="noopener">${TT("bekijk op kot.stad.gent","view on kot.stad.gent")}</a> · `
+    + TT(`publieke kotenzoeker: ${reg.beschikbaar}/${reg.totaalInDatabase} koten`,
+         `${reg.beschikbaar}/${reg.totaalInDatabase} rooms from the public finder`) + `</div></div>`;
+}
 
 buildRail1(); buildStatic1(); sim1=makeSim1(); buildSim2();
 buildRail4(); buildStatic4(); sim4=makeSim4(); sim1.prog();
 renderGentMeta(); renderGentStatic(); sim5=makeSim5(); sim5.prog();
 
-globalThis.__ds={ get sims(){return [sim1,sim2,sim4,sim5];}, switchTrack, switchTab, gentPersona, gentPackage,
+globalThis.__ds={ get sims(){return [sim1,sim2,sim4,sim5];}, switchTrack, switchTab, gentPersona, gentPackage, gentRandomKot,
   get layaOn(){return (id)=>layaOn[id||curLaya];}, fpRun, chatSend, nnBron, switchLayaDs,
   get bredaOn(){return ()=>bredaUnlocked;}, setWaarde, bredaChatSend, bredaMatch, bredaFpRun, bredaNn,
   get sim4(){return sim4;}, get bredaS2(){return ()=>bredaS2Live;} };

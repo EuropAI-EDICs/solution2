@@ -68,3 +68,30 @@ class TestBuildGentKot(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TestKotregisterEmbed(unittest.TestCase):
+    """Het blok wordt door main() aan data["gentKot"] gehangen; verify_static
+    toetst de kaart tegen het échte gebouwde bestand."""
+
+    @classmethod
+    def setUpClass(cls):
+        from build_simulation import _kotregister_blok
+
+        cls.register = _kotregister_blok(ROOT / "poc-gent")
+
+    def test_kotregister_ingebed_in_het_kotpakket(self):
+        reg = self.register
+        self.assertIsNotNone(reg)
+        self.assertGreaterEqual(reg["totaalInDatabase"], 5000)
+        self.assertGreaterEqual(len(reg["koten"]), 90)
+        for kot in reg["koten"]:
+            self.assertTrue(kot["titel"] and kot["adres"] and kot["url"])
+            self.assertIn(kot["type"], ("kamer", "studio", None))
+
+    def test_beeldverwijzingen_wijzen_naar_de_broncache(self):
+        bron = ROOT / "poc-gent" / "fixtures" / "source"
+        met_beeld = [k for k in self.register["koten"] if k["beeld"]]
+        self.assertGreaterEqual(len(met_beeld), 80)
+        for kot in met_beeld:
+            self.assertTrue((bron / kot["beeld"]).is_file(), kot["beeld"])

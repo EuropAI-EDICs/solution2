@@ -202,3 +202,7 @@ event-soorten en volgnummers, geen persoonswaarden. Zie ook
 
 Openen: `open simulation/simulation.html?tab=5` (of klik de tab "Gent · transactie").
 Dropdown + persona-switcher bovenin; ▶/stap/↺ besturen de replay zoals bij de andere PoC's.
+In het kotpakket staat onder de kaart de **willekeurig-kot-kaart**: een
+willekeurige advertentie uit de échte Kotatgent-kotenzoeker (foto, adres,
+prijs, conformiteitsattest, link) — 🎲 trekt een andere; beelden liggen in
+`simulation/kot-beelden/` (meegenomen door de build).

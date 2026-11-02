@@ -196,6 +196,13 @@ try {
   if (!kkSvg || kkTags() !== 5) throw new Error("kotkaart toont grens + kotzone + kotadres (gekregen: " + (kkSvg ? kkTags() : "none") + ")");
   const kkInfo = globalThis.document.getElementById("kaart5info").innerHTML;
   if (kkInfo.indexOf("kotzone:") < 0) throw new Error("kotzone-naam ontbreekt in kaart5info");
+  const kotwrap = globalThis.document.getElementById("kotwrap");
+  if (!kotwrap || kotwrap.style.display === "none") throw new Error("willekeurig-kot-kaart verwacht in kotpakket");
+  if (globalThis.document.getElementById("kotcard").innerHTML.indexOf("kot.stad.gent") < 0)
+    throw new Error("willekeurig-kot-kaart is leeg");
+  ds.gentRandomKot(); drain();
+  if (globalThis.document.getElementById("kotcard").innerHTML.indexOf("adres:") < 0)
+    throw new Error("willekeurig-kot-kaart vult niet na dobbel");
   ds.gentPackage("gent"); drain();
   if (kaartTags() !== 6) throw new Error("terug op ondernemerspakket na kot: kaart5 weer basis + start (gekregen: " + kaartTags() + ")");
 
