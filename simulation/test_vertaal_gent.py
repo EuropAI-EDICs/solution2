@@ -18,6 +18,12 @@ def test_alle_burgerembed_teksten_zijn_vertaald():
     assert vertaal_gent.onbekend() == []
 
 
+def test_alle_kotembed_teksten_zijn_vertaald():
+    kot = build_gent("gent-kot-verhuurder")
+    assert len(kot["personas"]) == 6
+    assert vertaal_gent.onbekend() == []
+
+
 def test_bekende_vertalingen_spotcheck():
     assert vertaal_gent.vt("Je vertelt wat je gaat doen") == "You describe what you are going to do"
     assert "reference" in vertaal_gent.vt("Ontheffing LEZ voor zakelijk verkeer ingediend — referentie GENT-ABC123")

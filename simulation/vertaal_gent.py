@@ -50,6 +50,19 @@ DICT: dict[str, str] = {
         "Yana — corrects the address during the context check",
     "Robrecht — weigert de inzending bij H4":
         "Robrecht — refuses the submission at H4",
+    # — kotpakket GT-KOT-01: persona-labels —
+    "Wouter — verhuurt een kamer in zijn woning aan de Overpoort":
+        "Wouter — rents out a room in his house near the Overpoort",
+    "Saartje — haar kotadres staat al als gemeld kot genoteerd":
+        "Saartje — her student-room address is already registered as a notified kot",
+    "Gregory — zet zijn woning om naar twee koten":
+        "Gregory — converts his house into two student rooms",
+    "Lea — meldt een studentenresidentie":
+        "Lea — notifies a student residence",
+    "Milan — corrigeert het kotadres tijdens de contextcheck":
+        "Milan — corrects the student-room address during the context check",
+    "Karel — weigert de inzending bij H4":
+        "Karel — refuses the submission at H4",
     # — situatieschetsen —
     "Ik ben zelfstandig loodgieter en moet volgende week herstelwerken uitvoeren aan een pand aan de Korenmarkt. Ik kom met mijn bestelwagen.":
         "I am a self-employed plumber and have to carry out repair work at a building on the Korenmarkt next week. I come by van.",
@@ -88,6 +101,19 @@ DICT: dict[str, str] = {
         "I am moving within Ghent — I first mentioned an address near the Sint-Pietersplein, but it will be the Veldstraat.",
     "Ik verhuis naar een loft aan de Veldstraat en wil een bewonersvergunning aanvragen, maar ik twijfel nog.":
         "I am moving to a loft on the Veldstraat and want to apply for a residents' permit, but I am still hesitating.",
+    # — kotpakket GT-KOT-01: situatieschetsen —
+    "Ik wil vanaf volgend academiejaar een kamer in mijn huis aan de Overpoortstraat aan een student verhuren.":
+        "From next academic year I want to rent out a room in my house on the Overpoortstraat to a student.",
+    "Ik verhuur al een kot aan de Overpoortstraat en wil mijn melding actualiseren.":
+        "I already rent out a student room on the Overpoortstraat and want to update my notification.",
+    "Ik wil mijn woning aan de Overpoortstraat omzetten naar twee aparte koten en die dan verhuren.":
+        "I want to convert my house on the Overpoortstraat into two separate student rooms and then rent them out.",
+    "Ik beheer een studentenresidentie aan de Overpoortstraat en wil de kamers melden.":
+        "I manage a student residence on the Overpoortstraat and want to notify the rooms.",
+    "Ik ga een kot verhuren — ik noemde eerst het verkeerde adres in Gentbrugge, het wordt de Overpoortstraat.":
+        "I am going to rent out a student room — I first mentioned the wrong address in Gentbrugge, it will be the Overpoortstraat.",
+    "Ik wil een studio aan de Overpoortstraat als kot melden, maar twijfel nog over de belasting.":
+        "I want to notify a studio on the Overpoortstraat as a student room, but I am still hesitating about the tax.",
     # — stap-titels —
     "Je vertelt wat je gaat doen": "You describe what you are going to do",
     "We vragen alleen wat nog niet bekend is": "We only ask what is not known yet",
@@ -122,6 +148,13 @@ DICT: dict[str, str] = {
         "Your address lies outside the residents' and paid-parking zones: no special parking scheme applies to your address.",
     "Uw nieuwe adres ligt in de lage-emissiezone: met een oudere wagen heeft u een dagenpas nodig.":
         "Your new address lies in the low-emission zone: with an older vehicle you need a day pass.",
+    # — kotpakket GT-KOT-01: beslistabel-uitleg —
+    "U gaat een kot verhuren: meld het pand en de kamers via het koteloket — de melding wordt gecontroleerd vóór publicatie.":
+        "You are going to rent out a student room: notify the building and the rooms via the kot desk — the notification is checked before publication.",
+    "U zet een woning om naar kot(s): daarvoor is een omgevingsvergunning nodig vóór de verhuur.":
+        "You are converting a home into student room(s): this requires an environmental permit before the rental.",
+    "Uw adres valt buiten de kotzone-indeling: het koteloket beoordeelt de melding handmatig — u krijgt alleen de algemene informatie.":
+        "Your address falls outside the kot-zone layout: the kot desk assesses the notification manually — you only receive the general information.",
     # — vaste meldingen en vervolgregels —
     "Controleer of uw diesel Euro 5 een geregistreerd roetfilter heeft; anders geldt de ontheffing niet.":
         "Check whether your Euro 5 diesel has a registered soot filter; otherwise the exemption does not apply.",
@@ -144,6 +177,13 @@ DICT: dict[str, str] = {
         "A residents' permit already exists at this address: this will be the second permit (€300/year, 2026 rate).",
     "U heeft eigen parkeergelegenheid: u komt hooguit in aanmerking voor een tijdelijke vergunning. De beoordeling gebeurt door de dienst Parkeren.":
         "You have your own parking facility: you qualify at most for a temporary permit. The assessment is done by the Parking department.",
+    # — kotpakket GT-KOT-01: vaste meldingen —
+    "Dit adres staat al als gemeld kot genoteerd: beheer uw melding via het koteloket.":
+        "This address is already registered as a notified kot: manage your notification via the kot desk.",
+    "Een omzettingsvergunning is nodig vóór u het kot verhuurt; vraag die eerst aan (zie de informatie over de omgevingsvergunning).":
+        "A conversion permit is required before you rent out the student room; apply for it first (see the environmental-permit information).",
+    "Grote studentenresidenties krijgen een voorbehandeling via kot@stad.gent vóór de online melding.":
+        "Large student residences receive pre-processing via kot@stad.gent before the online notification.",
     # — diensttitels, documenttitels, vragen, doelbindingen —
     "Ontheffing LEZ voor zakelijk verkeer": "LEZ exemption for commercial traffic",
     "Ontheffing autovrij gebied (laden/lossen)": "Car-free-area exemption (loading/unloading)",
@@ -153,6 +193,20 @@ DICT: dict[str, str] = {
     "Afvalophaling op uw nieuwe adres (IVAGO)": "Waste collection at your new address (IVAGO)",
     "Parkeren tegen tarief in uw buurt": "Paid parking in your area",
     "Lage-emissiezone: dagenpas bij ouder voertuig": "Low-emission zone: day pass for older vehicles",
+    # — kotpakket GT-KOT-01: diensttitels, vragen, doelbinding —
+    "Kot melden via het koteloket": "Notify a student room via the kot desk",
+    "Omgevingsvergunning bij omzetten naar kot": "Environmental permit when converting into a student room",
+    "Conformiteitsattest voor uw kot": "Certificate of conformity for your student room",
+    "Kotbelasting vanaf 2027": "Student-room tax from 2027",
+    "Afvalophaling op uw kotadres (IVAGO)": "Waste collection at your student-room address (IVAGO)",
+    "Op welk adres ligt het kot?": "At which address is the student room located?",
+    "Zet u een bestaande woning om naar kot(s)?": "Are you converting an existing home into student room(s)?",
+    "Wat voor studentenhuisvesting verhuurt u?": "What type of student housing are you renting out?",
+    "vaststellen of dit adres al als gemeld kot genoteerd staat":
+        "establishing whether this address is already registered as a notified kot",
+    # — kotpakket GT-KOT-01: kaart-bronregel —
+    "kotzones: Stad Gent open data (Modellicentie Gratis Hergebruik) · gemeentegrens: OSM/Nominatim (ODbL)":
+        "kot zones: City of Ghent open data (Free Re-use Licence) · city boundary: OSM/Nominatim (ODbL)",
     "Naar welk adres verhuist u?": "Which address are you moving to?",
     "Heeft u eigen parkeergelegenheid (garage of oprit) bij uw nieuwe adres?":
         "Do you have your own parking facility (garage or driveway) at your new address?",

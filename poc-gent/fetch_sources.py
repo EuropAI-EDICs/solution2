@@ -127,6 +127,9 @@ KENTEEKEN_PERSONAS = ("sanne", "ahmed", "fatima", "jeroen", "ellen", "dirk", "wi
 # tegen de regeling-zones (bewoners/tarief/LEZ) — geen routes of innames.
 BURGER_PERSONAS = ("lisa", "tomas", "farah", "noor", "emma", "yana", "robrecht")
 
+# Kotpakket GT-KOT-01: per verhuurder het kotadres tegen de kotzone-laag.
+KOT_PERSONAS = ("wouter", "saartje", "gregory", "lea", "milan", "karel")
+
 
 def _fetch_json(url: str) -> dict:
     request = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json"})
@@ -512,24 +515,33 @@ def haal_kaart(poc_root: Path, kenteken_personas: tuple = KENTEEKEN_PERSONAS) ->
     return kaart
 
 
-def haal_kaart_burger(poc_root: Path, burger_personas: tuple = BURGER_PERSONAS) -> dict:
-    """Burgerkaart (GT-VERH-01): gemeentegrens + per persona de nieuwe woning
-    als startpunt. De regeling-zones (bewoners/tarief/LEZ) leest de build
-    rechtstreeks uit gis-zones.geojson — geen routes of innames."""
+def haal_kaart_persoonsadressen(poc_root: Path, personas: tuple, doel_naam: str) -> dict:
+    """Persoonsadres-kaart (GT-VERH-01/GT-KOT-01): gemeentegrens + per persona
+    het doeladres (na eventuele H1-correctie) als startpunt. De regeling-zones
+    leest de build rechtstreeks uit gis-zones.geojson — geen routes of innames."""
     kaart_pad = SOURCE_DIR / "kaart.json"
     grens = json.loads(kaart_pad.read_text(encoding="utf-8")).get("grens") \
         if kaart_pad.is_file() else _haal_grens()
     adressen = json.loads((poc_root / "fixtures" / "addresses.json").read_text(encoding="utf-8"))
-    personas = {p["id"]: p for p in json.loads(
+    persona_fixtures = {p["id"]: p for p in json.loads(
         (poc_root / "fixtures" / "personas.json").read_text(encoding="utf-8"))["personas"]}
     uit = {"grens": grens, "personas": {}, "meta": {"fetchedAt": _now()}}
-    for pid in burger_personas:
-        doel = personas[pid].get("corrections", {}).get("address") or personas[pid]["intentSlots"]["address"]
+    for pid in personas:
+        doel = persona_fixtures[pid].get("corrections", {}).get("address") \
+            or persona_fixtures[pid]["intentSlots"]["address"]
         if doel in adressen:
             uit["personas"][pid] = {"adres": doel, "coord": adressen[doel]}
-    (SOURCE_DIR / "kaart-burger.json").write_text(
+    (SOURCE_DIR / doel_naam).write_text(
         json.dumps(uit, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return uit
+
+
+def haal_kaart_burger(poc_root: Path, burger_personas: tuple = BURGER_PERSONAS) -> dict:
+    return haal_kaart_persoonsadressen(poc_root, burger_personas, "kaart-burger.json")
+
+
+def haal_kaart_kot(poc_root: Path, kot_personas: tuple = KOT_PERSONAS) -> dict:
+    return haal_kaart_persoonsadressen(poc_root, kot_personas, "kaart-kot.json")
 
 
 def build_cache() -> dict:
@@ -647,6 +659,9 @@ def main() -> int:
     ap.add_argument("--kaart-burger", action="store_true",
                     help="bouw de burgerkaart-cache (Gent-grens + nieuwe woning per burger-persona, "
                          "offline uit de adrescache) — netwerk alléén bij ontbrekende grens")
+    ap.add_argument("--kaart-kot", action="store_true",
+                    help="bouw de kotkaart-cache (Gent-grens + kotadres per verhuurder-persona, "
+                         "offline uit de adrescache) — netwerk alléén bij ontbrekende grens")
     args = ap.parse_args()
     if args.check:
         zone_rapport()
@@ -690,11 +705,20 @@ def main() -> int:
         }
         print(f"kaart-burger: {len(kaart_burger['personas'])}/{len(BURGER_PERSONAS)} woningen "
               f"| grens: {'ja' if kaart_burger['grens'] else 'nee'}")
+    if args.kaart_kot:
+        kaart_kot = haal_kaart_kot(POC_ROOT)
+        meta_document["bronnen"]["kaart-kot"] = {
+            "cache": "fixtures/source/kaart-kot.json",
+            "fetchedAt": kaart_kot["meta"]["fetchedAt"],
+            "personas": sorted(kaart_kot["personas"]),
+        }
+        print(f"kaart-kot: {len(kaart_kot['personas'])}/{len(KOT_PERSONAS)} kotadressen "
+              f"| grens: {'ja' if kaart_kot['grens'] else 'nee'}")
     (SOURCE_DIR / "source.meta.json").write_text(
         json.dumps(meta_document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     for laag, info in meta_document["bronnen"].items():
         if laag in ("adressen", "bestAddress", "vkbo", "gipod", "kaart", "kaart-burger",
-                    "ivago-ophaalkalender"):
+                    "kaart-kot", "ivago-ophaalkalender"):
             continue
         print(f"{laag}: {info['titel']} | {info['licentie']} | versie {info['versie']} "
               f"| {info['featuresNaFilter']}/{info['featuresRuwwerk']} features")

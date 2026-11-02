@@ -185,7 +185,21 @@ try {
   ds.gentPackage("gent"); drain();
   if (kaartTags() !== 6) throw new Error("terug op ondernemerspakket: kaart5 weer basis + start (gekregen: " + kaartTags() + ")");
 
-  console.log(`OK — script evaluated; poc1 tracks driven through every step (${n1} steps on active track), sim2 ${n2} steps, laya fp+chat driven, poc4 sim4 ${s4.steps.length} steps, gent sim5 ${s5e.steps.length} steps (sanne/dirk/ellen/wim/nadia/ilse/hanne/maria) + kaartpanel gecontroleerd incl. burgerpakket-switch, timers drained`);
+  // ---- Gent kotpakket GT-KOT-01 via de levensgebeurtenis-dropdown --------
+  ds.gentPackage("gentKot"); drain();
+  const s5k2 = ds.sims[3];
+  if (!s5k2 || s5k2.steps.length < 4) throw new Error("kot sim5 missing after package switch");
+  s5k2.jumpToStage(s5k2.steps.length - 1); drain();
+  ds.gentPersona("gregory"); drain();
+  const kkSvg = globalThis.document.getElementById("kaart5");
+  const kkTags = () => (kkSvg.innerHTML.match(/<[a-zA-Z]/g) || []).length;
+  if (!kkSvg || kkTags() !== 5) throw new Error("kotkaart toont grens + kotzone + kotadres (gekregen: " + (kkSvg ? kkTags() : "none") + ")");
+  const kkInfo = globalThis.document.getElementById("kaart5info").innerHTML;
+  if (kkInfo.indexOf("kotzone:") < 0) throw new Error("kotzone-naam ontbreekt in kaart5info");
+  ds.gentPackage("gent"); drain();
+  if (kaartTags() !== 6) throw new Error("terug op ondernemerspakket na kot: kaart5 weer basis + start (gekregen: " + kaartTags() + ")");
+
+  console.log(`OK — script evaluated; poc1 tracks driven through every step (${n1} steps on active track), sim2 ${n2} steps, laya fp+chat driven, poc4 sim4 ${s4.steps.length} steps, gent sim5 ${s5e.steps.length} steps (sanne/dirk/ellen/wim/nadia/ilse/hanne/maria) + kaartpanel gecontroleerd incl. burger- en kotpakket-switch, timers drained`);
 } catch (e) {
   console.error("FAIL:", e && e.stack ? e.stack.split("\n").slice(0, 6).join("\n") : e);
   process.exit(1);

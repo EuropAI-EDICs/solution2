@@ -1356,7 +1356,35 @@ GENT_PACKAGE_PERSONAS = {
     "gent-mobiliteit-ondernemer": ("sanne", "ahmed", "maria", "fatima", "jeroen",
                                    "ellen", "dirk", "wim", "nadia", "ilse", "hanne"),
     "gent-verhuizen-burger": ("lisa", "tomas", "farah", "noor", "emma", "yana", "robrecht"),
+    "gent-kot-verhuurder": ("wouter", "saartje", "gregory", "lea", "milan", "karel"),
 }
+
+
+def _kaart_blok_kot(kaart, zones, pid):
+    """Kotkaart (GT-KOT-01): de benoemde kotzone rond het kotadres — geen
+    routes/innames; de zone-nám komt uit het gisCheck-attribuut."""
+    entry = (kaart.get("personas") or {}).get(pid)
+    if not entry:
+        return None
+    coord = entry["coord"]
+    kot_zones = {laag: ringen for laag, ringen in zones.items() if laag == "gent-kotzone"}
+    project = _maak_projectie(_kaart_bbox(kaart.get("grens"), [coord]))
+    gis = _gis_zones_module()
+    ring_attributen = gis.load_ring_attributen(ROOT / "poc-gent")
+    zone_uit = {laag: gis.attribuut_result(kot_zones, ring_attributen, laag, coord[0], coord[1])
+                for laag in kot_zones}
+    zone_naam = next((naam for naam in zone_uit.values() if naam not in ("in", "niet-in")), None)
+    start = project(coord)
+    return {"mode": "kot",
+            "start": {"label": "kotadres", "adres": entry["adres"], "coord": coord},
+            "doel": entry["adres"], "zones": zone_uit, "zoneNaam": zone_naam,
+            "gewenst": None, "routes": [], "innames": [], "omzeil": [],
+            "svg": {"grens": _pad_ringen(_grens_ringen(kaart.get("grens")), project)
+                    if kaart.get("grens") else None,
+                    "zones": {laag: _pad_ringen(ringen, project) for laag, ringen in kot_zones.items()},
+                    "start": [start[0], start[1]], "routes": None, "innames": []},
+            "bron": "kotzones: Stad Gent open data (Modellicentie Gratis Hergebruik) · "
+                    "gemeentegrens: OSM/Nominatim (ODbL)"}
 
 
 def _kaart_blok_burger(kaart, zones, pid):
@@ -1407,6 +1435,7 @@ def build_gent(package_id: str = "gent-mobiliteit-ondernemer") -> dict:
     kaart_naam, kaart_blok_fn = {
         "gent-mobiliteit-ondernemer": ("kaart.json", _kaart_blok),
         "gent-verhuizen-burger": ("kaart-burger.json", _kaart_blok_burger),
+        "gent-kot-verhuurder": ("kaart-kot.json", _kaart_blok_kot),
     }[package_id]
     kaart_pad = gent_root / "fixtures" / "source" / kaart_naam
     kaart = json.loads(kaart_pad.read_text(encoding="utf-8")) if kaart_pad.is_file() else None
@@ -1473,7 +1502,8 @@ def main() -> int:
         sys.exit(f"missing PoC-4 run dir {POC4_RUN}")
 
     data = {"poc1": build_poc1(), "poc2": build_poc2(), "poc4": build_breda(), "gent": build_gent(),
-            "gentBurger": build_gent("gent-verhuizen-burger")}
+            "gentBurger": build_gent("gent-verhuizen-burger"),
+            "gentKot": build_gent("gent-kot-verhuurder")}
     tpl = TEMPLATE.read_text(encoding="utf-8")
     marker = "/*__DATA__*/"
     if marker not in tpl:
