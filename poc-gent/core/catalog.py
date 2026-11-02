@@ -107,7 +107,8 @@ def _validate(manifest: dict, tables: dict) -> None:
                 raise PackageError(f"dienst '{service_id}': formulierregel mist een niet-lege 'veld'")
             referentie = regel.get("bron", "")
             if referentie.startswith("slot:"):
-                geldig = referentie[5:] in slots
+                naam = referentie[5:]
+                geldig = naam in slots or naam in outputs or naam in data_outputs
             else:
                 tool, _, pad = referentie.partition(".")
                 geldig = bool(pad) and tool in {b["source"] for b in bronnen}

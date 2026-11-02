@@ -1,0 +1,10 @@
+{
+  "id": "R-kot-verhuurder",
+  "version": "2026.11",
+  "rules": [
+    {"id": "RK1", "when": {"applicantType": "burger", "kotzoneIn": "in"}, "then": {"transactions": ["kot-melden"], "info": ["info-afvalkalender", "info-conformiteitsattest", "info-kotbelasting"]}, "legalBasis": "Gent kotreglement — meldingsplicht koteloket (stad.gent)", "uitleg": "U gaat een kot verhuren: meld het pand en de kamers via het koteloket — de melding wordt gecontroleerd vóór publicatie."},
+    {"id": "RK2", "when": {"applicantType": "burger", "omzetten": "ja"}, "then": {"transactions": [], "info": ["info-omgevingsvergunning"]}, "legalBasis": "Vlaamse Codex Wonen / Gentse stedenbouwkundige voorschriften (stad.gent)", "uitleg": "U zet een woning om naar kot(s): daarvoor is een omgevingsvergunning nodig vóór de verhuur."},
+    {"id": "RK3", "when": {"applicantType": "burger", "kotzoneIn": "niet-in"}, "then": {"transactions": [], "info": ["info-conformiteitsattest", "info-kotbelasting"]}, "legalBasis": "Gent kotreglement — kotzones (open data Stad Gent)", "uitleg": "Uw adres valt buiten de kotzone-indeling: het koteloket beoordeelt de melding handmatig — u krijgt alleen de algemene informatie."}
+  ],
+  "unknownPolicy": "escalate"
+}

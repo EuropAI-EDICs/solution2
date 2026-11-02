@@ -1,0 +1,78 @@
+{
+  "packageId": "gent-kot-verhuurder",
+  "version": "0.1.0",
+  "status": "concept",
+  "lifeEventCode": "GT-KOT-01",
+  "title": "GT-KOT-01 — Kot verhuren: melden via het koteloket",
+  "texts": {
+    "intro": "Ik help je regelen wat je nodig hebt om een kot te verhuren: de melding via het koteloket, de regels rond omzetten, het conformiteitsattest en de kotbelasting.",
+    "scope": "Deze assistent gaat over gemeentelijke regelingen voor verhuurders van studentenkamers in Gent.",
+    "aiToelichting": "Ik ben een AI-assistent van Stad Gent. Ik stel voor en leg uit; jij beslist en bevestigt.",
+    "weigering": "Als ik het niet zeker weet, zeg ik dat eerlijk en verbind ik je door met een medewerker.",
+    "escalatie": "Twijfel of een bijzondere situatie? Dan neemt een medewerker van Gentinfo het van me over.",
+    "contextZin": "U bent {applicantType} en wilt een kot verhuren aan: {address}. Woning omzetten: {omzetten}."
+  },
+  "contextSchema": {
+    "slots": {
+      "applicantType": {"type": "enum", "values": ["burger", "ondernemer", "organisatie"], "required": true, "authenticSource": null, "vraag": "Bent u particulier, ondernemer of organisatie?"},
+      "address": {"type": "string", "required": true, "authenticSource": null, "vraag": "Op welk adres ligt het kot?"},
+      "omzetten": {"type": "enum", "values": ["ja", "nee"], "required": true, "authenticSource": null, "vraag": "Zet u een bestaande woning om naar kot(s)?"},
+      "typeKot": {"type": "enum", "values": ["kamer", "studio", "residentie"], "required": true, "authenticSource": null, "vraag": "Wat voor studentenhuisvesting verhuurt u?"},
+      "bestaandeMelding": {"type": "enum", "values": ["gemeld", "nieuw"], "required": false, "authenticSource": "gent:kotregister", "vraag": null}
+    }
+  },
+  "gisChecks": [
+    {"id": "kotzone", "layer": "gent-kotzone", "input": "address", "output": "kotzone", "attribuut": "kotzone_na"},
+    {"id": "kotzoneAanwezig", "layer": "gent-kotzone", "input": "address", "output": "kotzoneIn"}
+  ],
+  "dataChecks": [
+    {"id": "afvalkalender", "dataset": "ivago-ophaalkalender", "input": "address",
+     "outputs": ["afvalRest", "afvalPmd", "afvalGlas", "afvalPapier"], "unknownPolicy": "fallback"}
+  ],
+  "authenticSources": [
+    {"slot": "bestaandeMelding", "source": "gent:kotregister", "purpose": "vaststellen of dit adres al als gemeld kot genoteerd staat"}
+  ],
+  "submission": {"contract": "district09-koteloket"},
+  "kpiDrempels": {"kpi01_min": 90.0, "kpi01_doel": 95.0, "kpi02_min": 100.0, "kpi03_min": 100.0, "kpi04_min": 90.0},
+  "decisionTables": "decision-tables.json",
+  "services": {
+    "kot-melden": {
+      "type": "inzending", "vereistAuth": true, "minLoA": "substantial",
+      "titel": "Kot melden via het koteloket",
+      "uitleg": "Meldingsplicht: wie een kot verhuurt, meldt het pand en de kamers via het koteloket (Kotatgent). Het koteloket controleert de melding vóór publicatie op de kotenzoeker.",
+      "documenten": [],
+      "formulier": [
+        {"veld": "kotadres", "bron": "slot:address"},
+        {"veld": "kotzone", "bron": "slot:kotzone"},
+        {"veld": "type-studentenhuisvesting", "bron": "slot:typeKot"},
+        {"veld": "woning-omzetten", "bron": "slot:omzetten"},
+        {"veld": "koteloket-status", "bron": "gent:kotregister.status"}
+      ],
+      "validaties": [
+        {"id": "V1-al-gemeld", "wanneer": {"koteloket-status": "gemeld"}, "ernst": "waarschuwing",
+         "melding": "Dit adres staat al als gemeld kot genoteerd: beheer uw melding via het koteloket."},
+        {"id": "V2-omzetten-zonder-vergunning", "wanneer": {"woning-omzetten": "ja"}, "ernst": "waarschuwing",
+         "melding": "Een omzettingsvergunning is nodig vóór u het kot verhuurt; vraag die eerst aan (zie de informatie over de omgevingsvergunning)."},
+        {"id": "V3-residentie", "wanneer": {"type-studentenhuisvesting": "residentie"}, "ernst": "waarschuwing",
+         "melding": "Grote studentenresidenties krijgen een voorbehandeling via kot@stad.gent vóór de online melding."}
+      ]
+    },
+    "info-omgevingsvergunning": {"type": "info", "vereistAuth": false,
+      "titel": "Omgevingsvergunning bij omzetten naar kot",
+      "uitleg": "Een woning omzetten of (ver)bouwen naar kot(s) vereist een omgevingsvergunning, met de Gentse stedenbouwkundige voorschriften en de Vlaamse Codex Wonen.",
+      "formulier": [], "validaties": []},
+    "info-conformiteitsattest": {"type": "info", "vereistAuth": false,
+      "titel": "Conformiteitsattest voor uw kot",
+      "uitleg": "Na controle op de Vlaamse woningkwaliteitsnormen krijgt uw kot een conformiteitsattest; dat wordt op de kotenzoeker getoond.",
+      "formulier": [], "validaties": []},
+    "info-kotbelasting": {"type": "info", "vereistAuth": false,
+      "titel": "Kotbelasting vanaf 2027",
+      "uitleg": "Vanaf 2027 geldt een belasting op studentenkoten in Gent; verhuurders mogen die niet zomaar doorschuiven naar de student.",
+      "formulier": [], "validaties": []},
+    "info-afvalkalender": {"type": "info", "vereistAuth": false,
+      "titel": "Afvalophaling op uw kotadres (IVAGO)",
+      "uitleg": "Ophaaldagen per fractie voor uw kotadres, uit de IVAGO-ophaalkalender (open data). Staat uw straat er niet bij, raadpleeg dan gent.be/recycle of de Recycle!-app.",
+      "formulier": [], "validaties": []}
+  },
+  "golden": "golden/scenarios.jsonl"
+}

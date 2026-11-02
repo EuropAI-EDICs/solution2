@@ -277,3 +277,15 @@ def test_gischeck_attribuut_leeg_faalt(tmp_path):
     _schrijf_pkg(tmp_path, manifest, _basis_tables())
     with pytest.raises(catalog.PackageError, match="attribuut"):
         catalog.load_package(tmp_path, manifest["packageId"])
+
+
+def test_formulierbron_mag_naar_gisoutput_verwijzen(tmp_path):
+    """Kot-melding: de kotzone-uitkomst van een gisCheck staat in de context
+    (mét herkomst) en mag dus als formulierbron dienen."""
+    manifest = _basis_manifest()
+    manifest["services"]["ontheffing-lez"]["formulier"].append(
+        {"veld": "zone-uitkomst", "bron": "slot:zoneLez"})
+    _schrijf_pkg(tmp_path, manifest, _basis_tables())
+    pkg = catalog.load_package(tmp_path, manifest["packageId"])
+    bronnen = [r["bron"] for r in pkg.manifest["services"]["ontheffing-lez"]["formulier"]]
+    assert "slot:zoneLez" in bronnen
