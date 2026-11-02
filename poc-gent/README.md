@@ -38,7 +38,30 @@ fixture-ruimte): lisa (happy flow Veldstraat), tomas (Gentbrugge, geen
 regeling), farah (2e vergunning), noor (garage), emma (geen voertuig →
 blokkade), yana (adrescorrectie), robrecht (H4-weigering). De
 injectiesuite draait per pakket (`fixtures/injecties.json → pakketten`):
-34 aanvallen (ondernemer) + 24 (burger), alle met weerstand geboden.
+34 aanvallen (ondernemer) + 24 (burger) + 24 (kot), alle met weerstand
+geboden.
+
+## Derde pakket: kot verhuren (GT-KOT-01)
+
+`gent-kot-verhuurder` (ontwerp:
+[2026-11-01](../docs/superpowers/specs/2026-11-01-piloot-gent-kot-verhuurder-design.md))
+— verhuurdersperspectief: **`kot-melden`** als transactie (meldingsplicht
+via het koteloket, inzending naar contract `district09-koteloket`) met
+waarschuwingen voor al-gemeld (`gent:kotregister`-mock mét doelbinding),
+omzetten-zonder-vergunning en studentenresidenties; info-diensten voor
+omgevingsvergunning, conformiteitsattest, kotbelasting 2027 en de
+IVAGO-afvalkalender. Nieuwe engine-capaciteit **`gisChecks.attribuut`**:
+bij een match geeft de check de attribuutwaarde van het treffende feature
+terug — de laag `gent-kotzone` (kotzones-gent, 20 benoemde zones, versie
+2025-12-12) levert zo de kotzone-nám per adres (Overpoortstraat →
+"Sint-Pietersplein"), die ook als formulierbron dient (gis-uitkomsten
+zijn toegestane formulierbronnen). Persona's: wouter, saartje, gregory,
+lea, milan, karel. `python3 fetch_sources.py --kaart-kot` bouwt de
+kotkaart-cache; `--check` drukt voortaan zone-namen.
+
+    python3 run.py --package gent-kot-verhuurder --persona wouter
+    ../nldt/.venv/bin/python eval.py --package gent-kot-verhuurder
+    ../nldt/.venv/bin/python eval.py --injectie --package gent-kot-verhuurder
 
     python3 run.py --package gent-verhuizen-burger --persona lisa
     ../nldt/.venv/bin/python eval.py --package gent-verhuizen-burger

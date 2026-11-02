@@ -190,12 +190,15 @@ event-soorten en volgnummers, geen persoonswaarden. Zie ook
 `test_build_gent.py`/`test_build_gent_burger.py` en
 `docs/superpowers/specs/2026-10-30-piloot-gent-transactionele-assistent-design.md`.
 
-**Eén tab, twee levensgebeurtenissen:** de dropdown bovenin wisselt tussen
-- **GT-MOB-01 · ondernemer** (11 persona's, route/innames-kaart) en
+**Eén tab, drie levensgebeurtenissen:** de dropdown bovenin wisselt tussen
+- **GT-MOB-01 · ondernemer** (11 persona's, route/innames-kaart),
 - **GT-VERH-01 · verhuizen burger** (7 persona's, regeling-zones-kaart:
   bewonerszone/tariefzone/LEZ rond de nieuwe woning, plus de
   IVAGO-afvalkalender-feiten uit de `dataChecks`-bron; ontwerp:
-  `docs/superpowers/specs/2026-10-31-piloot-gent-verhuizen-burger-design.md`).
+  `docs/superpowers/specs/2026-10-31-piloot-gent-verhuizen-burger-design.md`) en
+- **GT-KOT-01 · kot verhuren** (6 persona's, kotzone-kaart mét zone-naam
+  uit het `gisChecks.attribuut`; ontwerp:
+  `docs/superpowers/specs/2026-11-01-piloot-gent-kot-verhuurder-design.md`).
 
 Openen: `open simulation/simulation.html?tab=5` (of klik de tab "Gent · transactie").
 Dropdown + persona-switcher bovenin; ▶/stap/↺ besturen de replay zoals bij de andere PoC's.
