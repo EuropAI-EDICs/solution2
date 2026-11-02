@@ -620,6 +620,32 @@ def haal_kotregister(poc_root: Path) -> dict:
     return document
 
 
+def voeg_kotadressen_toe(poc_root: Path) -> dict:
+    """Unieke kotregister-adressen geocoden (huisniveau, anders straatniveau)
+    en samenvoegen in fixtures/addresses.json — zodat de engine per geselecteerd
+    kot écht kan rekenen (kotzone, afval, aanvraag)."""
+    register = json.loads((SOURCE_DIR / "kotregister.json").read_text(encoding="utf-8"))
+    adressen_pad = poc_root / "fixtures" / "addresses.json"
+    cache = json.loads(adressen_pad.read_text(encoding="utf-8")) if adressen_pad.is_file() else {}
+    uniek = []
+    gezien = set()
+    for kot in register.get("koten", []):
+        sleutel = f"{kot['adres']}, Gent"
+        if sleutel not in gezien:
+            gezien.add(sleutel)
+            uniek.append((kot["adres"], sleutel))
+    for adres, sleutel in uniek:
+        if sleutel in cache:
+            continue
+        coord = _gent_coord(adres)
+        if coord:
+            cache[sleutel] = coord
+    adressen_pad.write_text(json.dumps(cache, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return {"totaal": len(uniek),
+            "gevonden": sum(1 for _, sleutel in uniek if sleutel in cache),
+            "cacheGrootte": len(cache)}
+
+
 def build_cache() -> dict:
     SOURCE_DIR.mkdir(parents=True, exist_ok=True)
     meta_document: dict = {"gegenereerdOp": _now(), "bronnen": {}}
@@ -682,7 +708,11 @@ def geocoden() -> None:
     """
     from urllib.parse import urlencode
 
-    adressen: dict[str, list[float]] = {}
+    cache_pad = POC_ROOT / "fixtures" / "addresses.json"
+    bestaand = json.loads(cache_pad.read_text(encoding="utf-8")) if cache_pad.is_file() else {}
+    # bewaar cache-entry's buiten de ADRESSEN-lijst (bijv. kotadressen uit het
+    # kotregister): die blijven geldig tot een expliciete her-geocode ze raakt
+    adressen = {k: v for k, v in bestaand.items() if k not in ADRESSEN}
     tijdstippen: dict[str, str] = {}
     for adres in ADRESSEN:
         straat_en_nummer = adres.replace(", Gent", "")
@@ -735,6 +765,8 @@ def main() -> int:
     ap.add_argument("--kaart-burger", action="store_true",
                     help="bouw de burgerkaart-cache (Gent-grens + nieuwe woning per burger-persona, "
                          "offline uit de adrescache) — netwerk alléén bij ontbrekende grens")
+    ap.add_argument("--kotadressen", action="store_true",
+                    help="geocode de kotregister-adressen en voeg ze samen in fixtures/addresses.json — netwerk")
     ap.add_argument("--kotregister", action="store_true",
                     help="bouw de kotregister-cache uit de publieke Kotatgent-kotenzoeker "
                          "(beschikbare advertenties; netwerk)")
@@ -784,6 +816,10 @@ def main() -> int:
         }
         print(f"kaart-burger: {len(kaart_burger['personas'])}/{len(BURGER_PERSONAS)} woningen "
               f"| grens: {'ja' if kaart_burger['grens'] else 'nee'}")
+    if args.kotadressen:
+        samengevoegd = voeg_kotadressen_toe(POC_ROOT)
+        print(f"kotadressen: {samengevoegd['gevonden']}/{samengevoegd['totaal']} geocode "
+              f"(cache nu {samengevoegd['cacheGrootte']} adressen)")
     if args.kotregister:
         register = haal_kotregister(POC_ROOT)
         meta_document["bronnen"]["kotregister"] = {

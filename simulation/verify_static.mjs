@@ -203,6 +203,16 @@ try {
   ds.gentRandomKot(); drain();
   if (globalThis.document.getElementById("kotcard").innerHTML.indexOf("adres:") < 0)
     throw new Error("willekeurig-kot-kaart vult niet na dobbel");
+  const geselecteerd = ds.gentKotSelectie ? ds.gentKotSelectie() : null;
+  if (!geselecteerd || !geselecteerd.run) throw new Error("kotselectie zonder run-slice");
+  const factsNa = globalThis.document.getElementById("facts5").innerHTML;
+  if (factsNa.indexOf(geselecteerd.adres) < 0)
+    throw new Error("feiten-paneel volgt het geselecteerde kotadres niet: " + geselecteerd.adres);
+  const chatNa = globalThis.document.getElementById("chat5").innerHTML;
+  if (chatNa.indexOf("kotzone") < 0 || chatNa.indexOf("koteloket-status") < 0)
+    throw new Error("aanvraag-formulier volgt het geselecteerde kot niet");
+  const statusNa = globalThis.document.getElementById("facts5").innerHTML;
+  if (statusNa.indexOf("afval") < 0) throw new Error("afvalfeiten ontbreken bij kotselectie");
   ds.gentPackage("gent"); drain();
   if (kaartTags() !== 6) throw new Error("terug op ondernemerspakket na kot: kaart5 weer basis + start (gekregen: " + kaartTags() + ")");
 

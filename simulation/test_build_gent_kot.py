@@ -95,3 +95,38 @@ class TestKotregisterEmbed(unittest.TestCase):
         self.assertGreaterEqual(len(met_beeld), 80)
         for kot in met_beeld:
             self.assertTrue((bron / kot["beeld"]).is_file(), kot["beeld"])
+
+
+class TestKotselectieRuns(unittest.TestCase):
+    """Per kot een echte engine-run (adres-override): selectie in de simulatie
+    toont aanvraag, kotzone, afval en ontvangst van dat kot."""
+
+    @classmethod
+    def setUpClass(cls):
+        from build_simulation import _kotregister_blok
+
+        cls.register = _kotregister_blok(ROOT / "poc-gent")
+
+    def test_iedere_kotadvertentie_heeft_een_run_met_formulier(self):
+        for kot in self.register["koten"]:
+            run = kot["run"]
+            self.assertIn(run["status"], ("gereed", "gereed-met-waarschuwing",
+                                          "blokkade", "geweigerd", "onbekend-adres"))
+            self.assertIsNotNone(run["formulier"], kot["adres"])
+            velden = {v["veld"] for v in run["formulier"]["velden"]}
+            self.assertIn("kotadres", velden)
+            self.assertIn("kotzone", velden)
+            self.assertIn("koteloket-status", velden)
+
+    def test_registert_adressen_zijn_gemeld_met_kotzone_en_afval(self):
+        met_zone = [k for k in self.register["koten"] if k.get("zoneNaam")]
+        self.assertGreaterEqual(len(met_zone), 55)
+        for kot in met_zone:
+            self.assertEqual(kot["run"]["status"], "gereed-met-waarschuwing")
+            afval = [r["feit"] for r in kot["run"]["contextRegels"]
+                     if r["feit"].startswith("afval")]
+            self.assertTrue(afval, kot["adres"])
+
+    def test_kaartlagen_gedeeld_per_zone(self):
+        self.assertGreaterEqual(len(self.register["zonepaden"]), 15)
+        self.assertTrue(self.register["grens"].startswith("M"))

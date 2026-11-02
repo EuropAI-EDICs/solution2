@@ -1496,18 +1496,111 @@ def build_gent(package_id: str = "gent-mobiliteit-ondernemer") -> dict:
 def _kotregister_blok(gent_root: Path) -> dict | None:
     """Echt Kotatgent-register (publieke kotenzoeker): willekeurig-kot-kaart
     in de simulatie. Beelden verwijzen relatief naar simulation/kot-beelden/
-    (gekopieerd in main); titel/adres/prijs zijn brontekst en blijven NL."""
+    (gekopieerd in main); titel/adres/prijs zijn brontekst en blijven NL.
+    Per uniek kotadres draait de build een echte engine-run (persona wouter
+    met adres-override): selectie in de simulatie toont dus aanvraag, kotzone,
+    afval en ontvangstbewijs van dat kot (config-is-data, geen client-logica)."""
     pad = gent_root / "fixtures" / "source" / "kotregister.json"
     if not pad.is_file():
         return None
     register = json.loads(pad.read_text(encoding="utf-8"))
+    sys.path.insert(0, str(gent_root))
+    try:
+        from adapters import gis_zones
+        from core import catalog, pipeline
+    finally:
+        sys.path.remove(str(gent_root))
+    zones = gis_zones.load_zones(gent_root)
+    ring_attributen = gis_zones.load_ring_attributen(gent_root)
+    grens_pad = gent_root / "fixtures" / "source" / "kaart-kot.json"
+    grens = json.loads(grens_pad.read_text(encoding="utf-8")).get("grens") \
+        if grens_pad.is_file() else None
+    lagen = _kotregister_kaartlagen(gent_root, gis_zones, zones, ring_attributen, grens)
+    project, zonepaden, grens_pad = lagen["project"], lagen["zonepaden"], lagen["grens"]
+    adressen = json.loads((gent_root / "fixtures" / "addresses.json").read_text(encoding="utf-8"))
+    uit_koten = []
+    runs: dict[str, dict] = {}
+    for kot in register.get("koten", []):
+        sleutel = f"{kot['adres']}, Gent"
+        if sleutel not in runs:
+            coord = adressen.get(sleutel)
+            run_slice = _kot_run(gent_root, pipeline, sleutel)
+            zone_naam, start = None, None
+            if coord:
+                kot_zones = {laag: ringen for laag, ringen in zones.items()
+                             if laag == "gent-kotzone"}
+                zone_naam = next(
+                    (naam for naam in
+                     (gis_zones.attribuut_result(kot_zones, ring_attributen, laag,
+                                                 coord[0], coord[1])
+                      for laag in kot_zones)
+                     if naam not in ("in", "niet-in")), None)
+                x, y = project(coord)
+                start = [x, y]
+            runs[sleutel] = {"run": run_slice, "zoneNaam": zone_naam, "startCoord": start}
+        uit_koten.append({"titel": kot["titel"], "adres": kot["adres"], "type": kot.get("type"),
+                          "prijs": kot.get("prijs"),
+                          "conformiteitsattest": kot.get("conformiteitsattest"),
+                          "beeld": kot.get("beeld"), "url": kot.get("url"),
+                          **runs[sleutel]})
     return {"bron": register.get("bron"),
             "totaalInDatabase": register.get("totaalInDatabase"),
             "beschikbaar": register.get("beschikbaarGepubliceerd"),
-            "koten": [{"titel": k["titel"], "adres": k["adres"], "type": k.get("type"),
-                       "prijs": k.get("prijs"), "conformiteitsattest": k.get("conformiteitsattest"),
-                       "beeld": k.get("beeld"), "url": k.get("url")}
-                      for k in register.get("koten", [])]}
+            "grens": grens_pad, "zonepaden": zonepaden,
+            "koten": uit_koten}
+
+
+def _kotregister_kaartlagen(gent_root, gis, zones, ring_attributen, grens) -> dict:
+    """Eén stadsbrede projectie voor álle kot-kaarten: 20 zone-paden één keer
+    berekend (in plaats van per adres), per kot volstaan zoneNaam + start."""
+    project = _maak_projectie(_kaart_bbox(grens, []))
+    zonepaden: dict[str, str] = {}
+    for laag, ringen in zones.items():
+        if laag != "gent-kotzone":
+            continue
+        per_naam: dict[str, list] = {}
+        for idx, ring in enumerate(ringen):
+            naam = (ring_attributen.get(laag) or [None] * len(ringen))[idx]
+            per_naam.setdefault(naam or "onbekend", []).append(ring)
+        for naam, naam_ringen in per_naam.items():
+            zonepaden[naam] = _pad_ringen(naam_ringen, project)
+    return {"project": project,
+            "zonepaden": zonepaden,
+            "grens": _pad_ringen(_grens_ringen(grens), project) if grens else None}
+
+
+def _kot_run(gent_root, pipeline, adres_sleutel: str) -> dict:
+    """Compacte run-slice voor een kotadres; adres zonder geocode-cache ->
+    escalatie-slice (eerlijk zichtbaar)."""
+    try:
+        run, _events = pipeline.run_replay(gent_root, "gent-kot-verhuurder", "wouter",
+                                           {"address": adres_sleutel})
+    except Exception:
+        return {"status": "onbekend-adres", "outcome": "escalatie",
+                "contextRegels": [], "formulier": None, "validatie": None,
+                "ontvangst": [], "vervolg": {"gereed": [], "open": [],
+                                             "gereedEn": [], "openEn": []}}
+    tr = run["transaction"]
+    formulier = (tr["prefill"]["transacties"] or [None])[0]
+    validatie = (tr["validatie"]["transacties"] or [None])[0]
+    if validatie:
+        for bevinding in validatie.get("bevindingen", []):
+            bevinding["meldingEn"] = vt(bevinding["melding"])
+    vervolg = tr["submission"]["vervolgsamenvatting"]
+    return {
+        "status": tr["status"], "outcome": tr["routing"]["outcome"],
+        "contextRegels": tr["context"]["regels"],
+        "formulier": formulier, "validatie": validatie,
+        "ontvangst": tr["submission"]["ontvangst"]["transacties"],
+        "vervolg": {"gereed": vervolg["gereed"], "open": vervolg["open"],
+                    "gereedEn": [vt(r) for r in vervolg["gereed"]],
+                    "openEn": [vt(r) for r in vervolg["open"]]},
+    }
+
+
+def _kot_coord(gent_root: Path, adres_sleutel: str) -> list[float] | None:
+    adressen = json.loads((gent_root / "fixtures" / "addresses.json").read_text(encoding="utf-8"))
+    return adressen.get(adres_sleutel)
 
 
 def main() -> int:

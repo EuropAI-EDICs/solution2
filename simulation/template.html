@@ -2462,9 +2462,25 @@ function kaartZoomInit(){
 }
 
 let kaartLaatsteStap = -99;
+let kotSelectie = null;   // geselecteerd Kotatgent-kot: drijft persona-feiten, kaart, aanvraag en ontvangst
+function kotSelectieKaart(){
+  const reg = G.kotregister, kot = kotSelectie;
+  if (!reg || !kot || !kot.startCoord) return null;
+  return {"mode": "kot",
+          "start": {"label": "geselecteerd kot", "adres": kot.adres + ", Gent"},
+          "doel": kot.adres, "zones": {"gent-kotzone": "in"}, "zoneNaam": kot.zoneNaam,
+          "svg": {"grens": reg.grens,
+                  "zones": kot.zoneNaam && reg.zonepaden[kot.zoneNaam]
+                    ? {"gent-kotzone": reg.zonepaden[kot.zoneNaam]} : {},
+                  "start": kot.startCoord, "routes": null, "innames": []},
+          "bron": "kotzones: Stad Gent open data (Modellicentie Gratis Hergebruik) · "
+                  + "gemeentegrens: OSM/Nominatim (ODbL)"};
+}
 
 function kaartStap(st){
-  const p = gpersona(curGent);
+  const selKaart = kotSelectieKaart();
+  const p = (GPKG==="gentKot" && selKaart)
+    ? {kaart: selKaart, steps: gpersona(curGent).steps} : gpersona(curGent);
   const wrap = $("kaart5wrap");
   if (!p.kaart || !p.kaart.svg){ wrap.style.display = "none"; return; }
   wrap.style.display = "block";
@@ -2510,7 +2526,13 @@ function kaartStap(st){
 
 function renderGentStatic(){
   const p = gpersona(curGent);
-  const sub = p.submission || {};
+  const kr = (GPKG==="gentKot" && kotSelectie && kotSelectie.run) ? kotSelectie.run : null;
+  const sub = kr
+    ? {ontvangst:{transacties: kr.ontvangst||[]}, documenten:{status:"n.v.t.",bevindingen:[]},
+       vervolgsamenvatting:{gereed: kr.vervolg.gereed||[], open: kr.vervolg.open||[],
+                           gereedEn: kr.vervolg.gereedEn||kr.vervolg.gereed||[],
+                           openEn: kr.vervolg.openEn||kr.vervolg.open||[]}}
+    : (p.submission || {});
   const ontv = (sub.ontvangst && sub.ontvangst.transacties) || [];
   const openRegels = (sub.vervolgsamenvatting && sub.vervolgsamenvatting.open) || [];
   const docBev = (sub.documenten && sub.documenten.bevindingen) || [];
@@ -2523,14 +2545,17 @@ function renderGentStatic(){
     + `<div class="stage" id="st5-${p.steps.length}" onclick="sim5.jumpToStage(${p.steps.length})"><b>status</b><span class="gsub">${TTV(p.status,EN.status)}</span></div>`
     + (vervolgToont?`<div class="stage" id="st5-${p.steps.length+1}" onclick="sim5.jumpToStage(${p.steps.length+1})"><b>${TT("ontvangst &amp; vervolg","receipt &amp; follow-up")}</b><span class="gsub">${ontv.length?`${ontv.filter(t=>t.status!=="niet-ingediend").length}/${ontv.length} ${TT("ingediend","submitted")}`:TT("geen aanvragen","no applications")}</span></div>`:"");
   const cards=[];
-  cards.push(`<div class="gcard guser on"><div class="gwho">${TT(esc(p.label), esc(p.labelEn))}</div><div class="gtxt">“${TT(esc(p.situatieschets), esc(p.situatieschetsEn))}”</div></div>`);
+  cards.push(`<div class="gcard guser on"><div class="gwho">${TT(esc(p.label), esc(p.labelEn))}</div><div class="gtxt">“${TT(esc(p.situatieschets), esc(p.situatieschetsEn))}”</div>${kr?`<div class="gtxt">${TT("geselecteerd kot: ","selected room: ")}<b>${esc(kotSelectie.adres)}, Gent</b></div>`:""}</div>`);
   p.steps.forEach((s,i)=>{
     let body = (s.dataUsed||[]).map((d,di)=>`<div class="gdu">${TT(esc(d), esc((s.dataUsedEn||[])[di]))}</div>`).join("");
+    if (kr && ["gis-zonecheck","data-lookup","h1-contextbevestiging"].includes(s.stepId))
+      body = (kr.contextRegels||[]).map(r=>`<div class="gdu">${esc(r.feit)}=${esc(r.waarde)}</div>`).join("");
     if(s.stepId==="routing" && (p.uitleg||[]).length){
       body += p.uitleg.map(u=>`<div class="guitleg"><div>${TT(esc(u.tekst), esc(u.tekstEn))}</div><div class="gbron">${esc(u.bron)}</div></div>`).join("");
     }
-    if(s.stepId==="h3-conceptbeoordeling" && (p.prefill.transacties||[]).length){
-      body += (p.prefill.transacties||[]).map(t=>{
+    const formulieren = kr ? [kr.formulier].filter(Boolean) : (p.prefill.transacties||[]);
+    if(s.stepId==="h3-conceptbeoordeling" && formulieren.length){
+      body += formulieren.map(t=>{
         const velden = t.velden.map(v=>`<tr><td>${esc(v.veld)}</td><td>${esc(v.waarde===null?"—":v.waarde)}</td><td>${gchip(TTV(v.label,EN.label), LABEL_KLEUR[v.label]||"#8b93a7")}</td><td class="gbron">${esc(v.bron)}</td></tr>`).join("");
         return `<div class="gform"><b>${dienstTitel(t.service)}</b><table>${velden}</table>${t.ontbrekend&&t.ontbrekend.length?`<div class="gmiss">${TT("ontbrekend:","missing:")} ${t.ontbrekend.map(esc).join(", ")}</div>`:""}</div>`;
       }).join("");
@@ -2539,8 +2564,12 @@ function renderGentStatic(){
     const hand = s.handover ? `<div class="ghand">→ ${esc(s.handover.to)} — ${TT(esc(s.handover.reason), esc(s.handover.reasonEn))}</div>` : "";
     cards.push(`<div class="gcard" id="gc-${i}"><div class="ghead"><span class="gact gact-${esc(s.actor)}">${TTV(s.actor,EN.actor)}</span><b>${TT(esc(s.title), esc(s.titleEn))}</b>${consent}</div>${body}${hand}</div>`);
   });
-  const bev = (p.validatie.transacties||[]).flatMap(t=>(t.bevindingen||[]).map(b=>({service:t.service, b})));
-  cards.push(`<div class="gcard gstatus" id="gc-${p.steps.length}"><div class="ghead"><b>${TT("status: "+esc(p.status), "status: "+esc(p.statusEn))}</b><span class="gsub">${TT(esc(p.outcome), esc(p.outcomeEn))}${(p.transactions||[]).length?" · "+p.transactions.map(x=>dienstTitel(x)).join(" + "):""}</span></div>`
+  const bev = (kr ? [kr.validatie].filter(Boolean) : (p.validatie.transacties||[])).flatMap(t=>(t.bevindingen||[]).map(b=>({service:t.service, b})));
+  const statusTekst = kr ? kr.status : p.status;
+  const outcomeTekst = kr ? kr.outcome : p.outcome;
+  const statusEn = kr ? (EN.status[statusTekst]||statusTekst) : p.statusEn;
+  const outcomeEn = kr ? {paden:"paths",escalatie:"escalation"}[outcomeTekst]||outcomeTekst : p.outcomeEn;
+  cards.push(`<div class="gcard gstatus" id="gc-${p.steps.length}"><div class="ghead"><b>${TT("status: "+esc(statusTekst), "status: "+esc(statusEn))}</b><span class="gsub">${TT(esc(outcomeTekst), esc(outcomeEn))}${(kr?["kot-melden"]:p.transactions||[]).length?" · "+(kr?["kot-melden"]:p.transactions).map(x=>dienstTitel(x)).join(" + "):""}</span></div>`
     + bev.map(({service,b})=>`<div class="gbev ${esc(b.ernst)}">${dienstTitel(service)} — <b>${esc(b.id)}</b> ${TT(esc(b.melding), esc(b.meldingEn))}</div>`).join("") + `</div>`);
   if (vervolgToont){
     const ONTV_KLEUR = {geaccepteerd:"#34d399"};
@@ -2560,7 +2589,7 @@ function renderGentStatic(){
     cards.push(`<div class="gcard" id="gc-${p.steps.length+1}"><div class="ghead"><b>${TT("ontvangst &amp; vervolg","receipt &amp; follow-up")}</b></div>${vbody}</div>`);
   }
   $("chat5").innerHTML = cards.join("");
-  $("facts5").innerHTML = (p.context.regels||[]).map(r=>`
+  $("facts5").innerHTML = (kr ? kr.contextRegels||[] : p.context.regels||[]).map(r=>`
     <div class="gfact"><span class="gfk">${esc(r.feit)}</span><span>${esc(r.waarde)}</span>
     <span>${gchip(TTV(r.label,EN.label), LABEL_KLEUR[r.label]||"#8b93a7")}<span class="gbron"> ${esc(r.bron)}</span></span></div>`).join("");
   const authEn = {"uitgevoerd":"performed","niet-uitgevoerd":"not performed"};
@@ -2570,7 +2599,7 @@ function renderGentStatic(){
   kaartVB = null;
   $("kaart5").setAttribute("viewBox", "0 0 720 520");
   kaartStap(-1);
-  const k = p.kaart;
+  const k = (GPKG==="gentKot" && kotSelectieKaart()) ? kotSelectieKaart() : p.kaart;
   const kwrap = $("kaart5wrap");
   if (!k || !k.svg) {
     kwrap.style.display = "none";
@@ -2626,7 +2655,7 @@ function renderGentStatic(){
       $("kotkop").innerHTML = TT("willekeurig kot uit de Kotatgent-kotenzoeker",
                                  "random room from the Kotatgent finder");
       $("kotkopmeta").textContent = `${reg.beschikbaar}/${reg.totaalInDatabase}`;
-      if (!$("kotcard").innerHTML) gentRandomKot();
+      if (!$("kotcard").innerHTML) gentRandomKot(true);
     }
   }
   $("ev5").innerHTML = (p.events||[]).map(e=>`<span class="gevchip">${esc(e.kind)}</span>`).join("")
@@ -2654,20 +2683,22 @@ function makeSim5(){
 }
 function gentPersona(id){
   if(sim5) sim5.pause();
-  curGent=id; renderGentMeta(); renderGentStatic();
+  kotSelectie=null; curGent=id; renderGentMeta(); renderGentStatic();
   sim5=makeSim5(); sim5.prog();
 }
 function gentPackage(k){
   if(k===GPKG || !DATA[k]) return;
   if(sim5) sim5.pause();
   GPKG=k; G=DATA[k]; curGent=G.personas[0].id;
-  kaartVB=null; kaartLaatsteStap=-99;
+  kotSelectie=null; kaartVB=null; kaartLaatsteStap=-99;
   renderGentMeta(); renderGentStatic();
   sim5=makeSim5(); sim5.prog();
 }
-function gentRandomKot(){
+function gentRandomKot(intern){
   const reg = G.kotregister; if (!reg || !reg.koten || !reg.koten.length) return;
-  const kot = reg.koten[Math.floor(Math.random()*reg.koten.length)];
+  kotSelectie = reg.koten[Math.floor(Math.random()*reg.koten.length)];
+  if (!intern && GPKG === "gentKot"){ renderGentStatic(); sim5=makeSim5(); sim5.prog(); }
+  const kot = kotSelectie;
   const attest = kot.conformiteitsattest
     ? " " + gchip(TT("conformiteitsattest","conformity certificate"), "#34d399") : "";
   $("kotcard").innerHTML =
@@ -2685,7 +2716,7 @@ buildRail1(); buildStatic1(); sim1=makeSim1(); buildSim2();
 buildRail4(); buildStatic4(); sim4=makeSim4(); sim1.prog();
 renderGentMeta(); renderGentStatic(); sim5=makeSim5(); sim5.prog();
 
-globalThis.__ds={ get sims(){return [sim1,sim2,sim4,sim5];}, switchTrack, switchTab, gentPersona, gentPackage, gentRandomKot,
+globalThis.__ds={ get sims(){return [sim1,sim2,sim4,sim5];}, switchTrack, switchTab, gentPersona, gentPackage, gentRandomKot, gentKotSelectie: ()=>kotSelectie,
   get layaOn(){return (id)=>layaOn[id||curLaya];}, fpRun, chatSend, nnBron, switchLayaDs,
   get bredaOn(){return ()=>bredaUnlocked;}, setWaarde, bredaChatSend, bredaMatch, bredaFpRun, bredaNn,
   get sim4(){return sim4;}, get bredaS2(){return ()=>bredaS2Live;} };

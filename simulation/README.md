@@ -205,4 +205,9 @@ Dropdown + persona-switcher bovenin; ▶/stap/↺ besturen de replay zoals bij d
 In het kotpakket staat onder de kaart de **willekeurig-kot-kaart**: een
 willekeurige advertentie uit de échte Kotatgent-kotenzoeker (foto, adres,
 prijs, conformiteitsattest, link) — 🎲 trekt een andere; beelden liggen in
-`simulation/kot-beelden/` (meegenomen door de build).
+`simulation/kot-beelden/` (meegenomen door de build). De selectie drijft
+het héle kot-paneel: de build draait per kotadres een echte engine-run
+(adres-override), dus feiten, kotzone-kaart, aanvraagformulier en
+ontvangstbewijs horen bij het geselecteerde kot (regulier
+"gereed-met-waarschuwing": elk gepubliceerd kot staat al als gemeld
+genoteerd). Klik een persona om terug te schakelen.
