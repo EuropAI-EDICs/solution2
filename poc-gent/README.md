@@ -57,12 +57,15 @@ terug — de laag `gent-kotzone` (kotzones-gent, 20 benoemde zones, versie
 2025-12-12) levert zo de kotzone-nám per adres (Overpoortstraat →
 "Sint-Pietersplein"), die ook als formulierbron dient (gis-uitkomsten
 zijn toegestane formulierbronnen). Bronkanttekening: de kotzones-dataset
-is zélf de zone-indeling van het koteloket/kotatgent (stal data), maar
-het **kotregister met gemelde koten heeft géén open API of dataset** —
-kot.stad.gent is antibot-beveiligd en data.stad.gent publiceert het
-register niet. `gent:kotregister` blijft daarom een expliciet als mock
-gemarkeerde productie-afhankelijkheid (data-overeenkomst met
-District09/koteloket nodig voor de echte koppeling). Persona's: wouter, saartje, gregory,
+is zélf de zone-indeling van het koteloket/kotatgent (stad data). Het
+kotregister kent géén open API of dataset (kot.stad.gent is
+antibot-beveiligd, data.stad.gent publiceert het register niet), maar de
+**kotenzoeker zelf is publiek** (robots.txt staat inhoud toe): `python3
+fetch_sources.py --kotregister` krapt de beschikbare advertenties — 106
+uit de 5.130 kotendatabase — naar `fixtures/source/kotregister.json`, en
+`gent:kotregister` valt sindsdien terug op die echte cache (adres als
+sleutel; persona-fixtures winnen, zie saartje). Het volledige register
+blijft een productie-afhankelijkheid (data-overeenkomst District09). Persona's: wouter, saartje, gregory,
 lea, milan, karel. `python3 fetch_sources.py --kaart-kot` bouwt de
 kotkaart-cache; `--check` drukt voortaan zone-namen.
 

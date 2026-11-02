@@ -282,7 +282,7 @@ def run_replay(poc_root: Path, package_id: str, persona_id: str,
                 for bron in uitleg_h2["bronnen"]:
                     try:
                         records[bron["tool"]] = magda_mock.raadpleeg(pkg.manifest, bron["tool"], bron["purpose"],
-                                                                    poc_root, persona_id)
+                                                                    poc_root, persona_id, context=ctx)
                     except KeyError:
                         continue
                     events_mod.emit(events, "bron_raadpleging",

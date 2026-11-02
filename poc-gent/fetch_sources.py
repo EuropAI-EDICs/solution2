@@ -536,6 +536,68 @@ def haal_kaart_kot(poc_root: Path, kot_personas: tuple = KOT_PERSONAS) -> dict:
     return haal_kaart_persoonsadressen(poc_root, kot_personas, "kaart-kot.json")
 
 
+def _haal_html(url: str) -> str:
+    request = urllib.request.Request(url, headers={"User-Agent": UA, "Accept-Encoding": "gzip"})
+    with urllib.request.urlopen(request, timeout=60) as response:
+        body = response.read()
+        if response.headers.get("Content-Encoding") == "gzip":
+            import gzip as _gzip
+            body = _gzip.decompress(body)
+        return body.decode("utf-8", errors="replace")
+
+
+KOTELOKET_ZOEKER = "https://kot.stad.gent/nl/vind-een-kot"
+
+
+def haal_kotregister(poc_root: Path) -> dict:
+    """Publieke Kotatgent-advertenties ophalen uit de kotenzoeker (server-
+    rendered paginering; robots.txt staat publieke inhoud toe, het antibot-
+    mechanisme bewaakt alleen het zoekformulier). Let op: dit is het schermbèld
+    van de beschikbare advertenties — de volledige kotendatabase (5.130 koten)
+    is niet open; het echte register blijft een productie-afhankelijkheid."""
+    artikelen: list[dict] = []
+    gezien: set[str] = set()
+    totaal_database = None
+    pagina = 0
+    while True:
+        html = _haal_html(KOTELOKET_ZOEKER if pagina == 0 else f"{KOTELOKET_ZOEKER}?page={pagina}")
+        if pagina == 0:
+            telling = re.search(r"uit de\s*<strong>(\d+)</strong>", html)
+            totaal_database = int(telling.group(1)) if telling else None
+        for stuk in html.split("<article")[1:]:
+            if "node--type-room" not in stuk:
+                continue  # footer-artikel (partners) overslaan
+            kop = re.search(r"<h3[^>]*>(.*?)</h3>", stuk, re.S)
+            if not kop:
+                continue
+            titel = re.sub(r"<[^>]+>", "", kop.group(1)).strip()
+            delen = titel.rsplit(" - ", 1)
+            adres = delen[-1].strip() if len(delen) == 2 and delen[-1].strip() else None
+            link = re.search(r'href="(/nl/vind-een-kot/[^"?]+)"', stuk)
+            if not adres or not link or link.group(1) in gezien:
+                continue
+            gezien.add(link.group(1))
+            type_m = re.search(r'<span class="label[^"]*">\s*<span>\s*(Kamer|Studio)\s*</span>', stuk)
+            artikelen.append({
+                "titel": titel,
+                "adres": adres,
+                "type": type_m.group(1).lower() if type_m else None,
+                "conformiteitsattest": "conformity-certificate__status" in stuk,
+                "url": KOTELOKET_ZOEKER.rsplit("/nl/", 1)[0] + link.group(1),
+            })
+        if "Volgende pagina" not in html:
+            break
+        pagina += 1
+        time.sleep(0.4)
+    document = {"bron": KOTELOKET_ZOEKER, "fetchedAt": _now(),
+                "totaalInDatabase": totaal_database,
+                "beschikbaarGepubliceerd": len(artikelen),
+                "koten": artikelen}
+    (SOURCE_DIR / "kotregister.json").write_text(
+        json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return document
+
+
 def build_cache() -> dict:
     SOURCE_DIR.mkdir(parents=True, exist_ok=True)
     meta_document: dict = {"gegenereerdOp": _now(), "bronnen": {}}
@@ -651,6 +713,9 @@ def main() -> int:
     ap.add_argument("--kaart-burger", action="store_true",
                     help="bouw de burgerkaart-cache (Gent-grens + nieuwe woning per burger-persona, "
                          "offline uit de adrescache) — netwerk alléén bij ontbrekende grens")
+    ap.add_argument("--kotregister", action="store_true",
+                    help="bouw de kotregister-cache uit de publieke Kotatgent-kotenzoeker "
+                         "(beschikbare advertenties; netwerk)")
     ap.add_argument("--kaart-kot", action="store_true",
                     help="bouw de kotkaart-cache (Gent-grens + kotadres per verhuurder-persona, "
                          "offline uit de adrescache) — netwerk alléén bij ontbrekende grens")
@@ -697,6 +762,17 @@ def main() -> int:
         }
         print(f"kaart-burger: {len(kaart_burger['personas'])}/{len(BURGER_PERSONAS)} woningen "
               f"| grens: {'ja' if kaart_burger['grens'] else 'nee'}")
+    if args.kotregister:
+        register = haal_kotregister(POC_ROOT)
+        meta_document["bronnen"]["kotregister"] = {
+            "cache": "fixtures/source/kotregister.json",
+            "bron": register["bron"], "fetchedAt": register["fetchedAt"],
+            "totaalInDatabase": register["totaalInDatabase"],
+            "beschikbaarGepubliceerd": register["beschikbaarGepubliceerd"],
+            "licentie": "publieke weergave kot.stad.gent (schermkrap; register zelf niet open)",
+        }
+        print(f"kotregister: {register['beschikbaarGepubliceerd']} beschikbare advertenties "
+              f"(database: {register['totaalInDatabase']})")
     if args.kaart_kot:
         kaart_kot = haal_kaart_kot(POC_ROOT)
         meta_document["bronnen"]["kaart-kot"] = {
@@ -710,7 +786,7 @@ def main() -> int:
         json.dumps(meta_document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     for laag, info in meta_document["bronnen"].items():
         if laag in ("adressen", "bestAddress", "vkbo", "gipod", "kaart", "kaart-burger",
-                    "kaart-kot", "ivago-ophaalkalender"):
+                    "kaart-kot", "ivago-ophaalkalender", "kotregister"):
             continue
         print(f"{laag}: {info['titel']} | {info['licentie']} | versie {info['versie']} "
               f"| {info['featuresNaFilter']}/{info['featuresRuwwerk']} features")
