@@ -37,6 +37,12 @@ from shapely.ops import unary_union
 
 ROOT = Path(__file__).resolve().parent.parent
 
+DSO_OUT = ROOT / "nldt" / "simulation" / "regelrecht" / "dso_overlap" / "out"
+DSO_INSTRUMENTEN = [
+    ("eindhoven", "eindhoven-woensel-proxy", "Omgevingsplan gemeente Eindhoven", "CVDR696400"),
+    ("utrecht", "utrecht-domplein", "Omgevingsverordening provincie Utrecht", "CVDR704250"),
+]
+
 # Labels delen met viewer/context_map — zonder poc/ op sys.path te zetten
 # (dat zou poc-bp2op/pipeline.knowledgebank maskeren).
 _sl = importlib.util.spec_from_file_location(
@@ -1721,6 +1727,61 @@ def bouw_gent_only() -> int:
     return 0
 
 
+def build_dso_kb() -> dict:
+    """DSO↔RegelRecht-kennisbank → displayblok (Tab 7). Leest alléén cache-artefacten."""
+    if not DSO_OUT.is_dir():
+        sys.exit(f"missing dso_overlap cache under {DSO_OUT}")
+    instrumenten = []
+    for iid, lid, label, cvdr in DSO_INSTRUMENTEN:
+        stem = f"{iid}__{lid}"
+        ov = json.loads((DSO_OUT / f"{stem}.overlap.json").read_text(encoding="utf-8"))
+        toets = json.loads((DSO_OUT / f"{stem}.toets.json").read_text(encoding="utf-8"))
+        geo_pad, meta_pad, vers_pad = (DSO_OUT / f"{stem}.geo-validatie.json",
+                                       DSO_OUT / f"{stem}.annotaties.meta.json",
+                                       DSO_OUT / f"{stem}.ververs.json")
+        geo = json.loads(geo_pad.read_text(encoding="utf-8")) if geo_pad.is_file() else {}
+        meta = json.loads(meta_pad.read_text(encoding="utf-8")) if meta_pad.is_file() else {}
+        ververs = json.loads(vers_pad.read_text(encoding="utf-8")) if vers_pad.is_file() else None
+
+        counts = ov["dso"]["counts"]
+        o = ov["overlap"]
+        geo_regels = {}
+        v = (geo or {}).get("validatie") or {}
+        if v:
+            geo_regels = {"getoetst": v.get("getoetst"), "overeenstemming": v.get("overeenstemming")}
+        na = (((geo or {}).get("sweep") or {}).get("naamAfstemming") or {})
+        if na:
+            geo_regels["naamOvereenkomend"] = na.get("naamOvereenkomend")
+
+        instrumenten.append({
+            "id": iid,
+            "label": label,
+            "cvdr": cvdr,
+            "locatie": lid,
+            "locatieLabel": (ov.get("location") or {}).get("label") or lid,
+            "punt": ov["location"]["geometry"]["coordinates"],
+            "counts": {k: counts.get(k) for k in
+                       ("regelteksten", "activiteiten", "locaties", "gebiedsaanwijzingen",
+                        "regelsVoorIedereen", "instructieregels")},
+            "dekking": {"dsoArtikelen": counts.get("uniqueArticleNumbers"),
+                        "executable": o.get("executableCount"),
+                        "abstain": o.get("abstainCount"),
+                        "coverage": o.get("coverageExecutable")},
+            "statusCounts": o.get("statusCounts") or {},
+            "toets": toets.get("tellingen") or {},
+            "geo": geo_regels,
+            "voorbeelden": [
+                {"artikel": a.get("number"), "status": a.get("rrStatus"), "reden": a.get("reason")}
+                for a in (o.get("articles") or []) if not a.get("executable")
+            ][:5],
+            "annotatiesSha16": (ov.get("dso", {}).get("annotatiesSha256") or "")[:16],
+            "fetchedAt": meta.get("fetchedAt"),
+            "gegenereerdOp": ov.get("generatedAt"),
+            "ververs": ververs,
+        })
+    return {"instrumenten": instrumenten}
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="bouw de simulatie (of alleen het Gent-deel)")
     ap.add_argument("--gent-only", action="store_true",
@@ -1740,7 +1801,8 @@ def main() -> int:
     data = {"poc1": build_poc1(), "poc2": build_poc2(), "poc4": build_breda(), "gent": build_gent(),
             "gentBurger": build_gent("gent-verhuizen-burger"),
             "gentKot": build_gent("gent-kot-verhuurder"),
-            "gentEvent": build_gent("gent-evenement-organisator")}
+            "gentEvent": build_gent("gent-evenement-organisator"),
+            "dsokb": build_dso_kb()}
     kotregister = _kotregister_blok(ROOT / "poc-gent")
     if kotregister:
         data["gentKot"]["kotregister"] = kotregister
@@ -1791,6 +1853,11 @@ def main() -> int:
     print(f"  gent: {g['packageId']} v{g['version']} — {len(g['personas'])} persona's "
           f"(events-ketting {ok}/{len(g['personas'])} geverifieerd), "
           "statussen: " + ", ".join(f"{p['id']}={p['status']}" for p in g["personas"]))
+    for inst in data["dsokb"]["instrumenten"]:
+        d = inst["dekking"]
+        drift = (inst["ververs"] or {}).get("drift", {}).get("inhoudelijkeDrift", "geen rapport")
+        print(f"  dsokb/{inst['id']}: {d['dsoArtikelen']} DSO-artikelen → {d['executable']} uitvoerbaar "
+              f"({100 * d['coverage']:.2f}%) · drift: {drift}")
     ly = data["poc2"]["laya"]
     ev = ly["eval"]
     m = ly["meta"]
