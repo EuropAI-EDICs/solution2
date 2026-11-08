@@ -206,5 +206,62 @@ class TestRapport(unittest.TestCase):
             self.assertIn("1 afwezig", tekst)
 
 
+_spec_kruising = importlib.util.spec_from_file_location(
+    "poc_veenendaal_sttr_kruising", ROOT / "poc-veenendaal" / "sttr_kruising.py")
+kruising = importlib.util.module_from_spec(_spec_kruising)
+_spec_kruising.loader.exec_module(kruising)
+
+
+class TestKruising(unittest.TestCase):
+    """sttr_kruising.py — GML-parse, kruis-berekening en genomen-vlakken-unie."""
+
+    GML = """<?xml version="1.0"?>
+<gio:GeoInformatieObjectVaststelling xmlns:gio="https://standaarden.overheid.nl/stop/imop/geo/"
+  xmlns:gml="http://www.opengis.net/gml/3.2">
+  <geo:FRBRWork xmlns:geo="https://standaarden.overheid.nl/stop/imop/geo/">/join/id/regdata/gm0345/2026/t</geo:FRBRWork>
+  <gml:Polygon srsName="epsg:28992"><gml:exterior><gml:LinearRing>
+    <gml:posList>{}</gml:posList>
+  </gml:LinearRing></gml:exterior></gml:Polygon>
+</gio:GeoInformatieObjectVaststelling>
+"""
+
+    def test_gml_polygonen(self):
+        polys = kruising.gml_polygonen(self.GML.format("0 0 10 0 10 10 0 10 0 0").encode())
+        self.assertEqual(len(polys), 1)
+        self.assertAlmostEqual(polys[0].area, 100.0, places=6)
+        # te korte ring valt weg; ongeldig zelf-doorkruisend vlak wordt gerepareerd of weg
+        self.assertEqual(kruising.gml_polygonen(self.GML.format("0 0").encode()), [])
+
+    def test_kruis_scenario(self):
+        from shapely.geometry import Polygon, box
+
+        lagen = {
+            "dichtbij.gml": {"frbrWork": "x",
+                             "polygonen": [Polygon([(0, 0), (10, 0), (10, 10), (0, 10)])]},
+            "verweg.gml": {"frbrWork": "y",
+                           "polygonen": [Polygon([(100, 100), (110, 100), (110, 110), (100, 110)])]},
+        }
+        raakt = kruising.kruis_scenario(box(0, 0, 5, 5), lagen)
+        self.assertEqual(len(raakt), 1)
+        self.assertEqual(raakt[0]["gio"], "dichtbij")
+        self.assertAlmostEqual(raakt[0]["overlapM2"], 25.0, places=1)
+        self.assertEqual(raakt[0]["objecten"], 1)
+
+    def test_genomen_unie(self):
+        from shapely.geometry import box
+
+        vlak = {"type": "Feature",
+                "properties": {"lokaal_id": "v1"},
+                "geometry": {"type": "Polygon", "coordinates":
+                             [[[2, 2], [8, 2], [8, 8], [2, 8], [2, 2]]]}}
+        lagen_ids = {"begroeidterreindeel": {}, "onbegroeidterreindeel": {"v1": vlak}}
+        scenario = {"allocatie": {"laag": "verhard", "genomen_ids": ["v1"], "n": 1}}
+        unie, alloc = kruising.genomen_unie(scenario, lagen_ids, box(0, 0, 10, 10))
+        self.assertAlmostEqual(unie.area, 36.0, places=6)
+        self.assertEqual(alloc["laag"], "verhard")
+        # zonder allocatie: (None, None) — geen gissing
+        self.assertEqual(kruising.genomen_unie({}, lagen_ids, box(0, 0, 1, 1)), (None, None))
+
+
 if __name__ == "__main__":
     unittest.main()
