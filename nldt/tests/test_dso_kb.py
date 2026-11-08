@@ -251,3 +251,26 @@ def test_ververs_bouwt_tpod_herbouw_in(tmp_path, monkeypatch):
     )
     tpod_aanroepen = [a for a in aanroepen if "regelrecht.tpod" in a[2]]
     assert tpod_aanroepen and "--toets" in tpod_aanroepen[0] and "--geo" in tpod_aanroepen[0]
+
+
+def test_ververs_schrijft_rapport(tmp_path, monkeypatch):
+    monkeypatch.delenv("NLDT_OFFLINE", raising=False)  # hermetisch t.o.v. ambient env
+    out = _kopieer_fixtures(tmp_path)
+    (out / "testgm__test-loc.annotaties.json").write_text(
+        (DRIFT / "oud.json").read_text(encoding="utf-8"), encoding="utf-8"
+    )
+    nieuw = json.loads((DRIFT / "nieuw_gewijzigd.json").read_text(encoding="utf-8"))
+
+    def nep_runner(args):
+        (out / "testgm__test-loc.annotaties.json").write_text(
+            json.dumps(nieuw, ensure_ascii=False), encoding="utf-8"
+        )
+
+    uit = dso_kb.ververs(
+        "testgm", met_tpod=False, out_dir=out, runner=nep_runner,
+        instrumenten=INSTR, locaties=LOCS,
+    )
+    rapport = json.loads((out / "testgm__test-loc.ververs.json").read_text(encoding="utf-8"))
+    assert rapport["drift"]["inhoudelijkeDrift"] == "wel"
+    assert rapport["gegenereerdOp"]
+    assert rapport == {k: uit[k] for k in rapport}

@@ -13,6 +13,7 @@ import os
 import re
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
@@ -566,11 +567,16 @@ def ververs(
         if oud_ann is not None and nieuw_ann is not None
         else {"inhoudelijkeDrift": "onbekend", "categorieen": {}, "reden": "geen oude versie in cache"}
     )
-    return {
+    uit = {
         "instrument": instrument,
         "locatie": lid,
         "annShaOud": sha_oud,
         "annShaNieuw": sha_nieuw,
         "drift": drift,
         "tpod": {"herbouwd": herbouwd},
+        "gegenereerdOp": datetime.now(timezone.utc).isoformat(),
     }
+    (out / f"{stem}.ververs.json").write_text(
+        json.dumps(uit, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    return uit
