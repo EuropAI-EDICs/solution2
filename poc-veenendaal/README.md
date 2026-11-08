@@ -49,6 +49,36 @@ groen in Stationsgebied/Engelenburg West/Het Ambacht volledig (14,8 ha over
 gebiedsbreed); compacte 15-lagen-verdichting concentreert zich op
 Stationsgebied + Engelenburg West en laat 't Goeie Spoor vrijwel onaangetast.
 
+## Het loket over de Spoorzone (STTR — officiële toepasbare regels)
+
+`sttr.py` legt de derde kennisbank-laag over het gebied: de officiële toepasbare
+regels (STTR/DMN) die het Omgevingsloket aan Veenendaal stelt — **vragen, geen
+besluit**. Twee sporen, bewijs-gebonden (kader: [POC_STTR_IMTR_KANSEN](../docs/POC_STTR_IMTR_KANSEN.md)):
+
+- **locatie-gebonden** — de 20 geoVerwijzing-vragen uit de RTR zijn via het
+  omgevingsplan-uitwisselpakket (AKN via Presenteren `regelingen/_zoek` op het
+  station-anker; pakket via de downloaden-API) níet hard koppelbaar: 18 verwijzen
+  naar een leveranciers-identificatiefamilie die niet in het plan zit, 2 naar
+  OP-gebieden zonder geometrie in dit pakket — per status eerlijk gerapporteerd.
+  Wél wordt het hele pakket gesweept: **30 van 83 officiële GIO-lagen snijden de
+  werkgrens**, o.a. regels tijdelijk deel (161 ha = de hele bbox), ecologisch/
+  landschapswaarden, boringsvrije zone + grondwaterbescherming (60,8 ha),
+  archeologie mét diepte-/oppervlaktemaxima, beschermde bomen (9,6 ha) en
+  gemeentelijke monumenten (4,9 ha) — elk met STOP-FRBRWork.
+- **programma-gebonden** — 7 bewijs-gebonden koppelingen (spoorlijn in gebied →
+  `WegSpoorwegAanleggenWijz`; 4.500 woningen → bouw-activiteiten; bomen/vegetatie
+  → `HoutopstandVellen`; …) met de officiële loket-vragen per activiteit eronder
+  (bijv. 89 vragen voor bijbehorende bouwwerken, incl. de achtererf-animaties).
+
+```bash
+nldt/.venv/bin/python sttr.py               # live: Presenteren + downloaden-API (DSO_API_KEY)
+nldt/.venv/bin/python sttr.py --skip-live   # offline: alleen STTR-cache + programma-sporen
+```
+
+Uitvoer in `sttr-runs/<ts>-loketvragen/` (`report.md` · `loketvragen.json` ·
+`manifest.json`); caches in `data/cache/` (gitignored). Canonieke run:
+`20261108T192445Z-loketvragen`. Tests: `nldt/tests/test_poc_veenendaal_sttr.py`.
+
 ## Wat de check doet
 
 1. **Werkgrens** uit `data/gebied.json` — provisionele bbox (±161 ha, gekalibreerd
@@ -77,7 +107,10 @@ Stationsgebied + Engelenburg West en laat 't Goeie Spoor vrijwel onaangetast.
 
 ## Vervolg volgens canvas (open)
 
-- Omgevingswet-toets op het gebied (IMRO/GIO via DSO — key-gated, cf. Utrecht-piloot).
+- ~~Omgevingswet-toets op het gebied (IMRO/GIO via DSO — key-gated, cf. Utrecht-piloot)~~
+  — eerste instantie geleverd door `sttr.py` (lokale GIO-lagen + officiële loket-vragen,
+  hierboven); verdieping: echte gebiedsgrens, RCE-monumentenlaag, koppeling STTR-vragen ↔ GIO's
+  zodra de leveranciers-locatie-identificaties aan het omgevingsplan hangen.
 - Ontwerpvarianten als Plane B-scenario's; gebiedsafweging wonen/groen/werken als
   Plane D spatial claims (Breda-patroon).
 - ILS/ICDD-afspraken voor ontwerpleveringen (BIM/GEO) conform canvas §11.
