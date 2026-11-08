@@ -182,3 +182,14 @@ def test_drift_nieuwe_en_vervallen_wids():
     teksten = uit["categorieen"]["regelteksten"]
     assert teksten["erbij"] == ["gm9999_a1__chp_1__art_5.1__para_1"]
     assert teksten["weg"] == ["gm9999_a1__chp_1__art_3.1__para_1"]
+
+
+def test_normaliseer_stript_datumecho_uit_hrefs():
+    url = "https://example/api?geldigOp=2026-10-20&inWerkingOp=2026-10-20&beschikbaarOp=2026-10-20T14%3A17%3A05Z&id=7"
+    assert (
+        dso_kb._normaliseer(url)
+        == "https://example/api?id=7"
+    )
+    # niet-URL-strings en URLs zonder datum-parameters passeren ongewijzigd
+    assert dso_kb._normaliseer("geldigOp=2026-10-20") == "geldigOp=2026-10-20"
+    assert dso_kb._normaliseer("https://example/api?id=7") == "https://example/api?id=7"
