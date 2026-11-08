@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<semantic:definitions xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000" xmlns:feel="http://www.omg.org/spec/FEEL/20140401" xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel" xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel" xmlns:triso="http://www.rulearts.com/modeling" xmlns:trisofeed="http://rulearts.com/feed" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel" xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content" exporter="RuleArts STTR Export" exporterVersion="0.2.0" id="_9809525" name="Conclusie - Afvalwater, afkomstig van een gemeentelijke voorziening voor inzameling en transport van afvalwater, lozen in het riool of op of in de bodem" namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000">
+  <semantic:extensionElements xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd">
+    <uitv:uitvoeringsregels>
+      <uitv:uitvoeringsregel id="_4312_BizRule">
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:vasteWaarde>
+          <uitv:waardeVraag>vaste waarde FALSE</uitv:waardeVraag>
+          <uitv:waarde>false</uitv:waarde>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+        </uitv:vasteWaarde>
+      </uitv:uitvoeringsregel>
+    </uitv:uitvoeringsregels>
+  </semantic:extensionElements>
+  <semantic:inputData id="_5492_Concept" name="vaste waarde FALSE">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_4312_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_9164890" name="vaste waarde FALSE" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:decision id="_46080_BizRule" name="Conclusie - LozenGemVoorzInzamelAfvalw">
+    <semantic:extensionElements>
+      <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/Conclusienl.imow-gm0772.activiteit.LozenGemVoorzInzamelAfvalw" />
+    </semantic:extensionElements>
+    <semantic:variable id="_46080_BizRule_var" name="Conclusie - LozenGemVoorzInzamelAfvalw" typeRef="feel:string" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_2a6fa579-e13c-403b-a912-92e2e67d1739_0ad89ed1-6d75-45fa-a242-6152304c475a" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_46080_BizRule_td" hitPolicy="COLLECT" outputLabel="Conclusie - LozenGemVoorzInzamelAfvalw">
+      <semantic:input id="_2551626">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Toestemmingen - Vergunningplicht - LozenGemVoorzInzamelAfvalw</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2043496" />
+      <semantic:rule id="_6484182">
+        <semantic:inputEntry id="_6958408">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3796051">
+          <semantic:extensionElements>
+            <content:conclusieToelichting>
+              <content:toelichting><![CDATA[U moet zich wel houden aan de algemene regels voor deze activiteit\. In [Maatregelen op Maat](/maatregelen) vindt u de maatregelen waarmee u aan deze regels kunt voldoen\.]]></content:toelichting>
+            </content:conclusieToelichting>
+          </semantic:extensionElements>
+          <semantic:text>"Toestemmingsvrij"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_2a6fa579-e13c-403b-a912-92e2e67d1739_0ad89ed1-6d75-45fa-a242-6152304c475a" name="Toestemmingen - Vergunningplicht - LozenGemVoorzInzamelAfvalw">
+    <semantic:variable id="_2a6fa579-e13c-403b-a912-92e2e67d1739_0ad89ed1-6d75-45fa-a242-6152304c475a_var" name="Toestemmingen - Vergunningplicht - LozenGemVoorzInzamelAfvalw" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_46081_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_2a6fa579-e13c-403b-a912-92e2e67d1739_0ad89ed1-6d75-45fa-a242-6152304c475a_td" hitPolicy="ANY" outputLabel="Toestemmingen - Vergunningplicht - LozenGemVoorzInzamelAfvalw">
+      <semantic:input id="_6458080">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vaste waarde vergunningplichtig LozenGemVoorzInzamelAfvalw</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2003008" />
+      <semantic:rule id="_2673961">
+        <semantic:inputEntry id="_6928059">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6024619">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6329075">
+        <semantic:inputEntry id="_5687603">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5281435">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_46081_BizRule" name="vaste waarde vergunningplichtig LozenGemVoorzInzamelAfvalw">
+    <semantic:variable id="_46081_BizRule_var" name="vaste waarde vergunningplichtig LozenGemVoorzInzamelAfvalw" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_5492_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_46081_BizRule_td" hitPolicy="UNIQUE" outputLabel="vaste waarde vergunningplichtig LozenGemVoorzInzamelAfvalw">
+      <semantic:input id="_2077196">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vaste waarde FALSE</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5539229" />
+      <semantic:rule id="_7600718">
+        <semantic:inputEntry id="_2246668">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3494757">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_732268">
+        <semantic:inputEntry id="_3635892">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8311971">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+</semantic:definitions>

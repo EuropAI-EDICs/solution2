@@ -6,13 +6,13 @@
 | **Datum** | 8 november 2026 |
 | **Aanleiding** | IPLO-hub [STTR/IMTR](https://iplo.nl/digitaal-stelsel/aansluiten/standaarden/sttr-imtr) (beheer RWS/projectteam Reneso): [STTR 3.0.1](https://iplo.nl/publish/pages/162385/20250801-dso-specificatie-sttr-3-0-1_1.pdf) en [IMTR 3.0.1](https://iplo.nl/publish/pages/162385/20251204-dso-specificatie-imtr-3-0-1-def.pdf) (def. 04-12-2025), DMN 1.1/1.2 |
 | **Downloads** | [research/sttr-imtr/](research/sttr-imtr/) — specificaties, 6 officiële voorbeeld-DMN's, XSD's (DMN 1.1+1.2), 3 RTR-OAS'en, alles vastgepinnd op sha256 ([SOURCES.md](research/sttr-imtr/SOURCES.md)) |
-| **Code** | [research/sttr-imtr/scan_executies.py](research/sttr-imtr/scan_executies.py) (567-testcase) + 20 echte Eindhovense STTR-bestanden uit de PRE-RTR |
+| **Code** | [research/sttr-imtr/scan_executies.py](research/sttr-imtr/scan_executies.py) (567-testcase) + de volledige Eindhovense STTR-set uit de PRE-RTR (162 bestanden) en een 20-steekproef van Tilburg |
 
 ---
 
 ## De kern in één alinea
 
-De STTR is de officiële tegenhanger van onze RegelRecht-laag: *begrijpelijke vertalingen van juridische regels* die als vragen-plus-beslistabellen in het Omgevingsloket draaien, aangeleverd aan de Registratie Toepasbare Regels (RTR) als **DMN 1.1/1.2**-documenten. Deze notitie bevestigt drie aansluitingen met metingen in plaats van aannames: (1) de doctrine wordt drieledig — **DSO annoteert · RegelRecht toetst · STTR toepast** — en Tab 7 kan straks drie statussen tonen; (2) onze executies (EN/≤/=/IF, inputs, outputs) mappen **constructief volledig** op DMN-decisiontables: alle 567 Eindhovense executies gebruiken uitsluitend first-class DMN-dragers (37 FEEL-`<=`-cellen, 594 booleaanse cellen, 63 geo-inputs); (3) de RTR is met de bestaande `DSO_API_KEY` **live bevraagbaar als derde kennisbank-bron** naast Presenteren en Ruimtelijke Plannen — Eindhoven (OIN `00000001001172773000`) blijkt er 20 geldige STTR-bestanden te hebben, alle gedownload. Wat níet 1-op-1 kan — boolean-toets vs. conclusie-enum, artikel- vs. activiteit-granulariteit — staat er expliciet bij; niets verzinnen.
+De STTR is de officiële tegenhanger van onze RegelRecht-laag: *begrijpelijke vertalingen van juridische regels* die als vragen-plus-beslistabellen in het Omgevingsloket draaien, aangeleverd aan de Registratie Toepasbare Regels (RTR) als **DMN 1.1/1.2**-documenten. Deze notitie bevestigt drie aansluitingen met metingen in plaats van aannames: (1) de doctrine wordt drieledig — **DSO annoteert · RegelRecht toetst · STTR toepast** — en Tab 7 kan straks drie statussen tonen; (2) onze executies (EN/≤/=/IF, inputs, outputs) mappen **constructief volledig** op DMN-decisiontables: alle 567 Eindhovense executies gebruiken uitsluitend first-class DMN-dragers (37 FEEL-`<=`-cellen, 594 booleaanse cellen, 63 geo-inputs); (3) de RTR is met de bestaande `DSO_API_KEY` **live bevraagbaar als derde kennisbank-bron** naast Presenteren en Ruimtelijke Plannen — Eindhoven (OIN `00000001001902763000`) blijkt er 162 geldige STTR-bestanden te hebben, alle gedownload. Wat níet 1-op-1 kan — boolean-toets vs. conclusie-enum, artikel- vs. activiteit-granulariteit — staat er expliciet bij; niets verzinnen.
 
 ## De kansenkaart
 
@@ -20,7 +20,7 @@ De STTR is de officiële tegenhanger van onze RegelRecht-laag: *begrijpelijke ve
 |---|---|---|---|---|
 | 1 | derde laag in de doctrine: STTR toepast | Conclusie (activiteit, output-enum), functioneleStructuurRef | Tab 7 telt nu twee statussen (uitvoerbaar/onthouding) | **uitgewerkt** (meting Eindhoven: 20 RTR-bestanden; UI-uitbreiding = volgende stap) |
 | 2 | DMN als brug: executie ↔ decisiontable | uitvoeringsregel (vraag), geoVerwijzing, rule/inputEntry/outputEntry, hitPolicy | EN/≤/=/IF-executies in de full export | **uitgewerkt + getest** (crosswalk + 567-testcase, 100% constructiedekking) |
-| 3 | RTR als derde kennisbank-bron | API *Uitvoeren gegevens toepasbare regels* v2.1.0 (`x-api-key`, `?oin`, `/sttrBestand`) | `dso_overlap/` kent Presenteren + RP + downloaden; RTR ontbreekt | **live gemeten** (PRE 200 OK; 20 Eindhovense DMN's binnen) |
+| 3 | RTR als derde kennisbank-bron | API *Uitvoeren gegevens toepasbare regels* v2.1.0 (`x-api-key`, `?oin`, `/sttrBestand`) | `dso_overlap/` kent Presenteren + RP + downloaden; RTR ontbreekt | **live gemeten** (PRE 200 OK; 162 Eindhovense DMN's binnen) |
 
 ## Kans 1 — Derde laag in de doctrine: DSO annoteert · RegelRecht toetst · STTR toepast
 
@@ -28,7 +28,7 @@ De STTR is de officiële tegenhanger van onze RegelRecht-laag: *begrijpelijke ve
 
 **De naad.** Onze doctrine (kop Tab 7, [bestuurlijke notitie](POC_DSO_REGELRECHT_BESTUURLIJKE_NOTITIE.md) "drie lagen"; leitmotif *AI verkent · rekenlaag toetst · mens beslist*) kent annoteert en toetst, maar geen officiële *toepast*-laag. Tab 7 (`kb7InstCard()` in [simulation/template.html](../simulation/template.html)) toont per instrument dan ook maar twee statussen: "X uitvoerbaar · Y onthouding" (Eindhoven 457/56%, Utrecht 7).
 
-**Gemeten** (PRE-RTR, 8-11-2026): de registratie bevat **66.474** actuele toepasbare-regelentries (133 pagina's); op de eerste zes pagina's al 98 bevoegde gezagen. Eindhoven heeft **20 geldige bestanden** (170 entries inclusief historie), begindata 2022–2023, activiteiten van `BouwwerkSlopen` tot `GeluidProdWindturbine` — dus een veel smallere, activiteit-gebundleelde set dan onze 567 artikel-executies. Precies daardoor zijn het *aanvullende* statusinformatie, geen concurrentie: STTR zegt wat het loket officieel concludeert per activiteit, RegelRecht toetst het eigen voorstel tegen het hele instrument.
+**Gemeten** (PRE-RTR, 8-11-2026): de registratie bevat **66.474** actuele toepasbare-regelentries (133 pagina's); op de eerste zes pagina's al 98 bevoegde gezagen. Eindhoven heeft **162 geldige bestanden** (begindata 07-07-2022 t/m 28-10-2026 — actief onderhouden), activiteiten van `BouwwerkSlopen` tot `GeluidProdWindturbine` — dus een smallere, activiteit-gebundleelde set dan onze 567 artikel-executies. Precies daardoor zijn het *aanvullende* statusinformatie, geen concurrentie: STTR zegt wat het loket officieel concludeert per activiteit, RegelRecht toetst het eigen voorstel tegen het hele instrument.
 
 **Volgende stap.** Tab 7-uitbreiding: per instrument een derde statusregel "STTR toepast", gevoed door een RTR-cache (kans 3) — per activiteit `conclusie`-enum en `begindatum`, met expliciete absent-status als het bevoegd gezag geen toepasbare regels aanlevert.
 
@@ -108,7 +108,7 @@ execution:
 Conclusie van de testcase: **100 % van de gebruikte constructieblokken is first-class DMN**; geen enkele executie heeft een operator of type dat de STTR niet kan dragen. De semantiche naad zit niet in de constructies maar in de vertaalslag: onze boolean *toets* per artikel vs. de officiële *conclusie-enum* per activiteit (toegestaan → `Toestemmingsvrij`/`Vergunningplicht`/… is een juridische beslissing), en het samennemen van artikelen tot één activiteit-tabel (`functioneleStructuurRef`).
 
 **Volgende stap — twee richtingen, verschillende rijpheid.**
-- **STTR → RegelRecht (vandaag bouwbaar):** importer die de 20 Eindhovense RTR-bestanden (en de officiële voorbeelden) ontleedt tot `machine_readable`-executies en ze met onze reference-engine op dezelfde inputs runt — dan is de officiële tabel executioneerbaar naast de DSO-annotatie en kan drift tussen loket-conclusie en annotatie zichtbaar worden. XSD's van beide dialecten (DMN 1.1 en 1.2) staan in de downloads.
+- **STTR → RegelRecht (vandaag bouwbaar):** importer die de 162 Eindhovense RTR-bestanden (en de officiële voorbeelden) ontleedt tot `machine_readable`-executies en ze met onze reference-engine op dezelfde inputs runt — dan is de officiële tabel executioneerbaar naast de DSO-annotatie en kan drift tussen loket-conclusie en annotatie zichtbaar worden. XSD's van beide dialecten (DMN 1.1 en 1.2) staan in de downloads.
 - **RegelRecht → STTR (autorauteitsroute):** export van (nieuwe) toepasbare regels als STTR 3.0.1-bestand, gevalideerd tegen de vastgepinde XSD's en voorbeeldbestanden. Let op de scope: de 63 limiet/verbod-artikelen zijn grotendeels *regels voor omgevingsvergunning* (officieel IMOW-annotatiegebied, zie de [TPOD-notitie](POC_TPOD_IMOW_KANSEN.md)) en de 504 equivalentie-executies zijn conversie-feiten uit `poc-bp2op` — géén van beide hoort thuisloos de RTR in; de route geldt toekomstige, échte toepasbare regels.
 
 ## Kans 3 — RTR als derde kennisbank-bron
@@ -117,7 +117,9 @@ Conclusie van de testcase: **100 % van de gebruikte constructieblokken is first-
 
 **De naad.** De kennisbank (`dso_overlap/` + leeslaag `nldt/services/dso_kb.py`) kent Presenteren, Ruimtelijke Plannen en de downloaden-API; de RTR wordt nergens aangeroepen — in de hele repo kwamen `STTR`/`IMTR`/`RTR` vóór deze notitie niet voor.
 
-**Gemeten** (live, 8-11-2026): de bestaande `DSO_API_KEY` uit de gitignored `.env` werkt één-op-één op de PRE-RTR (productie weert de PRE-key met 401 — zelfde beheersmaatregel als bij de IMOW-metingen). Via paging + filter op `nl.imow-gm0855…` in `functioneleStructuurRef` is Eindhoven gelokaliseerd: **OIN `00000001001172773000`** (de metadata kent geen gemeentenamen), daarna rechtstreeks filterbaar met `?oin=…`. Alle **20 geldige STTR-bestanden** zijn gedownload naar [research/sttr-imtr/rtr-pre-eindhoven/](research/sttr-imtr/rtr-pre-eindhoven/) met metadata-cache. Eén verrassende bevinding uit de echte bestanden: Eindhoven levert **DMN 1.1 met v1.0-namespaces** aan (exporter "Geodan FLO Legal STTR Builder", `"no hit"`-patroon tussen beslissingen), dus níet de huidige 3.0/DMN 1.2-vorm — de importer moet beide dialecten lezen, en dat kan want beide XSD's liggen vast.
+**Gemeten** (live, 8-11-2026): de bestaande `DSO_API_KEY` uit de gitignored `.env` werkt één-op-één op de PRE-RTR (productie weert de PRE-key met 401 — zelfde beheersmaatregel als bij de IMOW-metingen). Volledige scan: **66.500 entries over 133 pagina's, 410 bevoegde-gezagsbronnen (waarvan 370 gemeenten)**; de metadata kent géén gemeentenamen, dus identificatie loopt via de gm-code in `functioneleStructuurRef`: **Eindhoven = gm0772 = OIN `00000001001902763000`** (daarna rechtstreeks filterbaar met `?oin=…`). Alle **162 geldige STTR-bestanden** zijn gedownload naar [research/sttr-imtr/rtr-pre-eindhoven/](research/sttr-imtr/rtr-pre-eindhoven/) met metadata-cache (22,7 MB). De set is diverser dan verwacht: **118× DMN 1.1 + 44× DMN 1.2**, van drie leveranciers (RuleArts 111, Sogelink 44, Geodan FLO 7), en **0 `uitv:geoVerwijzing`'en** — Eindhoven vraagt locatie als gewone ja/nee-vraag in plaats van via het officiële geo-mechanisme. De importer moet dus beide dialecten lezen (beide XSD's liggen vast) en mag geo niet aannemen.
+
+**Correctie (zelfde dag, bewust genoteerd):** een eerste scan greep `gm0855` als Eindhoven en downloadde 20 bestanden die bij nader inzien **Tilburg** bleken (OIN `00000001001172773000`; de regelgroepnaam "Gemeente Tilburg" in die bestanden was geen testdata maar de waarheid — CBS: gm0772 = Eindhoven, gm0855 = Tilburg). Die 20 liggen als steekproef in [research/sttr-imtr/rtr-pre-tilburg/](research/sttr-imtr/rtr-pre-tilburg/). De les staat bij de eerlijke grenzen.
 
 **Volgende stap.** `dso_overlap/rtr.py` naar het `client.py`-patroon: `fetch_toepasbare_regels(oin)` + `fetch_sttr_bestand(id)`, PRE-base via `RTR_API_BASE`-override, cache als `<oin>.sttr.json` + `.dmn`; daarna leesfuncties in `dso_kb.py` (`lijst_toepasbare_regels`, `lees_sttr`) en de Tab 7-derde status uit kans 1.
 
@@ -132,23 +134,23 @@ nldt/.venv/bin/python docs/research/sttr-imtr/scan_executies.py
 # RTR bevragen (PRE; sleutel in .env — nooit committen):
 KEY=$(grep -E '^DSO_API_KEY=' .env | cut -d= -f2-)
 curl -sS -H "x-api-key: $KEY" \
-  'https://service.pre.omgevingswet.overheid.nl/publiek/toepasbare-regels/api/toepasbareregelsuitvoerengegevens/v2/toepasbareRegels?oin=00000001001172773000'
+  'https://service.pre.omgevingswet.overheid.nl/publiek/toepasbare-regels/api/toepasbareregelsuitvoerengegevens/v2/toepasbareRegels?oin=00000001001902763000'
 
 # …en het complete STTR-bestand (DMN-xml) van één activiteit:
 curl -sS -H "x-api-key: $KEY" \
-  'https://service.pre.omgevingswet.overheid.nl/publiek/toepasbare-regels/api/toepasbareregelsuitvoerengegevens/v2/toepasbareRegels/136059/sttrBestand'
+  'https://service.pre.omgevingswet.overheid.nl/publiek/toepasbare-regels/api/toepasbareregelsuitvoerengegevens/v2/toepasbareRegels/173899/sttrBestand'
 ```
 
-Artefacten: `docs/research/sttr-imtr/` (specificaties + `dmn-voorbeelden-sttr-3.0.0/` + `xsd-sttr-3.0/` + OAS'en + `rtr-pre-eindhoven/` met 20 DMN's en metadata), `eindhoven-567-dmn-scan.json` (provenance: report-sha256, gegenereerd-op). NB: de 20 RTR-bestanden zijn *downloads uit PRE*, bewust wél in git (ze zijn het testcase-materiaal; een her-interview kan via bovenstaande curl).
+Artefacten: `docs/research/sttr-imtr/` (specificaties + `dmn-voorbeelden-sttr-3.0.0/` + `xsd-sttr-3.0/` + OAS'en + `rtr-pre-eindhoven/` met 162 DMN's en metadata + `rtr-pre-tilburg/` met de 20-steekproef), `eindhoven-567-dmn-scan.json` (provenance: report-sha256, gegenereerd-op). NB: de RTR-bestanden (162 Eindhovense + 20 Tilburgse steekproef) zijn *downloads uit PRE*, bewust wél in git (ze zijn het testcase-materiaal; een her-interview kan via bovenstaande curl).
 
 ## Eerlijke grenzen
 
 - **PRE, niet prod**: de RTR-meting komt uit pre-productie met een PRE-key; de productie-endpoint weert die met 401. Zelfde beheersmaatregel als in de [bestuurlijke notitie](POC_DSO_REGELRECHT_BESTUURLIJKE_NOTITIE.md).
-- **PRE bevat testdata**: het Eindhovense "Bouwwerk slopen"-bestand draagt als regelgroepnaam "Bouwwerk slopen Gemeente **Tilburg**" — inhoudelijk bruikbaar als vorm-materiaal, niet als Eindhovens beleid. Catalogusbreed geldigheid checken vóór productieclaims.
-- **Versiedrift**: Eindhovens aanleveringen zijn DMN 1.1/v1.0-namespaces (2022–2023); de standaard is inmiddels STTR 3.0.1/DMN 1.2 met `v2.0`-namespaces en `bedr:sttr versie="3"`. Beide dialecten zijn vastgepinnd (XSD's), maar de mapping-voorbeelden tonen de 3.0-vorm.
+- **Naamloze metadata vraagt om verificatie — deze notitie is er het bewijs van**: de eerste meting identificeerde Tilburg (gm0855) als Eindhoven; pas de regelgroepnaam "Gemeente Tilburg" in de bestanden dwong tot heridentificatie via de gm-code (Eindhoven = gm0772). Gecorrigeerd; de les is procedureel: bevoegd gezag koppelen uitsluitend via `functioneleStructuurRef`, nooit via leverancier, bestandsinhoud of aanname.
+- **Versiedrift**: Eindhovens set is gemengd — 118× DMN 1.1 + 44× DMN 1.2, v1.0-namespaces, 10× `bedr:sttr versie="2"`, nul keer versie 3 — terwijl de standaard inmiddels STTR 3.0.1/DMN 1.2 met `v2.0`-namespaces en `bedr:sttr versie="3"` is. Beide DMN-dialecten zijn vastgepinnd (XSD's), maar de mapping-voorbeelden tonen de 3.0-vorm.
 - **Granulariteit en semantiek**: STTR bundelt per *activiteit* met conclusie-enum; wij toetsen per *artikel* met boolean. De constructies mappen 1-op-1, de enum-vertaling (`toegestaan` → `Toestemmingsvrij`/`Vergunningplicht`/…) is per juridisch karakter een beslissing — geen automatische claim.
 - **Geen dekkingsclaim**: 20 RTR-bestanden (vooral indieningsvereisten en enkele conclusies) naast 567 artikel-executies is appels naast peren; de 63 geo/limiet/verbod-artikelen zijn bovendien veelal RFOV-vergunningsartikelen (IMOW-annotatiegebied) en de 504 equivalentie-executies zijn interne conversie-feiten (`poc-bp2op`). De RTR is een ándere, aanvullende laag — dat is kans 1, geen dekking.
-- **Juridische verankering in de RTR-bestanden**: `knowledgeSource`/`annotationEntry` (AKN) staan in de standaard en de officiële voorbeelden, maar ontbreken in de Eindhovense PRE-bestanden; wId-anchoring (IMOW-kans 3) moet het gat aan onze kant dichten.
+- **Juridische verankering in de RTR-bestanden**: `knowledgeSource`/`annotationEntry` (AKN) staan in de standaard en de officiële voorbeelden, maar ontbreken in de Eindhovense (0 van 162) en Tilburgse PRE-bestanden; wId-anchoring (IMOW-kans 3) moet het gat aan onze kant dichten.
 - **Nog geen executie-bridge gebouwd**: deze notitie levert mapping + testcase + live bron; de STTR→RegelRecht-importer en de Tab 7-derde status zijn uitgewerkt als volgende stappen, niet als code.
 
 ## Verwijzingen

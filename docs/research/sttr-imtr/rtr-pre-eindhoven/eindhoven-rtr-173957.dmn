@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<semantic:definitions xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000" xmlns:feel="http://www.omg.org/spec/FEEL/20140401" xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel" xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel" xmlns:triso="http://www.rulearts.com/modeling" xmlns:trisofeed="http://rulearts.com/feed" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel" xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content" exporter="RuleArts STTR Export" exporterVersion="0.2.0" id="_4005620" name="Conclusie - Elektriciteit opwekken met een windturbine die slagschaduw of lichtschittering veroorzaakt" namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000">
+  <semantic:extensionElements xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd">
+    <uitv:uitvoeringsregels>
+      <uitv:uitvoeringsregel id="_4312_BizRule">
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:vasteWaarde>
+          <uitv:waardeVraag>vaste waarde FALSE</uitv:waardeVraag>
+          <uitv:waarde>false</uitv:waarde>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+        </uitv:vasteWaarde>
+      </uitv:uitvoeringsregel>
+    </uitv:uitvoeringsregels>
+  </semantic:extensionElements>
+  <semantic:inputData id="_5492_Concept" name="vaste waarde FALSE">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_4312_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_5694243" name="vaste waarde FALSE" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:decision id="_fc97abbb-cec5-4c2c-9729-4b851dd028a3" name="Conclusie - ElektrWindturbine">
+    <semantic:extensionElements>
+      <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/Conclusienl.imow-gm0772.activiteit.ElektrWindturbine" />
+    </semantic:extensionElements>
+    <semantic:variable id="_fc97abbb-cec5-4c2c-9729-4b851dd028a3_var" name="Conclusie - ElektrWindturbine" typeRef="feel:string" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_2c0c16d3-a1ab-4e24-8d6b-df431327d007_0ad89ed1-6d75-45fa-a242-6152304c475a" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_fc97abbb-cec5-4c2c-9729-4b851dd028a3_td" hitPolicy="COLLECT" outputLabel="Conclusie - ElektrWindturbine">
+      <semantic:input id="_4081590">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Toestemmingen - Vergunningplicht - ElektrWindturbine</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9174785" />
+      <semantic:rule id="_7748416">
+        <semantic:inputEntry id="_5500477">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_620129">
+          <semantic:extensionElements>
+            <content:conclusieToelichting>
+              <content:toelichting><![CDATA[U moet zich wel houden aan de algemene regels voor deze activiteit\. In [Maatregelen op Maat](/maatregelen) vindt u de maatregelen waarmee u aan deze regels kunt voldoen\.]]></content:toelichting>
+            </content:conclusieToelichting>
+          </semantic:extensionElements>
+          <semantic:text>"Toestemmingsvrij"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_2c0c16d3-a1ab-4e24-8d6b-df431327d007_0ad89ed1-6d75-45fa-a242-6152304c475a" name="Toestemmingen - Vergunningplicht - ElektrWindturbine">
+    <semantic:variable id="_2c0c16d3-a1ab-4e24-8d6b-df431327d007_0ad89ed1-6d75-45fa-a242-6152304c475a_var" name="Toestemmingen - Vergunningplicht - ElektrWindturbine" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_27861_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_2c0c16d3-a1ab-4e24-8d6b-df431327d007_0ad89ed1-6d75-45fa-a242-6152304c475a_td" hitPolicy="ANY" outputLabel="Toestemmingen - Vergunningplicht - ElektrWindturbine">
+      <semantic:input id="_2372142">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vaste waarde vergunningplichtig ElektrWindturbine</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4767588" />
+      <semantic:rule id="_3034482">
+        <semantic:inputEntry id="_7304112">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1550819">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2677959">
+        <semantic:inputEntry id="_921381">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6005959">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_27861_BizRule" name="vaste waarde vergunningplichtig ElektrWindturbine">
+    <semantic:variable id="_27861_BizRule_var" name="vaste waarde vergunningplichtig ElektrWindturbine" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_5492_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_27861_BizRule_td" hitPolicy="UNIQUE" outputLabel="vaste waarde vergunningplichtig ElektrWindturbine">
+      <semantic:input id="_8723999">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vaste waarde FALSE</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5336067" />
+      <semantic:rule id="_2929055">
+        <semantic:inputEntry id="_7911690">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4449194">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5478951">
+        <semantic:inputEntry id="_878309">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_986843">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+</semantic:definitions>

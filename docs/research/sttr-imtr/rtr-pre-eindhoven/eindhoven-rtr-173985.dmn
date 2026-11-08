@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<semantic:definitions xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000" xmlns:feel="http://www.omg.org/spec/FEEL/20140401" xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel" xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel" xmlns:triso="http://www.rulearts.com/modeling" xmlns:trisofeed="http://rulearts.com/feed" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel" xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content" exporter="RuleArts STTR Export" exporterVersion="0.2.0" id="_3731147" name="Conclusie - Propaan of propeen opslaan" namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000">
+  <semantic:extensionElements xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd">
+    <inter:regelgroepen xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel">
+      <inter:regelgroep id="_4693_RuleGroup">
+        <inter:naam>Meer dan 2 opslagtanks met propaan of propeen</inter:naam>
+        <inter:prioriteit>10</inter:prioriteit>
+      </inter:regelgroep>
+    </inter:regelgroepen>
+    <uitv:uitvoeringsregels>
+      <uitv:uitvoeringsregel id="_18279_BizRule">
+        <uitv:regelgroepRef href="#_4693_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat u propaan of propeen opslaan in meer dan 2 opslagtanks?]]></uitv:vraagTekst>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_45916_BizRule">
+        <uitv:regelgroepRef href="#_4693_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Hebben de opslagtanks een inhoud van meer dan 150 liter?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Heeft de opslagtank een inhoud van 150 liter of minder? Dan is het een gasfles\. Daarvoor moet u een andere werkzaamheid kiezen\. Controleer of u die al heeft gekozen\. Heeft u die nog niet gekozen? Ga dan terug naar stap 2: Kies werkzaamheden\. Zoek daar naar ‘gasfles’ en kies de passende werkzaamheid\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_18247_BizRule">
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <uitv:vasteWaardeVoorbehoud>
+          <uitv:vasteWaarde>
+            <uitv:waarde>true</uitv:waarde>
+            <uitv:gegevensType>boolean</uitv:gegevensType>
+          </uitv:vasteWaarde>
+          <uitv:tekstVoorbehoud>Kan er in 1 van de opslagtanks meer dan 13.000 liter propaan of propeen? Dan heeft u om die reden al een vergunning nodig. U hoeft dan geen aparte vergunning aan te vragen voor het opslaan in meer dan 2 opslagtanks.</uitv:tekstVoorbehoud>
+        </uitv:vasteWaardeVoorbehoud>
+      </uitv:uitvoeringsregel>
+    </uitv:uitvoeringsregels>
+  </semantic:extensionElements>
+  <semantic:inputData id="_27044_Concept" name="propaan _of propeen opslaan meerdere opslagtanks UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_18279_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_9515435" name="propaan _of propeen opslaan meerdere opslagtanks UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_58490_Concept" name="opslagtank inhoud meer dan 150 liter UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_45916_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_4939627" name="opslagtank inhoud meer dan 150 liter UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_26998_Concept" name="voorbehoud Vergunningplicht - PropaanOpslaan UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_18247_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_9219745" name="voorbehoud Vergunningplicht - PropaanOpslaan UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:decision id="_51003759-4236-4040-8914-6cb5f8177bcb" name="Conclusie - PropaanOpslaan">
+    <semantic:extensionElements>
+      <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/Conclusienl.imow-gm0772.activiteit.PropaanOpslaan" />
+    </semantic:extensionElements>
+    <semantic:variable id="_51003759-4236-4040-8914-6cb5f8177bcb_var" name="Conclusie - PropaanOpslaan" typeRef="feel:string" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_d0b826e9-11cc-4876-9920-f99fd54d4692_e78a22be-b5bb-4deb-852f-9e352527e06d" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_d0b826e9-11cc-4876-9920-f99fd54d4692_0ad89ed1-6d75-45fa-a242-6152304c475a" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_51003759-4236-4040-8914-6cb5f8177bcb_td" hitPolicy="COLLECT" outputLabel="Conclusie - PropaanOpslaan">
+      <semantic:input id="_9880813">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Toepassingsbereik - PropaanOpslaan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_1717578">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Toestemmingen - Vergunningplicht - PropaanOpslaan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5129893" />
+      <semantic:rule id="_7026620">
+        <semantic:inputEntry id="_7257073">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_861917">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5149212">
+          <semantic:text>"NietVanToepassing"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6173363">
+        <semantic:inputEntry id="_8302416">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2705060">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2554488">
+          <semantic:text>"Vergunningplicht"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5687334">
+        <semantic:inputEntry id="_9137938">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3945379">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3780529">
+          <semantic:text>"NietVanToepassing"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_d0b826e9-11cc-4876-9920-f99fd54d4692_e78a22be-b5bb-4deb-852f-9e352527e06d" name="Toepassingsbereik - PropaanOpslaan">
+    <semantic:variable id="_d0b826e9-11cc-4876-9920-f99fd54d4692_e78a22be-b5bb-4deb-852f-9e352527e06d_var" name="Toepassingsbereik - PropaanOpslaan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_8e6d903d-e2fa-475f-ac21-a7d421bf2636" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_09f85322-78ee-43e3-ad9e-49cde9079bea" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_d0b826e9-11cc-4876-9920-f99fd54d4692_e78a22be-b5bb-4deb-852f-9e352527e06d_td" hitPolicy="ANY" outputLabel="Toepassingsbereik - PropaanOpslaan">
+      <semantic:input id="_7093921">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>_in meer dan twee opslagtanks Op 5 Artikel 22.262 Lid 1 Toepassingsbereik</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_4997293">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>propaan _of propeen op te slaan Op 5 Artikel 22.262 Lid 1 Toepassingsbereik</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2724061" />
+      <semantic:rule id="_2451239">
+        <semantic:inputEntry id="_3879949">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3168146">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5843999">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3356635">
+        <semantic:inputEntry id="_8403295">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1515597">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1920444">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1940754">
+        <semantic:inputEntry id="_8434452">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6336874">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4751106">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_8e6d903d-e2fa-475f-ac21-a7d421bf2636" name="_in meer dan twee opslagtanks Op 5 Artikel 22.262 Lid 1 Toepassingsbereik">
+    <semantic:variable id="_8e6d903d-e2fa-475f-ac21-a7d421bf2636_var" name="_in meer dan twee opslagtanks Op 5 Artikel 22.262 Lid 1 Toepassingsbereik" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_27044_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_8e6d903d-e2fa-475f-ac21-a7d421bf2636_td" hitPolicy="UNIQUE" outputLabel="_in meer dan twee opslagtanks Op 5 Artikel 22.262 Lid 1 Toepassingsbereik">
+      <semantic:input id="_5176160">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>propaan _of propeen opslaan meerdere opslagtanks UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5587949" />
+      <semantic:rule id="_6232005">
+        <semantic:inputEntry id="_3506172">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_538669">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_449182">
+        <semantic:inputEntry id="_8357205">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9758677">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_09f85322-78ee-43e3-ad9e-49cde9079bea" name="propaan _of propeen op te slaan Op 5 Artikel 22.262 Lid 1 Toepassingsbereik">
+    <semantic:variable id="_09f85322-78ee-43e3-ad9e-49cde9079bea_var" name="propaan _of propeen op te slaan Op 5 Artikel 22.262 Lid 1 Toepassingsbereik" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_58490_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_09f85322-78ee-43e3-ad9e-49cde9079bea_td" hitPolicy="UNIQUE" outputLabel="propaan _of propeen op te slaan Op 5 Artikel 22.262 Lid 1 Toepassingsbereik">
+      <semantic:input id="_6056834">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>opslagtank inhoud meer dan 150 liter UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8737470" />
+      <semantic:rule id="_1616039">
+        <semantic:inputEntry id="_9449995">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8822126">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4810905">
+        <semantic:inputEntry id="_9848309">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5055354">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_d0b826e9-11cc-4876-9920-f99fd54d4692_0ad89ed1-6d75-45fa-a242-6152304c475a" name="Toestemmingen - Vergunningplicht - PropaanOpslaan">
+    <semantic:variable id="_d0b826e9-11cc-4876-9920-f99fd54d4692_0ad89ed1-6d75-45fa-a242-6152304c475a_var" name="Toestemmingen - Vergunningplicht - PropaanOpslaan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_18281_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_d0b826e9-11cc-4876-9920-f99fd54d4692_0ad89ed1-6d75-45fa-a242-6152304c475a_td" hitPolicy="ANY" outputLabel="Toestemmingen - Vergunningplicht - PropaanOpslaan">
+      <semantic:input id="_1390591">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>voorbehoud Vergunningplicht - PropaanOpslaan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7826504" />
+      <semantic:rule id="_863251">
+        <semantic:inputEntry id="_3939363">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8361612">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1307085">
+        <semantic:inputEntry id="_7364196">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1359677">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_18281_BizRule" name="voorbehoud Vergunningplicht - PropaanOpslaan">
+    <semantic:variable id="_18281_BizRule_var" name="voorbehoud Vergunningplicht - PropaanOpslaan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_26998_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_18281_BizRule_td" hitPolicy="UNIQUE" outputLabel="voorbehoud Vergunningplicht - PropaanOpslaan">
+      <semantic:input id="_6351598">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>voorbehoud Vergunningplicht - PropaanOpslaan UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4336814" />
+      <semantic:rule id="_8360942">
+        <semantic:inputEntry id="_6726598">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5811023">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5636628">
+        <semantic:inputEntry id="_8921163">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6714759">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+</semantic:definitions>

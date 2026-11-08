@@ -1,0 +1,2373 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<semantic:definitions xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000" xmlns:feel="http://www.omg.org/spec/FEEL/20140401" xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel" xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel" xmlns:triso="http://www.rulearts.com/modeling" xmlns:trisofeed="http://rulearts.com/feed" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel" xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content" exporter="RuleArts STTR Export" exporterVersion="0.2.0" id="_1491465" name="Conclusie - Dierlijke meststoffen opslaan" namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000">
+  <semantic:extensionElements xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd">
+    <inter:regelgroepen xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel">
+      <inter:regelgroep id="_4115_RuleGroup">
+        <inter:naam>Soort mest</inter:naam>
+        <inter:prioriteit>10</inter:prioriteit>
+      </inter:regelgroep>
+      <inter:regelgroep id="_4116_RuleGroup">
+        <inter:naam>Vaste mest</inter:naam>
+        <inter:prioriteit>20</inter:prioriteit>
+      </inter:regelgroep>
+      <inter:regelgroep id="_4122_RuleGroup">
+        <inter:naam>Opslaan van mest in een mestbassin</inter:naam>
+        <inter:prioriteit>30</inter:prioriteit>
+      </inter:regelgroep>
+    </inter:regelgroepen>
+    <uitv:uitvoeringsregels>
+      <uitv:uitvoeringsregel id="_20325_BizRule">
+        <uitv:regelgroepRef href="#_4115_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>list</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Kies alle soorten mest die u gaat opslaan.]]></uitv:vraagTekst>
+          <uitv:opties>
+            <uitv:optieType>meerdereAntwoorden</uitv:optieType>
+            <uitv:optie>
+              <uitv:sequenceId>1</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Vaste mest]]></uitv:optieText>
+              <content:uitvoeringsregelToelichting>
+                <content:toelichting><![CDATA[Onder vaste mest valt alle mest van dieren die u kunt stapelen\. U kunt vaste mest niet met een pomp verplaatsen\. Vaste mest heet ook wel steekvaste mest\.]]></content:toelichting>
+              </content:uitvoeringsregelToelichting>
+            </uitv:optie>
+            <uitv:optie>
+              <uitv:sequenceId>2</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Drijfmest, dunne fractie of digestaat]]></uitv:optieText>
+              <content:uitvoeringsregelToelichting>
+                <content:toelichting><![CDATA[##### Wat is drijfmest?
+
+Drijfmest is mest van dieren dat u met een pomp kunt verplaatsen\. Drijfmest heet ook wel dunne mest\. Het bestaat meestal uit uitwerpselen en urine van vee\. Soms zit er ook spoelwater of regenwater bij\.
+
+##### Wat is dunne fractie?
+
+Als u drijfmest scheidt, ontstaat er een vast deel en een vloeibaar deel\. Het vloeibare deel is de dunne fractie\.
+
+##### Wat is digestaat?
+
+Digestaat is een restproduct dat overblijft als u dierlijke mest vergist\.]]></content:toelichting>
+              </content:uitvoeringsregelToelichting>
+            </uitv:optie>
+          </uitv:opties>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_20332_BizRule">
+        <uitv:regelgroepRef href="#_4116_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Kunt u 3 m3 of meer vaste mest opslaan?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Het gaat om de maximale hoeveelheid die op enig moment aanwezig kan zijn\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_20327_BizRule">
+        <uitv:regelgroepRef href="#_4116_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>20</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Kunt u meer dan 600 m3 vaste mest opslaan?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Het gaat om de maximale hoeveelheid die op enig moment aanwezig kan zijn\.]]></content:toelichting>
+          <content:belangrijk>true</content:belangrijk>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_20330_BizRule">
+        <uitv:regelgroepRef href="#_4116_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>40</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat u de vaste mest opslaan bij een bedrijf?]]></uitv:vraagTekst>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_20331_BizRule">
+        <uitv:regelgroepRef href="#_4116_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>50</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>list</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Bij wat voor soort bedrijf gaat u de vaste mest opslaan?]]></uitv:vraagTekst>
+          <uitv:opties>
+            <uitv:optieType>meerdereAntwoorden</uitv:optieType>
+            <uitv:optie>
+              <uitv:sequenceId>1</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Bedrijf voor grootschalig verwerken van mest]]></uitv:optieText>
+              <content:uitvoeringsregelToelichting>
+                <content:toelichting><![CDATA[Het gaat om grootschalige mestverwerking zoals bedoeld in hoofdstuk 3 van het Besluit activiteiten leefomgeving\. Op de website van Informatiepunt Leefomgeving staat [meer informatie over welke bedrijven hieronder vallen](https://iplo.nl/regelgeving/regels-voor-activiteiten/milieubelastende-activiteiten-hoofdstuk-3-bal/complexe-bedrijven/grootschalige-mestverwerking/)\.]]></content:toelichting>
+              </content:uitvoeringsregelToelichting>
+            </uitv:optie>
+            <uitv:optie>
+              <uitv:sequenceId>2</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Veehouderij]]></uitv:optieText>
+              <content:uitvoeringsregelToelichting>
+                <content:toelichting><![CDATA[Het gaat om een veehouderij zoals bedoeld in hoofdstuk 3 van het Besluit activiteiten leefomgeving\. Op de website van Informatiepunt Leefomgeving staat [meer informatie over welke bedrijven hieronder vallen](https://iplo.nl/regelgeving/regels-voor-activiteiten/milieubelastende-activiteiten-hoofdstuk-3-bal/agrarische-sector/veehouderij/)\.]]></content:toelichting>
+              </content:uitvoeringsregelToelichting>
+            </uitv:optie>
+            <uitv:optie>
+              <uitv:sequenceId>3</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Bedrijf voor het telen van gewassen in de openlucht]]></uitv:optieText>
+              <content:uitvoeringsregelToelichting>
+                <content:toelichting><![CDATA[Het gaat om het telen van gewassen in de openlucht zoals bedoeld in hoofdstuk 3 van het Besluit activiteiten leefomgeving\. Op de website van Informatiepunt Leefomgeving staat [meer informatie over welke bedrijven hieronder vallen](https://iplo.nl/regelgeving/regels-voor-activiteiten/milieubelastende-activiteiten-hoofdstuk-3-bal/agrarische-sector/telen-openlucht/)\.]]></content:toelichting>
+              </content:uitvoeringsregelToelichting>
+            </uitv:optie>
+            <uitv:optie>
+              <uitv:sequenceId>4</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Bedrijf voor het telen van gewassen in een gebouw]]></uitv:optieText>
+              <content:uitvoeringsregelToelichting>
+                <content:toelichting><![CDATA[Het gaat om het telen van gewassen in een gebouw zoals bedoeld in hoofdstuk 3 van het Besluit activiteiten leefomgeving\. Op de website van Informatiepunt Leefomgeving staat [meer informatie over welke bedrijven hieronder vallen](https://iplo.nl/regelgeving/regels-voor-activiteiten/milieubelastende-activiteiten-hoofdstuk-3-bal/agrarische-sector/telen-gebouw/)\.]]></content:toelichting>
+              </content:uitvoeringsregelToelichting>
+            </uitv:optie>
+            <uitv:optie>
+              <uitv:sequenceId>5</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Bedrijf dat loonwerk doet voor agrarische bedrijven]]></uitv:optieText>
+              <content:uitvoeringsregelToelichting>
+                <content:toelichting><![CDATA[Het gaat om een agrarisch loonwerkbedrijf zoals bedoeld in hoofdstuk 3 van het Besluit activiteiten leefomgeving\. Op de website van Informatiepunt Leefomgeving staat [meer informatie over welke bedrijven hieronder vallen](https://iplo.nl/regelgeving/regels-voor-activiteiten/milieubelastende-activiteiten-hoofdstuk-3-bal/agrarische-sector/loonwerkbedrijf/)\.]]></content:toelichting>
+              </content:uitvoeringsregelToelichting>
+            </uitv:optie>
+            <uitv:optie>
+              <uitv:sequenceId>6</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Bedrijf voor mestbehandeling]]></uitv:optieText>
+              <content:uitvoeringsregelToelichting>
+                <content:toelichting><![CDATA[Het gaat om een bedrijf voor mestbehandeling zoals bedoeld in hoofdstuk 3 van het Besluit activiteiten leefomgeving\. Op de website van Informatiepunt Leefomgeving staat [meer informatie over welke bedrijven hieronder vallen](https://iplo.nl/regelgeving/regels-voor-activiteiten/milieubelastende-activiteiten-hoofdstuk-3-bal/agrarische-sector/mestbehandeling/)\.]]></content:toelichting>
+              </content:uitvoeringsregelToelichting>
+            </uitv:optie>
+            <uitv:optie>
+              <uitv:sequenceId>7</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Ander bedrijf]]></uitv:optieText>
+            </uitv:optie>
+          </uitv:opties>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_20333_BizRule">
+        <uitv:regelgroepRef href="#_4116_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>30</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat u vaste mest korter dan twee weken op dezelfde plek opslaan?]]></uitv:vraagTekst>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_20385_BizRule">
+        <uitv:regelgroepRef href="#_4122_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat u drijfmest, dunne fractie of digestaat opslaan in 1 of meer mestbassins?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[##### Wat is een mestbassin?
+
+Een mestbassin is een opslagplaats voor drijfmest, digestaat of dunne fractie\. Daaronder vallen ook de volgende opslagplaatsen:
+
+* mestzak of foliebassin
+* mestsilo
+
+
+Het maakt hierbij niet uit of deze opslagplaatsen zijn ingegraven\.
+
+##### Wat valt niet onder mestbassin?
+
+De volgende opslagplaatsen vallen niet onder mestbassin:
+
+* mestkelder
+* giertank]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_4312_BizRule">
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:vasteWaarde>
+          <uitv:waardeVraag>vaste waarde FALSE</uitv:waardeVraag>
+          <uitv:waarde>false</uitv:waarde>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+        </uitv:vasteWaarde>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_20386_BizRule">
+        <uitv:regelgroepRef href="#_4122_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>20</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Is de oppervlakte van de mestbassins groter dan 750 m2?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Heeft u meer dan 1 mestbassin? Neem dan de totale oppervlakte van alle mestbassins\.]]></content:toelichting>
+          <content:belangrijk>true</content:belangrijk>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_20387_BizRule">
+        <uitv:regelgroepRef href="#_4122_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>30</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Is de inhoud van de mestbassins groter dan 2500 m3?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Heeft u meer dan 1 mestbassin? Neem dan de totale inhoud van alle mestbassins\.]]></content:toelichting>
+          <content:belangrijk>true</content:belangrijk>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+    </uitv:uitvoeringsregels>
+  </semantic:extensionElements>
+  <semantic:inputData id="_30010_Concept" name="Soort mest DierlijkeMestOpslaan UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_20325_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_1245204" name="Soort mest DierlijkeMestOpslaan UR" typeRef="feel:string" />
+  </semantic:inputData>
+  <semantic:inputData id="_30019_Concept" name="minimale hoeveelheid vaste mest opslaan UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_20332_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_6180006" name="minimale hoeveelheid vaste mest opslaan UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_30014_Concept" name="hoeveelheid m3 vaste mest UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_20327_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_6525079" name="hoeveelheid m3 vaste mest UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_30017_Concept" name="vaste mest opslaan bij een bedrijf UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_20330_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_2177667" name="vaste mest opslaan bij een bedrijf UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_30018_Concept" name="soort bedrijf DierlijkeMestOpslaan UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_20331_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_8296728" name="soort bedrijf DierlijkeMestOpslaan UR" typeRef="feel:string" />
+  </semantic:inputData>
+  <semantic:inputData id="_30021_Concept" name="vaste mest korter dan twee weken op dezelfde plek opslaan UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_20333_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_6248453" name="vaste mest korter dan twee weken op dezelfde plek opslaan UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_30117_Concept" name="dunne mest _of digestaat opslaan _in mestbassin UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_20385_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_2172097" name="dunne mest _of digestaat opslaan _in mestbassin UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_5492_Concept" name="vaste waarde FALSE">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_4312_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_8590751" name="vaste waarde FALSE" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_30118_Concept" name="oppervlakte van de mestbassins meer dan 750m2 UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_20386_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_5280012" name="oppervlakte van de mestbassins meer dan 750m2 UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_30119_Concept" name="inhoud van de mestbassins meer dan 2500 m3 UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_20387_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_9533808" name="inhoud van de mestbassins meer dan 2500 m3 UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:decision id="_6c5f0427-3947-4509-b304-0185211ed1ec" name="Conclusie - DierlijkeMestOpslaan">
+    <semantic:extensionElements>
+      <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/Conclusienl.imow-gm0772.activiteit.DierlijkeMestOpslaan" />
+    </semantic:extensionElements>
+    <semantic:variable id="_6c5f0427-3947-4509-b304-0185211ed1ec_var" name="Conclusie - DierlijkeMestOpslaan" typeRef="feel:string" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_379818b4-f334-4879-b22a-67c0656902e7_e78a22be-b5bb-4deb-852f-9e352527e06d" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_379818b4-f334-4879-b22a-67c0656902e7_0ad89ed1-6d75-45fa-a242-6152304c475a" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_379818b4-f334-4879-b22a-67c0656902e7_6b4ffe66-9805-4566-9560-cee46d06b28e" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_6c5f0427-3947-4509-b304-0185211ed1ec_td" hitPolicy="COLLECT" outputLabel="Conclusie - DierlijkeMestOpslaan">
+      <semantic:input id="_3080799">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Toepassingsbereik - DierlijkeMestOpslaan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_5114110">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Toestemmingen - Vergunningplicht - DierlijkeMestOpslaan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_5238202">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Verplichtingen - Informatieplicht - DierlijkeMestOpslaan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8128720" />
+      <semantic:rule id="_2422122">
+        <semantic:inputEntry id="_7048186">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5503922">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6688326">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8878150">
+          <semantic:text>"NietVanToepassing"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5138482">
+        <semantic:inputEntry id="_5080465">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3712009">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6289608">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7599566">
+          <semantic:extensionElements>
+            <content:conclusieToelichting>
+              <content:toelichting><![CDATA[Als u drijfmest, dunne fractie of digestaat gaan opslaan moet u zich naast de regels uit de vergunning ook houden aan de algemene regels voor deze activiteit\. In [Maatregelen op Maat](/maatregelen) vindt u de maatregelen waarmee u aan deze regels kunt voldoen\.]]></content:toelichting>
+            </content:conclusieToelichting>
+          </semantic:extensionElements>
+          <semantic:text>"Vergunningplicht"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8444604">
+        <semantic:inputEntry id="_9021520">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1086234">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7748295">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5737454">
+          <semantic:extensionElements>
+            <content:conclusieToelichting>
+              <content:toelichting><![CDATA[U moet de overheid minimaal 4 weken voordat u begint informatie geven over de activiteit\.   
+U moet zich ook houden aan de algemene regels voor deze activiteit\. In [Maatregelen op Maat](/maatregelen) vindt u de maatregelen waarmee u aan deze regels kunt voldoen\.]]></content:toelichting>
+            </content:conclusieToelichting>
+          </semantic:extensionElements>
+          <semantic:text>"Informatieplicht"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2145885">
+        <semantic:inputEntry id="_1095967">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6490524">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6654689">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3977644">
+          <semantic:extensionElements>
+            <content:conclusieToelichting>
+              <content:toelichting><![CDATA[U moet zich wel houden aan de algemene regels voor deze activiteit\. In [Maatregelen op Maat](/maatregelen) vindt u de maatregelen waarmee u aan deze regels kunt voldoen\.]]></content:toelichting>
+            </content:conclusieToelichting>
+          </semantic:extensionElements>
+          <semantic:text>"Toestemmingsvrij"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_379818b4-f334-4879-b22a-67c0656902e7_e78a22be-b5bb-4deb-852f-9e352527e06d" name="Toepassingsbereik - DierlijkeMestOpslaan">
+    <semantic:variable id="_379818b4-f334-4879-b22a-67c0656902e7_e78a22be-b5bb-4deb-852f-9e352527e06d_var" name="Toepassingsbereik - DierlijkeMestOpslaan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20308_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_0c746180-cffe-4d2b-aea4-d72c41cf09c3" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_6304771a-d5bf-4968-bb2a-79f55a6c2379" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_7f62948b-4a6d-47e8-bc0d-b35a5b14ccc6" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_512213ec-b638-48db-aefe-7bdc0c7adb71" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_3c712662-15a5-433a-b74c-c4b2be92c8f7" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_259a12c8-4ac1-48ce-9c9b-bdca0999f3fd" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_379818b4-f334-4879-b22a-67c0656902e7_e78a22be-b5bb-4deb-852f-9e352527e06d_td" hitPolicy="ANY" outputLabel="Toepassingsbereik - DierlijkeMestOpslaan">
+      <semantic:input id="_7966711">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>variant DierlijkeMestOpslaan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_2165092">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>een milieubelastende activiteit die is aangewezen _in artikel _ 3.208 Op Artikel 22.240 Lid 2 b</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_2088452">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>een milieubelastende activiteit die is aangewezen _in artikel _ 3.215 Op Artikel 22.240 Lid 2 b</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_4970794">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>een milieubelastende activiteit die is aangewezen _in artikel _ 3.211 Op Artikel 22.240 Lid 2 b</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_5114425">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>een milieubelastende activiteit die is aangewezen _in _ 3.200 Op Artikel 22.240 Lid 2 b</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_7344026">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>een milieubelastende activiteit die is aangewezen _in artikel 3.90 Op Artikel 22.240 Lid 2 b</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_4658389">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>een milieubelastende activiteit die is aangewezen _in artikel _ 3.225 Op Artikel 22.240 Lid 2 b</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5491682" />
+      <semantic:rule id="_2327105">
+        <semantic:inputEntry id="_5891838">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1338989">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1809309">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4022424">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7489906">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5804944">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8297176">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5663988">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2636815">
+        <semantic:inputEntry id="_1734649">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8122708">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6410999">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7533194">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9890397">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8925512">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3733063">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9275207">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5462219">
+        <semantic:inputEntry id="_4423802">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3153297">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3434126">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8737841">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6590274">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8459421">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1560558">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_462008">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_557030">
+        <semantic:inputEntry id="_5259733">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_833128">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1873901">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1834124">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_780092">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9588782">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1684904">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_697770">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6560577">
+        <semantic:inputEntry id="_6935294">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5299095">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3596328">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2243350">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7440277">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6481897">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8459151">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5055875">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8531980">
+        <semantic:inputEntry id="_7566644">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_733517">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2274694">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3162939">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1537731">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5839217">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2181807">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_534587">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2638384">
+        <semantic:inputEntry id="_8892978">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7153996">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4748714">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3349887">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2761866">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7327897">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5547913">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3337442">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5130859">
+        <semantic:inputEntry id="_1062914">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9900525">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7642615">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6822216">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6148289">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9492627">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2664935">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6797768">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20308_BizRule" name="variant DierlijkeMestOpslaan">
+    <semantic:variable id="_20308_BizRule_var" name="variant DierlijkeMestOpslaan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20302_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20303_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20308_BizRule_td" hitPolicy="ANY" outputLabel="variant DierlijkeMestOpslaan">
+      <semantic:input id="_4276111">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vaste mest DierlijkeMestOpslaan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_2165890">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>andere dierlijke mest dan vast DierlijkeMestOpslaan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2480451" />
+      <semantic:rule id="_5713019">
+        <semantic:inputEntry id="_6952229">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_578690">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1834399">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9927441">
+        <semantic:inputEntry id="_3993913">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9728491">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8282336">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2396794">
+        <semantic:inputEntry id="_9295397">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6034683">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9652316">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20302_BizRule" name="vaste mest DierlijkeMestOpslaan">
+    <semantic:variable id="_20302_BizRule_var" name="vaste mest DierlijkeMestOpslaan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_93f169ca-6e5d-4a5f-bc50-c159ece4ff93" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_5224b86b-0e42-440f-b34c-781edfef65eb" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20380_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20302_BizRule_td" hitPolicy="ANY" outputLabel="vaste mest DierlijkeMestOpslaan">
+      <semantic:input id="_545505">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vaste mest Op Artikel 22.240 Lid 1</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_7250398">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>met _ totaal volume van ten minste 3 m 3 Op Artikel 22.240 Lid 1</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_2791926">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vaste mest varianten DierlijkeMestOpslaan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3543773" />
+      <semantic:rule id="_2111862">
+        <semantic:inputEntry id="_3885406">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2837228">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6268430">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6695436">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4402835">
+        <semantic:inputEntry id="_1651037">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7696236">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5155350">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1189364">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1044427">
+        <semantic:inputEntry id="_4585227">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2782067">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_798004">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4739962">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1863106">
+        <semantic:inputEntry id="_315916">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8054136">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6925365">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2240748">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_93f169ca-6e5d-4a5f-bc50-c159ece4ff93" name="vaste mest Op Artikel 22.240 Lid 1">
+    <semantic:variable id="_93f169ca-6e5d-4a5f-bc50-c159ece4ff93_var" name="vaste mest Op Artikel 22.240 Lid 1" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20324_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_93f169ca-6e5d-4a5f-bc50-c159ece4ff93_td" hitPolicy="UNIQUE" outputLabel="vaste mest Op Artikel 22.240 Lid 1">
+      <semantic:input id="_6875306">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>keuze vaste mest DierlijkeMestOpslaan CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3214315" />
+      <semantic:rule id="_3422446">
+        <semantic:inputEntry id="_8767953">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7599406">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7265577">
+        <semantic:inputEntry id="_1240648">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5835462">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20324_BizRule" name="keuze vaste mest DierlijkeMestOpslaan CR">
+    <semantic:variable id="_20324_BizRule_var" name="keuze vaste mest DierlijkeMestOpslaan CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30010_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20324_BizRule_td" hitPolicy="FIRST" outputLabel="keuze vaste mest DierlijkeMestOpslaan CR">
+      <semantic:input id="_5028231">
+        <semantic:inputExpression typeRef="feel:string">
+          <semantic:text>Soort mest DierlijkeMestOpslaan UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_548208" />
+      <semantic:rule id="_7397110">
+        <semantic:inputEntry id="_9571818">
+          <semantic:text>if ?=null then false else contains(?,"Vaste mest")</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3656363">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6248853">
+        <semantic:inputEntry id="_853072">
+          <semantic:text>if ?=null then false else not(contains(?,"Vaste mest"))</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3212361">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_5224b86b-0e42-440f-b34c-781edfef65eb" name="met _ totaal volume van ten minste 3 m 3 Op Artikel 22.240 Lid 1">
+    <semantic:variable id="_5224b86b-0e42-440f-b34c-781edfef65eb_var" name="met _ totaal volume van ten minste 3 m 3 Op Artikel 22.240 Lid 1" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30019_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_5224b86b-0e42-440f-b34c-781edfef65eb_td" hitPolicy="UNIQUE" outputLabel="met _ totaal volume van ten minste 3 m 3 Op Artikel 22.240 Lid 1">
+      <semantic:input id="_1738882">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>minimale hoeveelheid vaste mest opslaan UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5897459" />
+      <semantic:rule id="_5785015">
+        <semantic:inputEntry id="_1610184">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5601192">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2882453">
+        <semantic:inputEntry id="_6679048">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9038076">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20380_BizRule" name="vaste mest varianten DierlijkeMestOpslaan">
+    <semantic:variable id="_20380_BizRule_var" name="vaste mest varianten DierlijkeMestOpslaan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20384_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20381_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20380_BizRule_td" hitPolicy="ANY" outputLabel="vaste mest varianten DierlijkeMestOpslaan">
+      <semantic:input id="_3249485">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>meer den 600 m3 vaste mest DierlijkeMestOpslaan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_5443263">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>voorwaarden 600 _of minder m3 vaste mest DierlijkeMestOpslaan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5800269" />
+      <semantic:rule id="_1898789">
+        <semantic:inputEntry id="_4855434">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4471576">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9636399">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2491369">
+        <semantic:inputEntry id="_625032">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_851177">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6668467">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8897547">
+        <semantic:inputEntry id="_762960">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4069275">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8669024">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20384_BizRule" name="meer den 600 m3 vaste mest DierlijkeMestOpslaan">
+    <semantic:variable id="_20384_BizRule_var" name="meer den 600 m3 vaste mest DierlijkeMestOpslaan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30014_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20384_BizRule_td" hitPolicy="UNIQUE" outputLabel="meer den 600 m3 vaste mest DierlijkeMestOpslaan">
+      <semantic:input id="_9429859">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>hoeveelheid m3 vaste mest UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3462186" />
+      <semantic:rule id="_5815574">
+        <semantic:inputEntry id="_2968004">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4907142">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3792254">
+        <semantic:inputEntry id="_1472608">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1228864">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20381_BizRule" name="voorwaarden 600 _of minder m3 vaste mest DierlijkeMestOpslaan">
+    <semantic:variable id="_20381_BizRule_var" name="voorwaarden 600 _of minder m3 vaste mest DierlijkeMestOpslaan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20304_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_7a2f626d-a125-4fde-8542-889cb1df19b3" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_5d46b6f2-c00d-4cd3-957f-895b88b1493b" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20381_BizRule_td" hitPolicy="ANY" outputLabel="voorwaarden 600 _of minder m3 vaste mest DierlijkeMestOpslaan">
+      <semantic:input id="_6533214">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>voorwaarden vaste mest DierlijkeMestOpslaan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_9944931">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>opslaan van vaste mest _ korter dan twee weken op één plek Op Artikel 22.240 Lid 2 a</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_1827601">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>met _ totaal volume _ ten hoogste 600 m 3 Op Artikel 22.240 Lid 1</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_424223" />
+      <semantic:rule id="_4418456">
+        <semantic:inputEntry id="_2569120">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5615180">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6639556">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4292852">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6535266">
+        <semantic:inputEntry id="_4384370">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5818467">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2456142">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1765308">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9341859">
+        <semantic:inputEntry id="_1280028">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_856654">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_911808">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5205741">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9246786">
+        <semantic:inputEntry id="_3105185">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9580385">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1955525">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2749401">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20304_BizRule" name="voorwaarden vaste mest DierlijkeMestOpslaan">
+    <semantic:variable id="_20304_BizRule_var" name="voorwaarden vaste mest DierlijkeMestOpslaan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_7c7cf352-24fe-4cf4-a87b-957d374d3bf9" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20306_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20304_BizRule_td" hitPolicy="ANY" outputLabel="voorwaarden vaste mest DierlijkeMestOpslaan">
+      <semantic:input id="_7669606">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>opslaan van _ mest Op Artikel 22.240 Lid 1</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_7228435">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>keuze ander bedrijf bij soort bedrijf DierlijkeMestOpslaan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_6355155" />
+      <semantic:rule id="_8147997">
+        <semantic:inputEntry id="_9785617">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9914449">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2071906">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5545822">
+        <semantic:inputEntry id="_2076876">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4514398">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9267055">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1953857">
+        <semantic:inputEntry id="_3327833">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4347353">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5517942">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_7c7cf352-24fe-4cf4-a87b-957d374d3bf9" name="opslaan van _ mest Op Artikel 22.240 Lid 1">
+    <semantic:variable id="_7c7cf352-24fe-4cf4-a87b-957d374d3bf9_var" name="opslaan van _ mest Op Artikel 22.240 Lid 1" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30017_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_7c7cf352-24fe-4cf4-a87b-957d374d3bf9_td" hitPolicy="UNIQUE" outputLabel="opslaan van _ mest Op Artikel 22.240 Lid 1">
+      <semantic:input id="_9922248">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vaste mest opslaan bij een bedrijf UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5009851" />
+      <semantic:rule id="_4211621">
+        <semantic:inputEntry id="_2675615">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2662280">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6378590">
+        <semantic:inputEntry id="_8250807">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6512882">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20306_BizRule" name="keuze ander bedrijf bij soort bedrijf DierlijkeMestOpslaan">
+    <semantic:variable id="_20306_BizRule_var" name="keuze ander bedrijf bij soort bedrijf DierlijkeMestOpslaan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20307_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20306_BizRule_td" hitPolicy="UNIQUE" outputLabel="keuze ander bedrijf bij soort bedrijf DierlijkeMestOpslaan">
+      <semantic:input id="_7964551">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>keuze ander bedrijf bij soort bedrijf DierlijkeMestOpslaan CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4120327" />
+      <semantic:rule id="_4835546">
+        <semantic:inputEntry id="_2411349">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4295333">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8586512">
+        <semantic:inputEntry id="_2225822">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8123678">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20307_BizRule" name="keuze ander bedrijf bij soort bedrijf DierlijkeMestOpslaan CR">
+    <semantic:variable id="_20307_BizRule_var" name="keuze ander bedrijf bij soort bedrijf DierlijkeMestOpslaan CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30018_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20307_BizRule_td" hitPolicy="FIRST" outputLabel="keuze ander bedrijf bij soort bedrijf DierlijkeMestOpslaan CR">
+      <semantic:input id="_6952828">
+        <semantic:inputExpression typeRef="feel:string">
+          <semantic:text>soort bedrijf DierlijkeMestOpslaan UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8289406" />
+      <semantic:rule id="_9078199">
+        <semantic:inputEntry id="_2754616">
+          <semantic:text>if ?=null then false else contains(?,"Ander bedrijf")</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7190021">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6213965">
+        <semantic:inputEntry id="_7467182">
+          <semantic:text>if ?=null then false else not(contains(?,"Ander bedrijf"))</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6853938">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_7a2f626d-a125-4fde-8542-889cb1df19b3" name="opslaan van vaste mest _ korter dan twee weken op één plek Op Artikel 22.240 Lid 2 a">
+    <semantic:variable id="_7a2f626d-a125-4fde-8542-889cb1df19b3_var" name="opslaan van vaste mest _ korter dan twee weken op één plek Op Artikel 22.240 Lid 2 a" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30021_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_7a2f626d-a125-4fde-8542-889cb1df19b3_td" hitPolicy="UNIQUE" outputLabel="opslaan van vaste mest _ korter dan twee weken op één plek Op Artikel 22.240 Lid 2 a">
+      <semantic:input id="_4378403">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vaste mest korter dan twee weken op dezelfde plek opslaan UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4763359" />
+      <semantic:rule id="_8838548">
+        <semantic:inputEntry id="_4041591">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7941743">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2498252">
+        <semantic:inputEntry id="_7688001">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7952194">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_5d46b6f2-c00d-4cd3-957f-895b88b1493b" name="met _ totaal volume _ ten hoogste 600 m 3 Op Artikel 22.240 Lid 1">
+    <semantic:variable id="_5d46b6f2-c00d-4cd3-957f-895b88b1493b_var" name="met _ totaal volume _ ten hoogste 600 m 3 Op Artikel 22.240 Lid 1" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30014_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_5d46b6f2-c00d-4cd3-957f-895b88b1493b_td" hitPolicy="UNIQUE" outputLabel="met _ totaal volume _ ten hoogste 600 m 3 Op Artikel 22.240 Lid 1">
+      <semantic:input id="_6509301">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>hoeveelheid m3 vaste mest UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5393865" />
+      <semantic:rule id="_5283493">
+        <semantic:inputEntry id="_4536934">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8893564">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7204770">
+        <semantic:inputEntry id="_9293244">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6370811">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20303_BizRule" name="andere dierlijke mest dan vast DierlijkeMestOpslaan">
+    <semantic:variable id="_20303_BizRule_var" name="andere dierlijke mest dan vast DierlijkeMestOpslaan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_bc95e4aa-19cb-4856-8199-642b2a509850" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_62a4adf3-14c5-4299-b8e1-7ebd7918ae8a" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20303_BizRule_td" hitPolicy="ANY" outputLabel="andere dierlijke mest dan vast DierlijkeMestOpslaan">
+      <semantic:input id="_9418799">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>drijfmest _ digestaat _of dunne fractie op te slaan Op Artikel 22.262 Lid 1 a</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_1015553">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>_in een _of meer mestbassins Op Artikel 22.267 Lid 1 a</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8390604" />
+      <semantic:rule id="_4327670">
+        <semantic:inputEntry id="_5250071">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7803099">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7776573">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6959309">
+        <semantic:inputEntry id="_9851053">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6390720">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2614226">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3664450">
+        <semantic:inputEntry id="_4249633">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1892736">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8327921">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_bc95e4aa-19cb-4856-8199-642b2a509850" name="drijfmest _ digestaat _of dunne fractie op te slaan Op Artikel 22.262 Lid 1 a">
+    <semantic:variable id="_bc95e4aa-19cb-4856-8199-642b2a509850_var" name="drijfmest _ digestaat _of dunne fractie op te slaan Op Artikel 22.262 Lid 1 a" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20328_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_bc95e4aa-19cb-4856-8199-642b2a509850_td" hitPolicy="UNIQUE" outputLabel="drijfmest _ digestaat _of dunne fractie op te slaan Op Artikel 22.262 Lid 1 a">
+      <semantic:input id="_4008283">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>keuze drijfmest digestaat _of dunne fractie DierlijkeMestOpslaan CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7542668" />
+      <semantic:rule id="_7357682">
+        <semantic:inputEntry id="_8297212">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7898920">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7540042">
+        <semantic:inputEntry id="_4509216">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8571138">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20328_BizRule" name="keuze drijfmest digestaat _of dunne fractie DierlijkeMestOpslaan CR">
+    <semantic:variable id="_20328_BizRule_var" name="keuze drijfmest digestaat _of dunne fractie DierlijkeMestOpslaan CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30010_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20328_BizRule_td" hitPolicy="FIRST" outputLabel="keuze drijfmest digestaat _of dunne fractie DierlijkeMestOpslaan CR">
+      <semantic:input id="_5766298">
+        <semantic:inputExpression typeRef="feel:string">
+          <semantic:text>Soort mest DierlijkeMestOpslaan UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_6432325" />
+      <semantic:rule id="_6883351">
+        <semantic:inputEntry id="_5902048">
+          <semantic:text>if ?=null then false else contains(?,"Drijfmest, dunne fractie of digestaat")</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8901467">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3603019">
+        <semantic:inputEntry id="_7688888">
+          <semantic:text>if ?=null then false else not(contains(?,"Drijfmest, dunne fractie of digestaat"))</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9230114">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_62a4adf3-14c5-4299-b8e1-7ebd7918ae8a" name="_in een _of meer mestbassins Op Artikel 22.267 Lid 1 a">
+    <semantic:variable id="_62a4adf3-14c5-4299-b8e1-7ebd7918ae8a_var" name="_in een _of meer mestbassins Op Artikel 22.267 Lid 1 a" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30117_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_62a4adf3-14c5-4299-b8e1-7ebd7918ae8a_td" hitPolicy="UNIQUE" outputLabel="_in een _of meer mestbassins Op Artikel 22.267 Lid 1 a">
+      <semantic:input id="_9748058">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>dunne mest _of digestaat opslaan _in mestbassin UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8996162" />
+      <semantic:rule id="_3007388">
+        <semantic:inputEntry id="_3335817">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6474468">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7823360">
+        <semantic:inputEntry id="_3439512">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1903866">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_0c746180-cffe-4d2b-aea4-d72c41cf09c3" name="een milieubelastende activiteit die is aangewezen _in artikel _ 3.208 Op Artikel 22.240 Lid 2 b">
+    <semantic:variable id="_0c746180-cffe-4d2b-aea4-d72c41cf09c3_var" name="een milieubelastende activiteit die is aangewezen _in artikel _ 3.208 Op Artikel 22.240 Lid 2 b" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_5492_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_0c746180-cffe-4d2b-aea4-d72c41cf09c3_td" hitPolicy="UNIQUE" outputLabel="een milieubelastende activiteit die is aangewezen _in artikel _ 3.208 Op Artikel 22.240 Lid 2 b">
+      <semantic:input id="_6575303">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vaste waarde FALSE</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_6986786" />
+      <semantic:rule id="_2179238">
+        <semantic:inputEntry id="_4190537">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1851023">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9884025">
+        <semantic:inputEntry id="_4323550">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4002560">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_6304771a-d5bf-4968-bb2a-79f55a6c2379" name="een milieubelastende activiteit die is aangewezen _in artikel _ 3.215 Op Artikel 22.240 Lid 2 b">
+    <semantic:variable id="_6304771a-d5bf-4968-bb2a-79f55a6c2379_var" name="een milieubelastende activiteit die is aangewezen _in artikel _ 3.215 Op Artikel 22.240 Lid 2 b" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_5492_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_6304771a-d5bf-4968-bb2a-79f55a6c2379_td" hitPolicy="UNIQUE" outputLabel="een milieubelastende activiteit die is aangewezen _in artikel _ 3.215 Op Artikel 22.240 Lid 2 b">
+      <semantic:input id="_4916565">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vaste waarde FALSE</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7065944" />
+      <semantic:rule id="_1575210">
+        <semantic:inputEntry id="_6994265">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1835881">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8907558">
+        <semantic:inputEntry id="_1694323">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8830768">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_7f62948b-4a6d-47e8-bc0d-b35a5b14ccc6" name="een milieubelastende activiteit die is aangewezen _in artikel _ 3.211 Op Artikel 22.240 Lid 2 b">
+    <semantic:variable id="_7f62948b-4a6d-47e8-bc0d-b35a5b14ccc6_var" name="een milieubelastende activiteit die is aangewezen _in artikel _ 3.211 Op Artikel 22.240 Lid 2 b" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_5492_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_7f62948b-4a6d-47e8-bc0d-b35a5b14ccc6_td" hitPolicy="UNIQUE" outputLabel="een milieubelastende activiteit die is aangewezen _in artikel _ 3.211 Op Artikel 22.240 Lid 2 b">
+      <semantic:input id="_5209582">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vaste waarde FALSE</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2444414" />
+      <semantic:rule id="_2924306">
+        <semantic:inputEntry id="_7895345">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8366720">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2201051">
+        <semantic:inputEntry id="_8875105">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3656289">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_512213ec-b638-48db-aefe-7bdc0c7adb71" name="een milieubelastende activiteit die is aangewezen _in _ 3.200 Op Artikel 22.240 Lid 2 b">
+    <semantic:variable id="_512213ec-b638-48db-aefe-7bdc0c7adb71_var" name="een milieubelastende activiteit die is aangewezen _in _ 3.200 Op Artikel 22.240 Lid 2 b" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_5492_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_512213ec-b638-48db-aefe-7bdc0c7adb71_td" hitPolicy="UNIQUE" outputLabel="een milieubelastende activiteit die is aangewezen _in _ 3.200 Op Artikel 22.240 Lid 2 b">
+      <semantic:input id="_2462165">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vaste waarde FALSE</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7160605" />
+      <semantic:rule id="_2866168">
+        <semantic:inputEntry id="_4668288">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1542244">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8556918">
+        <semantic:inputEntry id="_2153452">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6184922">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_3c712662-15a5-433a-b74c-c4b2be92c8f7" name="een milieubelastende activiteit die is aangewezen _in artikel 3.90 Op Artikel 22.240 Lid 2 b">
+    <semantic:variable id="_3c712662-15a5-433a-b74c-c4b2be92c8f7_var" name="een milieubelastende activiteit die is aangewezen _in artikel 3.90 Op Artikel 22.240 Lid 2 b" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_5492_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_3c712662-15a5-433a-b74c-c4b2be92c8f7_td" hitPolicy="UNIQUE" outputLabel="een milieubelastende activiteit die is aangewezen _in artikel 3.90 Op Artikel 22.240 Lid 2 b">
+      <semantic:input id="_4403156">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vaste waarde FALSE</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5753816" />
+      <semantic:rule id="_2021908">
+        <semantic:inputEntry id="_1212134">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5660803">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_618678">
+        <semantic:inputEntry id="_7020114">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5882272">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_259a12c8-4ac1-48ce-9c9b-bdca0999f3fd" name="een milieubelastende activiteit die is aangewezen _in artikel _ 3.225 Op Artikel 22.240 Lid 2 b">
+    <semantic:variable id="_259a12c8-4ac1-48ce-9c9b-bdca0999f3fd_var" name="een milieubelastende activiteit die is aangewezen _in artikel _ 3.225 Op Artikel 22.240 Lid 2 b" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_5492_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_259a12c8-4ac1-48ce-9c9b-bdca0999f3fd_td" hitPolicy="UNIQUE" outputLabel="een milieubelastende activiteit die is aangewezen _in artikel _ 3.225 Op Artikel 22.240 Lid 2 b">
+      <semantic:input id="_2408774">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vaste waarde FALSE</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3180790" />
+      <semantic:rule id="_1285483">
+        <semantic:inputEntry id="_2135523">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2327809">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_994622">
+        <semantic:inputEntry id="_7694233">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1140500">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_379818b4-f334-4879-b22a-67c0656902e7_0ad89ed1-6d75-45fa-a242-6152304c475a" name="Toestemmingen - Vergunningplicht - DierlijkeMestOpslaan">
+    <semantic:variable id="_379818b4-f334-4879-b22a-67c0656902e7_0ad89ed1-6d75-45fa-a242-6152304c475a_var" name="Toestemmingen - Vergunningplicht - DierlijkeMestOpslaan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20412_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20388_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_379818b4-f334-4879-b22a-67c0656902e7_0ad89ed1-6d75-45fa-a242-6152304c475a_td" hitPolicy="ANY" outputLabel="Toestemmingen - Vergunningplicht - DierlijkeMestOpslaan">
+      <semantic:input id="_7601838">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vergunningplicht vaste mest opslaan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_4176619">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vergunningplicht andere mest dan vaste mest opslaan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8126234" />
+      <semantic:rule id="_4330053">
+        <semantic:inputEntry id="_5199053">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5544167">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3537146">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4674252">
+        <semantic:inputEntry id="_8111681">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8522948">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2028372">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4690418">
+        <semantic:inputEntry id="_7317857">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9655262">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2760316">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20412_BizRule" name="vergunningplicht vaste mest opslaan">
+    <semantic:variable id="_20412_BizRule_var" name="vergunningplicht vaste mest opslaan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_73f9b883-e8cb-4c4b-81e1-b18901034d02" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_59e92133-b932-4207-af62-23bea1c7f7ab" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20412_BizRule_td" hitPolicy="ANY" outputLabel="vergunningplicht vaste mest opslaan">
+      <semantic:input id="_6359646">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>meer dan 600 Op 5 Artikel 22.267 Lid 1 b Relevant voor voorschriften en maatregelen</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_5212492">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vaste mest op te slaan Op 5 Artikel 22.267 Lid 1 b Relevant voor voorschriften en maatregelen</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5390287" />
+      <semantic:rule id="_2891109">
+        <semantic:inputEntry id="_6082065">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7185649">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_782189">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3469965">
+        <semantic:inputEntry id="_4890904">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5424300">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7042033">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5786570">
+        <semantic:inputEntry id="_5485929">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1215568">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7039581">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_73f9b883-e8cb-4c4b-81e1-b18901034d02" name="meer dan 600 Op 5 Artikel 22.267 Lid 1 b Relevant voor voorschriften en maatregelen">
+    <semantic:variable id="_73f9b883-e8cb-4c4b-81e1-b18901034d02_var" name="meer dan 600 Op 5 Artikel 22.267 Lid 1 b Relevant voor voorschriften en maatregelen" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30014_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_73f9b883-e8cb-4c4b-81e1-b18901034d02_td" hitPolicy="UNIQUE" outputLabel="meer dan 600 Op 5 Artikel 22.267 Lid 1 b Relevant voor voorschriften en maatregelen">
+      <semantic:input id="_1628480">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>hoeveelheid m3 vaste mest UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_1767542" />
+      <semantic:rule id="_9466371">
+        <semantic:inputEntry id="_2025668">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7066449">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7365625">
+        <semantic:inputEntry id="_730684">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7823398">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_59e92133-b932-4207-af62-23bea1c7f7ab" name="vaste mest op te slaan Op 5 Artikel 22.267 Lid 1 b Relevant voor voorschriften en maatregelen">
+    <semantic:variable id="_59e92133-b932-4207-af62-23bea1c7f7ab_var" name="vaste mest op te slaan Op 5 Artikel 22.267 Lid 1 b Relevant voor voorschriften en maatregelen" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20324_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_59e92133-b932-4207-af62-23bea1c7f7ab_td" hitPolicy="UNIQUE" outputLabel="vaste mest op te slaan Op 5 Artikel 22.267 Lid 1 b Relevant voor voorschriften en maatregelen">
+      <semantic:input id="_1285869">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>keuze vaste mest DierlijkeMestOpslaan CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8858989" />
+      <semantic:rule id="_2516669">
+        <semantic:inputEntry id="_7347655">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3100452">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7137854">
+        <semantic:inputEntry id="_8590306">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2629696">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20388_BizRule" name="vergunningplicht andere mest dan vaste mest opslaan">
+    <semantic:variable id="_20388_BizRule_var" name="vergunningplicht andere mest dan vaste mest opslaan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20389_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20411_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20413_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20388_BizRule_td" hitPolicy="ANY" outputLabel="vergunningplicht andere mest dan vaste mest opslaan">
+      <semantic:input id="_8564414">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>voorwaarden vergunningplicht andere mest dan vaste mest opslaan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_2753512">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>andere mest dan vaste mest Dierlijkemestopslaan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_720474">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>_in een _of meer mestbassins andere mest dan vaste mest Dierlijkemestopslaan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4925836" />
+      <semantic:rule id="_6923030">
+        <semantic:inputEntry id="_6937522">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8103513">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1912168">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3954850">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7119649">
+        <semantic:inputEntry id="_1006654">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3535330">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8905753">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8157020">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9757596">
+        <semantic:inputEntry id="_8051217">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3758684">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1372099">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7194468">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_560829">
+        <semantic:inputEntry id="_5224046">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5592189">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2888812">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5394690">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20389_BizRule" name="voorwaarden vergunningplicht andere mest dan vaste mest opslaan">
+    <semantic:variable id="_20389_BizRule_var" name="voorwaarden vergunningplicht andere mest dan vaste mest opslaan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_78e94ee3-a4f0-46a6-8a09-5d4183dc0fbe" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_8ccc4761-059c-4611-b2d0-6a85c332a3da" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20389_BizRule_td" hitPolicy="ANY" outputLabel="voorwaarden vergunningplicht andere mest dan vaste mest opslaan">
+      <semantic:input id="_5928961">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>met _ gezamenlijke oppervlakte groter dan 750 Op 5 Artikel 22.267 Lid 1 a Relevant voor voorschriften en maatregelen</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_7389093">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>met _ gezamenlijke inhoud groter dan 2.500 Op 5 Artikel 22.267 Lid 1 a Relevant voor voorschriften en maatregelen</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4404418" />
+      <semantic:rule id="_4032119">
+        <semantic:inputEntry id="_3865395">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9837994">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7681736">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6332110">
+        <semantic:inputEntry id="_6300597">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3094603">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8477618">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3333058">
+        <semantic:inputEntry id="_5065454">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6289731">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_416550">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_78e94ee3-a4f0-46a6-8a09-5d4183dc0fbe" name="met _ gezamenlijke oppervlakte groter dan 750 Op 5 Artikel 22.267 Lid 1 a Relevant voor voorschriften en maatregelen">
+    <semantic:variable id="_78e94ee3-a4f0-46a6-8a09-5d4183dc0fbe_var" name="met _ gezamenlijke oppervlakte groter dan 750 Op 5 Artikel 22.267 Lid 1 a Relevant voor voorschriften en maatregelen" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30118_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_78e94ee3-a4f0-46a6-8a09-5d4183dc0fbe_td" hitPolicy="UNIQUE" outputLabel="met _ gezamenlijke oppervlakte groter dan 750 Op 5 Artikel 22.267 Lid 1 a Relevant voor voorschriften en maatregelen">
+      <semantic:input id="_4690958">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>oppervlakte van de mestbassins meer dan 750m2 UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3664029" />
+      <semantic:rule id="_7854203">
+        <semantic:inputEntry id="_8070817">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9946800">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6658970">
+        <semantic:inputEntry id="_7195354">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8917644">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_8ccc4761-059c-4611-b2d0-6a85c332a3da" name="met _ gezamenlijke inhoud groter dan 2.500 Op 5 Artikel 22.267 Lid 1 a Relevant voor voorschriften en maatregelen">
+    <semantic:variable id="_8ccc4761-059c-4611-b2d0-6a85c332a3da_var" name="met _ gezamenlijke inhoud groter dan 2.500 Op 5 Artikel 22.267 Lid 1 a Relevant voor voorschriften en maatregelen" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30119_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_8ccc4761-059c-4611-b2d0-6a85c332a3da_td" hitPolicy="UNIQUE" outputLabel="met _ gezamenlijke inhoud groter dan 2.500 Op 5 Artikel 22.267 Lid 1 a Relevant voor voorschriften en maatregelen">
+      <semantic:input id="_3128848">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>inhoud van de mestbassins meer dan 2500 m3 UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9101393" />
+      <semantic:rule id="_4465451">
+        <semantic:inputEntry id="_3888970">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2028352">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9943386">
+        <semantic:inputEntry id="_8329477">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7405649">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20411_BizRule" name="andere mest dan vaste mest Dierlijkemestopslaan">
+    <semantic:variable id="_20411_BizRule_var" name="andere mest dan vaste mest Dierlijkemestopslaan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20328_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20411_BizRule_td" hitPolicy="UNIQUE" outputLabel="andere mest dan vaste mest Dierlijkemestopslaan">
+      <semantic:input id="_3272225">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>keuze drijfmest digestaat _of dunne fractie DierlijkeMestOpslaan CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9864699" />
+      <semantic:rule id="_5325783">
+        <semantic:inputEntry id="_8996875">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9533937">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2833103">
+        <semantic:inputEntry id="_4371393">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8046772">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20413_BizRule" name="_in een _of meer mestbassins andere mest dan vaste mest Dierlijkemestopslaan">
+    <semantic:variable id="_20413_BizRule_var" name="_in een _of meer mestbassins andere mest dan vaste mest Dierlijkemestopslaan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30117_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20413_BizRule_td" hitPolicy="UNIQUE" outputLabel="_in een _of meer mestbassins andere mest dan vaste mest Dierlijkemestopslaan">
+      <semantic:input id="_4116855">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>dunne mest _of digestaat opslaan _in mestbassin UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9437912" />
+      <semantic:rule id="_4674543">
+        <semantic:inputEntry id="_7234732">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6111149">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9679401">
+        <semantic:inputEntry id="_6724537">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3285762">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_379818b4-f334-4879-b22a-67c0656902e7_6b4ffe66-9805-4566-9560-cee46d06b28e" name="Verplichtingen - Informatieplicht - DierlijkeMestOpslaan">
+    <semantic:variable id="_379818b4-f334-4879-b22a-67c0656902e7_6b4ffe66-9805-4566-9560-cee46d06b28e_var" name="Verplichtingen - Informatieplicht - DierlijkeMestOpslaan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_21706_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_21712_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_21710_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_21708_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_379818b4-f334-4879-b22a-67c0656902e7_6b4ffe66-9805-4566-9560-cee46d06b28e_td" hitPolicy="ANY" outputLabel="Verplichtingen - Informatieplicht - DierlijkeMestOpslaan">
+      <semantic:input id="_7468953">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>meer dan 600 m3 vaste dierlijke mest</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_1255548">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>voorwaarden vaste mest DierlijkeMestOpslaan informatieplicht</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_2803509">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>opslaan van vaste mest korter dan twee weken op een plek informatieplicht</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_6896799">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vaste dierlijke mest opslaan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7369843" />
+      <semantic:rule id="_7521371">
+        <semantic:inputEntry id="_2942012">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8735720">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8733607">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8471449">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1575569">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4930726">
+        <semantic:inputEntry id="_9399943">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6249023">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5953383">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6388723">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7971119">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5688954">
+        <semantic:inputEntry id="_5505393">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3468359">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9739671">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7292856">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_882613">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2157854">
+        <semantic:inputEntry id="_9292635">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9807430">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4253962">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_808887">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2284426">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9960621">
+        <semantic:inputEntry id="_3106494">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3449447">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2676855">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1479689">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6420017">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_21706_BizRule" name="meer dan 600 m3 vaste dierlijke mest">
+    <semantic:variable id="_21706_BizRule_var" name="meer dan 600 m3 vaste dierlijke mest" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30014_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_21706_BizRule_td" hitPolicy="UNIQUE" outputLabel="meer dan 600 m3 vaste dierlijke mest">
+      <semantic:input id="_1072804">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>hoeveelheid m3 vaste mest UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7439877" />
+      <semantic:rule id="_1732678">
+        <semantic:inputEntry id="_335806">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5750854">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7222686">
+        <semantic:inputEntry id="_6590063">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_563267">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_21712_BizRule" name="voorwaarden vaste mest DierlijkeMestOpslaan informatieplicht">
+    <semantic:variable id="_21712_BizRule_var" name="voorwaarden vaste mest DierlijkeMestOpslaan informatieplicht" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_21713_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_21714_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_21712_BizRule_td" hitPolicy="ANY" outputLabel="voorwaarden vaste mest DierlijkeMestOpslaan informatieplicht">
+      <semantic:input id="_1362487">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>opslaan van mest bij een bedrijf</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_1557534">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>keuze ander bedrijf bij soort bedrijf DierlijkeMestOpslaan informatieplicht</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9440667" />
+      <semantic:rule id="_8646828">
+        <semantic:inputEntry id="_7867831">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3784528">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8285820">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9263613">
+        <semantic:inputEntry id="_722195">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4474007">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3556178">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3546091">
+        <semantic:inputEntry id="_476097">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_672934">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_945654">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_21713_BizRule" name="opslaan van mest bij een bedrijf">
+    <semantic:variable id="_21713_BizRule_var" name="opslaan van mest bij een bedrijf" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30017_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_21713_BizRule_td" hitPolicy="UNIQUE" outputLabel="opslaan van mest bij een bedrijf">
+      <semantic:input id="_7604164">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vaste mest opslaan bij een bedrijf UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7562412" />
+      <semantic:rule id="_3567409">
+        <semantic:inputEntry id="_2433125">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6751293">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8772986">
+        <semantic:inputEntry id="_5664954">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8126121">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_21714_BizRule" name="keuze ander bedrijf bij soort bedrijf DierlijkeMestOpslaan informatieplicht">
+    <semantic:variable id="_21714_BizRule_var" name="keuze ander bedrijf bij soort bedrijf DierlijkeMestOpslaan informatieplicht" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20307_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_21714_BizRule_td" hitPolicy="UNIQUE" outputLabel="keuze ander bedrijf bij soort bedrijf DierlijkeMestOpslaan informatieplicht">
+      <semantic:input id="_2553871">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>keuze ander bedrijf bij soort bedrijf DierlijkeMestOpslaan CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8220254" />
+      <semantic:rule id="_9829006">
+        <semantic:inputEntry id="_5180579">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8948846">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6538441">
+        <semantic:inputEntry id="_5653147">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9754539">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_21710_BizRule" name="opslaan van vaste mest korter dan twee weken op een plek informatieplicht">
+    <semantic:variable id="_21710_BizRule_var" name="opslaan van vaste mest korter dan twee weken op een plek informatieplicht" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30021_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_21710_BizRule_td" hitPolicy="UNIQUE" outputLabel="opslaan van vaste mest korter dan twee weken op een plek informatieplicht">
+      <semantic:input id="_6245672">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vaste mest korter dan twee weken op dezelfde plek opslaan UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3449608" />
+      <semantic:rule id="_7029588">
+        <semantic:inputEntry id="_9520126">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_900320">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9851968">
+        <semantic:inputEntry id="_1460601">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6386130">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_21708_BizRule" name="vaste dierlijke mest opslaan">
+    <semantic:variable id="_21708_BizRule_var" name="vaste dierlijke mest opslaan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20324_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_21708_BizRule_td" hitPolicy="UNIQUE" outputLabel="vaste dierlijke mest opslaan">
+      <semantic:input id="_7024358">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>keuze vaste mest DierlijkeMestOpslaan CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3998606" />
+      <semantic:rule id="_997008">
+        <semantic:inputEntry id="_2684299">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8975440">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9120676">
+        <semantic:inputEntry id="_7933598">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6243919">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+</semantic:definitions>

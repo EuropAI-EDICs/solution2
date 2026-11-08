@@ -1,0 +1,1916 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<semantic:definitions xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000" xmlns:feel="http://www.omg.org/spec/FEEL/20140401" xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel" xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel" xmlns:triso="http://www.rulearts.com/modeling" xmlns:trisofeed="http://rulearts.com/feed" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel" xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content" exporter="RuleArts STTR Export" exporterVersion="0.2.0" id="_8079470" name="Conclusie - Collector voor warmteopwekking of een paneel voor elektriciteitsopwekking bouwen, in stand houden of gebruiken" namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000">
+  <semantic:extensionElements xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd">
+    <versiebeheerGegevens>
+      <paar>
+        <sleutel>ID</sleutel>
+        <waarde>f5a84361-e843-4129-9ed7-8b2afe26f221</waarde>
+      </paar>
+      <paar>
+        <sleutel>aanmaakDatumTijd</sleutel>
+        <waarde>2023-05-02 10:50:36</waarde>
+      </paar>
+      <paar>
+        <sleutel>bronsysteem</sleutel>
+        <waarde>RuleXpress</waarde>
+      </paar>
+    </versiebeheerGegevens>
+    <inter:regelgroepen xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel">
+      <inter:regelgroep id="_3872_RuleGroup">
+        <inter:naam>Plaats zonnecollector of –paneel</inter:naam>
+        <inter:prioriteit>9</inter:prioriteit>
+      </inter:regelgroep>
+      <inter:regelgroep id="_3882_RuleGroup">
+        <inter:naam>Zonnecollector of –paneel op een schuin dak</inter:naam>
+        <inter:prioriteit>12</inter:prioriteit>
+      </inter:regelgroep>
+      <inter:regelgroep id="_3883_RuleGroup">
+        <inter:naam>Zonnecollector of –paneel op een plat dak</inter:naam>
+        <inter:prioriteit>15</inter:prioriteit>
+      </inter:regelgroep>
+      <inter:regelgroep id="_3884_RuleGroup">
+        <inter:naam>Boiler en omvormer</inter:naam>
+        <inter:prioriteit>18</inter:prioriteit>
+      </inter:regelgroep>
+      <inter:regelgroep id="_3501_RuleGroup">
+        <inter:naam>Monument/archeologisch monument en stads- of dorpsgezicht</inter:naam>
+        <inter:prioriteit>20</inter:prioriteit>
+      </inter:regelgroep>
+      <inter:regelgroep id="_3138_RuleGroup">
+        <inter:naam>Monumenten</inter:naam>
+        <inter:prioriteit>50</inter:prioriteit>
+      </inter:regelgroep>
+      <inter:regelgroep id="_3136_RuleGroup">
+        <inter:naam>Beschermd stads- of dorpsgezicht</inter:naam>
+        <inter:prioriteit>60</inter:prioriteit>
+      </inter:regelgroep>
+    </inter:regelgroepen>
+    <uitv:uitvoeringsregels>
+      <uitv:uitvoeringsregel id="_3115_BizRule">
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:vasteWaarde>
+          <uitv:waardeVraag>Vaste Waarde TRUE</uitv:waardeVraag>
+          <uitv:waarde>true</uitv:waarde>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+        </uitv:vasteWaarde>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_12916_BizRule">
+        <uitv:regelgroepRef href="#_3872_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>list</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Waar plaatst u de zonnecollector of het -paneel?]]></uitv:vraagTekst>
+          <uitv:opties>
+            <uitv:optieType>enkelAntwoord</uitv:optieType>
+            <uitv:optie>
+              <uitv:sequenceId>1</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Op een schuin dak]]></uitv:optieText>
+            </uitv:optie>
+            <uitv:optie>
+              <uitv:sequenceId>2</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Op een plat dak]]></uitv:optieText>
+            </uitv:optie>
+            <uitv:optie>
+              <uitv:sequenceId>3</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Ergens anders op of aan een bouwwerk]]></uitv:optieText>
+            </uitv:optie>
+            <uitv:optie>
+              <uitv:sequenceId>4</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Op de grond]]></uitv:optieText>
+            </uitv:optie>
+          </uitv:opties>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_12918_BizRule">
+        <uitv:regelgroepRef href="#_3882_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Ligt de zonnecollector of het -paneel binnen het dakvlak?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[##### Collector of paneel in dakvlak
+
+![Bepalen of zonnecollector of zonnepaneel binnen het dakvlak valt: lees uitleg in onderschrift.](https://iplo.nl/publish/pages/218916/gj5xhz7.jpg)
+
+Binnen het dakvlak betekent dat de zonnecollector of het zonnepaneel niet buiten de randen van het dak uitsteekt\.]]></content:toelichting>
+          <content:belangrijk>true</content:belangrijk>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_12919_BizRule">
+        <uitv:regelgroepRef href="#_3882_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>20</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Wordt de zonnecollector of het -paneel direct op of in het dak geplaatst?]]></uitv:vraagTekst>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_12920_BizRule">
+        <uitv:regelgroepRef href="#_3882_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Heeft de zonnecollector of het -paneel dezelfde hellingshoek als het dakvlak?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Dezelfde hellingshoek betekent dat het oppervlak van de zonnecollector of het zonnepaneel parallel loopt aan het oppervlak van het dak\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_12922_BizRule">
+        <uitv:regelgroepRef href="#_3883_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <uitv:vraag>
+          <uitv:gegevensType>list</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Wat is de afstand tussen de zonnecollector of het -paneel en de dakranden?]]></uitv:vraagTekst>
+          <uitv:opties>
+            <uitv:optieType>enkelAntwoord</uitv:optieType>
+            <uitv:optie>
+              <uitv:sequenceId>1</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Kleiner dan de hoogte van de zonnecollector of het –paneel]]></uitv:optieText>
+            </uitv:optie>
+            <uitv:optie>
+              <uitv:sequenceId>2</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Groter dan of gelijk aan de hoogte van de zonnecollector of het –paneel]]></uitv:optieText>
+            </uitv:optie>
+          </uitv:opties>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[##### Afstand tot dakrand
+
+![afstand tussen de zonnecollector of het paneel en de dakranden bepalen:lees uitleg in onderschrift.](https://iplo.nl/publish/pages/218916/no10cld.jpg)
+
+Meet de hoogte \(h\) in een rechte lijn vanaf het dak tot aan het hoogste punt van de zonnecollector of het zonnepaneel\. Meet dan de afstand \(l\) in een rechte lijn langs het dakvlak vanaf de zijkanten van de zonnecollector of het zonnepaneel tot de zijranden van het dak\. Bij rijtjeshuizen en twee\-onder\-een\-kapwoningen geldt de grenslijn tussen de woningen als zijrand van het dak\.]]></content:toelichting>
+          <content:belangrijk>true</content:belangrijk>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_12923_BizRule">
+        <uitv:regelgroepRef href="#_3884_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Is de installatie voor het opslaan van warm water of het omzetten naar elektriciteit (omvormer) een onderdeel van de collector of het paneel?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[De installatie is geen onderdeel van de collector of het paneel als het een losse installatie betreft die apart van de collector of paneel wordt geïnstalleerd\.
+
+Met de installatie wordt bedoeld: de boiler die nodig is voor de opslag van warm water of de omvormer voor het omzetten van zonne\-energie naar elektriciteit\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_12924_BizRule">
+        <uitv:regelgroepRef href="#_3884_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Komt de installatie in een bouwwerk te staan?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Plaatst u de omvormer niet binnen een gebouw? Antwoord hier dan ‘Nee’\.
+
+Met de installatie wordt bedoeld: de boiler die nodig is voor de opslag van warm water of de omvormer voor het omzetten van zonne\-energie naar elektriciteit\.]]></content:toelichting>
+          <content:belangrijk>true</content:belangrijk>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_27976_BizRule">
+        <uitv:regelgroepRef href="#_3501_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Is er op het perceel een beschermd of voorbeschermd monument of archeologisch monument aanwezig?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Iets is een beschermd monument of archeologisch monument als de gemeente, de provincie of het Rijk het heeft aangewezen als gemeentelijk monument, provinciaal monument of rijksmonument\.   
+Vul hier ook ‘ja’ in als er een procedure tot aanwijzing als gemeentelijk, provinciaal of rijksmonument loopt\. Dan is er sprake van een zogenoemd ‘voorbeschermd’ gemeentelijk monument, provinciaal monument of rijksmonument\.]]></content:toelichting>
+          <content:langeToelichting><![CDATA[Of iets een gemeentelijk monument of provinciaal monument is, kunt u navragen bij de gemeente\.
+
+Of iets een rijksmonument is, kunt u opzoeken in het rijksmonumentenregister \([https://monumentenregister\.cultureelerfgoed\.nl](https://monumentenregister.cultureelerfgoed.nl)\)\. In de omschrijving van het rijksmonument staat om welke onroerende zaak/onroerende zaken of welk terrein het gaat\. U kunt ook contact opnemen met de Rijksdienst voor het Cultureel Erfgoed \([https://cultureelerfgoed\.nl/contact/contactformulier](https://cultureelerfgoed.nl/contact/contactformulier)\)\.]]></content:langeToelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_27977_BizRule">
+        <uitv:regelgroepRef href="#_3138_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat het om bouwwerkzaamheden in, aan of op het beschermde of voorbeschermde monument of archeologisch monument?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Is dit het geval, dan is daarvoor waarschijnlijk \(ook\) een aparte omgevingsvergunning nodig\. Vul hierna, afhankelijk van de status \(gemeentelijk monument, provinciaal monument of rijksmonument\), ook de vergunningcheck in voor de desbetreffende monumentenactiviteit\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_12664_BizRule">
+        <uitv:regelgroepRef href="#_3138_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>20</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat het om bouwwerkzaamheden bij (naast of vlakbij) een (voor)beschermd monument of archeologisch monument?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Iets is een beschermd monument of archeologisch monument als de gemeente, de provincie of het Rijk het heeft aangewezen als gemeentelijk monument, provinciaal monument of rijksmonument\.
+
+Vul hier ook ‘ja’ in als er een procedure tot aanwijzing als gemeentelijk, provinciaal of rijksmonument loopt\. Dan is er sprake van een zogenoemd ‘voorbeschermd’ gemeentelijk monument, provinciaal monument of rijksmonument\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_28236_BizRule">
+        <uitv:regelgroepRef href="#_3501_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>20</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Vinden de voorgenomen bouwwerkzaamheden plaats in een rijksbeschermd stads- of dorpsgezicht?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[##### Rijksbeschermd stads\- of dorpsgezicht
+
+Het gaat hier om bouwwerkzaamheden binnen een door het Rijk aangewezen beschermd stads\- of dorpsgezicht\. Neem bij twijfel of voor meer informatie contact op met uw gemeente\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_45789_BizRule">
+        <uitv:regelgroepRef href="#_3136_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>15</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat u iets veranderen aan het dakvlak aan de voor- of zijkant van het gebouw of aan een plat dak?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Vul “Nee” in als de bouwwerkzaamheden alleen plaatsvinden aan het achterdakvlak van het gebouw\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_28570_BizRule">
+        <uitv:regelgroepRef href="#_3136_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>12</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat u iets veranderen aan de voorgevel of de zijgevel van het gebouw?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Vul “Nee” in als de bouwwerkzaamheden alleen plaatsvinden aan de achtergevel van het gebouw\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_28572_BizRule">
+        <uitv:regelgroepRef href="#_3136_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>20</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat u iets veranderen aan de achtergevel of het achterdakvlak van het gebouw?]]></uitv:vraagTekst>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_22711_BizRule">
+        <uitv:regelgroepRef href="#_3136_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>30</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Is de achtergevel of het achterdakvlak gekeerd naar openbaar toegankelijk gebied?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[##### Wat is openbaar toegankelijk gebied?
+
+De volgende gebieden kunnen een openbaar toegankelijk gebied zijn:
+
+* wegen
+* pleinen
+* voet\- en fietspaden, behalve paden die alleen gebruikt worden voor de ontsluiting van percelen
+* parken
+* plantsoenen
+* vaarwater]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_17529_BizRule">
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <uitv:vasteWaardeVoorbehoud>
+          <uitv:vasteWaarde>
+            <uitv:waardeVraag>TRUE</uitv:waardeVraag>
+            <uitv:waarde>true</uitv:waarde>
+            <uitv:gegevensType>boolean</uitv:gegevensType>
+          </uitv:vasteWaarde>
+          <uitv:tekstVoorbehoud>Het bouwwerk mag niet ernstig ontsierend zijn, als dit in het omgevingsplan is bepaald. Kijk voor de regels over ernstige ontsiering van het uiterlijk van bouwwerken in het omgevingsplan. Deze regels worden ook wel het repressief welstandsvereiste genoemd. Neem bij twijfel contact op met de gemeente.</uitv:tekstVoorbehoud>
+        </uitv:vasteWaardeVoorbehoud>
+      </uitv:uitvoeringsregel>
+    </uitv:uitvoeringsregels>
+  </semantic:extensionElements>
+  <semantic:inputData id="_3787_Concept" name="Vaste Waarde TRUE">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_3115_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_6682222" name="Vaste Waarde TRUE" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_18940_Concept" name="locatie zonnecollector zonnepaneel UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_12916_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_7971914" name="locatie zonnecollector zonnepaneel UR" typeRef="feel:string" />
+  </semantic:inputData>
+  <semantic:inputData id="_18942_Concept" name="zonnecollector binnen dakvlak UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_12918_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_6365746" name="zonnecollector binnen dakvlak UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_18944_Concept" name="collector paneel direct op dak UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_12919_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_1157086" name="collector paneel direct op dak UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_18945_Concept" name="collector paneel hellingshoek UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_12920_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_7329581" name="collector paneel hellingshoek UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_18948_Concept" name="collector paneel afstand dakrand UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_12922_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_8050787" name="collector paneel afstand dakrand UR" typeRef="feel:string" />
+  </semantic:inputData>
+  <semantic:inputData id="_18950_Concept" name="collector paneel onderdeel installatie UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_12923_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_7399171" name="collector paneel onderdeel installatie UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_18952_Concept" name="installatie _in bouwwerk UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_12924_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_3889661" name="installatie _in bouwwerk UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_38805_Concept" name="aanwezigheid beschermd voorbeschermd archeologisch monument bbl UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_27976_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_1461778" name="aanwezigheid beschermd voorbeschermd archeologisch monument bbl UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_38806_Concept" name="bouwwerkzaamheden aan op _in monument bbl UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_27977_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_8910063" name="bouwwerkzaamheden aan op _in monument bbl UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_18519_Concept" name="werkzaamheden naast vlakbij monument UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_12664_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_8798446" name="werkzaamheden naast vlakbij monument UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_39163_Concept" name="bouwwerkzaamheden plaats rijksbeschermd stads dorpsgezicht bbl UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_28236_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_1015292" name="bouwwerkzaamheden plaats rijksbeschermd stads dorpsgezicht bbl UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_58351_Concept" name="Werkzaamheden dakvlak aan de voor _of zijkant _of plat dak UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_45789_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_8406243" name="Werkzaamheden dakvlak aan de voor _of zijkant _of plat dak UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_39992_Concept" name="bouwwerkzaamheden voorgevel zijgevel dakvlak voorkant zijkant gebouw plat dak UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_28570_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_2688284" name="bouwwerkzaamheden voorgevel zijgevel dakvlak voorkant zijkant gebouw plat dak UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_39994_Concept" name="bouwwerkzaamheden aan achtergevel _of achterdakvlak UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_28572_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_2054603" name="bouwwerkzaamheden aan achtergevel _of achterdakvlak UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_32989_Concept" name="bijbehorendbouwwerk wijziging achterkant gekeerd naar openbaar toegankelijk gebied UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_22711_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_4011932" name="bijbehorendbouwwerk wijziging achterkant gekeerd naar openbaar toegankelijk gebied UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_25802_Concept" name="voorbehoud welstand BouwwerkBouwenBbl UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_17529_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_6293887" name="voorbehoud welstand BouwwerkBouwenBbl UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:decision id="_13298_BizRule" name="Conclusie - Zonnecollector">
+    <semantic:extensionElements>
+      <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/Conclusienl.imow-gm0772.activiteit.Zonnecollector" />
+    </semantic:extensionElements>
+    <semantic:variable id="_13298_BizRule_var" name="Conclusie - Zonnecollector" typeRef="feel:string" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_d8b03a0f-f7fa-4428-ac30-32321254f5df_e78a22be-b5bb-4deb-852f-9e352527e06d" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_d8b03a0f-f7fa-4428-ac30-32321254f5df_e98577c2-78a6-4bdd-871a-6a5da6a2d1da" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_13298_BizRule_td" hitPolicy="COLLECT" outputLabel="Conclusie - Zonnecollector">
+      <semantic:input id="_5822508">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Toepassingsbereik - Zonnecollector</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_3468486">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Toestemmingen Vergunningvrij - Zonnecollector</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2546145" />
+      <semantic:rule id="_6401495">
+        <semantic:inputEntry id="_1689333">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_396812">
+          <semantic:text>- </semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5229258">
+          <semantic:text>"NietVanToepassing"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6908550">
+        <semantic:inputEntry id="_9383295">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4315212">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3092180">
+          <semantic:extensionElements>
+            <content:conclusieToelichting>
+              <content:toelichting><![CDATA[De gemeente gaat beoordelen of uw \(ver\)bouwplannen voldoen aan de regels in het omgevingsplan\. In het omgevingsplan legt de gemeente vast wat er met de ruimte in de gemeente mag gebeuren\. Bijvoorbeeld waar woningen of bedrijven mogen komen en welke afmetingen die mogen hebben\.]]></content:toelichting>
+            </content:conclusieToelichting>
+          </semantic:extensionElements>
+          <semantic:text>"Vergunningplicht"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3534913">
+        <semantic:inputEntry id="_3715185">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9053454">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1950237">
+          <semantic:text>"Toestemmingsvrij"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_d8b03a0f-f7fa-4428-ac30-32321254f5df_e78a22be-b5bb-4deb-852f-9e352527e06d" name="Toepassingsbereik - Zonnecollector">
+    <semantic:variable id="_d8b03a0f-f7fa-4428-ac30-32321254f5df_e78a22be-b5bb-4deb-852f-9e352527e06d_var" name="Toepassingsbereik - Zonnecollector" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_ca0432cd-ae21-4c45-8456-ec595821a7d1" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_d8b03a0f-f7fa-4428-ac30-32321254f5df_e78a22be-b5bb-4deb-852f-9e352527e06d_td" hitPolicy="ANY" outputLabel="Toepassingsbereik - Zonnecollector">
+      <semantic:input id="_4345040">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>collector voor warmteopwekking _of een paneel voor elektriciteitsopwekking BBL Artikel 2.15f d</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7435439" />
+      <semantic:rule id="_5631143">
+        <semantic:inputEntry id="_8821252">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2928932">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2756651">
+        <semantic:inputEntry id="_419414">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8009554">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_ca0432cd-ae21-4c45-8456-ec595821a7d1" name="collector voor warmteopwekking _of een paneel voor elektriciteitsopwekking BBL Artikel 2.15f d">
+    <semantic:variable id="_ca0432cd-ae21-4c45-8456-ec595821a7d1_var" name="collector voor warmteopwekking _of een paneel voor elektriciteitsopwekking BBL Artikel 2.15f d" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_3787_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_ca0432cd-ae21-4c45-8456-ec595821a7d1_td" hitPolicy="UNIQUE" outputLabel="collector voor warmteopwekking _of een paneel voor elektriciteitsopwekking BBL Artikel 2.15f d">
+      <semantic:input id="_3001837">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Vaste Waarde TRUE</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_1244061" />
+      <semantic:rule id="_1936968">
+        <semantic:inputEntry id="_3872301">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_920884">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7247087">
+        <semantic:inputEntry id="_3515240">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1549820">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_d8b03a0f-f7fa-4428-ac30-32321254f5df_e98577c2-78a6-4bdd-871a-6a5da6a2d1da" name="Toestemmingen Vergunningvrij - Zonnecollector">
+    <semantic:variable id="_d8b03a0f-f7fa-4428-ac30-32321254f5df_e98577c2-78a6-4bdd-871a-6a5da6a2d1da_var" name="Toestemmingen Vergunningvrij - Zonnecollector" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_18634_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_12927_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_28575_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_28582_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_28601_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_d8b03a0f-f7fa-4428-ac30-32321254f5df_e98577c2-78a6-4bdd-871a-6a5da6a2d1da_td" hitPolicy="ANY" outputLabel="Toestemmingen Vergunningvrij - Zonnecollector">
+      <semantic:input id="_6574256">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>zonnecollector plat _of schuin dak</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_9774023">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vergunningvrij collector paneel installatie</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_6349046">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>toestemmingvrij monument Zonnecollector</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_2412577">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>toestemmingvrij beschermd stads _of dorpsgezicht Zonnecollector</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_9222028">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>voorbehoud Zonnecollector GS</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4541850" />
+      <semantic:rule id="_1977975">
+        <semantic:inputEntry id="_5292888">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7875102">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1436488">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4248535">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7946286">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4035574">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4606990">
+        <semantic:inputEntry id="_654748">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7746593">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9856608">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7148209">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6670251">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1270804">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7057140">
+        <semantic:inputEntry id="_3233350">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1382999">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3837236">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5703094">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5458931">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9544307">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5457433">
+        <semantic:inputEntry id="_9752364">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6524510">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4608373">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9661462">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6168054">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3065392">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6517924">
+        <semantic:inputEntry id="_3760889">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7366138">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6940877">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2728209">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9803190">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5757464">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_638254">
+        <semantic:inputEntry id="_1246150">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1792444">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8508115">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2473127">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4273979">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8394846">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_18634_BizRule" name="zonnecollector plat _of schuin dak">
+    <semantic:variable id="_18634_BizRule_var" name="zonnecollector plat _of schuin dak" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_12925_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_12926_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_18634_BizRule_td" hitPolicy="ANY" outputLabel="zonnecollector plat _of schuin dak">
+      <semantic:input id="_889312">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vergunningvrij collector paneel schuin dak</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_4190375">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vergunningvrij collector paneel plat dak</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4015693" />
+      <semantic:rule id="_3772675">
+        <semantic:inputEntry id="_876836">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2544436">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4492679">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3640905">
+        <semantic:inputEntry id="_8691024">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2811810">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6709483">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4063096">
+        <semantic:inputEntry id="_4997542">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6520542">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5540523">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_12925_BizRule" name="vergunningvrij collector paneel schuin dak">
+    <semantic:variable id="_12925_BizRule_var" name="vergunningvrij collector paneel schuin dak" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_3c8e21a9-b0e0-4a20-b9e7-e1fea06ed13c" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_4853dd5d-95d3-4e7d-b037-c9a7ce80088d" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_8ca258b7-5ff0-4c49-9072-7378da9b6ce0" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_65fdb2c7-18bd-4f1d-9089-486977b91930" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_12925_BizRule_td" hitPolicy="ANY" outputLabel="vergunningvrij collector paneel schuin dak">
+      <semantic:input id="_1650591">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>op een schuin dak BBL Artikel 2.15f d 1_</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_6828114">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>binnen _ dakvlak BBL Artikel 2.15f d 1_ i</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_4587073">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>_in _of direct op _ dakvlak BBL Artikel 2.15f d 1_ ii</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_2078231">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>hellingshoek gelijk aan hellingshoek dakvlak BBL Artikel 2.15f d 1_ iii</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_1270182" />
+      <semantic:rule id="_8089066">
+        <semantic:inputEntry id="_6893859">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_680454">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3215731">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4720000">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6867061">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5513340">
+        <semantic:inputEntry id="_6718885">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2287200">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9590554">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5329120">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3529966">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1484952">
+        <semantic:inputEntry id="_1449461">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4868120">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5861989">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2808817">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1135698">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9084626">
+        <semantic:inputEntry id="_3923618">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8572713">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3177018">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5069865">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4854328">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_531393">
+        <semantic:inputEntry id="_8665112">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5105647">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9236921">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5097731">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9595558">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_3c8e21a9-b0e0-4a20-b9e7-e1fea06ed13c" name="op een schuin dak BBL Artikel 2.15f d 1_">
+    <semantic:variable id="_3c8e21a9-b0e0-4a20-b9e7-e1fea06ed13c_var" name="op een schuin dak BBL Artikel 2.15f d 1_" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_12917_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_3c8e21a9-b0e0-4a20-b9e7-e1fea06ed13c_td" hitPolicy="UNIQUE" outputLabel="op een schuin dak BBL Artikel 2.15f d 1_">
+      <semantic:input id="_4964329">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>zonnecollector zonnepaneel schuin dak</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4221042" />
+      <semantic:rule id="_694896">
+        <semantic:inputEntry id="_3303797">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_605780">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3995453">
+        <semantic:inputEntry id="_3809920">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1099962">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_12917_BizRule" name="zonnecollector zonnepaneel schuin dak">
+    <semantic:variable id="_12917_BizRule_var" name="zonnecollector zonnepaneel schuin dak" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_18940_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_12917_BizRule_td" hitPolicy="FIRST" outputLabel="zonnecollector zonnepaneel schuin dak">
+      <semantic:input id="_9052674">
+        <semantic:inputExpression typeRef="feel:string">
+          <semantic:text>locatie zonnecollector zonnepaneel UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4009774" />
+      <semantic:rule id="_7031096">
+        <semantic:inputEntry id="_7773793">
+          <semantic:text>if ?=null then false else contains(?,"Op een schuin dak")</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1653705">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9100469">
+        <semantic:inputEntry id="_7482689">
+          <semantic:text>if ?=null then false else not(contains(?,"Op een schuin dak"))</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3479517">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_4853dd5d-95d3-4e7d-b037-c9a7ce80088d" name="binnen _ dakvlak BBL Artikel 2.15f d 1_ i">
+    <semantic:variable id="_4853dd5d-95d3-4e7d-b037-c9a7ce80088d_var" name="binnen _ dakvlak BBL Artikel 2.15f d 1_ i" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_18942_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_4853dd5d-95d3-4e7d-b037-c9a7ce80088d_td" hitPolicy="UNIQUE" outputLabel="binnen _ dakvlak BBL Artikel 2.15f d 1_ i">
+      <semantic:input id="_2878144">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>zonnecollector binnen dakvlak UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3848081" />
+      <semantic:rule id="_1952421">
+        <semantic:inputEntry id="_9678533">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8841773">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5992415">
+        <semantic:inputEntry id="_5502446">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8154613">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_8ca258b7-5ff0-4c49-9072-7378da9b6ce0" name="_in _of direct op _ dakvlak BBL Artikel 2.15f d 1_ ii">
+    <semantic:variable id="_8ca258b7-5ff0-4c49-9072-7378da9b6ce0_var" name="_in _of direct op _ dakvlak BBL Artikel 2.15f d 1_ ii" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_18944_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_8ca258b7-5ff0-4c49-9072-7378da9b6ce0_td" hitPolicy="UNIQUE" outputLabel="_in _of direct op _ dakvlak BBL Artikel 2.15f d 1_ ii">
+      <semantic:input id="_2697469">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>collector paneel direct op dak UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5212048" />
+      <semantic:rule id="_2123993">
+        <semantic:inputEntry id="_5826126">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2984337">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6054887">
+        <semantic:inputEntry id="_2061413">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6276418">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_65fdb2c7-18bd-4f1d-9089-486977b91930" name="hellingshoek gelijk aan hellingshoek dakvlak BBL Artikel 2.15f d 1_ iii">
+    <semantic:variable id="_65fdb2c7-18bd-4f1d-9089-486977b91930_var" name="hellingshoek gelijk aan hellingshoek dakvlak BBL Artikel 2.15f d 1_ iii" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_18945_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_65fdb2c7-18bd-4f1d-9089-486977b91930_td" hitPolicy="UNIQUE" outputLabel="hellingshoek gelijk aan hellingshoek dakvlak BBL Artikel 2.15f d 1_ iii">
+      <semantic:input id="_1921154">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>collector paneel hellingshoek UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2691641" />
+      <semantic:rule id="_4926224">
+        <semantic:inputEntry id="_1408078">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3135070">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8181154">
+        <semantic:inputEntry id="_1143680">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1172666">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_12926_BizRule" name="vergunningvrij collector paneel plat dak">
+    <semantic:variable id="_12926_BizRule_var" name="vergunningvrij collector paneel plat dak" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_2b752f57-2e60-4a87-84e4-51abefe42749" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_ab7517be-8e38-4f38-9cee-00c57efddb6d" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_12926_BizRule_td" hitPolicy="ANY" outputLabel="vergunningvrij collector paneel plat dak">
+      <semantic:input id="_2352069">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>op een plat dak BBL Artikel 2.15f d 2_</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_2008855">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>afstand tot _ zijkanten van _ dak ten minste gelijk aan hoogte collector _of paneel BBL Artikel 2.15f d 2_</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2083023" />
+      <semantic:rule id="_5374851">
+        <semantic:inputEntry id="_6892522">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1098919">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1823312">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5969395">
+        <semantic:inputEntry id="_7371638">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7051876">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6086967">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1557566">
+        <semantic:inputEntry id="_7584500">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5419197">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1053785">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_2b752f57-2e60-4a87-84e4-51abefe42749" name="op een plat dak BBL Artikel 2.15f d 2_">
+    <semantic:variable id="_2b752f57-2e60-4a87-84e4-51abefe42749_var" name="op een plat dak BBL Artikel 2.15f d 2_" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_12921_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_2b752f57-2e60-4a87-84e4-51abefe42749_td" hitPolicy="UNIQUE" outputLabel="op een plat dak BBL Artikel 2.15f d 2_">
+      <semantic:input id="_8971913">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>collector paneel plat dak</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8718595" />
+      <semantic:rule id="_2540282">
+        <semantic:inputEntry id="_906328">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5393731">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2171459">
+        <semantic:inputEntry id="_7983793">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8115624">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_12921_BizRule" name="collector paneel plat dak">
+    <semantic:variable id="_12921_BizRule_var" name="collector paneel plat dak" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_18940_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_12921_BizRule_td" hitPolicy="FIRST" outputLabel="collector paneel plat dak">
+      <semantic:input id="_3297787">
+        <semantic:inputExpression typeRef="feel:string">
+          <semantic:text>locatie zonnecollector zonnepaneel UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2248361" />
+      <semantic:rule id="_1054677">
+        <semantic:inputEntry id="_6152638">
+          <semantic:text>if ?=null then false else contains(?,"Op een plat dak")</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8962064">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4474244">
+        <semantic:inputEntry id="_6374611">
+          <semantic:text>if ?=null then false else not(contains(?,"Op een plat dak"))</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_644446">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_ab7517be-8e38-4f38-9cee-00c57efddb6d" name="afstand tot _ zijkanten van _ dak ten minste gelijk aan hoogte collector _of paneel BBL Artikel 2.15f d 2_">
+    <semantic:variable id="_ab7517be-8e38-4f38-9cee-00c57efddb6d_var" name="afstand tot _ zijkanten van _ dak ten minste gelijk aan hoogte collector _of paneel BBL Artikel 2.15f d 2_" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_12928_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_ab7517be-8e38-4f38-9cee-00c57efddb6d_td" hitPolicy="UNIQUE" outputLabel="afstand tot _ zijkanten van _ dak ten minste gelijk aan hoogte collector _of paneel BBL Artikel 2.15f d 2_">
+      <semantic:input id="_4696990">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>collector paneel afstand zijkant dak groter dan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3004400" />
+      <semantic:rule id="_1079755">
+        <semantic:inputEntry id="_7626463">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7132918">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4209391">
+        <semantic:inputEntry id="_427594">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1562090">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_12928_BizRule" name="collector paneel afstand zijkant dak groter dan">
+    <semantic:variable id="_12928_BizRule_var" name="collector paneel afstand zijkant dak groter dan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_18948_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_12928_BizRule_td" hitPolicy="FIRST" outputLabel="collector paneel afstand zijkant dak groter dan">
+      <semantic:input id="_1898549">
+        <semantic:inputExpression typeRef="feel:string">
+          <semantic:text>collector paneel afstand dakrand UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3688735" />
+      <semantic:rule id="_6154598">
+        <semantic:inputEntry id="_8454488">
+          <semantic:text>if ?=null then false else contains(?,"Groter dan of gelijk aan de hoogte van de zonnecollector of het –paneel")</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5932461">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9967920">
+        <semantic:inputEntry id="_803846">
+          <semantic:text>if ?=null then false else not(contains(?,"Groter dan of gelijk aan de hoogte van de zonnecollector of het –paneel"))</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8691918">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_12927_BizRule" name="vergunningvrij collector paneel installatie">
+    <semantic:variable id="_12927_BizRule_var" name="vergunningvrij collector paneel installatie" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_4fa52796-70e2-4e90-a16b-c6a2164c5ed4" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_bda858eb-c4b4-46ff-97f4-7027f79280b2" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_12927_BizRule_td" hitPolicy="ANY" outputLabel="vergunningvrij collector paneel installatie">
+      <semantic:input id="_6501957">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>als _ collector _of _ paneel niet één geheel vormt met _ installatie voor _ opslaan van _ water _of _ omzetten van _ opgewekte elektriciteit BBL Artikel 2.15f d 3_</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_1937856">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>die installatie aan _ binnenzijde van _ bouwwerk is geplaatst BBL Artikel 2.15f d 3_</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5954310" />
+      <semantic:rule id="_2689482">
+        <semantic:inputEntry id="_894787">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7574825">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5749948">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9001207">
+        <semantic:inputEntry id="_4368276">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3893231">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8785236">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3426490">
+        <semantic:inputEntry id="_6137844">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4946280">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2861248">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_4fa52796-70e2-4e90-a16b-c6a2164c5ed4" name="als _ collector _of _ paneel niet één geheel vormt met _ installatie voor _ opslaan van _ water _of _ omzetten van _ opgewekte elektriciteit BBL Artikel 2.15f d 3_">
+    <semantic:variable id="_4fa52796-70e2-4e90-a16b-c6a2164c5ed4_var" name="als _ collector _of _ paneel niet één geheel vormt met _ installatie voor _ opslaan van _ water _of _ omzetten van _ opgewekte elektriciteit BBL Artikel 2.15f d 3_" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_18950_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_4fa52796-70e2-4e90-a16b-c6a2164c5ed4_td" hitPolicy="UNIQUE" outputLabel="als _ collector _of _ paneel niet één geheel vormt met _ installatie voor _ opslaan van _ water _of _ omzetten van _ opgewekte elektriciteit BBL Artikel 2.15f d 3_">
+      <semantic:input id="_1795150">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>collector paneel onderdeel installatie UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_1297026" />
+      <semantic:rule id="_6707429">
+        <semantic:inputEntry id="_1689977">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8553166">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6804745">
+        <semantic:inputEntry id="_7792733">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3920866">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_bda858eb-c4b4-46ff-97f4-7027f79280b2" name="die installatie aan _ binnenzijde van _ bouwwerk is geplaatst BBL Artikel 2.15f d 3_">
+    <semantic:variable id="_bda858eb-c4b4-46ff-97f4-7027f79280b2_var" name="die installatie aan _ binnenzijde van _ bouwwerk is geplaatst BBL Artikel 2.15f d 3_" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_18952_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_bda858eb-c4b4-46ff-97f4-7027f79280b2_td" hitPolicy="UNIQUE" outputLabel="die installatie aan _ binnenzijde van _ bouwwerk is geplaatst BBL Artikel 2.15f d 3_">
+      <semantic:input id="_5062522">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>installatie _in bouwwerk UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8591001" />
+      <semantic:rule id="_1278192">
+        <semantic:inputEntry id="_9007779">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2004996">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6016861">
+        <semantic:inputEntry id="_9529305">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2483163">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_28575_BizRule" name="toestemmingvrij monument Zonnecollector">
+    <semantic:variable id="_28575_BizRule_var" name="toestemmingvrij monument Zonnecollector" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_28576_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_45927_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_28575_BizRule_td" hitPolicy="ANY" outputLabel="toestemmingvrij monument Zonnecollector">
+      <semantic:input id="_3329866">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>aanwezigheid monument Zonnecollector GS</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_1744514">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vergunningvrij monument aanwezig zonnecollector</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2362759" />
+      <semantic:rule id="_9650681">
+        <semantic:inputEntry id="_7324208">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8519933">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3985128">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9749658">
+        <semantic:inputEntry id="_7122164">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7254451">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2078548">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3558187">
+        <semantic:inputEntry id="_3539687">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5424155">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7001103">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_28576_BizRule" name="aanwezigheid monument Zonnecollector GS">
+    <semantic:variable id="_28576_BizRule_var" name="aanwezigheid monument Zonnecollector GS" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_38805_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_28576_BizRule_td" hitPolicy="UNIQUE" outputLabel="aanwezigheid monument Zonnecollector GS">
+      <semantic:input id="_5424245">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>aanwezigheid beschermd voorbeschermd archeologisch monument bbl UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_6952268" />
+      <semantic:rule id="_1127487">
+        <semantic:inputEntry id="_4659447">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7457461">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9225031">
+        <semantic:inputEntry id="_8577943">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2250680">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_45927_BizRule" name="vergunningvrij monument aanwezig zonnecollector">
+    <semantic:variable id="_45927_BizRule_var" name="vergunningvrij monument aanwezig zonnecollector" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_28577_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_45928_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_45927_BizRule_td" hitPolicy="ANY" outputLabel="vergunningvrij monument aanwezig zonnecollector">
+      <semantic:input id="_2187172">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vergunningvrij bouwen monument aanwezig Zonnecollector GS</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_8709223">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vergunningvrij bouwen monument nabij Zonnecollector GS</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8016989" />
+      <semantic:rule id="_1191788">
+        <semantic:inputEntry id="_4098481">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9616595">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8567046">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4044952">
+        <semantic:inputEntry id="_3284345">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4838971">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1710067">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5755370">
+        <semantic:inputEntry id="_1981976">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4075084">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5295599">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_28577_BizRule" name="vergunningvrij bouwen monument aanwezig Zonnecollector GS">
+    <semantic:variable id="_28577_BizRule_var" name="vergunningvrij bouwen monument aanwezig Zonnecollector GS" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_38806_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_28577_BizRule_td" hitPolicy="UNIQUE" outputLabel="vergunningvrij bouwen monument aanwezig Zonnecollector GS">
+      <semantic:input id="_5537040">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>bouwwerkzaamheden aan op _in monument bbl UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3275217" />
+      <semantic:rule id="_7311897">
+        <semantic:inputEntry id="_6957770">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4567812">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1598715">
+        <semantic:inputEntry id="_5026197">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4534545">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_45928_BizRule" name="vergunningvrij bouwen monument nabij Zonnecollector GS">
+    <semantic:variable id="_45928_BizRule_var" name="vergunningvrij bouwen monument nabij Zonnecollector GS" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_18519_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_45928_BizRule_td" hitPolicy="UNIQUE" outputLabel="vergunningvrij bouwen monument nabij Zonnecollector GS">
+      <semantic:input id="_681179">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>werkzaamheden naast vlakbij monument UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9638367" />
+      <semantic:rule id="_1889897">
+        <semantic:inputEntry id="_5853946">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2355510">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1177509">
+        <semantic:inputEntry id="_1657414">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2371843">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_28582_BizRule" name="toestemmingvrij beschermd stads _of dorpsgezicht Zonnecollector">
+    <semantic:variable id="_28582_BizRule_var" name="toestemmingvrij beschermd stads _of dorpsgezicht Zonnecollector" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_28583_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_28584_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_28582_BizRule_td" hitPolicy="ANY" outputLabel="toestemmingvrij beschermd stads _of dorpsgezicht Zonnecollector">
+      <semantic:input id="_3258132">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>bouwwerkzaamheden plaats rijksbeschermd stads dorpsgezicht Zonnecollector GS</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_4751922">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vergunningvrij bouwen beschermd stads _of dorpsgezicht Zonnecollector</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9493833" />
+      <semantic:rule id="_475586">
+        <semantic:inputEntry id="_1241457">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9307218">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7628145">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9886647">
+        <semantic:inputEntry id="_433063">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8555117">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3509499">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8794202">
+        <semantic:inputEntry id="_8719216">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2129619">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9668784">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_28583_BizRule" name="bouwwerkzaamheden plaats rijksbeschermd stads dorpsgezicht Zonnecollector GS">
+    <semantic:variable id="_28583_BizRule_var" name="bouwwerkzaamheden plaats rijksbeschermd stads dorpsgezicht Zonnecollector GS" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_39163_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_28583_BizRule_td" hitPolicy="UNIQUE" outputLabel="bouwwerkzaamheden plaats rijksbeschermd stads dorpsgezicht Zonnecollector GS">
+      <semantic:input id="_5319126">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>bouwwerkzaamheden plaats rijksbeschermd stads dorpsgezicht bbl UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_1649161" />
+      <semantic:rule id="_1956669">
+        <semantic:inputEntry id="_5590447">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1684230">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_445563">
+        <semantic:inputEntry id="_2567260">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4310130">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_28584_BizRule" name="vergunningvrij bouwen beschermd stads _of dorpsgezicht Zonnecollector">
+    <semantic:variable id="_28584_BizRule_var" name="vergunningvrij bouwen beschermd stads _of dorpsgezicht Zonnecollector" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_45929_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_28598_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_28599_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_28600_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_28584_BizRule_td" hitPolicy="ANY" outputLabel="vergunningvrij bouwen beschermd stads _of dorpsgezicht Zonnecollector">
+      <semantic:input id="_951965">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Werkzaamheden dakvlak aan de voor _of zijkant _of plat dak Zonnecollector GS</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_7160975">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>bouwwerkzaamheden voorgevel zijgevel dakvlak voorkant zijkant gebouw plat dak Zonnecollector GS</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_4474678">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>bouwwerkzaamheden aan achtergevel _of achterdakvlak Zonnecollector GS</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_7635809">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>achtergevel _of achterdakvlak gekeerd naar openbaar toegankelijk gebied Zonnecollector GS</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_1553421" />
+      <semantic:rule id="_2508584">
+        <semantic:inputEntry id="_4062649">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6511536">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3167443">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1926931">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2767127">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8451935">
+        <semantic:inputEntry id="_1303447">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2488142">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3899498">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4354141">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6229821">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5647072">
+        <semantic:inputEntry id="_7425250">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6824707">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6012695">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8089216">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6231994">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5815329">
+        <semantic:inputEntry id="_8551560">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9969582">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6570770">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4504785">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_698841">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5587062">
+        <semantic:inputEntry id="_9973183">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2226280">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_990871">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_741792">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8841868">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_45929_BizRule" name="Werkzaamheden dakvlak aan de voor _of zijkant _of plat dak Zonnecollector GS">
+    <semantic:variable id="_45929_BizRule_var" name="Werkzaamheden dakvlak aan de voor _of zijkant _of plat dak Zonnecollector GS" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_58351_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_45929_BizRule_td" hitPolicy="UNIQUE" outputLabel="Werkzaamheden dakvlak aan de voor _of zijkant _of plat dak Zonnecollector GS">
+      <semantic:input id="_3314610">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Werkzaamheden dakvlak aan de voor _of zijkant _of plat dak UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_6766779" />
+      <semantic:rule id="_1971408">
+        <semantic:inputEntry id="_6374723">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7678063">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6370414">
+        <semantic:inputEntry id="_2343580">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_642055">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_28598_BizRule" name="bouwwerkzaamheden voorgevel zijgevel dakvlak voorkant zijkant gebouw plat dak Zonnecollector GS">
+    <semantic:variable id="_28598_BizRule_var" name="bouwwerkzaamheden voorgevel zijgevel dakvlak voorkant zijkant gebouw plat dak Zonnecollector GS" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_39992_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_28598_BizRule_td" hitPolicy="UNIQUE" outputLabel="bouwwerkzaamheden voorgevel zijgevel dakvlak voorkant zijkant gebouw plat dak Zonnecollector GS">
+      <semantic:input id="_7167270">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>bouwwerkzaamheden voorgevel zijgevel dakvlak voorkant zijkant gebouw plat dak UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_6252089" />
+      <semantic:rule id="_3677683">
+        <semantic:inputEntry id="_8665337">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3130983">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7749662">
+        <semantic:inputEntry id="_7602527">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9360625">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_28599_BizRule" name="bouwwerkzaamheden aan achtergevel _of achterdakvlak Zonnecollector GS">
+    <semantic:variable id="_28599_BizRule_var" name="bouwwerkzaamheden aan achtergevel _of achterdakvlak Zonnecollector GS" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_39994_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_28599_BizRule_td" hitPolicy="UNIQUE" outputLabel="bouwwerkzaamheden aan achtergevel _of achterdakvlak Zonnecollector GS">
+      <semantic:input id="_6037158">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>bouwwerkzaamheden aan achtergevel _of achterdakvlak UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3020313" />
+      <semantic:rule id="_5742552">
+        <semantic:inputEntry id="_8297435">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2862749">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1228981">
+        <semantic:inputEntry id="_8659348">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9084249">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_28600_BizRule" name="achtergevel _of achterdakvlak gekeerd naar openbaar toegankelijk gebied Zonnecollector GS">
+    <semantic:variable id="_28600_BizRule_var" name="achtergevel _of achterdakvlak gekeerd naar openbaar toegankelijk gebied Zonnecollector GS" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_32989_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_28600_BizRule_td" hitPolicy="UNIQUE" outputLabel="achtergevel _of achterdakvlak gekeerd naar openbaar toegankelijk gebied Zonnecollector GS">
+      <semantic:input id="_1583839">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>bijbehorendbouwwerk wijziging achterkant gekeerd naar openbaar toegankelijk gebied UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5937813" />
+      <semantic:rule id="_9557863">
+        <semantic:inputEntry id="_6112695">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7580381">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1953747">
+        <semantic:inputEntry id="_840847">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7761063">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_28601_BizRule" name="voorbehoud Zonnecollector GS">
+    <semantic:variable id="_28601_BizRule_var" name="voorbehoud Zonnecollector GS" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_25802_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_28601_BizRule_td" hitPolicy="UNIQUE" outputLabel="voorbehoud Zonnecollector GS">
+      <semantic:input id="_861655">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>voorbehoud welstand BouwwerkBouwenBbl UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3646274" />
+      <semantic:rule id="_884887">
+        <semantic:inputEntry id="_7587362">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4558412">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9272348">
+        <semantic:inputEntry id="_9747187">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_754292">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+</semantic:definitions>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<semantic:definitions xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000" xmlns:feel="http://www.omg.org/spec/FEEL/20140401" xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel" xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel" xmlns:triso="http://www.rulearts.com/modeling" xmlns:trisofeed="http://rulearts.com/feed" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel" xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content" exporter="RuleArts STTR Export" exporterVersion="0.2.0" id="_4856982" name="Geur produceren door andere agrarische activiteiten" namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000">
+  <semantic:extensionElements xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd">
+    <uitv:uitvoeringsregels>
+      <uitv:uitvoeringsregel id="_4312_BizRule">
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:vasteWaarde>
+          <uitv:waardeVraag>vaste waarde FALSE</uitv:waardeVraag>
+          <uitv:waarde>false</uitv:waarde>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+        </uitv:vasteWaarde>
+      </uitv:uitvoeringsregel>
+    </uitv:uitvoeringsregels>
+  </semantic:extensionElements>
+  <semantic:inputData id="_5492_Concept" name="vaste waarde FALSE">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_4312_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_9657273" name="vaste waarde FALSE" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:decision id="_4c88ab4e-a803-4822-b845-d1399e5444dd" name="Conclusie - GeurProdAndereAct">
+    <semantic:extensionElements>
+      <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/Conclusienl.imow-gm0772.activiteit.GeurProdAndereAct" />
+    </semantic:extensionElements>
+    <semantic:variable id="_4c88ab4e-a803-4822-b845-d1399e5444dd_var" name="Conclusie - GeurProdAndereAct" typeRef="feel:string" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_31f43010-626b-4af5-95fc-998f05ac9bb3_0ad89ed1-6d75-45fa-a242-6152304c475a" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_4c88ab4e-a803-4822-b845-d1399e5444dd_td" hitPolicy="COLLECT" outputLabel="Conclusie - GeurProdAndereAct">
+      <semantic:input id="_9560360">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Toestemmingen - Vergunningplicht - GeurProdAndereAct</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3776392" />
+      <semantic:rule id="_8633197">
+        <semantic:inputEntry id="_2676644">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2174965">
+          <semantic:extensionElements>
+            <content:conclusieToelichting>
+              <content:toelichting><![CDATA[U moet zich wel houden aan de algemene regels voor deze activiteit\. In [Maatregelen op Maat](/maatregelen) vindt u de maatregelen waarmee u aan deze regels kunt voldoen\.]]></content:toelichting>
+            </content:conclusieToelichting>
+          </semantic:extensionElements>
+          <semantic:text>"Toestemmingsvrij"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_31f43010-626b-4af5-95fc-998f05ac9bb3_0ad89ed1-6d75-45fa-a242-6152304c475a" name="Toestemmingen - Vergunningplicht - GeurProdAndereAct">
+    <semantic:variable id="_31f43010-626b-4af5-95fc-998f05ac9bb3_0ad89ed1-6d75-45fa-a242-6152304c475a_var" name="Toestemmingen - Vergunningplicht - GeurProdAndereAct" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_27974_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_31f43010-626b-4af5-95fc-998f05ac9bb3_0ad89ed1-6d75-45fa-a242-6152304c475a_td" hitPolicy="ANY" outputLabel="Toestemmingen - Vergunningplicht - GeurProdAndereAct">
+      <semantic:input id="_2162127">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vergunningplicht vaste waarde geurprod andere act</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7140785" />
+      <semantic:rule id="_1648114">
+        <semantic:inputEntry id="_679781">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9305417">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8285431">
+        <semantic:inputEntry id="_1664785">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4501002">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_27974_BizRule" name="vergunningplicht vaste waarde geurprod andere act">
+    <semantic:variable id="_27974_BizRule_var" name="vergunningplicht vaste waarde geurprod andere act" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_5492_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_27974_BizRule_td" hitPolicy="UNIQUE" outputLabel="vergunningplicht vaste waarde geurprod andere act">
+      <semantic:input id="_9287882">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vaste waarde FALSE</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8086008" />
+      <semantic:rule id="_3870415">
+        <semantic:inputEntry id="_1401884">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1448566">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6266280">
+        <semantic:inputEntry id="_8765572">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8116158">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+</semantic:definitions>

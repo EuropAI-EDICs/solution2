@@ -1,0 +1,1838 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<semantic:definitions xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000" xmlns:feel="http://www.omg.org/spec/FEEL/20140401" xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel" xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel" xmlns:triso="http://www.rulearts.com/modeling" xmlns:trisofeed="http://rulearts.com/feed" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel" xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content" exporter="RuleArts STTR Export" exporterVersion="0.2.0" id="_7405363" name="Conclusie - Bouwwerk veranderen" namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000">
+  <semantic:extensionElements xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd">
+    <versiebeheerGegevens>
+      <paar>
+        <sleutel>ID</sleutel>
+        <waarde>c3d900f8-0557-4bc8-b883-73cd963dc3c8</waarde>
+      </paar>
+      <paar>
+        <sleutel>aanmaakDatumTijd</sleutel>
+        <waarde>2023-05-02 10:48:25</waarde>
+      </paar>
+      <paar>
+        <sleutel>bronsysteem</sleutel>
+        <waarde>RuleXpress</waarde>
+      </paar>
+    </versiebeheerGegevens>
+    <inter:regelgroepen xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel">
+      <inter:regelgroep id="_3919_RuleGroup">
+        <inter:naam>Uitbreiding bestaand bouwwerk</inter:naam>
+        <inter:prioriteit>3</inter:prioriteit>
+      </inter:regelgroep>
+      <inter:regelgroep id="_4741_RuleGroup">
+        <inter:naam>Woning</inter:naam>
+        <inter:prioriteit>5</inter:prioriteit>
+      </inter:regelgroep>
+      <inter:regelgroep id="_3501_RuleGroup">
+        <inter:naam>Monument/archeologisch monument en stads- of dorpsgezicht</inter:naam>
+        <inter:prioriteit>20</inter:prioriteit>
+      </inter:regelgroep>
+      <inter:regelgroep id="_3136_RuleGroup">
+        <inter:naam>Beschermd stads- of dorpsgezicht</inter:naam>
+        <inter:prioriteit>60</inter:prioriteit>
+      </inter:regelgroep>
+      <inter:regelgroep id="_3138_RuleGroup">
+        <inter:naam>Monumenten</inter:naam>
+        <inter:prioriteit>50</inter:prioriteit>
+      </inter:regelgroep>
+    </inter:regelgroepen>
+    <uitv:uitvoeringsregels>
+      <uitv:uitvoeringsregel id="_18779_BizRule">
+        <uitv:regelgroepRef href="#_3919_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Neemt de oppervlakte van het bouwwerk toe?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Het oppervlak van het bouwwerk wordt gemeten door het verticaal geprojecteerde oppervlak te meten\. Kleine uitstekende delen \(die minder dan 0,5 m buiten het gebouw uitsteken\) hoeft u niet mee te rekenen\. Het aanbrengen van bijvoorbeeld dakgoten of raamdorpels vergroot het oppervlak van het bouwwerk niet\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_18780_BizRule">
+        <uitv:regelgroepRef href="#_3919_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Neemt de inhoud van het bouwwerk toe?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Kleine uitstekende delen \(die minder dan 0,5 m buiten het gebouw uitsteken\) hoeft u niet mee te rekenen\. Het aanbrengen van bijvoorbeeld een buis van een rookgasafvoer vergroot de inhoud van het bouwwerk niet\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_3115_BizRule">
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:vasteWaarde>
+          <uitv:waardeVraag>Vaste Waarde TRUE</uitv:waardeVraag>
+          <uitv:waarde>true</uitv:waarde>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+        </uitv:vasteWaarde>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_17470_BizRule">
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <uitv:vasteWaardeVoorbehoud>
+          <uitv:vasteWaarde>
+            <uitv:waardeVraag>TRUE</uitv:waardeVraag>
+            <uitv:waarde>true</uitv:waarde>
+            <uitv:gegevensType>boolean</uitv:gegevensType>
+          </uitv:vasteWaarde>
+          <uitv:tekstVoorbehoud>De conclusie "Geen omgevingsvergunning nodig" betekent niet dat u direct kunt beginnen met de bouw van het bouwwerk. Uw bouwplan moet namelijk ook voldoen aan de regels uit het omgevingsplan. Voldoet uw bouwplan hieraan, dan mag u vergunningvrij bouwen. Voldoet uw bouwplan hier niet aan, dan moet u een omgevingsvergunning aanvragen om af te mogen wijken van de regels in het omgevingsplan. Neem bij twijfel contact op met de gemeente voor meer informatie.</uitv:tekstVoorbehoud>
+        </uitv:vasteWaardeVoorbehoud>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_12558_BizRule">
+        <uitv:regelgroepRef href="#_4741_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>list</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Blijft het aantal woningen gelijk?]]></uitv:vraagTekst>
+          <uitv:opties>
+            <uitv:optieType>enkelAntwoord</uitv:optieType>
+            <uitv:optie>
+              <uitv:sequenceId>1</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Ja]]></uitv:optieText>
+            </uitv:optie>
+            <uitv:optie>
+              <uitv:sequenceId>2</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Nee, er komt een woning bij]]></uitv:optieText>
+            </uitv:optie>
+            <uitv:optie>
+              <uitv:sequenceId>3</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Nee, er komen meerdere woningen bij]]></uitv:optieText>
+            </uitv:optie>
+            <uitv:optie>
+              <uitv:sequenceId>4</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Nee, er worden woningen samengevoegd]]></uitv:optieText>
+            </uitv:optie>
+          </uitv:opties>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Het aantal woningen blijft gelijk als door de werkzaamheden geen nieuwe woning\(en\) ontstaan of woningen worden samengevoegd\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_12715_BizRule">
+        <uitv:regelgroepRef href="#_4741_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>20</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Is de nieuwe woning bestemd voor mantelzorg?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[##### Mantelzorg
+
+Mantelzorg is intensieve zorg of ondersteuning, die de gebruikelijke zorg en hulp van huisgenoten voor elkaar overstijgt\. Mantelzorg is geen professionele zorg, maar zorg vanuit een sociale relatie tussen de mantelzorger en de verzorgde\. Bijvoorbeeld iemand die zijn ouders in huis neemt om hen te verzorgen op hun oude dag\.
+
+De behoefte aan mantelzorg kan met een verklaring van een huisarts, wijkverpleegkundige of andere door de gemeente aangewezen sociaal\-medisch adviseur worden aangetoond, als de gemeente dat verlangt\. Overleg bij twijfel met de gemeente of er in een situatie sprake is van mantelzorg of niet\.
+
+De nieuw te realiseren woning kan zowel de woning zijn voor degene die mantelzorg verleent als de woning voor degene die mantelzorg ontvangt\.
+
+LET OP: Nadat de mantelzorg situatie eindigt, mag de nieuwe woning niet meer worden gebruikt als woning\. Doorgaans zal het gebruik van de ruimten alleen nog toegestaan zijn voor aan de woning functioneel ondergeschikt gebruik zoals een garage, berging of niet vanuit de woning toegankelijke bijkeuken of hobbyruimte\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_16517_BizRule">
+        <uitv:regelgroepRef href="#_4741_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>30</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Is de nieuwe woning bestemd voor één huishouden van maximaal 2 personen?]]></uitv:vraagTekst>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_16521_BizRule">
+        <uitv:regelgroepRef href="#_4741_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>50</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat u een andere bouwlaag dan de begane grond gebruiken voor het verblijven van personen?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Ruimten voor verblijven van personen zijn bijvoorbeeld een slaapkamer, woonkamer, keuken, etc\. Dit zijn dus ruimten waar personen langduriger aanwezig zijn\. Ruimten die niet bestemd zijn voor het verblijven van personen zijn bijvoorbeeld een toiletruimte, technische ruimte of bergzolder\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_16519_BizRule">
+        <uitv:regelgroepRef href="#_4741_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>40</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Bestaat het gebouw waar de mantelzorgwoning in wordt gebouwd uit meer dan één bouwlaag?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[##### Meerdere bouwlagen
+
+![Meerdere bouwlagen: 3 voorbeelden van een bouwlaag eerste verdieping](https://iplo.nl/publish/pages/218916/liblvkn.jpg)
+
+De vraag is of het bijbehorend bouwwerk naast de begane grond nog een bouwlaag heeft\. Dit kan ook een zolder of kelder zijn\.]]></content:toelichting>
+          <content:belangrijk>true</content:belangrijk>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_12696_BizRule">
+        <uitv:regelgroepRef href="#_3501_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>20</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Vinden de voorgenomen bouwwerkzaamheden plaats in een rijksbeschermd stads- of dorpsgezicht?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[##### Rijksbeschermd stads\- of dorpsgezicht
+
+Het gaat hier om bouwwerkzaamheden binnen een door het Rijk aangewezen beschermd stads\- of dorpsgezicht\. Neem bij twijfel of voor meer informatie contact op met uw gemeente\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_12697_BizRule">
+        <uitv:regelgroepRef href="#_3136_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Vinden deze bouwwerkzaamheden alleen plaats aan de binnenkant van een gebouw (inpandig)?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Kies hier “Nee” als de bouwwerkzaamheden \(ook\) aan de buitenkant van het bouwwerk plaatsvinden\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_28570_BizRule">
+        <uitv:regelgroepRef href="#_3136_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>12</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat u iets veranderen aan de voorgevel of de zijgevel van het gebouw?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Vul “Nee” in als de bouwwerkzaamheden alleen plaatsvinden aan de achtergevel van het gebouw\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_45789_BizRule">
+        <uitv:regelgroepRef href="#_3136_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>15</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat u iets veranderen aan het dakvlak aan de voor- of zijkant van het gebouw of aan een plat dak?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Vul “Nee” in als de bouwwerkzaamheden alleen plaatsvinden aan het achterdakvlak van het gebouw\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_28572_BizRule">
+        <uitv:regelgroepRef href="#_3136_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>20</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat u iets veranderen aan de achtergevel of het achterdakvlak van het gebouw?]]></uitv:vraagTekst>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_22711_BizRule">
+        <uitv:regelgroepRef href="#_3136_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>30</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Is de achtergevel of het achterdakvlak gekeerd naar openbaar toegankelijk gebied?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[##### Wat is openbaar toegankelijk gebied?
+
+De volgende gebieden kunnen een openbaar toegankelijk gebied zijn:
+
+* wegen
+* pleinen
+* voet\- en fietspaden, behalve paden die alleen gebruikt worden voor de ontsluiting van percelen
+* parken
+* plantsoenen
+* vaarwater]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_17499_BizRule">
+        <uitv:regelgroepRef href="#_3138_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat het om bouwwerkzaamheden in, aan of op het beschermde of voorbeschermde monument of archeologisch monument?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Is dit het geval, dan is daarvoor waarschijnlijk \(ook\) een aparte omgevingsvergunning nodig\. Vul hierna, afhankelijk van de status \(gemeentelijk monument, provinciaal monument of rijksmonument\), ook de vergunningcheck in voor de desbetreffende monumentenactiviteit\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_12663_BizRule">
+        <uitv:regelgroepRef href="#_3501_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Is er op het perceel een beschermd of voorbeschermd monument of archeologisch monument aanwezig?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Iets is een beschermd monument of archeologisch monument als de gemeente, de provincie of het Rijk het heeft aangewezen als gemeentelijk monument, provinciaal monument of rijksmonument\.   
+Vul hier ook ‘ja’ in als er een procedure tot aanwijzing als gemeentelijk, provinciaal of rijksmonument loopt\. Dan is er sprake van een zogenoemd ‘voorbeschermd’ gemeentelijk monument, provinciaal monument of rijksmonument\.]]></content:toelichting>
+          <content:langeToelichting><![CDATA[Of iets een gemeentelijk monument of provinciaal monument is, kunt u navragen bij de gemeente\.
+
+Of iets een rijksmonument is, kunt u opzoeken in het rijksmonumentenregister \([https://monumentenregister\.cultureelerfgoed\.nl](https://monumentenregister.cultureelerfgoed.nl)\)\. In de omschrijving van het rijksmonument staat om welke onroerende zaak/onroerende zaken of welk terrein het gaat\. U kunt ook contact opnemen met de Rijksdienst voor het Cultureel Erfgoed \([https://cultureelerfgoed\.nl/contact/contactformulier](https://cultureelerfgoed.nl/contact/contactformulier)\)\.]]></content:langeToelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+    </uitv:uitvoeringsregels>
+  </semantic:extensionElements>
+  <semantic:inputData id="_27767_Concept" name="uitbreiding van _ bebouwde oppervlakte bouwwerk UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_18779_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_6586292" name="uitbreiding van _ bebouwde oppervlakte bouwwerk UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_27769_Concept" name="uitbreiding van _ bouwvolume bouwwerk UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_18780_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_4377041" name="uitbreiding van _ bouwvolume bouwwerk UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_3787_Concept" name="Vaste Waarde TRUE">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_3115_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_8979122" name="Vaste Waarde TRUE" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_25707_Concept" name="voorbehoud voldoen aan omgevingsplan UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_17470_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_2628137" name="voorbehoud voldoen aan omgevingsplan UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_18357_Concept" name="aantal woningen gelijk UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_12558_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_7229192" name="aantal woningen gelijk UR" typeRef="feel:string" />
+  </semantic:inputData>
+  <semantic:inputData id="_18594_Concept" name="woning bestemming mantelzorg UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_12715_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_6712805" name="woning bestemming mantelzorg UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_24177_Concept" name="bestemming woning huishouden twee personen UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_16517_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_2442229" name="bestemming woning huishouden twee personen UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_24182_Concept" name="andere bouwlaag gebruiken mantelzorg UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_16521_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_7705843" name="andere bouwlaag gebruiken mantelzorg UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_24179_Concept" name="aantal bouwlagen mantelzorgwoning UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_16519_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_7161170" name="aantal bouwlagen mantelzorgwoning UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_18568_Concept" name="rijksbeschermd stadsgezicht dorpsgezicht UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_12696_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_8741222" name="rijksbeschermd stadsgezicht dorpsgezicht UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_18570_Concept" name="inpandige wijzigingen UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_12697_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_6419001" name="inpandige wijzigingen UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_39992_Concept" name="bouwwerkzaamheden voorgevel zijgevel dakvlak voorkant zijkant gebouw plat dak UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_28570_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_8593146" name="bouwwerkzaamheden voorgevel zijgevel dakvlak voorkant zijkant gebouw plat dak UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_58351_Concept" name="Werkzaamheden dakvlak aan de voor _of zijkant _of plat dak UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_45789_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_1406411" name="Werkzaamheden dakvlak aan de voor _of zijkant _of plat dak UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_39994_Concept" name="bouwwerkzaamheden aan achtergevel _of achterdakvlak UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_28572_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_1286193" name="bouwwerkzaamheden aan achtergevel _of achterdakvlak UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_32989_Concept" name="bijbehorendbouwwerk wijziging achterkant gekeerd naar openbaar toegankelijk gebied UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_22711_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_5905577" name="bijbehorendbouwwerk wijziging achterkant gekeerd naar openbaar toegankelijk gebied UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_25755_Concept" name="werkzaamheden uitvoeren op aan _of _in het monument UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_17499_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_5668419" name="werkzaamheden uitvoeren op aan _of _in het monument UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_18517_Concept" name="werkzaamheden op aan _in monument UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_12663_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_6356002" name="werkzaamheden op aan _in monument UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:decision id="_18750_BizRule" name="Conclusie - BouwwerkVeranderen">
+    <semantic:extensionElements>
+      <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/Conclusienl.imow-gm0772.activiteit.BouwwerkVeranderen" />
+    </semantic:extensionElements>
+    <semantic:variable id="_18750_BizRule_var" name="Conclusie - BouwwerkVeranderen" typeRef="feel:string" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_18b4e85d-0549-4e87-8b6f-479e21690899_e98577c2-78a6-4bdd-871a-6a5da6a2d1da" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_18750_BizRule_td" hitPolicy="COLLECT" outputLabel="Conclusie - BouwwerkVeranderen">
+      <semantic:input id="_9492531">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Toestemmingen - Vergunningvrij - BouwwerkVeranderen</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3592538" />
+      <semantic:rule id="_8676020">
+        <semantic:inputEntry id="_5111778">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2509580">
+          <semantic:extensionElements>
+            <content:conclusieToelichting>
+              <content:toelichting><![CDATA[De gemeente gaat beoordelen of uw \(ver\)bouwplannen voldoen aan de regels in het omgevingsplan\. In het omgevingsplan legt de gemeente vast wat er met de ruimte in de gemeente mag gebeuren\. Bijvoorbeeld waar woningen of bedrijven mogen komen en welke afmetingen die mogen hebben\.]]></content:toelichting>
+            </content:conclusieToelichting>
+          </semantic:extensionElements>
+          <semantic:text>"Vergunningplicht"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8201737">
+        <semantic:inputEntry id="_1506664">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2319755">
+          <semantic:text>"Toestemmingsvrij"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_18b4e85d-0549-4e87-8b6f-479e21690899_e98577c2-78a6-4bdd-871a-6a5da6a2d1da" name="Toestemmingen - Vergunningvrij - BouwwerkVeranderen">
+    <semantic:variable id="_18b4e85d-0549-4e87-8b6f-479e21690899_e98577c2-78a6-4bdd-871a-6a5da6a2d1da_var" name="Toestemmingen - Vergunningvrij - BouwwerkVeranderen" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_d7d34624-897e-4f8f-83e4-c72b64ff27cf" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_7e011750-34f1-41a2-99db-94ddbaf204bc" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_b788ee3e-931b-4cc3-90ff-118446eec9c0" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24100_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24101_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24186_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24155_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_18b4e85d-0549-4e87-8b6f-479e21690899_e98577c2-78a6-4bdd-871a-6a5da6a2d1da_td" hitPolicy="ANY" outputLabel="Toestemmingen - Vergunningvrij - BouwwerkVeranderen">
+      <semantic:input id="_1650961">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>uitbreiding van _ bebouwde oppervlakte Op Artikel 22.28 i 1_</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_4504401">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>uitbreiding van _ bouwvolume Op Artikel 22.28 i 2_</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_4915133">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>bouwwerk als bedoeld _in artikel 2.15f_ onder b tot en met r_ van _ Besluit bouwwerken leefomgeving dat niet voldoet aan _ voor dat bouwwerk _in die onderdelen gestelde eisen Op Artikel 22.28 i 3_</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_5946627">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>aan omgevingsplan voldoen BouwwerkVeranderen</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_6204096">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Voorwaarden Woning BouwwerkVeranderen</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_9385270">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Beschermd stads _of dorpsgezicht BouwwerkVeranderen</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_2869934">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Mogelijk vergunningvrij Monument BouwwerkVeranderen</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9499523" />
+      <semantic:rule id="_9794568">
+        <semantic:inputEntry id="_1349263">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2681204">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2646063">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5533047">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8369070">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3950135">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3555607">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2645348">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6530896">
+        <semantic:inputEntry id="_3972056">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3891009">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_918146">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1382891">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_461662">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9750291">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2911022">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4596982">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5778886">
+        <semantic:inputEntry id="_8800941">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3971971">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2593585">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4376712">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6175303">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7772457">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_608381">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5878230">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2508404">
+        <semantic:inputEntry id="_7527095">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2059215">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1257073">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9355951">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3849067">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9093623">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1611842">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9936929">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3524372">
+        <semantic:inputEntry id="_3322356">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1122955">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1423460">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9642403">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5420412">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2766430">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5978683">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4529681">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7615655">
+        <semantic:inputEntry id="_1701609">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_568070">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4342738">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5164841">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3335604">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1907114">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3906383">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4068993">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5827551">
+        <semantic:inputEntry id="_7500983">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6972551">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6505901">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4873606">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5224665">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2790840">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1741730">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6028511">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_886132">
+        <semantic:inputEntry id="_5573823">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4616104">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_341942">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1824522">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9771048">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_524732">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6525919">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9588666">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_d7d34624-897e-4f8f-83e4-c72b64ff27cf" name="uitbreiding van _ bebouwde oppervlakte Op Artikel 22.28 i 1_">
+    <semantic:variable id="_d7d34624-897e-4f8f-83e4-c72b64ff27cf_var" name="uitbreiding van _ bebouwde oppervlakte Op Artikel 22.28 i 1_" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_27767_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_d7d34624-897e-4f8f-83e4-c72b64ff27cf_td" hitPolicy="UNIQUE" outputLabel="uitbreiding van _ bebouwde oppervlakte Op Artikel 22.28 i 1_">
+      <semantic:input id="_3774027">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>uitbreiding van _ bebouwde oppervlakte bouwwerk UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4655425" />
+      <semantic:rule id="_9158537">
+        <semantic:inputEntry id="_8551559">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9827154">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8398028">
+        <semantic:inputEntry id="_1945621">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_456801">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_7e011750-34f1-41a2-99db-94ddbaf204bc" name="uitbreiding van _ bouwvolume Op Artikel 22.28 i 2_">
+    <semantic:variable id="_7e011750-34f1-41a2-99db-94ddbaf204bc_var" name="uitbreiding van _ bouwvolume Op Artikel 22.28 i 2_" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_27769_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_7e011750-34f1-41a2-99db-94ddbaf204bc_td" hitPolicy="UNIQUE" outputLabel="uitbreiding van _ bouwvolume Op Artikel 22.28 i 2_">
+      <semantic:input id="_8906772">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>uitbreiding van _ bouwvolume bouwwerk UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5610159" />
+      <semantic:rule id="_8165665">
+        <semantic:inputEntry id="_2662254">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8723611">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9349959">
+        <semantic:inputEntry id="_5749567">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9780073">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_b788ee3e-931b-4cc3-90ff-118446eec9c0" name="bouwwerk als bedoeld _in artikel 2.15f_ onder b tot en met r_ van _ Besluit bouwwerken leefomgeving dat niet voldoet aan _ voor dat bouwwerk _in die onderdelen gestelde eisen Op Artikel 22.28 i 3_">
+    <semantic:variable id="_b788ee3e-931b-4cc3-90ff-118446eec9c0_var" name="bouwwerk als bedoeld _in artikel 2.15f_ onder b tot en met r_ van _ Besluit bouwwerken leefomgeving dat niet voldoet aan _ voor dat bouwwerk _in die onderdelen gestelde eisen Op Artikel 22.28 i 3_" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_3787_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_b788ee3e-931b-4cc3-90ff-118446eec9c0_td" hitPolicy="UNIQUE" outputLabel="bouwwerk als bedoeld _in artikel 2.15f_ onder b tot en met r_ van _ Besluit bouwwerken leefomgeving dat niet voldoet aan _ voor dat bouwwerk _in die onderdelen gestelde eisen Op Artikel 22.28 i 3_">
+      <semantic:input id="_3566072">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Vaste Waarde TRUE</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4110859" />
+      <semantic:rule id="_3264377">
+        <semantic:inputEntry id="_7018471">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8448749">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5898289">
+        <semantic:inputEntry id="_8632620">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8200673">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24100_BizRule" name="aan omgevingsplan voldoen BouwwerkVeranderen">
+    <semantic:variable id="_24100_BizRule_var" name="aan omgevingsplan voldoen BouwwerkVeranderen" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_25707_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24100_BizRule_td" hitPolicy="UNIQUE" outputLabel="aan omgevingsplan voldoen BouwwerkVeranderen">
+      <semantic:input id="_9391901">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>voorbehoud voldoen aan omgevingsplan UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2180298" />
+      <semantic:rule id="_704860">
+        <semantic:inputEntry id="_9913577">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7573712">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9877087">
+        <semantic:inputEntry id="_797021">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4118006">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24101_BizRule" name="Voorwaarden Woning BouwwerkVeranderen">
+    <semantic:variable id="_24101_BizRule_var" name="Voorwaarden Woning BouwwerkVeranderen" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24103_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24114_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24101_BizRule_td" hitPolicy="ANY" outputLabel="Voorwaarden Woning BouwwerkVeranderen">
+      <semantic:input id="_8638922">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>gelijkblijvend aantal woningen BouwwerkVeranderen</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_3746938">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Woning komt erbij BouwwerkVeranderen</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8133087" />
+      <semantic:rule id="_9250957">
+        <semantic:inputEntry id="_4910455">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7275992">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7673828">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8574523">
+        <semantic:inputEntry id="_4860279">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4716804">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6317893">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7180680">
+        <semantic:inputEntry id="_3576064">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3666257">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2162521">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24103_BizRule" name="gelijkblijvend aantal woningen BouwwerkVeranderen">
+    <semantic:variable id="_24103_BizRule_var" name="gelijkblijvend aantal woningen BouwwerkVeranderen" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_16425_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24103_BizRule_td" hitPolicy="UNIQUE" outputLabel="gelijkblijvend aantal woningen BouwwerkVeranderen">
+      <semantic:input id="_6223864">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>aantal woningen blijft gelijk CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8866536" />
+      <semantic:rule id="_561868">
+        <semantic:inputEntry id="_8258450">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5960189">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7260354">
+        <semantic:inputEntry id="_9507447">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1439916">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_16425_BizRule" name="aantal woningen blijft gelijk CR">
+    <semantic:variable id="_16425_BizRule_var" name="aantal woningen blijft gelijk CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_18357_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_16425_BizRule_td" hitPolicy="FIRST" outputLabel="aantal woningen blijft gelijk CR">
+      <semantic:input id="_7875737">
+        <semantic:inputExpression typeRef="feel:string">
+          <semantic:text>aantal woningen gelijk UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_6022805" />
+      <semantic:rule id="_1257864">
+        <semantic:inputEntry id="_9159658">
+          <semantic:text>"Ja"</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7946856">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7993168">
+        <semantic:inputEntry id="_2032044">
+          <semantic:text>not(null, "Ja")</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2883089">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24114_BizRule" name="Woning komt erbij BouwwerkVeranderen">
+    <semantic:variable id="_24114_BizRule_var" name="Woning komt erbij BouwwerkVeranderen" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24115_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24116_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24117_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24123_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24114_BizRule_td" hitPolicy="ANY" outputLabel="Woning komt erbij BouwwerkVeranderen">
+      <semantic:input id="_9029685">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>woning komt er bij BouwwerkVeranderen</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_5113138">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>nieuwe woning bestemd voor mantelzorg</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_4347659">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>nieuwe woning bestemd voor een huishouden van maximaal twee personen</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_4023332">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Bouwlagen mantelzorgwoning BouwwerkVeranderen</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5276672" />
+      <semantic:rule id="_1516871">
+        <semantic:inputEntry id="_6498610">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5169618">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6290080">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6437030">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4689854">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2458192">
+        <semantic:inputEntry id="_4031945">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9580395">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1751939">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4924609">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6025644">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_317777">
+        <semantic:inputEntry id="_4480995">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1347041">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7311844">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1918636">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4836832">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6857651">
+        <semantic:inputEntry id="_9131474">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2607022">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_557349">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3528152">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3952591">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8116333">
+        <semantic:inputEntry id="_9726972">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_881354">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3128235">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2133715">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7288208">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24115_BizRule" name="woning komt er bij BouwwerkVeranderen">
+    <semantic:variable id="_24115_BizRule_var" name="woning komt er bij BouwwerkVeranderen" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_16424_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24115_BizRule_td" hitPolicy="UNIQUE" outputLabel="woning komt er bij BouwwerkVeranderen">
+      <semantic:input id="_2367542">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>nieuwe woning bij CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9228404" />
+      <semantic:rule id="_9642924">
+        <semantic:inputEntry id="_6885848">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5006992">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2667926">
+        <semantic:inputEntry id="_5392250">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2268369">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_16424_BizRule" name="nieuwe woning bij CR">
+    <semantic:variable id="_16424_BizRule_var" name="nieuwe woning bij CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_18357_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_16424_BizRule_td" hitPolicy="FIRST" outputLabel="nieuwe woning bij CR">
+      <semantic:input id="_9523158">
+        <semantic:inputExpression typeRef="feel:string">
+          <semantic:text>aantal woningen gelijk UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2870500" />
+      <semantic:rule id="_7349255">
+        <semantic:inputEntry id="_7407970">
+          <semantic:text>"Nee, er komt een woning bij"</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8295342">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4570865">
+        <semantic:inputEntry id="_6333254">
+          <semantic:text> not(null, "Nee, er komt een woning bij")</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3434013">
+          <semantic:text>false	</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24116_BizRule" name="nieuwe woning bestemd voor mantelzorg">
+    <semantic:variable id="_24116_BizRule_var" name="nieuwe woning bestemd voor mantelzorg" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_18594_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24116_BizRule_td" hitPolicy="UNIQUE" outputLabel="nieuwe woning bestemd voor mantelzorg">
+      <semantic:input id="_7929078">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>woning bestemming mantelzorg UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3812172" />
+      <semantic:rule id="_985002">
+        <semantic:inputEntry id="_5571244">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7411048">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_576306">
+        <semantic:inputEntry id="_7490008">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4891857">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24117_BizRule" name="nieuwe woning bestemd voor een huishouden van maximaal twee personen">
+    <semantic:variable id="_24117_BizRule_var" name="nieuwe woning bestemd voor een huishouden van maximaal twee personen" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_24177_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24117_BizRule_td" hitPolicy="UNIQUE" outputLabel="nieuwe woning bestemd voor een huishouden van maximaal twee personen">
+      <semantic:input id="_2969650">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>bestemming woning huishouden twee personen UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_1259522" />
+      <semantic:rule id="_3270457">
+        <semantic:inputEntry id="_1517026">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8173746">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6710058">
+        <semantic:inputEntry id="_4108499">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9329956">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24123_BizRule" name="Bouwlagen mantelzorgwoning BouwwerkVeranderen">
+    <semantic:variable id="_24123_BizRule_var" name="Bouwlagen mantelzorgwoning BouwwerkVeranderen" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24125_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24127_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24123_BizRule_td" hitPolicy="ANY" outputLabel="Bouwlagen mantelzorgwoning BouwwerkVeranderen">
+      <semantic:input id="_2198230">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>mantelzorgwoning niet meer dan 1 bouwlaag</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_2592186">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>mantelzorgwoning meer dan 1 bouwlaag</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9384397" />
+      <semantic:rule id="_5696204">
+        <semantic:inputEntry id="_6382719">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3431928">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9474003">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8679115">
+        <semantic:inputEntry id="_2219593">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9650266">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5313673">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4287151">
+        <semantic:inputEntry id="_2082219">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5199051">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2262006">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24125_BizRule" name="mantelzorgwoning niet meer dan 1 bouwlaag">
+    <semantic:variable id="_24125_BizRule_var" name="mantelzorgwoning niet meer dan 1 bouwlaag" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_24182_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24125_BizRule_td" hitPolicy="UNIQUE" outputLabel="mantelzorgwoning niet meer dan 1 bouwlaag">
+      <semantic:input id="_8957286">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>andere bouwlaag gebruiken mantelzorg UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7619336" />
+      <semantic:rule id="_4982320">
+        <semantic:inputEntry id="_2097893">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7069182">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2443232">
+        <semantic:inputEntry id="_6562470">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9877160">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24127_BizRule" name="mantelzorgwoning meer dan 1 bouwlaag">
+    <semantic:variable id="_24127_BizRule_var" name="mantelzorgwoning meer dan 1 bouwlaag" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_24179_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24127_BizRule_td" hitPolicy="UNIQUE" outputLabel="mantelzorgwoning meer dan 1 bouwlaag">
+      <semantic:input id="_2091236">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>aantal bouwlagen mantelzorgwoning UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2038396" />
+      <semantic:rule id="_5051067">
+        <semantic:inputEntry id="_4216198">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4047469">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9397468">
+        <semantic:inputEntry id="_4175223">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4094623">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24186_BizRule" name="Beschermd stads _of dorpsgezicht BouwwerkVeranderen">
+    <semantic:variable id="_24186_BizRule_var" name="Beschermd stads _of dorpsgezicht BouwwerkVeranderen" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24185_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24187_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24188_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24186_BizRule_td" hitPolicy="ANY" outputLabel="Beschermd stads _of dorpsgezicht BouwwerkVeranderen">
+      <semantic:input id="_3113100">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>werkzaamheden verricht _in rijksbeschermd stads _of dorpsgezicht</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_8762000">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>alleen werkzaamheden uitvoeren binnen gebouw</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_8019298">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Voorwaarden beschermd stads _of dorpsgezicht BouwwerkVeranderen</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5509740" />
+      <semantic:rule id="_6003155">
+        <semantic:inputEntry id="_5186468">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_937050">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7051294">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4797150">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4338169">
+        <semantic:inputEntry id="_2305887">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3651651">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7760781">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5262632">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3502856">
+        <semantic:inputEntry id="_3109637">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7770598">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8997516">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4313170">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3897689">
+        <semantic:inputEntry id="_3491426">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4912164">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7039317">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7186723">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24185_BizRule" name="werkzaamheden verricht _in rijksbeschermd stads _of dorpsgezicht">
+    <semantic:variable id="_24185_BizRule_var" name="werkzaamheden verricht _in rijksbeschermd stads _of dorpsgezicht" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_18568_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24185_BizRule_td" hitPolicy="UNIQUE" outputLabel="werkzaamheden verricht _in rijksbeschermd stads _of dorpsgezicht">
+      <semantic:input id="_5635760">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>rijksbeschermd stadsgezicht dorpsgezicht UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2715026" />
+      <semantic:rule id="_7593161">
+        <semantic:inputEntry id="_3957808">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1631651">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9215730">
+        <semantic:inputEntry id="_5726533">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9281646">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24187_BizRule" name="alleen werkzaamheden uitvoeren binnen gebouw">
+    <semantic:variable id="_24187_BizRule_var" name="alleen werkzaamheden uitvoeren binnen gebouw" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_18570_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24187_BizRule_td" hitPolicy="UNIQUE" outputLabel="alleen werkzaamheden uitvoeren binnen gebouw">
+      <semantic:input id="_8044369">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>inpandige wijzigingen UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5855643" />
+      <semantic:rule id="_2500572">
+        <semantic:inputEntry id="_5525150">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4062921">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9689311">
+        <semantic:inputEntry id="_6258851">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4070818">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24188_BizRule" name="Voorwaarden beschermd stads _of dorpsgezicht BouwwerkVeranderen">
+    <semantic:variable id="_24188_BizRule_var" name="Voorwaarden beschermd stads _of dorpsgezicht BouwwerkVeranderen" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_45791_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24190_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_25643_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24191_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24188_BizRule_td" hitPolicy="ANY" outputLabel="Voorwaarden beschermd stads _of dorpsgezicht BouwwerkVeranderen">
+      <semantic:input id="_6982286">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Werkzaamheden aan voorgevel _of zijgevel BouwwerkVeranderen GS</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_7931025">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>alleen verandering gevel _of dak achterkant gebouw</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_7300743">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>BouwwerkVeranderen bouwwerkzaamheden aan _of op de achtergevel _of het achterdakvlak</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_3031012">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>gevel _of dak aan achterkant gebouw gekeerd naar openbaar toegankelijk gebied</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_437345" />
+      <semantic:rule id="_3210819">
+        <semantic:inputEntry id="_2416378">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6828603">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8535539">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2241430">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6445599">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5049953">
+        <semantic:inputEntry id="_5384298">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_577533">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_903197">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8200935">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2022682">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1132574">
+        <semantic:inputEntry id="_9873979">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3588128">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7593307">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6979242">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5719643">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5581420">
+        <semantic:inputEntry id="_8611635">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3024241">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5607281">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2205137">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3062059">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7977705">
+        <semantic:inputEntry id="_9046716">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8081287">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3038664">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_542351">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6915403">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_45791_BizRule" name="Werkzaamheden aan voorgevel _of zijgevel BouwwerkVeranderen GS">
+    <semantic:variable id="_45791_BizRule_var" name="Werkzaamheden aan voorgevel _of zijgevel BouwwerkVeranderen GS" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_39992_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_45791_BizRule_td" hitPolicy="UNIQUE" outputLabel="Werkzaamheden aan voorgevel _of zijgevel BouwwerkVeranderen GS">
+      <semantic:input id="_5560400">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>bouwwerkzaamheden voorgevel zijgevel dakvlak voorkant zijkant gebouw plat dak UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7611421" />
+      <semantic:rule id="_4308304">
+        <semantic:inputEntry id="_7049378">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2724941">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_598647">
+        <semantic:inputEntry id="_1064557">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5422268">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24190_BizRule" name="alleen verandering gevel _of dak achterkant gebouw">
+    <semantic:variable id="_24190_BizRule_var" name="alleen verandering gevel _of dak achterkant gebouw" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_58351_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24190_BizRule_td" hitPolicy="UNIQUE" outputLabel="alleen verandering gevel _of dak achterkant gebouw">
+      <semantic:input id="_9390221">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Werkzaamheden dakvlak aan de voor _of zijkant _of plat dak UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3070130" />
+      <semantic:rule id="_976579">
+        <semantic:inputEntry id="_4197348">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7766835">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5252446">
+        <semantic:inputEntry id="_4299637">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3802468">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_25643_BizRule" name="BouwwerkVeranderen bouwwerkzaamheden aan _of op de achtergevel _of het achterdakvlak">
+    <semantic:variable id="_25643_BizRule_var" name="BouwwerkVeranderen bouwwerkzaamheden aan _of op de achtergevel _of het achterdakvlak" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_39994_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_25643_BizRule_td" hitPolicy="UNIQUE" outputLabel="BouwwerkVeranderen bouwwerkzaamheden aan _of op de achtergevel _of het achterdakvlak">
+      <semantic:input id="_3230346">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>bouwwerkzaamheden aan achtergevel _of achterdakvlak UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9815331" />
+      <semantic:rule id="_2970722">
+        <semantic:inputEntry id="_6477511">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_303043">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2511382">
+        <semantic:inputEntry id="_2019322">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4419377">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24191_BizRule" name="gevel _of dak aan achterkant gebouw gekeerd naar openbaar toegankelijk gebied">
+    <semantic:variable id="_24191_BizRule_var" name="gevel _of dak aan achterkant gebouw gekeerd naar openbaar toegankelijk gebied" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_32989_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24191_BizRule_td" hitPolicy="UNIQUE" outputLabel="gevel _of dak aan achterkant gebouw gekeerd naar openbaar toegankelijk gebied">
+      <semantic:input id="_7413104">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>bijbehorendbouwwerk wijziging achterkant gekeerd naar openbaar toegankelijk gebied UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7603537" />
+      <semantic:rule id="_511240">
+        <semantic:inputEntry id="_4066544">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_857833">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3194713">
+        <semantic:inputEntry id="_8364311">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2311288">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24155_BizRule" name="Mogelijk vergunningvrij Monument BouwwerkVeranderen">
+    <semantic:variable id="_24155_BizRule_var" name="Mogelijk vergunningvrij Monument BouwwerkVeranderen" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24178_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24183_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24155_BizRule_td" hitPolicy="ANY" outputLabel="Mogelijk vergunningvrij Monument BouwwerkVeranderen">
+      <semantic:input id="_5141946">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>uitvoeren werkzaamheden op aan _of _in monument</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_3662130">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>voorbeschermd monument op perceel aanwezig</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5342796" />
+      <semantic:rule id="_889513">
+        <semantic:inputEntry id="_7714378">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4083196">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7449038">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3289480">
+        <semantic:inputEntry id="_6828749">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1856973">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6329421">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2811289">
+        <semantic:inputEntry id="_7935056">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8826893">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7840445">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24178_BizRule" name="uitvoeren werkzaamheden op aan _of _in monument">
+    <semantic:variable id="_24178_BizRule_var" name="uitvoeren werkzaamheden op aan _of _in monument" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_25755_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24178_BizRule_td" hitPolicy="UNIQUE" outputLabel="uitvoeren werkzaamheden op aan _of _in monument">
+      <semantic:input id="_6952691">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>werkzaamheden uitvoeren op aan _of _in het monument UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8762422" />
+      <semantic:rule id="_4475237">
+        <semantic:inputEntry id="_6116369">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8265956">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_367942">
+        <semantic:inputEntry id="_4064840">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6912359">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24183_BizRule" name="voorbeschermd monument op perceel aanwezig">
+    <semantic:variable id="_24183_BizRule_var" name="voorbeschermd monument op perceel aanwezig" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_18517_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24183_BizRule_td" hitPolicy="UNIQUE" outputLabel="voorbeschermd monument op perceel aanwezig">
+      <semantic:input id="_3349018">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>werkzaamheden op aan _in monument UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5892099" />
+      <semantic:rule id="_9888927">
+        <semantic:inputEntry id="_9636274">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5121403">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_387406">
+        <semantic:inputEntry id="_6998013">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4864434">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+</semantic:definitions>

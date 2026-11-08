@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<semantic:definitions xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000" xmlns:feel="http://www.omg.org/spec/FEEL/20140401" xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel" xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel" xmlns:triso="http://www.rulearts.com/modeling" xmlns:trisofeed="http://rulearts.com/feed" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel" xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content" exporter="RuleArts STTR Export" exporterVersion="0.2.0" id="_832854" name="Conclusie - Huishoudelijk afvalwater lozen" namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000">
+  <semantic:extensionElements xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd">
+    <inter:regelgroepen xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel">
+      <inter:regelgroep id="_4682_RuleGroup">
+        <inter:naam>Afvalwater lozen in het riool of op of in de bodem</inter:naam>
+        <inter:prioriteit>10</inter:prioriteit>
+      </inter:regelgroep>
+    </inter:regelgroepen>
+    <uitv:uitvoeringsregels>
+      <uitv:uitvoeringsregel id="_19958_BizRule">
+        <uitv:regelgroepRef href="#_4682_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat u afvalwater uit de gootsteen, douche of het toilet lozen in het riool of op of in de bodem?]]></uitv:vraagTekst>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_24000_BizRule">
+        <uitv:regelgroepRef href="#_4682_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>20</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Loost u dit afvalwater vanuit een spoorvoertuig of vanaf een militair oefenterrein?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[##### Wat is een spoorvoertuig?
+
+Onder spoorvoertuigen vallen treinen, metro’s en \(snel\)trams\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+    </uitv:uitvoeringsregels>
+  </semantic:extensionElements>
+  <semantic:inputData id="_29438_Concept" name="HuishAfvalwLozen AFWATERGEM UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_19958_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_3955537" name="HuishAfvalwLozen AFWATERGEM UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_34375_Concept" name="lozen afvalwater vanuit spoorvoertuig _of militair oefenterrein Gemeente UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_24000_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_1011485" name="lozen afvalwater vanuit spoorvoertuig _of militair oefenterrein Gemeente UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:decision id="_e285aff9-0f0d-4b45-b8d3-9b7ba2fe2d00" name="Conclusie - HuishAfvalwLozen">
+    <semantic:extensionElements>
+      <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/Conclusienl.imow-gm0772.activiteit.HuishAfvalwLozen" />
+    </semantic:extensionElements>
+    <semantic:variable id="_e285aff9-0f0d-4b45-b8d3-9b7ba2fe2d00_var" name="Conclusie - HuishAfvalwLozen" typeRef="feel:string" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_3738ff65-c207-49a7-8d8d-9bab3622f782_e78a22be-b5bb-4deb-852f-9e352527e06d" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_3738ff65-c207-49a7-8d8d-9bab3622f782_6b4ffe66-9805-4566-9560-cee46d06b28e" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_e285aff9-0f0d-4b45-b8d3-9b7ba2fe2d00_td" hitPolicy="COLLECT" outputLabel="Conclusie - HuishAfvalwLozen">
+      <semantic:input id="_6277849">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Toepassingsbereik - HuishAfvalwLozen</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_4414041">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Verplichtingen - Informatieplicht - HuishAfvalwLozen</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_1163593" />
+      <semantic:rule id="_8251562">
+        <semantic:inputEntry id="_4660938">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8832699">
+          <semantic:text>- </semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3705086">
+          <semantic:text>"NietVanToepassing"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4042712">
+        <semantic:inputEntry id="_568528">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9497576">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3480383">
+          <semantic:extensionElements>
+            <content:conclusieToelichting>
+              <content:toelichting><![CDATA[U moet zich wel houden aan de algemene regels voor deze activiteit\. In [Maatregelen op Maat](/maatregelen) vindt u de maatregelen waarmee u aan deze regels kunt voldoen\.]]></content:toelichting>
+            </content:conclusieToelichting>
+          </semantic:extensionElements>
+          <semantic:text>"Toestemmingsvrij"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9647908">
+        <semantic:inputEntry id="_7248502">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3897958">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3488463">
+          <semantic:extensionElements>
+            <content:conclusieToelichting>
+              <content:toelichting><![CDATA[U moet de overheid minimaal 4 weken voordat u begint informatie geven over de activiteit\.   
+U moet zich ook houden aan de algemene regels voor deze activiteit\. In [Maatregelen op Maat](/maatregelen) vindt u de maatregelen waarmee u aan deze regels kunt voldoen\.]]></content:toelichting>
+            </content:conclusieToelichting>
+          </semantic:extensionElements>
+          <semantic:text>"Informatieplicht"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_3738ff65-c207-49a7-8d8d-9bab3622f782_e78a22be-b5bb-4deb-852f-9e352527e06d" name="Toepassingsbereik - HuishAfvalwLozen">
+    <semantic:variable id="_3738ff65-c207-49a7-8d8d-9bab3622f782_e78a22be-b5bb-4deb-852f-9e352527e06d_var" name="Toepassingsbereik - HuishAfvalwLozen" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_576837a9-a2fb-469c-8142-0e11c88fc595" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_3738ff65-c207-49a7-8d8d-9bab3622f782_e78a22be-b5bb-4deb-852f-9e352527e06d_td" hitPolicy="ANY" outputLabel="Toepassingsbereik - HuishAfvalwLozen">
+      <semantic:input id="_633460">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>lozen van huishoudelijk afvalwater Op 5 Artikel 22.145</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7473736" />
+      <semantic:rule id="_6384666">
+        <semantic:inputEntry id="_7690567">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7178704">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6857938">
+        <semantic:inputEntry id="_373492">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5764901">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_576837a9-a2fb-469c-8142-0e11c88fc595" name="lozen van huishoudelijk afvalwater Op 5 Artikel 22.145">
+    <semantic:variable id="_576837a9-a2fb-469c-8142-0e11c88fc595_var" name="lozen van huishoudelijk afvalwater Op 5 Artikel 22.145" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_29438_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_576837a9-a2fb-469c-8142-0e11c88fc595_td" hitPolicy="UNIQUE" outputLabel="lozen van huishoudelijk afvalwater Op 5 Artikel 22.145">
+      <semantic:input id="_9648534">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>HuishAfvalwLozen AFWATERGEM UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2129563" />
+      <semantic:rule id="_768364">
+        <semantic:inputEntry id="_4134186">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8268928">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8535914">
+        <semantic:inputEntry id="_6156076">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5372569">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_3738ff65-c207-49a7-8d8d-9bab3622f782_6b4ffe66-9805-4566-9560-cee46d06b28e" name="Verplichtingen - Informatieplicht - HuishAfvalwLozen">
+    <semantic:variable id="_3738ff65-c207-49a7-8d8d-9bab3622f782_6b4ffe66-9805-4566-9560-cee46d06b28e_var" name="Verplichtingen - Informatieplicht - HuishAfvalwLozen" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_b04385f5-edf9-4099-9104-a3e21c39448f" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_1e8c936b-4d50-41de-9531-f70e13e3913f" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_3738ff65-c207-49a7-8d8d-9bab3622f782_6b4ffe66-9805-4566-9560-cee46d06b28e_td" hitPolicy="ANY" outputLabel="Verplichtingen - Informatieplicht - HuishAfvalwLozen">
+      <semantic:input id="_9426173">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>spoorvoertuig Op 5 Artikel 22.146 Lid 3 a</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_5943097">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>militaire oefenterreinen _ kader van militaire oefeningen Op 5 Artikel 22.146 Lid 3 b</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4560356" />
+      <semantic:rule id="_7230769">
+        <semantic:inputEntry id="_4248416">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3950289">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3352913">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9994460">
+        <semantic:inputEntry id="_4440522">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2235980">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4549027">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4281557">
+        <semantic:inputEntry id="_7002147">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3110308">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8817091">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_b04385f5-edf9-4099-9104-a3e21c39448f" name="spoorvoertuig Op 5 Artikel 22.146 Lid 3 a">
+    <semantic:variable id="_b04385f5-edf9-4099-9104-a3e21c39448f_var" name="spoorvoertuig Op 5 Artikel 22.146 Lid 3 a" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_34375_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_b04385f5-edf9-4099-9104-a3e21c39448f_td" hitPolicy="UNIQUE" outputLabel="spoorvoertuig Op 5 Artikel 22.146 Lid 3 a">
+      <semantic:input id="_5801789">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>lozen afvalwater vanuit spoorvoertuig _of militair oefenterrein Gemeente UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7408020" />
+      <semantic:rule id="_4957926">
+        <semantic:inputEntry id="_1998560">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_807961">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2676290">
+        <semantic:inputEntry id="_3142287">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6776833">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_1e8c936b-4d50-41de-9531-f70e13e3913f" name="militaire oefenterreinen _ kader van militaire oefeningen Op 5 Artikel 22.146 Lid 3 b">
+    <semantic:variable id="_1e8c936b-4d50-41de-9531-f70e13e3913f_var" name="militaire oefenterreinen _ kader van militaire oefeningen Op 5 Artikel 22.146 Lid 3 b" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_34375_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_1e8c936b-4d50-41de-9531-f70e13e3913f_td" hitPolicy="UNIQUE" outputLabel="militaire oefenterreinen _ kader van militaire oefeningen Op 5 Artikel 22.146 Lid 3 b">
+      <semantic:input id="_4153546">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>lozen afvalwater vanuit spoorvoertuig _of militair oefenterrein Gemeente UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_6204357" />
+      <semantic:rule id="_8649140">
+        <semantic:inputEntry id="_1515058">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6421998">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4192573">
+        <semantic:inputEntry id="_4998513">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5436158">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+</semantic:definitions>

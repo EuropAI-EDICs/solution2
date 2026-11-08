@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<semantic:definitions xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000" xmlns:feel="http://www.omg.org/spec/FEEL/20140401" xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel" xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel" xmlns:triso="http://www.rulearts.com/modeling" xmlns:trisofeed="http://rulearts.com/feed" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel" xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content" exporter="RuleArts STTR Export" exporterVersion="0.2.0" id="_7607341" name="Conclusie - Polyesterhars verwerken" namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000">
+  <semantic:extensionElements xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd">
+    <versiebeheerGegevens>
+      <paar>
+        <sleutel>ID</sleutel>
+        <waarde>ab52de38-6d25-4bad-a2b4-b76422c4e050</waarde>
+      </paar>
+      <paar>
+        <sleutel>aanmaakDatumTijd</sleutel>
+        <waarde>2023-05-03 11:42:44</waarde>
+      </paar>
+      <paar>
+        <sleutel>bronsysteem</sleutel>
+        <waarde>RuleXpress</waarde>
+      </paar>
+    </versiebeheerGegevens>
+    <inter:regelgroepen xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel">
+      <inter:regelgroep id="_4688_RuleGroup">
+        <inter:naam>Hoeveelheid organische peroxiden</inter:naam>
+        <inter:prioriteit>10</inter:prioriteit>
+      </inter:regelgroep>
+    </inter:regelgroepen>
+    <uitv:uitvoeringsregels>
+      <uitv:uitvoeringsregel id="_3115_BizRule">
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:vasteWaarde>
+          <uitv:waardeVraag>Vaste Waarde TRUE</uitv:waardeVraag>
+          <uitv:waarde>true</uitv:waarde>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+        </uitv:vasteWaarde>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_20230_BizRule">
+        <uitv:regelgroepRef href="#_4688_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>list</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Hoeveel organische peroxiden zijn aanwezig in uw bedrijf?]]></uitv:vraagTekst>
+          <uitv:opties>
+            <uitv:optieType>enkelAntwoord</uitv:optieType>
+            <uitv:optie>
+              <uitv:sequenceId>1</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Minder dan 1 kg]]></uitv:optieText>
+            </uitv:optie>
+            <uitv:optie>
+              <uitv:sequenceId>2</uitv:sequenceId>
+              <uitv:optieText><![CDATA[1 kg of meer]]></uitv:optieText>
+            </uitv:optie>
+          </uitv:opties>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Het gaat alleen om de organische peroxiden waarvoor het volgende geldt:
+
+* Het zijn organische peroxiden van ADR\-klasse 5\.2
+* U gebruikt de organische peroxiden voor polyesterhars verwerken\.]]></content:toelichting>
+          <content:langeToelichting><![CDATA[U herkent organische peroxiden van ADR klasse 5\.2 aan de volgende etiketten:
+
+![2 varianten van symbolen voor organische peroxiden: vlammetje in rode ruit](https://iplo.nl/publish/pages/218916/vc6pgh6.png)
+
+Organische peroxiden brengen chemische reacties op gang\. Mogelijke toepassingen zijn 2\-componentenlijm, houtrotvuller, vulcaniseren van rubber en uitharden van polyesterhars\. Voorbeelden van organische peroxiden zijn MEK\-peroxide, benzoylperoxide en perazijnzuur\.
+
+Waterstofperoxide is geen organisch peroxide\.]]></content:langeToelichting>
+          <content:belangrijk>true</content:belangrijk>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_20233_BizRule">
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <uitv:vasteWaardeVoorbehoud>
+          <uitv:vasteWaarde>
+            <uitv:waarde>true</uitv:waarde>
+            <uitv:gegevensType>boolean</uitv:gegevensType>
+          </uitv:vasteWaarde>
+          <uitv:tekstVoorbehoud>Gaat u het oppervlak van metalen of kunststoffen behandelen door een elektrolytisch of chemisch procedé? En heeft u hiervoor een vergunning nodig omdat het een IPPC-installatie betreft? Dan hoeft u geen aparte vergunning aan te vragen voor het verwerken van polyesterhars.</uitv:tekstVoorbehoud>
+        </uitv:vasteWaardeVoorbehoud>
+      </uitv:uitvoeringsregel>
+    </uitv:uitvoeringsregels>
+  </semantic:extensionElements>
+  <semantic:inputData id="_3787_Concept" name="Vaste Waarde TRUE">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_3115_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_7061124" name="Vaste Waarde TRUE" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_29861_Concept" name="aanwezigheid organische peroxiden PolyesterharsVerw UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_20230_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_3018204" name="aanwezigheid organische peroxiden PolyesterharsVerw UR" typeRef="feel:string" />
+  </semantic:inputData>
+  <semantic:inputData id="_29864_Concept" name="voorbehoud vergunningplicht polyesterharsverw UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_20233_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_6231665" name="voorbehoud vergunningplicht polyesterharsverw UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:decision id="_74538bd7-02d5-4244-9974-a132da53daa2" name="Conclusie - PolyesterharsVerw">
+    <semantic:extensionElements>
+      <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/Conclusienl.imow-gm0772.activiteit.PolyesterharsVerw" />
+    </semantic:extensionElements>
+    <semantic:variable id="_74538bd7-02d5-4244-9974-a132da53daa2_var" name="Conclusie - PolyesterharsVerw" typeRef="feel:string" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_3dc730ab-f87b-494a-b190-e680a1fae94a_0ad89ed1-6d75-45fa-a242-6152304c475a" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_74538bd7-02d5-4244-9974-a132da53daa2_td" hitPolicy="COLLECT" outputLabel="Conclusie - PolyesterharsVerw">
+      <semantic:input id="_2035092">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Toestemmingen - Vergunningplicht - PolyesterharsVerw</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4922762" />
+      <semantic:rule id="_9304488">
+        <semantic:inputEntry id="_7764213">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4281238">
+          <semantic:text>"NietVanToepassing"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6386779">
+        <semantic:inputEntry id="_7355484">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7040458">
+          <semantic:text>"Vergunningplicht"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_3dc730ab-f87b-494a-b190-e680a1fae94a_0ad89ed1-6d75-45fa-a242-6152304c475a" name="Toestemmingen - Vergunningplicht - PolyesterharsVerw">
+    <semantic:variable id="_3dc730ab-f87b-494a-b190-e680a1fae94a_0ad89ed1-6d75-45fa-a242-6152304c475a_var" name="Toestemmingen - Vergunningplicht - PolyesterharsVerw" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_d3321afc-0eb1-4590-be32-a0b13f43927e" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_46c2ed0e-2bbf-46f5-9382-77f3f3ee11bf" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20232_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_3dc730ab-f87b-494a-b190-e680a1fae94a_0ad89ed1-6d75-45fa-a242-6152304c475a_td" hitPolicy="ANY" outputLabel="Toestemmingen - Vergunningplicht - PolyesterharsVerw">
+      <semantic:input id="_4196824">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>verwerken van polyesterhars Op Artikel 22.259 Lid 1</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_9116583">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>_1 kg _of meer organische peroxiden van ADR klasse 5.2 aanwezig Op Artikel 22.259 Lid 1</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_4249502">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>voorbehoud vergunningplicht polyesterharsverw</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2727944" />
+      <semantic:rule id="_8703343">
+        <semantic:inputEntry id="_1240225">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4474924">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4228407">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5296639">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4377535">
+        <semantic:inputEntry id="_6132276">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5169226">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6590195">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_642990">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5636363">
+        <semantic:inputEntry id="_1031654">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2452950">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4219464">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9295414">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3951753">
+        <semantic:inputEntry id="_8552931">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9284312">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3430866">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9029390">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_d3321afc-0eb1-4590-be32-a0b13f43927e" name="verwerken van polyesterhars Op Artikel 22.259 Lid 1">
+    <semantic:variable id="_d3321afc-0eb1-4590-be32-a0b13f43927e_var" name="verwerken van polyesterhars Op Artikel 22.259 Lid 1" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_3787_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_d3321afc-0eb1-4590-be32-a0b13f43927e_td" hitPolicy="UNIQUE" outputLabel="verwerken van polyesterhars Op Artikel 22.259 Lid 1">
+      <semantic:input id="_4520356">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Vaste Waarde TRUE</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9598418" />
+      <semantic:rule id="_4758990">
+        <semantic:inputEntry id="_3933345">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3424701">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9216040">
+        <semantic:inputEntry id="_5072968">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7911153">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_46c2ed0e-2bbf-46f5-9382-77f3f3ee11bf" name="_1 kg _of meer organische peroxiden van ADR klasse 5.2 aanwezig Op Artikel 22.259 Lid 1">
+    <semantic:variable id="_46c2ed0e-2bbf-46f5-9382-77f3f3ee11bf_var" name="_1 kg _of meer organische peroxiden van ADR klasse 5.2 aanwezig Op Artikel 22.259 Lid 1" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20231_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_46c2ed0e-2bbf-46f5-9382-77f3f3ee11bf_td" hitPolicy="UNIQUE" outputLabel="_1 kg _of meer organische peroxiden van ADR klasse 5.2 aanwezig Op Artikel 22.259 Lid 1">
+      <semantic:input id="_8630337">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>meer dan 1 kg organische peroxiden aanwezig CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_881540" />
+      <semantic:rule id="_8525505">
+        <semantic:inputEntry id="_6036386">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2683636">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7066946">
+        <semantic:inputEntry id="_6460186">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8713328">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20231_BizRule" name="meer dan 1 kg organische peroxiden aanwezig CR">
+    <semantic:variable id="_20231_BizRule_var" name="meer dan 1 kg organische peroxiden aanwezig CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_29861_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20231_BizRule_td" hitPolicy="FIRST" outputLabel="meer dan 1 kg organische peroxiden aanwezig CR">
+      <semantic:input id="_2761044">
+        <semantic:inputExpression typeRef="feel:string">
+          <semantic:text>aanwezigheid organische peroxiden PolyesterharsVerw UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4669750" />
+      <semantic:rule id="_5500382">
+        <semantic:inputEntry id="_3529805">
+          <semantic:text>"1 kg of meer"	</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1228847">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7848978">
+        <semantic:inputEntry id="_9641470">
+          <semantic:text>not(null, "1 kg of meer")</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1692101">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20232_BizRule" name="voorbehoud vergunningplicht polyesterharsverw">
+    <semantic:variable id="_20232_BizRule_var" name="voorbehoud vergunningplicht polyesterharsverw" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_29864_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20232_BizRule_td" hitPolicy="UNIQUE" outputLabel="voorbehoud vergunningplicht polyesterharsverw">
+      <semantic:input id="_9286399">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>voorbehoud vergunningplicht polyesterharsverw UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8572833" />
+      <semantic:rule id="_5611262">
+        <semantic:inputEntry id="_361773">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7091364">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3703730">
+        <semantic:inputEntry id="_8487527">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4912512">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+</semantic:definitions>

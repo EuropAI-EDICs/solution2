@@ -1,0 +1,1594 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<semantic:definitions xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000" xmlns:feel="http://www.omg.org/spec/FEEL/20140401" xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel" xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel" xmlns:triso="http://www.rulearts.com/modeling" xmlns:trisofeed="http://rulearts.com/feed" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel" xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content" exporter="RuleArts STTR Export" exporterVersion="0.2.0" id="_6210038" name="Indieningsvereisten - Informatieplicht - Recreatieve visvijvers exploiteren" namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000">
+  <semantic:extensionElements xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd">
+    <inter:regelgroepen xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel">
+      <inter:regelgroep id="_2740_RuleGroup">
+        <inter:naam>Nieuwe of bestaande activiteit</inter:naam>
+        <inter:prioriteit>5</inter:prioriteit>
+      </inter:regelgroep>
+      <inter:regelgroep id="_2065_RuleGroup">
+        <inter:naam>Informatie over de activiteit</inter:naam>
+        <inter:prioriteit>10</inter:prioriteit>
+      </inter:regelgroep>
+      <inter:regelgroep id="_1515_RuleGroup">
+        <inter:naam>Diverse vragen</inter:naam>
+        <inter:prioriteit>990</inter:prioriteit>
+      </inter:regelgroep>
+    </inter:regelgroepen>
+    <uitv:uitvoeringsregels>
+      <uitv:uitvoeringsregel id="_11088_BizRule">
+        <uitv:regelgroepRef href="#_2740_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>list</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Waarover wilt u informatie geven?]]></uitv:vraagTekst>
+          <uitv:opties>
+            <uitv:optieType>meerdereAntwoorden</uitv:optieType>
+            <uitv:optie>
+              <uitv:sequenceId>1</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Starten van een nieuwe activiteit of activiteit verplaatsen naar een ander adres]]></uitv:optieText>
+            </uitv:optie>
+            <uitv:optie>
+              <uitv:sequenceId>2</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Uitvoeren van een bestaande activiteit waarover u niet eerder informatie heeft gegeven]]></uitv:optieText>
+              <content:uitvoeringsregelToelichting>
+                <content:toelichting><![CDATA[Bij toezicht kan blijken dat u een activiteit uitvoert waarover u informatie had moeten geven bij het starten van deze activiteit\. De toezichthouder kan u dan vragen om deze informatie toch nog te geven\.]]></content:toelichting>
+              </content:uitvoeringsregelToelichting>
+            </uitv:optie>
+            <uitv:optie>
+              <uitv:sequenceId>3</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Veranderen of uitbreiden van een activiteit waarover u al eerder informatie heeft gegeven]]></uitv:optieText>
+              <content:uitvoeringsregelToelichting>
+                <content:toelichting><![CDATA[Bij het veranderen van een activiteit gaat het bijvoorbeeld om de volgende situaties:
+
+* U gaat de activiteit op een andere manier uitvoeren\.
+* U gaat de activiteit voor altijd stoppen\.
+* Iemand anders wordt de persoon die beslist over de activiteit\.
+* Het adres van de persoon die beslist over de activiteit verandert\.]]></content:toelichting>
+                <content:langeToelichting><![CDATA[##### Wie is de persoon die beslist over de activiteit?
+
+De persoon die beslist over de activiteit is meestal de eigenaar of huurder van het perceel of gebouw waar de activiteit plaatsvindt\. Het gaat om de persoon die de activiteit kan laten starten, stoppen of veranderen\.]]></content:langeToelichting>
+                <content:belangrijk>true</content:belangrijk>
+              </content:uitvoeringsregelToelichting>
+            </uitv:optie>
+          </uitv:opties>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_20620_BizRule">
+        <uitv:regelgroepRef href="#_2065_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <uitv:vraag>
+          <uitv:gegevensType>date</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Geef de datum waarop u bent gestart met deze activiteit.]]></uitv:vraagTekst>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_17795_BizRule">
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <uitv:bijlage>
+          <uitv:bijlageType>Gewijzigde informatie</uitv:bijlageType>
+          <uitv:documenttypeGeneriek>Overig</uitv:documenttypeGeneriek>
+        </uitv:bijlage>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Klopt de informatie die u eerder heeft gegeven door de verandering of uitbreiding niet meer? Voeg dan de gewijzigde gegevens toe als bijlage\.
+
+U moet de volgende gegevens opnemen in de bijlage als deze niet meer kloppen met de informatie die u eerder heeft gegeven:
+
+* beschrijving van de activiteit en wat daarbij hoort
+* plattegrond met indeling van de locatie waar u de activiteit uitvoert
+* situatietekening op een schaal van minimaal 1:10\.000]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_20612_BizRule">
+        <uitv:regelgroepRef href="#_1515_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <uitv:vraag>
+          <uitv:gegevensType>date</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Geef de datum waarop u verwacht deze activiteit te gaan veranderen of uitbreiden.]]></uitv:vraagTekst>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_20607_BizRule">
+        <uitv:regelgroepRef href="#_2065_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <uitv:vraag>
+          <uitv:gegevensType>string</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Beschrijf de activiteit waarover u informatie geeft.]]></uitv:vraagTekst>
+          <inter:inputType>textarea</inter:inputType>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Beschrijf in grote lijnen de activiteit en wat daarbij hoort\. Het gaat erom dat de gemeente een goed beeld krijgt van wat u gaat doen\.]]></content:toelichting>
+          <content:belangrijk>true</content:belangrijk>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_17342_BizRule">
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <uitv:bijlage>
+          <uitv:bijlageType>Plattegrond locatie recreatieve visvijvers</uitv:bijlageType>
+          <uitv:documenttypeGeneriek>Overig</uitv:documenttypeGeneriek>
+        </uitv:bijlage>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Voeg als bijlage toe: een plattegrond met de indeling van de locatie waar u de activiteit uitvoert\. Zet op de plattegrond de volgende gegevens:
+
+* de grenzen van het terrein
+* de plaats van de lozingspunten]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_20614_BizRule">
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <uitv:bijlage>
+          <uitv:bijlageType>Situatietekening</uitv:bijlageType>
+          <uitv:documenttypeGeneriek>Overig</uitv:documenttypeGeneriek>
+        </uitv:bijlage>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Voeg als bijlage toe: een situatietekening van de locatie van de activiteit\.
+
+Voor de situatietekening geldt het volgende:
+
+* geef duidelijk de locatie aan van de activiteit
+* gebruik een schaal van minimaal 1:10\.000 \(1 cm is 100 meter\)
+* geef met een pijl aan waar het noorden is]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_11101_BizRule">
+        <uitv:regelgroepRef href="#_1515_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>500</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>string</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Geef een korte omschrijving van het veranderen of uitbreiden van de activiteit waarover u al eerder informatie heeft gegeven.]]></uitv:vraagTekst>
+          <inter:inputType>textarea</inter:inputType>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Gaat u de activiteit uitbreiden? Omschrijf dan hoe of waarmee u de activiteit gaat uitbreiden\.
+
+Gaat u de activiteit veranderen? Omschrijf dan wat u gaat veranderen\. Het gaat erom wat  u anders gaat doen vergeleken met de informatie die u eerder heeft gegeven\.
+
+Denk daarbij bijvoorbeeld aan het volgende:
+
+* verplaatsen van een activiteit
+* stoppen van een activiteit
+* veranderen van de naam of het adres van de persoon die beslist over de activiteit
+
+
+##### Wie is de persoon die beslist over de activiteit?
+
+De persoon die beslist over de activiteit is de eigenaar of huurder van het perceel of gebouw waar de activiteit plaatsvindt\. Het gaat om de persoon die de activiteit kan laten starten, stoppen of veranderen\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_15809_BizRule">
+        <uitv:herbruikbaarId>_15809_BizRule_2</uitv:herbruikbaarId>
+        <uitv:regelgroepRef href="#_1515_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <uitv:vraag>
+          <uitv:gegevensType>date</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Geef de datum waarop u verwacht te gaan starten met deze activiteit.]]></uitv:vraagTekst>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+    </uitv:uitvoeringsregels>
+  </semantic:extensionElements>
+  <semantic:inputData id="_16045_Concept" name="informatieplicht starten uitvoeren veranderen activiteit UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_11088_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_2259045" name="informatieplicht starten uitvoeren veranderen activiteit UR" typeRef="feel:string" />
+  </semantic:inputData>
+  <semantic:inputData id="_30449_Concept" name="Datum start activiteit - MilieubelastendeAct bij uitvoeren UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_20620_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_7593376" name="Datum start activiteit - MilieubelastendeAct bij uitvoeren UR" typeRef="feel:date" />
+  </semantic:inputData>
+  <semantic:inputData id="_26233_Concept" name="gewijzigde informatie verandering _of uitbreiding activiteit UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_17795_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_7023419" name="gewijzigde informatie verandering _of uitbreiding activiteit UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_30440_Concept" name="datum activiteiten veranderen uitbreiden UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_20612_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_6488178" name="datum activiteiten veranderen uitbreiden UR" typeRef="feel:date" />
+  </semantic:inputData>
+  <semantic:inputData id="_30434_Concept" name="beschrijving activiteit indienen informatieplicht UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_20607_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_8742608" name="beschrijving activiteit indienen informatieplicht UR" typeRef="feel:string" />
+  </semantic:inputData>
+  <semantic:inputData id="_25529_Concept" name="indeling locatie recreatieve visvijvers UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_17342_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_4326425" name="indeling locatie recreatieve visvijvers UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_30442_Concept" name="situatietekening locatie van werkzaamheden MilieubelastendeAct omgevingsplan bruidsschat UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_20614_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_8848464" name="situatietekening locatie van werkzaamheden MilieubelastendeAct omgevingsplan bruidsschat UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_16061_Concept" name="informatieplicht korte omschrijving veranderen uitbreiden activiteit UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_11101_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_6346942" name="informatieplicht korte omschrijving veranderen uitbreiden activiteit UR" typeRef="feel:string" />
+  </semantic:inputData>
+  <semantic:inputData id="_23079_Concept" name="verwachte datum starten activiteit informatieplicht Bruidsschat UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_15809_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_806414" name="verwachte datum starten activiteit informatieplicht Bruidsschat UR" typeRef="feel:date" />
+  </semantic:inputData>
+  <semantic:decision id="_45e89cdd-d3d2-44ac-bfc7-74fbb97b994f_1c411473-a34d-410e-81cc-9be43e1fd472" name="Indieningsvereisten - Informatieplicht - RecrVisvijver">
+    <semantic:extensionElements>
+      <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/IndieningsvereistenInformatienl.imow-gm0772.activiteit.RecrVisvijver" />
+    </semantic:extensionElements>
+    <semantic:variable id="_45e89cdd-d3d2-44ac-bfc7-74fbb97b994f_1c411473-a34d-410e-81cc-9be43e1fd472_var" name="Indieningsvereisten - Informatieplicht - RecrVisvijver" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_07d71f57-1982-46d1-9063-da2edbeedb5c" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_17340_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_17957_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20615_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_45e89cdd-d3d2-44ac-bfc7-74fbb97b994f_1c411473-a34d-410e-81cc-9be43e1fd472_td" hitPolicy="ANY" outputLabel="Indieningsvereisten - Informatieplicht - RecrVisvijver">
+      <semantic:input id="_3598653">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>gegevens en bescheiden verstrekt over Op Artikel 22.181 Lid 1</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_3089216">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Informatieplicht starten uitvoeren RecrVisvijver</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_4049409">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Informatieplicht veranderen RecrVisvijver</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_9073489">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Informatieplicht starten RecrVisvijver</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9606366" />
+      <semantic:rule id="_8671360">
+        <semantic:inputEntry id="_621662">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1953977">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9601425">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5872733">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7039917">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1390760">
+        <semantic:inputEntry id="_486090">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1424507">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1497825">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7666668">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8268927">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9686175">
+        <semantic:inputEntry id="_3717273">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_788149">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6331655">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4622460">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7682897">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6576450">
+        <semantic:inputEntry id="_2875121">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7540783">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6085881">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3406496">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7219433">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4277676">
+        <semantic:inputEntry id="_4787529">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7768092">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3753546">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5891564">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6979829">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_07d71f57-1982-46d1-9063-da2edbeedb5c" name="gegevens en bescheiden verstrekt over Op Artikel 22.181 Lid 1">
+    <semantic:variable id="_07d71f57-1982-46d1-9063-da2edbeedb5c_var" name="gegevens en bescheiden verstrekt over Op Artikel 22.181 Lid 1" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20618_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20641_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20640_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_07d71f57-1982-46d1-9063-da2edbeedb5c_td" hitPolicy="ANY" outputLabel="gegevens en bescheiden verstrekt over Op Artikel 22.181 Lid 1">
+      <semantic:input id="_6633940">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Indieningsvereisten Informatieplicht bij uitvoeren - MilieubelastendeAct</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_6558669">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Indieningsvereisten Informatieplicht - MilieubelastendeAct bruidsschat gewijzigde informatie veranderen uitbreiden bijvoegen</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_6586440">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Indieningsvereisten Informatieplicht - MilieubelastendeAct bruidsschat datum veranderen uitbreiden</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4851109" />
+      <semantic:rule id="_7075457">
+        <semantic:inputEntry id="_432189">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1184646">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1325730">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4332651">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4055876">
+        <semantic:inputEntry id="_5119278">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2072955">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6468868">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5825594">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8821510">
+        <semantic:inputEntry id="_773681">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4640249">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5431191">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5858793">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4474759">
+        <semantic:inputEntry id="_8976192">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5406319">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7472958">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6498367">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20618_BizRule" name="Indieningsvereisten Informatieplicht bij uitvoeren - MilieubelastendeAct">
+    <semantic:variable id="_20618_BizRule_var" name="Indieningsvereisten Informatieplicht bij uitvoeren - MilieubelastendeAct" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20619_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20621_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20618_BizRule_td" hitPolicy="ANY" outputLabel="Indieningsvereisten Informatieplicht bij uitvoeren - MilieubelastendeAct">
+      <semantic:input id="_2365583">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>informatieplicht bij uitvoeren</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_2885479">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Datum start activiteit - MilieubelastendeAct</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7215165" />
+      <semantic:rule id="_4734544">
+        <semantic:inputEntry id="_5623748">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1385204">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9271825">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7637213">
+        <semantic:inputEntry id="_4594525">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4444677">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4863884">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1407998">
+        <semantic:inputEntry id="_1982487">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5135066">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6641815">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20619_BizRule" name="informatieplicht bij uitvoeren">
+    <semantic:variable id="_20619_BizRule_var" name="informatieplicht bij uitvoeren" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20622_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20619_BizRule_td" hitPolicy="UNIQUE" outputLabel="informatieplicht bij uitvoeren">
+      <semantic:input id="_655959">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>informatieplicht uitvoeren activiteit CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5447008" />
+      <semantic:rule id="_3596730">
+        <semantic:inputEntry id="_3650245">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2820574">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7755843">
+        <semantic:inputEntry id="_5767827">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9617012">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20622_BizRule" name="informatieplicht uitvoeren activiteit CR">
+    <semantic:variable id="_20622_BizRule_var" name="informatieplicht uitvoeren activiteit CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_16045_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20622_BizRule_td" hitPolicy="FIRST" outputLabel="informatieplicht uitvoeren activiteit CR">
+      <semantic:input id="_7580902">
+        <semantic:inputExpression typeRef="feel:string">
+          <semantic:text>informatieplicht starten uitvoeren veranderen activiteit UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8397922" />
+      <semantic:rule id="_3803995">
+        <semantic:inputEntry id="_447279">
+          <semantic:text>if ?=null then false else contains(?,"Uitvoeren van een bestaande activiteit waarover u niet eerder informatie heeft gegeven")</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2636900">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7894753">
+        <semantic:inputEntry id="_1716804">
+          <semantic:text>if ?=null then false else not(contains(?,"Uitvoeren van een bestaande activiteit waarover u niet eerder informatie heeft gegeven"))</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8003637">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20621_BizRule" name="Datum start activiteit - MilieubelastendeAct">
+    <semantic:variable id="_20621_BizRule_var" name="Datum start activiteit - MilieubelastendeAct" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_29970_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20621_BizRule_td" hitPolicy="UNIQUE" outputLabel="Datum start activiteit - MilieubelastendeAct">
+      <semantic:input id="_1527621">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Datum start activiteit - MilieubelastendeAct bij uitvoeren beantwoord CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9085710" />
+      <semantic:rule id="_388073">
+        <semantic:inputEntry id="_2785526">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4489978">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3217023">
+        <semantic:inputEntry id="_6450102">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5701981">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_29970_BizRule" name="Datum start activiteit - MilieubelastendeAct bij uitvoeren beantwoord CR">
+    <semantic:variable id="_29970_BizRule_var" name="Datum start activiteit - MilieubelastendeAct bij uitvoeren beantwoord CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30449_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_29970_BizRule_td" hitPolicy="FIRST" outputLabel="Datum start activiteit - MilieubelastendeAct bij uitvoeren beantwoord CR">
+      <semantic:input id="_3247447">
+        <semantic:inputExpression typeRef="feel:date">
+          <semantic:text>Datum start activiteit - MilieubelastendeAct bij uitvoeren UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4784050" />
+      <semantic:rule id="_7482064">
+        <semantic:inputEntry id="_7478429">
+          <semantic:text>not(null)</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2324191">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20641_BizRule" name="Indieningsvereisten Informatieplicht - MilieubelastendeAct bruidsschat gewijzigde informatie veranderen uitbreiden bijvoegen">
+    <semantic:variable id="_20641_BizRule_var" name="Indieningsvereisten Informatieplicht - MilieubelastendeAct bruidsschat gewijzigde informatie veranderen uitbreiden bijvoegen" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20642_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20610_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20641_BizRule_td" hitPolicy="ANY" outputLabel="Indieningsvereisten Informatieplicht - MilieubelastendeAct bruidsschat gewijzigde informatie veranderen uitbreiden bijvoegen">
+      <semantic:input id="_1261709">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>bruidsschat veranderen uitbreiden voor gewijzigde informatie bijvoegen</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_7713511">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>gewijzigde informatie MilieubelastendeAct omgevingsplan bruidsschat</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8791194" />
+      <semantic:rule id="_9505183">
+        <semantic:inputEntry id="_8789376">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5502833">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9027750">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5679461">
+        <semantic:inputEntry id="_2056073">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4952384">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8742523">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6597755">
+        <semantic:inputEntry id="_3268466">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9634263">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6336621">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20642_BizRule" name="bruidsschat veranderen uitbreiden voor gewijzigde informatie bijvoegen">
+    <semantic:variable id="_20642_BizRule_var" name="bruidsschat veranderen uitbreiden voor gewijzigde informatie bijvoegen" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_11100_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20642_BizRule_td" hitPolicy="UNIQUE" outputLabel="bruidsschat veranderen uitbreiden voor gewijzigde informatie bijvoegen">
+      <semantic:input id="_2119753">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>informatieplicht veranderen activiteit CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_1237925" />
+      <semantic:rule id="_6934925">
+        <semantic:inputEntry id="_9742460">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3177721">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6441040">
+        <semantic:inputEntry id="_3636263">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2322287">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_11100_BizRule" name="informatieplicht veranderen activiteit CR">
+    <semantic:variable id="_11100_BizRule_var" name="informatieplicht veranderen activiteit CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_16045_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_11100_BizRule_td" hitPolicy="FIRST" outputLabel="informatieplicht veranderen activiteit CR">
+      <semantic:input id="_1894413">
+        <semantic:inputExpression typeRef="feel:string">
+          <semantic:text>informatieplicht starten uitvoeren veranderen activiteit UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2649539" />
+      <semantic:rule id="_2451837">
+        <semantic:inputEntry id="_7438936">
+          <semantic:text>if ?=null then false else contains(?,"Veranderen of uitbreiden van een activiteit waarover u al eerder informatie heeft gegeven")</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8996906">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7894749">
+        <semantic:inputEntry id="_702798">
+          <semantic:text>if ?=null then false else not(contains(?,"Veranderen of uitbreiden van een activiteit waarover u al eerder informatie heeft gegeven"))</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8036523">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20610_BizRule" name="gewijzigde informatie MilieubelastendeAct omgevingsplan bruidsschat">
+    <semantic:variable id="_20610_BizRule_var" name="gewijzigde informatie MilieubelastendeAct omgevingsplan bruidsschat" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_29994_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20610_BizRule_td" hitPolicy="UNIQUE" outputLabel="gewijzigde informatie MilieubelastendeAct omgevingsplan bruidsschat">
+      <semantic:input id="_573779">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>gewijzigde informatie verandering _of uitbreiding activiteit beantwoord CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8289398" />
+      <semantic:rule id="_7592821">
+        <semantic:inputEntry id="_6619192">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_984411">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5012801">
+        <semantic:inputEntry id="_942096">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3847524">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_29994_BizRule" name="gewijzigde informatie verandering _of uitbreiding activiteit beantwoord CR">
+    <semantic:variable id="_29994_BizRule_var" name="gewijzigde informatie verandering _of uitbreiding activiteit beantwoord CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_26233_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_29994_BizRule_td" hitPolicy="FIRST" outputLabel="gewijzigde informatie verandering _of uitbreiding activiteit beantwoord CR">
+      <semantic:input id="_2691920">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>gewijzigde informatie verandering _of uitbreiding activiteit UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2689054" />
+      <semantic:rule id="_2624175">
+        <semantic:inputEntry id="_9471547">
+          <semantic:text>not(null)</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4433326">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20640_BizRule" name="Indieningsvereisten Informatieplicht - MilieubelastendeAct bruidsschat datum veranderen uitbreiden">
+    <semantic:variable id="_20640_BizRule_var" name="Indieningsvereisten Informatieplicht - MilieubelastendeAct bruidsschat datum veranderen uitbreiden" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20613_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20611_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20640_BizRule_td" hitPolicy="ANY" outputLabel="Indieningsvereisten Informatieplicht - MilieubelastendeAct bruidsschat datum veranderen uitbreiden">
+      <semantic:input id="_1645550">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>bruidsschat veranderen uitbreiden voor datum uitvraag</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_6187771">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>datum activiteiten veranderen MilieubelastendeAct omgevingsplan bruidsschat</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_1521511" />
+      <semantic:rule id="_3582760">
+        <semantic:inputEntry id="_413480">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3882227">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2309521">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7849125">
+        <semantic:inputEntry id="_7739604">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4600708">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5883150">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7625445">
+        <semantic:inputEntry id="_5691223">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7196780">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7155643">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20613_BizRule" name="bruidsschat veranderen uitbreiden voor datum uitvraag">
+    <semantic:variable id="_20613_BizRule_var" name="bruidsschat veranderen uitbreiden voor datum uitvraag" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_11100_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20613_BizRule_td" hitPolicy="UNIQUE" outputLabel="bruidsschat veranderen uitbreiden voor datum uitvraag">
+      <semantic:input id="_6637539">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>informatieplicht veranderen activiteit CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8063896" />
+      <semantic:rule id="_330843">
+        <semantic:inputEntry id="_7784712">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1653275">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6915860">
+        <semantic:inputEntry id="_8468744">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8308357">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20611_BizRule" name="datum activiteiten veranderen MilieubelastendeAct omgevingsplan bruidsschat">
+    <semantic:variable id="_20611_BizRule_var" name="datum activiteiten veranderen MilieubelastendeAct omgevingsplan bruidsschat" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_29967_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20611_BizRule_td" hitPolicy="UNIQUE" outputLabel="datum activiteiten veranderen MilieubelastendeAct omgevingsplan bruidsschat">
+      <semantic:input id="_5675645">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>datum activiteiten veranderen uitbreiden beantwoord CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3315070" />
+      <semantic:rule id="_5652210">
+        <semantic:inputEntry id="_7106952">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_595828">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3387400">
+        <semantic:inputEntry id="_7350540">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_788666">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_29967_BizRule" name="datum activiteiten veranderen uitbreiden beantwoord CR">
+    <semantic:variable id="_29967_BizRule_var" name="datum activiteiten veranderen uitbreiden beantwoord CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30440_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_29967_BizRule_td" hitPolicy="FIRST" outputLabel="datum activiteiten veranderen uitbreiden beantwoord CR">
+      <semantic:input id="_4116865">
+        <semantic:inputExpression typeRef="feel:date">
+          <semantic:text>datum activiteiten veranderen uitbreiden UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4164716" />
+      <semantic:rule id="_7888960">
+        <semantic:inputEntry id="_548863">
+          <semantic:text>not(null)</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6461768">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_17340_BizRule" name="Informatieplicht starten uitvoeren RecrVisvijver">
+    <semantic:variable id="_17340_BizRule_var" name="Informatieplicht starten uitvoeren RecrVisvijver" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_06e40fba-c78d-4f9b-87a4-5b517d6892b3" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_17341_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_17340_BizRule_td" hitPolicy="ANY" outputLabel="Informatieplicht starten uitvoeren RecrVisvijver">
+      <semantic:input id="_1230325">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>begin van _ activiteit Op Artikel 22.181 Lid 1</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_4156176">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Aanvullende gegevens RecrVisvijver</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8883426" />
+      <semantic:rule id="_4312521">
+        <semantic:inputEntry id="_8393276">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_487398">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2834175">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3988689">
+        <semantic:inputEntry id="_2009670">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8993746">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5293187">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7816020">
+        <semantic:inputEntry id="_3786452">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7209985">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4628023">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_06e40fba-c78d-4f9b-87a4-5b517d6892b3" name="begin van _ activiteit Op Artikel 22.181 Lid 1">
+    <semantic:variable id="_06e40fba-c78d-4f9b-87a4-5b517d6892b3_var" name="begin van _ activiteit Op Artikel 22.181 Lid 1" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_11087_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_06e40fba-c78d-4f9b-87a4-5b517d6892b3_td" hitPolicy="UNIQUE" outputLabel="begin van _ activiteit Op Artikel 22.181 Lid 1">
+      <semantic:input id="_2658210">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>informatieplicht starten uitvoeren activiteit CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4839462" />
+      <semantic:rule id="_8118271">
+        <semantic:inputEntry id="_7517466">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3176806">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7879413">
+        <semantic:inputEntry id="_5845865">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_567689">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_11087_BizRule" name="informatieplicht starten uitvoeren activiteit CR">
+    <semantic:variable id="_11087_BizRule_var" name="informatieplicht starten uitvoeren activiteit CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_16045_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_11087_BizRule_td" hitPolicy="FIRST" outputLabel="informatieplicht starten uitvoeren activiteit CR">
+      <semantic:input id="_4761270">
+        <semantic:inputExpression typeRef="feel:string">
+          <semantic:text>informatieplicht starten uitvoeren veranderen activiteit UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_6775275" />
+      <semantic:rule id="_2013693">
+        <semantic:inputEntry id="_4761724">
+          <semantic:text>if ?=null then false else contains(?,"Starten van een nieuwe activiteit of activiteit verplaatsen naar een ander adres") or contains(?,"Uitvoeren van een bestaande activiteit waarover u niet eerder informatie heeft gegeven")</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_689064">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4112041">
+        <semantic:inputEntry id="_2066285">
+          <semantic:text>if ?=null then false else not(contains(?,"Starten van een nieuwe activiteit of activiteit verplaatsen naar een ander adres") or contains(?,"Uitvoeren van een bestaande activiteit waarover u niet eerder informatie heeft gegeven"))</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3760729">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_17341_BizRule" name="Aanvullende gegevens RecrVisvijver">
+    <semantic:variable id="_17341_BizRule_var" name="Aanvullende gegevens RecrVisvijver" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_2b92370f-bd44-49ff-a0ce-1db1d49f23b9" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_457d1752-2be8-45a3-a4e6-140a6c54f00c" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_c0a23b02-4a97-47dc-ade2-f5ce7b0acffa" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_17341_BizRule_td" hitPolicy="ANY" outputLabel="Aanvullende gegevens RecrVisvijver">
+      <semantic:input id="_7802262">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>aard en omvang van _ activiteit en _ aard en omvang van _ daarbij behorende processen Op Artikel 22.181 Lid 1 a</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_6947917">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>indeling van _ locatie waarop _ activiteit wordt verricht_ Op Artikel 22.181 Lid 1 b</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_993875">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>situatieschets_ met een schaal van ten minste 1_ 10.000 waarop de activiteit is aangegeven en die is voorzien van een noordpijl Op Artikel 22.181 Lid 1 c</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5707213" />
+      <semantic:rule id="_4207720">
+        <semantic:inputEntry id="_1447417">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3772191">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3259998">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6728462">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5934568">
+        <semantic:inputEntry id="_4619667">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3965975">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4321324">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_659022">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9290931">
+        <semantic:inputEntry id="_6809376">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6177415">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3022516">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8130456">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9277403">
+        <semantic:inputEntry id="_6046444">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_671494">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7372057">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8582354">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_2b92370f-bd44-49ff-a0ce-1db1d49f23b9" name="aard en omvang van _ activiteit en _ aard en omvang van _ daarbij behorende processen Op Artikel 22.181 Lid 1 a">
+    <semantic:variable id="_2b92370f-bd44-49ff-a0ce-1db1d49f23b9_var" name="aard en omvang van _ activiteit en _ aard en omvang van _ daarbij behorende processen Op Artikel 22.181 Lid 1 a" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_29991_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_2b92370f-bd44-49ff-a0ce-1db1d49f23b9_td" hitPolicy="UNIQUE" outputLabel="aard en omvang van _ activiteit en _ aard en omvang van _ daarbij behorende processen Op Artikel 22.181 Lid 1 a">
+      <semantic:input id="_5384459">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>beschrijving activiteit indienen informatieplicht beantwoord CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3888487" />
+      <semantic:rule id="_4422155">
+        <semantic:inputEntry id="_7537245">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6679583">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5725673">
+        <semantic:inputEntry id="_2445111">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9876648">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_29991_BizRule" name="beschrijving activiteit indienen informatieplicht beantwoord CR">
+    <semantic:variable id="_29991_BizRule_var" name="beschrijving activiteit indienen informatieplicht beantwoord CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30434_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_29991_BizRule_td" hitPolicy="FIRST" outputLabel="beschrijving activiteit indienen informatieplicht beantwoord CR">
+      <semantic:input id="_9943385">
+        <semantic:inputExpression typeRef="feel:string">
+          <semantic:text>beschrijving activiteit indienen informatieplicht UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5533017" />
+      <semantic:rule id="_7490924">
+        <semantic:inputEntry id="_1168103">
+          <semantic:text>not(null)</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3092576">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_457d1752-2be8-45a3-a4e6-140a6c54f00c" name="indeling van _ locatie waarop _ activiteit wordt verricht_ Op Artikel 22.181 Lid 1 b">
+    <semantic:variable id="_457d1752-2be8-45a3-a4e6-140a6c54f00c_var" name="indeling van _ locatie waarop _ activiteit wordt verricht_ Op Artikel 22.181 Lid 1 b" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_30057_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_457d1752-2be8-45a3-a4e6-140a6c54f00c_td" hitPolicy="UNIQUE" outputLabel="indeling van _ locatie waarop _ activiteit wordt verricht_ Op Artikel 22.181 Lid 1 b">
+      <semantic:input id="_1802771">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>indeling locatie recreatieve visvijvers beantwoord CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_720302" />
+      <semantic:rule id="_1510793">
+        <semantic:inputEntry id="_1367271">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5158273">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1089004">
+        <semantic:inputEntry id="_7242237">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3559746">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_30057_BizRule" name="indeling locatie recreatieve visvijvers beantwoord CR">
+    <semantic:variable id="_30057_BizRule_var" name="indeling locatie recreatieve visvijvers beantwoord CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_25529_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_30057_BizRule_td" hitPolicy="FIRST" outputLabel="indeling locatie recreatieve visvijvers beantwoord CR">
+      <semantic:input id="_2179890">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>indeling locatie recreatieve visvijvers UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_6246364" />
+      <semantic:rule id="_4402247">
+        <semantic:inputEntry id="_7484344">
+          <semantic:text>not(null)</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5204316">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_c0a23b02-4a97-47dc-ade2-f5ce7b0acffa" name="situatieschets_ met een schaal van ten minste 1_ 10.000 waarop de activiteit is aangegeven en die is voorzien van een noordpijl Op Artikel 22.181 Lid 1 c">
+    <semantic:variable id="_c0a23b02-4a97-47dc-ade2-f5ce7b0acffa_var" name="situatieschets_ met een schaal van ten minste 1_ 10.000 waarop de activiteit is aangegeven en die is voorzien van een noordpijl Op Artikel 22.181 Lid 1 c" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_29993_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_c0a23b02-4a97-47dc-ade2-f5ce7b0acffa_td" hitPolicy="UNIQUE" outputLabel="situatieschets_ met een schaal van ten minste 1_ 10.000 waarop de activiteit is aangegeven en die is voorzien van een noordpijl Op Artikel 22.181 Lid 1 c">
+      <semantic:input id="_8584308">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>situatietekening locatie van werkzaamheden MilieubelastendeAct omgevingsplan bruidsschat beantwoord CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7666547" />
+      <semantic:rule id="_5981585">
+        <semantic:inputEntry id="_2788882">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7714284">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7430768">
+        <semantic:inputEntry id="_9575859">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2411520">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_29993_BizRule" name="situatietekening locatie van werkzaamheden MilieubelastendeAct omgevingsplan bruidsschat beantwoord CR">
+    <semantic:variable id="_29993_BizRule_var" name="situatietekening locatie van werkzaamheden MilieubelastendeAct omgevingsplan bruidsschat beantwoord CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30442_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_29993_BizRule_td" hitPolicy="FIRST" outputLabel="situatietekening locatie van werkzaamheden MilieubelastendeAct omgevingsplan bruidsschat beantwoord CR">
+      <semantic:input id="_622754">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>situatietekening locatie van werkzaamheden MilieubelastendeAct omgevingsplan bruidsschat UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_619233" />
+      <semantic:rule id="_7025261">
+        <semantic:inputEntry id="_6234945">
+          <semantic:text>not(null)</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6580415">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_17957_BizRule" name="Informatieplicht veranderen RecrVisvijver">
+    <semantic:variable id="_17957_BizRule_var" name="Informatieplicht veranderen RecrVisvijver" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_17958_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_526ea08f-2e93-4f39-bfdc-89f573fb656c" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_17957_BizRule_td" hitPolicy="ANY" outputLabel="Informatieplicht veranderen RecrVisvijver">
+      <semantic:input id="_1302789">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>veranderen activiteit informatieplicht RecrVisvijver</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_3789457">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>gewijzigde gegevens Op Artikel 22.181 Lid 2</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4743019" />
+      <semantic:rule id="_4022589">
+        <semantic:inputEntry id="_8788306">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3168097">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8422827">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4016799">
+        <semantic:inputEntry id="_4674644">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2602213">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6919662">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8210131">
+        <semantic:inputEntry id="_1188171">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9582490">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_429820">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_17958_BizRule" name="veranderen activiteit informatieplicht RecrVisvijver">
+    <semantic:variable id="_17958_BizRule_var" name="veranderen activiteit informatieplicht RecrVisvijver" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_11100_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_17958_BizRule_td" hitPolicy="UNIQUE" outputLabel="veranderen activiteit informatieplicht RecrVisvijver">
+      <semantic:input id="_5322608">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>informatieplicht veranderen activiteit CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3504568" />
+      <semantic:rule id="_7642122">
+        <semantic:inputEntry id="_319907">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_352901">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1775266">
+        <semantic:inputEntry id="_7141364">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4778563">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_526ea08f-2e93-4f39-bfdc-89f573fb656c" name="gewijzigde gegevens Op Artikel 22.181 Lid 2">
+    <semantic:variable id="_526ea08f-2e93-4f39-bfdc-89f573fb656c_var" name="gewijzigde gegevens Op Artikel 22.181 Lid 2" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_19173_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_526ea08f-2e93-4f39-bfdc-89f573fb656c_td" hitPolicy="UNIQUE" outputLabel="gewijzigde gegevens Op Artikel 22.181 Lid 2">
+      <semantic:input id="_4195062">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>informatieplicht korte omschrijving veranderen uitbreiden activiteit beantwoord CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7454503" />
+      <semantic:rule id="_7818733">
+        <semantic:inputEntry id="_360156">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1592244">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_981056">
+        <semantic:inputEntry id="_1480017">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_401068">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_19173_BizRule" name="informatieplicht korte omschrijving veranderen uitbreiden activiteit beantwoord CR">
+    <semantic:variable id="_19173_BizRule_var" name="informatieplicht korte omschrijving veranderen uitbreiden activiteit beantwoord CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_16061_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_19173_BizRule_td" hitPolicy="FIRST" outputLabel="informatieplicht korte omschrijving veranderen uitbreiden activiteit beantwoord CR">
+      <semantic:input id="_4485531">
+        <semantic:inputExpression typeRef="feel:string">
+          <semantic:text>informatieplicht korte omschrijving veranderen uitbreiden activiteit UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5132325" />
+      <semantic:rule id="_8577857">
+        <semantic:inputEntry id="_9786215">
+          <semantic:text>not(null)</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3752779">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20615_BizRule" name="Informatieplicht starten RecrVisvijver">
+    <semantic:variable id="_20615_BizRule_var" name="Informatieplicht starten RecrVisvijver" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20616_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_b9e2fd7d-0444-4400-b25b-95496a6f8a73" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20615_BizRule_td" hitPolicy="ANY" outputLabel="Informatieplicht starten RecrVisvijver">
+      <semantic:input id="_8816726">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>starten RecrVisvijver</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_8157300">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>verwachte datum van _ begin van _ activiteit Op Artikel 22.181 Lid 1 d</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7458058" />
+      <semantic:rule id="_1534150">
+        <semantic:inputEntry id="_9061516">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1487516">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4209664">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5364333">
+        <semantic:inputEntry id="_9061922">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4578750">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6826112">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7848277">
+        <semantic:inputEntry id="_9446039">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7088912">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7118185">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20616_BizRule" name="starten RecrVisvijver">
+    <semantic:variable id="_20616_BizRule_var" name="starten RecrVisvijver" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20617_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20616_BizRule_td" hitPolicy="UNIQUE" outputLabel="starten RecrVisvijver">
+      <semantic:input id="_2977111">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>informatieplicht starten activiteit CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7005353" />
+      <semantic:rule id="_6182043">
+        <semantic:inputEntry id="_5105148">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4161424">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9010893">
+        <semantic:inputEntry id="_847956">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6568086">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20617_BizRule" name="informatieplicht starten activiteit CR">
+    <semantic:variable id="_20617_BizRule_var" name="informatieplicht starten activiteit CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_16045_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20617_BizRule_td" hitPolicy="FIRST" outputLabel="informatieplicht starten activiteit CR">
+      <semantic:input id="_1269573">
+        <semantic:inputExpression typeRef="feel:string">
+          <semantic:text>informatieplicht starten uitvoeren veranderen activiteit UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3107941" />
+      <semantic:rule id="_7130583">
+        <semantic:inputEntry id="_3335743">
+          <semantic:text>if ?=null then false else contains(?,"Starten van een nieuwe activiteit of activiteit verplaatsen naar een ander adres")</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3494627">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2501145">
+        <semantic:inputEntry id="_2734130">
+          <semantic:text>if ?=null then false else not(contains(?,"Starten van een nieuwe activiteit of activiteit verplaatsen naar een ander adres"))</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3377805">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_b9e2fd7d-0444-4400-b25b-95496a6f8a73" name="verwachte datum van _ begin van _ activiteit Op Artikel 22.181 Lid 1 d">
+    <semantic:variable id="_b9e2fd7d-0444-4400-b25b-95496a6f8a73_var" name="verwachte datum van _ begin van _ activiteit Op Artikel 22.181 Lid 1 d" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_29969_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_b9e2fd7d-0444-4400-b25b-95496a6f8a73_td" hitPolicy="UNIQUE" outputLabel="verwachte datum van _ begin van _ activiteit Op Artikel 22.181 Lid 1 d">
+      <semantic:input id="_2610314">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>verwachte datum starten activiteit informatieplicht Bruidsschat beantwoord CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9796275" />
+      <semantic:rule id="_6677040">
+        <semantic:inputEntry id="_6505881">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5347267">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_484063">
+        <semantic:inputEntry id="_8785757">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1291384">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_29969_BizRule" name="verwachte datum starten activiteit informatieplicht Bruidsschat beantwoord CR">
+    <semantic:variable id="_29969_BizRule_var" name="verwachte datum starten activiteit informatieplicht Bruidsschat beantwoord CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_23079_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_29969_BizRule_td" hitPolicy="FIRST" outputLabel="verwachte datum starten activiteit informatieplicht Bruidsschat beantwoord CR">
+      <semantic:input id="_587750">
+        <semantic:inputExpression typeRef="feel:date">
+          <semantic:text>verwachte datum starten activiteit informatieplicht Bruidsschat UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3231699" />
+      <semantic:rule id="_9414230">
+        <semantic:inputEntry id="_5133139">
+          <semantic:text>not(null)</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3175753">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+</semantic:definitions>

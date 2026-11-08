@@ -29,18 +29,19 @@ productie-endpoint weert de PRE-key met 401 — zelfde beheersmaatregel als bij 
 Presenteren-metingen in [POC_TPOD_IMOW_KANSEN.md](../../POC_TPOD_IMOW_KANSEN.md)).
 
 - Base PRE: `https://service.pre.omgevingswet.overheid.nl/publiek/toepasbare-regels/api/toepasbareregelsuitvoerengegevens/v2`
-- Registratie-omvang: **66.474** actuele `toepasbareRegels`-entries (133 pagina's à 500);
-  op de eerste zes pagina's al 98 distincte OIN's (gemeenten, waterschappen, rijk).
-- **Gemeente Eindhoven: OIN `00000001001172773000`** — gevonden door te pagingen en op
-  `nl.imow-gm0855…` in `functioneleStructuurRef` te filteren (de metadata bevat geen
-  gemeentenamen, alleen OIN's). Direct filterbaar via `?oin=…`.
-- Eindhoven heeft **20 geldige STTR-bestanden** (170 entries incl. historie met `einddatum`),
-  begindata 29-06-2022 t/m 03-10-2023, activiteiten o.a. `BouwwerkSlopen`,
-  `MakenHandelsreclame`, `OngewoonVoorvalMBAOP`, `GeluidProdWindturbine`.
-- Alle 20 zijn als DMN-xml gedownload naar `rtr-pre-eindhoven/` (met
-  `toepasbare-regels.metadata.json` als metadata-cache). Aanleveringen zijn **DMN 1.1 met
-  STTR v1.0-namespaces** (exporter "Geodan FLO Legal STTR Builder") — dus níet de huidige
-  3.0.1/DMN 1.2-vorm; zie de eerlijke grenzen in de notitie.
+- Volledige scan: **66.500 entries over 133 pagina's**; **410 bevoegde-gezagsbronnen**
+  (gm/ws/pv/mnre-codes uit `functioneleStructuurRef`), waarvan **370 gemeenten**.
+  De metadata bevat géén gemeentenamen — identificatie uitsluitend via de gm-code.
+- **Gemeente Eindhoven: gm0772 = OIN `00000001001902763000`** — **162 geldige
+  STTR-bestanden**, begindata 07-07-2022 t/m 28-10-2026, alle gedownload naar
+  `rtr-pre-eindhoven/` (22,7 MB, met `toepasbare-regels.metadata.json` als cache).
+  Samenstelling: 118× DMN 1.1 + 44× DMN 1.2; leveranciers RuleArts (111),
+  Sogelink (44), Geodan FLO (7); 10× `bedr:sttr versie="2"`, geen versie 3;
+  **0 `uitv:geoVerwijzing`'en** (locatie als gewone ja/nee-vraag).
+- **Gemeente Tilburg: gm0855 = OIN `00000001001172773000`** — 170 geldige
+  bestanden; `rtr-pre-tilburg/` bevat de oorspronkelijke 20-steekproef
+  (_DMN 1.1, Geodan FLO-exporter_). NB: een eerste scan hield deze 20 ten onrechte
+  voor Eindhoven — vandaar de correctie-notitie in de kansen-notitie.
 
 ## Reproduceren
 
@@ -51,7 +52,7 @@ nldt/.venv/bin/python docs/research/sttr-imtr/scan_executies.py   # → eindhove
 # Eindhoven in de RTR (PRE; sleutel nooit committen):
 KEY=$(grep -E '^DSO_API_KEY=' .env | cut -d= -f2-)
 curl -sS -H "x-api-key: $KEY" \
-  'https://service.pre.omgevingswet.overheid.nl/publiek/toepasbare-regels/api/toepasbareregelsuitvoerengegevens/v2/toepasbareRegels?oin=00000001001172773000'
+  'https://service.pre.omgevingswet.overheid.nl/publiek/toepasbare-regels/api/toepasbareregelsuitvoerengegevens/v2/toepasbareRegels?oin=00000001001902763000'
 ```
 
 ## Verdere officiële bronnen (niet gedownload)

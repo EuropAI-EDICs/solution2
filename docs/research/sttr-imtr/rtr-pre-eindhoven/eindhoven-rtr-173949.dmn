@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<semantic:definitions xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000" xmlns:feel="http://www.omg.org/spec/FEEL/20140401" xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel" xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel" xmlns:triso="http://www.rulearts.com/modeling" xmlns:trisofeed="http://rulearts.com/feed" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel" xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content" exporter="RuleArts STTR Export" exporterVersion="0.2.0" id="_4032445" name="Conclusie - Antihagelkanonnen in werking hebben" namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000">
+  <semantic:extensionElements xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd">
+    <inter:regelgroepen xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel">
+      <inter:regelgroep id="_4689_RuleGroup">
+        <inter:naam>Antihagelkanon</inter:naam>
+        <inter:prioriteit>10</inter:prioriteit>
+      </inter:regelgroep>
+    </inter:regelgroepen>
+    <uitv:uitvoeringsregels>
+      <uitv:uitvoeringsregel id="_20495_BizRule">
+        <uitv:regelgroepRef href="#_4689_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat u een schokgolf opwekken?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Een schokgolf veroorzaakt geluid door een verandering van de luchtdruk\. Een knalapparaat wekt wel een knal op, maar veroorzaakt geen schokgolf\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_20496_BizRule">
+        <uitv:regelgroepRef href="#_4689_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>20</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat u gassen mengen en tot ontbranding brengen?]]></uitv:vraagTekst>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+    </uitv:uitvoeringsregels>
+  </semantic:extensionElements>
+  <semantic:inputData id="_30265_Concept" name="schokgolf opwekken UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_20495_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_7975898" name="schokgolf opwekken UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_30267_Concept" name="gassen mengen en ontbranden UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_20496_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_7540346" name="gassen mengen en ontbranden UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:decision id="_c2dc85fa-c038-4bec-ac5e-c5c38bf16ca8" name="Conclusie - AntihagelkanonHebben">
+    <semantic:extensionElements>
+      <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/Conclusienl.imow-gm0772.activiteit.AntihagelkanonHebben" />
+    </semantic:extensionElements>
+    <semantic:variable id="_c2dc85fa-c038-4bec-ac5e-c5c38bf16ca8_var" name="Conclusie - AntihagelkanonHebben" typeRef="feel:string" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20493_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_c322b11e-a2a6-42f1-9bb9-bbda16287080_0ad89ed1-6d75-45fa-a242-6152304c475a" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_c2dc85fa-c038-4bec-ac5e-c5c38bf16ca8_td" hitPolicy="COLLECT" outputLabel="Conclusie - AntihagelkanonHebben">
+      <semantic:input id="_2111985">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Toepassingsbereik - AntihagelkanonHebben</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_8502640">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Toestemmingen - Vergunningplicht - AntihagelkanonHebben</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_1048369" />
+      <semantic:rule id="_4515593">
+        <semantic:inputEntry id="_2454405">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6554545">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4956949">
+          <semantic:text>"NietVanToepassing"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7391332">
+        <semantic:inputEntry id="_6524227">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5553041">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8681704">
+          <semantic:text>"Vergunningplicht"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9513691">
+        <semantic:inputEntry id="_4065074">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7944945">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4594384">
+          <semantic:extensionElements>
+            <content:conclusieToelichting>
+              <content:toelichting><![CDATA[U moet zich wel houden aan de algemene regels voor deze activiteit\. In [Maatregelen op Maat](/maatregelen) vindt u de maatregelen waarmee u aan deze regels kunt voldoen\.]]></content:toelichting>
+            </content:conclusieToelichting>
+          </semantic:extensionElements>
+          <semantic:text>"Toestemmingsvrij"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20493_BizRule" name="Toepassingsbereik - AntihagelkanonHebben">
+    <semantic:variable id="_20493_BizRule_var" name="Toepassingsbereik - AntihagelkanonHebben" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_20494_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20493_BizRule_td" hitPolicy="ANY" outputLabel="Toepassingsbereik - AntihagelkanonHebben">
+      <semantic:input id="_9753285">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>schokgolf opwekken</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_482750" />
+      <semantic:rule id="_8737419">
+        <semantic:inputEntry id="_2025137">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5445822">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5955794">
+        <semantic:inputEntry id="_5538094">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_438756">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_20494_BizRule" name="schokgolf opwekken">
+    <semantic:variable id="_20494_BizRule_var" name="schokgolf opwekken" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30265_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20494_BizRule_td" hitPolicy="UNIQUE" outputLabel="schokgolf opwekken">
+      <semantic:input id="_8297116">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>schokgolf opwekken UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_775348" />
+      <semantic:rule id="_5433303">
+        <semantic:inputEntry id="_5820698">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5426094">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5541395">
+        <semantic:inputEntry id="_8588631">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8073295">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_c322b11e-a2a6-42f1-9bb9-bbda16287080_0ad89ed1-6d75-45fa-a242-6152304c475a" name="Toestemmingen - Vergunningplicht - AntihagelkanonHebben">
+    <semantic:variable id="_c322b11e-a2a6-42f1-9bb9-bbda16287080_0ad89ed1-6d75-45fa-a242-6152304c475a_var" name="Toestemmingen - Vergunningplicht - AntihagelkanonHebben" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_72b67b3f-0c02-40df-bb54-4345df997902" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_bd1d6ef0-241d-4ea0-994d-68369f073c6b" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_c322b11e-a2a6-42f1-9bb9-bbda16287080_0ad89ed1-6d75-45fa-a242-6152304c475a_td" hitPolicy="ANY" outputLabel="Toestemmingen - Vergunningplicht - AntihagelkanonHebben">
+      <semantic:input id="_7286805">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>installatie _in werking te hebben waarin gassen worden gemengd en tot ontbranding worden gebracht Op Artikel 22.264 Lid 1</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_8656190">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>met als doel _ opwekken van _ schokgolf Op Artikel 22.264 Lid 1</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_1250069" />
+      <semantic:rule id="_6760897">
+        <semantic:inputEntry id="_1354555">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3845055">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1491454">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1920125">
+        <semantic:inputEntry id="_6451107">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6412534">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6677680">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2422467">
+        <semantic:inputEntry id="_2803952">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1380833">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_825571">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_72b67b3f-0c02-40df-bb54-4345df997902" name="installatie _in werking te hebben waarin gassen worden gemengd en tot ontbranding worden gebracht Op Artikel 22.264 Lid 1">
+    <semantic:variable id="_72b67b3f-0c02-40df-bb54-4345df997902_var" name="installatie _in werking te hebben waarin gassen worden gemengd en tot ontbranding worden gebracht Op Artikel 22.264 Lid 1" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30267_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_72b67b3f-0c02-40df-bb54-4345df997902_td" hitPolicy="UNIQUE" outputLabel="installatie _in werking te hebben waarin gassen worden gemengd en tot ontbranding worden gebracht Op Artikel 22.264 Lid 1">
+      <semantic:input id="_2196066">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>gassen mengen en ontbranden UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8651502" />
+      <semantic:rule id="_4773696">
+        <semantic:inputEntry id="_4388392">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2061386">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8007214">
+        <semantic:inputEntry id="_2307307">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2830075">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_bd1d6ef0-241d-4ea0-994d-68369f073c6b" name="met als doel _ opwekken van _ schokgolf Op Artikel 22.264 Lid 1">
+    <semantic:variable id="_bd1d6ef0-241d-4ea0-994d-68369f073c6b_var" name="met als doel _ opwekken van _ schokgolf Op Artikel 22.264 Lid 1" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_30267_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_bd1d6ef0-241d-4ea0-994d-68369f073c6b_td" hitPolicy="UNIQUE" outputLabel="met als doel _ opwekken van _ schokgolf Op Artikel 22.264 Lid 1">
+      <semantic:input id="_1884551">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>gassen mengen en ontbranden UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_6573890" />
+      <semantic:rule id="_8363883">
+        <semantic:inputEntry id="_2751253">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4040244">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7021101">
+        <semantic:inputEntry id="_1033847">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9530855">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+</semantic:definitions>

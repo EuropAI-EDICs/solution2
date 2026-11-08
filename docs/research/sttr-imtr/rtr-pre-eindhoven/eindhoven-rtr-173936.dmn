@@ -1,0 +1,1061 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<semantic:definitions xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000" xmlns:feel="http://www.omg.org/spec/FEEL/20140401" xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel" xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel" xmlns:triso="http://www.rulearts.com/modeling" xmlns:trisofeed="http://rulearts.com/feed" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel" xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content" exporter="RuleArts STTR Export" exporterVersion="0.2.0" id="_7323112" name="Indieningsvereisten Vergunning - LPG tanken" namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000">
+  <semantic:extensionElements xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd">
+    <inter:regelgroepen xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel">
+      <inter:regelgroep id="_2740_RuleGroup">
+        <inter:naam>Nieuwe of bestaande activiteit</inter:naam>
+        <inter:prioriteit>5</inter:prioriteit>
+      </inter:regelgroep>
+      <inter:regelgroep id="_3692_RuleGroup">
+        <inter:naam>Tanken en opslaan van LPG</inter:naam>
+        <inter:prioriteit>30</inter:prioriteit>
+      </inter:regelgroep>
+    </inter:regelgroepen>
+    <uitv:uitvoeringsregels>
+      <uitv:uitvoeringsregel id="_24124_BizRule">
+        <uitv:regelgroepRef href="#_2740_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>1</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>list</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Geef aan waarover deze vergunningaanvraag gaat.]]></uitv:vraagTekst>
+          <uitv:opties>
+            <uitv:optieType>meerdereAntwoorden</uitv:optieType>
+            <uitv:optie>
+              <uitv:sequenceId>1</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Starten van een nieuwe activiteit]]></uitv:optieText>
+            </uitv:optie>
+            <uitv:optie>
+              <uitv:sequenceId>2</uitv:sequenceId>
+              <uitv:optieText><![CDATA[Veranderen of uitbreiden van een activiteit waarvoor u al een vergunning heeft]]></uitv:optieText>
+            </uitv:optie>
+          </uitv:opties>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Gaat uw vergunningaanvraag over een activiteit waarvoor u al een vergunning heeft?
+
+Dan hoeft u alleen gegevens toe te voegen over de verandering of uitbreiding van de activiteit\. Het gaat om de gegevens die niet meer kloppen met de situatie waarvoor u al een vergunning heeft\.]]></content:toelichting>
+          <content:belangrijk>true</content:belangrijk>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_14381_BizRule">
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <uitv:bijlage>
+          <uitv:bijlageType>Begrenzing locatie activiteit</uitv:bijlageType>
+          <uitv:documenttypeGeneriek>Overig</uitv:documenttypeGeneriek>
+        </uitv:bijlage>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Voeg als bijlage toe: informatie over de begrenzing van de locatie waar u de activiteit\(en\) gaat verrichten\. Dit kan een kaart zijn of worden aangegeven met coördinaten\.
+
+Geef precies aan waar activiteit\(en\) beginnen en ophouden\.]]></content:toelichting>
+          <content:langeToelichting><![CDATA[Gaat u dit aangeven met coördinaten? Voeg dan bij voorkeur een geografisch bestand van de coördinaten toe\. Kijk bovenaan dit scherm onder ‘Bestandsformaten’ welke formaten u daarvoor kunt gebruiken\.   
+Heeft u geen geografisch bestand? Neem de coördinaten dan op in een lijst of een kaartje\.
+
+##### Welk coördinatenstelsel gebruikt u hiervoor?
+
+Gebruik voor de coördinaten het stelsel van de Rijksdriehoeksmeting \(RD\)\.   
+In het [Omgevingsloket](../../../../../) kunt u met **Regels op de kaart** de RD\-coördinaten opzoeken\.]]></content:langeToelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_10209_BizRule">
+        <uitv:regelgroepRef href="#_3692_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>string</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Geef het aantal opslagtanks voor LPG dat aanwezig zal zijn.]]></uitv:vraagTekst>
+          <inter:inputType>textarea</inter:inputType>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_14402_BizRule">
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <uitv:bijlage>
+          <uitv:bijlageType>Coördinaten LPG tankinstallatie</uitv:bijlageType>
+          <uitv:documenttypeGeneriek>Overig</uitv:documenttypeGeneriek>
+        </uitv:bijlage>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Voeg als bijlage toe: de coördinaten van de volgende onderdelen van de LPG\-tankinstallatie:
+
+* elk vulpunt
+* de bovengrondse vloeistofleidingen
+* de aansluitpunten van de bovengrondse vloeistofleidingen en de pomp
+* elke bovengrondse opslagtank
+* elke tankzuil]]></content:toelichting>
+          <content:langeToelichting><![CDATA[Voeg bij voorkeur een geografisch bestand van de coördinaten toe\. Kijk bovenaan dit scherm onder ‘Bestandsformaten’ welke formaten u daarvoor kunt gebruiken\.   
+Heeft u geen geografisch bestand? Neem de coördinaten dan op in een lijst of een kaartje\.
+
+Gaat u de activiteit veranderen of uitbreiden? Dan hoeft u deze coördinaten alleen bij te voegen als de plek verandert\.
+
+##### Welk coördinatenstelsel moet u hiervoor gebruiken?
+
+Gebruik voor de coördinaten het stelsel van de Rijksdriehoeksmeting \(RD\)\.   
+In het [Omgevingsloket](/orienteren) kunt u met Regels op de kaart de RD\-coördinaten voor uw specifieke situatie terugvinden\.]]></content:langeToelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_25573_BizRule">
+        <uitv:regelgroepRef href="#_3692_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <uitv:vraag>
+          <uitv:gegevensType>string</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Waar ligt de grens van het brandaandachtsgebied en het explosieaandachtsgebied?]]></uitv:vraagTekst>
+          <inter:inputType>textarea</inter:inputType>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[De grens van een aandachtsgebied ligt op een bepaalde afstand van de activiteit\. Geef hier de afstand in meters\. Het gaat om de afstanden in meters uit tabel A\.1a van \[[Bijlage VII van het Besluit kwaliteit leefomgeving](https://wetten.overheid.nl/jci1.3:c:BWBR0041313&amp;bijlage=VII)\] die voor uw situatie gelden\.]]></content:toelichting>
+          <content:belangrijk>true</content:belangrijk>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_10211_BizRule">
+        <uitv:regelgroepRef href="#_3692_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>20</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>string</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Geef de hoeveelheid LPG in kubieke meters die u maximaal gaat opslaan.]]></uitv:vraagTekst>
+          <inter:inputType>textarea</inter:inputType>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_10212_BizRule">
+        <uitv:regelgroepRef href="#_3692_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>30</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>string</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Geef een inschatting van de doorzet van LPG in kubieke meters per jaar.]]></uitv:vraagTekst>
+          <inter:inputType>textarea</inter:inputType>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_26303_BizRule">
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>990</inter:prioriteit>
+        <uitv:bijlage>
+          <uitv:bijlageType>Overige gegevens noodzakelijk voor toetsing aan omgevingsplan</uitv:bijlageType>
+          <uitv:documenttypeGeneriek>Overig</uitv:documenttypeGeneriek>
+        </uitv:bijlage>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Heeft de gemeente aangegeven dat u ook nog andere, dan hiervoor al gevraagde, gegevens moet aanleveren? Of wilt u zelf nog andere gegevens toevoegen? Voeg die dan hier toe als bijlage\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+    </uitv:uitvoeringsregels>
+  </semantic:extensionElements>
+  <semantic:inputData id="_34537_Concept" name="starten veranderen vergunning UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_24124_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_4395541" name="starten veranderen vergunning UR" typeRef="feel:string" />
+  </semantic:inputData>
+  <semantic:inputData id="_20996_Concept" name="bijlage begrenzing locatie activiteit Bruidsschat UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_14381_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_751022" name="bijlage begrenzing locatie activiteit Bruidsschat UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_14630_Concept" name="aantal opslagtanks LPG UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_10209_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_9419885" name="aantal opslagtanks LPG UR" typeRef="feel:string" />
+  </semantic:inputData>
+  <semantic:inputData id="_21035_Concept" name="coördinaten tanken LPG UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_14402_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_7703281" name="coördinaten tanken LPG UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_36095_Concept" name="brandaandachtsgebied en explosieaandachtsgebied LPGTanken UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_25573_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_1724604" name="brandaandachtsgebied en explosieaandachtsgebied LPGTanken UR" typeRef="feel:string" />
+  </semantic:inputData>
+  <semantic:inputData id="_14632_Concept" name="hoeveelheid LPG kubieke meters opgeslagen UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_10211_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_9208766" name="hoeveelheid LPG kubieke meters opgeslagen UR" typeRef="feel:string" />
+  </semantic:inputData>
+  <semantic:inputData id="_14633_Concept" name="doorzet kubieke meters per jaar LPG UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_10212_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_9657392" name="doorzet kubieke meters per jaar LPG UR" typeRef="feel:string" />
+  </semantic:inputData>
+  <semantic:inputData id="_36919_Concept" name="overige gegevens toetsing omgevingsplan UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_26303_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_8564618" name="overige gegevens toetsing omgevingsplan UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:decision id="_bfb58f40-9e6d-4e1d-8948-94839bc813a3_26bf9c76-7b6e-4bef-8bd0-0ecd7561ddea" name="Indieningsvereisten Vergunning - LPGTanken">
+    <semantic:extensionElements>
+      <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/IndieningsvereistenVergunningnl.imow-gm0772.activiteit.LPGTanken" />
+    </semantic:extensionElements>
+    <semantic:variable id="_bfb58f40-9e6d-4e1d-8948-94839bc813a3_26bf9c76-7b6e-4bef-8bd0-0ecd7561ddea_var" name="Indieningsvereisten Vergunning - LPGTanken" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24118_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_14379_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_ca476ad6-aee0-4bc9-a4d4-6831fd463582" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_f67582df-042e-46b1-a965-5aaa12b0faa2" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_25407de8-bec8-4276-8784-4b9acfea2001" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_76856eef-10c8-4e0a-9838-9dc6b4b7642e" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_22ba3d02-8cb9-4919-8289-186722aeb924" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_46306_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_bfb58f40-9e6d-4e1d-8948-94839bc813a3_26bf9c76-7b6e-4bef-8bd0-0ecd7561ddea_td" hitPolicy="ANY" outputLabel="Indieningsvereisten Vergunning - LPGTanken">
+      <semantic:input id="_3873276">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>starten veranderen vergunning herbruikbare set continue activiteten</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_8727064">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>situatietekening begrenzing locatie activiteit Bruidsschat</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_3975191">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>aantal opslagtanks dat aanwezig Op 5 Artikel 22.263 Lid 2 a Indieningsvereisten Vergunning</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_4847998">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>coördinaten Op 5 Artikel 22.263 Lid 2 b Indieningsvereisten Vergunning</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_5277595">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>brandaandachtsgebied en explosieaandachtsgebied_ bedoeld _in artikel 5.12 van _ Besluit kwaliteit leefomgeving Op 5 Artikel 22.263 Lid 2 c Indieningsvereisten Vergunning</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_7364679">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>hoeveelheid LPG die ten hoogste wordt opgeslagen Op 5 Artikel 22.263 Lid 2 d Indieningsvereisten Vergunning</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_3419382">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>inschatting van _ doorzet van LPG _in m 3 per jaar Op 5 Artikel 22.263 Lid 2 e Indieningsvereisten Vergunning</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_7438263">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Herbruikbare set overige gegevens Omgevingsplan</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_622738" />
+      <semantic:rule id="_6526887">
+        <semantic:inputEntry id="_670019">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7858456">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9268611">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2732254">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9248160">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5728000">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4162630">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3256652">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3958934">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6791303">
+        <semantic:inputEntry id="_1044034">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7965566">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_918114">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9648586">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1701224">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_432288">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4460694">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_534286">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1564399">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7359257">
+        <semantic:inputEntry id="_3454838">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3287070">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9875518">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7382812">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2746264">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7485160">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8052944">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6079776">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9433875">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4456764">
+        <semantic:inputEntry id="_856221">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9789779">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6967503">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1383688">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5709042">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_701013">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8054500">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1963287">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1502861">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3991884">
+        <semantic:inputEntry id="_3840650">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8467952">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5549832">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3166089">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7820583">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5907709">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8108950">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4326605">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3446773">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5145307">
+        <semantic:inputEntry id="_3203984">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3185096">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6173864">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3263481">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3372049">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7382948">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7982937">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2185798">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9985989">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2062999">
+        <semantic:inputEntry id="_7675056">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8082854">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3822777">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9502169">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6235082">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1254254">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1298063">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9534425">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4239544">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1300211">
+        <semantic:inputEntry id="_2377788">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2797407">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9031424">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7572514">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3818606">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4986886">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7737238">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7009429">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9562229">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6838554">
+        <semantic:inputEntry id="_9376210">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4026339">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2933002">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4588567">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1552780">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7671125">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3915914">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4004021">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8011639">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24118_BizRule" name="starten veranderen vergunning herbruikbare set continue activiteten">
+    <semantic:variable id="_24118_BizRule_var" name="starten veranderen vergunning herbruikbare set continue activiteten" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24121_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24118_BizRule_td" hitPolicy="ANY" outputLabel="starten veranderen vergunning herbruikbare set continue activiteten">
+      <semantic:input id="_8326093">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>starten veranderen vergunning</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2718075" />
+      <semantic:rule id="_6168701">
+        <semantic:inputEntry id="_1977297">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9439861">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6316827">
+        <semantic:inputEntry id="_5757795">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4945174">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24121_BizRule" name="starten veranderen vergunning">
+    <semantic:variable id="_24121_BizRule_var" name="starten veranderen vergunning" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24122_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24121_BizRule_td" hitPolicy="UNIQUE" outputLabel="starten veranderen vergunning">
+      <semantic:input id="_6047663">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>starten veranderen vergunning CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_6931007" />
+      <semantic:rule id="_6866329">
+        <semantic:inputEntry id="_4909646">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8574524">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_387060">
+        <semantic:inputEntry id="_2446561">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3067519">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24122_BizRule" name="starten veranderen vergunning CR">
+    <semantic:variable id="_24122_BizRule_var" name="starten veranderen vergunning CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_34537_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24122_BizRule_td" hitPolicy="FIRST" outputLabel="starten veranderen vergunning CR">
+      <semantic:input id="_706577">
+        <semantic:inputExpression typeRef="feel:string">
+          <semantic:text>starten veranderen vergunning UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4153671" />
+      <semantic:rule id="_8601349">
+        <semantic:inputEntry id="_9444875">
+          <semantic:text>if ?=null then false else contains(?,"Starten van een nieuwe activiteit") or contains(?,"Veranderen of uitbreiden van een activiteit waarvoor u al een vergunning heeft")</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8385162">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9645710">
+        <semantic:inputEntry id="_1273507">
+          <semantic:text>if ?=null then false else not(contains(?,"Starten van een nieuwe activiteit") or contains(?,"Veranderen of uitbreiden van een activiteit waarvoor u al een vergunning heeft"))</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2623569">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_14379_BizRule" name="situatietekening begrenzing locatie activiteit Bruidsschat">
+    <semantic:variable id="_14379_BizRule_var" name="situatietekening begrenzing locatie activiteit Bruidsschat" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_14380_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_14379_BizRule_td" hitPolicy="ANY" outputLabel="situatietekening begrenzing locatie activiteit Bruidsschat">
+      <semantic:input id="_3447435">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>begrenzing locatie activiteit Bruidsschat</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2686789" />
+      <semantic:rule id="_3948717">
+        <semantic:inputEntry id="_5449851">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9234209">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8249389">
+        <semantic:inputEntry id="_8563956">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7338339">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_14380_BizRule" name="begrenzing locatie activiteit Bruidsschat">
+    <semantic:variable id="_14380_BizRule_var" name="begrenzing locatie activiteit Bruidsschat" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_19392_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_14380_BizRule_td" hitPolicy="UNIQUE" outputLabel="begrenzing locatie activiteit Bruidsschat">
+      <semantic:input id="_7294042">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>bijlage begrenzing locatie activiteit Bruidsschat beantwoord CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_1822786" />
+      <semantic:rule id="_5913451">
+        <semantic:inputEntry id="_8582136">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6209086">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1120109">
+        <semantic:inputEntry id="_9591563">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1555686">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_19392_BizRule" name="bijlage begrenzing locatie activiteit Bruidsschat beantwoord CR">
+    <semantic:variable id="_19392_BizRule_var" name="bijlage begrenzing locatie activiteit Bruidsschat beantwoord CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_20996_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_19392_BizRule_td" hitPolicy="FIRST" outputLabel="bijlage begrenzing locatie activiteit Bruidsschat beantwoord CR">
+      <semantic:input id="_8060810">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>bijlage begrenzing locatie activiteit Bruidsschat UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_341711" />
+      <semantic:rule id="_1989575">
+        <semantic:inputEntry id="_378422">
+          <semantic:text>not(null)</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2995899">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_ca476ad6-aee0-4bc9-a4d4-6831fd463582" name="aantal opslagtanks dat aanwezig Op 5 Artikel 22.263 Lid 2 a Indieningsvereisten Vergunning">
+    <semantic:variable id="_ca476ad6-aee0-4bc9-a4d4-6831fd463582_var" name="aantal opslagtanks dat aanwezig Op 5 Artikel 22.263 Lid 2 a Indieningsvereisten Vergunning" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_46536_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_ca476ad6-aee0-4bc9-a4d4-6831fd463582_td" hitPolicy="UNIQUE" outputLabel="aantal opslagtanks dat aanwezig Op 5 Artikel 22.263 Lid 2 a Indieningsvereisten Vergunning">
+      <semantic:input id="_2228908">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>aantal opslagtanks LPG beantwoord CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_1101686" />
+      <semantic:rule id="_3939278">
+        <semantic:inputEntry id="_786441">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1821048">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1146202">
+        <semantic:inputEntry id="_3817454">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5314565">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_46536_BizRule" name="aantal opslagtanks LPG beantwoord CR">
+    <semantic:variable id="_46536_BizRule_var" name="aantal opslagtanks LPG beantwoord CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_14630_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_46536_BizRule_td" hitPolicy="FIRST" outputLabel="aantal opslagtanks LPG beantwoord CR">
+      <semantic:input id="_4559146">
+        <semantic:inputExpression typeRef="feel:string">
+          <semantic:text>aantal opslagtanks LPG UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9626476" />
+      <semantic:rule id="_8680383">
+        <semantic:inputEntry id="_1744567">
+          <semantic:text>not(null)</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3845131">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_f67582df-042e-46b1-a965-5aaa12b0faa2" name="coördinaten Op 5 Artikel 22.263 Lid 2 b Indieningsvereisten Vergunning">
+    <semantic:variable id="_f67582df-042e-46b1-a965-5aaa12b0faa2_var" name="coördinaten Op 5 Artikel 22.263 Lid 2 b Indieningsvereisten Vergunning" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_46537_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_f67582df-042e-46b1-a965-5aaa12b0faa2_td" hitPolicy="UNIQUE" outputLabel="coördinaten Op 5 Artikel 22.263 Lid 2 b Indieningsvereisten Vergunning">
+      <semantic:input id="_8529862">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>coördinaten tanken LPG beantwoord CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7053072" />
+      <semantic:rule id="_2668110">
+        <semantic:inputEntry id="_607943">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5710964">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7798274">
+        <semantic:inputEntry id="_8367050">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9527989">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_46537_BizRule" name="coördinaten tanken LPG beantwoord CR">
+    <semantic:variable id="_46537_BizRule_var" name="coördinaten tanken LPG beantwoord CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_21035_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_46537_BizRule_td" hitPolicy="FIRST" outputLabel="coördinaten tanken LPG beantwoord CR">
+      <semantic:input id="_7615604">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>coördinaten tanken LPG UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7051738" />
+      <semantic:rule id="_4473608">
+        <semantic:inputEntry id="_3864425">
+          <semantic:text>not(null)</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6858432">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_25407de8-bec8-4276-8784-4b9acfea2001" name="brandaandachtsgebied en explosieaandachtsgebied_ bedoeld _in artikel 5.12 van _ Besluit kwaliteit leefomgeving Op 5 Artikel 22.263 Lid 2 c Indieningsvereisten Vergunning">
+    <semantic:variable id="_25407de8-bec8-4276-8784-4b9acfea2001_var" name="brandaandachtsgebied en explosieaandachtsgebied_ bedoeld _in artikel 5.12 van _ Besluit kwaliteit leefomgeving Op 5 Artikel 22.263 Lid 2 c Indieningsvereisten Vergunning" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_46538_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_25407de8-bec8-4276-8784-4b9acfea2001_td" hitPolicy="UNIQUE" outputLabel="brandaandachtsgebied en explosieaandachtsgebied_ bedoeld _in artikel 5.12 van _ Besluit kwaliteit leefomgeving Op 5 Artikel 22.263 Lid 2 c Indieningsvereisten Vergunning">
+      <semantic:input id="_9586467">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>brandaandachtsgebied en explosieaandachtsgebied LPGTanken beantwoord CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4562108" />
+      <semantic:rule id="_7345663">
+        <semantic:inputEntry id="_1684064">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8343450">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7956135">
+        <semantic:inputEntry id="_1195085">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9627669">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_46538_BizRule" name="brandaandachtsgebied en explosieaandachtsgebied LPGTanken beantwoord CR">
+    <semantic:variable id="_46538_BizRule_var" name="brandaandachtsgebied en explosieaandachtsgebied LPGTanken beantwoord CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_36095_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_46538_BizRule_td" hitPolicy="FIRST" outputLabel="brandaandachtsgebied en explosieaandachtsgebied LPGTanken beantwoord CR">
+      <semantic:input id="_1518526">
+        <semantic:inputExpression typeRef="feel:string">
+          <semantic:text>brandaandachtsgebied en explosieaandachtsgebied LPGTanken UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_1885103" />
+      <semantic:rule id="_309438">
+        <semantic:inputEntry id="_4963410">
+          <semantic:text>not(null)</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7713160">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_76856eef-10c8-4e0a-9838-9dc6b4b7642e" name="hoeveelheid LPG die ten hoogste wordt opgeslagen Op 5 Artikel 22.263 Lid 2 d Indieningsvereisten Vergunning">
+    <semantic:variable id="_76856eef-10c8-4e0a-9838-9dc6b4b7642e_var" name="hoeveelheid LPG die ten hoogste wordt opgeslagen Op 5 Artikel 22.263 Lid 2 d Indieningsvereisten Vergunning" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_46539_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_76856eef-10c8-4e0a-9838-9dc6b4b7642e_td" hitPolicy="UNIQUE" outputLabel="hoeveelheid LPG die ten hoogste wordt opgeslagen Op 5 Artikel 22.263 Lid 2 d Indieningsvereisten Vergunning">
+      <semantic:input id="_7403186">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>hoeveelheid LPG kubieke meters opgeslagen beantwoord CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5046501" />
+      <semantic:rule id="_2323774">
+        <semantic:inputEntry id="_3034896">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2196309">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7233068">
+        <semantic:inputEntry id="_7137568">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2663955">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_46539_BizRule" name="hoeveelheid LPG kubieke meters opgeslagen beantwoord CR">
+    <semantic:variable id="_46539_BizRule_var" name="hoeveelheid LPG kubieke meters opgeslagen beantwoord CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_14632_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_46539_BizRule_td" hitPolicy="FIRST" outputLabel="hoeveelheid LPG kubieke meters opgeslagen beantwoord CR">
+      <semantic:input id="_2590247">
+        <semantic:inputExpression typeRef="feel:string">
+          <semantic:text>hoeveelheid LPG kubieke meters opgeslagen UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2838491" />
+      <semantic:rule id="_8887576">
+        <semantic:inputEntry id="_7752866">
+          <semantic:text>not(null)</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4630746">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_22ba3d02-8cb9-4919-8289-186722aeb924" name="inschatting van _ doorzet van LPG _in m 3 per jaar Op 5 Artikel 22.263 Lid 2 e Indieningsvereisten Vergunning">
+    <semantic:variable id="_22ba3d02-8cb9-4919-8289-186722aeb924_var" name="inschatting van _ doorzet van LPG _in m 3 per jaar Op 5 Artikel 22.263 Lid 2 e Indieningsvereisten Vergunning" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_46540_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_22ba3d02-8cb9-4919-8289-186722aeb924_td" hitPolicy="UNIQUE" outputLabel="inschatting van _ doorzet van LPG _in m 3 per jaar Op 5 Artikel 22.263 Lid 2 e Indieningsvereisten Vergunning">
+      <semantic:input id="_4191301">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>doorzet kubieke meters per jaar LPG beantwoord CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2011372" />
+      <semantic:rule id="_3467910">
+        <semantic:inputEntry id="_4613304">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4049948">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9465669">
+        <semantic:inputEntry id="_6922015">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4962616">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_46540_BizRule" name="doorzet kubieke meters per jaar LPG beantwoord CR">
+    <semantic:variable id="_46540_BizRule_var" name="doorzet kubieke meters per jaar LPG beantwoord CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_14633_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_46540_BizRule_td" hitPolicy="FIRST" outputLabel="doorzet kubieke meters per jaar LPG beantwoord CR">
+      <semantic:input id="_1559734">
+        <semantic:inputExpression typeRef="feel:string">
+          <semantic:text>doorzet kubieke meters per jaar LPG UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9255346" />
+      <semantic:rule id="_7968902">
+        <semantic:inputEntry id="_3175081">
+          <semantic:text>not(null)</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1583025">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_46306_BizRule" name="Herbruikbare set overige gegevens Omgevingsplan">
+    <semantic:variable id="_46306_BizRule_var" name="Herbruikbare set overige gegevens Omgevingsplan" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_46307_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_46306_BizRule_td" hitPolicy="ANY" outputLabel="Herbruikbare set overige gegevens Omgevingsplan">
+      <semantic:input id="_1024248">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>overige gegevens omgevingsplan GS</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_849482" />
+      <semantic:rule id="_4217461">
+        <semantic:inputEntry id="_7311335">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5467968">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2658671">
+        <semantic:inputEntry id="_5644533">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7997804">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_46307_BizRule" name="overige gegevens omgevingsplan GS">
+    <semantic:variable id="_46307_BizRule_var" name="overige gegevens omgevingsplan GS" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_46487_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_46307_BizRule_td" hitPolicy="UNIQUE" outputLabel="overige gegevens omgevingsplan GS">
+      <semantic:input id="_695087">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>overige gegevens toetsing omgevingsplan beantwoord CR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3620549" />
+      <semantic:rule id="_7504214">
+        <semantic:inputEntry id="_4880707">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5155428">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7240540">
+        <semantic:inputEntry id="_6726857">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4494477">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_46487_BizRule" name="overige gegevens toetsing omgevingsplan beantwoord CR">
+    <semantic:variable id="_46487_BizRule_var" name="overige gegevens toetsing omgevingsplan beantwoord CR" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_36919_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_46487_BizRule_td" hitPolicy="FIRST" outputLabel="overige gegevens toetsing omgevingsplan beantwoord CR">
+      <semantic:input id="_7296220">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>overige gegevens toetsing omgevingsplan UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2023616" />
+      <semantic:rule id="_8458086">
+        <semantic:inputEntry id="_3931197">
+          <semantic:text>not(null)</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4012704">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+</semantic:definitions>

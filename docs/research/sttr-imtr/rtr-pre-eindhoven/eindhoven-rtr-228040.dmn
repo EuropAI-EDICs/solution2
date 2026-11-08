@@ -1,0 +1,994 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<dmn:definitions xmlns:dmn="http://www.omg.org/spec/DMN/20151101/dmn.xsd"
+                 xmlns:feel="http://www.omg.org/spec/FEEL/20140401"
+                 xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel"
+                 xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel"
+                 xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel"
+                 xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content"
+                 xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000"
+                 namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000"
+                 exporter="Geodan FLO Legal STTR Builder" exporterVersion="" id="_f59d6351-72b2-4acd-b635-2747a7988a31"
+                 name="Indieningsvereisten Vergunning Uitweg maken hebben of veranderen of het gebruik daarvan veranderen">
+    <dmn:extensionElements>
+        <inter:regelgroepen>
+                            <inter:regelgroep id="_1bce68e4-3c56-4a1c-a9aa-c02ef5594c42">
+    <inter:naam>Werkzaamheden in- of uitrit</inter:naam>
+    <inter:prioriteit>10</inter:prioriteit>
+</inter:regelgroep>
+                            <inter:regelgroep id="_fbe2f82b-ed11-4383-bb21-99dac8b2e083">
+    <inter:naam>Aanwezigheid obstakels in- of uitrit</inter:naam>
+    <inter:prioriteit>20</inter:prioriteit>
+</inter:regelgroep>
+                            <inter:regelgroep id="_4e72c2cc-6b59-43ef-930b-7c0f96f1f657">
+    <inter:naam>Diverse vragen</inter:naam>
+    <inter:prioriteit>30</inter:prioriteit>
+</inter:regelgroep>
+                            <inter:regelgroep id="_0f806977-323e-4ed0-aaae-78aa7e51fe59">
+    <inter:naam>Algemene bijlagen</inter:naam>
+    <inter:prioriteit>40</inter:prioriteit>
+</inter:regelgroep>
+                            <inter:regelgroep id="_d4577135-d47d-4526-9d45-bde6c4fbf2e6">
+    <inter:naam>Diverse vragen 2</inter:naam>
+    <inter:prioriteit>50</inter:prioriteit>
+</inter:regelgroep>
+                    </inter:regelgroepen>
+        <uitv:uitvoeringsregels>
+                            <uitv:uitvoeringsregel id="uitv__3dbe3959-430e-44f4-95cc-b61c0f4829fa">
+        <uitv:regelgroepRef href="#_1bce68e4-3c56-4a1c-a9aa-c02ef5594c42"/>
+    <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>        <inter:prioriteit>10</inter:prioriteit>
+     <uitv:vraag>
+    <uitv:gegevensType>list</uitv:gegevensType>
+    <uitv:vraagTekst>Kies de werkzaamheden die u gaat uitvoeren</uitv:vraagTekst>
+                <uitv:opties>
+            <uitv:optieType>meerdereAntwoorden</uitv:optieType>
+                            <uitv:optie>
+                    <uitv:sequenceId>0</uitv:sequenceId>
+                    <uitv:optieText>Een nieuwe in- of uitrit aanleggen</uitv:optieText>
+                                    </uitv:optie>
+                            <uitv:optie>
+                    <uitv:sequenceId>1</uitv:sequenceId>
+                    <uitv:optieText>Een bestaande in- of uitrit veranderen</uitv:optieText>
+                                    </uitv:optie>
+                            <uitv:optie>
+                    <uitv:sequenceId>2</uitv:sequenceId>
+                    <uitv:optieText>Anders</uitv:optieText>
+                                    </uitv:optie>
+                    </uitv:opties>
+    </uitv:vraag>
+
+
+                         </uitv:uitvoeringsregel>
+
+                            <uitv:uitvoeringsregel id="uitv__41f173ed-3a5c-4302-8b6a-ab9f8c80cb8d">
+        <uitv:regelgroepRef href="#_1bce68e4-3c56-4a1c-a9aa-c02ef5594c42"/>
+    <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>        <inter:prioriteit>20</inter:prioriteit>
+     <uitv:vraag>
+    <uitv:gegevensType>string</uitv:gegevensType>
+    <uitv:vraagTekst>U heeft aangegeven dat u andere werkzaamheden gaat uitvoeren dan een nieuwe in- of uitrit aanleggen of een bestaande in- of uitrit veranderen. Omschrijf wat u wilt gaan doen.</uitv:vraagTekst>
+    <inter:inputType>textarea</inter:inputType>    </uitv:vraag>
+
+
+                         </uitv:uitvoeringsregel>
+
+                            <uitv:uitvoeringsregel id="uitv__4198a9a9-6482-416b-95da-6e50da6913c1">
+        <uitv:regelgroepRef href="#_fbe2f82b-ed11-4383-bb21-99dac8b2e083"/>
+    <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>        <inter:prioriteit>30</inter:prioriteit>
+     <uitv:vraag>
+    <uitv:gegevensType>boolean</uitv:gegevensType>
+    <uitv:vraagTekst>Zijn er obstakels aanwezig die het aanleggen of het gebruiken van de in- of uitrit in de weg staan?</uitv:vraagTekst>
+        </uitv:vraag>
+
+
+                          <content:uitvoeringsregelToelichting>
+            <content:toelichting><![CDATA[Obstakels zijn bijvoorbeeld bomen, lantaarnpalen en nutsvoorzieningen \(zoals transformatorhuisjes, flitspalen of buspoortjes\)\.]]></content:toelichting>
+    
+    
+    <content:belangrijk>false</content:belangrijk>
+</content:uitvoeringsregelToelichting>
+ </uitv:uitvoeringsregel>
+
+                            <uitv:uitvoeringsregel id="uitv__00949557-0f62-405f-b401-85f068c9ac3a">
+        <uitv:regelgroepRef href="#_fbe2f82b-ed11-4383-bb21-99dac8b2e083"/>
+    <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>        <inter:prioriteit>40</inter:prioriteit>
+     <uitv:vraag>
+    <uitv:gegevensType>list</uitv:gegevensType>
+    <uitv:vraagTekst>Welke obstakel(s) zijn aanwezig?</uitv:vraagTekst>
+                <uitv:opties>
+            <uitv:optieType>meerdereAntwoorden</uitv:optieType>
+                            <uitv:optie>
+                    <uitv:sequenceId>0</uitv:sequenceId>
+                    <uitv:optieText>Boom</uitv:optieText>
+                                    </uitv:optie>
+                            <uitv:optie>
+                    <uitv:sequenceId>1</uitv:sequenceId>
+                    <uitv:optieText>Lantaarnpaal</uitv:optieText>
+                                    </uitv:optie>
+                            <uitv:optie>
+                    <uitv:sequenceId>2</uitv:sequenceId>
+                    <uitv:optieText>Nutsvoorziening</uitv:optieText>
+                                    </uitv:optie>
+                            <uitv:optie>
+                    <uitv:sequenceId>3</uitv:sequenceId>
+                    <uitv:optieText>Anders</uitv:optieText>
+                                    </uitv:optie>
+                    </uitv:opties>
+    </uitv:vraag>
+
+
+                         </uitv:uitvoeringsregel>
+
+                            <uitv:uitvoeringsregel id="uitv__180b25aa-4d78-4269-b8fa-073b4e256914">
+        <uitv:regelgroepRef href="#_fbe2f82b-ed11-4383-bb21-99dac8b2e083"/>
+    <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>        <inter:prioriteit>50</inter:prioriteit>
+     <uitv:vraag>
+    <uitv:gegevensType>string</uitv:gegevensType>
+    <uitv:vraagTekst>Beschrijf het obstakel dat voor het aanleggen of gebruiken van de in- of uitrit in de weg staat.</uitv:vraagTekst>
+    <inter:inputType>textarea</inter:inputType>    </uitv:vraag>
+
+
+                         </uitv:uitvoeringsregel>
+
+                            <uitv:uitvoeringsregel id="uitv__bdd4c8fc-e257-4c1a-b583-128362cc414b">
+        <uitv:regelgroepRef href="#_4e72c2cc-6b59-43ef-930b-7c0f96f1f657"/>
+    <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>        <inter:prioriteit>60</inter:prioriteit>
+     <uitv:vraag>
+    <uitv:gegevensType>string</uitv:gegevensType>
+    <uitv:vraagTekst>Wat zijn de afmetingen van de nieuwe in- of uitrit?</uitv:vraagTekst>
+    <inter:inputType>text</inter:inputType>    </uitv:vraag>
+
+
+                         </uitv:uitvoeringsregel>
+
+                            <uitv:uitvoeringsregel id="uitv__f59e1a51-58c1-438d-8785-900de286166c">
+        <uitv:regelgroepRef href="#_4e72c2cc-6b59-43ef-930b-7c0f96f1f657"/>
+    <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>        <inter:prioriteit>70</inter:prioriteit>
+     <uitv:vraag>
+    <uitv:gegevensType>list</uitv:gegevensType>
+    <uitv:vraagTekst>Aan welk erf ligt de in- of uitrit?</uitv:vraagTekst>
+                <uitv:opties>
+            <uitv:optieType>meerdereAntwoorden</uitv:optieType>
+                            <uitv:optie>
+                    <uitv:sequenceId>0</uitv:sequenceId>
+                    <uitv:optieText>Voorerf</uitv:optieText>
+                                    </uitv:optie>
+                            <uitv:optie>
+                    <uitv:sequenceId>1</uitv:sequenceId>
+                    <uitv:optieText>Zijerf</uitv:optieText>
+                                    </uitv:optie>
+                            <uitv:optie>
+                    <uitv:sequenceId>2</uitv:sequenceId>
+                    <uitv:optieText>Achtererf</uitv:optieText>
+                                    </uitv:optie>
+                    </uitv:opties>
+    </uitv:vraag>
+
+
+                         </uitv:uitvoeringsregel>
+
+                            <uitv:uitvoeringsregel id="uitv__28e68467-2761-4c71-9024-d1f360007c9b">
+        <uitv:regelgroepRef href="#_4e72c2cc-6b59-43ef-930b-7c0f96f1f657"/>
+    <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>        <inter:prioriteit>80</inter:prioriteit>
+     <uitv:vraag>
+    <uitv:gegevensType>string</uitv:gegevensType>
+    <uitv:vraagTekst>Vul de straatnaam in waar de in- of uitrit op uitkomt.</uitv:vraagTekst>
+    <inter:inputType>textarea</inter:inputType>    </uitv:vraag>
+
+
+                         </uitv:uitvoeringsregel>
+
+                            <uitv:uitvoeringsregel id="uitv__b637dbc1-7184-4682-be77-7677b3747c0a">
+        <uitv:regelgroepRef href="#_0f806977-323e-4ed0-aaae-78aa7e51fe59"/>
+    <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>        <inter:prioriteit>90</inter:prioriteit>
+                     <uitv:bijlage>
+    <uitv:bijlageType>Situatietekening huidige situatie</uitv:bijlageType>
+    <uitv:documenttypeGeneriek></uitv:documenttypeGeneriek>
+</uitv:bijlage>
+          <content:uitvoeringsregelToelichting>
+            <content:toelichting><![CDATA[Voeg als bijlage toe: Een situatietekening die de bestaande situatie laat zien. De nieuwe situatie kan ingetekend worden op deze tekening, of aangeleverd worden op een extra situatietekening. Ook kunt u een foto van de situatie mee sturen ter verduidelijking.]]></content:toelichting>
+    
+            <content:langeToelichting><![CDATA[Deze tekening geeft de bestaande situatie weer. De nieuwe situatie kan ingetekend worden op deze tekening, of aangeleverd worden op een extra situatietekening.
+
+De situatietekening uitrit moet de volgende gegevens bevatten:
+
+*   locatie van de uitrit aan het voor-, zij- of achtererf
+*   aanwezigheid van obstakels die bij het aanleggen van de uitrit in de weg staan, zoals bomen, lantaarnpalen en nutsvoorzieningen
+*   noordpijl
+*   duidelijke maatvoering en schaalaanduiding (aanduiding met maatlijn)
+*   datum van de eerste opstelling van de tekening
+*   datum van de laatste wijziging van de tekening
+*   ondergrond van voldoende kwaliteit (bijvoorbeeld grootschalige basiskaart van Nederland, kadastrale kaart)
+*   grens van de locatie
+*   dichtstbijzijnde openbare weg
+*   dichtstbijzijnde woonbebouwing
+*   functie van de aangrenzende percelen
+
+Als u de nieuwe situatie in deze tekening intekent, moet u dezelfde informatie aanleveren voor wat betreft de nieuwe situatie.]]></content:langeToelichting>
+    
+    <content:belangrijk>false</content:belangrijk>
+</content:uitvoeringsregelToelichting>
+ </uitv:uitvoeringsregel>
+
+                            <uitv:uitvoeringsregel id="uitv__0637b33f-6a62-4b54-9a5d-7f29b3f5984c">
+        <uitv:regelgroepRef href="#_0f806977-323e-4ed0-aaae-78aa7e51fe59"/>
+            <inter:prioriteit>100</inter:prioriteit>
+                     <uitv:bijlage>
+    <uitv:bijlageType>Situatietekening nieuwe situatie</uitv:bijlageType>
+    <uitv:documenttypeGeneriek></uitv:documenttypeGeneriek>
+</uitv:bijlage>
+          <content:uitvoeringsregelToelichting>
+            <content:toelichting><![CDATA[Voeg als bijlage toe: Een situatietekening die de nieuwe situatie laat zien. De nieuwe situatie kan ook ingetekend worden op de tekening van de huidige situatie. Ook kunt u een foto van de situatie mee sturen ter verduidelijking.
+
+De situatietekening uitrit moet de volgende gegevens bevatten:
+
+*   locatie van de uitrit aan het voor-, zij- of achtererf
+*   aanwezigheid van obstakels die bij het aanleggen van de uitrit in de weg staan, zoals bomen, lantaarnpalen en nutsvoorzieningen
+*   noordpijl
+*   duidelijke maatvoering en schaalaanduiding (aanduiding met maatlijn)
+*   datum van de eerste opstelling van de tekening
+*   datum van de laatste wijziging van de tekening
+*   ondergrond van voldoende kwaliteit (bijvoorbeeld grootschalige basiskaart van Nederland, kadastrale kaart)
+*   grens van de locatie
+*   dichtstbijzijnde openbare weg
+*   dichtstbijzijnde woonbebouwing
+*   functie van de aangrenzende percelen]]></content:toelichting>
+    
+    
+    <content:belangrijk>false</content:belangrijk>
+</content:uitvoeringsregelToelichting>
+ </uitv:uitvoeringsregel>
+
+                            <uitv:uitvoeringsregel id="uitv__847e8e6c-8156-4d84-811d-0dc1f0c3b385">
+        <uitv:regelgroepRef href="#_0f806977-323e-4ed0-aaae-78aa7e51fe59"/>
+    <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>        <inter:prioriteit>110</inter:prioriteit>
+                     <uitv:bijlage>
+    <uitv:bijlageType>Tekening vormgeving uitrit</uitv:bijlageType>
+    <uitv:documenttypeGeneriek></uitv:documenttypeGeneriek>
+</uitv:bijlage>
+          <content:uitvoeringsregelToelichting>
+            <content:toelichting><![CDATA[Voeg als bijlage toe: een tekening van de exacte vormgeving van de nieuwe of gewijzigde uitrit.]]></content:toelichting>
+    
+            <content:langeToelichting><![CDATA[De ontwerptekening moet de volgende gegevens bevatten:
+
+*   afmeting van de nieuwe uitrit
+*   duidelijke maatvoering en schaalaanduiding (aanduiding met maatlijn)
+
+Indien van toepassing moet de ontwerptekening nieuwe of gewijzigde uitrit ook de onderstaande gegevens bevatten:
+
+*   afmetingen van de bestaande uitrit]]></content:langeToelichting>
+    
+    <content:belangrijk>false</content:belangrijk>
+</content:uitvoeringsregelToelichting>
+ </uitv:uitvoeringsregel>
+
+                            <uitv:uitvoeringsregel id="uitv__c29849da-041b-421e-afd6-279fb74fd28d">
+        <uitv:regelgroepRef href="#_0f806977-323e-4ed0-aaae-78aa7e51fe59"/>
+    <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>        <inter:prioriteit>120</inter:prioriteit>
+                     <uitv:bijlage>
+    <uitv:bijlageType>Overige gegevens noodzakelijk voor toetsing aan omgevingsplan</uitv:bijlageType>
+    <uitv:documenttypeGeneriek></uitv:documenttypeGeneriek>
+</uitv:bijlage>
+          <content:uitvoeringsregelToelichting>
+            <content:toelichting><![CDATA[Heeft de gemeente aangegeven dat u ook nog andere, dan de hiervoor gevraagde, gegevens moet aanleveren? Of wilt u zelf nog andere gegevens toevoegen? Voeg die dan hier toe als bijlage.]]></content:toelichting>
+    
+    
+    <content:belangrijk>false</content:belangrijk>
+</content:uitvoeringsregelToelichting>
+ </uitv:uitvoeringsregel>
+
+                            <uitv:uitvoeringsregel id="uitv__3f38edf0-9dd6-4f36-b7db-69aac942b1b9">
+        <uitv:regelgroepRef href="#_d4577135-d47d-4526-9d45-bde6c4fbf2e6"/>
+    <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>        <inter:prioriteit>130</inter:prioriteit>
+     <uitv:vraag>
+    <uitv:gegevensType>string</uitv:gegevensType>
+    <uitv:vraagTekst>Wat zijn de afmetingen van de bestaande in- of uitrit?</uitv:vraagTekst>
+    <inter:inputType>textarea</inter:inputType>    </uitv:vraag>
+
+
+                         </uitv:uitvoeringsregel>
+
+                            <uitv:uitvoeringsregel id="uitv__2b5a0011-3f0a-4ee4-9fa5-b1327c132dba">
+        <uitv:regelgroepRef href="#_d4577135-d47d-4526-9d45-bde6c4fbf2e6"/>
+    <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>        <inter:prioriteit>140</inter:prioriteit>
+     <uitv:vraag>
+    <uitv:gegevensType>string</uitv:gegevensType>
+    <uitv:vraagTekst>Wat worden de afmetingen van de in- of uitrit in de nieuwe situatie?</uitv:vraagTekst>
+    <inter:inputType>textarea</inter:inputType>    </uitv:vraag>
+
+
+                         </uitv:uitvoeringsregel>
+
+                    </uitv:uitvoeringsregels>
+        
+    </dmn:extensionElements>
+    
+            <dmn:inputData id="input__3dbe3959-430e-44f4-95cc-b61c0f4829fa" name="_3dbe3959-430e-44f4-95cc-b61c0f4829fa">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__3dbe3959-430e-44f4-95cc-b61c0f4829fa"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_e9336c7e-e5ea-4fa6-bc39-0eb89e916f52" name="_3dbe3959-430e-44f4-95cc-b61c0f4829fa" typeRef="feel:string"/>
+</dmn:inputData>
+            <dmn:inputData id="input__41f173ed-3a5c-4302-8b6a-ab9f8c80cb8d" name="_41f173ed-3a5c-4302-8b6a-ab9f8c80cb8d">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__41f173ed-3a5c-4302-8b6a-ab9f8c80cb8d"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_b71fec61-9713-4105-b575-6ed1935a15a2" name="_41f173ed-3a5c-4302-8b6a-ab9f8c80cb8d" typeRef="feel:string"/>
+</dmn:inputData>
+            <dmn:inputData id="input__4198a9a9-6482-416b-95da-6e50da6913c1" name="_4198a9a9-6482-416b-95da-6e50da6913c1">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__4198a9a9-6482-416b-95da-6e50da6913c1"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_2ce8ebbb-bfd5-4b13-a5bf-21d478fe3485" name="_4198a9a9-6482-416b-95da-6e50da6913c1" typeRef="feel:boolean"/>
+</dmn:inputData>
+            <dmn:inputData id="input__00949557-0f62-405f-b401-85f068c9ac3a" name="_00949557-0f62-405f-b401-85f068c9ac3a">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__00949557-0f62-405f-b401-85f068c9ac3a"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_a7b573b0-5c05-487a-8295-52719d0c4503" name="_00949557-0f62-405f-b401-85f068c9ac3a" typeRef="feel:string"/>
+</dmn:inputData>
+            <dmn:inputData id="input__180b25aa-4d78-4269-b8fa-073b4e256914" name="_180b25aa-4d78-4269-b8fa-073b4e256914">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__180b25aa-4d78-4269-b8fa-073b4e256914"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_904da767-adab-42b8-8fbd-04f6dbed48c1" name="_180b25aa-4d78-4269-b8fa-073b4e256914" typeRef="feel:string"/>
+</dmn:inputData>
+            <dmn:inputData id="input__bdd4c8fc-e257-4c1a-b583-128362cc414b" name="_bdd4c8fc-e257-4c1a-b583-128362cc414b">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__bdd4c8fc-e257-4c1a-b583-128362cc414b"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_54811164-67e0-4d5f-9c3d-41df029baa9b" name="_bdd4c8fc-e257-4c1a-b583-128362cc414b" typeRef="feel:string"/>
+</dmn:inputData>
+            <dmn:inputData id="input__f59e1a51-58c1-438d-8785-900de286166c" name="_f59e1a51-58c1-438d-8785-900de286166c">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__f59e1a51-58c1-438d-8785-900de286166c"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_6b02e293-7042-4c49-9425-9f484bda4b58" name="_f59e1a51-58c1-438d-8785-900de286166c" typeRef="feel:string"/>
+</dmn:inputData>
+            <dmn:inputData id="input__28e68467-2761-4c71-9024-d1f360007c9b" name="_28e68467-2761-4c71-9024-d1f360007c9b">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__28e68467-2761-4c71-9024-d1f360007c9b"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_a823d6e7-481d-4f67-bfb1-196617fb3ee8" name="_28e68467-2761-4c71-9024-d1f360007c9b" typeRef="feel:string"/>
+</dmn:inputData>
+            <dmn:inputData id="input__b637dbc1-7184-4682-be77-7677b3747c0a" name="_b637dbc1-7184-4682-be77-7677b3747c0a">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__b637dbc1-7184-4682-be77-7677b3747c0a"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_a7b541d8-aaa5-42da-b370-f6cb8266994f" name="_b637dbc1-7184-4682-be77-7677b3747c0a" typeRef="feel:boolean"/>
+</dmn:inputData>
+            <dmn:inputData id="input__0637b33f-6a62-4b54-9a5d-7f29b3f5984c" name="_0637b33f-6a62-4b54-9a5d-7f29b3f5984c">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__0637b33f-6a62-4b54-9a5d-7f29b3f5984c"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_68448672-c1b6-4457-b5b0-76a481601fc8" name="_0637b33f-6a62-4b54-9a5d-7f29b3f5984c" typeRef="feel:boolean"/>
+</dmn:inputData>
+            <dmn:inputData id="input__847e8e6c-8156-4d84-811d-0dc1f0c3b385" name="_847e8e6c-8156-4d84-811d-0dc1f0c3b385">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__847e8e6c-8156-4d84-811d-0dc1f0c3b385"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_b7a9a48d-9947-4bcf-bff1-4ff372a574e8" name="_847e8e6c-8156-4d84-811d-0dc1f0c3b385" typeRef="feel:boolean"/>
+</dmn:inputData>
+            <dmn:inputData id="input__c29849da-041b-421e-afd6-279fb74fd28d" name="_c29849da-041b-421e-afd6-279fb74fd28d">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__c29849da-041b-421e-afd6-279fb74fd28d"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_1528b833-42a0-49c6-b41c-27cf2a1e0b97" name="_c29849da-041b-421e-afd6-279fb74fd28d" typeRef="feel:boolean"/>
+</dmn:inputData>
+            <dmn:inputData id="input__3f38edf0-9dd6-4f36-b7db-69aac942b1b9" name="_3f38edf0-9dd6-4f36-b7db-69aac942b1b9">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__3f38edf0-9dd6-4f36-b7db-69aac942b1b9"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_f11f734c-c558-44e3-869b-e123b52ac8b6" name="_3f38edf0-9dd6-4f36-b7db-69aac942b1b9" typeRef="feel:string"/>
+</dmn:inputData>
+            <dmn:inputData id="input__2b5a0011-3f0a-4ee4-9fa5-b1327c132dba" name="_2b5a0011-3f0a-4ee4-9fa5-b1327c132dba">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__2b5a0011-3f0a-4ee4-9fa5-b1327c132dba"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_c88d172b-5a9f-42b3-b017-43688c2e16d4" name="_2b5a0011-3f0a-4ee4-9fa5-b1327c132dba" typeRef="feel:string"/>
+</dmn:inputData>
+                <dmn:decision id="subs_id_decision__3dbe3959-430e-44f4-95cc-b61c0f4829fa_anders" name="subs_ decision kies de werkzaamheden die u gaat uitvoeren - anders">
+        <dmn:variable id="_57882160-f063-4b96-b868-dac0c05ed326" name="subs_ decision kies de werkzaamheden die u gaat uitvoeren - anders" typeRef="feel:boolean"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__41f173ed-3a5c-4302-8b6a-ab9f8c80cb8d"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="ANY" id="_47a7108a-6e03-4674-bc54-09c0db213353" outputLabel="subs_ decision kies de werkzaamheden die u gaat uitvoeren - anders">
+            <dmn:input id="_7d73caac-3963-4fb6-b16d-c22d6e4cbb72" label="U heeft aangegeven dat u andere werkzaamheden gaat uitvoeren dan een nieuwe in- of uitrit aanleggen of een bestaande in- of uitrit veranderen. Omschrijf wat u wilt gaan doen.">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>_41f173ed-3a5c-4302-8b6a-ab9f8c80cb8d</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_22c65a1c-b875-4534-867e-1c854d1a6878" label="subs_ decision kies de werkzaamheden die u gaat uitvoeren - anders"/>
+                    
+            <dmn:rule id="_487e9cfa-ab56-4dfc-8adc-22f24ed38bb8">
+            <dmn:inputEntry id="_de1b9cda-8fa5-44c3-84a1-cbec84ac8780">
+            <dmn:text><![CDATA[not(null)]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_c7ea6d2e-a9a5-4a1c-93ac-a940e5f2a62b">
+                        <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="id_decision__3dbe3959-430e-44f4-95cc-b61c0f4829fa_anders" name="decision kies de werkzaamheden die u gaat uitvoeren - anders">
+        <dmn:variable id="_033f45a9-c23a-46fa-89e2-816be4acb053" name="decision kies de werkzaamheden die u gaat uitvoeren - anders" typeRef="feel:boolean"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__3dbe3959-430e-44f4-95cc-b61c0f4829fa"/>
+                    </dmn:informationRequirement>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#subs_id_decision__3dbe3959-430e-44f4-95cc-b61c0f4829fa_anders"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="ANY" id="_b0212999-a060-4e81-b2b2-e35fe9562d55" outputLabel="decision kies de werkzaamheden die u gaat uitvoeren - anders">
+            <dmn:input id="_09a5fd24-fcbc-4264-a606-9cd1fa0e67d0" label="Kies de werkzaamheden die u gaat uitvoeren">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>_3dbe3959-430e-44f4-95cc-b61c0f4829fa</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+            <dmn:input id="_d43759f2-6736-483f-adb2-9d7a7093221d" label="Kies de werkzaamheden die u gaat uitvoeren - Anders">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>subs_ decision kies de werkzaamheden die u gaat uitvoeren - anders</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_785ff315-b25c-42b0-b57d-37bc74844a29" label="decisionKies de werkzaamheden die u gaat uitvoeren - Anders"/>
+                    
+            <dmn:rule id="_396a1d3e-0103-4617-9b37-bcf23b0cc2fe">
+            <dmn:inputEntry id="_3cfaf360-7002-4177-99d8-3ca72e54aa64">
+            <dmn:text><![CDATA[if ?=null then false else contains(?,"Anders")]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_d2100ad7-7e45-4b1a-9ba5-1028f62126ee">
+            <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_cb3d7b98-ff38-439b-9279-af9979fd4edc">
+                        <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+            <dmn:rule id="_c3559349-992a-4606-8dbc-23880580ec53">
+            <dmn:inputEntry id="_4d734965-1124-4231-8351-f58dd085d90e">
+            <dmn:text><![CDATA[if ?=null then false else not(contains(?,"Anders"))]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_e581cb99-0c86-4367-920f-c819b5e19036">
+            <dmn:text><![CDATA[-]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_ce1422db-10e3-4984-a25e-d282fb2eb849">
+                        <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="subs_id_decision__3dbe3959-430e-44f4-95cc-b61c0f4829fa_een_nieuwe_in-_of_uitrit_aanleggen" name="subs_ decision kies de werkzaamheden die u gaat uitvoeren - een nieuwe in- of uitrit aanleggen">
+        <dmn:variable id="_9ebf70e7-108f-415c-a380-e8fa37534cf4" name="subs_ decision kies de werkzaamheden die u gaat uitvoeren - een nieuwe in- of uitrit aanleggen" typeRef="feel:boolean"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__bdd4c8fc-e257-4c1a-b583-128362cc414b"/>
+                    </dmn:informationRequirement>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__f59e1a51-58c1-438d-8785-900de286166c"/>
+                    </dmn:informationRequirement>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__28e68467-2761-4c71-9024-d1f360007c9b"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="ANY" id="_59b3309a-e821-4fa5-a7ad-93771cb11cd6" outputLabel="subs_ decision kies de werkzaamheden die u gaat uitvoeren - een nieuwe in- of uitrit aanleggen">
+            <dmn:input id="_926d380f-6bda-43b4-adfd-71e12bcc5f5c" label="Wat zijn de afmetingen van de nieuwe in- of uitrit?">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>_bdd4c8fc-e257-4c1a-b583-128362cc414b</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+            <dmn:input id="_c032f054-7dcc-4f87-abd3-edf8b70e037f" label="Aan welk erf ligt de in- of uitrit?">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>_f59e1a51-58c1-438d-8785-900de286166c</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+            <dmn:input id="_5cfc04bc-6440-4086-b7c7-f13c87ef05be" label="Vul de straatnaam in waar de in- of uitrit op uitkomt.">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>_28e68467-2761-4c71-9024-d1f360007c9b</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_49f3f90d-63d9-4735-98d3-7760d486417c" label="subs_ decision kies de werkzaamheden die u gaat uitvoeren - een nieuwe in- of uitrit aanleggen"/>
+                    
+            <dmn:rule id="_b4bfc06c-0d0c-4139-adfd-233411465565">
+            <dmn:inputEntry id="_21132f7b-f00f-42f4-bf7e-bf246ba38cb5">
+            <dmn:text><![CDATA[not(null)]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_6c3083dd-f4c8-4725-ade9-235e7a38e4eb">
+            <dmn:text><![CDATA[not(null)]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_3075da40-9949-4df2-9b99-0232fc25f02a">
+            <dmn:text><![CDATA[not(null)]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_620761ca-b69a-462f-87ad-954aaa224607">
+                        <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="id_decision__3dbe3959-430e-44f4-95cc-b61c0f4829fa_een_nieuwe_in-_of_uitrit_aanleggen" name="decision kies de werkzaamheden die u gaat uitvoeren - een nieuwe in- of uitrit aanleggen">
+        <dmn:variable id="_90ca6f5e-58e4-42ab-a445-9d4a88c6918f" name="decision kies de werkzaamheden die u gaat uitvoeren - een nieuwe in- of uitrit aanleggen" typeRef="feel:boolean"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__3dbe3959-430e-44f4-95cc-b61c0f4829fa"/>
+                    </dmn:informationRequirement>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#subs_id_decision__3dbe3959-430e-44f4-95cc-b61c0f4829fa_een_nieuwe_in-_of_uitrit_aanleggen"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="ANY" id="_a415fb53-217c-4b14-b1a2-e69a0248cad0" outputLabel="decision kies de werkzaamheden die u gaat uitvoeren - een nieuwe in- of uitrit aanleggen">
+            <dmn:input id="_0b3d9f92-b86d-45cf-be3e-2997e5a5c3ac" label="Kies de werkzaamheden die u gaat uitvoeren">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>_3dbe3959-430e-44f4-95cc-b61c0f4829fa</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+            <dmn:input id="_691fe3a4-9e88-4ac6-af63-34d95f268c55" label="Kies de werkzaamheden die u gaat uitvoeren - Een nieuwe in- of uitrit aanleggen">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>subs_ decision kies de werkzaamheden die u gaat uitvoeren - een nieuwe in- of uitrit aanleggen</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_251cc528-2177-4c4d-92ba-b11b3c22419a" label="decisionKies de werkzaamheden die u gaat uitvoeren - Een nieuwe in- of uitrit aanleggen"/>
+                    
+            <dmn:rule id="_80e7c368-7b01-4d92-b47b-e4c77819f458">
+            <dmn:inputEntry id="_cb11a86b-fbff-454f-9702-6ae77311789e">
+            <dmn:text><![CDATA[if ?=null then false else contains(?,"Een nieuwe in- of uitrit aanleggen")]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_c2908ef2-d773-47a2-9c47-7288e8507476">
+            <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_fe94005a-fbb6-4538-b6c1-4b93a9df366f">
+                        <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+            <dmn:rule id="_835c9f30-b6f8-4236-968f-7d2315adde1e">
+            <dmn:inputEntry id="_280e2fbf-cf34-4d07-95e2-c584ce883857">
+            <dmn:text><![CDATA[if ?=null then false else not(contains(?,"Een nieuwe in- of uitrit aanleggen"))]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_12da38fa-15bb-400e-acdf-e9204f99cde2">
+            <dmn:text><![CDATA[-]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_e844dea4-1cb4-495e-ba50-fcd334f009b4">
+                        <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="subs_id_decision__3dbe3959-430e-44f4-95cc-b61c0f4829fa_een_bestaande_in-_of_uitrit_veranderen" name="subs_ decision kies de werkzaamheden die u gaat uitvoeren - een bestaande in- of uitrit veranderen">
+        <dmn:variable id="_b9674f33-494f-4768-a2c4-0271a826c4cd" name="subs_ decision kies de werkzaamheden die u gaat uitvoeren - een bestaande in- of uitrit veranderen" typeRef="feel:boolean"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__3f38edf0-9dd6-4f36-b7db-69aac942b1b9"/>
+                    </dmn:informationRequirement>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__2b5a0011-3f0a-4ee4-9fa5-b1327c132dba"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="ANY" id="_6ee126e9-9fa4-4829-8338-c7a6a4db4205" outputLabel="subs_ decision kies de werkzaamheden die u gaat uitvoeren - een bestaande in- of uitrit veranderen">
+            <dmn:input id="_5673cbc9-bb7b-4208-834c-51675a393057" label="Wat zijn de afmetingen van de bestaande in- of uitrit?">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>_3f38edf0-9dd6-4f36-b7db-69aac942b1b9</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+            <dmn:input id="_8f0d61ab-bac7-4321-b86a-c51628ff8171" label="Wat worden de afmetingen van de in- of uitrit in de nieuwe situatie?">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>_2b5a0011-3f0a-4ee4-9fa5-b1327c132dba</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_ebaaf76e-371f-4932-a0d4-6f486b38f57f" label="subs_ decision kies de werkzaamheden die u gaat uitvoeren - een bestaande in- of uitrit veranderen"/>
+                    
+            <dmn:rule id="_188271d8-71c6-40ff-a0dd-0be24380de18">
+            <dmn:inputEntry id="_220f5a42-d292-4f65-938a-415b2dcbadbb">
+            <dmn:text><![CDATA[not(null)]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_21190825-bc2d-4c2e-b9a6-32c4a8f1f35b">
+            <dmn:text><![CDATA[not(null)]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_d3a96513-1f43-4750-8dd6-8a759b46d744">
+                        <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="id_decision__3dbe3959-430e-44f4-95cc-b61c0f4829fa_een_bestaande_in-_of_uitrit_veranderen" name="decision kies de werkzaamheden die u gaat uitvoeren - een bestaande in- of uitrit veranderen">
+        <dmn:variable id="_e42542d7-4de9-4547-9fe2-e804b3ac80a8" name="decision kies de werkzaamheden die u gaat uitvoeren - een bestaande in- of uitrit veranderen" typeRef="feel:boolean"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__3dbe3959-430e-44f4-95cc-b61c0f4829fa"/>
+                    </dmn:informationRequirement>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#subs_id_decision__3dbe3959-430e-44f4-95cc-b61c0f4829fa_een_bestaande_in-_of_uitrit_veranderen"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="ANY" id="_e4c2fc4f-9b20-49de-86b0-833967010139" outputLabel="decision kies de werkzaamheden die u gaat uitvoeren - een bestaande in- of uitrit veranderen">
+            <dmn:input id="_dd3d60fa-0fb7-48c6-bc40-35f057bf9354" label="Kies de werkzaamheden die u gaat uitvoeren">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>_3dbe3959-430e-44f4-95cc-b61c0f4829fa</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+            <dmn:input id="_6a47aabd-69ac-43f1-a0c4-ce809e04e60a" label="Kies de werkzaamheden die u gaat uitvoeren - Een bestaande in- of uitrit veranderen">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>subs_ decision kies de werkzaamheden die u gaat uitvoeren - een bestaande in- of uitrit veranderen</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_2f76ab5c-23a0-438a-9df0-ebf2ab7277db" label="decisionKies de werkzaamheden die u gaat uitvoeren - Een bestaande in- of uitrit veranderen"/>
+                    
+            <dmn:rule id="_57741d2f-0a76-45ec-982d-67db8a99627c">
+            <dmn:inputEntry id="_7c72f5b5-0694-4acc-8f1f-dd6881d1a8a6">
+            <dmn:text><![CDATA[if ?=null then false else contains(?,"Een bestaande in- of uitrit veranderen")]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_afe7ed02-d820-446e-b609-ca1a292fe55b">
+            <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_53c56e16-1f4d-4a2c-a0c3-264881047472">
+                        <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+            <dmn:rule id="_a44c9cc5-c866-4582-938f-384b717cae93">
+            <dmn:inputEntry id="_041d7328-2a51-4e81-9d73-16aae84f22cb">
+            <dmn:text><![CDATA[if ?=null then false else not(contains(?,"Een bestaande in- of uitrit veranderen"))]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_520ec453-aa0d-4e9b-a2b9-f2d09923feb4">
+            <dmn:text><![CDATA[-]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_72c1a485-4dcf-4298-bd96-336376df9af4">
+                        <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="id_decision__3dbe3959-430e-44f4-95cc-b61c0f4829fa" name="decision kies de werkzaamheden die u gaat uitvoeren">
+        <dmn:variable id="_b2f7df4a-2221-4d83-adf2-5c4922ff1a80" name="decision kies de werkzaamheden die u gaat uitvoeren" typeRef="feel:boolean"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#id_decision__3dbe3959-430e-44f4-95cc-b61c0f4829fa_anders"/>
+                    </dmn:informationRequirement>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#id_decision__3dbe3959-430e-44f4-95cc-b61c0f4829fa_een_nieuwe_in-_of_uitrit_aanleggen"/>
+                    </dmn:informationRequirement>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#id_decision__3dbe3959-430e-44f4-95cc-b61c0f4829fa_een_bestaande_in-_of_uitrit_veranderen"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="ANY" id="_4f9b7f1e-282f-486e-801d-6294e2d492fd" outputLabel="decision kies de werkzaamheden die u gaat uitvoeren">
+            <dmn:input id="_37f4a6ab-cb58-4c98-b537-c1e1d919b2e9" label="decision kies de werkzaamheden die u gaat uitvoeren - anders">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>decision kies de werkzaamheden die u gaat uitvoeren - anders</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+            <dmn:input id="_9c7a6b52-0ecf-4148-93f3-7cb72aa8c89d" label="decision kies de werkzaamheden die u gaat uitvoeren - een nieuwe in- of uitrit aanleggen">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>decision kies de werkzaamheden die u gaat uitvoeren - een nieuwe in- of uitrit aanleggen</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+            <dmn:input id="_8073bd9b-7d6d-40e1-aa2b-a3e4f7cc93d5" label="decision kies de werkzaamheden die u gaat uitvoeren - een bestaande in- of uitrit veranderen">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>decision kies de werkzaamheden die u gaat uitvoeren - een bestaande in- of uitrit veranderen</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_fb28bfb0-6fb4-4603-974d-321c8e4c0d25" label="decision kies de werkzaamheden die u gaat uitvoeren"/>
+                    
+            <dmn:rule id="_17952cf0-290a-44af-a86c-80154f447edf">
+            <dmn:inputEntry id="_e086370a-28d4-44bb-ab23-e4b2ee6f056d">
+            <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_3e815a04-f0af-46aa-b867-0d203bfe81c3">
+            <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_d8bad90d-c866-4900-a153-1c7b09624ac5">
+            <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_500bea5f-9a1c-4954-9b0e-0cc4ee3cfe36">
+                        <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="subs_id_decision__4198a9a9-6482-416b-95da-6e50da6913c1_ja" name="subs_ decision zijn er obstakels aanwezig die het aanleggen of het gebruiken van de in- of uitrit in de weg staan - ja">
+        <dmn:variable id="_22912e97-8b30-4153-a470-0dac72e52b72" name="subs_ decision zijn er obstakels aanwezig die het aanleggen of het gebruiken van de in- of uitrit in de weg staan - ja" typeRef="feel:boolean"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#id_decision__00949557-0f62-405f-b401-85f068c9ac3a"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="ANY" id="_25b8a4c7-ca0a-4e6d-98d4-906be2622cbc" outputLabel="subs_ decision zijn er obstakels aanwezig die het aanleggen of het gebruiken van de in- of uitrit in de weg staan - ja">
+            <dmn:input id="_2724475f-ef51-4ac6-87ff-d88a2fb285c7" label="decision welke obstakels zijn aanwezig">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>decision welke obstakels zijn aanwezig</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_082c8e4d-45c9-426b-a342-1ac2284f84ae" label="subs_ decision zijn er obstakels aanwezig die het aanleggen of het gebruiken van de in- of uitrit in de weg staan - ja"/>
+                    
+            <dmn:rule id="_d346c452-3a61-4676-a460-6796247e4ee0">
+            <dmn:inputEntry id="_3de13b92-830b-488c-bf05-67c3deb29aa3">
+            <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_a3ed74db-f044-4a16-a787-5838d3bca6c4">
+                        <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="id_decision__4198a9a9-6482-416b-95da-6e50da6913c1_ja" name="decision zijn er obstakels aanwezig die het aanleggen of het gebruiken van de in- of uitrit in de weg staan - ja">
+        <dmn:variable id="_a91280c4-369a-4182-8ac6-3dde04f4e377" name="decision zijn er obstakels aanwezig die het aanleggen of het gebruiken van de in- of uitrit in de weg staan - ja" typeRef="feel:boolean"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__4198a9a9-6482-416b-95da-6e50da6913c1"/>
+                    </dmn:informationRequirement>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#subs_id_decision__4198a9a9-6482-416b-95da-6e50da6913c1_ja"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="ANY" id="_edc68358-c07d-461f-b64e-6f7d25844244" outputLabel="decision zijn er obstakels aanwezig die het aanleggen of het gebruiken van de in- of uitrit in de weg staan - ja">
+            <dmn:input id="_2f86c657-af54-4187-82e3-9d8581e3959f" label="Zijn er obstakels aanwezig die het aanleggen of het gebruiken van de in- of uitrit in de weg staan?">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>_4198a9a9-6482-416b-95da-6e50da6913c1</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+            <dmn:input id="_44059a47-5667-4c93-82de-42e926c5df4a" label="Zijn er obstakels aanwezig die het aanleggen of het gebruiken van de in- of uitrit in de weg staan? - Ja">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>subs_ decision zijn er obstakels aanwezig die het aanleggen of het gebruiken van de in- of uitrit in de weg staan - ja</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_f2b31c6d-ddc2-42fa-b43c-40d440fdbe01" label="decisionZijn er obstakels aanwezig die het aanleggen of het gebruiken van de in- of uitrit in de weg staan? - Ja"/>
+                    
+            <dmn:rule id="_d7ddcbc3-f0e5-4903-a53b-831381087d54">
+            <dmn:inputEntry id="_faa8e86e-2b94-4564-8d45-59a6a6906a18">
+            <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_7fa3faf6-d0a7-485c-a04b-4286bde4e001">
+            <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_920bc58d-5011-4c36-a995-6217029b835e">
+                        <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+            <dmn:rule id="_4f663ed7-9d9b-4fe8-b5d4-7404a5b37c41">
+            <dmn:inputEntry id="_e991be4a-8cd3-4a06-b2a0-2bef8ea075bc">
+            <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_e0d75850-b4a3-4618-bb60-6dd029c20d4b">
+            <dmn:text><![CDATA[-]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_14c085e2-0bbe-41a7-a26e-bb6ca6b49b9d">
+                        <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="id_decision__4198a9a9-6482-416b-95da-6e50da6913c1" name="decision zijn er obstakels aanwezig die het aanleggen of het gebruiken van de in- of uitrit in de weg staan">
+        <dmn:variable id="_e073f30c-8d48-46ed-89a5-8cffe032d5a4" name="decision zijn er obstakels aanwezig die het aanleggen of het gebruiken van de in- of uitrit in de weg staan" typeRef="feel:boolean"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#id_decision__4198a9a9-6482-416b-95da-6e50da6913c1_ja"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="ANY" id="_3e6d3fad-99f7-4d74-963f-fa529bfa7913" outputLabel="decision zijn er obstakels aanwezig die het aanleggen of het gebruiken van de in- of uitrit in de weg staan">
+            <dmn:input id="_3d6b1296-40af-47e7-8444-38ddd4b18b81" label="decision zijn er obstakels aanwezig die het aanleggen of het gebruiken van de in- of uitrit in de weg staan - ja">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>decision zijn er obstakels aanwezig die het aanleggen of het gebruiken van de in- of uitrit in de weg staan - ja</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_9475372c-b75a-4699-beac-3a41b292921b" label="decision zijn er obstakels aanwezig die het aanleggen of het gebruiken van de in- of uitrit in de weg staan"/>
+                    
+            <dmn:rule id="_b4deac12-0cb5-4228-90de-bf1f135932f1">
+            <dmn:inputEntry id="_56886332-9ae8-44ee-a214-bab80f55b2a3">
+            <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_f37074db-c91c-49fa-a5b6-fc80cffa58e1">
+                        <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="subs_id_decision__00949557-0f62-405f-b401-85f068c9ac3a_anders" name="subs_ decision welke obstakels zijn aanwezig - anders">
+        <dmn:variable id="_9bf3a2a6-4360-42f0-b2e6-58798590a283" name="subs_ decision welke obstakels zijn aanwezig - anders" typeRef="feel:boolean"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__180b25aa-4d78-4269-b8fa-073b4e256914"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="ANY" id="_c055951b-65f3-467f-84f8-929afc353b25" outputLabel="subs_ decision welke obstakels zijn aanwezig - anders">
+            <dmn:input id="_1133bb3a-baf4-4068-b114-f9c64cf0e02d" label="Beschrijf het obstakel dat voor het aanleggen of gebruiken van de in- of uitrit in de weg staat.">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>_180b25aa-4d78-4269-b8fa-073b4e256914</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_3a3cc8aa-0ef6-47e4-9940-2f7182f208d6" label="subs_ decision welke obstakels zijn aanwezig - anders"/>
+                    
+            <dmn:rule id="_cbd11609-0d9a-4930-8d99-03e637796c41">
+            <dmn:inputEntry id="_c0b561d1-6e8a-41c9-a6e6-48548c06022f">
+            <dmn:text><![CDATA[not(null)]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_1e363687-dda3-46e7-9a3e-36bf0ff3d6fa">
+                        <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="id_decision__00949557-0f62-405f-b401-85f068c9ac3a_anders" name="decision welke obstakels zijn aanwezig - anders">
+        <dmn:variable id="_cc2c9785-5fd7-491a-bcd8-f5d2edfc5e1a" name="decision welke obstakels zijn aanwezig - anders" typeRef="feel:boolean"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__00949557-0f62-405f-b401-85f068c9ac3a"/>
+                    </dmn:informationRequirement>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#subs_id_decision__00949557-0f62-405f-b401-85f068c9ac3a_anders"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="ANY" id="_ff9883a2-2fc4-4700-aaa3-c7af24684e49" outputLabel="decision welke obstakels zijn aanwezig - anders">
+            <dmn:input id="_a3b957c4-114f-4a78-8b0f-c026f193cb94" label="Welke obstakel(s) zijn aanwezig?">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>_00949557-0f62-405f-b401-85f068c9ac3a</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+            <dmn:input id="_d55fcfa1-6004-4b5f-b137-e32efdbf1549" label="Welke obstakel(s) zijn aanwezig? - Anders">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>subs_ decision welke obstakels zijn aanwezig - anders</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_8a67b009-b40a-434d-9c73-7bf7d521c040" label="decisionWelke obstakel(s) zijn aanwezig? - Anders"/>
+                    
+            <dmn:rule id="_30c0f4a7-3dc6-4db6-96f1-1d1315a3ac6c">
+            <dmn:inputEntry id="_3a4d6033-df84-4d7a-9ac1-504549c2c6bd">
+            <dmn:text><![CDATA[if ?=null then false else contains(?,"Anders")]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_81b3799c-295f-417c-a856-6d371b5f57aa">
+            <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_f113bada-1465-427e-a313-5cb64394b7dd">
+                        <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+            <dmn:rule id="_166adeff-bd73-40fa-b122-ec5ad5062486">
+            <dmn:inputEntry id="_104cff2d-3c43-42fe-a487-e600e52c8083">
+            <dmn:text><![CDATA[if ?=null then false else not(contains(?,"Anders"))]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_f764e053-28d7-4b8a-960a-3056d3e3acc3">
+            <dmn:text><![CDATA[-]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_3a130484-b773-4387-879c-4ad648cfb8e4">
+                        <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="id_decision__00949557-0f62-405f-b401-85f068c9ac3a" name="decision welke obstakels zijn aanwezig">
+        <dmn:variable id="_0128525c-d863-4700-9ed1-4ed029618e8b" name="decision welke obstakels zijn aanwezig" typeRef="feel:boolean"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#id_decision__00949557-0f62-405f-b401-85f068c9ac3a_anders"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="ANY" id="_5c238c9f-1d3e-4322-a497-1dbba6400e0c" outputLabel="decision welke obstakels zijn aanwezig">
+            <dmn:input id="_4bf8edcb-d8a4-4075-87d7-243003a5181f" label="decision welke obstakels zijn aanwezig - anders">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>decision welke obstakels zijn aanwezig - anders</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_a8399e80-276b-456b-bf96-0360f52d5f78" label="decision welke obstakels zijn aanwezig"/>
+                    
+            <dmn:rule id="_9c44ff8a-73eb-4e9f-a72d-ad7637777d8c">
+            <dmn:inputEntry id="_206628dd-7037-4ccb-8e2d-eca01d76d311">
+            <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_ada594e3-678a-46d0-88aa-2ab7c2edf2c0">
+                        <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="_782c2b4c-bb2d-42cf-9d23-f0155052c04a" name="Indieningsvereisten Vergunning Uitweg maken hebben of veranderen of het gebruik daarvan veranderen">
+            <dmn:extensionElements>
+            <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/IndieningsvereistenVergunningnl.imow-gm0772.activiteit.UitwegMakenHebbenVeranderen"/>
+        </dmn:extensionElements>
+        <dmn:variable id="_0bd8dff6-7744-49db-93fa-5e94cb8f6d8a" name="Indieningsvereisten Vergunning Uitweg maken hebben of veranderen of het gebruik daarvan veranderen" typeRef="feel:boolean"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__b637dbc1-7184-4682-be77-7677b3747c0a"/>
+                    </dmn:informationRequirement>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__0637b33f-6a62-4b54-9a5d-7f29b3f5984c"/>
+                    </dmn:informationRequirement>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__847e8e6c-8156-4d84-811d-0dc1f0c3b385"/>
+                    </dmn:informationRequirement>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__c29849da-041b-421e-afd6-279fb74fd28d"/>
+                    </dmn:informationRequirement>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#id_decision__3dbe3959-430e-44f4-95cc-b61c0f4829fa"/>
+                    </dmn:informationRequirement>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#id_decision__4198a9a9-6482-416b-95da-6e50da6913c1"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" id="_bcbafe62-01c9-4848-b946-a8ec995f5fb5" outputLabel="Indieningsvereisten Vergunning Uitweg maken hebben of veranderen of het gebruik daarvan veranderen">
+            <dmn:input id="_9f2e9546-34ba-49ae-99bd-0457c2cd150a" label="Situatietekening huidige situatie">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>_b637dbc1-7184-4682-be77-7677b3747c0a</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+            <dmn:input id="_2263c22a-0f24-4a0e-a02e-53cc62b22127" label="Situatietekening nieuwe situatie">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>_0637b33f-6a62-4b54-9a5d-7f29b3f5984c</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+            <dmn:input id="_6ef695ae-bd86-44a7-9386-7e505fc0b9c6" label="Tekening vormgeving uitrit">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>_847e8e6c-8156-4d84-811d-0dc1f0c3b385</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+            <dmn:input id="_17324b76-b519-42e0-b2b5-98fd53406f1f" label="Overige gegevens noodzakelijk voor toetsing aan omgevingsplan">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>_c29849da-041b-421e-afd6-279fb74fd28d</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+            <dmn:input id="_c58fe348-0dd7-4126-a17f-f7fd51fb36b4" label="decision kies de werkzaamheden die u gaat uitvoeren">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>decision kies de werkzaamheden die u gaat uitvoeren</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+            <dmn:input id="_baeb9f55-daa7-4333-83d2-f72397816f1b" label="decision zijn er obstakels aanwezig die het aanleggen of het gebruiken van de in- of uitrit in de weg staan">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>decision zijn er obstakels aanwezig die het aanleggen of het gebruiken van de in- of uitrit in de weg staan</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_b83bd6b3-4f70-471d-ba5c-297e7059657e" label="Indieningsvereisten Vergunning Uitweg maken hebben of veranderen of het gebruik daarvan veranderen"/>
+                    
+            <dmn:rule id="_956161bc-59e7-416f-a9fd-41cd22c22c99">
+            <dmn:inputEntry id="_c17e0997-caf0-49a2-8c61-ba718dbb3419">
+            <dmn:text><![CDATA[not(null)]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_1e3222a8-81a2-4637-8279-a2526cc19f39">
+            <dmn:text><![CDATA[not(null)]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_683869a7-289f-411e-be41-e8d479c66cdb">
+            <dmn:text><![CDATA[not(null)]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_26eebf85-9b60-4877-a7fa-d69d38181d6d">
+            <dmn:text><![CDATA[not(null)]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_a8ece67e-a35a-4791-a3ec-b95b459d2b03">
+            <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_a758bd07-9221-4d6d-9f8c-706fd693d9bd">
+            <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_1c94f9de-7050-4d70-b062-c143f6c64a67">
+                        <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+            <dmn:rule id="_0c021def-d3c9-4aaf-838d-3921cf932561">
+            <dmn:inputEntry id="_70de447b-aa18-4812-9979-29a9d5b38807">
+            <dmn:text><![CDATA[-]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_73d09da2-2755-4b73-891d-07026bef837d">
+            <dmn:text><![CDATA[-]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_84b3161b-cfd6-4f7b-9329-c52968fa47ff">
+            <dmn:text><![CDATA[-]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_7c72f57f-9cc5-4161-97dd-7d4c1cb8d48e">
+            <dmn:text><![CDATA[-]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_bc04c56f-5858-49c3-a3d8-435416d5befa">
+            <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_8a167933-9186-435f-be65-575031e949cb">
+            <dmn:text><![CDATA[-]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_81040450-6492-4cea-88b8-70a1e0365b24">
+                        <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+            <dmn:rule id="_b5b50e47-d5d3-46f5-9df9-9834b1c8eea2">
+            <dmn:inputEntry id="_f3b569d1-7dc1-4151-82a1-8d2c8e38e47a">
+            <dmn:text><![CDATA[-]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_bb0059e5-8e31-4ff9-9357-ecc31ef04e85">
+            <dmn:text><![CDATA[-]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_2542109f-ec52-40a8-8b27-bfc0e626e780">
+            <dmn:text><![CDATA[-]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_a600dc73-3edb-4693-966d-618ddc362be1">
+            <dmn:text><![CDATA[-]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_fd8a7688-5c73-4ade-86ed-45875d8bed27">
+            <dmn:text><![CDATA[-]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_c2b8913e-9d45-44be-88c0-fa1ef63ea31e">
+            <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_83561a87-45cd-4f88-a22e-9b7a7c2862dc">
+                        <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+    </dmn:definitions>

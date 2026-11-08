@@ -1,0 +1,1791 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<dmn:definitions xmlns:sttrbuilder="http://sttr-builder.apps.geodan.nl/v1.0" xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel" xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel" xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content" xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel" namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000" exporter="Sogelink Netherlands STTR Builder" name="Gewoon onderhoud verrichten aan een bouwwerk" id="_8efbe58a_d170_4c49_957d_5f10added496" xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000">
+    <dmn:extensionElements>
+        <inter:regelgroepen>
+            <inter:regelgroep id="_3b940bbd_7aa9_44c9_861f_d6d5760f979e">
+                <inter:naam>Regulier onderhoud</inter:naam>
+                <inter:prioriteit>1</inter:prioriteit>
+            </inter:regelgroep>
+            <inter:regelgroep id="_31bbf28b_a707_4ebc_9e87_d726ed6cc044">
+                <inter:naam>Monument/archeologisch monument en stads- of dorpsgezicht</inter:naam>
+                <inter:prioriteit>2</inter:prioriteit>
+            </inter:regelgroep>
+            <inter:regelgroep id="_0766a6b6_803b_4831_8acd_c7ffb502fdf6">
+                <inter:naam>Monumenten</inter:naam>
+                <inter:prioriteit>3</inter:prioriteit>
+            </inter:regelgroep>
+            <inter:regelgroep id="_de1b631e_eb61_405f_9ad0_45a1129c7df5">
+                <inter:naam>Bouwwerkzaamheden naast een monument</inter:naam>
+                <inter:prioriteit>4</inter:prioriteit>
+            </inter:regelgroep>
+            <inter:regelgroep id="_8ffa1a7d_8ffc_4d21_bcb2_8d12b2ddf468">
+                <inter:naam>Beschermd stads- of dorpsgezicht</inter:naam>
+                <inter:prioriteit>5</inter:prioriteit>
+            </inter:regelgroep>
+            <inter:regelgroep id="vasteWaardeGroup">
+                <inter:naam>Vaste waarde</inter:naam>
+                <inter:prioriteit>6</inter:prioriteit>
+            </inter:regelgroep>
+            <inter:regelgroep id="vasteWaardeVoorbehoudGroup">
+                <inter:naam>Vaste waarde onder voorbehoud</inter:naam>
+                <inter:prioriteit>7</inter:prioriteit>
+            </inter:regelgroep>
+        </inter:regelgroepen>
+        <uitv:uitvoeringsregels>
+            <uitv:uitvoeringsregel id="uitv__b0219ec6_23c3_457d_a51a_55b579d9e96d">
+                <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+                <inter:prioriteit>10</inter:prioriteit>
+                <uitv:vasteWaarde>
+                    <uitv:waardeVraag><![CDATA[Vaste waarde, altijd 'true' ]]></uitv:waardeVraag>
+                    <uitv:waarde><![CDATA[true]]></uitv:waarde>
+                    <uitv:gegevensType>boolean</uitv:gegevensType>
+                </uitv:vasteWaarde>
+            </uitv:uitvoeringsregel>
+            <uitv:uitvoeringsregel id="uitv__c24efb3e_2aea_4ae6_b13d_f982637cfb73">
+                <uitv:regelgroepRef href="#_3b940bbd_7aa9_44c9_861f_d6d5760f979e"/>
+                <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+                <inter:prioriteit>20</inter:prioriteit>
+                <uitv:vraag>
+                    <uitv:gegevensType>boolean</uitv:gegevensType>
+                    <uitv:vraagTekst><![CDATA[Gaat u tijdens het onderhoud het uiterlijk van het bouwwerk wijzigen?]]></uitv:vraagTekst>
+                </uitv:vraag>
+                <content:uitvoeringsregelToelichting>
+                    <content:toelichting><![CDATA[Gaat u hier ‘Ja’ antwoorden? Dan gaat u meer doen dan alleen maar regulier onderhoud\. Ga terug naar stap 2: Kies werkzaamheden\. Zoek daar naar bijvoorbeeld ‘veranderen’, ‘verbouwen’, ‘renoveren’ of restaureren’ en beantwoordt de vragen\.]]></content:toelichting>
+                    <content:langeToelichting><![CDATA[Dit is bijvoorbeeld het geval indien u een kozijn vervangt door een raam met een andere indeling\. Dan verandert het uiterlijk van het bouwwerk\. Het maakt in dit geval niet uit welk materiaal u gebruikt\.   
+    
+ Gaat u alleen schilderwerkzaamheden uitvoeren? Dan wijzigt het uiterlijk van het bouwwerk daardoor niet\.]]></content:langeToelichting>
+                    <content:belangrijk>true</content:belangrijk>
+                </content:uitvoeringsregelToelichting>
+            </uitv:uitvoeringsregel>
+            <uitv:uitvoeringsregel id="uitv__670c9dfb_6dc3_46e6_b9cb_051ca6540a9c">
+                <uitv:regelgroepRef href="#_31bbf28b_a707_4ebc_9e87_d726ed6cc044"/>
+                <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+                <inter:prioriteit>30</inter:prioriteit>
+                <uitv:vraag>
+                    <uitv:gegevensType>boolean</uitv:gegevensType>
+                    <uitv:vraagTekst><![CDATA[Is er op het perceel een beschermd of voorbeschermd monument of archeologisch monument aanwezig?]]></uitv:vraagTekst>
+                </uitv:vraag>
+                <content:uitvoeringsregelToelichting>
+                    <content:toelichting><![CDATA[Iets is een beschermd monument of archeologisch monument als de gemeente, de provincie of het Rijk het heeft aangewezen als gemeentelijk monument, provinciaal monument of rijksmonument\.   
+ Vul hier ook ‘ja’ in als er een procedure tot aanwijzing als gemeentelijk, provinciaal of rijksmonument loopt\. Dan is er sprake van een zogenoemd ‘voorbeschermd’ gemeentelijk monument, provinciaal monument of rijksmonument\.]]></content:toelichting>
+                    <content:langeToelichting><![CDATA[Of iets een gemeentelijk monument of provinciaal monument is, kunt u navragen bij de gemeente\.   
+    
+ Of iets een rijksmonument is, kunt u opzoeken in het rijksmonumentenregister \([https://monumentenregister\.cultureelerfgoed\.nl](https://monumentenregister.cultureelerfgoed.nl)\)\. In de omschrijving van het rijksmonument staat om welke onroerende zaak/onroerende zaken of welk terrein het gaat\. U kunt ook contact opnemen met de Rijksdienst voor het Cultureel Erfgoed \([https://cultureelerfgoed\.nl/contact/contactformulier](https://cultureelerfgoed.nl/contact/contactformulier)\)\.]]></content:langeToelichting>
+                    <content:belangrijk>false</content:belangrijk>
+                </content:uitvoeringsregelToelichting>
+            </uitv:uitvoeringsregel>
+            <uitv:uitvoeringsregel id="uitv__db9aaaee_0fbd_4fa2_bcaf_7ec43a4401d0">
+                <uitv:regelgroepRef href="#_31bbf28b_a707_4ebc_9e87_d726ed6cc044"/>
+                <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+                <inter:prioriteit>40</inter:prioriteit>
+                <uitv:vraag>
+                    <uitv:gegevensType>boolean</uitv:gegevensType>
+                    <uitv:vraagTekst><![CDATA[Vinden de voorgenomen bouwwerkzaamheden plaats in een rijksbeschermd stads- of dorpsgezicht?]]></uitv:vraagTekst>
+                </uitv:vraag>
+                <content:uitvoeringsregelToelichting>
+                    <content:toelichting><![CDATA[##### Rijksbeschermd stads- of dorpsgezich**t**
+
+Het gaat hier om bouwwerkzaamheden binnen een door het Rijk aangewezen beschermd stads- of dorpsgezicht\. Neem bij twijfel of voor meer informatie contact op met uw gemeente\.]]></content:toelichting>
+                    <content:belangrijk>false</content:belangrijk>
+                </content:uitvoeringsregelToelichting>
+            </uitv:uitvoeringsregel>
+            <uitv:uitvoeringsregel id="uitv__13047a1f_f77b_443e_9b8f_23c091aecf1b">
+                <uitv:regelgroepRef href="#_0766a6b6_803b_4831_8acd_c7ffb502fdf6"/>
+                <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+                <inter:prioriteit>50</inter:prioriteit>
+                <uitv:vraag>
+                    <uitv:gegevensType>boolean</uitv:gegevensType>
+                    <uitv:vraagTekst><![CDATA[Gaat het om bouwwerkzaamheden in, aan of op het beschermde of voorbeschermde monument of archeologisch monument?]]></uitv:vraagTekst>
+                </uitv:vraag>
+                <content:uitvoeringsregelToelichting>
+                    <content:toelichting><![CDATA[Is dit het geval, dan is daarvoor waarschijnlijk \(ook\) een aparte omgevingsvergunning nodig\. Vul hierna, afhankelijk van de status \(gemeentelijk monument, provinciaal monument of rijksmonument\), ook de vergunningcheck in voor de desbetreffende monumentenactiviteit\.]]></content:toelichting>
+                    <content:belangrijk>false</content:belangrijk>
+                </content:uitvoeringsregelToelichting>
+            </uitv:uitvoeringsregel>
+            <uitv:uitvoeringsregel id="uitv__27d43846_3f9c_4971_a178_2f59d87f8716">
+                <uitv:regelgroepRef href="#_de1b631e_eb61_405f_9ad0_45a1129c7df5"/>
+                <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+                <inter:prioriteit>60</inter:prioriteit>
+                <uitv:vraag>
+                    <uitv:gegevensType>boolean</uitv:gegevensType>
+                    <uitv:vraagTekst><![CDATA[Gaat het om bouwwerkzaamheden bij (naast of vlakbij) een (voor)beschermd monument of archeologisch monument?]]></uitv:vraagTekst>
+                </uitv:vraag>
+                <content:uitvoeringsregelToelichting>
+                    <content:toelichting><![CDATA[Iets is een beschermd monument of archeologisch monument als de gemeente, de provincie of het Rijk het heeft aangewezen als gemeentelijk monument, provinciaal monument of rijksmonument\.   
+    
+ Vul hier ook ‘ja’ in als er een procedure tot aanwijzing als gemeentelijk, provinciaal of rijksmonument loopt\. Dan is er sprake van een zogenoemd ‘voorbeschermd’ gemeentelijk monument, provinciaal monument of rijksmonument\.]]></content:toelichting>
+                    <content:belangrijk>false</content:belangrijk>
+                </content:uitvoeringsregelToelichting>
+            </uitv:uitvoeringsregel>
+            <uitv:uitvoeringsregel id="uitv__40c76295-9cf2-4ff7-965c-ebc9e9571c9e">
+                <uitv:regelgroepRef href="#_de1b631e_eb61_405f_9ad0_45a1129c7df5"/>
+                <inter:prioriteit>70</inter:prioriteit>
+                <uitv:vraag>
+                    <uitv:gegevensType>boolean</uitv:gegevensType>
+                    <uitv:vraagTekst><![CDATA[Gaat het ook om bouwwerkzaamheden bij (naast of vlakbij) een (voor)beschermd monument of archeologisch monument?]]></uitv:vraagTekst>
+                </uitv:vraag>
+                <content:uitvoeringsregelToelichting>
+                    <content:toelichting><![CDATA[Verschillende onderdelen kunnen de status monumentaal hebben. Het kan dus zijn dat uw woning de monumentale status heeft, maar ook het bijgebouw of de tuin. Wanneer u werkzaamheden aan een van deze onderdelen met monumentale status gaat uitvoeren, kan het zijn dat u voor de werkzaamheden aan het onderdeel zelf geen vergunning nodig hebt, maar wel voor het feit dat u werkzaamheden uitvoert naast een ander monumentaal onderdeel.
+
+Kijkt u voor meer informatie ook op onze [site](https://www.eindhoven.nl/bouwen/vergunningen/onderhouden-en-wijzigen-van-een-monument).]]></content:toelichting>
+                    <content:belangrijk>false</content:belangrijk>
+                </content:uitvoeringsregelToelichting>
+            </uitv:uitvoeringsregel>
+            <uitv:uitvoeringsregel id="uitv__c0980fad_99ab_40b9_8cb8_17ae30a82ad4">
+                <uitv:regelgroepRef href="#_de1b631e_eb61_405f_9ad0_45a1129c7df5"/>
+                <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+                <inter:prioriteit>80</inter:prioriteit>
+                <uitv:vraag>
+                    <uitv:gegevensType>boolean</uitv:gegevensType>
+                    <uitv:vraagTekst><![CDATA[Gaat u de kleur of materiaalsoort van het bouwwerk wijzigen?]]></uitv:vraagTekst>
+                </uitv:vraag>
+            </uitv:uitvoeringsregel>
+            <uitv:uitvoeringsregel id="uitv__c78d82c6_fd4f_4e61_8ed2_c4d89f5e97d0">
+                <uitv:regelgroepRef href="#_8ffa1a7d_8ffc_4d21_bcb2_8d12b2ddf468"/>
+                <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+                <inter:prioriteit>90</inter:prioriteit>
+                <uitv:vraag>
+                    <uitv:gegevensType>boolean</uitv:gegevensType>
+                    <uitv:vraagTekst><![CDATA[Gaat u de kleur of materiaalsoort van het bouwwerk wijzigen?]]></uitv:vraagTekst>
+                </uitv:vraag>
+            </uitv:uitvoeringsregel>
+            <uitv:uitvoeringsregel id="uitv__4fa2d8ce_d022_4d0b_90a2_e4828a9e190c">
+                <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+                <inter:prioriteit>100</inter:prioriteit>
+                <uitv:vasteWaardeVoorbehoud>
+                    <uitv:vasteWaarde>
+                        <uitv:waardeVraag><![CDATA[Voorbehoud GewonOndehoud]]></uitv:waardeVraag>
+                        <uitv:waarde><![CDATA[true]]></uitv:waarde>
+                        <uitv:gegevensType>boolean</uitv:gegevensType>
+                    </uitv:vasteWaarde>
+                    <uitv:tekstVoorbehoud><![CDATA[Het bouwwerk mag niet ernstig ontsierend zijn, als dit in het omgevingsplan is bepaald. Kijk voor de regels over ernstige ontsiering van het uiterlijk van bouwwerken in het omgevingsplan. Deze regels worden ook wel het repressief welstandsvereiste genoemd. Neem bij twijfel contact op met de gemeente.]]></uitv:tekstVoorbehoud>
+                </uitv:vasteWaardeVoorbehoud>
+            </uitv:uitvoeringsregel>
+        </uitv:uitvoeringsregels>
+        <sttrbuilder:dependencyInformation>
+            <sttrbuilder:dependencyInformationVersion>1.0.2</sttrbuilder:dependencyInformationVersion>
+            <sttrbuilder:checkDependencyInformation>
+                <sttrbuilder:rows>
+                    <sttrbuilder:row id="074c6d56_5914_4288_a98c_20837d0cf7e1" questionId="uitv__b0219ec6_23c3_457d_a51a_55b579d9e96d"/>
+                    <sttrbuilder:row id="a0ca17ad_2b8c_411f_a2bd_4d76889d784e" questionId="uitv__c24efb3e_2aea_4ae6_b13d_f982637cfb73" groupId="_3b940bbd_7aa9_44c9_861f_d6d5760f979e"/>
+                    <sttrbuilder:row id="35126ea2_ada1_4cbf_a03d_ef012cf57071" questionId="uitv__670c9dfb_6dc3_46e6_b9cb_051ca6540a9c" groupId="_31bbf28b_a707_4ebc_9e87_d726ed6cc044"/>
+                    <sttrbuilder:row id="56510e55_784e_45b9_87c0_f52408dd9c48" questionId="uitv__db9aaaee_0fbd_4fa2_bcaf_7ec43a4401d0" groupId="_31bbf28b_a707_4ebc_9e87_d726ed6cc044"/>
+                    <sttrbuilder:row id="3078c055_19f9_4f80_80e9_435565d589a3" questionId="uitv__13047a1f_f77b_443e_9b8f_23c091aecf1b" groupId="_0766a6b6_803b_4831_8acd_c7ffb502fdf6"/>
+                    <sttrbuilder:row id="618ac86e_2656_49f6_8e7c_986d60205aec" questionId="uitv__27d43846_3f9c_4971_a178_2f59d87f8716" groupId="_de1b631e_eb61_405f_9ad0_45a1129c7df5"/>
+                    <sttrbuilder:row id="9073e33d-3d75-4720-87b0-6218396c346d" questionId="uitv__40c76295-9cf2-4ff7-965c-ebc9e9571c9e" groupId="_de1b631e_eb61_405f_9ad0_45a1129c7df5"/>
+                    <sttrbuilder:row id="95c4f087_0cbb_4fcd_be71_8ac206cd43e3" questionId="uitv__c0980fad_99ab_40b9_8cb8_17ae30a82ad4" groupId="_de1b631e_eb61_405f_9ad0_45a1129c7df5"/>
+                    <sttrbuilder:row id="41ee0c22_9641_481a_a2dd_04e190a49e0e" questionId="uitv__c78d82c6_fd4f_4e61_8ed2_c4d89f5e97d0" groupId="_8ffa1a7d_8ffc_4d21_bcb2_8d12b2ddf468"/>
+                    <sttrbuilder:row id="ccf251f8_89b9_4620_821a_47f276c8465f" questionId="uitv__4fa2d8ce_d022_4d0b_90a2_e4828a9e190c"/>
+                </sttrbuilder:rows>
+                <sttrbuilder:questionPaths>
+                    <sttrbuilder:questionPath>
+                        <sttrbuilder:outcome><![CDATA[Niet van toepassing]]></sttrbuilder:outcome>
+                        <sttrbuilder:outcomeId><![CDATA[NietVanToepassing]]></sttrbuilder:outcomeId>
+                        <sttrbuilder:answers>
+                            <sttrbuilder:answer rowId="074c6d56_5914_4288_a98c_20837d0cf7e1">
+<sttrbuilder:answer><![CDATA[nee]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                        </sttrbuilder:answers>
+                    </sttrbuilder:questionPath>
+                    <sttrbuilder:questionPath>
+                        <sttrbuilder:outcome><![CDATA[Niet van toepassing]]></sttrbuilder:outcome>
+                        <sttrbuilder:outcomeId><![CDATA[NietVanToepassing]]></sttrbuilder:outcomeId>
+                        <sttrbuilder:answers>
+                            <sttrbuilder:answer rowId="a0ca17ad_2b8c_411f_a2bd_4d76889d784e">
+<sttrbuilder:answer><![CDATA[ja]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                        </sttrbuilder:answers>
+                    </sttrbuilder:questionPath>
+                    <sttrbuilder:questionPath>
+                        <sttrbuilder:outcome><![CDATA[Vergunningplicht]]></sttrbuilder:outcome>
+                        <sttrbuilder:outcomeId><![CDATA[Vergunningplicht]]></sttrbuilder:outcomeId>
+                        <sttrbuilder:answers>
+                            <sttrbuilder:answer rowId="074c6d56_5914_4288_a98c_20837d0cf7e1">
+<sttrbuilder:answer><![CDATA[ja]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="a0ca17ad_2b8c_411f_a2bd_4d76889d784e">
+<sttrbuilder:answer><![CDATA[nee]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="ccf251f8_89b9_4620_821a_47f276c8465f">
+<sttrbuilder:answer><![CDATA[nee]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                        </sttrbuilder:answers>
+                    </sttrbuilder:questionPath>
+                    <sttrbuilder:questionPath>
+                        <sttrbuilder:outcome><![CDATA[Vergunningplicht]]></sttrbuilder:outcome>
+                        <sttrbuilder:outcomeId><![CDATA[Vergunningplicht]]></sttrbuilder:outcomeId>
+                        <sttrbuilder:answers>
+                            <sttrbuilder:answer rowId="074c6d56_5914_4288_a98c_20837d0cf7e1">
+<sttrbuilder:answer><![CDATA[ja]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="a0ca17ad_2b8c_411f_a2bd_4d76889d784e">
+<sttrbuilder:answer><![CDATA[nee]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="35126ea2_ada1_4cbf_a03d_ef012cf57071">
+<sttrbuilder:answer><![CDATA[ja]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="56510e55_784e_45b9_87c0_f52408dd9c48">
+<sttrbuilder:answer><![CDATA[nee]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="3078c055_19f9_4f80_80e9_435565d589a3">
+<sttrbuilder:answer><![CDATA[ja]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="9073e33d-3d75-4720-87b0-6218396c346d">
+<sttrbuilder:answer><![CDATA[ja]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="95c4f087_0cbb_4fcd_be71_8ac206cd43e3">
+<sttrbuilder:answer><![CDATA[ja]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                        </sttrbuilder:answers>
+                    </sttrbuilder:questionPath>
+                    <sttrbuilder:questionPath>
+                        <sttrbuilder:outcome><![CDATA[Vergunningplicht]]></sttrbuilder:outcome>
+                        <sttrbuilder:outcomeId><![CDATA[Vergunningplicht]]></sttrbuilder:outcomeId>
+                        <sttrbuilder:answers>
+                            <sttrbuilder:answer rowId="074c6d56_5914_4288_a98c_20837d0cf7e1">
+<sttrbuilder:answer><![CDATA[ja]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="a0ca17ad_2b8c_411f_a2bd_4d76889d784e">
+<sttrbuilder:answer><![CDATA[nee]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="35126ea2_ada1_4cbf_a03d_ef012cf57071">
+<sttrbuilder:answer><![CDATA[ja]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="56510e55_784e_45b9_87c0_f52408dd9c48">
+<sttrbuilder:answer><![CDATA[nee]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="3078c055_19f9_4f80_80e9_435565d589a3">
+<sttrbuilder:answer><![CDATA[ja]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="9073e33d-3d75-4720-87b0-6218396c346d">
+<sttrbuilder:answer><![CDATA[nee]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="95c4f087_0cbb_4fcd_be71_8ac206cd43e3">
+<sttrbuilder:answer><![CDATA[ja]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                        </sttrbuilder:answers>
+                    </sttrbuilder:questionPath>
+                    <sttrbuilder:questionPath>
+                        <sttrbuilder:outcome><![CDATA[Vergunningplicht]]></sttrbuilder:outcome>
+                        <sttrbuilder:outcomeId><![CDATA[Vergunningplicht]]></sttrbuilder:outcomeId>
+                        <sttrbuilder:answers>
+                            <sttrbuilder:answer rowId="074c6d56_5914_4288_a98c_20837d0cf7e1">
+<sttrbuilder:answer><![CDATA[ja]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="a0ca17ad_2b8c_411f_a2bd_4d76889d784e">
+<sttrbuilder:answer><![CDATA[nee]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="35126ea2_ada1_4cbf_a03d_ef012cf57071">
+<sttrbuilder:answer><![CDATA[ja]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="56510e55_784e_45b9_87c0_f52408dd9c48">
+<sttrbuilder:answer><![CDATA[nee]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="3078c055_19f9_4f80_80e9_435565d589a3">
+<sttrbuilder:answer><![CDATA[nee]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="618ac86e_2656_49f6_8e7c_986d60205aec">
+<sttrbuilder:answer><![CDATA[ja]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="95c4f087_0cbb_4fcd_be71_8ac206cd43e3">
+<sttrbuilder:answer><![CDATA[ja]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                        </sttrbuilder:answers>
+                    </sttrbuilder:questionPath>
+                    <sttrbuilder:questionPath>
+                        <sttrbuilder:outcome><![CDATA[Vergunningplicht]]></sttrbuilder:outcome>
+                        <sttrbuilder:outcomeId><![CDATA[Vergunningplicht]]></sttrbuilder:outcomeId>
+                        <sttrbuilder:answers>
+                            <sttrbuilder:answer rowId="074c6d56_5914_4288_a98c_20837d0cf7e1">
+<sttrbuilder:answer><![CDATA[ja]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="a0ca17ad_2b8c_411f_a2bd_4d76889d784e">
+<sttrbuilder:answer><![CDATA[nee]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="56510e55_784e_45b9_87c0_f52408dd9c48">
+<sttrbuilder:answer><![CDATA[ja]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="41ee0c22_9641_481a_a2dd_04e190a49e0e">
+<sttrbuilder:answer><![CDATA[ja]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                        </sttrbuilder:answers>
+                    </sttrbuilder:questionPath>
+                </sttrbuilder:questionPaths>
+                <sttrbuilder:maatregelenPossibleOutcomes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+            </sttrbuilder:checkDependencyInformation>
+        </sttrbuilder:dependencyInformation>
+    </dmn:extensionElements>
+    <dmn:inputData name="uitv__b0219ec6_23c3_457d_a51a_55b579d9e96d" id="input_uitv__b0219ec6_23c3_457d_a51a_55b579d9e96d">
+        <dmn:extensionElements>
+            <uitv:uitvoeringsregelRef href="#uitv__b0219ec6_23c3_457d_a51a_55b579d9e96d"/>
+        </dmn:extensionElements>
+        <dmn:variable typeRef="boolean" name="uitv__b0219ec6_23c3_457d_a51a_55b579d9e96d" id="_7a1fefb2_2503_4c1d_8d3e_2a4e98cb3757"/>
+    </dmn:inputData>
+    <dmn:inputData name="uitv__c24efb3e_2aea_4ae6_b13d_f982637cfb73" id="input_uitv__c24efb3e_2aea_4ae6_b13d_f982637cfb73">
+        <dmn:extensionElements>
+            <uitv:uitvoeringsregelRef href="#uitv__c24efb3e_2aea_4ae6_b13d_f982637cfb73"/>
+        </dmn:extensionElements>
+        <dmn:variable typeRef="boolean" name="uitv__c24efb3e_2aea_4ae6_b13d_f982637cfb73" id="_10bdbf28_da41_44c5_9f8c_295a943d6033"/>
+    </dmn:inputData>
+    <dmn:inputData name="uitv__670c9dfb_6dc3_46e6_b9cb_051ca6540a9c" id="input_uitv__670c9dfb_6dc3_46e6_b9cb_051ca6540a9c">
+        <dmn:extensionElements>
+            <uitv:uitvoeringsregelRef href="#uitv__670c9dfb_6dc3_46e6_b9cb_051ca6540a9c"/>
+        </dmn:extensionElements>
+        <dmn:variable typeRef="boolean" name="uitv__670c9dfb_6dc3_46e6_b9cb_051ca6540a9c" id="_892967ae_8148_49bf_bffe_1d02c52fb4c0"/>
+    </dmn:inputData>
+    <dmn:inputData name="uitv__db9aaaee_0fbd_4fa2_bcaf_7ec43a4401d0" id="input_uitv__db9aaaee_0fbd_4fa2_bcaf_7ec43a4401d0">
+        <dmn:extensionElements>
+            <uitv:uitvoeringsregelRef href="#uitv__db9aaaee_0fbd_4fa2_bcaf_7ec43a4401d0"/>
+        </dmn:extensionElements>
+        <dmn:variable typeRef="boolean" name="uitv__db9aaaee_0fbd_4fa2_bcaf_7ec43a4401d0" id="_e7278d9d_65c6_4a31_942e_4e47818e0044"/>
+    </dmn:inputData>
+    <dmn:inputData name="uitv__13047a1f_f77b_443e_9b8f_23c091aecf1b" id="input_uitv__13047a1f_f77b_443e_9b8f_23c091aecf1b">
+        <dmn:extensionElements>
+            <uitv:uitvoeringsregelRef href="#uitv__13047a1f_f77b_443e_9b8f_23c091aecf1b"/>
+        </dmn:extensionElements>
+        <dmn:variable typeRef="boolean" name="uitv__13047a1f_f77b_443e_9b8f_23c091aecf1b" id="_6241dd8c_954f_4ecb_adcc_8cf830dad677"/>
+    </dmn:inputData>
+    <dmn:inputData name="uitv__27d43846_3f9c_4971_a178_2f59d87f8716" id="input_uitv__27d43846_3f9c_4971_a178_2f59d87f8716">
+        <dmn:extensionElements>
+            <uitv:uitvoeringsregelRef href="#uitv__27d43846_3f9c_4971_a178_2f59d87f8716"/>
+        </dmn:extensionElements>
+        <dmn:variable typeRef="boolean" name="uitv__27d43846_3f9c_4971_a178_2f59d87f8716" id="_c47e1aa7_99de_40db_af95_0072aa13e006"/>
+    </dmn:inputData>
+    <dmn:inputData name="uitv__40c76295-9cf2-4ff7-965c-ebc9e9571c9e" id="input_uitv__40c76295-9cf2-4ff7-965c-ebc9e9571c9e">
+        <dmn:extensionElements>
+            <uitv:uitvoeringsregelRef href="#uitv__40c76295-9cf2-4ff7-965c-ebc9e9571c9e"/>
+        </dmn:extensionElements>
+        <dmn:variable typeRef="boolean" name="uitv__40c76295-9cf2-4ff7-965c-ebc9e9571c9e" id="_011be7a2_638d_41cd_9ba1_4c28339c5432"/>
+    </dmn:inputData>
+    <dmn:inputData name="uitv__c0980fad_99ab_40b9_8cb8_17ae30a82ad4" id="input_uitv__c0980fad_99ab_40b9_8cb8_17ae30a82ad4">
+        <dmn:extensionElements>
+            <uitv:uitvoeringsregelRef href="#uitv__c0980fad_99ab_40b9_8cb8_17ae30a82ad4"/>
+        </dmn:extensionElements>
+        <dmn:variable typeRef="boolean" name="uitv__c0980fad_99ab_40b9_8cb8_17ae30a82ad4" id="_547b6c3a_2733_4627_8177_55ef9b000d60"/>
+    </dmn:inputData>
+    <dmn:inputData name="uitv__c78d82c6_fd4f_4e61_8ed2_c4d89f5e97d0" id="input_uitv__c78d82c6_fd4f_4e61_8ed2_c4d89f5e97d0">
+        <dmn:extensionElements>
+            <uitv:uitvoeringsregelRef href="#uitv__c78d82c6_fd4f_4e61_8ed2_c4d89f5e97d0"/>
+        </dmn:extensionElements>
+        <dmn:variable typeRef="boolean" name="uitv__c78d82c6_fd4f_4e61_8ed2_c4d89f5e97d0" id="_923001d6_3379_47c5_a5cf_6f79414c2dd6"/>
+    </dmn:inputData>
+    <dmn:inputData name="uitv__4fa2d8ce_d022_4d0b_90a2_e4828a9e190c" id="input_uitv__4fa2d8ce_d022_4d0b_90a2_e4828a9e190c">
+        <dmn:extensionElements>
+            <uitv:uitvoeringsregelRef href="#uitv__4fa2d8ce_d022_4d0b_90a2_e4828a9e190c"/>
+        </dmn:extensionElements>
+        <dmn:variable typeRef="boolean" name="uitv__4fa2d8ce_d022_4d0b_90a2_e4828a9e190c" id="_1732c958_5460_4f98_87bb_da407b57a6c6"/>
+    </dmn:inputData>
+    <dmn:decision name="Gewoon onderhoud verrichten aan een bouwwerk" id="_fe106c7a_0d83_4eb9_a935_71186f28097b">
+        <dmn:extensionElements>
+            <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/Conclusienl.imow-gm0772.activiteit.GewoonOnderhoud"/>
+        </dmn:extensionElements>
+        <dmn:variable typeRef="string" name="Gewoon onderhoud verrichten aan een bouwwerk" id="_fe106c7a_0d83_4eb9_a935_71186f28097b_var"/>
+        <dmn:informationRequirement>
+            <dmn:requiredDecision href="#_c01100fd_f886_43cc_ac41_146033e77bae"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredDecision href="#_49de0e34_e50e_4374_b69b_a5b4149972da"/>
+        </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="RULE ORDER" outputLabel="Gewoon onderhoud verrichten aan een bouwwerk" id="_fe106c7a_0d83_4eb9_a935_71186f28097b_dt">
+            <dmn:input>
+                <dmn:inputExpression typeRef="string">
+                    <dmn:text><![CDATA[Gewoon onderhoud verrichten aan een bouwwerk_Niet van toepassing_cross]]></dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="string">
+                    <dmn:text><![CDATA[Gewoon onderhoud verrichten aan een bouwwerk_Vergunningplicht_cross]]></dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:output id="_f8a05e2f_df75_492c_85d5_c9d0998d2753"/>
+            <dmn:rule id="_765ea16a_6c4f_4866_9cc7_1416adccc237">
+                <dmn:inputEntry id="_35871c03_2510_48d7_88d5_c9ac1a841ffd">
+                    <dmn:text>if ?=null then false else contains(?,"Niet van toepassing pad 0_")</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_02b7ad8c_869b_4aeb_9f5b_9da456f27877">
+                    <dmn:text>not(null)</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_f455e92c_02bd_490b_8f5f_41c712eca935">
+                    <dmn:text><![CDATA["NietVanToepassing"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_02468b06_fcbe_438d_b933_ee8bde89affe">
+                <dmn:inputEntry id="_cda403c2_e248_46bd_bec9_1919b759a1eb">
+                    <dmn:text>if ?=null then false else contains(?,"Niet van toepassing pad 1_")</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_123493af_9b15_4578_983d_f62d86cf1e9d">
+                    <dmn:text>not(null)</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_4920462a_69d0_4e14_a5b8_1f4b0e517bad">
+                    <dmn:text><![CDATA["NietVanToepassing"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_f1a1df8f_b60e_4dbc_ba65_a3b63beaa5e1">
+                <dmn:inputEntry id="_357b94d8_e45f_44cd_9bd9_acd486c4838c">
+                    <dmn:text>not(null)</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_51079920_0ca5_4129_8647_7ed70f62eb84">
+                    <dmn:text>if ?=null then false else contains(?,"Vergunningplicht pad 2_")</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_cc2a1ec7_c9ae_4340_a2ba_ae8165d82c0c">
+                    <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_f41a9446_f17e_42f6_bd85_b7ea242f83c8">
+                <dmn:inputEntry id="_c51a6ee0_a46b_49ca_9f10_b769b3fa79c1">
+                    <dmn:text>not(null)</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_899cd4f5_a6f9_45f5_a2e4_131f078b081f">
+                    <dmn:text>if ?=null then false else contains(?,"Vergunningplicht pad 3_")</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_4649d0a7_428d_4037_928e_502c12254576">
+                    <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_b202b4a6_36c6_4ca3_96f6_0d27faa13d77">
+                <dmn:inputEntry id="_84288ecd_5268_46bf_b069_b1ada4a690c9">
+                    <dmn:text>not(null)</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_1bcbf467_0f88_412d_aff6_342c212a3420">
+                    <dmn:text>if ?=null then false else contains(?,"Vergunningplicht pad 4_")</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_96303a52_3f00_4715_b579_86a0541ce2ec">
+                    <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_61a88492_3c88_4a81_848e_dbb7eb9a5ba5">
+                <dmn:inputEntry id="_c4c4e175_89eb_4e6c_9e3b_f03f0929bde0">
+                    <dmn:text>not(null)</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_763c4f92_293e_474f_85b8_f669c55b8908">
+                    <dmn:text>if ?=null then false else contains(?,"Vergunningplicht pad 5_")</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_f360435f_37ff_473f_94cd_b0a6646727fd">
+                    <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_aa20f269_26a1_49a0_81ca_67a9a1641af1">
+                <dmn:inputEntry id="_9d133562_9bed_4e2f_b9ce_8140227016ec">
+                    <dmn:text>not(null)</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_ec0ca6bf_f8c1_4558_b4e5_f55f927c532b">
+                    <dmn:text>if ?=null then false else contains(?,"Vergunningplicht pad 6_")</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_17e19209_162b_4ef3_b2de_eab4d9d1cd3e">
+                    <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_79e1aa7b_9a70_41ab_ac0d_1ec14666b85a">
+                <dmn:inputEntry id="_4aaf5b26_553f_4b06_95d9_af821e73e429">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_ce7355af_77cc_41f2_8bff_45afbdee15d3">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_11333250_6bf1_439f_a91d_17393f13bf8a">
+                    <dmn:text>"Toestemmingsvrij"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+        </dmn:decisionTable>
+    </dmn:decision>
+    <dmn:decision name="Gewoon onderhoud verrichten aan een bouwwerk_Niet van toepassing_cross" id="_c01100fd_f886_43cc_ac41_146033e77bae">
+        <dmn:variable typeRef="string" name="Gewoon onderhoud verrichten aan een bouwwerk_Niet van toepassing_cross" id="_c01100fd_f886_43cc_ac41_146033e77bae_var"/>
+        <dmn:informationRequirement>
+            <dmn:requiredDecision href="#_76e8be46_53ec_4a13_9333_e75bdf456c22"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredDecision href="#_84115c72_941d_4cfa_903d_481cb8574cf9"/>
+        </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" outputLabel="Gewoon onderhoud verrichten aan een bouwwerk_Niet van toepassing_cross" id="_c01100fd_f886_43cc_ac41_146033e77bae_dt">
+            <dmn:input>
+                <dmn:inputExpression typeRef="string">
+                    <dmn:text><![CDATA[_76e8be46_53ec_4a13_9333_e75bdf456c22_Niet van toepassing]]></dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="string">
+                    <dmn:text><![CDATA[_84115c72_941d_4cfa_903d_481cb8574cf9_Niet van toepassing]]></dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:output id="_ab7884f6_9310_484b_83d5_e48fc92ef6d8"/>
+            <dmn:rule id="_e5e4dd38_d532_4f59_b4ea_a2d3e5e5cb76">
+                <dmn:inputEntry id="_046525b5_940a_41dd_913c_188375813940">
+                    <dmn:text><![CDATA["Niet van toepassing"]]></dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_d9a7e868_ded8_45d7_abbd_5bea120f0ff0">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_52ca1ec7_66cc_4912_897d_7f5733b603fe">
+                    <dmn:text><![CDATA["Niet van toepassing pad 0_"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_bb6c8532_ec4f_4883_aae4_768140a19a53">
+                <dmn:inputEntry id="_1a47d01f_393e_49e9_ba67_fc1ad0aace3f">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_42913112_a814_43a4_9d0f_1cac0ac82d8e">
+                    <dmn:text><![CDATA["Niet van toepassing"]]></dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_4be0cfba_3f3f_436e_87d0_90afc75298bb">
+                    <dmn:text><![CDATA["Niet van toepassing pad 1_"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_15f602a7_39ad_47c7_9748_f58419f1b298">
+                <dmn:inputEntry id="_2f50aeec_3255_4a2e_90f0_49bfe37dcb4e">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_c4426575_d352_4900_8b46_cb007ecc6640">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_20ea1663_d17d_483b_a7b8_16fb73c2ee4b">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+        </dmn:decisionTable>
+    </dmn:decision>
+    <dmn:decision name="Gewoon onderhoud verrichten aan een bouwwerk_Vergunningplicht_cross" id="_49de0e34_e50e_4374_b69b_a5b4149972da">
+        <dmn:variable typeRef="string" name="Gewoon onderhoud verrichten aan een bouwwerk_Vergunningplicht_cross" id="_49de0e34_e50e_4374_b69b_a5b4149972da_var"/>
+        <dmn:informationRequirement>
+            <dmn:requiredDecision href="#_e949cd10_77ed_4134_a0a7_0d1af98cc53d"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredDecision href="#_c97f43a5_2974_450e_a3e7_31601407a56c"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredDecision href="#_7fd8af09-d106-4e4f-a1fb-b5b5d13aa211"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredDecision href="#_debca033_3d31_4898_995f_08341e715842"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredDecision href="#_5285cedc_9145_414c_bb68_7a0f862f30d8"/>
+        </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" outputLabel="Gewoon onderhoud verrichten aan een bouwwerk_Vergunningplicht_cross" id="_49de0e34_e50e_4374_b69b_a5b4149972da_dt">
+            <dmn:input>
+                <dmn:inputExpression typeRef="string">
+                    <dmn:text><![CDATA[_e949cd10_77ed_4134_a0a7_0d1af98cc53d_Vergunningplicht]]></dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="string">
+                    <dmn:text><![CDATA[_c97f43a5_2974_450e_a3e7_31601407a56c_Vergunningplicht]]></dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="string">
+                    <dmn:text><![CDATA[_7fd8af09-d106-4e4f-a1fb-b5b5d13aa211_Vergunningplicht]]></dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="string">
+                    <dmn:text><![CDATA[_debca033_3d31_4898_995f_08341e715842_Vergunningplicht]]></dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="string">
+                    <dmn:text><![CDATA[_5285cedc_9145_414c_bb68_7a0f862f30d8_Vergunningplicht]]></dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:output id="_3d1926f1_e016_4152_a91a_8cd3ea53d091"/>
+            <dmn:rule id="_ea417651_f0d2_4256_a025_2539cf1bce1f">
+                <dmn:inputEntry id="_90669bb7_5c62_4795_8e5b_1a6300316322">
+                    <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_6caa0c63_326e_4df5_9511_420c88e7c6a6">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_e260c465_72fa_4a76_b8c7_84244eeb1732">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_95454666_b6ec_465a_a900_d24cb510ec1f">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_ebf9880f_681c_422d_9696_3a91cd33fc4c">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_036cbae0_82a5_41dd_b844_50ec278dbb70">
+                    <dmn:text><![CDATA["Vergunningplicht pad 2_"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_1ca20b5f_bc52_4eb1_9b43_40eaabee9113">
+                <dmn:inputEntry id="_b4e6cad3_865e_4044_815d_6989f1f0644c">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_afaa9fe5_8c04_49ed_b222_b8600ed5068b">
+                    <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_3359bf78_9a3f_4b7f_99dd_af413a7cf47e">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_e2c3d58c_389c_4ca4_9e8d_488421773d0e">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_79203db5_0b50_4f76_8a31_ee67afee71f2">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_70242bda_74c9_4a60_8b41_906b0a467f6b">
+                    <dmn:text><![CDATA["Vergunningplicht pad 3_"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_4eb44834_cdc6_4101_b235_122350f1fe25">
+                <dmn:inputEntry id="_46c7ec7c_bba1_49f9_8a03_2333f75b4768">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_117dbe87_7737_49fa_8662_90bd31df738c">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_6914a388_d77b_41a5_aa10_1cd3725a93d2">
+                    <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_136e714a_29d4_404d_8c20_45236f0eb7be">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_5e96ac8e_3c4c_4539_af98_cd54c0c01272">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_77988e76_f942_4948_9060_6dfd0c6a6c2e">
+                    <dmn:text><![CDATA["Vergunningplicht pad 4_"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_bd882f72_06ca_4678_ad15_a338c637063a">
+                <dmn:inputEntry id="_b9c7c724_c10d_4f99_8616_e0c6d681f6ca">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_b943e4d3_86df_46db_bd5a_f721eb72f838">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_8e7ccfb1_f2a2_4a35_935c_ad5fa261e2c6">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_e7550d32_6493_4b12_b240_324f81ee95f6">
+                    <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_bc712cf2_da25_43ae_adda_5fd45dfc2902">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_f35e245a_de8c_4731_b03f_dcc0dc1a0082">
+                    <dmn:text><![CDATA["Vergunningplicht pad 5_"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_7b64aca6_9c6d_429c_8303_1b10115cf594">
+                <dmn:inputEntry id="_9fddd816_dd4b_4525_a6e4_1c5f1d92e60f">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_c79690cc_ad7c_4f61_869b_66d27186646d">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_ee6942b4_59d8_4225_92bc_93e06f50a9df">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_546d80ea_64ad_4bdd_ae80_84544bdd70c1">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_dfa7e436_1485_4be4_944c_4aeef6b77996">
+                    <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_eaf56d10_491d_454b_847f_81d18f375b25">
+                    <dmn:text><![CDATA["Vergunningplicht pad 6_"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_9e79a1d6_c3b5_4c8e_bd81_50aef32b2268">
+                <dmn:inputEntry id="_e8aa2b67_5f96_484d_a250_4e02a17fbfed">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_e271f55a_af85_47b1_87d0_f423522da98d">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_70185a5a_205b_4d92_b0f9_c79a97125b79">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_8c65df74_4ee4_404c_bbb3_3b3263cb3e25">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_4065b49c_ad08_479b_8ca1_e4c8e6f99d53">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_5efe3a19_3e6a_4e35_8681_b0bb58bc3614">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+        </dmn:decisionTable>
+    </dmn:decision>
+    <dmn:decision name="_76e8be46_53ec_4a13_9333_e75bdf456c22_Niet van toepassing" id="_76e8be46_53ec_4a13_9333_e75bdf456c22">
+        <dmn:variable typeRef="string" name="_76e8be46_53ec_4a13_9333_e75bdf456c22_Niet van toepassing" id="_76e8be46_53ec_4a13_9333_e75bdf456c22_var"/>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__b0219ec6_23c3_457d_a51a_55b579d9e96d"/>
+        </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" outputLabel="_76e8be46_53ec_4a13_9333_e75bdf456c22_Niet van toepassing" id="_76e8be46_53ec_4a13_9333_e75bdf456c22_dt">
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__b0219ec6_23c3_457d_a51a_55b579d9e96d</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:output id="_094cc50c_de63_459d_8da9_ec03abfdc704"/>
+            <dmn:rule id="_97897ac9_3765_47f6_8a5b_2925ddd48759">
+                <dmn:inputEntry id="_f3eb5e6a_be12_4196_a809_28d1524c6ded">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_485cd4bf_1861_4713_a2a8_3b00b3fc9cea">
+                    <dmn:text><![CDATA["Niet van toepassing"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_d865bf65_6c37_460e_8d4b_e1325df55cb6">
+                <dmn:inputEntry id="_b027c976_8c40_404d_b2ad_a821000f9855">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_5313f72b_c79a_4f10_8a3f_55c678002143">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+        </dmn:decisionTable>
+    </dmn:decision>
+    <dmn:decision name="_84115c72_941d_4cfa_903d_481cb8574cf9_Niet van toepassing" id="_84115c72_941d_4cfa_903d_481cb8574cf9">
+        <dmn:variable typeRef="string" name="_84115c72_941d_4cfa_903d_481cb8574cf9_Niet van toepassing" id="_84115c72_941d_4cfa_903d_481cb8574cf9_var"/>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__c24efb3e_2aea_4ae6_b13d_f982637cfb73"/>
+        </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" outputLabel="_84115c72_941d_4cfa_903d_481cb8574cf9_Niet van toepassing" id="_84115c72_941d_4cfa_903d_481cb8574cf9_dt">
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__c24efb3e_2aea_4ae6_b13d_f982637cfb73</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:output id="_9e4bda0a_c04c_492c_ba43_6e1912ced5f3"/>
+            <dmn:rule id="_6c5cc286_c93f_439a_bade_9be7d7beedef">
+                <dmn:inputEntry id="_d1a1e2cb_9e06_4686_a756_86d14462c756">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_772c44b7_aff1_41b5_918d_0a024c43b469">
+                    <dmn:text><![CDATA["Niet van toepassing"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_7421d988_7630_4576_b3fa_b257d59d8a14">
+                <dmn:inputEntry id="_257ee78c_6ac2_457a_8816_626a78928d24">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_7bbb6ba9_19bc_46c1_a4e7_dee187265e9a">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+        </dmn:decisionTable>
+    </dmn:decision>
+    <dmn:decision name="_e949cd10_77ed_4134_a0a7_0d1af98cc53d_Vergunningplicht" id="_e949cd10_77ed_4134_a0a7_0d1af98cc53d">
+        <dmn:variable typeRef="string" name="_e949cd10_77ed_4134_a0a7_0d1af98cc53d_Vergunningplicht" id="_e949cd10_77ed_4134_a0a7_0d1af98cc53d_var"/>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__b0219ec6_23c3_457d_a51a_55b579d9e96d"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__c24efb3e_2aea_4ae6_b13d_f982637cfb73"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__4fa2d8ce_d022_4d0b_90a2_e4828a9e190c"/>
+        </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" outputLabel="_e949cd10_77ed_4134_a0a7_0d1af98cc53d_Vergunningplicht" id="_e949cd10_77ed_4134_a0a7_0d1af98cc53d_dt">
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__b0219ec6_23c3_457d_a51a_55b579d9e96d</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__c24efb3e_2aea_4ae6_b13d_f982637cfb73</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__4fa2d8ce_d022_4d0b_90a2_e4828a9e190c</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:output id="_949952da_9ba1_4c99_a366_29d084d26b57"/>
+            <dmn:rule id="_3645d9b8_f937_4837_898a_1a3d54c06a22">
+                <dmn:inputEntry id="_39fb5526_3737_474f_b9f2_94124797056e">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_80ce7099_8104_41c1_a1d1_1bea73f59888">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_28d1d27e_0a43_4133_a6c7_974d83257c2a">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_fd149475_e02a_404b_a15d_c108f655f932">
+                    <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_e6cd534c_59ce_41b5_b383_88348f916644">
+                <dmn:inputEntry id="_6eafde70_7196_464a_81bf_d12c389910f7">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_97396735_aab4_416e_8d47_02a3ed789824">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_2c238524_c525_4782_a220_f5ee2bca7b7e">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_46be4d23_6876_4d8a_89a2_14efda3c3c90">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_9d4d9bfe_6847_427a_8fa4_dda95d6b06bd">
+                <dmn:inputEntry id="_fac86a7c_f01b_4c23_a0e3_fa89bbeba985">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_c3738874_3654_44ef_a7f1_06023ebca846">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_c57a6f16_45f5_432b_92e2_5f5f588752ec">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_f0590996_49f9_4031_a055_b17bd95cf5fd">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_11e5f614_d1fc_4fb3_abb5_e47a27ba8a29">
+                <dmn:inputEntry id="_2239604e_26c1_4162_a9e5_8f6126a302d7">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_649b9a4b_490e_4202_b92d_f8053cf0b05d">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_376bc368_68fd_4f62_a4ab_2ef4d1799e9a">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_f7887811_15b8_4bb9_816b_d7450d511ab1">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+        </dmn:decisionTable>
+    </dmn:decision>
+    <dmn:decision name="_c97f43a5_2974_450e_a3e7_31601407a56c_Vergunningplicht" id="_c97f43a5_2974_450e_a3e7_31601407a56c">
+        <dmn:variable typeRef="string" name="_c97f43a5_2974_450e_a3e7_31601407a56c_Vergunningplicht" id="_c97f43a5_2974_450e_a3e7_31601407a56c_var"/>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__b0219ec6_23c3_457d_a51a_55b579d9e96d"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__c24efb3e_2aea_4ae6_b13d_f982637cfb73"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__670c9dfb_6dc3_46e6_b9cb_051ca6540a9c"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__db9aaaee_0fbd_4fa2_bcaf_7ec43a4401d0"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__13047a1f_f77b_443e_9b8f_23c091aecf1b"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__40c76295-9cf2-4ff7-965c-ebc9e9571c9e"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__c0980fad_99ab_40b9_8cb8_17ae30a82ad4"/>
+        </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" outputLabel="_c97f43a5_2974_450e_a3e7_31601407a56c_Vergunningplicht" id="_c97f43a5_2974_450e_a3e7_31601407a56c_dt">
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__b0219ec6_23c3_457d_a51a_55b579d9e96d</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__c24efb3e_2aea_4ae6_b13d_f982637cfb73</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__670c9dfb_6dc3_46e6_b9cb_051ca6540a9c</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__db9aaaee_0fbd_4fa2_bcaf_7ec43a4401d0</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__13047a1f_f77b_443e_9b8f_23c091aecf1b</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__40c76295-9cf2-4ff7-965c-ebc9e9571c9e</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__c0980fad_99ab_40b9_8cb8_17ae30a82ad4</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:output id="_ba789878_5315_4f26_9401_67455043b268"/>
+            <dmn:rule id="_a0fbee0e_2d5b_4aff_a7c9_c77c37244f2e">
+                <dmn:inputEntry id="_ed6224c5_a8c2_4b8e_9942_85d874d0cb69">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_1b4a5c10_00a6_45f9_b3b3_a1ffb6e8aca6">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_161d884c_7877_427a_b84b_949628289432">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_52ccf4b9_bcd5_4533_ac90_27f29c28605a">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_0047fa34_1164_4008_9247_f287d485e9df">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_e7bc5d5b_a7be_4392_bdf3_f0a43e5599d5">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_f38ed1d3_1f65_482a_aeb7_bc0042414ff1">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_077c67e5_18dd_4a98_a2ae_da22f2198c07">
+                    <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_349216e0_3355_459e_aafa_9627343a8dff">
+                <dmn:inputEntry id="_dc48361f_dfd1_4518_9f1a_104225c9ca18">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_a5430fd8_a154_4e88_a29c_1cb0adae6bec">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_8fb73cc4_337d_42f8_ab0f_5377627b3183">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_3c1a37da_3743_4c3b_aeed_626097468427">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_8318971c_9ae7_47c6_aba6_1d757ce5e7d3">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_d71e0595_db89_4d52_9196_c2c2e1b61831">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_f7ae03ee_cc50_49d1_a640_ad26d559b9e6">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_e0d861e9_68fc_454f_80a6_dd87b9bbfeaa">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_32548ab6_2148_4884_9590_7d4988bda9b5">
+                <dmn:inputEntry id="_eac6a52a_843d_4510_8976_33b2a685bb78">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_e35397f1_a862_48dc_a0d7_73a5a59dc483">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_8a92f5cf_f7e0_4e5f_8238_1f1a831d99e6">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_306db414_7b10_4f98_9579_67db75455937">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_785113f3_0382_477e_996c_863395a25a8c">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_183734f0_4990_4c07_8239_63abb47d242e">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_723950a6_f204_4494_b87a_4b5fddb21c79">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_6734f724_2eea_48bb_94fd_2e8688f6e68a">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_6568ea2b_d9e1_49f9_8174_61b0b0558c16">
+                <dmn:inputEntry id="_0a2faea8_f390_418b_a9a7_817d17874796">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_d5e0db9e_b721_4baf_a578_b84a5a89a29d">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_678b154f_dc31_44a2_9517_8c17efeac43f">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_6703d726_68c9_4c13_9cb2_c267ade22118">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_2a8e2cbc_05be_4304_aaac_8f4cc1984f1e">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_681d418a_3085_41b6_a9c6_9cbb8f8c8f63">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_59b5b584_29c0_4260_8023_c67c1f8588c3">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_850f507f_91e1_4d8d_b3ca_104e15d911d0">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_210e4aea_bef2_4aa1_8d8b_33258908f14b">
+                <dmn:inputEntry id="_55604ec8_d501_4714_a242_13750406a1fc">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_e475d4d4_b50d_4da1_9063_56b57f504344">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_ca095adf_a89a_43b9_9582_1c47cc697f83">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_f2270106_8e2c_46c1_944b_6889d51a0077">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_d1ea9b4e_a562_48e9_ba2c_9119ba25f964">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_de0719d7_0c96_4802_bc66_4f2ef52dafae">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_21fff30e_ae1b_4eb1_9398_c300a993aa10">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_3152f681_d7c8_4838_831a_a8577335c62b">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_23010a49_b7d2_4b20_b9b8_c0d69b2aea71">
+                <dmn:inputEntry id="_b639093b_8e93_4940_b370_64ac3577e7ef">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_5c31c8f6_e039_4178_93de_47c4b5e540f0">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_761c511d_ba66_45f6_b1c7_5ce7895662b7">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_decd9132_304b_4e50_ad64_8e45ac2d742d">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_9ccd1c79_5997_420c_b793_b681456c97e6">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_f4028ac1_30eb_4f00_8c82_4f2ad10a69dd">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_849b2865_8e16_41e6_b2ef_15be462a4b74">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_22ba493c_4647_4bea_9e9b_1e3c17189ba4">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_44c1f44e_4d99_4d40_94c3_f748b7d74178">
+                <dmn:inputEntry id="_d34c32ea_53f6_438e_948c_a4a5b2ae0f21">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_2584ed8e_0342_4a0a_9761_50c7cfbd7640">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_eb891ee2_0cb7_4db3_a629_401a4fb46929">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_7fdc2f99_0dda_4465_b953_4f1daf77e735">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_f600d365_2e87_4e75_8e9c_7772cd3aac70">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_02303057_8dd3_42e4_b019_e2417efd9f1d">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_8736f668_efd3_4fa6_8888_f5b741159996">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_4d9751e9_3c2d_4c2f_b139_1c9c208a822d">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_feb8f4ca_a7fc_4ac6_98a2_9a8b013232d1">
+                <dmn:inputEntry id="_a37f3e45_1d17_48e8_9aa6_7387d24e36bd">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_9ca6b7ec_a0b0_4cea_8ab5_807bc06bc039">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_fa36b022_33a3_4968_88a7_0e6406ce39a6">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_48e71c87_de89_4c23_ac53_5c7714c8cd87">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_a332c254_7dfa_464b_9271_cfd929ce0caa">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_28d9c0d4_a616_4cf9_92ae_f5140c9e3372">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_285a9a09_6e61_4a3d_b801_fd5a109b6676">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_850bf166_5934_4115_ad5a_bb0e4c39a08d">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+        </dmn:decisionTable>
+    </dmn:decision>
+    <dmn:decision name="_7fd8af09-d106-4e4f-a1fb-b5b5d13aa211_Vergunningplicht" id="_7fd8af09-d106-4e4f-a1fb-b5b5d13aa211">
+        <dmn:variable typeRef="string" name="_7fd8af09-d106-4e4f-a1fb-b5b5d13aa211_Vergunningplicht" id="_7fd8af09-d106-4e4f-a1fb-b5b5d13aa211_var"/>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__b0219ec6_23c3_457d_a51a_55b579d9e96d"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__c24efb3e_2aea_4ae6_b13d_f982637cfb73"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__670c9dfb_6dc3_46e6_b9cb_051ca6540a9c"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__db9aaaee_0fbd_4fa2_bcaf_7ec43a4401d0"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__13047a1f_f77b_443e_9b8f_23c091aecf1b"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__40c76295-9cf2-4ff7-965c-ebc9e9571c9e"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__c0980fad_99ab_40b9_8cb8_17ae30a82ad4"/>
+        </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" outputLabel="_7fd8af09-d106-4e4f-a1fb-b5b5d13aa211_Vergunningplicht" id="_7fd8af09-d106-4e4f-a1fb-b5b5d13aa211_dt">
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__b0219ec6_23c3_457d_a51a_55b579d9e96d</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__c24efb3e_2aea_4ae6_b13d_f982637cfb73</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__670c9dfb_6dc3_46e6_b9cb_051ca6540a9c</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__db9aaaee_0fbd_4fa2_bcaf_7ec43a4401d0</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__13047a1f_f77b_443e_9b8f_23c091aecf1b</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__40c76295-9cf2-4ff7-965c-ebc9e9571c9e</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__c0980fad_99ab_40b9_8cb8_17ae30a82ad4</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:output id="_58d5cb76_5f78_42ef_8c7a_65fceef3810d"/>
+            <dmn:rule id="_c381074a_4277_424b_8796_7c6e645006dc">
+                <dmn:inputEntry id="_3633182a_46fd_4cc4_9e64_64621b8089a2">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_ad706018_296c_417b_b9f0_446c02f01301">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_0deae9f1_e704_453e_add7_0bcce9f8e690">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_be52a95e_e578_4452_bd31_58fbfd74a4a0">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_82c8a110_55df_4103_b25a_aee408271f13">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_09a2bbe6_e243_430b_b75a_4e0088d3fa20">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_02a0b428_fcc6_4665_8391_bd93da0e4f62">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_4f69260f_c0f3_4265_9b49_6bdf4290fc68">
+                    <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_af9359ea_4129_4e19_881f_5b86da2a1c25">
+                <dmn:inputEntry id="_770e8861_eac8_480e_805d_a1901b3f5dfe">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_5e6df870_074d_4d60_b9bc_a971273c128b">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_ec801994_f67e_44a8_90e3_453fc014bea5">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_07e2fe73_3f78_4658_a197_e9d9f91f5a72">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_4d2c80ae_91e3_4070_85fe_c0fc7a8609e7">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_9063dd25_42a4_4bc3_adf6_25dc11006b26">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_61432d1e_c699_4436_8637_ac270202768d">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_ee1473d3_4a90_4312_9b00_1194487268f1">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_892a702f_ed3d_4d47_8a8c_e844c8cae33a">
+                <dmn:inputEntry id="_2559ddd2_152f_4757_aecb_9b6455e449d5">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_ea172482_e05d_433e_8acf_e095195b1351">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_da81692c_fb7c_4bc1_9c79_320de8ee1652">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_cb616a88_2706_4060_8d1e_79f0180f6455">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_12e067e9_2c75_4644_9833_f49ebd04a70d">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_061c551c_aa65_45c2_9498_df6bb1dbf85e">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_76b45cac_f020_497e_a02a_04e86a6d8bcd">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_4216e3ee_8d36_4127_bb47_a2a2d81f36f5">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_d4d9f404_c8c7_47e6_8230_65ef633e93be">
+                <dmn:inputEntry id="_f831fe58_b52f_43d1_a08c_200dcdd82398">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_e5769f0e_248d_4009_9bad_92b8906de481">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_46b048ca_5802_42f0_b771_fa78395b2847">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_f603f3c1_6605_4b30_9a51_d852ec6004f7">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_bf1ee1ba_ca63_473c_b3e7_042563a1a448">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_ec7436fd_f628_4fe6_b70a_b7059d422e0b">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_bedca092_f17e_468f_b063_aefea17c460e">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_4193493f_dbfe_4f9f_b062_249d94a0447d">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_4b9fb72e_3212_4e13_84f1_e57b13299dd7">
+                <dmn:inputEntry id="_aa1b7fe0_0d36_4f6b_879a_e46505f00762">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_68c49526_02ee_4cea_8bd8_d211ae4b97f0">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_89269f76_04f7_44f1_8d99_3948290bbf07">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_ecd37438_012d_418c_9c13_d60ea959a787">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_01ed0d90_4a23_40fb_b199_02f23226f79b">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_6df22663_cfd9_4f3e_b111_e8ce1f171964">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_91b6967f_da3f_44f1_9fe8_30d16f22efec">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_2630789d_7fc3_4e63_80be_aa5232206749">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_98ce4c61_7bdc_4a6e_b24d_93e9a65f3075">
+                <dmn:inputEntry id="_53d9a1da_8c26_4bae_8289_41b53de94949">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_c475a3f8_39f9_47c9_8be2_d20c196f892d">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_a027fb19_ace3_4b0c_ab89_2a07f171f53c">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_aa9f470c_6cc9_45a9_bfdb_bd1bc60fe19d">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_4521a796_2db3_4f4f_a74e_fd2d041fee27">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_72f5db94_ad70_42f6_8f8d_7173039163f1">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_a4865978_156d_48fa_828b_fcc4ab183308">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_ce60009a_f0b7_455b_b7c1_b645fbf47f18">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_0b9c4456_d977_43fd_9c15_f564caf4a0a8">
+                <dmn:inputEntry id="_cee041ce_2aed_4512_a805_cd19a02612f2">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_43ebaa79_c1f0_4057_baad_2037e7fc3a0f">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_dc070027_d5cd_4c35_b17d_1873cbc1dee8">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_930b1b0d_ebe0_455f_964c_565401e31b8f">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_67a1ee01_9725_4913_90d3_5b3defd2bedc">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_a3850840_71bd_4d61_9396_1ea27aa8072e">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_20560c2a_4130_4698_917d_c5d54c1068e4">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_a312bd31_fa28_42aa_9031_be6be40b2fbe">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_7517b3ec_0c53_41ab_842d_0af62ebafb4b">
+                <dmn:inputEntry id="_cbbe20a2_48b6_4fde_91f6_4121be5b41d4">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_915e78c5_5746_4576_9aac_065bcb8fd5c2">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_a5800c64_71c9_483a_b10e_095a619aa5ab">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_fc4d16b4_8cb0_41f2_b2a4_12158df9aed2">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_c614d487_bde1_4354_84b6_b217f45e9fea">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_d31a657a_658a_4320_96f8_bc49a445f32c">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_29145fd2_84bb_43cb_890b_78433f539633">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_47a29d2a_9076_42af_8449_50c257e69df8">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+        </dmn:decisionTable>
+    </dmn:decision>
+    <dmn:decision name="_debca033_3d31_4898_995f_08341e715842_Vergunningplicht" id="_debca033_3d31_4898_995f_08341e715842">
+        <dmn:variable typeRef="string" name="_debca033_3d31_4898_995f_08341e715842_Vergunningplicht" id="_debca033_3d31_4898_995f_08341e715842_var"/>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__b0219ec6_23c3_457d_a51a_55b579d9e96d"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__c24efb3e_2aea_4ae6_b13d_f982637cfb73"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__670c9dfb_6dc3_46e6_b9cb_051ca6540a9c"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__db9aaaee_0fbd_4fa2_bcaf_7ec43a4401d0"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__13047a1f_f77b_443e_9b8f_23c091aecf1b"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__27d43846_3f9c_4971_a178_2f59d87f8716"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__c0980fad_99ab_40b9_8cb8_17ae30a82ad4"/>
+        </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" outputLabel="_debca033_3d31_4898_995f_08341e715842_Vergunningplicht" id="_debca033_3d31_4898_995f_08341e715842_dt">
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__b0219ec6_23c3_457d_a51a_55b579d9e96d</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__c24efb3e_2aea_4ae6_b13d_f982637cfb73</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__670c9dfb_6dc3_46e6_b9cb_051ca6540a9c</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__db9aaaee_0fbd_4fa2_bcaf_7ec43a4401d0</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__13047a1f_f77b_443e_9b8f_23c091aecf1b</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__27d43846_3f9c_4971_a178_2f59d87f8716</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__c0980fad_99ab_40b9_8cb8_17ae30a82ad4</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:output id="_abb0374c_78c3_4417_b5fc_5d7500f2c582"/>
+            <dmn:rule id="_2cc3cab4_301f_4165_8585_a394107f808f">
+                <dmn:inputEntry id="_1f8b09a7_c5b7_45f7_9673_b530311786b2">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_e9d138fc_827c_4d1e_9100_f6db1c8231f5">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_e75bdfb5_9cd6_42bd_9473_aa80c023185d">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_1a2d2279_20fc_437e_a4aa_3b1733c347a1">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_9708d02e_72b3_4da7_9b22_215968519168">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_b8a5b6cf_e7e0_4c4a_ae8c_262de1bedefd">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_e731ac62_37fe_4919_9bb0_14bd4f0b8592">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_0ca8e703_550d_49de_9540_ecf5fd951445">
+                    <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_43c111e4_ebf8_45de_ba0b_aa2b953801c3">
+                <dmn:inputEntry id="_6156b591_586d_45bf_9c75_c2e1fe1cea45">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_80c83b31_8330_4129_a501_404eefef0cbc">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_20b79829_13ab_4b68_9f5e_3ee70dd6fcb1">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_a6abef01_5f62_4db1_834b_7fa94997688c">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_d763c2d7_f667_432c_a91b_02bdd8cf0172">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_836b2020_f8e3_4ac2_88d0_fd3d68a4bccf">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_af38bc40_ce30_46dd_b911_64aa32836062">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_466d99e6_3751_4937_a22a_2df52a5f74b8">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_1660746c_411c_4789_b014_49d861ce7844">
+                <dmn:inputEntry id="_ac5c1c2a_0add_401d_b12a_1edd63c73b6c">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_c75741c0_3e9c_4be8_b1ae_b02d8ff32683">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_0f8be628_868f_4535_b570_fa2694891fe0">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_7fb57e12_5dd4_4b1c_b26f_94a0798d0654">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_5a07e947_9853_45fb_a690_d45b86ddbbc9">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_3ce7d56f_5269_49b4_8f99_9d555ec0ef8a">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_720c17f3_4feb_4cf0_a262_b8f031df6f9b">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_8423bf7f_249b_4b39_a468_17e113529987">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_0708be68_b036_4fe9_98b4_18a5fb568d86">
+                <dmn:inputEntry id="_caef8727_affe_4c11_885b_db3058d5fd78">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_b9e74a98_f681_4cd4_99aa_b27f3cc09b23">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_c38c175f_7356_4d2e_9a1c_0f557a9ed97c">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_cd19a22a_5553_44ea_b581_5a472703fcf8">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_134aeed5_f385_4ad4_ad76_e0fd979ae8f9">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_c6a4e6c6_1cbe_4517_b59e_d433402dcffa">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_99bf29fd_f1da_4a85_a47c_c56ae3e838bf">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_25f52f5f_4a7b_4600_b9b5_216585bf0ebc">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_69cba56c_504a_4b22_afdd_96b2fd4ebcf5">
+                <dmn:inputEntry id="_6c4ae0f3_2afa_438a_a467_149a37f3e07a">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_5d34a7e4_5915_4649_abad_3df48e35c910">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_05bd8d02_d8fd_4b24_a4c2_d2078414293b">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_2a2da524_b744_43c0_903e_d8709d2d4ca3">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_4b2bdf81_9970_475f_a97e_ce863b5b1af8">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_59807dee_ee75_4f92_8156_0ba751f7adbe">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_643eb055_74fd_4443_91ab_3673426f9b82">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_a769a1dc_6215_47da_945a_101fbb310140">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_f3aa4528_bd7f_4a3a_a7b9_44fb8a452a4f">
+                <dmn:inputEntry id="_01e38b89_6ea2_4312_b51d_e4671aab4f55">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_c8bb7dbe_29f9_420e_a0d9_ce293138abd3">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_6811029c_b3b4_40c5_a183_5ff3a81514b8">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_11c48c52_d8a2_4c4e_a97b_93c0e00c0742">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_3d2501f5_b1dc_4468_9dea_8cf958404d2c">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_27ab479d_3b13_433c_a773_0d1ba070e005">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_6396eba4_831d_4ef3_957a_cef5f6e7c36e">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_7b9fa220_04b0_428e_bc3e_0104558d9bb2">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_4471cf89_78de_4b25_b20f_f269bc7b5ac5">
+                <dmn:inputEntry id="_9d57e64f_f990_4825_8759_b5f70f691b6d">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_1ee18e30_b8c5_48b0_81f5_81e768e95e6a">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_3ba01dd4_f404_4ac1_b017_cafb8ec146a8">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_d1aa80fc_673a_4f7e_8435_45c8f0c0bf01">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_5ac8559c_11a7_48e4_9db9_a0076f158f1c">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_abb7b628_e3ca_4f67_973f_e08c9ab6f4f8">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_c2235bbb_f271_4791_891a_c19457907c52">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_498a0607_e8ed_43b7_95b8_6034d85762b3">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_6be6aa58_d5b9_48bc_bad3_0d2f122cba4c">
+                <dmn:inputEntry id="_d0f0f54b_b5c9_4c10_ae22_441fd7a57876">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_604119b5_75d8_4bf9_9f83_bb8485b0aceb">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_06345c5a_1124_4e42_9f9f_7771a1e13d8e">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_563f9a71_e279_41fc_921c_214fc6e97f00">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_a5124027_95d6_4115_b691_242b69fbf06b">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_9b7243c6_fd70_4b1d_b2ed_96efca373b89">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_873b2026_732c_4dbd_a348_bf7d9f23d90f">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_3a3f7701_c5b0_48d4_8fd3_d99f83ea7257">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+        </dmn:decisionTable>
+    </dmn:decision>
+    <dmn:decision name="_5285cedc_9145_414c_bb68_7a0f862f30d8_Vergunningplicht" id="_5285cedc_9145_414c_bb68_7a0f862f30d8">
+        <dmn:variable typeRef="string" name="_5285cedc_9145_414c_bb68_7a0f862f30d8_Vergunningplicht" id="_5285cedc_9145_414c_bb68_7a0f862f30d8_var"/>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__b0219ec6_23c3_457d_a51a_55b579d9e96d"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__c24efb3e_2aea_4ae6_b13d_f982637cfb73"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__db9aaaee_0fbd_4fa2_bcaf_7ec43a4401d0"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__c78d82c6_fd4f_4e61_8ed2_c4d89f5e97d0"/>
+        </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" outputLabel="_5285cedc_9145_414c_bb68_7a0f862f30d8_Vergunningplicht" id="_5285cedc_9145_414c_bb68_7a0f862f30d8_dt">
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__b0219ec6_23c3_457d_a51a_55b579d9e96d</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__c24efb3e_2aea_4ae6_b13d_f982637cfb73</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__db9aaaee_0fbd_4fa2_bcaf_7ec43a4401d0</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__c78d82c6_fd4f_4e61_8ed2_c4d89f5e97d0</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:output id="_d389e82c_d57e_4477_b054_eac2d824f580"/>
+            <dmn:rule id="_18e2b788_98d4_4c40_9182_def82bf5136d">
+                <dmn:inputEntry id="_8891f36c_805d_4c31_935f_bbca21bc9025">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_82675e36_580c_4a8d_97d2_b20dc7873aac">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_94383fe5_0b6e_45da_b1f4_dacfe8773540">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_d0b9061e_9343_4b7f_921b_e233200d1f7f">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_db4e8e34_638a_4212_a125_302056773557">
+                    <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_a7ea14bb_4eab_41c3_99d0_8b9f9b0a4175">
+                <dmn:inputEntry id="_9e09c757_eaec_444e_9e2d_6d3c704bab21">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_95597f8d_c445_452e_8afa_006e488644ca">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_472820f8_f035_423c_ad91_206f918fec2a">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_5cd42bb9_3360_44a5_a378_c56de39adbef">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_f68fea28_c234_42b6_a072_d66377d8378e">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_1b9b10a8_f94b_4b24_87fd_41dffa5126ef">
+                <dmn:inputEntry id="_68d3199a_9ec0_4713_9032_b4575f77c1b2">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_6db821b4_b818_4b8d_8bb8_284356e2516f">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_b7ec4286_50f3_473a_94eb_73a91464a095">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_e95b9764_2414_4bb5_b728_38bcb263af35">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_1d889bec_1941_4124_bbaf_fb5c610a01ee">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_c6703b8d_01aa_41ae_939b_675745047683">
+                <dmn:inputEntry id="_15b28a82_119c_4151_94fa_074c9075d6f3">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_e3db4c94_8adf_4c10_b343_5d1c5f60f9ad">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_db6c01c3_0653_4a1a_a855_aa9d797f74e8">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_ad04c987_824b_4a58_b031_205c72c6ebc7">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_0ab18f46_cebe_4c1f_94b5_73debefb6cc9">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_4ea48104_f0ea_4133_96cc_6621b3e2d221">
+                <dmn:inputEntry id="_46c4d442_2b01_47b0_a275_aa7354146c18">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_09e95552_72c0_407f_9c09_7e23fd8cc58e">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_e290b86e_d38f_49c6_bf41_59bfc191ccb2">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_afff4231_9471_400a_a5d3_e890b77da28b">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_7b00fce8_d206_49f3_a78c_c05a30104bbd">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+        </dmn:decisionTable>
+    </dmn:decision>
+</dmn:definitions>

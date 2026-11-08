@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<semantic:definitions xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000" xmlns:feel="http://www.omg.org/spec/FEEL/20140401" xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel" xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel" xmlns:triso="http://www.rulearts.com/modeling" xmlns:trisofeed="http://rulearts.com/feed" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel" xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content" exporter="RuleArts STTR Export" exporterVersion="0.2.0" id="_2791025" name="Conclusie - Gesloten bodemenergiesysteem installeren in een interferentiegebied of met een bodemzijdig vermogen van 70 kW of meer" namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000">
+  <semantic:extensionElements xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd">
+    <inter:regelgroepen xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel">
+      <inter:regelgroep id="_4685_RuleGroup">
+        <inter:naam>Gesloten bodemenergiesysteem</inter:naam>
+        <inter:prioriteit>10</inter:prioriteit>
+      </inter:regelgroep>
+    </inter:regelgroepen>
+    <uitv:uitvoeringsregels>
+      <uitv:uitvoeringsregel id="_18282_BizRule">
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <uitv:implicietAntwoord>
+          <uitv:werkzaamheid urn="BodemenergiesysteemAanleggenEnGebruiken" />
+          <uitv:waarde>true</uitv:waarde>
+        </uitv:implicietAntwoord>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_24547_BizRule">
+        <uitv:regelgroepRef href="#_4685_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat u een gesloten bodemenergiesysteem aanleggen of gebruiken?]]></uitv:vraagTekst>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_18283_BizRule">
+        <uitv:regelgroepRef href="#_4685_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>20</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat u een gesloten bodemenergiesysteem aanleggen in een interferentiegebied?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[##### Wat is een interferentiegebied?
+
+Een interferentiegebied is een gebied waarin bodemenergiesystemen invloed kunnen hebben op elkaar\. Hierdoor kunnen bodemenergiesystemen minder goed werken\. Dit heet negatieve interferentie\. De gemeente wijst de interferentiegebieden aan\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_18284_BizRule">
+        <uitv:regelgroepRef href="#_4685_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>30</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat het om een gesloten bodemenergiesysteem met een bodemzijdig vermogen van 70 kW of meer?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[##### Wat is het bodemzijdig vermogen?
+
+Bij het bodemzijdig vermogen gaat het om het vermogen in kW dat het systeem kan uitwisselen met de bodem, als u het normaal gebruikt\. Het bodemzijdig vermogen staat meestal in de specificatie van de leverancier\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+    </uitv:uitvoeringsregels>
+  </semantic:extensionElements>
+  <semantic:inputData id="_27049_Concept" name="impliciet antwoord Bodemenergiesysteem aanleggen _of gebruiken UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_18282_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_9570146" name="impliciet antwoord Bodemenergiesysteem aanleggen _of gebruiken UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_35005_Concept" name="aanleg _of gebruik van gesloten bodemenergiesysteem UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_24547_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_4434959" name="aanleg _of gebruik van gesloten bodemenergiesysteem UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_27050_Concept" name="gesloten bodemenergiesysteem interferentiegebied UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_18283_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_1597906" name="gesloten bodemenergiesysteem interferentiegebied UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_27051_Concept" name="met _ bodemzijdig vermogen van 70 kW _of meer UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_18284_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_8623506" name="met _ bodemzijdig vermogen van 70 kW _of meer UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:decision id="_86091092-64a7-4491-8176-eaba1865e25d" name="Conclusie - GeslotenBodemenergInst">
+    <semantic:extensionElements>
+      <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/Conclusienl.imow-gm0772.activiteit.GeslotenBodemenergInst" />
+    </semantic:extensionElements>
+    <semantic:variable id="_86091092-64a7-4491-8176-eaba1865e25d_var" name="Conclusie - GeslotenBodemenergInst" typeRef="feel:string" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_1586fafd-7b6c-4866-a5a2-3b6c2194893a_e78a22be-b5bb-4deb-852f-9e352527e06d" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_1586fafd-7b6c-4866-a5a2-3b6c2194893a_0ad89ed1-6d75-45fa-a242-6152304c475a" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_86091092-64a7-4491-8176-eaba1865e25d_td" hitPolicy="COLLECT" outputLabel="Conclusie - GeslotenBodemenergInst">
+      <semantic:input id="_6887805">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Toepassingsbereik - GeslotenBodemenergInst</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_7743156">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Toestemmingen - Vergunningplicht - GeslotenBodemenergInst</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_6183593" />
+      <semantic:rule id="_4957865">
+        <semantic:inputEntry id="_9005095">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8700028">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4036630">
+          <semantic:text>"NietVanToepassing"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5426722">
+        <semantic:inputEntry id="_555222">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4078918">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2058297">
+          <semantic:text>"Vergunningplicht"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_609085">
+        <semantic:inputEntry id="_7920336">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2643788">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3859222">
+          <semantic:text>"NietVanToepassing"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_1586fafd-7b6c-4866-a5a2-3b6c2194893a_e78a22be-b5bb-4deb-852f-9e352527e06d" name="Toepassingsbereik - GeslotenBodemenergInst">
+    <semantic:variable id="_1586fafd-7b6c-4866-a5a2-3b6c2194893a_e78a22be-b5bb-4deb-852f-9e352527e06d_var" name="Toepassingsbereik - GeslotenBodemenergInst" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_9baf6b17-1b6a-4bb0-9303-d5b8032c193f" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_24546_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_1586fafd-7b6c-4866-a5a2-3b6c2194893a_e78a22be-b5bb-4deb-852f-9e352527e06d_td" hitPolicy="ANY" outputLabel="Toepassingsbereik - GeslotenBodemenergInst">
+      <semantic:input id="_1388328">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>gesloten bodemenergiesysteem aan te leggen _of te gebruiken Op 5 Artikel 22.260 Lid 1 Toepassingsbereik</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_9151209">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>gebruiken _of aanleggen gesloten bodemenergiesysteem</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5612010" />
+      <semantic:rule id="_8546812">
+        <semantic:inputEntry id="_7495794">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9582020">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6185192">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7928513">
+        <semantic:inputEntry id="_6191122">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7819437">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7118073">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_565837">
+        <semantic:inputEntry id="_4207758">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4297213">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2740610">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_9baf6b17-1b6a-4bb0-9303-d5b8032c193f" name="gesloten bodemenergiesysteem aan te leggen _of te gebruiken Op 5 Artikel 22.260 Lid 1 Toepassingsbereik">
+    <semantic:variable id="_9baf6b17-1b6a-4bb0-9303-d5b8032c193f_var" name="gesloten bodemenergiesysteem aan te leggen _of te gebruiken Op 5 Artikel 22.260 Lid 1 Toepassingsbereik" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_27049_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_9baf6b17-1b6a-4bb0-9303-d5b8032c193f_td" hitPolicy="UNIQUE" outputLabel="gesloten bodemenergiesysteem aan te leggen _of te gebruiken Op 5 Artikel 22.260 Lid 1 Toepassingsbereik">
+      <semantic:input id="_7431795">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>impliciet antwoord Bodemenergiesysteem aanleggen _of gebruiken UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3910343" />
+      <semantic:rule id="_2765134">
+        <semantic:inputEntry id="_8794904">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2093946">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5303420">
+        <semantic:inputEntry id="_1429734">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_525233">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_24546_BizRule" name="gebruiken _of aanleggen gesloten bodemenergiesysteem">
+    <semantic:variable id="_24546_BizRule_var" name="gebruiken _of aanleggen gesloten bodemenergiesysteem" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_35005_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_24546_BizRule_td" hitPolicy="UNIQUE" outputLabel="gebruiken _of aanleggen gesloten bodemenergiesysteem">
+      <semantic:input id="_6493555">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>aanleg _of gebruik van gesloten bodemenergiesysteem UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_1155675" />
+      <semantic:rule id="_3816037">
+        <semantic:inputEntry id="_468584">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_557208">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3036686">
+        <semantic:inputEntry id="_9727151">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9176784">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_1586fafd-7b6c-4866-a5a2-3b6c2194893a_0ad89ed1-6d75-45fa-a242-6152304c475a" name="Toestemmingen - Vergunningplicht - GeslotenBodemenergInst">
+    <semantic:variable id="_1586fafd-7b6c-4866-a5a2-3b6c2194893a_0ad89ed1-6d75-45fa-a242-6152304c475a_var" name="Toestemmingen - Vergunningplicht - GeslotenBodemenergInst" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_0ac526ab-06f8-4409-a80e-09d6e7652ae6" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_7ddcf799-ad13-4c61-86d5-8ccb313ab2e8" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_1586fafd-7b6c-4866-a5a2-3b6c2194893a_0ad89ed1-6d75-45fa-a242-6152304c475a_td" hitPolicy="ANY" outputLabel="Toestemmingen - Vergunningplicht - GeslotenBodemenergInst">
+      <semantic:input id="_1838943">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>_in _ interferentiegebied dat is aangewezen _in dit omgevingsplan _of bij gemeentelijke verordening _of omgevingsverordening Op 5 Artikel 22.260 Lid 1 a Toestemmingen Vergunningplicht</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_9575953">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>met _ bodemzijdig vermogen van 70 kW _of meer Op 5 Artikel 22.260 Lid 1 b Toestemmingen Vergunningplicht</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8980217" />
+      <semantic:rule id="_615770">
+        <semantic:inputEntry id="_3639815">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4258135">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5888147">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4102111">
+        <semantic:inputEntry id="_9041485">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1002612">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9814643">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9992471">
+        <semantic:inputEntry id="_7138427">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2187022">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8434191">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_0ac526ab-06f8-4409-a80e-09d6e7652ae6" name="_in _ interferentiegebied dat is aangewezen _in dit omgevingsplan _of bij gemeentelijke verordening _of omgevingsverordening Op 5 Artikel 22.260 Lid 1 a Toestemmingen Vergunningplicht">
+    <semantic:variable id="_0ac526ab-06f8-4409-a80e-09d6e7652ae6_var" name="_in _ interferentiegebied dat is aangewezen _in dit omgevingsplan _of bij gemeentelijke verordening _of omgevingsverordening Op 5 Artikel 22.260 Lid 1 a Toestemmingen Vergunningplicht" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_27050_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_0ac526ab-06f8-4409-a80e-09d6e7652ae6_td" hitPolicy="UNIQUE" outputLabel="_in _ interferentiegebied dat is aangewezen _in dit omgevingsplan _of bij gemeentelijke verordening _of omgevingsverordening Op 5 Artikel 22.260 Lid 1 a Toestemmingen Vergunningplicht">
+      <semantic:input id="_9828871">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>gesloten bodemenergiesysteem interferentiegebied UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_1429509" />
+      <semantic:rule id="_7814611">
+        <semantic:inputEntry id="_6647122">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8147954">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7843951">
+        <semantic:inputEntry id="_9125431">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_849842">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_7ddcf799-ad13-4c61-86d5-8ccb313ab2e8" name="met _ bodemzijdig vermogen van 70 kW _of meer Op 5 Artikel 22.260 Lid 1 b Toestemmingen Vergunningplicht">
+    <semantic:variable id="_7ddcf799-ad13-4c61-86d5-8ccb313ab2e8_var" name="met _ bodemzijdig vermogen van 70 kW _of meer Op 5 Artikel 22.260 Lid 1 b Toestemmingen Vergunningplicht" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_27051_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_7ddcf799-ad13-4c61-86d5-8ccb313ab2e8_td" hitPolicy="UNIQUE" outputLabel="met _ bodemzijdig vermogen van 70 kW _of meer Op 5 Artikel 22.260 Lid 1 b Toestemmingen Vergunningplicht">
+      <semantic:input id="_8555801">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>met _ bodemzijdig vermogen van 70 kW _of meer UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9958593" />
+      <semantic:rule id="_8925976">
+        <semantic:inputEntry id="_9118454">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7691136">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3979757">
+        <semantic:inputEntry id="_9413436">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5927983">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+</semantic:definitions>

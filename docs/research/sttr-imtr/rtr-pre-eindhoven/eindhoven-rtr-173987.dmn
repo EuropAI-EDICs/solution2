@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<semantic:definitions xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000" xmlns:feel="http://www.omg.org/spec/FEEL/20140401" xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel" xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel" xmlns:triso="http://www.rulearts.com/modeling" xmlns:trisofeed="http://rulearts.com/feed" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel" xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content" exporter="RuleArts STTR Export" exporterVersion="0.2.0" id="_7980624" name="Conclusie - Gelegenheid bieden voor het beoefenen van sport in de buitenlucht" namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000">
+  <semantic:extensionElements xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd">
+    <inter:regelgroepen xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel">
+      <inter:regelgroep id="_4028_RuleGroup">
+        <inter:naam>Beoefenen van sport of recreatie</inter:naam>
+        <inter:prioriteit>10</inter:prioriteit>
+      </inter:regelgroep>
+    </inter:regelgroepen>
+    <uitv:uitvoeringsregels>
+      <uitv:uitvoeringsregel id="_19673_BizRule">
+        <uitv:regelgroepRef href="#_4028_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat het om het beoefenen van sport in de buitenlucht?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Betreft het alleen een indoor sportaccommodatie? Kies dan voor ‘Nee’\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_19674_BizRule">
+        <uitv:regelgroepRef href="#_4028_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>20</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Is er terreinverlichting aanwezig die hoort bij het beoefenen van sport?]]></uitv:vraagTekst>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+    </uitv:uitvoeringsregels>
+  </semantic:extensionElements>
+  <semantic:inputData id="_29043_Concept" name="sport _of speelveld _in de buitenlucht UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_19673_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_8043587" name="sport _of speelveld _in de buitenlucht UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_29044_Concept" name="waarbij terreinverlichting wordt toegepast UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_19674_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_4182849" name="waarbij terreinverlichting wordt toegepast UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:decision id="_a37d7baf-243c-4c64-b9b8-c4cdcc36f0b9" name="Conclusie - SportBuitenlucht">
+    <semantic:extensionElements>
+      <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/Conclusienl.imow-gm0772.activiteit.SportBuitenlucht" />
+    </semantic:extensionElements>
+    <semantic:variable id="_a37d7baf-243c-4c64-b9b8-c4cdcc36f0b9_var" name="Conclusie - SportBuitenlucht" typeRef="feel:string" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_5edd8be8-75d6-4ac0-8fd2-854e7d5bd434_e78a22be-b5bb-4deb-852f-9e352527e06d" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_a37d7baf-243c-4c64-b9b8-c4cdcc36f0b9_td" hitPolicy="COLLECT" outputLabel="Conclusie - SportBuitenlucht">
+      <semantic:input id="_6064474">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Toepassingsbereik - SportBuitenlucht</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5261865" />
+      <semantic:rule id="_7977625">
+        <semantic:inputEntry id="_4816735">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5310520">
+          <semantic:text>"NietVanToepassing"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2395137">
+        <semantic:inputEntry id="_7041332">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8601618">
+          <semantic:extensionElements>
+            <content:conclusieToelichting>
+              <content:toelichting><![CDATA[U moet de overheid minimaal 4 weken voordat u begint informatie geven over de activiteit\.   
+U moet zich ook houden aan de algemene regels voor deze activiteit\. In [Maatregelen op Maat](/maatregelen) vindt u de maatregelen waarmee u aan deze regels kunt voldoen\.]]></content:toelichting>
+            </content:conclusieToelichting>
+          </semantic:extensionElements>
+          <semantic:text>"Informatieplicht"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_5edd8be8-75d6-4ac0-8fd2-854e7d5bd434_e78a22be-b5bb-4deb-852f-9e352527e06d" name="Toepassingsbereik - SportBuitenlucht">
+    <semantic:variable id="_5edd8be8-75d6-4ac0-8fd2-854e7d5bd434_e78a22be-b5bb-4deb-852f-9e352527e06d_var" name="Toepassingsbereik - SportBuitenlucht" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_cf1d1907-da8b-4dae-95b2-f3001694165f" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_f71a04e1-b721-497b-af32-0771d8b77272" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_5edd8be8-75d6-4ac0-8fd2-854e7d5bd434_e78a22be-b5bb-4deb-852f-9e352527e06d_td" hitPolicy="ANY" outputLabel="Toepassingsbereik - SportBuitenlucht">
+      <semantic:input id="_7495348">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>bieden van gelegenheid voor _ beoefenen van sport _in _ buitenlucht Op Artikel 22.232</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_3635021">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>waarbij terreinverlichting wordt toegepast Op Artikel 22.232</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8760714" />
+      <semantic:rule id="_5051296">
+        <semantic:inputEntry id="_8445821">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9705003">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5200646">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6724799">
+        <semantic:inputEntry id="_6403228">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_4425878">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4409418">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7150487">
+        <semantic:inputEntry id="_5723902">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7233096">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5833631">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_cf1d1907-da8b-4dae-95b2-f3001694165f" name="bieden van gelegenheid voor _ beoefenen van sport _in _ buitenlucht Op Artikel 22.232">
+    <semantic:variable id="_cf1d1907-da8b-4dae-95b2-f3001694165f_var" name="bieden van gelegenheid voor _ beoefenen van sport _in _ buitenlucht Op Artikel 22.232" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_29043_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_cf1d1907-da8b-4dae-95b2-f3001694165f_td" hitPolicy="UNIQUE" outputLabel="bieden van gelegenheid voor _ beoefenen van sport _in _ buitenlucht Op Artikel 22.232">
+      <semantic:input id="_796900">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>sport _of speelveld _in de buitenlucht UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8513163" />
+      <semantic:rule id="_6659448">
+        <semantic:inputEntry id="_1367605">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7121252">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1775525">
+        <semantic:inputEntry id="_5386612">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5637799">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_f71a04e1-b721-497b-af32-0771d8b77272" name="waarbij terreinverlichting wordt toegepast Op Artikel 22.232">
+    <semantic:variable id="_f71a04e1-b721-497b-af32-0771d8b77272_var" name="waarbij terreinverlichting wordt toegepast Op Artikel 22.232" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_29044_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_f71a04e1-b721-497b-af32-0771d8b77272_td" hitPolicy="UNIQUE" outputLabel="waarbij terreinverlichting wordt toegepast Op Artikel 22.232">
+      <semantic:input id="_4947600">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>waarbij terreinverlichting wordt toegepast UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9316242" />
+      <semantic:rule id="_5706386">
+        <semantic:inputEntry id="_7681087">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9470959">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1809087">
+        <semantic:inputEntry id="_4123330">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2882431">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+</semantic:definitions>

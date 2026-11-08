@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<dmn:definitions xmlns:dmn="http://www.omg.org/spec/DMN/20151101/dmn.xsd"
+                 xmlns:feel="http://www.omg.org/spec/FEEL/20140401"
+                 xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel"
+                 xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel"
+                 xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel"
+                 xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content"
+                 xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000"
+                 namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000"
+                 exporter="Geodan FLO Legal STTR Builder" exporterVersion="" id="_3b467ebf-9797-49bb-919a-91095087df9c"
+                 name="Alarminstallatie hebben">
+    <dmn:extensionElements>
+        <inter:regelgroepen>
+                            <inter:regelgroep id="groep1">
+    <inter:naam>Alarminstallatie hebben Eindhoven</inter:naam>
+    <inter:prioriteit>10</inter:prioriteit>
+</inter:regelgroep>
+                    </inter:regelgroepen>
+        <uitv:uitvoeringsregels>
+                            <uitv:uitvoeringsregel id="uitv__6d834239-2f82-4d44-b99e-40d078dea5de">
+        <uitv:regelgroepRef href="#groep1"/>
+            <inter:prioriteit>10</inter:prioriteit>
+     <uitv:vraag>
+    <uitv:gegevensType>boolean</uitv:gegevensType>
+    <uitv:vraagTekst>Gaat u voor het gebruik van de alarminstallatie een constructie maken om de installatie aan te bevestigen?</uitv:vraagTekst>
+        </uitv:vraag>
+
+
+                          <content:uitvoeringsregelToelichting>
+            <content:toelichting><![CDATA[Als u deze vraag met ja beantwoordt dan moet u **ook** de check uitvoeren:
+
+**Constructie bouwen of vervangen.**
+
+Doe een stap terug en selecteer deze!]]></content:toelichting>
+    
+    
+    <content:belangrijk>true</content:belangrijk>
+</content:uitvoeringsregelToelichting>
+ </uitv:uitvoeringsregel>
+
+                    </uitv:uitvoeringsregels>
+        
+    </dmn:extensionElements>
+    
+            <dmn:inputData id="input__6d834239-2f82-4d44-b99e-40d078dea5de" name="_6d834239-2f82-4d44-b99e-40d078dea5de">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__6d834239-2f82-4d44-b99e-40d078dea5de"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_27b33870-6f3a-46bf-9971-0a2a4c75297f" name="_6d834239-2f82-4d44-b99e-40d078dea5de" typeRef="feel:boolean"/>
+</dmn:inputData>
+                <dmn:decision id="_75b0d50a-c0ee-42af-870a-043e9594da64" name="NeemContactOpMet pad 1">
+        <dmn:variable id="_acd765b2-8071-4f97-bb1d-d3eba0e75c3b" name="NeemContactOpMet pad 1" typeRef="feel:string"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__6d834239-2f82-4d44-b99e-40d078dea5de"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" id="_841fc26a-cf58-478c-9e7a-b8e0d97d6679" outputLabel="NeemContactOpMet pad 1">
+            <dmn:input id="_4132565a-4439-4c37-a8db-cf9e79d445ba" label="Gaat u voor het gebruik van de alarminstallatie een constructie maken om de installatie aan te bevestigen?">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>_6d834239-2f82-4d44-b99e-40d078dea5de</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_e21ed96e-c9d4-4ae8-99f6-6ec28ab45653" label="NeemContactOpMet pad 1"/>
+                    
+            <dmn:rule id="_380cf88a-e19c-4ea8-8408-cc9eda1b9476">
+            <dmn:inputEntry id="_a41fefa8-f2b6-44bd-932a-02ba720bdbac">
+            <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_7b33a412-0f85-4998-be06-c935e457c811">
+                        <dmn:text><![CDATA["NeemContactOpMet"]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+            <dmn:rule id="_63147a4d-c7b2-4837-ab23-d2d63135f97d">
+            <dmn:inputEntry id="_0e2521d9-78b0-4ba1-bdfd-9a990527a63c">
+            <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_d96d0115-b7e7-4bd1-bc7f-81af9813c514">
+                        <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="_07028188-3e84-4497-8731-365a2ed9aa42" name="NeemContactOpMet">
+        <dmn:variable id="_006835cc-5026-4dea-8846-474669a18e28" name="NeemContactOpMet" typeRef="feel:string"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#_75b0d50a-c0ee-42af-870a-043e9594da64"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" id="_40ffa43d-747b-46f3-bce8-8e16bf30e5ab" outputLabel="NeemContactOpMet">
+            <dmn:input id="_dbcabf55-8635-4cc7-a725-eab6bbbfa5de" label="NeemContactOpMet pad 1">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>NeemContactOpMet pad 1</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_40263a26-e099-4a4d-bf08-5ef107fa5ee1" label="NeemContactOpMet"/>
+                    
+            <dmn:rule id="_f193cbb4-4366-41a4-b1fb-ea75b653fbae">
+            <dmn:inputEntry id="_d037dfc7-e6ce-465e-9886-29e6ff31459f">
+            <dmn:text><![CDATA["NeemContactOpMet"]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_2b74451a-b4dc-4c63-8f71-1a010bc8a89b">
+                        <dmn:text><![CDATA["NeemContactOpMet pad 1"]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+            <dmn:rule id="_2beb9c40-193f-4a64-9ddb-b48e878c3425">
+            <dmn:inputEntry id="_64d7c488-3b29-4e72-9d2b-3539a6bee2f4">
+            <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_0856bd2a-5435-45dd-91b3-865e7811e8ed">
+                        <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="_190974b1-3a53-4db8-aa81-5158b2fe527d" name="Alarminstallatie hebben">
+            <dmn:extensionElements>
+            <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/Conclusienl.imow-gm0772.activiteit.AlarminstallatieHebben"/>
+        </dmn:extensionElements>
+        <dmn:variable id="_9c5c5364-f449-4e10-bea5-83f089e70332" name="Alarminstallatie hebben" typeRef="feel:string"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#_07028188-3e84-4497-8731-365a2ed9aa42"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="RULE ORDER" id="_feb62697-e7aa-43e5-8d09-5107fe0944c8" outputLabel="Alarminstallatie hebben">
+            <dmn:input id="_2662ef0b-3139-4792-af03-276cf1335bed" label="NeemContactOpMet">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>NeemContactOpMet</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_667bc00f-8fbe-4cf5-aa23-7b5ce7d51fd2" label="Alarminstallatie hebben"/>
+                    
+            <dmn:rule id="_71baaf25-a944-42e4-bd93-e6e928758f37">
+            <dmn:inputEntry id="_b5159c65-1f02-4107-83f4-4000a3242c4d">
+            <dmn:text><![CDATA["NeemContactOpMet pad 1"]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_8b5fb580-b270-4961-8a54-420f35d0e992">
+                            <dmn:extensionElements>
+                    <content:conclusieToelichting>
+                        <content:toelichting><![CDATA[Let op: u heeft een antwoord gegeven waardoor u mogelijk een vergunning moet aanvragen. Dit is echter NIET een vergunning voor een **Alarminstallatie**, maar voor de volgende werkzaamheid:
+
+**Constructie bouwen of vervangen**
+
+Doe hiervoor de check!]]></content:toelichting>
+                    </content:conclusieToelichting>
+                </dmn:extensionElements>
+                        <dmn:text><![CDATA["NeemContactOpMet"]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+            <dmn:rule id="_7b9f38ce-1232-42b6-a145-9fce5a6b45ce">
+            <dmn:inputEntry id="_5c90d83a-70c1-42a7-98be-e3ac7f80ad20">
+            <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_5fb97456-976e-45bb-b794-28e4691fab6f">
+                        <dmn:text><![CDATA["Toestemmingsvrij"]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+    </dmn:definitions>

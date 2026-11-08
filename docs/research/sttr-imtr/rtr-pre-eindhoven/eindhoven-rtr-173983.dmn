@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<semantic:definitions xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000" xmlns:feel="http://www.omg.org/spec/FEEL/20140401" xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel" xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel" xmlns:triso="http://www.rulearts.com/modeling" xmlns:trisofeed="http://rulearts.com/feed" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel" xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content" exporter="RuleArts STTR Export" exporterVersion="0.2.0" id="_7862367" name="Conclusie - Parkeergelegenheid bieden in een parkeergarage" namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000">
+  <semantic:extensionElements xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd">
+    <inter:regelgroepen xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel">
+      <inter:regelgroep id="_4029_RuleGroup">
+        <inter:naam>Parkeergelegenheid in een parkeergarage</inter:naam>
+        <inter:prioriteit>10</inter:prioriteit>
+      </inter:regelgroep>
+    </inter:regelgroepen>
+    <uitv:uitvoeringsregels>
+      <uitv:uitvoeringsregel id="_19676_BizRule">
+        <uitv:regelgroepRef href="#_4029_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>20</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Heeft de parkeergarage mechanische ventilatie?]]></uitv:vraagTekst>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_19675_BizRule">
+        <uitv:regelgroepRef href="#_4029_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Heeft de parkeergarage minder dan 21 parkeerplaatsen?]]></uitv:vraagTekst>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_19685_BizRule">
+        <uitv:regelgroepRef href="#_4029_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>30</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Heeft de parkeergarage meer dan 30 parkeerplaatsen?]]></uitv:vraagTekst>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+    </uitv:uitvoeringsregels>
+  </semantic:extensionElements>
+  <semantic:inputData id="_29047_Concept" name="parkeergarage mechanische ventilatie UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_19676_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_9911562" name="parkeergarage mechanische ventilatie UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_29046_Concept" name="parkeergarage meer dan 20 parkeerplaatsen UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_19675_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_1748459" name="parkeergarage meer dan 20 parkeerplaatsen UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_29064_Concept" name="aantal parkeerplaatsen parkeergarage voor informatieplicht UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_19685_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_7332151" name="aantal parkeerplaatsen parkeergarage voor informatieplicht UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:decision id="_ba58a2b1-ab12-45cc-924d-bf2e032fa670" name="Conclusie - Parkeergarage">
+    <semantic:extensionElements>
+      <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/Conclusienl.imow-gm0772.activiteit.Parkeergarage" />
+    </semantic:extensionElements>
+    <semantic:variable id="_ba58a2b1-ab12-45cc-924d-bf2e032fa670_var" name="Conclusie - Parkeergarage" typeRef="feel:string" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_a33aad8c-de6d-4ffe-9d01-67da29bd480f_e78a22be-b5bb-4deb-852f-9e352527e06d" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_a33aad8c-de6d-4ffe-9d01-67da29bd480f_6b4ffe66-9805-4566-9560-cee46d06b28e" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_ba58a2b1-ab12-45cc-924d-bf2e032fa670_td" hitPolicy="COLLECT" outputLabel="Conclusie - Parkeergarage">
+      <semantic:input id="_4050949">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Toepassingsbereik - Parkeergarage</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_771011">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Verplichtingen - Informatieplicht - Parkeergarage</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_726551" />
+      <semantic:rule id="_8099450">
+        <semantic:inputEntry id="_931232">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7923468">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5576150">
+          <semantic:text>"NietVanToepassing"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9029818">
+        <semantic:inputEntry id="_5238011">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_7606481">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5645632">
+          <semantic:extensionElements>
+            <content:conclusieToelichting>
+              <content:toelichting><![CDATA[U moet de overheid minimaal 4 weken voordat u begint informatie geven over de activiteit\.   
+U moet zich ook houden aan de algemene regels voor deze activiteit\. In [Maatregelen op Maat](/maatregelen/) vindt u de maatregelen waarmee u aan deze regels kunt voldoen\.]]></content:toelichting>
+            </content:conclusieToelichting>
+          </semantic:extensionElements>
+          <semantic:text>"Informatieplicht"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_9337572">
+        <semantic:inputEntry id="_1066247">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_2558339">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3805896">
+          <semantic:extensionElements>
+            <content:conclusieToelichting>
+              <content:toelichting><![CDATA[U moet zich wel houden aan de algemene regels voor deze activiteit\. In [Maatregelen op Maat](/maatregelen) vindt u de maatregelen waarmee u aan deze regels kunt voldoen\.]]></content:toelichting>
+            </content:conclusieToelichting>
+          </semantic:extensionElements>
+          <semantic:text>"Toestemmingsvrij"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_a33aad8c-de6d-4ffe-9d01-67da29bd480f_e78a22be-b5bb-4deb-852f-9e352527e06d" name="Toepassingsbereik - Parkeergarage">
+    <semantic:variable id="_a33aad8c-de6d-4ffe-9d01-67da29bd480f_e78a22be-b5bb-4deb-852f-9e352527e06d_var" name="Toepassingsbereik - Parkeergarage" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_29047_Concept" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_29046_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_a33aad8c-de6d-4ffe-9d01-67da29bd480f_e78a22be-b5bb-4deb-852f-9e352527e06d_td" hitPolicy="ANY" outputLabel="Toepassingsbereik - Parkeergarage">
+      <semantic:input id="_7417645">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>parkeergarage mechanische ventilatie UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_6015722">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>parkeergarage meer dan 20 parkeerplaatsen UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_7943178" />
+      <semantic:rule id="_9352910">
+        <semantic:inputEntry id="_493019">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3143215">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5148016">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3704847">
+        <semantic:inputEntry id="_8079223">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3972196">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8061244">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4023342">
+        <semantic:inputEntry id="_654182">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5255767">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9957824">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_a33aad8c-de6d-4ffe-9d01-67da29bd480f_6b4ffe66-9805-4566-9560-cee46d06b28e" name="Verplichtingen - Informatieplicht - Parkeergarage">
+    <semantic:variable id="_a33aad8c-de6d-4ffe-9d01-67da29bd480f_6b4ffe66-9805-4566-9560-cee46d06b28e_var" name="Verplichtingen - Informatieplicht - Parkeergarage" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_29064_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_a33aad8c-de6d-4ffe-9d01-67da29bd480f_6b4ffe66-9805-4FIRST60-cee46d06b28e_td" hitPolicy="ANY" outputLabel="Verplichtingen - Informatieplicht - Parkeergarage">
+      <semantic:input id="_4488936">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>aantal parkeerplaatsen parkeergarage voor informatieplicht UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_8055825" />
+      <semantic:rule id="_7066163">
+        <semantic:inputEntry id="_2647328">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4427254">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2869987">
+        <semantic:inputEntry id="_4200126">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5221968">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+</semantic:definitions>
+

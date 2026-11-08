@@ -1,0 +1,476 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<dmn:definitions xmlns:sttrbuilder="http://sttr-builder.apps.geodan.nl/v1.0" xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content" xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel" xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel" xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel" namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000" exporter="Sogelink Netherlands STTR Builder" name="Handelsreclame maken of voeren" id="_5fd68e6d_8342_4477_9b01_786b0762f654" xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000">
+    <dmn:extensionElements>
+        <inter:regelgroepen>
+            <inter:regelgroep id="_37c74781-0549-4e81-9cff-3e5694ff0b52">
+                <inter:naam>reclame</inter:naam>
+                <inter:prioriteit>1</inter:prioriteit>
+            </inter:regelgroep>
+            <inter:regelgroep id="implicietAntwoordGroup">
+                <inter:naam>Impliciet antwoord</inter:naam>
+                <inter:prioriteit>2</inter:prioriteit>
+            </inter:regelgroep>
+        </inter:regelgroepen>
+        <uitv:uitvoeringsregels>
+            <uitv:uitvoeringsregel id="uitv__3b6441a8-3d2e-4148-8325-d3a4e91c0f15">
+                <uitv:publiceerbaar>true</uitv:publiceerbaar>
+                <inter:prioriteit>10</inter:prioriteit>
+                <uitv:implicietAntwoord>
+                    <uitv:werkzaamheid urn="ReclamebordenPlaatsen"/>
+                    <uitv:waarde>true</uitv:waarde>
+                    <uitv:context>werkzaamheidSpecifiek</uitv:context>
+                </uitv:implicietAntwoord>
+                <content:uitvoeringsregelToelichting>
+                    <content:belangrijk>false</content:belangrijk>
+                </content:uitvoeringsregelToelichting>
+            </uitv:uitvoeringsregel>
+            <uitv:uitvoeringsregel id="uitv__937f3041-e89e-4533-b9da-ae375dc74d84">
+                <uitv:regelgroepRef href="#_37c74781-0549-4e81-9cff-3e5694ff0b52"/>
+                <uitv:publiceerbaar>true</uitv:publiceerbaar>
+                <inter:prioriteit>20</inter:prioriteit>
+                <uitv:vraag>
+                    <uitv:gegevensType>boolean</uitv:gegevensType>
+                    <uitv:vraagTekst><![CDATA[Wordt de reclame geplaatst aan of bij een monument?]]></uitv:vraagTekst>
+                </uitv:vraag>
+                <content:uitvoeringsregelToelichting>
+                    <content:toelichting><![CDATA[De monumentenkaart is raadpleegbaar via onze website, zie hiervoor [Monumenten | Gemeente Eindhoven](https://www.eindhoven.nl/stad-en-wonen/stad/erfgoed/monumenten?search=monumentenkaart).
+
+Als u deze vraag met **ja** beantwoordt moet u **ook** de check uitvoeren:
+
+**Werkzaamheden in, aan of op een monument of archeologisch monument uitvoeren, of dit anders gebruiken.**
+
+Doe een stap terug en selecteer deze!]]></content:toelichting>
+                    <content:belangrijk>true</content:belangrijk>
+                </content:uitvoeringsregelToelichting>
+            </uitv:uitvoeringsregel>
+            <uitv:uitvoeringsregel id="uitv__2eddcb73-ae77-468e-8097-cc839664475b">
+                <uitv:regelgroepRef href="#_37c74781-0549-4e81-9cff-3e5694ff0b52"/>
+                <uitv:publiceerbaar>true</uitv:publiceerbaar>
+                <inter:prioriteit>30</inter:prioriteit>
+                <uitv:vraag>
+                    <uitv:gegevensType>boolean</uitv:gegevensType>
+                    <uitv:vraagTekst><![CDATA[Betreft de reclame het beletteren d.m.v. stickers of verven?]]></uitv:vraagTekst>
+                </uitv:vraag>
+                <content:uitvoeringsregelToelichting>
+                    <content:toelichting><![CDATA[Let op: hier zijn wel de redelijke eisen van welstand van toepassing. Twijfelt u, neemt u dan contact op met de commissie ruimtelijke kwaliteit.]]></content:toelichting>
+                    <content:belangrijk>false</content:belangrijk>
+                </content:uitvoeringsregelToelichting>
+            </uitv:uitvoeringsregel>
+            <uitv:uitvoeringsregel id="uitv__72972d3d-3638-4014-96ae-456c8e65f970">
+                <uitv:regelgroepRef href="#_37c74781-0549-4e81-9cff-3e5694ff0b52"/>
+                <uitv:publiceerbaar>true</uitv:publiceerbaar>
+                <inter:prioriteit>40</inter:prioriteit>
+                <uitv:vraag>
+                    <uitv:gegevensType>boolean</uitv:gegevensType>
+                    <uitv:vraagTekst><![CDATA[Betreft de reclame een object dat kleiner is dan 0,5 m2 én is dit het enige object per gevel op dit pand?]]></uitv:vraagTekst>
+                </uitv:vraag>
+                <content:uitvoeringsregelToelichting>
+                    <content:toelichting><![CDATA[Bij een object moet u denken aan borden, doeken, lichtbakken en dergelijke.
+
+Als u deze vraag met **nee** beantwoordt moet u **ook** de check uitvoeren:
+
+**Constructie bouwen of vervangen**
+
+Doe een stap terug en selecteer deze!]]></content:toelichting>
+                    <content:belangrijk>true</content:belangrijk>
+                </content:uitvoeringsregelToelichting>
+            </uitv:uitvoeringsregel>
+        </uitv:uitvoeringsregels>
+        <sttrbuilder:dependencyInformation>
+            <sttrbuilder:dependencyInformationVersion>1.0.2</sttrbuilder:dependencyInformationVersion>
+            <sttrbuilder:checkDependencyInformation>
+                <sttrbuilder:rows>
+                    <sttrbuilder:row id="b26421ab-e516-4987-a8ac-819182212b97" questionId="uitv__3b6441a8-3d2e-4148-8325-d3a4e91c0f15"/>
+                    <sttrbuilder:row id="95ff28f7-e52a-4893-9bd3-be40ec13b952" questionId="uitv__937f3041-e89e-4533-b9da-ae375dc74d84" groupId="_37c74781-0549-4e81-9cff-3e5694ff0b52"/>
+                    <sttrbuilder:row id="8037e0b7-e50d-4a23-bbaa-9d701814250d" questionId="uitv__2eddcb73-ae77-468e-8097-cc839664475b" groupId="_37c74781-0549-4e81-9cff-3e5694ff0b52"/>
+                    <sttrbuilder:row id="87742cdf-792c-466a-9ace-18d9acee5868" questionId="uitv__72972d3d-3638-4014-96ae-456c8e65f970" groupId="_37c74781-0549-4e81-9cff-3e5694ff0b52"/>
+                </sttrbuilder:rows>
+                <sttrbuilder:questionPaths>
+                    <sttrbuilder:questionPath>
+                        <sttrbuilder:outcome><![CDATA[Vergunningplicht]]></sttrbuilder:outcome>
+                        <sttrbuilder:outcomeId><![CDATA[Vergunningplicht]]></sttrbuilder:outcomeId>
+                        <sttrbuilder:answers>
+                            <sttrbuilder:answer rowId="b26421ab-e516-4987-a8ac-819182212b97">
+<sttrbuilder:answer><![CDATA[ja]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="95ff28f7-e52a-4893-9bd3-be40ec13b952">
+<sttrbuilder:answer><![CDATA[ja]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                        </sttrbuilder:answers>
+                    </sttrbuilder:questionPath>
+                    <sttrbuilder:questionPath>
+                        <sttrbuilder:outcome><![CDATA[Neem contact op met]]></sttrbuilder:outcome>
+                        <sttrbuilder:outcomeId><![CDATA[NeemContactOpMet]]></sttrbuilder:outcomeId>
+                        <sttrbuilder:answers>
+                            <sttrbuilder:answer rowId="b26421ab-e516-4987-a8ac-819182212b97">
+<sttrbuilder:answer><![CDATA[ja]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="95ff28f7-e52a-4893-9bd3-be40ec13b952">
+<sttrbuilder:answer><![CDATA[nee]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="8037e0b7-e50d-4a23-bbaa-9d701814250d">
+<sttrbuilder:answer><![CDATA[nee]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                            <sttrbuilder:answer rowId="87742cdf-792c-466a-9ace-18d9acee5868">
+<sttrbuilder:answer><![CDATA[nee]]></sttrbuilder:answer>
+                            </sttrbuilder:answer>
+                        </sttrbuilder:answers>
+                    </sttrbuilder:questionPath>
+                </sttrbuilder:questionPaths>
+                <sttrbuilder:outcomeInformation>
+                    <sttrbuilder:outcomeInformationContent outcomeId="Toestemmingsvrij">
+                        <sttrbuilder:content><![CDATA[U heeft geen vergunning nodig voor het plaatsen van reclame.
+
+Let op: hier zijn wel de redelijke eisen van welstand van toepassing.  
+Bij twijfel kunt u contact opnemen met de commissie ruimtelijke kwaliteit via mail [crk@eindhoven.nl](mailto:crk@eindhoven.nl)]]></sttrbuilder:content>
+                    </sttrbuilder:outcomeInformationContent>
+                    <sttrbuilder:outcomeInformationContent outcomeId="Vergunningplicht">
+                        <sttrbuilder:content><![CDATA[Let op: als u voor het plaatsen van de reclame iets gaat bouwen, doe dan ook de check voor: Constructie bouwen of vervangen]]></sttrbuilder:content>
+                    </sttrbuilder:outcomeInformationContent>
+                    <sttrbuilder:outcomeInformationContent outcomeId="NeemContactOpMet">
+                        <sttrbuilder:content><![CDATA[Let op: U heeft één of meerdere antwoorden gegeven waardoor u mogelijk een vergunning moet aanvragen. Dit is echter **niet** een vergunning voor **Reclame of informatiebord plaatsen**, maar voor één van de volgende werkzaamheden:
+
+**\*Constructie bouwen of vervangen;  
+\*Werkzaamheden in, aan of op een monument of archeologisch monument uitvoeren, of dit anders gebruiken**
+
+Doe hiervoor de check!]]></sttrbuilder:content>
+                    </sttrbuilder:outcomeInformationContent>
+                </sttrbuilder:outcomeInformation>
+                <sttrbuilder:maatregelenPossibleOutcomes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+            </sttrbuilder:checkDependencyInformation>
+        </sttrbuilder:dependencyInformation>
+    </dmn:extensionElements>
+    <dmn:inputData name="uitv__3b6441a8-3d2e-4148-8325-d3a4e91c0f15" id="input_uitv__3b6441a8-3d2e-4148-8325-d3a4e91c0f15">
+        <dmn:extensionElements>
+            <uitv:uitvoeringsregelRef href="#uitv__3b6441a8-3d2e-4148-8325-d3a4e91c0f15"/>
+        </dmn:extensionElements>
+        <dmn:variable typeRef="boolean" name="uitv__3b6441a8-3d2e-4148-8325-d3a4e91c0f15" id="_b7221049_d8a3_42cf_baa4_30602852ca0e"/>
+    </dmn:inputData>
+    <dmn:inputData name="uitv__937f3041-e89e-4533-b9da-ae375dc74d84" id="input_uitv__937f3041-e89e-4533-b9da-ae375dc74d84">
+        <dmn:extensionElements>
+            <uitv:uitvoeringsregelRef href="#uitv__937f3041-e89e-4533-b9da-ae375dc74d84"/>
+        </dmn:extensionElements>
+        <dmn:variable typeRef="boolean" name="uitv__937f3041-e89e-4533-b9da-ae375dc74d84" id="_effdda49_ee45_4c39_8651_d75e36391af3"/>
+    </dmn:inputData>
+    <dmn:inputData name="uitv__2eddcb73-ae77-468e-8097-cc839664475b" id="input_uitv__2eddcb73-ae77-468e-8097-cc839664475b">
+        <dmn:extensionElements>
+            <uitv:uitvoeringsregelRef href="#uitv__2eddcb73-ae77-468e-8097-cc839664475b"/>
+        </dmn:extensionElements>
+        <dmn:variable typeRef="boolean" name="uitv__2eddcb73-ae77-468e-8097-cc839664475b" id="_3e35c427_0eb6_4fe0_a2cf_b854551d4c3f"/>
+    </dmn:inputData>
+    <dmn:inputData name="uitv__72972d3d-3638-4014-96ae-456c8e65f970" id="input_uitv__72972d3d-3638-4014-96ae-456c8e65f970">
+        <dmn:extensionElements>
+            <uitv:uitvoeringsregelRef href="#uitv__72972d3d-3638-4014-96ae-456c8e65f970"/>
+        </dmn:extensionElements>
+        <dmn:variable typeRef="boolean" name="uitv__72972d3d-3638-4014-96ae-456c8e65f970" id="_59e91de8_6b3a_457f_890a_a91713bcdaac"/>
+    </dmn:inputData>
+    <dmn:decision name="Handelsreclame maken of voeren" id="_c0ce475e_02fb_4540_bbee_12e2926db38f">
+        <dmn:extensionElements>
+            <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/Conclusienl.imow-gm0772.activiteit.MakenHandelsreclame"/>
+        </dmn:extensionElements>
+        <dmn:variable typeRef="string" name="Handelsreclame maken of voeren" id="_c0ce475e_02fb_4540_bbee_12e2926db38f_var"/>
+        <dmn:informationRequirement>
+            <dmn:requiredDecision href="#_a50b3e5a_b9fa_4beb_ad0b_4acd808327a2"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredDecision href="#_73bb770b_c7fb_4620_a53a_7e6cbbcd401b"/>
+        </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="RULE ORDER" outputLabel="Handelsreclame maken of voeren" id="_c0ce475e_02fb_4540_bbee_12e2926db38f_dt">
+            <dmn:input>
+                <dmn:inputExpression typeRef="string">
+                    <dmn:text><![CDATA[Handelsreclame maken of voeren_Vergunningplicht_cross]]></dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="string">
+                    <dmn:text><![CDATA[Handelsreclame maken of voeren_Neem contact op met_cross]]></dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:output id="_f9f55f8b_c252_40a9_b2bc_2b30e565c998"/>
+            <dmn:rule id="_e2610c0c_c769_43ce_93d3_ae9446cf08bd">
+                <dmn:inputEntry id="_4cd89057_2623_4d6a_8b2c_5cf36bbebea1">
+                    <dmn:text>if ?=null then false else contains(?,"Vergunningplicht pad 0")</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_b3cdef2c_9207_4468_95db_47d1133df009">
+                    <dmn:text>not(null)</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_0988c97c_ebbf_4613_9ee3_a1a3ba25af81">
+                    <dmn:extensionElements>
+                        <content:conclusieToelichting>
+                            <content:toelichting><![CDATA[Let op: als u voor het plaatsen van de reclame iets gaat bouwen, doe dan ook de check voor: Constructie bouwen of vervangen]]></content:toelichting>
+                        </content:conclusieToelichting>
+                    </dmn:extensionElements>
+                    <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_0f745c64_ee16_438e_8afe_4e9690669303">
+                <dmn:inputEntry id="_fb879768_2d52_4875_ab8b_aec02d6fb5dd">
+                    <dmn:text>not(null)</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_de2a3de8_86bb_4dcf_81fa_c3d3ee60e179">
+                    <dmn:text>if ?=null then false else contains(?,"Neem contact op met pad 1")</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_10df5c85_4b27_43b0_b4ba_58ebf197949d">
+                    <dmn:text><![CDATA["NeemContactOpMet"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_ab654bd2_c516_4624_884e_d94b6c6b3c09">
+                <dmn:inputEntry id="_aefb9a10_dd1d_420a_8a5b_b28f2929bdf6">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_7c7636dc_f0a6_47cf_a6a2_d99e91eade68">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_1aba8e28_25e1_423e_b79c_1461cb8aa2ca">
+                    <dmn:extensionElements>
+                        <content:conclusieToelichting>
+                            <content:toelichting><![CDATA[U heeft geen vergunning nodig voor het plaatsen van reclame.
+
+Let op: hier zijn wel de redelijke eisen van welstand van toepassing.  
+Bij twijfel kunt u contact opnemen met de commissie ruimtelijke kwaliteit via mail [crk@eindhoven.nl](mailto:crk@eindhoven.nl)]]></content:toelichting>
+                        </content:conclusieToelichting>
+                    </dmn:extensionElements>
+                    <dmn:text>"Toestemmingsvrij"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+        </dmn:decisionTable>
+    </dmn:decision>
+    <dmn:decision name="Handelsreclame maken of voeren_Vergunningplicht_cross" id="_a50b3e5a_b9fa_4beb_ad0b_4acd808327a2">
+        <dmn:variable typeRef="string" name="Handelsreclame maken of voeren_Vergunningplicht_cross" id="_a50b3e5a_b9fa_4beb_ad0b_4acd808327a2_var"/>
+        <dmn:informationRequirement>
+            <dmn:requiredDecision href="#_52e2036a-a991-48da-a21d-5741c620e61f"/>
+        </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" outputLabel="Handelsreclame maken of voeren_Vergunningplicht_cross" id="_a50b3e5a_b9fa_4beb_ad0b_4acd808327a2_dt">
+            <dmn:input>
+                <dmn:inputExpression typeRef="string">
+                    <dmn:text><![CDATA[_52e2036a-a991-48da-a21d-5741c620e61f_Vergunningplicht]]></dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:output id="_4f2be5ca_1cc7_44f2_afd7_9c1112620359"/>
+            <dmn:rule id="_64d1d338_d80f_4c26_ae44_ee8593d6cdd2">
+                <dmn:inputEntry id="_c0426b0b_0140_4378_97dc_ba9d4ddf78a6">
+                    <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_3712f621_927c_4fa2_9c62_38bb50a93547">
+                    <dmn:text><![CDATA["Vergunningplicht pad 0"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_8b694bca_c0bd_4327_8984_8129bb22cd79">
+                <dmn:inputEntry id="_2a88fd80_c0eb_4198_8a9e_c7da34efff1f">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_52fa37c2_9f5f_49e7_abdc_905785e523ca">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+        </dmn:decisionTable>
+    </dmn:decision>
+    <dmn:decision name="Handelsreclame maken of voeren_Neem contact op met_cross" id="_73bb770b_c7fb_4620_a53a_7e6cbbcd401b">
+        <dmn:variable typeRef="string" name="Handelsreclame maken of voeren_Neem contact op met_cross" id="_73bb770b_c7fb_4620_a53a_7e6cbbcd401b_var"/>
+        <dmn:informationRequirement>
+            <dmn:requiredDecision href="#_332dbac2-789e-4230-984f-bf3a6025409b"/>
+        </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" outputLabel="Handelsreclame maken of voeren_Neem contact op met_cross" id="_73bb770b_c7fb_4620_a53a_7e6cbbcd401b_dt">
+            <dmn:input>
+                <dmn:inputExpression typeRef="string">
+                    <dmn:text><![CDATA[_332dbac2-789e-4230-984f-bf3a6025409b_Neem contact op met]]></dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:output id="_768bfe17_e3db_49da_9d16_b3239303cbce"/>
+            <dmn:rule id="_70f039b3_3c82_4a81_9805_67e31e835c98">
+                <dmn:inputEntry id="_dc6f16a4_20d9_47c5_b9ce_a594a9dee975">
+                    <dmn:text><![CDATA["Neem contact op met"]]></dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_99cc5915_2829_4974_a762_e9a28bb3302f">
+                    <dmn:text><![CDATA["Neem contact op met pad 1"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_f3eca103_aaa4_4d33_b116_6e0557094e5f">
+                <dmn:inputEntry id="_902ba82b_c77c_4737_b221_bca3a835e4ff">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_128a9a6f_058d_432d_bc03_c0a6925388e1">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+        </dmn:decisionTable>
+    </dmn:decision>
+    <dmn:decision name="_52e2036a-a991-48da-a21d-5741c620e61f_Vergunningplicht" id="_52e2036a-a991-48da-a21d-5741c620e61f">
+        <dmn:variable typeRef="string" name="_52e2036a-a991-48da-a21d-5741c620e61f_Vergunningplicht" id="_52e2036a-a991-48da-a21d-5741c620e61f_var"/>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__3b6441a8-3d2e-4148-8325-d3a4e91c0f15"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__937f3041-e89e-4533-b9da-ae375dc74d84"/>
+        </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" outputLabel="_52e2036a-a991-48da-a21d-5741c620e61f_Vergunningplicht" id="_52e2036a-a991-48da-a21d-5741c620e61f_dt">
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__3b6441a8-3d2e-4148-8325-d3a4e91c0f15</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__937f3041-e89e-4533-b9da-ae375dc74d84</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:output id="_bc95e115_335b_46f2_86fd_9fdd6da9b376"/>
+            <dmn:rule id="_92d88bbd_905f_4447_8df3_e3e6d32822c3">
+                <dmn:inputEntry id="_f5651917_7c60_4be7_8c71_ded98ab9832f">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_ccc2edd6_a68e_4a01_9c8f_b74abad04785">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_d187d888_36dc_4a4f_9838_4c9e2f76f46c">
+                    <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_66abc22d_1876_4196_8b6d_3b4a78d1118c">
+                <dmn:inputEntry id="_944ab15d_838a_4fdc_8858_61d62fdfc5ce">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_619443d9_75d1_4e8f_8e4f_b04b7508a640">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_13366126_ca01_4df2_b070_4cd92e94ad7f">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_3fe13655_0742_497e_bbf0_d069a111799c">
+                <dmn:inputEntry id="_cf5a59c8_75f5_4aa9_9303_32d56c4a0722">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_f4f3403f_95f0_42f9_96f9_fc189b150e05">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_5e69430b_3617_4235_887e_99a4f07a7ee5">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+        </dmn:decisionTable>
+    </dmn:decision>
+    <dmn:decision name="_332dbac2-789e-4230-984f-bf3a6025409b_Neem contact op met" id="_332dbac2-789e-4230-984f-bf3a6025409b">
+        <dmn:variable typeRef="string" name="_332dbac2-789e-4230-984f-bf3a6025409b_Neem contact op met" id="_332dbac2-789e-4230-984f-bf3a6025409b_var"/>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__3b6441a8-3d2e-4148-8325-d3a4e91c0f15"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__937f3041-e89e-4533-b9da-ae375dc74d84"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__2eddcb73-ae77-468e-8097-cc839664475b"/>
+        </dmn:informationRequirement>
+        <dmn:informationRequirement>
+            <dmn:requiredInput href="#input_uitv__72972d3d-3638-4014-96ae-456c8e65f970"/>
+        </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" outputLabel="_332dbac2-789e-4230-984f-bf3a6025409b_Neem contact op met" id="_332dbac2-789e-4230-984f-bf3a6025409b_dt">
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__3b6441a8-3d2e-4148-8325-d3a4e91c0f15</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__937f3041-e89e-4533-b9da-ae375dc74d84</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__2eddcb73-ae77-468e-8097-cc839664475b</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:input>
+                <dmn:inputExpression typeRef="boolean">
+                    <dmn:text>uitv__72972d3d-3638-4014-96ae-456c8e65f970</dmn:text>
+                </dmn:inputExpression>
+            </dmn:input>
+            <dmn:output id="_2b993603_5e28_467f_91bd_e02dfb397e3a"/>
+            <dmn:rule id="_3a194c8c_1bc7_41df_b7ac_53b246a1a76f">
+                <dmn:inputEntry id="_a3ee571f_4ab4_4014_ba43_9fd1d88df9ea">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_e3541d26_4451_43ea_afbe_00d561ba5dc2">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_cd7ac7a8_20ac_4841_a09c_2b0604eba9a9">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_d802c274_ec09_41ea_9b58_ee4e36d36678">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_f57351c9_1b7b_46fb_ac14_358eac84bc15">
+                    <dmn:text><![CDATA["Neem contact op met"]]></dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_d24d15fb_6931_4089_b039_c64e1fdf239b">
+                <dmn:inputEntry id="_31b82e32_bb4a_4674_9a40_95c98be7af9f">
+                    <dmn:text>false</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_9d77c79e_79b6_46b6_acb9_4fbe37de2877">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_172bd856_37bc_4cfb_97a8_f6810a7535b0">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_caca0216_d89f_4686_980f_e83529ff61ed">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_1ecaa9ce_6c67_46f7_a58e_5b7488b5c402">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_9874326a_5ea0_4d0d_bc1d_3c6b03beb311">
+                <dmn:inputEntry id="_e5c30b36_a1df_4c53_ba24_35140c389a7b">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_81e0dac5_42f8_48d2_87ce_9c828173d674">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_90b54050_276f_430a_b080_0aa0bf27d6dd">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_5a2d441e_1e8a_4879_a816_73aee4faba6a">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_15b7cecd_a054_430d_9bcf_bdcb846f65e0">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_6c1d5f0c_fcd7_4741_adf8_2dc5c4d2b594">
+                <dmn:inputEntry id="_43c1e558_344a_4818_9d03_b19fa239efcb">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_f79fa2e4_933a_4cb8_b99b_d77569843e5e">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_6126406d_5384_43c1_b83e_692e90696f2d">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_0704b5e6_feff_4df7_88b5_4f163a787798">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_b8b649bd_9613_4ac2_a72c_fe14e6ac9f72">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+            <dmn:rule id="_88e4809a_5a11_4931_8209_28541d7553cb">
+                <dmn:inputEntry id="_8e9355fb_a505_416d_a630_3b98eaf58e9a">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_8c019798_a3af_4236_9642_9bcda9d3cdd9">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_f811bfea_1c66_407c_ab80_b14f70082b61">
+                    <dmn:text>-</dmn:text>
+                </dmn:inputEntry>
+                <dmn:inputEntry id="_a541d31e_8737_4536_89e1_d799ef4a309e">
+                    <dmn:text>true</dmn:text>
+                </dmn:inputEntry>
+                <dmn:outputEntry id="_0c1ba168_48c4_49ad_964f_6b1d357f17aa">
+                    <dmn:text>"no hit"</dmn:text>
+                </dmn:outputEntry>
+            </dmn:rule>
+        </dmn:decisionTable>
+    </dmn:decision>
+</dmn:definitions>

@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<semantic:definitions xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000" xmlns:feel="http://www.omg.org/spec/FEEL/20140401" xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel" xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel" xmlns:triso="http://www.rulearts.com/modeling" xmlns:trisofeed="http://rulearts.com/feed" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel" xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content" exporter="RuleArts STTR Export" exporterVersion="0.2.0" id="_1659981" name="Conclusie - LPG tanken" namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000">
+  <semantic:extensionElements xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd">
+    <inter:regelgroepen xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel">
+      <inter:regelgroep id="_1515_RuleGroup">
+        <inter:naam>Diverse vragen</inter:naam>
+        <inter:prioriteit>990</inter:prioriteit>
+      </inter:regelgroep>
+    </inter:regelgroepen>
+    <uitv:uitvoeringsregels>
+      <uitv:uitvoeringsregel id="_32392_BizRule">
+        <uitv:regelgroepRef href="#_1515_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat u voertuigen of werktuigen tanken met LPG?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Werktuigen zijn bijvoorbeeld hijskranen, hoogwerkers of aggregaten\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_3115_BizRule">
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:vasteWaarde>
+          <uitv:waardeVraag>Vaste Waarde TRUE</uitv:waardeVraag>
+          <uitv:waarde>true</uitv:waarde>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+        </uitv:vasteWaarde>
+      </uitv:uitvoeringsregel>
+    </uitv:uitvoeringsregels>
+  </semantic:extensionElements>
+  <semantic:inputData id="_44034_Concept" name="voertuigen _of werktuigen tanken met LPG UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_32392_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_3261977" name="voertuigen _of werktuigen tanken met LPG UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_3787_Concept" name="Vaste Waarde TRUE">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_3115_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_4869603" name="Vaste Waarde TRUE" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:decision id="_301f81d5-42cc-4a38-939b-1137a994abdd" name="Conclusie - LPGTanken">
+    <semantic:extensionElements>
+      <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/Conclusienl.imow-gm0772.activiteit.LPGTanken" />
+    </semantic:extensionElements>
+    <semantic:variable id="_301f81d5-42cc-4a38-939b-1137a994abdd_var" name="Conclusie - LPGTanken" typeRef="feel:string" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_32385_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_bfb58f40-9e6d-4e1d-8948-94839bc813a3_0ad89ed1-6d75-45fa-a242-6152304c475a" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_301f81d5-42cc-4a38-939b-1137a994abdd_td" hitPolicy="COLLECT" outputLabel="Conclusie - LPGTanken">
+      <semantic:input id="_7059783">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Toepassingsbereik - LPGTanken</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_1947470">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Toestemmingen - Vergunningplicht - LPGTanken</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_6930751" />
+      <semantic:rule id="_2099338">
+        <semantic:inputEntry id="_4557979">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3041302">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_584000">
+          <semantic:text>"NietVanToepassing"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_864411">
+        <semantic:inputEntry id="_9794063">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8880368">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8749367">
+          <semantic:text>"NietVanToepassing"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3864041">
+        <semantic:inputEntry id="_1567301">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5357893">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3502799">
+          <semantic:text>"Vergunningplicht"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_32385_BizRule" name="Toepassingsbereik - LPGTanken">
+    <semantic:variable id="_32385_BizRule_var" name="Toepassingsbereik - LPGTanken" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_32391_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_32385_BizRule_td" hitPolicy="ANY" outputLabel="Toepassingsbereik - LPGTanken">
+      <semantic:input id="_4760184">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>voertuigen _of werktuigen tanken met LPG</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5703090" />
+      <semantic:rule id="_3103693">
+        <semantic:inputEntry id="_6700581">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4207156">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2572700">
+        <semantic:inputEntry id="_5366514">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7181494">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_32391_BizRule" name="voertuigen _of werktuigen tanken met LPG">
+    <semantic:variable id="_32391_BizRule_var" name="voertuigen _of werktuigen tanken met LPG" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_44034_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_32391_BizRule_td" hitPolicy="UNIQUE" outputLabel="voertuigen _of werktuigen tanken met LPG">
+      <semantic:input id="_8566814">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>voertuigen _of werktuigen tanken met LPG UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3950845" />
+      <semantic:rule id="_2011471">
+        <semantic:inputEntry id="_7141163">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9916227">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_7039352">
+        <semantic:inputEntry id="_8181299">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9825644">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_bfb58f40-9e6d-4e1d-8948-94839bc813a3_0ad89ed1-6d75-45fa-a242-6152304c475a" name="Toestemmingen - Vergunningplicht - LPGTanken">
+    <semantic:variable id="_bfb58f40-9e6d-4e1d-8948-94839bc813a3_0ad89ed1-6d75-45fa-a242-6152304c475a_var" name="Toestemmingen - Vergunningplicht - LPGTanken" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_a0f8e7e6-078d-4a18-9c2a-0a185c5da3e8" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_bfb58f40-9e6d-4e1d-8948-94839bc813a3_0ad89ed1-6d75-45fa-a242-6152304c475a_td" hitPolicy="ANY" outputLabel="Toestemmingen - Vergunningplicht - LPGTanken">
+      <semantic:input id="_6470000">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>voertuigen _of werktuigen te tanken met LPG Op Artikel 22.263 Lid 1</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2789383" />
+      <semantic:rule id="_2719425">
+        <semantic:inputEntry id="_8365099">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8244862">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5570943">
+        <semantic:inputEntry id="_2636988">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2451784">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_a0f8e7e6-078d-4a18-9c2a-0a185c5da3e8" name="voertuigen _of werktuigen te tanken met LPG Op Artikel 22.263 Lid 1">
+    <semantic:variable id="_a0f8e7e6-078d-4a18-9c2a-0a185c5da3e8_var" name="voertuigen _of werktuigen te tanken met LPG Op Artikel 22.263 Lid 1" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_3787_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_a0f8e7e6-078d-4a18-9c2a-0a185c5da3e8_td" hitPolicy="UNIQUE" outputLabel="voertuigen _of werktuigen te tanken met LPG Op Artikel 22.263 Lid 1">
+      <semantic:input id="_6362319">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Vaste Waarde TRUE</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5845572" />
+      <semantic:rule id="_1483119">
+        <semantic:inputEntry id="_2576349">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5124839">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1974530">
+        <semantic:inputEntry id="_5129290">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7798394">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+</semantic:definitions>

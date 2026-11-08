@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<semantic:definitions xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000" xmlns:feel="http://www.omg.org/spec/FEEL/20140401" xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel" xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel" xmlns:triso="http://www.rulearts.com/modeling" xmlns:trisofeed="http://rulearts.com/feed" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel" xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content" exporter="RuleArts STTR Export" exporterVersion="0.2.0" id="_1687260" name="Conclusie - Geluid produceren door windturbines en windparken" namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000">
+  <semantic:extensionElements xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd">
+    <inter:regelgroepen xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel">
+      <inter:regelgroep id="_2451_RuleGroup">
+        <inter:naam>Soort en omvang werkzaamheid</inter:naam>
+        <inter:prioriteit>10</inter:prioriteit>
+      </inter:regelgroep>
+      <inter:regelgroep id="_4687_RuleGroup">
+        <inter:naam>Geluid door windturbines</inter:naam>
+        <inter:prioriteit>11</inter:prioriteit>
+      </inter:regelgroep>
+    </inter:regelgroepen>
+    <uitv:uitvoeringsregels>
+      <uitv:uitvoeringsregel id="_46130_BizRule">
+        <uitv:regelgroepRef href="#_2451_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>12</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat het om een windpark met 3 of meer windturbines?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Een windpark is het geheel van installaties en alles wat daarbij hoort om elektriciteit op te wekken met wind\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_20094_BizRule">
+        <uitv:regelgroepRef href="#_4687_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>20</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Is de rotordiameter meer dan 2 m?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[De uiteinden van de rotorbladen beschrijven een cirkel\. De rotordiameter is de middellijn van die cirkel\.]]></content:toelichting>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_27189_BizRule">
+        <uitv:regelgroepRef href="#_4687_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <uitv:potentieelVertrouwelijk>true</uitv:potentieelVertrouwelijk>
+        <inter:prioriteit>30</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Gaat het om een windturbine in de Noordzee?]]></uitv:vraagTekst>
+        </uitv:vraag>
+      </uitv:uitvoeringsregel>
+      <uitv:uitvoeringsregel id="_4216_BizRule">
+        <uitv:regelgroepRef href="#_2451_RuleGroup" />
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:publiceerbaar>true</uitv:publiceerbaar>
+        <inter:prioriteit>10</inter:prioriteit>
+        <uitv:vraag>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+          <uitv:vraagTekst><![CDATA[Wekt de windturbine elektriciteit op?]]></uitv:vraagTekst>
+        </uitv:vraag>
+        <content:uitvoeringsregelToelichting>
+          <content:toelichting><![CDATA[Een windturbine is een moderne windmolen\.
+
+Beantwoord deze vraag met 'Nee' als het gaat om 1 van de volgende soorten windmolens:
+
+* Historische poldermolen, zaagmolen of korenmolen\.
+* Windmolen die direct een werktuig aandrijft\. Bijvoorbeeld een windturbine bij een klein gemaal in het buitengebied\.]]></content:toelichting>
+          <content:belangrijk>true</content:belangrijk>
+        </content:uitvoeringsregelToelichting>
+      </uitv:uitvoeringsregel>
+    </uitv:uitvoeringsregels>
+  </semantic:extensionElements>
+  <semantic:inputData id="_58720_Concept" name="Aantal windturbines 3 _of meer UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_46130_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_4028897" name="Aantal windturbines 3 _of meer UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_29643_Concept" name="rotordiameter UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_20094_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_8792189" name="rotordiameter UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_37854_Concept" name="windturbine Noordzee UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_27189_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_8293680" name="windturbine Noordzee UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:inputData id="_5375_Concept" name="opwekken elektriciteit windturbine UR">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_4216_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_336421" name="opwekken elektriciteit windturbine UR" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:decision id="_20095_BizRule" name="Conclusie - GeluidProdWindturbine">
+    <semantic:extensionElements>
+      <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/Conclusienl.imow-gm0772.activiteit.GeluidProdWindturbine" />
+    </semantic:extensionElements>
+    <semantic:variable id="_20095_BizRule_var" name="Conclusie - GeluidProdWindturbine" typeRef="feel:string" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_26fdd5f3-9297-4034-8109-bb82857b0870_6b4ffe66-9805-4566-9560-cee46d06b28e" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_20095_BizRule_td" hitPolicy="COLLECT" outputLabel="Conclusie - GeluidProdWindturbine">
+      <semantic:input id="_3177813">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Verplichtingen - Informatieplicht - GeluidProdWindturbine</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_355162" />
+      <semantic:rule id="_3459535">
+        <semantic:inputEntry id="_9661211">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6622439">
+          <semantic:extensionElements>
+            <content:conclusieToelichting>
+              <content:toelichting><![CDATA[U moet zich wel houden aan de algemene regels voor deze activiteit\. In [Maatregelen op Maat](/maatregelen) vindt u de maatregelen waarmee u aan deze regels kunt voldoen\.]]></content:toelichting>
+            </content:conclusieToelichting>
+          </semantic:extensionElements>
+          <semantic:text>"NietVanToepassing"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_6871522">
+        <semantic:inputEntry id="_5160946">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6256564">
+          <semantic:extensionElements>
+            <content:conclusieToelichting>
+              <content:toelichting><![CDATA[U moet de overheid minimaal 4 weken voordat u begint informatie geven over de activiteit\.   
+U moet zich ook houden aan de algemene regels voor deze activiteit\. In [Maatregelen op Maat](/maatregelen) vindt u de maatregelen waarmee u aan deze regels kunt voldoen\.]]></content:toelichting>
+            </content:conclusieToelichting>
+          </semantic:extensionElements>
+          <semantic:text>"Informatieplicht"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_26fdd5f3-9297-4034-8109-bb82857b0870_6b4ffe66-9805-4566-9560-cee46d06b28e" name="Verplichtingen - Informatieplicht - GeluidProdWindturbine">
+    <semantic:variable id="_26fdd5f3-9297-4034-8109-bb82857b0870_6b4ffe66-9805-4566-9560-cee46d06b28e_var" name="Verplichtingen - Informatieplicht - GeluidProdWindturbine" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_46279_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_7fffe142-91a6-4b34-be68-4a5334e399bc" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_cdd2e061-6dc6-489c-9518-ca1babd85370" />
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_a677a25c-a1d7-4da7-b060-f96e3fce1998" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_26fdd5f3-9297-4034-8109-bb82857b0870_6b4ffe66-9805-4566-9560-cee46d06b28e_td" hitPolicy="ANY" outputLabel="Verplichtingen - Informatieplicht - GeluidProdWindturbine">
+      <semantic:input id="_674664">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>windpark met 3 _of meer windturbines GS</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_3384776">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>windturbine met _ rotordiameter van meer dan 2 m Op 5 Artikel 22.60 Lid 1 b Verplichtingen Informatieplicht</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_3104829">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>windturbine _ bedoeld _in artikel 3.11 van het Besluit activiteiten leefomgeving Op 5 Artikel 22.60 Lid 1 b Verplichtingen Informatieplicht</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:input id="_2321308">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>opwekken van elektriciteit met _ windturbine Op 5 Artikel 22.60 Lid 1 b Verplichtingen Informatieplicht</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9633557" />
+      <semantic:rule id="_3787810">
+        <semantic:inputEntry id="_6669181">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_9461958">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6226862">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_685740">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9557341">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_4713905">
+        <semantic:inputEntry id="_5758269">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1825399">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_5162308">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_8519386">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2348042">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8858469">
+        <semantic:inputEntry id="_3835752">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3128571">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3977780">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_970711">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4595903">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8911785">
+        <semantic:inputEntry id="_8624734">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3393251">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1560723">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_1339424">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3024246">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1796643">
+        <semantic:inputEntry id="_1783354">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3591585">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_6886379">
+          <semantic:text>-</semantic:text>
+        </semantic:inputEntry>
+        <semantic:inputEntry id="_3239723">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9011350">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_46279_BizRule" name="windpark met 3 _of meer windturbines GS">
+    <semantic:variable id="_46279_BizRule_var" name="windpark met 3 _of meer windturbines GS" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_58720_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_46279_BizRule_td" hitPolicy="UNIQUE" outputLabel="windpark met 3 _of meer windturbines GS">
+      <semantic:input id="_5961459">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Aantal windturbines 3 _of meer UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3230849" />
+      <semantic:rule id="_355073">
+        <semantic:inputEntry id="_2712587">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6039681">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_2571321">
+        <semantic:inputEntry id="_9664232">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_5460397">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_7fffe142-91a6-4b34-be68-4a5334e399bc" name="windturbine met _ rotordiameter van meer dan 2 m Op 5 Artikel 22.60 Lid 1 b Verplichtingen Informatieplicht">
+    <semantic:variable id="_7fffe142-91a6-4b34-be68-4a5334e399bc_var" name="windturbine met _ rotordiameter van meer dan 2 m Op 5 Artikel 22.60 Lid 1 b Verplichtingen Informatieplicht" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_29643_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_7fffe142-91a6-4b34-be68-4a5334e399bc_td" hitPolicy="UNIQUE" outputLabel="windturbine met _ rotordiameter van meer dan 2 m Op 5 Artikel 22.60 Lid 1 b Verplichtingen Informatieplicht">
+      <semantic:input id="_3643157">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>rotordiameter UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9234848" />
+      <semantic:rule id="_3879775">
+        <semantic:inputEntry id="_4578151">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_1652413">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_5192854">
+        <semantic:inputEntry id="_4940149">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7613169">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_cdd2e061-6dc6-489c-9518-ca1babd85370" name="windturbine _ bedoeld _in artikel 3.11 van het Besluit activiteiten leefomgeving Op 5 Artikel 22.60 Lid 1 b Verplichtingen Informatieplicht">
+    <semantic:variable id="_cdd2e061-6dc6-489c-9518-ca1babd85370_var" name="windturbine _ bedoeld _in artikel 3.11 van het Besluit activiteiten leefomgeving Op 5 Artikel 22.60 Lid 1 b Verplichtingen Informatieplicht" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_37854_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_cdd2e061-6dc6-489c-9518-ca1babd85370_td" hitPolicy="UNIQUE" outputLabel="windturbine _ bedoeld _in artikel 3.11 van het Besluit activiteiten leefomgeving Op 5 Artikel 22.60 Lid 1 b Verplichtingen Informatieplicht">
+      <semantic:input id="_7763969">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>windturbine Noordzee UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_3335770" />
+      <semantic:rule id="_2332374">
+        <semantic:inputEntry id="_2578784">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_9703953">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8788873">
+        <semantic:inputEntry id="_4193043">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3696573">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_a677a25c-a1d7-4da7-b060-f96e3fce1998" name="opwekken van elektriciteit met _ windturbine Op 5 Artikel 22.60 Lid 1 b Verplichtingen Informatieplicht">
+    <semantic:variable id="_a677a25c-a1d7-4da7-b060-f96e3fce1998_var" name="opwekken van elektriciteit met _ windturbine Op 5 Artikel 22.60 Lid 1 b Verplichtingen Informatieplicht" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_5375_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_a677a25c-a1d7-4da7-b060-f96e3fce1998_td" hitPolicy="UNIQUE" outputLabel="opwekken van elektriciteit met _ windturbine Op 5 Artikel 22.60 Lid 1 b Verplichtingen Informatieplicht">
+      <semantic:input id="_6540306">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>opwekken elektriciteit windturbine UR</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_2527086" />
+      <semantic:rule id="_5629756">
+        <semantic:inputEntry id="_6737712">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_4730219">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_8902386">
+        <semantic:inputEntry id="_6265756">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7827526">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+</semantic:definitions>

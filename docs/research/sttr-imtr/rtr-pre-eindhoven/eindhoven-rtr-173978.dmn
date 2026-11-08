@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<semantic:definitions xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000" xmlns:feel="http://www.omg.org/spec/FEEL/20140401" xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel" xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel" xmlns:triso="http://www.rulearts.com/modeling" xmlns:trisofeed="http://rulearts.com/feed" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel" xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content" exporter="RuleArts STTR Export" exporterVersion="0.2.0" id="_1534029" name="Conclusie - Afvalwater, afkomstig van het schoonmaken van drinkwaterleidingen, lozen in het riool of op of in de bodem" namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000">
+  <semantic:extensionElements xmlns:semantic="http://www.omg.org/spec/DMN/20151101/dmn.xsd">
+    <uitv:uitvoeringsregels>
+      <uitv:uitvoeringsregel id="_4312_BizRule">
+        <uitv:bereik>werkzaamheid</uitv:bereik>
+        <inter:classificatie>activiteit</inter:classificatie>
+        <uitv:vasteWaarde>
+          <uitv:waardeVraag>vaste waarde FALSE</uitv:waardeVraag>
+          <uitv:waarde>false</uitv:waarde>
+          <uitv:gegevensType>boolean</uitv:gegevensType>
+        </uitv:vasteWaarde>
+      </uitv:uitvoeringsregel>
+    </uitv:uitvoeringsregels>
+  </semantic:extensionElements>
+  <semantic:inputData id="_5492_Concept" name="vaste waarde FALSE">
+    <semantic:extensionElements>
+      <uitv:uitvoeringsregelRef href="#_4312_BizRule" />
+    </semantic:extensionElements>
+    <semantic:variable id="_9884341" name="vaste waarde FALSE" typeRef="feel:boolean" />
+  </semantic:inputData>
+  <semantic:decision id="_46092_BizRule" name="Conclusie - LozenSchoonmDrinkwleid">
+    <semantic:extensionElements>
+      <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/Conclusienl.imow-gm0772.activiteit.LozenSchoonmDrinkwleid" />
+    </semantic:extensionElements>
+    <semantic:variable id="_46092_BizRule_var" name="Conclusie - LozenSchoonmDrinkwleid" typeRef="feel:string" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_46093_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_46092_BizRule_td" hitPolicy="COLLECT" outputLabel="Conclusie - LozenSchoonmDrinkwleid">
+      <semantic:input id="_5345518">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>Toestemmingen - Vergunningplicht - LozenSchoonmDrinkwleid</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_9387975" />
+      <semantic:rule id="_1969832">
+        <semantic:inputEntry id="_2007521">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_6623664">
+          <semantic:extensionElements>
+            <content:conclusieToelichting>
+              <content:toelichting><![CDATA[U moet zich wel houden aan de algemene regels voor deze activiteit\. In [Maatregelen op Maat](/maatregelen) vindt u de maatregelen waarmee u aan deze regels kunt voldoen\.]]></content:toelichting>
+            </content:conclusieToelichting>
+          </semantic:extensionElements>
+          <semantic:text>"Toestemmingsvrij"</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_46093_BizRule" name="Toestemmingen - Vergunningplicht - LozenSchoonmDrinkwleid">
+    <semantic:variable id="_46093_BizRule_var" name="Toestemmingen - Vergunningplicht - LozenSchoonmDrinkwleid" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_46094_BizRule" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_46093_BizRule_td" hitPolicy="ANY" outputLabel="Toestemmingen - Vergunningplicht - LozenSchoonmDrinkwleid">
+      <semantic:input id="_9021580">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vergunningplicht vaste waarde LozenSchoonmDrinkwleid</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_4808948" />
+      <semantic:rule id="_2953320">
+        <semantic:inputEntry id="_4655995">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_8155021">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_3891176">
+        <semantic:inputEntry id="_9394612">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_3975247">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+  <semantic:decision id="_46094_BizRule" name="vergunningplicht vaste waarde LozenSchoonmDrinkwleid">
+    <semantic:variable id="_46094_BizRule_var" name="vergunningplicht vaste waarde LozenSchoonmDrinkwleid" typeRef="feel:boolean" />
+    <semantic:informationRequirement>
+      <semantic:requiredInput href="#_5492_Concept" />
+    </semantic:informationRequirement>
+    <semantic:decisionTable id="_46094_BizRule_td" hitPolicy="UNIQUE" outputLabel="vergunningplicht vaste waarde LozenSchoonmDrinkwleid">
+      <semantic:input id="_4902184">
+        <semantic:inputExpression typeRef="feel:boolean">
+          <semantic:text>vaste waarde FALSE</semantic:text>
+        </semantic:inputExpression>
+      </semantic:input>
+      <semantic:output id="_5789007" />
+      <semantic:rule id="_2099691">
+        <semantic:inputEntry id="_5614594">
+          <semantic:text>true</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_2658604">
+          <semantic:text>true</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+      <semantic:rule id="_1461834">
+        <semantic:inputEntry id="_8254817">
+          <semantic:text>false</semantic:text>
+        </semantic:inputEntry>
+        <semantic:outputEntry id="_7148458">
+          <semantic:text>false</semantic:text>
+        </semantic:outputEntry>
+      </semantic:rule>
+    </semantic:decisionTable>
+  </semantic:decision>
+</semantic:definitions>

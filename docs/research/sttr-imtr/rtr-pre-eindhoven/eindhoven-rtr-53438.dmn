@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<dmn:definitions xmlns:dmn="http://www.omg.org/spec/DMN/20151101/dmn.xsd"
+                 xmlns:feel="http://www.omg.org/spec/FEEL/20140401"
+                 xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel"
+                 xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel"
+                 xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel"
+                 xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content"
+                 xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000"
+                 namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000"
+                 exporter="Geodan FLO Legal STTR Builder" exporterVersion="" id="_a47dbd21-282c-4f3d-ad1d-1b09263224ea"
+                 name="aanpassing aan gemeentelijk monument">
+    <dmn:extensionElements>
+        <inter:regelgroepen>
+                            <inter:regelgroep id="groep1">
+    <inter:naam>aanpassing aan gemeentelijk monument Eindhoven</inter:naam>
+    <inter:prioriteit>10</inter:prioriteit>
+</inter:regelgroep>
+                    </inter:regelgroepen>
+        <uitv:uitvoeringsregels>
+                            <uitv:uitvoeringsregel id="uitv__b0f7a77f-9de4-4701-9b4b-2cadf7884bf5">
+        <uitv:regelgroepRef href="#groep1"/>
+    <inter:prioriteit>10</inter:prioriteit>
+     <uitv:vraag>
+    <uitv:gegevensType>boolean</uitv:gegevensType>
+    <uitv:vraagTekst>Gaat u een gemeentelijk monument wijzigen?</uitv:vraagTekst>
+        </uitv:vraag>
+             </uitv:uitvoeringsregel>
+                            <uitv:uitvoeringsregel id="uitv__f52bfc5c-d988-419b-8b97-5e59e9039959">
+        <uitv:regelgroepRef href="#groep1"/>
+    <inter:prioriteit>20</inter:prioriteit>
+     <uitv:vraag>
+    <uitv:gegevensType>list</uitv:gegevensType>
+    <uitv:vraagTekst>Wat gaat u wijzigen aan het gemeentelijk monument?</uitv:vraagTekst>
+                <uitv:opties>
+            <uitv:optieType>meerdereAntwoorden</uitv:optieType>
+                            <uitv:optie>
+                    <uitv:sequenceId>0</uitv:sequenceId>
+                    <uitv:optieText>voorgevel aanpassen</uitv:optieText>
+                                    </uitv:optie>
+                            <uitv:optie>
+                    <uitv:sequenceId>1</uitv:sequenceId>
+                    <uitv:optieText>dakkapel plaatsen</uitv:optieText>
+                                    </uitv:optie>
+                            <uitv:optie>
+                    <uitv:sequenceId>2</uitv:sequenceId>
+                    <uitv:optieText>geheel of gedeeltelijke sloop van het gebouw</uitv:optieText>
+                                    </uitv:optie>
+                            <uitv:optie>
+                    <uitv:sequenceId>3</uitv:sequenceId>
+                    <uitv:optieText>een andere werkzaamheid</uitv:optieText>
+                                    </uitv:optie>
+                    </uitv:opties>
+    </uitv:vraag>
+             </uitv:uitvoeringsregel>
+                    </uitv:uitvoeringsregels>
+    </dmn:extensionElements>
+            <dmn:inputData id="input__b0f7a77f-9de4-4701-9b4b-2cadf7884bf5" name="_b0f7a77f-9de4-4701-9b4b-2cadf7884bf5">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__b0f7a77f-9de4-4701-9b4b-2cadf7884bf5"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_25e37c75-fe6d-4849-a8a9-455cfdfc4a25" name="_b0f7a77f-9de4-4701-9b4b-2cadf7884bf5" typeRef="feel:boolean"/>
+</dmn:inputData>
+            <dmn:inputData id="input__f52bfc5c-d988-419b-8b97-5e59e9039959" name="_f52bfc5c-d988-419b-8b97-5e59e9039959">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__f52bfc5c-d988-419b-8b97-5e59e9039959"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_70b8f299-844e-4b22-ab1d-e76a888b1262" name="_f52bfc5c-d988-419b-8b97-5e59e9039959" typeRef="feel:string"/>
+</dmn:inputData>
+                <dmn:decision id="_c552dff0-cb49-4217-acc5-a58350f4ce60" name="Vergunningplicht pad 1">
+        <dmn:variable id="_8eee5bd1-6708-440f-8b4d-fd33077f47f3" name="Vergunningplicht pad 1" typeRef="feel:string"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__b0f7a77f-9de4-4701-9b4b-2cadf7884bf5"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" id="_11d19960-b8b0-48d0-ab92-3d3b6baff3fc" outputLabel="Vergunningplicht pad 1">
+            <dmn:input id="_d17f23ff-8e3e-4c5b-a5b0-88cd5d77c9aa" label="Gaat u een gemeentelijk monument wijzigen?">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>_b0f7a77f-9de4-4701-9b4b-2cadf7884bf5</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+        <dmn:output id="_8e5c78ac-8fce-4435-a150-91de7a9116d1" label="Vergunningplicht pad 1"/>
+            <dmn:rule id="_2907eea1-8f4b-48c6-97c2-cb6e06cebe2e">
+            <dmn:inputEntry id="_8ca91831-bbfc-4975-90bb-45637a47434d">
+            <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_9e1f6a3b-3ddb-441b-9422-f96f0e3ba720">
+                <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+            <dmn:rule id="_e33f0e7d-6924-4efa-97fc-1e2e69860b2d">
+            <dmn:inputEntry id="_e9833419-994f-4fc0-a879-595c72641fdb">
+            <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_158e647a-57d8-4983-bf8b-369a35234ff8">
+                <dmn:text><![CDATA["no hit"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="_cc3ab415-1d92-4efb-83a2-ccc0b1f440a8" name="Vergunningplicht pad 2">
+        <dmn:variable id="_564ec9ea-3ce2-490b-8383-9d3b40741f01" name="Vergunningplicht pad 2" typeRef="feel:string"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__f52bfc5c-d988-419b-8b97-5e59e9039959"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" id="_7518e198-f5ef-441a-906a-e7bd3aa3ed96" outputLabel="Vergunningplicht pad 2">
+            <dmn:input id="_d1e1de7a-6439-4b52-b141-ce2b784de9de" label="Wat gaat u wijzigen aan het gemeentelijk monument?">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>_f52bfc5c-d988-419b-8b97-5e59e9039959</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+        <dmn:output id="_5458e706-ddfa-41da-8871-8d62d12276ad" label="Vergunningplicht pad 2"/>
+            <dmn:rule id="_7a28a00b-3467-462a-abaf-99d7a7434fec">
+            <dmn:inputEntry id="_ce49553f-117c-4ec4-9eef-052da6ab9dbc">
+            <dmn:text><![CDATA[if ?=null then false else contains(?,"voorgevel aanpassen")]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_bbcc8dd3-b092-4947-8007-57b0ad068d28">
+                <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+            <dmn:rule id="_43e654b2-f9f7-4197-a10f-48bbd3e04a2b">
+            <dmn:inputEntry id="_8573346f-949c-44e8-b372-21d701c01681">
+            <dmn:text><![CDATA[if ?=null then false else contains(?,"dakkapel plaatsen")]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_58b512a2-8627-4928-b82e-497b8f72293c">
+                <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+            <dmn:rule id="_5bcb109f-8868-42d8-88f7-dc22e7bf5a10">
+            <dmn:inputEntry id="_d1378725-c8be-43a6-8a57-fba727c79ee5">
+            <dmn:text><![CDATA[if ?=null then false else contains(?,"geheel of gedeeltelijke sloop van het gebouw")]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_3efa31c3-860c-4206-a4aa-3e694036049a">
+                <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+            <dmn:rule id="_b27dc13a-4eda-4edc-8e53-cac85fbf06f9">
+            <dmn:inputEntry id="_21babca1-71d1-4309-b128-83725f3d18cc">
+            <dmn:text><![CDATA[if ?=null then false else not(contains(?, "voorgevel aanpassen,dakkapel plaatsen,geheel of gedeeltelijke sloop van het gebouw"))]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_e23ab426-447a-475a-9c76-477292aae560">
+                <dmn:text><![CDATA["no hit"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="_3cffcb12-f55e-4da4-a707-116461e652c3" name="NietVanToepassing pad 1">
+        <dmn:variable id="_43682459-b8eb-47c8-92b6-09f5bc8af3e7" name="NietVanToepassing pad 1" typeRef="feel:string"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__b0f7a77f-9de4-4701-9b4b-2cadf7884bf5"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" id="_c3806b42-e0a4-4a1f-96d0-c04d81b7181a" outputLabel="NietVanToepassing pad 1">
+            <dmn:input id="_8278b42d-fbab-4a64-b203-70dc17966caa" label="Gaat u een gemeentelijk monument wijzigen?">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>_b0f7a77f-9de4-4701-9b4b-2cadf7884bf5</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+        <dmn:output id="_827960d0-5297-414e-9100-1b411a2d2d88" label="NietVanToepassing pad 1"/>
+            <dmn:rule id="_91f93b74-f0ac-414d-b3c4-fe5557f92ad2">
+            <dmn:inputEntry id="_3e1ef649-d3a6-4409-9257-06b9e2bfe285">
+            <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_a6bf0e1e-bd79-45d2-8a41-422542dcceaa">
+                <dmn:text><![CDATA["NietVanToepassing"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+            <dmn:rule id="_247553ce-2ead-4246-8bc0-4bf2a900f362">
+            <dmn:inputEntry id="_9763c7cf-4ec2-4cac-a7ac-d5ca748cfe7e">
+            <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_b5b4f971-a2a5-4f1d-b0af-a190747bfb53">
+                <dmn:text><![CDATA["no hit"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="_7bbf5111-6723-4b9e-a71c-2e0302a961aa" name="Meldingsplicht pad 1">
+        <dmn:variable id="_7b74295d-4790-4893-80d6-8a97641cc0b5" name="Meldingsplicht pad 1" typeRef="feel:string"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__f52bfc5c-d988-419b-8b97-5e59e9039959"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" id="_2a21d52d-15de-4df1-9ebe-21fa89d304ce" outputLabel="Meldingsplicht pad 1">
+            <dmn:input id="_07e9bef9-d4d5-4766-afda-6dbaf3103782" label="Wat gaat u wijzigen aan het gemeentelijk monument?">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>_f52bfc5c-d988-419b-8b97-5e59e9039959</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+        <dmn:output id="_30814160-f6bc-4794-972e-8be9b206340a" label="Meldingsplicht pad 1"/>
+            <dmn:rule id="_206e4220-e637-45e7-b1dc-86a81258a033">
+            <dmn:inputEntry id="_04aaccf3-c3a2-44f9-8493-a2e006c2b586">
+            <dmn:text><![CDATA[if ?=null then false else contains(?,"een andere werkzaamheid")]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_30282955-6cc3-4cd7-91db-4843b057780f">
+                <dmn:text><![CDATA["Meldingsplicht"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+            <dmn:rule id="_337899f5-a63f-4430-bf5a-84c2b474d973">
+            <dmn:inputEntry id="_73ffe9b5-83ad-4094-b04d-d0795ad8ac7b">
+            <dmn:text><![CDATA[if ?=null then false else not(contains(?, "een andere werkzaamheid"))]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_aa35fabf-039a-4a03-a771-d93379bbc6cd">
+                <dmn:text><![CDATA["no hit"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="_336e610a-a9e1-4b22-81cc-bd3a255eb529" name="Vergunningplicht">
+        <dmn:variable id="_7f426965-9df2-4bae-8289-6c33c9c533bd" name="Vergunningplicht" typeRef="feel:string"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#_c552dff0-cb49-4217-acc5-a58350f4ce60"/>
+                    </dmn:informationRequirement>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#_cc3ab415-1d92-4efb-83a2-ccc0b1f440a8"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" id="_d56bdeda-b15d-43b8-ad45-d7d22f257753" outputLabel="Vergunningplicht">
+            <dmn:input id="_995b5884-bd8a-4252-b4aa-e32a50e4c99c" label="Vergunningplicht pad 1">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>Vergunningplicht pad 1</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+            <dmn:input id="_3bd502c1-96ad-46db-a793-5cf4dcf4e81b" label="Vergunningplicht pad 2">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>Vergunningplicht pad 2</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+        <dmn:output id="_89d5fd05-2cb9-4062-b942-9c52456191d1" label="Vergunningplicht"/>
+            <dmn:rule id="_72f8113a-35f5-4abc-bef9-af9878e0b4bb">
+            <dmn:inputEntry id="_7c47b55a-a96f-4e3a-9235-dac18133bd0f">
+            <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_fd5277c7-fcd7-497a-8551-4c8c5886a97a">
+            <dmn:text><![CDATA[-]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_9f455c11-1e01-4cf6-9b50-a399c10d9a32">
+                <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+            <dmn:rule id="_cd1fe847-175b-4b9a-ad5f-7ab72fed3567">
+            <dmn:inputEntry id="_c7dd45cb-9697-45e4-9fd1-999a5ed9b927">
+            <dmn:text><![CDATA[-]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_3242faf5-7dce-4e5f-bd78-36d1d08b50f7">
+            <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_db4365fb-4e1f-408e-a895-e28e2fd29a8d">
+                <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+            <dmn:rule id="_b54aa443-0655-4dcf-bbbd-2cb78e238a4a">
+            <dmn:inputEntry id="_f65b5141-fd96-442e-809f-a41191dce504">
+            <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_0735e107-b9a7-4baa-a615-5b884036e6ef">
+            <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_10a4c1cd-9ed5-4285-a5b3-250553d02579">
+                <dmn:text><![CDATA["no hit"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="_b6deabc8-f6c5-4ab2-9c22-73b88b9816c7" name="NietVanToepassing">
+        <dmn:variable id="_b17c6def-b3fe-428f-b0d4-14f879d36d7b" name="NietVanToepassing" typeRef="feel:string"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#_3cffcb12-f55e-4da4-a707-116461e652c3"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" id="_3a5a9c53-6f67-4a1a-a66b-8ac51bd754fb" outputLabel="NietVanToepassing">
+            <dmn:input id="_c98f224f-c946-43eb-8346-bae28ca2f644" label="NietVanToepassing pad 1">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>NietVanToepassing pad 1</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+        <dmn:output id="_b28aa953-c013-4339-a341-f9e4cc19f27c" label="NietVanToepassing"/>
+            <dmn:rule id="_01813d3f-4164-407f-a73f-a1f49646c056">
+            <dmn:inputEntry id="_29a20463-9c0f-4ff9-bf1b-a75001e5aec9">
+            <dmn:text><![CDATA["NietVanToepassing"]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_ad7ee069-df36-440e-af0b-8d204358320b">
+                <dmn:text><![CDATA["NietVanToepassing"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+            <dmn:rule id="_16d40f43-c050-4ebc-b9e7-3c8c5326912f">
+            <dmn:inputEntry id="_29cc3e5b-36aa-410b-9266-af2b7d86054d">
+            <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_3015df4c-2ef1-42c6-bc05-83af8ffc9d32">
+                <dmn:text><![CDATA["no hit"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="_deb5fca8-55ee-4e7c-a4ee-47413d9ccdd9" name="Meldingsplicht">
+        <dmn:variable id="_626db9e1-d01b-41e6-9c03-3afc25ae49e7" name="Meldingsplicht" typeRef="feel:string"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#_7bbf5111-6723-4b9e-a71c-2e0302a961aa"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" id="_e79c6db4-3c51-4c33-8187-d2a4f7adc79d" outputLabel="Meldingsplicht">
+            <dmn:input id="_2307a912-262d-47e9-a683-cc832c717cf5" label="Meldingsplicht pad 1">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>Meldingsplicht pad 1</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+        <dmn:output id="_e02114bd-55ad-46c1-be7e-0bb0f1afb8d7" label="Meldingsplicht"/>
+            <dmn:rule id="_d87b2657-1ae2-452a-a2c2-558c25a38ea7">
+            <dmn:inputEntry id="_d0ef6759-7e39-41c9-a66f-4e76f45a40da">
+            <dmn:text><![CDATA["Meldingsplicht"]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_aef13e1c-b927-45ca-aa16-dfbbe8abf670">
+                <dmn:text><![CDATA["Meldingsplicht"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+            <dmn:rule id="_84cf0b86-1aae-450a-8ac7-dfcbbb1afaa3">
+            <dmn:inputEntry id="_f4923344-1747-420d-be75-db53e50ae278">
+            <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_b1107bec-ba7a-4714-9c4b-4bef15b6ec3e">
+                <dmn:text><![CDATA["no hit"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="_4ad4586c-96da-483f-91d0-17399517a210" name="aanpassing aan gemeentelijk monument">
+            <dmn:extensionElements>
+            <bedr:functioneleStructuurRef href="#http://toepasbare-regels.omgevingswet.overheid.nl/00000001001902763000/id/concept/Conclusienl.imow-gm0772.activiteit.8668adb756f24869a9530abacb025f67"/>
+        </dmn:extensionElements>
+        <dmn:variable id="_925131e2-7672-491b-b678-55203b7fdcaa" name="aanpassing aan gemeentelijk monument" typeRef="feel:string"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#_336e610a-a9e1-4b22-81cc-bd3a255eb529"/>
+                    </dmn:informationRequirement>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#_b6deabc8-f6c5-4ab2-9c22-73b88b9816c7"/>
+                    </dmn:informationRequirement>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#_deb5fca8-55ee-4e7c-a4ee-47413d9ccdd9"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="RULE ORDER" id="_790ed88c-a3b7-4505-b9fc-65239b524dbe" outputLabel="aanpassing aan gemeentelijk monument">
+            <dmn:input id="_fcbc64d9-1792-43fe-8650-0ed378103f2e" label="Vergunningplicht">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>Vergunningplicht</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+            <dmn:input id="_e8a72ccd-c75e-4071-bc14-31487502617f" label="NietVanToepassing">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>NietVanToepassing</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+            <dmn:input id="_00a7d769-eb18-4a52-a270-fc7011bbb38f" label="Meldingsplicht">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>Meldingsplicht</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+        <dmn:output id="_5224c14a-2868-4ac8-a1dd-2d2dc28b9950" label="aanpassing aan gemeentelijk monument"/>
+            <dmn:rule id="_7975ae03-8f55-4c05-b56b-1e7bff679b1c">
+            <dmn:inputEntry id="_9f56e48b-ae66-43ef-b5b9-4d59e9daef3e">
+            <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_6eb86fc7-4005-483b-bee6-8f999d0918ab">
+            <dmn:text><![CDATA[not(null)]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_47e5e24f-ce02-4bc2-865b-4826015d8f7d">
+            <dmn:text><![CDATA[not(null)]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_6cda9774-c7df-4c57-b411-5d93104c593b">
+                    <dmn:extensionElements>
+                <content:conclusieToelichting>
+                    <content:toelichting><![CDATA[U heeft een omgevingsvergunning nodig voor het slopen, verstoren, verplaatsen of in enig opzicht wijzigen van een gebouwd of aangelegd monument, of voor het zodanig herstellen of (laten) gebruiken dat het wordt ontsierd of in gevaar gebracht.
+
+U kunt er ook voor kiezen om eerst een [principeaanvraag (vooroverleg)](https://www.nieuwegein.nl/inenomhethuis/principeaanvraag-vooroverleg "Ga naar Principeaanvraag (vooroverleg)") in te dienen. Op basis van uw schets en foto's kijken wij of de aanvraag haalbaar is. U hoeft nog geen officiële tekeningen mee te sturen.]]></content:toelichting>
+                </content:conclusieToelichting>
+            </dmn:extensionElements>
+                <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+            <dmn:rule id="_5324d67d-f881-444e-b99e-c238e4050772">
+            <dmn:inputEntry id="_8bfc86b9-6c29-4ccc-a744-65ef40fbde4d">
+            <dmn:text><![CDATA[not(null)]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_0cd0991f-1596-459a-95ed-61d2693048e6">
+            <dmn:text><![CDATA["NietVanToepassing"]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_0b2ee189-fcba-4c9f-b5f1-19dee65b58c7">
+            <dmn:text><![CDATA[not(null)]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_412bd204-2927-462f-93cc-fc79c80a44db">
+                    <dmn:extensionElements>
+                <content:conclusieToelichting>
+                    <content:toelichting><![CDATA[Als het niet gaat om een gemeentelijk monument of eventueel toekomstig gemeentelijk monument, dan is deze activiteit niet van toepassing.]]></content:toelichting>
+                </content:conclusieToelichting>
+            </dmn:extensionElements>
+                <dmn:text><![CDATA["NietVanToepassing"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+            <dmn:rule id="_e2f8c419-7466-46c5-9b86-14c6dda1cf6c">
+            <dmn:inputEntry id="_4c35a1fe-a828-4a1f-9469-8f55747b04a2">
+            <dmn:text><![CDATA[not(null)]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_5a857aae-6c38-4290-82ba-56a5acdc8b6f">
+            <dmn:text><![CDATA[not(null)]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_ab08dc97-1af1-4dc2-bbd1-8169b40db4e0">
+            <dmn:text><![CDATA["Meldingsplicht"]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_c39ba9b3-b869-4ea5-89e9-b4e2fe4d6940">
+                <dmn:text><![CDATA["Meldingsplicht"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+            <dmn:rule id="_b3e973e9-7aeb-4f99-8732-5004ea118f79">
+            <dmn:inputEntry id="_c97af697-4839-4791-bfac-ac877fea2ce7">
+            <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_1a96c2e4-dc05-4ddc-b23c-a102ddee8d86">
+            <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_034434a1-177d-46d8-804a-1c552fcfe7d3">
+            <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_6eec3356-b700-4be1-9890-91027f9e27de">
+                <dmn:text><![CDATA["Toestemmingsvrij"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+    </dmn:definitions>
