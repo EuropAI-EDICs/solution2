@@ -3490,14 +3490,14 @@ function kg7SubLayout(inst, art){
     n.push(nR); ed.push({s:0,t:n.length-1,st:5.1,cls:"kge-art",d:pad(nA,nR)});});
   e.regels.forEach((rg,j)=>{const y=36+j*20;
     const nJ=node("jr",y,rg.id.slice(0,18),"kgn-blauw",5.2,esc(`juridische regel ${rg.id} · ${rg.act||"—"} (${rg.kw||"—"})`));
-    n.push(nJ); ed.push({s:0,t:n.length-1,st:5.2,cls:"kge-rt",d:pad(nA,nJ)});
+    n.push(nJ); const jIdx=n.length-1; ed.push({s:0,t:n.length-1,st:5.2,cls:"kge-rt",d:pad(nA,nJ)});
     if(rg.act){const cls={"Vergunningplicht":"kgn-amber","Meldingplicht":"kgn-cyaan"}[rg.kw]||"kgn-grijs";
       const nAct=node("act",y,rg.act.slice(0,22),cls,5.3,esc(`activiteit ${rg.act} · ${rg.kw}`));
-      n.push(nAct); ed.push({s:n.length-2,t:n.length-1,st:5.3,cls:"kge-jr",d:pad(n[n.length-2],nAct)});}
+      n.push(nAct); ed.push({s:jIdx,t:n.length-1,st:5.3,cls:"kge-jr",d:pad(nJ,nAct)});}
     rg.locs.slice(0,3).forEach((li,k)=>{const loc=kg.locaties[li];
       const nL=node("loc",y+8,(loc.noemer||"?").slice(0,20),"kgn-grijs",5.3,
         esc(`${loc.type}: ${loc.noemer} · gml: ${loc.gml||"niet koppelbaar"}`));
-      n.push(nL); ed.push({s:n.length-3,t:n.length-1,st:5.3,cls:"kge-jr",d:pad(nJ,nL)});
+      n.push(nL); ed.push({s:jIdx,t:n.length-1,st:5.3,cls:"kge-jr",d:pad(nJ,nL)});
       if(loc.gml){const nG=node("gio",y+8,loc.gml.slice(-18),"kgn-groen",5.4,esc(`GIO ${loc.gml}`));
         n.push(nG); ed.push({s:n.length-2,t:n.length-1,st:5.4,cls:"kge-loc",d:pad(nL,nG)});}});});
   if(e.meer>0){const nM=node("jr",36+e.regels.length*20,`…+${e.meer} regels`,"kgn-grijs",5.2,esc(`${e.meer} regels buiten de weergave-cap`)); n.push(nM);}
