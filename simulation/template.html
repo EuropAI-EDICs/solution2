@@ -3472,7 +3472,7 @@ function makeSim7(){
 }
 
 /* --- kennisgraaf (taak 2): overzicht + artikel-subgraph in kg1-idioom --- */
-let kg7Cur={inst:"eindhoven",art:null}, KG7N=[], KG7E=[], curKg7=-1, kg7Nodes=[], kg7Edges=[];
+let kg7Cur={inst:"",art:null}, KG7N=[], KG7E=[], curKg7=-1, kg7Nodes=[], kg7Edges=[];
 function kg7Data(){ return DKB && DKB.kg ? DKB.kg : null; }
 
 function kg7SubLayout(inst, art){
@@ -3506,7 +3506,7 @@ function kg7SubLayout(inst, art){
 }
 
 function buildKG7(){
-  const svg=$("kg7svg"); if(!svg||!kg7Data()) return; svg.innerHTML="";
+  const svg=$("kg7svg"); if(!svg||!kg7Data()||!kg7Data()[kg7Cur.inst]) return; svg.innerHTML="";
   const kg=kg7Data()[kg7Cur.inst];
   const G=kg7Cur.art?kg7SubLayout(kg7Cur.inst,kg7Cur.art):kg.overzicht;
   svg.setAttribute("viewBox",`0 0 980 ${Math.max(160,G.h)}`);
@@ -3514,21 +3514,35 @@ function buildKG7(){
   (G.cols||[]).forEach(c=>kgtxt(svg,c.x,16,"kgcap",c.cap));
   kg7Nodes=G.n; kg7Edges=G.e;
   KG7E=G.e.map(e=>el("path",{d:e.d,class:"kge7 "+e.cls,"stroke-opacity":0},svg));
-  KG7N=G.n.map(nd=>{
+  KG7N=G.n.map((nd,i)=>{
     const g=el("g",{class:"kgn "+nd.cls,opacity:0,style:"transition:opacity .5s"},svg);
     el("circle",{cx:nd.x,cy:nd.y,r:3.2},g);
     const t=el("text",{x:nd.tx,y:nd.y+2.5},g);
     if(nd.anchor) t.setAttribute("text-anchor",nd.anchor);
-    t.textContent=nd.label; return g; });
+    t.textContent=nd.label;
+    g.addEventListener("mouseenter",(ev)=>kg7Hover(i,ev));
+    g.addEventListener("mousemove",tipMove);
+    g.addEventListener("mouseleave",kg7Out);
+    return g; });
   $("kg7-n").textContent=G.n.length;
   curKg7=-1; kg7Set(5.4);
 }
-function kg7Set(st){ if(st===curKg7) return; curKg7=st;
-  kg7Nodes.forEach((nd,i)=>{ KG7N[i].style.opacity=nd.st<=curKg7?1:0; });
+function kg7Apply(){ kg7Nodes.forEach((nd,i)=>{ KG7N[i].style.opacity=nd.st<=curKg7?1:0; });
   kg7Edges.forEach((e,i)=>{ KG7E[i].style.strokeOpacity=e.st<=curKg7?0.55:0; }); }
+function kg7Set(st){ if(st===curKg7) return; curKg7=st; kg7Apply(); }
+function kg7Hover(i,ev){ const adj=new Set([i]);
+  kg7Edges.forEach((e,j)=>{ const on=e.s===i||e.t===i;
+    if(on){ adj.add(e.s); adj.add(e.t); }
+    KG7E[j].style.strokeOpacity=on?0.95:(e.st<=curKg7?0.06:0); });
+  kg7Nodes.forEach((nd,j)=>{ KG7N[j].style.opacity=adj.has(j)?1:(nd.st<=curKg7?0.16:0); });
+  tipShow(kg7Nodes[i].tip,ev); }
+function kg7Out(){ tipHide(); kg7Apply(); }
 function kg7Kies(inst, art){
   if(!kg7Data()) return;
   if(inst&&inst!==kg7Cur.inst){ kg7Cur={inst,art:null};
+    const selI=$("kg7-inst"); selI.innerHTML="";
+    for(const iid of Object.keys(kg7Data())){ const o=document.createElement("option"); o.value=o.textContent=iid; selI.appendChild(o); }
+    selI.value=kg7Cur.inst;
     const sel=$("kg7-art"); sel.innerHTML="";
     for(const a of kg7Data()[inst].keuze){ const o=document.createElement("option"); o.value=o.textContent="art. "+a; sel.appendChild(o); } }
   if(typeof art==="string"){ kg7Cur.art=art.replace(/^art\. /,""); $("kg7-art").value="art. "+kg7Cur.art; }
