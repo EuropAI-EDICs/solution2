@@ -193,3 +193,56 @@ def test_normaliseer_stript_datumecho_uit_hrefs():
     # niet-URL-strings en URLs zonder datum-parameters passeren ongewijzigd
     assert dso_kb._normaliseer("geldigOp=2026-10-20") == "geldigOp=2026-10-20"
     assert dso_kb._normaliseer("https://example/api?id=7") == "https://example/api?id=7"
+
+
+def test_ververs_weigert_in_offline_modus(monkeypatch):
+    monkeypatch.setenv("NLDT_OFFLINE", "1")
+    with pytest.raises(dso_kb.DsoKbFout, match="NLDT_OFFLINE"):
+        dso_kb.ververs("testgm", out_dir=FIX, instrumenten=INSTR, locaties=LOCS)
+
+
+def _kopieer_fixtures(tmp_path: Path) -> Path:
+    for bron in FIX.glob("testgm__test-loc.*.json"):
+        (tmp_path / bron.name).write_text(bron.read_text(encoding="utf-8"), encoding="utf-8")
+    return tmp_path
+
+
+def test_ververs_rapporteert_drift_via_runner(tmp_path):
+    out = _kopieer_fixtures(tmp_path)
+    # gesimuleerde oude cache: ververs leest de annotaties vóór de runner draait,
+    # dus drift/oud.json moet er al liggen (nieuwe_gelijk volgt pas uit de runner)
+    (out / "testgm__test-loc.annotaties.json").write_text(
+        (DRIFT / "oud.json").read_text(encoding="utf-8"), encoding="utf-8"
+    )
+    nieuw_gelijk = json.loads((DRIFT / "nieuw_gelijk.json").read_text(encoding="utf-8"))
+    aanroepen: list[list[str]] = []
+
+    def nep_runner(args: list[str]) -> None:
+        aanroepen.append(args)
+        # simulatie: compare schrijft verse annotaties (zelfde inhoud, andere volgorde/datum)
+        (out / "testgm__test-loc.annotaties.json").write_text(
+            json.dumps(nieuw_gelijk, ensure_ascii=False), encoding="utf-8"
+        )
+
+    uit = dso_kb.ververs(
+        "testgm", met_tpod=False, out_dir=out, runner=nep_runner,
+        instrumenten=INSTR, locaties=LOCS,
+    )
+    assert uit["drift"]["inhoudelijkeDrift"] == "geen"
+    assert uit["tpod"]["herbouwd"] is False
+    assert aanroepen and "--instruments" in aanroepen[0] and "testgm" in aanroepen[0]
+
+
+def test_ververs_bouwt_tpod_herbouw_in(tmp_path):
+    out = _kopieer_fixtures(tmp_path)
+    aanroepen: list[list[str]] = []
+
+    def nep_runner(args: list[str]) -> None:
+        aanroepen.append(args)
+
+    dso_kb.ververs(
+        "testgm", met_tpod=True, out_dir=out, runner=nep_runner,
+        instrumenten=INSTR, locaties=LOCS,
+    )
+    tpod_aanroepen = [a for a in aanroepen if "regelrecht.tpod" in a[2]]
+    assert tpod_aanroepen and "--toets" in tpod_aanroepen[0] and "--geo" in tpod_aanroepen[0]

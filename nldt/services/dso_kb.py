@@ -506,3 +506,71 @@ def canonieke_drift(oud: dict[str, Any], nieuw: dict[str, Any]) -> dict[str, Any
         "inhoudelijkeDrift": "wel" if categorieen else "geen",
         "categorieen": categorieen,
     }
+
+
+def _subprocess_run(args: list[str]) -> None:
+    proc = subprocess.run(args, cwd=WORKSPACE, capture_output=True, text=True)
+    if proc.returncode != 0:
+        staart = (proc.stderr or proc.stdout or "").strip()[-400:]
+        raise DsoKbFout(f"refresh mislukte ({args[2]}): {staart}")
+
+
+def ververs(
+    instrument: str,
+    locatie: str | None = None,
+    met_tpod: bool = True,
+    out_dir: Path | None = None,
+    runner: Callable[[list[str]], None] | None = None,
+    instrumenten: dict[str, dict[str, Any]] | None = None,
+    locaties: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Live PRE-refresh via de bestaande compare/tpod-CLIs + canonieke drift-uitslag.
+
+    Enige functie met netwerk; keys blijven in .env (de CLI's lezen die zelf).
+    Runner is injecteerbaar voor tests.
+    """
+    if os.environ.get("NLDT_OFFLINE") == "1":
+        raise DsoKbFout(
+            "NLDT_OFFLINE=1 — live refresh uitgeschakeld; de leesprocessen werken gewoon"
+        )
+    out = out_dir or DEFAULT_OUT
+    _meta, lid, stem = _resolve_paar(instrument, locatie, instrumenten, locaties)
+    run = runner or _subprocess_run
+
+    ann_pad = out / f"{stem}.annotaties.json"
+    oud_ann = json.loads(ann_pad.read_text(encoding="utf-8")) if ann_pad.is_file() else None
+    sha_oud = None
+    meta_pad = out / f"{stem}.annotaties.meta.json"
+    if meta_pad.is_file():
+        sha_oud = _kort(json.loads(meta_pad.read_text(encoding="utf-8")).get("sha256"))
+
+    args = [sys.executable, "-m", "nldt.simulation.regelrecht.dso_overlap.compare",
+            "--instruments", instrument]
+    if locatie:
+        args += ["--location", locatie]
+    run(args)
+
+    herbouwd = False
+    if met_tpod:
+        run([sys.executable, "-m", "nldt.simulation.regelrecht.tpod",
+             "--instruments", instrument, "--toets", "--geo"])
+        herbouwd = True
+
+    nieuw_ann = json.loads(ann_pad.read_text(encoding="utf-8")) if ann_pad.is_file() else None
+    sha_nieuw = None
+    if meta_pad.is_file():
+        sha_nieuw = _kort(json.loads(meta_pad.read_text(encoding="utf-8")).get("sha256"))
+
+    drift = (
+        canonieke_drift(oud_ann, nieuw_ann)
+        if oud_ann is not None and nieuw_ann is not None
+        else {"inhoudelijkeDrift": "onbekend", "categorieen": {}, "reden": "geen oude versie in cache"}
+    )
+    return {
+        "instrument": instrument,
+        "locatie": lid,
+        "annShaOud": sha_oud,
+        "annShaNieuw": sha_nieuw,
+        "drift": drift,
+        "tpod": {"herbouwd": herbouwd},
+    }
