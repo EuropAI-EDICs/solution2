@@ -38,3 +38,11 @@ def test_façade_payload_shape(monkeypatch):
 def test_poort_8094_in_main_standaard():
     bron = __import__("pathlib").Path(dso_server.__file__).read_text(encoding="utf-8")
     assert "run_mcp_http(mcp, 8094)" in bron
+
+
+def test_deep_agents_kent_dso_server():
+    import pathlib
+
+    pad = pathlib.Path(dso_server.__file__).resolve().parents[3] / "deep-agents" / "mcp_client.py"
+    bron = pad.read_text(encoding="utf-8")
+    assert '"nldt-dso"' in bron and "8094" in bron

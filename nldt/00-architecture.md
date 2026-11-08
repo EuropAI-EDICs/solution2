@@ -315,7 +315,7 @@ restricted Data Space offers require explicit approval
 | A2A | `services.a2a.app` | 8085 |
 | Wallet auth edge (W1) | `services.auth_wallet.app` | 8087 |
 | Agent virtual wallet (W5) | `services.agent_wallet.app` | 8088 |
-| MCP over streamable-HTTP | `services.mcp_servers.*` (`NLDT_MCP_TRANSPORT`) | 8090–8093 |
+| MCP over streamable-HTTP | `services.mcp_servers.*` (`NLDT_MCP_TRANSPORT`) | 8090–8094 |
 
 Auth: `NLDT_AUTH_MODE=off|static|keycloak|wallet` ([`services/common/auth.py`](services/common/auth.py));
 trust gates: `NLDT_TRUST_POLICY_FILE` ([`services/common/trust_policy.py`](services/common/trust_policy.py)).

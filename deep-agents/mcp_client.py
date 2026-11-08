@@ -31,6 +31,7 @@ def build_client_config(nldt_base: str | None = None) -> dict[str, dict[str, str
         "nldt-process": {"transport": "streamable_http", "url": f"{base}:8091/mcp"},
         "nldt-data": {"transport": "streamable_http", "url": f"{base}:8092/mcp"},
         "nldt-poc": {"transport": "streamable_http", "url": f"{base}:8093/mcp"},
+        "nldt-dso": {"transport": "streamable_http", "url": f"{base}:8094/mcp"},
     }
 
 

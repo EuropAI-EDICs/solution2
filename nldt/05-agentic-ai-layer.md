@@ -71,7 +71,14 @@ Start MCP servers:
 ```bash
 python -m services.mcp_servers.catalog_server
 python -m services.mcp_servers.process_server
+python -m services.mcp_servers.dso_server
 ```
+
+**nldt-dso-mcp (:8094)** — DSO-kennisbank-façade: negen `dso-kb-*`-processen
+(annotaties, documentstructuur, tpod, punttoets, overlap, GIO's, punt-in-GIO,
+overzicht en live refresh met canonieke drift-uitslag). Cache-first: alleen
+`dso-kb-refresh` raakt PRE, met de keys server-side in `.env`
+(spec: `docs/superpowers/specs/2026-11-07-dso-kb-mcp-design.md`).
 
 ## GenAI seams
 
