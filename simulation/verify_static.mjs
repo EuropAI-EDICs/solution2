@@ -316,6 +316,13 @@ try {
   if (Object.keys(kgE.artikelen).length !== 811 || Object.keys(kgU.artikelen).length !== 107)
     throw new Error("kg artikel-aantallen verwacht 811/107");
   if (!(kgE.overzicht.n.length > 0) || !(kgE.overzicht.e.length > 0)) throw new Error("kg overzicht zonder knopen/edges");
+  const pos = new Set(kgE.overzicht.n.map(n => n.x + "," + n.y));
+  if (pos.size !== kgE.overzicht.n.length)
+    throw new Error("kg overzicht: knopen stapelen op dezelfde (x,y): " + kgE.overzicht.n.length + " knopen, " + pos.size + " uniek");
+  if (!(kgE.overzicht.h > 300 && kgE.overzicht.h < 1500))
+    throw new Error("kg overzicht-hoogte buiten band (300-1500): " + kgE.overzicht.h);
+  if (kgU.artikelen["10.4"].status !== "unmatched")
+    throw new Error("utrecht 10.4 status verwacht unmatched (README-claim)");
   ds.kg7Kies("eindhoven", "3.37");
   const kgN = parseInt(globalThis.document.getElementById("kg7-n").textContent, 10);
   if (!(kgN > 0)) throw new Error("kg7-n leeg na artikelkeuze 3.37");

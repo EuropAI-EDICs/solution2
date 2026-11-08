@@ -3501,7 +3501,7 @@ function kg7SubLayout(inst, art){
       if(loc.gml){const nG=node("gio",y+8,loc.gml.slice(-18),"kgn-groen",5.4,esc(`GIO ${loc.gml}`));
         n.push(nG); ed.push({s:n.length-2,t:n.length-1,st:5.4,cls:"kge-loc",d:pad(nL,nG)});}});});
   if(e.meer>0){const nM=node("jr",36+e.regels.length*20,`…+${e.meer} regels`,"kgn-grijs",5.2,esc(`${e.meer} regels buiten de weergave-cap`)); n.push(nM);}
-  return {n,e:ed,h:Math.max(...n.map(x=>x.y))+30,cols:Object.entries(COLX).map(([c,x])=>({x,cap:c})),
+  return {n,e:ed,h:Math.max(...n.map(x=>x.y))+30,cols:Object.entries(COLX).map(([c,x])=>({x,cap:{art:"artikel",rt:"regeltekst · wId",jr:"juridische regel",act:"activiteit",loc:"locatie",gio:"GIO · gml"}[c]})),
           cap:`subgraph art. ${art} · caps: 6 rt / 12 regels`};
 }
 
@@ -3539,7 +3539,7 @@ function kg7Hover(i,ev){ const adj=new Set([i]);
 function kg7Out(){ tipHide(); kg7Apply(); }
 function kg7Kies(inst, art){
   if(!kg7Data()) return;
-  if(inst&&inst!==kg7Cur.inst){ kg7Cur={inst,art:null};
+  if(inst&&inst!==kg7Cur.inst){ if(!kg7Data()[inst]) return; kg7Cur={inst,art:null};
     const selI=$("kg7-inst"); selI.innerHTML="";
     for(const iid of Object.keys(kg7Data())){ const o=document.createElement("option"); o.value=o.textContent=iid; selI.appendChild(o); }
     selI.value=kg7Cur.inst;

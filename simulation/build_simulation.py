@@ -2047,8 +2047,8 @@ def build_kg7(instrumenten: list) -> dict:
         gerangschikt = sorted(artikelen.items(), key=lambda kv: (-kv[1]["nRegels"], _artikel_nummer(kv[0])))
         top = [a for a, _ in gerangschikt[:KG_TOP]]
         nodes, edges = [], []
-        for art, e in gerangschikt[:KG_TOP]:
-            y = 40 + len(nodes) * 34
+        for row, (art, e) in enumerate(gerangschikt[:KG_TOP]):
+            y = 40 + row * 64
             stat_kleur = "kgn-groen" if e["status"] == "formalized" else "kgn-amber"
             n_art = _kg_node("art", y, f"art. {art}", stat_kleur, 5.0,
                              _kg_tip(f"artikel {art}", f"status: {e['status']}",
@@ -2056,13 +2056,14 @@ def build_kg7(instrumenten: list) -> dict:
             nodes.append(n_art)
             i_art = len(nodes) - 1
             for i, w in enumerate(e["rts"][:3]):
-                n_rt = _kg_node("rt", y + i * 12, w.rsplit("__", 2)[-1], stat_kleur, 5.1,
+                n_rt = _kg_node("rt", y - 6 + i * 12, w.rsplit("__", 2)[-1], stat_kleur, 5.1,
                                 _kg_tip(f"regeltekst {w}", f"artikel {art}"), f"rt:{w}")
                 nodes.append(n_rt)
                 edges.append({"s": i_art, "t": len(nodes) - 1, "st": 5.1,
                               "cls": "kge-art", "d": _kg_pad(n_art, n_rt)})
-            for rg in e["regels"][:3]:
-                n_jr = _kg_node("jr", y + 2, f"{rg['id'][:18]}" + ("…" if len(rg["id"]) > 18 else ""),
+            for j, rg in enumerate(e["regels"][:3]):
+                y_jr = y + 14 + j * 16
+                n_jr = _kg_node("jr", y_jr, f"{rg['id'][:18]}" + ("…" if len(rg["id"]) > 18 else ""),
                                 "kgn-blauw", 5.2,
                                 _kg_tip(f"juridische regel {rg['id']}",
                                         f"activiteit: {rg['act'] or '—'} ({rg['kw'] or '—'})"), f"jr:{rg['id']}")
@@ -2071,7 +2072,7 @@ def build_kg7(instrumenten: list) -> dict:
                 edges.append({"s": i_art, "t": i_jr, "st": 5.2,
                               "cls": "kge-rt", "d": _kg_pad(n_art, n_jr)})
                 if rg["act"]:
-                    n_act = _kg_node("act", y + 2, rg["act"][:22],
+                    n_act = _kg_node("act", y_jr, rg["act"][:22],
                                      {"vergunning": "kgn-amber", "melding": "kgn-cyaan"}.get(
                                          _KG_KW.get(rg["kw"] or "", "anders"), "kgn-grijs"), 5.3,
                                      _kg_tip(f"activiteit {rg['act']}", f"kwalificatie: {rg['kw'] or '—'}"),
@@ -2079,9 +2080,10 @@ def build_kg7(instrumenten: list) -> dict:
                     nodes.append(n_act)
                     edges.append({"s": i_jr, "t": len(nodes) - 1, "st": 5.3,
                                   "cls": "kge-jr", "d": _kg_pad(n_jr, n_act)})
-                for li in rg["locs"][:2]:
+                for k, li in enumerate(rg["locs"][:2]):
+                    y_loc = y_jr + k * 12
                     loc = locaties[li]
-                    n_loc = _kg_node("loc", y + 8, (loc["noemer"] or "?")[:20],
+                    n_loc = _kg_node("loc", y_loc, (loc["noemer"] or "?")[:20],
                                      "kgn-grijs", 5.3,
                                      _kg_tip(f"{loc['type']}: {loc['noemer']}", loc["id"],
                                              f"gml: {loc['gml'] or 'niet koppelbaar'}"), f"loc:{li}")
@@ -2090,7 +2092,7 @@ def build_kg7(instrumenten: list) -> dict:
                     edges.append({"s": i_jr, "t": i_loc, "st": 5.3,
                                   "cls": "kge-jr", "d": _kg_pad(n_jr, n_loc)})
                     if loc["gml"]:
-                        n_gio = _kg_node("gio", y + 8, loc["gml"][-18:], "kgn-groen", 5.4,
+                        n_gio = _kg_node("gio", y_loc, loc["gml"][-18:], "kgn-groen", 5.4,
                                          _kg_tip(f"GIO {loc['gml']}", "officieel uitwisselpakket"), f"gio:{li}")
                         nodes.append(n_gio)
                         edges.append({"s": i_loc, "t": len(nodes) - 1, "st": 5.4,
