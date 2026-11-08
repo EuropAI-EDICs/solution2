@@ -250,9 +250,42 @@ Dropdown + persona-switcher bovenin; ▶/stap/↺ besturen de replay zoals bij d
 In het kotpakket staat onder de kaart de **willekeurig-kot-kaart**: een
 willekeurige advertentie uit de échte Kotatgent-kotenzoeker (foto, adres,
 prijs, conformiteitsattest, link) — 🎲 trekt een andere; beelden liggen in
-`simulation/kot-beelden/` (meegenomen door de build). De selectie drijft
-het héle kot-paneel: de build draait per kotadres een echte engine-run
-(adres-override), dus feiten, kotzone-kaart, aanvraagformulier en
-ontvangstbewijs horen bij het geselecteerde kot (regulier
-"gereed-met-waarschuwing": elk gepubliceerd kot staat al als gemeld
-genoteerd). Klik een persona om terug te schakelen.
+	`simulation/kot-beelden/` (meegenomen door de build). De selectie drijft
+	het héle kot-paneel: de build draait per kotadres een echte engine-run
+	(adres-override), dus feiten, kotzone-kaart, aanvraagformulier en
+	ontvangstbewijs horen bij het geselecteerde kot (regulier
+	"gereed-met-waarschuwing": elk gepubliceerd kot staat al als gemeld
+	genoteerd). Klik een persona om terug te schakelen.
+
+## Tab 7 — DSO ↔ RegelRecht
+
+De kennisbank-versus-toets-tab: wat levert de **DSO** (Omgevingswetloket)
+aan annotaties bij een plek, en wat zegt de formele engine daarván?
+`build_dso_kb()` in `build_simulation.py` leest alléén de cache-artefacten
+uit `nldt/simulation/regelrecht/dso_overlap/out/` — per instrument
+`*.overlap.json` (koppeling DSO-artikelen ↔ RegelRecht-status),
+`*.toets.json` (punttoets), `*.geo-validatie.json` (punt-in-GIO +
+naamafstemming-sweep) en `*.ververs.json` (drift) — en injecteert ze als
+`DATA.dsokb`. Geen getal is uitgerekend in de pagina.
+
+**Drie lagen, niet door elkaar:** **DSO annoteert** (welke regels horen bij
+deze plek?) · **RegelRecht toetst** (alléén het geformaliseerde deel
+executeert — de rest onthoudt) · **AI verkent**. Geen LLM in de beslislijn.
+
+De timeline loopt vier stappen: **DSO annoteert** → **koppeling** →
+**RegelRecht toetst** → **verversen & drift**. Gouden getallen (live uit de
+cache): Eindhoven 811 DSO-artikelen → 457 uitvoerbaar = **56,35%** dekking;
+Utrecht 107 → 7 = **6,54%**; kruisvalidatie Eindhoven **34/34**
+punt-in-GIO-locaties in overeenstemming, Utrecht **8/8**
+naamafstemming (zijn GIO's zijn niet filename-koppelbaar — daarom de
+naamsweep als bevestiging); drift na verversing: **geen**, via de canonieke
+vergelijking (byte-verschil door echo-datums en lijstvolgorde telt niet).
+
+Openen: `open simulation/simulation.html?tab=7`.
+
+**Drift-kaart verversen:** draai één keer `dso_kb.ververs()` (service
+`nldt/services/dso_kb.py`) of de MCP-tool `dso_kb_refresh` (proces-id
+`dso-kb-refresh`) en herbouw de hub. De cache onder `dso_overlap/out/` is
+gitignored — een verse checkout mist `*.ververs.json` en de kaart toont de
+fallback-uitslag ("nog geen ververs-rapport in de cache") tot de eerste
+verversing.
