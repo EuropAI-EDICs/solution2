@@ -62,3 +62,28 @@ def test_refresh_weigert_offline(monkeypatch):
     result = execute_local("dso-kb-refresh", {"instrument": "testgm"})
     outputs = result["outputs"] if "outputs" in result else result
     assert "NLDT_OFFLINE" in str(outputs)
+
+
+@pytest.mark.parametrize(
+    "process_id, inputs",
+    [
+        ("dso-kb-overview", {}),
+        ("dso-kb-annotations", {"instrument": "testgm"}),
+        ("dso-kb-document-structure", {"instrument": "testgm", "wIdPrefix": "gm9999_a1__chp_1__art_2"}),
+        ("dso-kb-tpod", {"instrument": "testgm"}),
+        ("dso-kb-toets", {"instrument": "testgm"}),
+        ("dso-kb-overlap", {"instrument": "testgm"}),
+        ("dso-kb-gios", {"instrument": "testgm"}),
+        ("dso-kb-point-in-gio", {"instrument": "testgm", "x": 1.0, "y": 2.0}),
+        ("dso-kb-refresh", {"instrument": "testgm"}),
+    ],
+)
+def test_alle_negen_processen_leveren_resultaat_of_fout(process_id, inputs, monkeypatch):
+    """Elke executor draait tegen de fixtures en levert resultaat óf een fout-resultaat — nooit een crash."""
+    monkeypatch.setattr(dso_kb, "DEFAULT_OUT", FIX)
+    monkeypatch.setattr(dso_kb, "_laat_instrumenten", lambda: (INSTR, LOCS))
+    monkeypatch.setenv("NLDT_OFFLINE", "1")
+    result = execute_local(process_id, dict(inputs))
+    outputs = result.get("outputs", result)
+    tekst = str(outputs)
+    assert "result" in tekst or "error" in tekst, tekst[:300]

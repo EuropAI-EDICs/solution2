@@ -102,7 +102,7 @@ Consequences:
  │ Auth edge :8087/:8088 — wallet (LoA) / Keycloak (service)    │
  │ → capability token (registry ∩ granted) · trustPolicy gates  │
  ├─────────────────────────────────────────────────────────────┤
- │ One nLDT/MCP layer :8090–8093 — tools scoped per audience:   │
+ │ One nLDT/MCP layer :8090–8094 — tools scoped per audience:   │
  │   public: breda-scan-qa · peil-whatif-read · narrator(S8)    │
  │   pro:   scenario-author(S7) · sweep · catalog · lake …      │
  ├─────────────────────────────────────────────────────────────┤
@@ -184,7 +184,7 @@ cost/abuse posture for open LLM endpoints (§7–9).
 
 ### DA-0 — Public-exposure posture audit (days)
 
-- Re-verify bearer enforcement on `:8082–8085` and MCP `:8090–8093` from an
+- Re-verify bearer enforcement on `:8082–8085` and MCP `:8090–8094` from an
   unauthenticated vantage point; inventory the tool surface a public token
   may reach (ask/view only); add per-tool rate limits and a cost ceiling
   for narration calls.

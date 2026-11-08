@@ -79,6 +79,9 @@ python -m services.mcp_servers.dso_server
 overzicht en live refresh met canonieke drift-uitslag). Cache-first: alleen
 `dso-kb-refresh` raakt PRE, met de keys server-side in `.env`
 (spec: `docs/superpowers/specs/2026-11-07-dso-kb-mcp-design.md`).
+Beveiliging als de zusterservers: de bearer-gate staat aan bij
+`NLDT_AUTH_MODE=static` (+ `NLDT_STATIC_TOKENS`); `NLDT_MCP_BEARER_TOKEN`
+alléén is uitgaand (client-kant).
 
 ## GenAI seams
 

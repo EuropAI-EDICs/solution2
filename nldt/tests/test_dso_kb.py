@@ -210,25 +210,28 @@ def _kopieer_fixtures(tmp_path: Path) -> Path:
 def test_ververs_rapporteert_drift_via_runner(tmp_path):
     out = _kopieer_fixtures(tmp_path)
     # gesimuleerde oude cache: ververs leest de annotaties vóór de runner draait,
-    # dus drift/oud.json moet er al liggen (nieuwe_gelijk volgt pas uit de runner)
+    # dus drift/oud.json moet er al liggen (nieuwe_gewijzigd volgt pas uit de runner).
+    # Met gewijzigde runner-output discrimineert de test échte drift: als ververs
+    # zou regresseren naar ná-de-runner lezen, zouden oud==nieuw zijn.
     (out / "testgm__test-loc.annotaties.json").write_text(
         (DRIFT / "oud.json").read_text(encoding="utf-8"), encoding="utf-8"
     )
-    nieuw_gelijk = json.loads((DRIFT / "nieuw_gelijk.json").read_text(encoding="utf-8"))
+    nieuw_gewijzigd = json.loads((DRIFT / "nieuw_gewijzigd.json").read_text(encoding="utf-8"))
     aanroepen: list[list[str]] = []
 
     def nep_runner(args: list[str]) -> None:
         aanroepen.append(args)
-        # simulatie: compare schrijft verse annotaties (zelfde inhoud, andere volgorde/datum)
+        # simulatie: compare schrijft verse annotaties (regeling jr.002 gewijzigd)
         (out / "testgm__test-loc.annotaties.json").write_text(
-            json.dumps(nieuw_gelijk, ensure_ascii=False), encoding="utf-8"
+            json.dumps(nieuw_gewijzigd, ensure_ascii=False), encoding="utf-8"
         )
 
     uit = dso_kb.ververs(
         "testgm", met_tpod=False, out_dir=out, runner=nep_runner,
         instrumenten=INSTR, locaties=LOCS,
     )
-    assert uit["drift"]["inhoudelijkeDrift"] == "geen"
+    assert uit["drift"]["inhoudelijkeDrift"] == "wel"
+    assert uit["drift"]["categorieen"]["regels"]["gewijzigd"] == ["nl.imow-gm9999.jr.002"]
     assert uit["tpod"]["herbouwd"] is False
     assert aanroepen and "--instruments" in aanroepen[0] and "testgm" in aanroepen[0]
 
