@@ -569,13 +569,15 @@
   <div class="tabkop" id="kop7">
     <div class="tekst-nl">
       <div class="tabkop-titel">DSO ↔ RegelRecht — kennisbank versus formele toets</div>
-      <div class="tabkop-tekst">Drie lagen, niet door elkaar: <b>DSO annoteert</b> (welke regels horen bij deze plek?) ·
+      <div class="tabkop-tekst">Vier lagen, niet door elkaar: <b>DSO annoteert</b> (welke regels horen bij deze plek?) ·
         <b>RegelRecht toetst</b> (alleen de geformaliseerde subset is uitvoerbaar — de rest is onthouding) ·
-        <b>AI verkent</b>. Elk getal komt uit de kennisbank-artefacten (<code>dso_overlap/out/</code>); geen LLM in de beslislijn.</div>
+        <b>STTR toepast</b> (de officiële DMN-vragen uit de RTR die in het Omgevingsloket draaien) ·
+        <b>AI verkent</b>. Elk getal komt uit de kennisbank-artefacten (<code>dso_overlap/out/</code>, incl.
+        <code>rtr.json</code>/<code>sttr.json</code>); geen LLM in de beslislijn.</div>
     </div>
     <div class="tekst-en">
       <div class="tabkop-titel">DSO ↔ RegelRecht — knowledge base versus formal test</div>
-      <div class="tabkop-tekst">Three layers, never mixed: <b>DSO annotates</b> · <b>RegelRecht tests</b> (only the formalized subset executes — the rest abstains) · <b>AI explores</b>. Every number is read from the cache artifacts; no LLM in the decision line.</div>
+      <div class="tabkop-tekst">Four layers, never mixed: <b>DSO annotates</b> · <b>RegelRecht tests</b> (only the formalized subset executes — the rest abstains) · <b>STTR applies</b> (the official DMN questions from the RTR that run in the Omgevingsloket) · <b>AI explores</b>. Every number is read from the cache artifacts (incl. <code>rtr.json</code>/<code>sttr.json</code>); no LLM in the decision line.</div>
     </div>
   </div>
 </div>
@@ -961,11 +963,12 @@
   <aside class="rail card" id="rail7"></aside>
   <div class="stagepane">
     <div class="card" style="padding:10px 14px">
-      <h3 id="kb7-titel">DSO annoteert · RegelRecht toetst · AI verkent</h3>
+      <h3 id="kb7-titel">DSO annoteert · RegelRecht toetst · STTR toepast · AI verkent</h3>
       <div class="oplabel" id="oplabel7">kennisbank — klaar.</div>
     </div>
     <div class="card" id="kb7-eindhoven"></div>
     <div class="card" id="kb7-utrecht"></div>
+    <div class="card" id="kb7-sttrcard"></div>
     <div class="card" id="kb7-driftcard"></div>
     <div class="card" id="kb7-kgcard">
       <h3 style="display:flex;gap:10px;flex-wrap:wrap;align-items:baseline">kennisgraaf — artikel → regeltekst → regel → activiteit → locatie → GIO
@@ -1066,6 +1069,8 @@
   Tab 6: <a href="../poc-veenendaal/README.md">Veenendaal Spoorzone gebiedscheck</a> — eerste instantie van het
   <a href="../docs/TEMPLATE_GEBIEDSONTWIKKELING_POC.md">gebiedsontwikkeling-canvas</a>: nulmeting tegen BAG/BGT (PDOK),
   doelvergelijking met het Toekomstbeeld juni 2025, manifest met sha256 per bron.
+  Tab 7: DSO ↔ RegelRecht — kennisbank-lagen uit de cache-artefacten: <a href="../docs/POC_TPOD_IMOW_KANSEN.md">TPOD/IMOW-kansen</a>
+  (DSO annoteert · RegelRecht toetst) en <a href="../docs/POC_STTR_IMTR_KANSEN.md">STTR/IMTR-kansen</a> (STTR toepast — officiële DMN-regels uit de RTR).
 </footer>
 
 <script>
@@ -3343,8 +3348,8 @@ function makeSim6(){
 /* ================================================================ DSO-KB view (tab 7) */
 const DKB = (typeof DATA!=="undefined" && DATA.dsokb) || null;
 const VSTAGES7 = [["DSO annoteert","annotaties.json"],["koppeling","overlap.json"],
-                  ["RegelRecht toetst","toets.json"],["verversen & drift","ververs.json"],
-                  ["kennisgraaf","kg7"]];
+                  ["RegelRecht toetst","toets.json"],["STTR toepast","rtr.json · sttr.json"],
+                  ["verversen & drift","ververs.json"],["kennisgraaf","kg7"]];
 const KB_KLEUR = {formalized:"#22c55e", unmatched:"#f59e0b", missing_in_report:"#94a3b8",
                   ambiguous:"#eab308", rejected:"#ef4444"};
 const log7=(html,klasse="ok")=>{ const l=$("log7"); if(!l) return;
@@ -3375,6 +3380,10 @@ function kb7InstCard(inst){
         regelteksten ${esc(String(c.regelteksten))} · activiteiten ${esc(String(c.activiteiten))} ·
         locaties ${esc(String(c.locaties))} · gebiedsaanwijzingen ${esc(String(c.gebiedsaanwijzingen))}<br>
         toets: ${Object.entries(t).filter(([k])=>k!=="formalizedInHit"&&k!=="artikelen").map(([k,v])=>`${esc(k)} ${esc(String(v))}`).join(" · ")||"—"}
+        ${inst.sttr&&inst.sttr.geldig!=null
+          ? `<br>STTR: <b>${esc(String(inst.sttr.geldig))}</b> RTR-bestanden · <b>${esc(String(inst.sttr.projecteerbaar))}</b>/${esc(String(inst.sttr.decisions))} decisions uitvoerbaar op de engine`
+          : (inst.sttr ? `<br>STTR: cache onvolledig — ${esc(inst.sttr.onvolledig||"")}`
+                       : `<br>STTR: geen aanlevering gekoppeld (OIN onbekend)`)}
         ${geolijst.length?("<br>"+geolijst.map(g=>`✓ ${esc(g)}`).join(" · ")):""}
       </div>
     </div>
@@ -3388,12 +3397,47 @@ function buildStatic7(){
   for(const inst of DKB.instrumenten){
     $("kb7-"+inst.id).innerHTML=kb7InstCard(inst);
   }
+  if($("kb7-sttrcard")) $("kb7-sttrcard").innerHTML=kb7SttrCard();
   const v=DKB.instrumenten.find(i=>i.ververs);
   $("kb7-driftcard").innerHTML = v ? kb7DriftCard(v) : `
     <h3>verversen &amp; drift</h3>
     <div style="font-size:12.5px;color:var(--faint,#94a3b8)">Nog geen ververs-rapport in de cache
     (<code>*.ververs.json</code>) — draai <code>dso_kb.ververs()</code> of de refresh-tool één keer;
     de kaart toont daarna de canonieke drift-uitslag.</div>`;
+}
+
+function kb7SttrBalk(p,tot){
+  const t=tot||1, g=100*(p||0)/t;
+  return `<div style="display:flex;height:10px;border-radius:5px;overflow:hidden;background:#1e293b">
+    <div style="flex:0 0 ${g.toFixed(2)}%;background:#22c55e" title="projecteerbaar ${p||0}"></div>
+    <div style="flex:1;background:#f59e0b" title="eerlijk niet-projecteerbaar ${Math.max(0,t-(p||0))}"></div></div>`;
+}
+
+function kb7SttrCard(){
+  const rij=DKB.instrumenten.map(inst=>{
+    const s=inst.sttr;
+    if(!s) return `<div style="font-size:12.5px;line-height:1.55;margin:6px 0"><b>${esc(inst.label)}</b> —
+      geen aanlevering gekoppeld (OIN onbekend): lokaliseren via de gm-code in <code>functioneleStructuurRef</code>,
+      geen aanname — absent is een status, geen nul.</div>`;
+    if(s.onvolledig) return `<div style="font-size:12.5px;color:var(--faint,#94a3b8);margin:6px 0">
+      <b>${esc(inst.label)}</b> — RTR-cache aanwezig, projectie-index ontbreekt: <code>${esc(s.onvolledig)}</code></div>`;
+    const dmn=Object.entries(s.dmnVersies||{}).map(([v,n])=>`${esc(String(n))}× DMN ${esc(v)}`).join(" + ");
+    const red=(s.redenenTop||[]).map(([r,n])=>`${esc(r)} ${esc(String(n))}×`).join(" · ");
+    return `<div style="margin:8px 0">
+      <div style="font-size:12.5px;line-height:1.55"><b>${esc(inst.label)}</b> · OIN <code>${esc(s.oin)}</code><br>
+        <b>${esc(String(s.geldig))}</b> geldige STTR-bestanden (${esc(s.begindatumMin||"?")} → ${esc(s.begindatumMax||"?")}) ·
+        <b>${esc(String(s.projecteerbaar))}</b>/${esc(String(s.decisions))} decisions uitvoerbaar op de eigen engine ·
+        ${esc(String(s.scenario))} scenario-uitkomsten${dmn?` · ${dmn}`:""}</div>
+      <div style="margin-top:5px">${kb7SttrBalk(s.projecteerbaar,s.decisions)}</div>
+      ${red?`<div style="font-size:10.5px;color:var(--faint,#94a3b8);margin-top:4px">niet-uitvoerbaar, expliciet gelabeld: ${red}</div>`:""}
+    </div>`;
+  }).join("");
+  return `<h3>STTR toepast — officiële toepasbare regels (DMN) uit de RTR</h3>${rij}
+    <div style="font-size:10.5px;color:var(--faint,#94a3b8);margin-top:8px;line-height:1.5">
+      STTR concludeert per <b>activiteit</b> (Vergunningplicht · Toestemmingsvrij · …) waar RegelRecht per
+      <b>artikel</b> toetst (boolean) — aanvullende lagen, geen dekking. Bevoegd gezag altijd via de gm-code
+      (zie de correctie-notitie in <a href="../docs/POC_STTR_IMTR_KANSEN.md" style="color:inherit">POC_STTR_IMTR_KANSEN.md</a>).
+      Bron: <code>&lt;instrument&gt;.rtr.json</code> (rtr/v1) · <code>&lt;instrument&gt;.sttr.json</code> (sttr-index/v1).</div>`;
 }
 
 function kb7DriftCard(inst){
@@ -3450,15 +3494,34 @@ function makeSim7(){
     log7(`<b>kruisvalidatie</b> — de DSO-puntselectie tegen de échte GIO-geometrie uit het uitwisselpakket: Eindhoven ${EH.geo.getoetst}/${EH.geo.getoetst} locaties in overeenstemming · Utrecht geometrie-sweep + naamafstemming ${UT.geo.naamOvereenkomend}/${UT.geo.naamOvereenkomend}.`,"ok");
   });
 
-  S(3,"verversen & drift",2000,()=>{
+  S(3,"STTR toepast",2000,()=>{
+    $("oplabel7").innerHTML=`STTR — officiële toepasbare regels (DMN) uit de RTR, naast de eigen toets`;
+    const s=EH.sttr;
+    if(s&&s.geldig!=null){
+      log7(`<b>STTR</b> — Eindhoven (OIN ${esc(s.oin)}): <b>${esc(String(s.geldig))}</b> geldige STTR-bestanden uit de RTR — de DMN-vragen die in het Omgevingsloket draaien (begindata ${esc(s.begindatumMin)} → ${esc(s.begindatumMax)}).`,"ok");
+      const pct=s.decisions?Math.round(100*s.projecteerbaar/s.decisions):0;
+      const red=(s.redenenTop||[]).map(([r,n])=>`${esc(r)} ${esc(String(n))}×`).join(", ");
+      log7(`<b>STTR</b> — import op de eigen engine: <b>${esc(String(s.projecteerbaar))}</b>/${esc(String(s.decisions))} decisions uitvoerbaar (${pct}%), ${esc(String(s.scenario))} scenario-uitkomsten; de rest expliciet gelabeld${red?` (${red})`:""} — niets gemold.`,"ok");
+    } else if(s){
+      log7(`<b>STTR</b> — RTR-cache aanwezig maar projectie-index ontbreekt: <code>${esc(s.onvolledig||"")}</code>.`,"warn");
+    } else {
+      log7(`<b>STTR</b> — nog geen RTR-cache; ververs met <code>dso_overlap.rtr --instruments eindhoven --bestanden</code> (kansen-notitie, kans 3).`,"warn");
+    }
+    for(const inst of [EH,UT]){
+      if(!inst.sttr) log7(`<b>STTR</b> — ${esc(inst.id)}: geen aanlevering gekoppeld (OIN onbekend) — absent is een status, geen nul.`,"warn");
+    }
+    log7(`<b>doctrine</b> — STTR concludeert per activiteit (enum), RegelRecht toetst per artikel (boolean): aanvullende lagen, geen dekking.`,"data");
+  });
+
+  S(4,"verversen & drift",2000,()=>{
     const v=DKB.instrumenten.find(i=>i.ververs);
     $("oplabel7").innerHTML=`verversen — live PRE-refresh met canonieke drift-uitslag`;
     if(v){ log7(`<b>drift</b> — laatste verversing ${esc(v.ververs.gegenereerdOp)}: byte-sha's veranderden, canoniek oordeel: <b>${esc(v.ververs.drift.inhoudelijkeDrift)}</b>.`,"ok"); }
     else { log7(`<b>drift</b> — nog geen ververs-rapport in de cache; zie de drift-kaart.`,"warn"); }
-    log7(`<b>doctrine</b> — DSO annoteert · RegelRecht toetst · AI verkent — geen LLM in de beslislijn.`,"data");
+    log7(`<b>doctrine</b> — DSO annoteert · RegelRecht toetst · STTR toepast · AI verkent — geen LLM in de beslislijn.`,"data");
   });
 
-  S(4,"kennisgraaf",2200,()=>{
+  S(5,"kennisgraaf",2200,()=>{
     kg7Set(5.0);
     [5.1,5.2,5.3,5.4].forEach((st,i)=>setTimeout(()=>kg7Set(st),i*380));
     $("oplabel7").innerHTML=`kennisgraaf — IMOW-annotatiestructuur met RegelRecht-status als knoopkleur`;

@@ -29,6 +29,8 @@ import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
+from datetime import datetime
+
 import importlib.util
 
 from vertaal_gent import VT_STATUS, vt
@@ -1970,6 +1972,58 @@ def bouw_gent_only() -> int:
     return 0
 
 
+_STTR_REDEN_KLASSEN = [
+    ("not(null)-wachters", lambda r: r.startswith("cel-expressie buiten engine-subset: 'not(null)")),
+    ("contains()-expressies (leverancierstools)", lambda r: "contains(" in r),
+    ("COLLECT multi-hit", lambda r: r.startswith("hitPolicy COLLECT")),
+    ("vergelijking buiten subset", lambda r: r.startswith("vergelijking '")),
+]
+
+
+def _sttr_blok(iid: str):
+    """STTR-toepasbaarheidslaag (kans 1, POC_STTR_IMTR_KANSEN.md) uit de RTR-cache.
+
+    Leest alléén cache-artefacten: ``<iid>.rtr.json`` (rtr/v1) + ``<iid>.sttr.json``
+    (sttr-index/v1). None = bevoegd gezag niet gekoppeld (geen OIN); dict met
+    ``onvolledig`` = rtr-cache er wél, projectie-index nog niet gebouwd.
+    """
+    rtr_pad = DSO_OUT / f"{iid}.rtr.json"
+    if not rtr_pad.is_file():
+        return None
+    sttr_pad = DSO_OUT / f"{iid}.sttr.json"
+    if not sttr_pad.is_file():
+        return {"onvolledig": f"draai nldt.simulation.regelrecht.sttr --instruments {iid}"}
+    rtr = json.loads(rtr_pad.read_text(encoding="utf-8"))
+    idx = json.loads(sttr_pad.read_text(encoding="utf-8"))
+    t = idx.get("totals") or {}
+    datums = []
+    for b in idx.get("bestanden") or []:
+        raw = b.get("begindatum")
+        if not raw:
+            continue
+        try:
+            datums.append((datetime.strptime(raw, "%d-%m-%Y"), raw))
+        except ValueError:
+            continue
+    klassen: dict = {}
+    for reden, n in (t.get("redenen") or {}).items():
+        naam = next((k for k, test in _STTR_REDEN_KLASSEN if test(reden)), "overig")
+        klassen[naam] = klassen.get(naam, 0) + n
+    return {
+        "oin": rtr.get("oin"),
+        "geldig": (rtr.get("counts") or {}).get("geldig"),
+        "bestanden": (rtr.get("counts") or {}).get("bestanden"),
+        "begindatumMin": min(datums)[1] if datums else None,
+        "begindatumMax": max(datums)[1] if datums else None,
+        "decisions": t.get("decisions"),
+        "projecteerbaar": t.get("projecteerbaar"),
+        "scenario": t.get("scenarioUitgevoerd"),
+        "dmnVersies": t.get("dmnVersies") or {},
+        "redenenTop": sorted(klassen.items(), key=lambda kv: -kv[1])[:3],
+        "gegenereerdOp": idx.get("gegenereerdOp"),
+    }
+
+
 def build_dso_kb() -> dict:
     """DSO↔RegelRecht-kennisbank → displayblok (Tab 7). Leest alléén cache-artefacten."""
     if not DSO_OUT.is_dir():
@@ -2028,6 +2082,7 @@ def build_dso_kb() -> dict:
             "fetchedAt": meta.get("fetchedAt"),
             "gegenereerdOp": ov.get("generatedAt"),
             "ververs": ververs,
+            "sttr": _sttr_blok(iid),
         })
     return {"instrumenten": instrumenten, "kg": build_kg7(kg_instrumenten)}
 
@@ -2313,6 +2368,14 @@ def main() -> int:
         drift = (inst["ververs"] or {}).get("drift", {}).get("inhoudelijkeDrift", "geen rapport")
         print(f"  dsokb/{inst['id']}: {d['dsoArtikelen']} DSO-artikelen → {d['executable']} uitvoerbaar "
               f"({100 * d['coverage']:.2f}%) · drift: {drift}")
+        s = inst.get("sttr")
+        if s and s.get("geldig") is not None:
+            print(f"  dsokb/{inst['id']}: STTR {s['geldig']} RTR-bestanden → "
+                  f"{s['projecteerbaar']}/{s['decisions']} decisions projecteerbaar · OIN {s['oin']}")
+        elif s:
+            print(f"  dsokb/{inst['id']}: STTR-cache onvolledig ({s.get('onvolledig', '?')})")
+        else:
+            print(f"  dsokb/{inst['id']}: geen STTR (OIN niet gekoppeld)")
     for iid, kg in data["dsokb"]["kg"].items():
         print(f"  dsokb/{iid}: kennisgraaf top={kg['top'][:3]} · {len(kg['artikelen'])} artikelen · "
               f"{len(kg['overzicht']['n'])} knopen/{len(kg['overzicht']['e'])} edges · "
