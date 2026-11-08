@@ -30,6 +30,9 @@ INSTRUMENTS: dict[str, dict[str, Any]] = {
         "akn_path": "/akn/nl/act/gm0772/2020/omgevingsplan",
         "cvdr": "CVDR696400",
         "bevoegd_gezag": "gm0772",
+        # RTR (toepasbare regels): PRE gemeten 8-11-2026 via gm0772 in
+        # functioneleStructuurRef — zie docs/POC_STTR_IMTR_KANSEN.md (kans 3).
+        "oin": "00000001001902763000",
         "formalization_report": FULL_EXPORT_OUT / "eindhoven-formalization-report.json",
         "instrument_yaml": FULL_EXPORT_OUT / "eindhoven-cvdr696400.yaml",
         "default_location_id": "eindhoven-woensel-proxy",

@@ -6,7 +6,7 @@
 | **Datum** | 8 november 2026 |
 | **Aanleiding** | IPLO-hub [STTR/IMTR](https://iplo.nl/digitaal-stelsel/aansluiten/standaarden/sttr-imtr) (beheer RWS/projectteam Reneso): [STTR 3.0.1](https://iplo.nl/publish/pages/162385/20250801-dso-specificatie-sttr-3-0-1_1.pdf) en [IMTR 3.0.1](https://iplo.nl/publish/pages/162385/20251204-dso-specificatie-imtr-3-0-1-def.pdf) (def. 04-12-2025), DMN 1.1/1.2 |
 | **Downloads** | [research/sttr-imtr/](research/sttr-imtr/) — specificaties, 6 officiële voorbeeld-DMN's, XSD's (DMN 1.1+1.2), 3 RTR-OAS'en, alles vastgepinnd op sha256 ([SOURCES.md](research/sttr-imtr/SOURCES.md)) |
-| **Code** | [research/sttr-imtr/scan_executies.py](research/sttr-imtr/scan_executies.py) (567-testcase) + de volledige Eindhovense STTR-set uit de PRE-RTR (162 bestanden) en een 20-steekproef van Tilburg |
+| **Code** | [research/sttr-imtr/scan_executies.py](research/sttr-imtr/scan_executies.py) (567-testcase) + de volledige Eindhovense STTR-set uit de PRE-RTR (162 bestanden) en een 20-steekproef van Tilburg; import-keten `nldt/simulation/regelrecht/sttr/` + `dso_overlap/rtr.py`, tests `nldt/tests/test_simulation_sttr.py` |
 
 ---
 
@@ -19,8 +19,8 @@ De STTR is de officiële tegenhanger van onze RegelRecht-laag: *begrijpelijke ve
 | # | kans | STTR/IMTR-objecten | PoC-naad | status |
 |---|---|---|---|---|
 | 1 | derde laag in de doctrine: STTR toepast | Conclusie (activiteit, output-enum), functioneleStructuurRef | Tab 7 telt nu twee statussen (uitvoerbaar/onthouding) | **uitgewerkt** (meting Eindhoven: 20 RTR-bestanden; UI-uitbreiding = volgende stap) |
-| 2 | DMN als brug: executie ↔ decisiontable | uitvoeringsregel (vraag), geoVerwijzing, rule/inputEntry/outputEntry, hitPolicy | EN/≤/=/IF-executies in de full export | **uitgewerkt + getest** (crosswalk + 567-testcase, 100% constructiedekking) |
-| 3 | RTR als derde kennisbank-bron | API *Uitvoeren gegevens toepasbare regels* v2.1.0 (`x-api-key`, `?oin`, `/sttrBestand`) | `dso_overlap/` kent Presenteren + RP + downloaden; RTR ontbreekt | **live gemeten** (PRE 200 OK; 162 Eindhovense DMN's binnen) |
+| 2 | DMN als brug: executie ↔ decisiontable | uitvoeringsregel (vraag), geoVerwijzing, rule/inputEntry/outputEntry, hitPolicy | EN/≤/=/IF-executies in de full export | **geleverd als code** (crosswalk + 567-testcase; importer: 2.322/3.465 decisions projecteerbaar) |
+| 3 | RTR als derde kennisbank-bron | API *Uitvoeren gegevens toepasbare regels* v2.1.0 (`x-api-key`, `?oin`, `/sttrBestand`) | `dso_overlap/` kent Presenteren + RP + downloaden; RTR ontbreekt | **geleverd als code** (live gemeten, 162 DMN's; `rtr.py` + `dso_kb`-leesfuncties) |
 
 ## Kans 1 — Derde laag in de doctrine: DSO annoteert · RegelRecht toetst · STTR toepast
 
@@ -111,6 +111,8 @@ Conclusie van de testcase: **100 % van de gebruikte constructieblokken is first-
 - **STTR → RegelRecht (vandaag bouwbaar):** importer die de 162 Eindhovense RTR-bestanden (en de officiële voorbeelden) ontleedt tot `machine_readable`-executies en ze met onze reference-engine op dezelfde inputs runt — dan is de officiële tabel executioneerbaar naast de DSO-annotatie en kan drift tussen loket-conclusie en annotatie zichtbaar worden. XSD's van beide dialecten (DMN 1.1 en 1.2) staan in de downloads.
 - **RegelRecht → STTR (autorauteitsroute):** export van (nieuwe) toepasbare regels als STTR 3.0.1-bestand, gevalideerd tegen de vastgepinde XSD's en voorbeeldbestanden. Let op de scope: de 63 limiet/verbod-artikelen zijn grotendeels *regels voor omgevingsvergunning* (officieel IMOW-annotatiegebied, zie de [TPOD-notitie](POC_TPOD_IMOW_KANSEN.md)) en de 504 equivalentie-executies zijn conversie-feiten uit `poc-bp2op` — géén van beide hoort thuisloos de RTR in; de route geldt toekomstige, échte toepasbare regels.
 
+**Update 8-11-2026: de brug is gebouwd — STTR → RegelRecht als code.** [`nldt/simulation/regelrecht/sttr/`](../nldt/simulation/regelrecht/sttr/) ontleedt **DMN 1.1 én 1.2** (STTR v1.0- én v2.0-namespaces; prefixen afgeleid uit de xmlns-declaraties, niet aangenomen) tot beslistabellen en projecteert die rij-voor-rij op de engine-subset — single-hit tabellen worden een `IF` met cases in documentvolgorde en de eerste alles-mogelijke rij als `default`; `scenario_run()` draait alle boolean-polariteiten door de reference-engine. Gemeten over de hele RTR-stand van Eindhoven: **162 bestanden → 3.465 decisions, waarvan 2.322 projecteerbaar (67 %) en 2.044 scenario-uitgevoerd, 0 engine-fouten**. De 1.143 niet-projecteerbare decisions zijn expliciet gelabeld — top-redenen: `not(null)`-wachters (546×), COLLECT-multi-hit (88×) en `contains()`-expressies van de leverancierstools — niets stilletjes gemold. De zes officiële IPLO-voorbeelden (STTR 3.0.0/DMN 1.2): 101 decisions, 62 projecteerbaar, mét de verwachte `knowledgeSource`-AKN's (3) en `geoVerwijzing` (1, `nl.imow-gm0345.gebied.gemeentegrens`). Contract `sttr-index/v1` (schema-valide), tests `nldt/tests/test_simulation_sttr.py` — 15 groen, inclusief de volledige gecommitte corpus.
+
 ## Kans 3 — RTR als derde kennisbank-bron
 
 **Wat de standaard zegt.** De API *Uitvoeren gegevens toepasbare regels* (v2.1.0, [OAS vastgepinnd](research/sttr-imtr/oas-toepasbareregels-uitvoerengegevens-v2.json)) biedt `GET /toepasbareRegels` (filters `oin`, `functioneleStructuurRef`, `datum`/`datumVanaf` — tijdsreizen —, `sttrBestandInhoudFilter`), metadata per entry (`begindatum`, `einddatum`, `laatsteWijzigingDatum`) en `GET /toepasbareRegels/{id}/sttrBestand` dat het complete DMN levert. Authenticatie: `x-api-key`, hetzelfde key-portaal als Presenteren; aanleveren loopt apart via SOAP/ebMS met PKIoverheid (buiten scope).
@@ -123,15 +125,33 @@ Conclusie van de testcase: **100 % van de gebruikte constructieblokken is first-
 
 **Volgende stap.** `dso_overlap/rtr.py` naar het `client.py`-patroon: `fetch_toepasbare_regels(oin)` + `fetch_sttr_bestand(id)`, PRE-base via `RTR_API_BASE`-override, cache als `<oin>.sttr.json` + `.dmn`; daarna leesfuncties in `dso_kb.py` (`lijst_toepasbare_regels`, `lees_sttr`) en de Tab 7-derde status uit kans 1.
 
+**Update 8-11-2026: de RTR is een kennisbank-bron.** [`dso_overlap/rtr.py`](../nldt/simulation/regelrecht/dso_overlap/rtr.py) (client + CLI: paging, `?oin`-filter, `--bestanden` downloadt alle geldige bestanden idempotent in de cache; PRE-default met `RTR_API_BASE`-override, contract `rtr/v1` met sha256 per bestand) en de leesfuncties `lijst_toepasbare_regels()`/`lees_sttr()` in [`dso_kb.py`](../nldt/services/dso_kb.py) sluiten de registratie aan op het bestaande Presenteren/RP-patroon; `instruments.py` draagt Eindhovens OIN (utrecht volgt zodra het bevoegd gezag via de gm-code is gelokaliseerd). Live geverifieerd: **162/162 bestanden in één run gecacht**; de Tab 7-derde status ("STTR toepast" per activiteit) is nu puur een UI-uitbreiding die uit deze cache voedt.
+
 ## Bedienen
 
 ```bash
 # bronnen staan lokaal vastgepinnd (sha256 in research/sttr-imtr/SOURCES.md)
 
+# RTR als derde kennisbank-bron (PRE; zelfde DSO_API_KEY als Presenteren):
+nldt/.venv/bin/python -m nldt.simulation.regelrecht.dso_overlap.rtr \
+  --instruments eindhoven --bestanden
+
+# STTR-import (offline op de cache): beslistabellen + engine-projectie + scenario's:
+nldt/.venv/bin/python -m nldt.simulation.regelrecht.sttr --instruments eindhoven
+nldt/.venv/bin/python -m nldt.simulation.regelrecht.sttr --van-voorbeelden  # officiële IPLO-voorbeelden
+
 # 567-testcase herhalen (offline):
 nldt/.venv/bin/python docs/research/sttr-imtr/scan_executies.py
 
-# RTR bevragen (PRE; sleutel in .env — nooit committen):
+# leeslaag (puriteins: de agent raakt nooit direct bestanden aan):
+nldt/.venv/bin/python -c "from nldt.services import dso_kb; \
+  print(dso_kb.lijst_toepasbare_regels('eindhoven')['counts']); \
+  print(dso_kb.lees_sttr('eindhoven', 53438)['totals'])"
+
+# tests:
+nldt/.venv/bin/python -m unittest nldt.tests.test_simulation_sttr
+
+# RTR met de hand (PRE; sleutel in .env — nooit committen):
 KEY=$(grep -E '^DSO_API_KEY=' .env | cut -d= -f2-)
 curl -sS -H "x-api-key: $KEY" \
   'https://service.pre.omgevingswet.overheid.nl/publiek/toepasbare-regels/api/toepasbareregelsuitvoerengegevens/v2/toepasbareRegels?oin=00000001001902763000'
@@ -141,7 +161,7 @@ curl -sS -H "x-api-key: $KEY" \
   'https://service.pre.omgevingswet.overheid.nl/publiek/toepasbare-regels/api/toepasbareregelsuitvoerengegevens/v2/toepasbareRegels/173899/sttrBestand'
 ```
 
-Artefacten: `docs/research/sttr-imtr/` (specificaties + `dmn-voorbeelden-sttr-3.0.0/` + `xsd-sttr-3.0/` + OAS'en + `rtr-pre-eindhoven/` met 162 DMN's en metadata + `rtr-pre-tilburg/` met de 20-steekproef), `eindhoven-567-dmn-scan.json` (provenance: report-sha256, gegenereerd-op). NB: de RTR-bestanden (162 Eindhovense + 20 Tilburgse steekproef) zijn *downloads uit PRE*, bewust wél in git (ze zijn het testcase-materiaal; een her-interview kan via bovenstaande curl).
+Artefacten: `docs/research/sttr-imtr/` (specificaties + `dmn-voorbeelden-sttr-3.0.0/` + `xsd-sttr-3.0/` + OAS'en + `rtr-pre-eindhoven/` met 162 DMN's en metadata + `rtr-pre-tilburg/` met de 20-steekproef), `eindhoven-567-dmn-scan.json` (provenance: report-sha256, gegenereerd-op). In de (gitignored) cache: `<instrument>.rtr.json` + `<instrument>.rtr.<id>.dmn` (contract `rtr/v1`) en `<instrument>.sttr.json` (contract `sttr-index/v1`), beide schema-valide — een contractbreuk breekt de bouw. Tests: `nldt/.venv/bin/python -m unittest nldt.tests.test_simulation_sttr` (offline, inclusief de gecommitte corpus). NB: de RTR-bestanden (162 Eindhovense + 20 Tilburgse steekproef) zijn *downloads uit PRE*, bewust wél in git (ze zijn het testcase-materiaal; een her-interview kan via bovenstaande curl).
 
 ## Eerlijke grenzen
 
@@ -151,7 +171,7 @@ Artefacten: `docs/research/sttr-imtr/` (specificaties + `dmn-voorbeelden-sttr-3.
 - **Granulariteit en semantiek**: STTR bundelt per *activiteit* met conclusie-enum; wij toetsen per *artikel* met boolean. De constructies mappen 1-op-1, de enum-vertaling (`toegestaan` → `Toestemmingsvrij`/`Vergunningplicht`/…) is per juridisch karakter een beslissing — geen automatische claim.
 - **Geen dekkingsclaim**: 20 RTR-bestanden (vooral indieningsvereisten en enkele conclusies) naast 567 artikel-executies is appels naast peren; de 63 geo/limiet/verbod-artikelen zijn bovendien veelal RFOV-vergunningsartikelen (IMOW-annotatiegebied) en de 504 equivalentie-executies zijn interne conversie-feiten (`poc-bp2op`). De RTR is een ándere, aanvullende laag — dat is kans 1, geen dekking.
 - **Juridische verankering in de RTR-bestanden**: `knowledgeSource`/`annotationEntry` (AKN) staan in de standaard en de officiële voorbeelden, maar ontbreken in de Eindhovense (0 van 162) en Tilburgse PRE-bestanden; wId-anchoring (IMOW-kans 3) moet het gat aan onze kant dichten.
-- **Nog geen executie-bridge gebouwd**: deze notitie levert mapping + testcase + live bron; de STTR→RegelRecht-importer en de Tab 7-derde status zijn uitgewerkt als volgende stappen, niet als code.
+- **Wat code is en wat ontwerp**: de STTR→RegelRecht-importer en de RTR-bron zijn code (tests groen); de Tab 7-derde status ("STTR toepast" per activiteit) is nog ontwerp — die voedt vanuit `lijst_toepasbare_regels()`/`lees_sttr()` zodra de hub-tab wordt uitgebreid. De RegelRecht → STTR-autorauteitsroute (export naar STTR 3.0.1) is eveneens nog geen code.
 
 ## Verwijzingen
 

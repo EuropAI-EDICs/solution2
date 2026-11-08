@@ -435,6 +435,126 @@ def punt_in_gio(
     }
 
 
+_ACT_RE_STTR = re.compile(r"nl\.imow-[a-z0-9]+\.activiteit\.([A-Za-z0-9]+)")
+
+
+def lijst_toepasbare_regels(
+    instrument: str,
+    *,
+    geldig: bool = True,
+    limiet: int | None = None,
+    out_dir: Path | None = None,
+    instrumenten: dict[str, dict[str, Any]] | None = None,
+    locaties: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Toepasbare regels (STTR/DMN) van het bevoegd gezag uit de RTR-cache.
+
+    Derde kennisbank-bron naast Presenteren en Ruimtelijke plannen
+    (docs/POC_STTR_IMTR_KANSEN.md, kans 3). Verversen:
+    ``python -m nldt.simulation.regelrecht.dso_overlap.rtr --instruments <x> --bestanden``.
+    """
+    out = out_dir or DEFAULT_OUT
+    if instrumenten is None or locaties is None:
+        instrumenten, locaties = _laat_instrumenten()
+    if instrument not in instrumenten:
+        raise DsoKbFout(f"onbekend instrument {instrument!r}; geldig: {sorted(instrumenten)}")
+    if not instrumenten[instrument].get("oin"):
+        raise DsoKbFout(
+            f"instrument {instrument!r} heeft (nog) geen OIN in instruments.py — "
+            "lokaliseer het bevoegd gezag via de gm-code in functioneleStructuurRef "
+            "(docs/POC_STTR_IMTR_KANSEN.md, kans 3)"
+        )
+    pad = out / f"{instrument}.rtr.json"
+    if not pad.is_file():
+        raise DsoKbFout(
+            f"artefact ontbreekt: {pad.name} — ververs eerst via "
+            "python -m nldt.simulation.regelrecht.dso_overlap.rtr "
+            f"--instruments {instrument} --bestanden"
+        )
+    data = json.loads(pad.read_text(encoding="utf-8"))
+    entries = data.get("entries") or []
+    if geldig:
+        entries = [e for e in entries if not e.get("einddatum")]
+    rijen = [
+        {
+            "identifier": e.get("identifier"),
+            "oin": e.get("oin"),
+            "activiteit": (lambda m: m.group(1) if m else None)(
+                _ACT_RE_STTR.search(e.get("functioneleStructuurRef") or "")
+            ),
+            "functioneleStructuurRef": e.get("functioneleStructuurRef"),
+            "begindatum": e.get("begindatum"),
+            "einddatum": e.get("einddatum"),
+            "bestandGecacht": bool(
+                (out / f"{instrument}.rtr.{e.get('identifier')}.dmn").is_file()
+            ),
+        }
+        for e in entries
+    ]
+    grens = _limiet(limiet)
+    vervolg = None
+    if len(rijen) > grens:
+        rijen = rijen[:grens]
+        vervolg = {"aanwijzing": "verhoog limiet (of filter client-side)", "maxLimiet": LIMIT_MAX}
+    return {
+        "instrument": instrument,
+        "oin": data.get("oin"),
+        "gegenereerdOp": data.get("gegenereerdOp"),
+        "counts": data.get("counts"),
+        "toepasbareRegels": rijen,
+        "vervolg": vervolg,
+    }
+
+
+def lees_sttr(
+    instrument: str,
+    identifier: str | int | None = None,
+    *,
+    out_dir: Path | None = None,
+    instrumenten: dict[str, dict[str, Any]] | None = None,
+    locaties: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """STTR-import-index: beslistabellen + engine-projectie per RTR-bestand.
+
+    Gebouwd door ``python -m nldt.simulation.regelrecht.sttr --instruments <x>``
+    (contract ``sttr-index/v1``); hier puur lezend ontsloten.
+    """
+    out = out_dir or DEFAULT_OUT
+    if instrumenten is None or locaties is None:
+        instrumenten, locaties = _laat_instrumenten()
+    if instrument not in instrumenten:
+        raise DsoKbFout(f"onbekend instrument {instrument!r}; geldig: {sorted(instrumenten)}")
+    if not instrumenten[instrument].get("oin"):
+        raise DsoKbFout(
+            f"instrument {instrument!r} heeft (nog) geen OIN in instruments.py — "
+            "lokaliseer het bevoegd gezag via de gm-code in functioneleStructuurRef "
+            "(docs/POC_STTR_IMTR_KANSEN.md, kans 3)"
+        )
+    pad = out / f"{instrument}.sttr.json"
+    if not pad.is_file():
+        raise DsoKbFout(
+            f"artefact ontbreekt: {pad.name} — bouw het met "
+            f"python -m nldt.simulation.regelrecht.sttr --instruments {instrument}"
+        )
+    data = json.loads(pad.read_text(encoding="utf-8"))
+    bestanden = data.get("bestanden") or []
+    if identifier is not None:
+        bestanden = [b for b in bestanden if str(b.get("identifier")) == str(identifier)]
+        if not bestanden:
+            geldig = [b.get("identifier") for b in (data.get("bestanden") or [])][:LIMIT_DEFAULT]
+            raise DsoKbFout(
+                f"onbekende toepasbare-regel {identifier!r} voor {instrument}; "
+                f"geldig (eerste {LIMIT_DEFAULT}): {geldig}"
+            )
+    return {
+        "instrument": instrument,
+        "oin": data.get("oin"),
+        "gegenereerdOp": data.get("gegenereerdOp"),
+        "totals": data.get("totals"),
+        "bestanden": bestanden[:LIMIT_MAX],
+    }
+
+
 def _normaliseer(obj: Any) -> Any:
     """Recursief volgorde-onafhankelijk + datumecho-vrij (spec §5)."""
     if isinstance(obj, dict):

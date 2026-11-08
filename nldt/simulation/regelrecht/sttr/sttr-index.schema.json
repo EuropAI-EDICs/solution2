@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sttr-index/v1",
+  "title": "STTR-import-index (RTR → beslistabellen → engine-projectie)",
+  "type": "object",
+  "required": ["contract", "instrument", "gegenereerdOp", "bronnen", "totals", "bestanden"],
+  "properties": {
+    "contract": {"const": "sttr-index/v1"},
+    "instrument": {"type": "string"},
+    "label": {"type": ["string", "null"]},
+    "oin": {"type": ["string", "null"]},
+    "gegenereerdOp": {"type": "string"},
+    "bronnen": {
+      "type": "object",
+      "properties": {
+        "rtrCache": {"type": ["string", "null"]},
+        "rtrCacheSha256": {"type": ["string", "null"]}
+      }
+    },
+    "totals": {
+      "type": "object",
+      "required": ["bestanden", "decisions", "projecteerbaar", "nietProjecteerbaar"],
+      "properties": {
+        "bestanden": {"type": "integer", "minimum": 0},
+        "decisions": {"type": "integer", "minimum": 0},
+        "projecteerbaar": {"type": "integer", "minimum": 0},
+        "nietProjecteerbaar": {"type": "integer", "minimum": 0},
+        "dmnVersies": {"type": "object"},
+        "exporters": {"type": "object"},
+        "redenen": {"type": "object"},
+        "geoVerwijzingen": {"type": "integer", "minimum": 0},
+        "kennisbronnen": {"type": "integer", "minimum": 0},
+        "scenarioUitgevoerd": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "bestanden": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["identifier", "naam", "dmnVersie", "exporter", "decisions"],
+        "properties": {
+          "identifier": {"type": ["integer", "string"]},
+          "naam": {"type": ["string", "null"]},
+          "activiteit": {"type": ["string", "null"]},
+          "begindatum": {"type": ["string", "null"]},
+          "einddatum": {"type": ["string", "null"]},
+          "dmnVersie": {"type": "string"},
+          "sttrNamespace": {"type": ["string", "null"]},
+          "sttrVersie": {"type": ["string", "null"]},
+          "exporter": {"type": ["string", "null"]},
+          "sha256": {"type": "string"},
+          "functioneleStructuurRef": {"type": ["string", "null"]},
+          "kennisbronnen": {"type": "integer"},
+          "geoVerwijzingen": {"type": "integer"},
+          "decisions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["naam", "hitPolicy", "aantalRijen", "projecteerbaar"],
+              "properties": {
+                "naam": {"type": ["string", "null"]},
+                "hitPolicy": {"type": ["string", "null"]},
+                "aantalRijen": {"type": "integer"},
+                "projecteerbaar": {"type": "boolean"},
+                "reden": {"type": ["string", "null"]},
+                "defaultRij": {"type": "boolean"},
+                "uitgang": {"type": ["string", "null"]},
+                "inputs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["name", "type"],
+                    "properties": {
+                      "name": {"type": "string"},
+                      "type": {"type": "string"},
+                      "label": {"type": ["string", "null"]}
+                    }
+                  }
+                },
+                "scenario": {
+                  "type": ["object", "null"],
+                  "properties": {
+                    "status": {"type": "string"},
+                    "reden": {"type": "string"},
+                    "combinaties": {"type": "integer"},
+                    "engineFouten": {"type": "integer"},
+                    "uitkomsten": {"type": "object"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
