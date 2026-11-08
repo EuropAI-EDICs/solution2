@@ -326,6 +326,17 @@ try {
   ds.kg7Kies("eindhoven", "3.37");
   const kgN = parseInt(globalThis.document.getElementById("kg7-n").textContent, 10);
   if (!(kgN > 0)) throw new Error("kg7-n leeg na artikelkeuze 3.37");
+  const a18 = kgE.artikelen["1.8"];
+  if (!a18.tekst || !a18.tekst.includes("meet- en rekenbepalingen"))
+    throw new Error("kg 1.8-popup mist gouden tekstfragment");
+  if (!a18.rr.includes("toegestaan_art_1_8") || !(a18.rr.includes("limiet_m") || a18.rr.includes("in_werkingsgebied")))
+    throw new Error("kg 1.8-popup mist executie-output/input");
+  const w18 = a18.rts[0], ld18 = (kgE.lids || {})[w18];
+  if (!ld18 || !(ld18.tekst.length >= 40))
+    throw new Error("kg lids mist echte lidtekst voor " + w18);
+  const u104 = kgU.artikelen["10.4"];
+  if (!u104.rr.includes("niet geformaliseerd") || !u104.rr.includes("unmatched"))
+    throw new Error("kg utrecht 10.4 rr verwacht niet-geformaliseerd/unmatched");
 
   console.log(`OK — script evaluated; poc1 tracks driven through every step (${n1} steps on active track), sim2 ${n2} steps, laya fp+chat driven, poc4 sim4 ${s4.steps.length} steps, gent sim5 ${s5e.steps.length} steps (sanne/dirk/ellen/wim/nadia/ilse/hanne/maria) + kaartpanel gecontroleerd incl. burger-, kot- en eventpakket-switch, veenendaal sim6 ${s6.steps.length} stappen (${ds.vdPanden()} panden op de kaart), timers drained, sim7 ${s7.steps.length} stappen (dekking ${eh7.dekking.coverage})`);
 } catch (e) {

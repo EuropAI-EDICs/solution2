@@ -303,6 +303,15 @@ uitwisselpakket is gekoppeld; anders zegt de locatie-tooltip eerlijk
 Utrecht **art. 10.4** — unmatched, maar met 9 regels het best verbonden
 artikel van de verordening.
 
+De **popups** tonen echte tekst, geen plaatsvervangers: de artikelknoop
+toont de artikeltekst (cap 500) plus de leesbare RegelRecht-executie —
+inputs · outputs · actions met EN/=/≤ (caps 2 inputs / 4 actions, daarna
+geteld) — of, waar niets executeert, de onthouding ("niet geformaliseerd
+— status"); de regeltekstknoop toont de echte lidtekst (cap 350), met
+eerlijke terugval op alléén de wId waar geen lid-tekst voorhanden is.
+Bronnen: artikeltekst + executie-render uit de instrument-YAML
+(`machine_readable`), lidtekst uit de documentstructuur-XML.
+
 Openen: `open simulation/simulation.html?tab=7`.
 
 **Drift-kaart verversen:** draai één keer `dso_kb.ververs()` (service
