@@ -213,3 +213,214 @@ def lees_documentstructuur(
         "componenten": vlak,
         "vervolg": vervolg,
     }
+
+
+_KOP_SOORTEN = ("annotaties", "documentstructuur", "tpod-index", "toets", "overlap", "geo-validatie", "pakket-index")
+
+
+def instrumenten_overzicht(
+    out_dir: Path | None = None,
+    instrumenten: dict[str, dict[str, Any]] | None = None,
+    locaties: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Instrumenten × locaties met freshness en dekkingscijfers uit de cache."""
+    out = out_dir or DEFAULT_OUT
+    if instrumenten is None or locaties is None:
+        instrumenten, locaties = _laat_instrumenten()
+    rijen = []
+    for iid, meta in sorted(instrumenten.items()):
+        for lid, loc in sorted(locaties.items()):
+            if loc.get("instrument") and loc["instrument"] != iid:
+                continue
+            stem = f"{iid}__{lid}"
+            rij: dict[str, Any] = {
+                "instrument": iid,
+                "label": meta.get("label"),
+                "locatie": lid,
+                "locatieLabel": loc.get("label"),
+                "artefacten": {k: (out / f"{stem}.{k}.json").stat().st_size
+                               for k in _KOP_SOORTEN if (out / f"{stem}.{k}.json").is_file()},
+                "dekking": None,
+                "gegenereerdOp": None,
+                "annotatiesSha256": None,
+            }
+            ov_pad = out / f"{stem}.overlap.json"
+            if ov_pad.is_file():
+                ov = json.loads(ov_pad.read_text(encoding="utf-8"))
+                o = ov.get("overlap") or {}
+                rij["dekking"] = {
+                    "dsoArtikelen": ((ov.get("dso") or {}).get("counts") or {}).get("uniqueArticleNumbers"),
+                    "executable": o.get("executableCount"),
+                    "abstain": o.get("abstainCount"),
+                    "coverageExecutable": o.get("coverageExecutable"),
+                }
+                rij["gegenereerdOp"] = ov.get("generatedAt")
+                rij["annotatiesSha256"] = _kort((ov.get("dso") or {}).get("annotatiesSha256"))
+            rijen.append(rij)
+    return {"instrumenten": rijen}
+
+
+def lees_tpod(
+    instrument: str,
+    locatie: str | None = None,
+    out_dir: Path | None = None,
+    instrumenten: dict[str, dict[str, Any]] | None = None,
+    locaties: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """wId-anchoring, geoFeiten, activiteiten en pons-status van de tpod-index."""
+    out = out_dir or DEFAULT_OUT
+    _meta, lid, stem = _resolve_paar(instrument, locatie, instrumenten, locaties)
+    idx = _lees_json(out / f"{stem}.tpod-index.json")
+    gf = idx.get("geoFeiten") or {}
+    return {
+        "instrument": instrument,
+        "locatie": lid,
+        "gegenereerdOp": idx.get("gegenereerdOp"),
+        "hitCoverage": idx.get("hitCoverage"),
+        "geoFeiten": {k: gf.get(k) for k in ("geselecteerdeLocatieRefs", "aantalLocatiesMetGeometrie", "gebiedsaanwijzingen", "gioInPakket")},
+        "activiteiten": idx.get("activiteiten"),
+        "pons": idx.get("pons"),
+    }
+
+
+def lees_toets(
+    instrument: str,
+    locatie: str | None = None,
+    artikel: str | None = None,
+    out_dir: Path | None = None,
+    instrumenten: dict[str, dict[str, Any]] | None = None,
+    locaties: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """RegelRecht-punttoets: feit/afwezigheid/scenario/onthouding per artikel."""
+    out = out_dir or DEFAULT_OUT
+    _meta, lid, stem = _resolve_paar(instrument, locatie, instrumenten, locaties)
+    data = _lees_json(out / f"{stem}.toets.json")
+    artikelen = data.get("artikelen") or []
+    if artikel is not None:
+        artikelen = [a for a in artikelen if a.get("artikel") == artikel]
+        if not artikelen:
+            raise DsoKbFout(
+                f"artikel {artikel!r} niet in de toets; geldig: "
+                f"{[a.get('artikel') for a in (data.get('artikelen') or [])][:LIMIT_DEFAULT]}"
+            )
+    return {
+        "instrument": instrument,
+        "locatie": lid,
+        "gegenereerdOp": data.get("gegenereerdOp"),
+        "tellingen": data.get("tellingen"),
+        "artikelen": artikelen[:LIMIT_MAX],
+    }
+
+
+def lees_overlap(
+    instrument: str,
+    locatie: str | None = None,
+    status: str | None = None,
+    pagina: int = 1,
+    limiet: int | None = None,
+    out_dir: Path | None = None,
+    instrumenten: dict[str, dict[str, Any]] | None = None,
+    locaties: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """DSO↔RegelRecht-dekking + per-artikel statusrijen, gefilterd en gepagineerd."""
+    out = out_dir or DEFAULT_OUT
+    _meta, lid, stem = _resolve_paar(instrument, locatie, instrumenten, locaties)
+    data = _lees_json(out / f"{stem}.overlap.json")
+    ov = data.get("overlap") or {}
+    rijen = ov.get("articles") or []
+    if pagina < 1:
+        raise DsoKbFout(f"pagina moet >= 1 zijn (kreeg {pagina})")
+    if status is not None:
+        geldig = sorted({r.get("rrStatus") for r in rijen if r.get("rrStatus")})
+        rijen = [r for r in rijen if r.get("rrStatus") == status]
+        if not rijen:
+            raise DsoKbFout(f"onbekende status {status!r}; geldig: {geldig}")
+    grens = _limiet(limiet)
+    start = (pagina - 1) * grens
+    pagina_rijen = rijen[start : start + grens]
+    vervolg = {"volgendePagina": pagina + 1} if start + grens < len(rijen) else None
+    return {
+        "instrument": instrument,
+        "locatie": lid,
+        "gegenereerdOp": data.get("generatedAt"),
+        "dekking": {
+            k: ov.get(k)
+            for k in ("statusCounts", "executableCount", "abstainCount", "coverageExecutable")
+        },
+        "totaalRijen": len(rijen),
+        "pagina": pagina,
+        "artikelen": pagina_rijen,
+        "vervolg": vervolg,
+    }
+
+
+def lijst_gios(
+    instrument: str,
+    locatie: str | None = None,
+    identificatie: str | None = None,
+    out_dir: Path | None = None,
+    instrumenten: dict[str, dict[str, Any]] | None = None,
+    locaties: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """GIO-inventaris uit het officiële uitwisselpakket (pakket-index)."""
+    out = out_dir or DEFAULT_OUT
+    _meta, lid, stem = _resolve_paar(instrument, locatie, instrumenten, locaties)
+    data = _lees_json(out / f"{stem}.pakket-index.json")
+    gios = data.get("gio") or []
+    if identificatie is not None:
+        gios = [g for g in gios if g.get("locatieIdentificatie") == identificatie]
+        if not gios:
+            raise DsoKbFout(f"onbekende GIO-identificatie {identificatie!r}")
+    return {
+        "instrument": instrument,
+        "locatie": lid,
+        "aantal": len(gios),
+        "gios": gios[:LIMIT_MAX],
+    }
+
+
+def punt_in_gio(
+    instrument: str,
+    x: float,
+    y: float,
+    identificatie: str | None = None,
+    locatie: str | None = None,
+    out_dir: Path | None = None,
+    instrumenten: dict[str, dict[str, Any]] | None = None,
+    locaties: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Deterministisch punt-in-polygoon tegen de officiële GIO-geometrie (tpod/geo)."""
+    out = out_dir or DEFAULT_OUT
+    _meta, lid, stem = _resolve_paar(instrument, locatie, instrumenten, locaties)
+    zip_pad = out / f"{stem}.pakket.zip"
+    if not zip_pad.is_file():
+        raise DsoKbFout(
+            f"uitwisselpakket ontbreekt ({zip_pad.name}) — haal het op via de CLI "
+            "met --pakket; daarna werkt deze tool op de cache"
+        )
+    root = str(WORKSPACE)
+    if root not in sys.path:
+        sys.path.insert(0, root)
+    from nldt.simulation.regelrecht.tpod import geo as tpod_geo
+
+    index = tpod_geo.geo_index_uit_pakket(zip_pad)
+    resultaten = []
+    for ident, item in sorted((index.get("locaties") or {}).items()):
+        if identificatie is not None and ident != identificatie:
+            continue
+        resultaten.append(
+            {"locatieIdentificatie": ident, "bevatPunt": tpod_geo.bevat_punt(item["vorm"], (x, y))}
+        )
+    if identificatie is not None and not resultaten:
+        raise DsoKbFout(
+            f"identificatie {identificatie!r} niet koppelbaar in het pakket "
+            "(allen_imow_namen — vrije namen zijn overgeslagen)"
+        )
+    return {
+        "instrument": instrument,
+        "locatie": lid,
+        "punt": {"x": x, "y": y, "crs": "EPSG:28992"},
+        "overgeslagenNamen": index.get("overgeslagen"),
+        "aantal": len(resultaten),
+        "gios": resultaten,
+    }
