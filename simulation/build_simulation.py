@@ -2160,7 +2160,7 @@ def build_kg7(instrumenten: list) -> dict:
             i_art = len(nodes) - 1
             for i, w in enumerate(e["rts"][:3]):
                 ld = lids.get(w)
-                tip_rt = (f"lid {ld['lid']} — {_esc(ld['tekst'])}" if ld and ld.get("tekst")
+                tip_rt = (f"lid {_esc(ld['lid'])} — {_esc(ld['tekst'])}" if ld and ld.get("tekst")
                           else _kg_tip(f"regeltekst {w}", f"artikel {art}"))
                 n_rt = _kg_node("rt", y - 6 + i * 12, w.rsplit("__", 2)[-1], stat_kleur, 5.1,
                                 tip_rt, f"rt:{w}")

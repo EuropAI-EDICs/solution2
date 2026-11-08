@@ -3483,10 +3483,14 @@ function kg7SubLayout(inst, art){
     return {x,y,tx:col==="art"?x-8:x+8,anchor:col==="art"?"end":"start",label,cls,st,tip};};
   const pad=(a,b)=>`M ${a.x} ${a.y} C ${(a.x+b.x)/2} ${a.y}, ${(a.x+b.x)/2} ${b.y}, ${b.x} ${b.y}`;
   const stat=e.status==="formalized"?"kgn-groen":"kgn-amber";
-  const nA=node("art",60,`art. ${art}`,stat,5.0,esc(`artikel ${art} · ${e.status} · ${e.nRegels} regels`));
+  const nA=node("art",60,`art. ${art}`,stat,5.0,
+    `${esc(`artikel ${art} · ${e.status} · ${e.nRegels} regels`)}` +
+    (e.tekst?`<br><br>${esc(e.tekst)}`:"") + (e.rr?`<br><br>${e.rr}`:""));
   n.push(nA);
   e.rts.forEach((w,i)=>{const y=40+i*22; const parts=w.split("__"); const lbl=parts.slice(-2).join("__")||w;
-    const nR=node("rt",y,lbl,stat,5.1,esc(`regeltekst ${w}`));
+    const ld=(kg.lids||{})[w];
+    const tipR= ld&&ld.tekst ? `lid ${esc(ld.lid||"—")} — ${esc(ld.tekst)}` : esc(`regeltekst ${w}`);
+    const nR=node("rt",y,lbl,stat,5.1,tipR);
     n.push(nR); ed.push({s:0,t:n.length-1,st:5.1,cls:"kge-art",d:pad(nA,nR)});});
   e.regels.forEach((rg,j)=>{const y=36+j*20;
     const nJ=node("jr",y,rg.id.slice(0,18),"kgn-blauw",5.2,esc(`juridische regel ${rg.id} · ${rg.act||"—"} (${rg.kw||"—"})`));
