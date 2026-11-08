@@ -152,3 +152,33 @@ def test_gios_onbekende_identificatie_noemt_geldige_lijst():
 def test_punt_in_gio_zonder_pakket_geeft_fout(tmp_path):
     with pytest.raises(dso_kb.DsoKbFout, match="pakket"):
         dso_kb.punt_in_gio("testgm", 1.0, 2.0, out_dir=tmp_path, instrumenten=INSTR, locaties=LOCS)
+
+
+DRIFT = Path(__file__).parent / "fixtures" / "dso_kb" / "drift"
+
+
+def _drift(naam: str) -> dict:
+    return json.loads((DRIFT / naam).read_text(encoding="utf-8"))
+
+
+def test_drift_volgorde_en_datumecho_is_geen_drift():
+    uit = dso_kb.canonieke_drift(_drift("oud.json"), _drift("nieuw_gelijk.json"))
+    assert uit["inhoudelijkeDrift"] == "geen"
+    assert uit["categorieen"] == {}
+
+
+def test_drift_gewijzigde_activiteit_wordt_precies_benoemd():
+    uit = dso_kb.canonieke_drift(_drift("oud.json"), _drift("nieuw_gewijzigd.json"))
+    assert uit["inhoudelijkeDrift"] == "wel"
+    regels = uit["categorieen"]["regels"]
+    assert regels["gewijzigd"] == ["nl.imow-gm9999.jr.002"]
+
+
+def test_drift_nieuwe_en_vervallen_wids():
+    nieuw = _drift("nieuw_gewijzigd.json")
+    nieuw["regelteksten"].append({"wId": "gm9999_a1__chp_1__art_5.1__para_1"})
+    nieuw["regelteksten"] = [r for r in nieuw["regelteksten"] if "3.1" not in r["wId"]]
+    uit = dso_kb.canonieke_drift(_drift("oud.json"), nieuw)
+    teksten = uit["categorieen"]["regelteksten"]
+    assert teksten["erbij"] == ["gm9999_a1__chp_1__art_5.1__para_1"]
+    assert teksten["weg"] == ["gm9999_a1__chp_1__art_3.1__para_1"]

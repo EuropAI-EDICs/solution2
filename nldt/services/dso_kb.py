@@ -15,6 +15,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Any, Callable
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 NLDT_ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE = NLDT_ROOT.parent
@@ -24,6 +25,8 @@ LIMIT_DEFAULT = 100
 LIMIT_MAX = 500
 
 _ARTIKEL_RE = re.compile(r"__art_([\d.]+)")
+
+_DATUM_PARAMS = ("geldigOp", "inWerkingOp", "beschikbaarOp")
 
 
 class DsoKbFout(RuntimeError):
@@ -428,4 +431,78 @@ def punt_in_gio(
         "overgeslagenNamen": index.get("overgeslagen"),
         "aantal": len(resultaten),
         "gios": resultaten,
+    }
+
+
+def _normaliseer(obj: Any) -> Any:
+    """Recursief volgorde-onafhankelijk + datumecho-vrij (spec §5)."""
+    if isinstance(obj, dict):
+        return {k: _normaliseer(obj[k]) for k in sorted(obj)}
+    if isinstance(obj, list):
+        items = [_normaliseer(x) for x in obj]
+        return sorted(items, key=lambda x: json.dumps(x, sort_keys=True, ensure_ascii=False))
+    if isinstance(obj, str) and obj.startswith("http"):
+        onderdelen = urlsplit(obj)
+        query = parse_qsl(onderdelen.query, keep_blank_values=True)
+        gefilterd = [(k, v) for k, v in query if k not in _DATUM_PARAMS]
+        if len(gefilterd) != len(query):
+            return urlunsplit(
+                (onderdelen.scheme, onderdelen.netloc, onderdelen.path, urlencode(gefilterd), onderdelen.fragment)
+            )
+    return obj
+
+
+def _regel_multiset(annotaties: dict[str, Any]) -> dict[str, list[tuple]]:
+    uit: dict[str, list[tuple]] = {}
+    for veld in ("regelsVoorIedereen", "instructieregels"):
+        for regel in annotaties.get(veld) or []:
+            ident = regel.get("identificatie", "")
+            tupels = sorted(
+                (
+                    ala.get("activiteitRef") or "",
+                    tuple(sorted(ala.get("locatieRefs") or [])),
+                    ((ala.get("symbolisatie") or {}).get("symboolcode") or ""),
+                )
+                for ala in regel.get("activiteitLocatieaanduidingen") or []
+            )
+            uit.setdefault(ident, []).extend(tupels)
+    return uit
+
+
+def _per_identificatie(lijst: list[Any] | None) -> dict[str, Any]:
+    return {
+        item.get("identificatie", ""): _normaliseer(item) for item in (lijst or [])
+    }
+
+
+def canonieke_drift(oud: dict[str, Any], nieuw: dict[str, Any]) -> dict[str, Any]:
+    """Canonieke (volgorde- en datumecho-onafhankelijke) vergelijking van annotatie-responsies."""
+    categorieen: dict[str, Any] = {}
+
+    wids_o = {r.get("wId") for r in oud.get("regelteksten") or []}
+    wids_n = {r.get("wId") for r in nieuw.get("regelteksten") or []}
+    if wids_o != wids_n:
+        categorieen["regelteksten"] = {
+            "erbij": sorted(wids_n - wids_o),
+            "weg": sorted(wids_o - wids_n),
+        }
+
+    regels_o, regels_n = _regel_multiset(oud), _regel_multiset(nieuw)
+    gewijzigd = sorted(
+        ident
+        for ident in set(regels_o) | set(regels_n)
+        if sorted(regels_o.get(ident, [])) != sorted(regels_n.get(ident, []))
+    )
+    if gewijzigd:
+        categorieen["regels"] = {"gewijzigd": gewijzigd}
+
+    for naam in ("locaties", "gebiedsaanwijzingen"):
+        rec_o, rec_n = _per_identificatie(oud.get(naam)), _per_identificatie(nieuw.get(naam))
+        anders = sorted(k for k in set(rec_o) | set(rec_n) if rec_o.get(k) != rec_n.get(k))
+        if anders:
+            categorieen[naam] = {"gewijzigd": anders}
+
+    return {
+        "inhoudelijkeDrift": "wel" if categorieen else "geen",
+        "categorieen": categorieen,
     }
