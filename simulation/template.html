@@ -224,6 +224,17 @@
   #kg1svg .kgn circle{stroke:#0b1220;stroke-width:.8}
   #kg1svg .kgn text{font-size:8.5px;fill:#94a3b8}
   #kg1svg .kgn:hover text{fill:#e2e8f0}
+  #kg7svg{width:100%;display:block;background:radial-gradient(900px 380px at 15% -5%,#12203a,#0b1220)}
+  #kg7svg .kge7{fill:none;stroke-width:1;transition:stroke-opacity .5s}
+  #kg7svg .kge-art{stroke:#22d3ee} #kg7svg .kge-rt{stroke:#3b82f6}
+  #kg7svg .kge-jr{stroke:#8b5cf6} #kg7svg .kge-loc{stroke:#22c55e}
+  #kg7svg .kgn{cursor:pointer;transition:opacity .5s}
+  #kg7svg .kgn circle{stroke:#0b1220;stroke-width:.8}
+  #kg7svg .kgn text{font-size:8.5px;fill:#94a3b8}
+  #kg7svg .kgn:hover text{fill:#e2e8f0}
+  #kg7svg .kgn.kgn-groen circle{fill:#22c55e} #kg7svg .kgn.kgn-amber circle{fill:#f59e0b}
+  #kg7svg .kgn.kgn-blauw circle{fill:#3b82f6} #kg7svg .kgn.kgn-cyaan circle{fill:#22d3ee}
+  #kg7svg .kgn.kgn-grijs circle{fill:#94a3b8}
   .kgn-art circle{fill:#22d3ee} .kgn-card circle{fill:#3b82f6}
   .kgn-abs circle{fill:#0b1220;stroke:#f59e0b;stroke-dasharray:2 2}
   .kgn-rule-fo circle{fill:#22c55e} .kgn-rule-am circle{fill:#f59e0b} .kgn-rule-re circle{fill:#475569}
@@ -956,6 +967,15 @@
     <div class="card" id="kb7-eindhoven"></div>
     <div class="card" id="kb7-utrecht"></div>
     <div class="card" id="kb7-driftcard"></div>
+    <div class="card" id="kb7-kgcard">
+      <h3 style="display:flex;gap:10px;flex-wrap:wrap;align-items:baseline">kennisgraaf — artikel → regeltekst → regel → activiteit → locatie → GIO
+        <select id="kg7-inst" onchange="kg7Kies(this.value)" aria-label="instrument" style="font-size:11px"></select>
+        <select id="kg7-art" onchange="kg7Kies(kg7Cur.inst,this.value)" aria-label="artikel" style="font-size:11px;max-width:220px"></select>
+        <span id="kg7-cap" style="text-transform:none;color:var(--faint);font-family:var(--mono);font-size:10.5px"></span>
+        <span style="color:var(--faint);font-size:11px">knopen <b id="kg7-n">0</b></span>
+      </h3>
+      <div class="kgwrap"><svg id="kg7svg" viewBox="0 0 980 590" preserveAspectRatio="xMidYMid meet"></svg></div>
+    </div>
     <div class="card"><h3>run log</h3>
       <div class="logkop" id="logkop7"></div>
       <div class="log" id="log7"></div>
@@ -3323,7 +3343,8 @@ function makeSim6(){
 /* ================================================================ DSO-KB view (tab 7) */
 const DKB = (typeof DATA!=="undefined" && DATA.dsokb) || null;
 const VSTAGES7 = [["DSO annoteert","annotaties.json"],["koppeling","overlap.json"],
-                  ["RegelRecht toetst","toets.json"],["verversen & drift","ververs.json"]];
+                  ["RegelRecht toetst","toets.json"],["verversen & drift","ververs.json"],
+                  ["kennisgraaf","kg7"]];
 const KB_KLEUR = {formalized:"#22c55e", unmatched:"#f59e0b", missing_in_report:"#94a3b8",
                   ambiguous:"#eab308", rejected:"#ef4444"};
 const log7=(html,klasse="ok")=>{ const l=$("log7"); if(!l) return;
@@ -3437,13 +3458,86 @@ function makeSim7(){
     log7(`<b>doctrine</b> — DSO annoteert · RegelRecht toetst · AI verkent — geen LLM in de beslislijn.`,"data");
   });
 
+  S(4,"kennisgraaf",2200,()=>{
+    kg7Set(5.0);
+    [5.1,5.2,5.3,5.4].forEach((st,i)=>setTimeout(()=>kg7Set(st),i*380));
+    $("oplabel7").innerHTML=`kennisgraaf — IMOW-annotatiestructuur met RegelRecht-status als knoopkleur`;
+    const kgE=kg7Data()["eindhoven"];
+    log7(`<b>kennisgraaf</b> — officieel IMOW-weefsel: artikel → regeltekst (wId) → juridische regel → activiteit/locatie → GIO. Eindhoven top: ${kgE.top.slice(0,3).map(a=>"art. "+esc(a)).join(" · ")} — knoopkleur = uitvoerbaar (groen) of onthouding (amber).`,"ok");
+    log7(`<b>kennisgraaf</b> — kies een artikel in de dropdown voor het volledige subgraph (caps: 6 regelteksten / 12 regels; rest als getelde knoop).`,"data");
+  });
+
   return new Sim(steps, { reset: buildStatic7,
     stage:(st, idx)=>{ stageCls7(idx); } });
 }
 
+/* --- kennisgraaf (taak 2): overzicht + artikel-subgraph in kg1-idioom --- */
+let kg7Cur={inst:"eindhoven",art:null}, KG7N=[], KG7E=[], curKg7=-1, kg7Nodes=[], kg7Edges=[];
+function kg7Data(){ return DKB && DKB.kg ? DKB.kg : null; }
+
+function kg7SubLayout(inst, art){
+  const kg=kg7Data()[inst], e=kg.artikelen[art];
+  const COLX={art:120,rt:330,jr:530,act:710,loc:850,gio:950};
+  const n=[], ed=[];
+  const node=(col,y,label,cls,st,tip)=>{const x=COLX[col];
+    return {x,y,tx:col==="art"?x-8:x+8,anchor:col==="art"?"end":"start",label,cls,st,tip};};
+  const pad=(a,b)=>`M ${a.x} ${a.y} C ${(a.x+b.x)/2} ${a.y}, ${(a.x+b.x)/2} ${b.y}, ${b.x} ${b.y}`;
+  const stat=e.status==="formalized"?"kgn-groen":"kgn-amber";
+  const nA=node("art",60,`art. ${art}`,stat,5.0,esc(`artikel ${art} · ${e.status} · ${e.nRegels} regels`));
+  n.push(nA);
+  e.rts.forEach((w,i)=>{const y=40+i*22; const parts=w.split("__"); const lbl=parts.slice(-2).join("__")||w;
+    const nR=node("rt",y,lbl,stat,5.1,esc(`regeltekst ${w}`));
+    n.push(nR); ed.push({s:0,t:n.length-1,st:5.1,cls:"kge-art",d:pad(nA,nR)});});
+  e.regels.forEach((rg,j)=>{const y=36+j*20;
+    const nJ=node("jr",y,rg.id.slice(0,18),"kgn-blauw",5.2,esc(`juridische regel ${rg.id} · ${rg.act||"—"} (${rg.kw||"—"})`));
+    n.push(nJ); ed.push({s:0,t:n.length-1,st:5.2,cls:"kge-rt",d:pad(nA,nJ)});
+    if(rg.act){const cls={"Vergunningplicht":"kgn-amber","Meldingplicht":"kgn-cyaan"}[rg.kw]||"kgn-grijs";
+      const nAct=node("act",y,rg.act.slice(0,22),cls,5.3,esc(`activiteit ${rg.act} · ${rg.kw}`));
+      n.push(nAct); ed.push({s:n.length-2,t:n.length-1,st:5.3,cls:"kge-jr",d:pad(n[n.length-2],nAct)});}
+    rg.locs.slice(0,3).forEach((li,k)=>{const loc=kg.locaties[li];
+      const nL=node("loc",y+8,(loc.noemer||"?").slice(0,20),"kgn-grijs",5.3,
+        esc(`${loc.type}: ${loc.noemer} · gml: ${loc.gml||"niet koppelbaar"}`));
+      n.push(nL); ed.push({s:n.length-3,t:n.length-1,st:5.3,cls:"kge-jr",d:pad(nJ,nL)});
+      if(loc.gml){const nG=node("gio",y+8,loc.gml.slice(-18),"kgn-groen",5.4,esc(`GIO ${loc.gml}`));
+        n.push(nG); ed.push({s:n.length-2,t:n.length-1,st:5.4,cls:"kge-loc",d:pad(nL,nG)});}});});
+  if(e.meer>0){const nM=node("jr",36+e.regels.length*20,`…+${e.meer} regels`,"kgn-grijs",5.2,esc(`${e.meer} regels buiten de weergave-cap`)); n.push(nM);}
+  return {n,e:ed,h:Math.max(...n.map(x=>x.y))+30,cols:Object.entries(COLX).map(([c,x])=>({x,cap:c})),
+          cap:`subgraph art. ${art} · caps: 6 rt / 12 regels`};
+}
+
+function buildKG7(){
+  const svg=$("kg7svg"); if(!svg||!kg7Data()) return; svg.innerHTML="";
+  const kg=kg7Data()[kg7Cur.inst];
+  const G=kg7Cur.art?kg7SubLayout(kg7Cur.inst,kg7Cur.art):kg.overzicht;
+  svg.setAttribute("viewBox",`0 0 980 ${Math.max(160,G.h)}`);
+  $("kg7-cap").textContent=G.cap||"";
+  (G.cols||[]).forEach(c=>kgtxt(svg,c.x,16,"kgcap",c.cap));
+  kg7Nodes=G.n; kg7Edges=G.e;
+  KG7E=G.e.map(e=>el("path",{d:e.d,class:"kge7 "+e.cls,"stroke-opacity":0},svg));
+  KG7N=G.n.map(nd=>{
+    const g=el("g",{class:"kgn "+nd.cls,opacity:0,style:"transition:opacity .5s"},svg);
+    el("circle",{cx:nd.x,cy:nd.y,r:3.2},g);
+    const t=el("text",{x:nd.tx,y:nd.y+2.5},g);
+    if(nd.anchor) t.setAttribute("text-anchor",nd.anchor);
+    t.textContent=nd.label; return g; });
+  $("kg7-n").textContent=G.n.length;
+  curKg7=-1; kg7Set(5.4);
+}
+function kg7Set(st){ if(st===curKg7) return; curKg7=st;
+  kg7Nodes.forEach((nd,i)=>{ KG7N[i].style.opacity=nd.st<=curKg7?1:0; });
+  kg7Edges.forEach((e,i)=>{ KG7E[i].style.strokeOpacity=e.st<=curKg7?0.55:0; }); }
+function kg7Kies(inst, art){
+  if(!kg7Data()) return;
+  if(inst&&inst!==kg7Cur.inst){ kg7Cur={inst,art:null};
+    const sel=$("kg7-art"); sel.innerHTML="";
+    for(const a of kg7Data()[inst].keuze){ const o=document.createElement("option"); o.value=o.textContent="art. "+a; sel.appendChild(o); } }
+  if(typeof art==="string"){ kg7Cur.art=art.replace(/^art\. /,""); $("kg7-art").value="art. "+kg7Cur.art; }
+  buildKG7();
+}
+
 buildRail4(); buildStatic4(); sim4=makeSim4(); sim1.prog();
 buildRail6(); buildStatic6(); buildSweep6(); vWire(); sim6=makeSim6(); sim6.prog();
-if(DKB){ buildRail7(); buildStatic7(); sim7=makeSim7(); sim7.prog(); }
+if(DKB){ buildRail7(); buildStatic7(); sim7=makeSim7(); buildKG7(); kg7Kies("eindhoven"); sim7.prog(); }
 renderGentMeta(); renderGentStatic(); sim5=makeSim5(); sim5.prog();
 
 globalThis.__ds={ get sims(){return [sim1,sim2,sim4,sim5];}, switchTrack, switchTab, gentPersona, gentPackage, gentRandomKot, gentKotSelectie: ()=>kotSelectie,
@@ -3452,6 +3546,7 @@ globalThis.__ds={ get sims(){return [sim1,sim2,sim4,sim5];}, switchTrack, switch
   get sim4(){return sim4;}, get bredaS2(){return ()=>bredaS2Live;},
   get sim6(){return sim6;}, get vdPanden(){return ()=>VD.map.panden.length;},
   get sim7(){return sim7;}, get dsokbData(){return ()=>DKB;},
+  get kg7Data(){return kg7Data;}, kg7Kies:(i,a)=>kg7Kies(i,a),
   get vdScenario(){return (id)=>vdScenario(id);}, get vdSweep(){return ()=>VD.sweep;},
   get vdNieuwN(){return ()=>(V6.nieuw?V6.nieuw.children.length:0);},
   get vdZonesData(){return ()=>VD.zones;} };
