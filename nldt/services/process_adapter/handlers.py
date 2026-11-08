@@ -21,6 +21,10 @@ from services.process_adapter.poc_handlers import (
     POC_PROCESS_DEFINITIONS,
     execute_poc_process,
 )
+from services.process_adapter.dso_handlers import (
+    DSO_PROCESS_DEFINITIONS,
+    execute_dso_process,
+)
 
 
 def _load_source(source: str | dict[str, Any] | list[Any], aoi: Any = None) -> dict[str, Any] | list[Any]:
@@ -447,6 +451,7 @@ PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
     **PROCESS_DEFINITIONS_CORE,
     **PROCESS_DEFINITIONS_FULL_CATALOGUE,
     **POC_PROCESS_DEFINITIONS,
+    **DSO_PROCESS_DEFINITIONS,
 }
 
 
@@ -482,6 +487,8 @@ def execute_local(process_id: str, inputs: dict[str, Any], job_id: str | None = 
 def _execute_local_inner(process_id: str, inputs: dict[str, Any]) -> dict[str, Any]:
     if process_id in POC_PROCESS_DEFINITIONS:
         return execute_poc_process(process_id, inputs)
+    if process_id in DSO_PROCESS_DEFINITIONS:
+        return execute_dso_process(process_id, inputs)
     if process_id == "fetch-features":
         fc = _load_source(inputs["source"], inputs.get("aoi"))
         return {"features": fc}
