@@ -20,6 +20,7 @@ function stubEl(tag) {
     setAttribute() {}, getAttribute: () => null, removeAttribute() {},
     appendChild(c) { el.children.push(c); c.parentElement = el; return c; },
     remove() {},
+    insertAdjacentHTML(pos, html) { this._adj = (this._adj || "") + String(html); },
     querySelector: () => stubEl("q"),
     querySelectorAll: () => [],
     addEventListener() {},
@@ -278,7 +279,27 @@ try {
   if (zones6._inner.indexOf(somZones.toFixed(2)) < 0)
     throw new Error("zone-tabel toont de totaal-toedeling niet");
 
-  console.log(`OK — script evaluated; poc1 tracks driven through every step (${n1} steps on active track), sim2 ${n2} steps, laya fp+chat driven, poc4 sim4 ${s4.steps.length} steps, gent sim5 ${s5e.steps.length} steps (sanne/dirk/ellen/wim/nadia/ilse/hanne/maria) + kaartpanel gecontroleerd incl. burger-, kot- en eventpakket-switch, veenendaal sim6 ${s6.steps.length} stappen (${ds.vdPanden()} panden op de kaart), timers drained`);
+  // ---- DSO-KB tab 7: coverage + toets + drift ----------------------------
+  ds.switchTab(7);
+  const s7 = ds.sim7;
+  if (!s7 || s7.steps.length !== 4) throw new Error("sim7 verwacht 4 stappen (kreeg: " + (s7 ? s7.steps.length : "none") + ")");
+  s7.jumpToStage(3); drain();
+  const kb = ds.dsokbData();
+  if (!kb || kb.instrumenten.length !== 2) throw new Error("dsokbData verwacht 2 instrumenten");
+  const eh7 = kb.instrumenten.find(i => i.id === "eindhoven");
+  const ut7 = kb.instrumenten.find(i => i.id === "utrecht");
+  if (eh7.dekking.coverage !== 0.5635) throw new Error("eindhoven coverage verwacht 0.5635, kreeg " + eh7.dekking.coverage);
+  if (eh7.dekking.executable !== 457 || eh7.dekking.dsoArtikelen !== 811) throw new Error("eindhoven 811/457 verwacht");
+  if (ut7.dekking.coverage !== 0.0654) throw new Error("utrecht coverage verwacht 0.0654, kreeg " + ut7.dekking.coverage);
+  if (ut7.dekking.executable !== 7) throw new Error("utrecht executable verwacht 7");
+  if (eh7.geo.getoetst !== 34 || eh7.geo.overeenstemming !== 34) throw new Error("eindhoven geo verwacht 34/34");
+  if (ut7.geo.naamOvereenkomend !== 8) throw new Error("utrecht naamafstemming verwacht 8");
+  if (eh7.ververs && eh7.ververs.drift.inhoudelijkeDrift !== "geen")
+    throw new Error("eindhoven drift verwacht 'geen', kreeg " + eh7.ververs.drift.inhoudelijkeDrift);
+  if (!globalThis.document.getElementById("kb7-cov-eindhoven").textContent.includes("56,35"))
+    throw new Error("kb7-cov-eindhoven mist gouden 56,35%");
+
+  console.log(`OK — script evaluated; poc1 tracks driven through every step (${n1} steps on active track), sim2 ${n2} steps, laya fp+chat driven, poc4 sim4 ${s4.steps.length} steps, gent sim5 ${s5e.steps.length} steps (sanne/dirk/ellen/wim/nadia/ilse/hanne/maria) + kaartpanel gecontroleerd incl. burger-, kot- en eventpakket-switch, veenendaal sim6 ${s6.steps.length} stappen (${ds.vdPanden()} panden op de kaart), timers drained, sim7 ${s7.steps.length} stappen (dekking ${eh7.dekking.coverage})`);
 } catch (e) {
   console.error("FAIL:", e && e.stack ? e.stack.split("\n").slice(0, 6).join("\n") : e);
   process.exit(1);
