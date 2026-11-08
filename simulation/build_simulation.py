@@ -1910,6 +1910,7 @@ def build_dso_kb() -> dict:
     if not DSO_OUT.is_dir():
         sys.exit(f"missing dso_overlap cache under {DSO_OUT}")
     instrumenten = []
+    kg_instrumenten = []   # hulplijst voor build_kg7 — verlaat de functie niet
     for iid, lid, label, cvdr in DSO_INSTRUMENTEN:
         stem = f"{iid}__{lid}"
         ov = json.loads((DSO_OUT / f"{stem}.overlap.json").read_text(encoding="utf-8"))
@@ -1935,6 +1936,7 @@ def build_dso_kb() -> dict:
             geo_regels["naamOvereenkomend"] = na.get("naamOvereenkomend")
             geo_regels["naamSweepGmls"] = na.get("sweepGmls")
 
+        kg_instrumenten.append({"id": iid, "locatie": lid, "_overlapArticles": o.get("articles") or []})
         instrumenten.append({
             "id": iid,
             "label": label,
@@ -1961,7 +1963,158 @@ def build_dso_kb() -> dict:
             "gegenereerdOp": ov.get("generatedAt"),
             "ververs": ververs,
         })
-    return {"instrumenten": instrumenten}
+    return {"instrumenten": instrumenten, "kg": build_kg7(kg_instrumenten)}
+
+
+_KG_ART = re.compile(r"__art_([\d.]+)")
+_KG_KW = {"Vergunningplicht": "vergunning", "Meldingplicht": "melding"}
+KG_TOP, KG_RT_CAP, KG_REGEL_CAP, KG_KEUZE_CAP = 12, 6, 12, 500
+KG_COLX = {"art": 120, "rt": 330, "jr": 530, "act": 710, "loc": 850, "gio": 950}
+KG_CAPS = {"art": "artikel", "rt": "regeltekst · wId", "jr": "juridische regel",
+           "act": "activiteit", "loc": "locatie", "gio": "GIO · gml"}
+
+
+def _kg_tip(*regels: str) -> str:
+    return "<br>".join(_esc(r) for r in regels if r)
+
+
+def build_kg7(instrumenten: list) -> dict:
+    """DSO-kennisgraaf per instrument: top-overzicht kant-en-klaar uitgelijnd
+    (kg1-idioom) + compacte per-artikel subgraph-data voor de dropdown."""
+    uit = {}
+    for inst in instrumenten:
+        stem = f"{inst['id']}__{inst['locatie']}"
+        ann = json.loads((DSO_OUT / f"{stem}.annotaties.json").read_text(encoding="utf-8"))
+        pak = json.loads((DSO_OUT / f"{stem}.pakket-index.json").read_text(encoding="utf-8"))
+        status = {a["number"]: a["rrStatus"] for a in inst["_overlapArticles"]}
+
+        gml_van = {g.get("locatieIdentificatie"): g.get("bestand", "").rsplit("/", 1)[-1]
+                   for g in (pak.get("gio") or [])}
+        noemer_van = {}
+        for l in (ann.get("locaties") or []) + (ann.get("gebiedsaanwijzingen") or []):
+            noemer_van[l.get("identificatie", "")] = (l.get("noemer") or l.get("naam")
+                                                      or l.get("identificatie", "").rsplit(".", 1)[-1])
+        type_van = {l.get("identificatie", ""): "gebiedsaanwijzing" for l in (ann.get("gebiedsaanwijzingen") or [])}
+
+        ident2art, art2rts = {}, {}
+        for rt in ann.get("regelteksten") or []:
+            m = _KG_ART.search(rt.get("wId", ""))
+            art = m.group(1) if m else rt.get("wId")
+            ident2art[rt["identificatie"]] = art
+            art2rts.setdefault(art, []).append(rt["wId"])
+
+        loc_index, locaties = {}, []
+        for r in (ann.get("regelsVoorIedereen") or []) + (ann.get("instructieregels") or []):
+            for ala in r.get("activiteitLocatieaanduidingen") or []:
+                for lr in (ala.get("locatieRefs") or []) + (r.get("locatieRefs") or []):
+                    if lr not in loc_index:
+                        loc_index[lr] = len(locaties)
+                        locaties.append({"id": lr, "noemer": noemer_van.get(lr, lr.rsplit(".", 1)[-1]),
+                                         "type": type_van.get(lr, "locatie"), "gml": gml_van.get(lr)})
+
+        artikelen = {}
+        for veld in ("regelsVoorIedereen", "instructieregels"):
+            for r in ann.get(veld) or []:
+                art = ident2art.get(r.get("regeltekstRef"))
+                if art is None:
+                    continue
+                rts = art2rts[art]
+                if art not in artikelen:
+                    artikelen[art] = {"status": status.get(art, "missing_in_report"),
+                                      "nRegels": 0, "nRT": len(rts), "rts": rts[:KG_RT_CAP],
+                                      "regels": [], "meer": 0}
+                e = artikelen[art]
+                e["nRegels"] += 1
+                if len(e["regels"]) >= KG_REGEL_CAP:
+                    e["meer"] += 1
+                    continue
+                alas = r.get("activiteitLocatieaanduidingen") or []
+                e["regels"].append({
+                    "id": (r.get("identificatie") or "").rsplit(".", 1)[-1],
+                    "act": (alas[0].get("activiteitRef") or "").rsplit(".", 1)[-1] if alas else None,
+                    "kw": (alas[0].get("activiteitregelkwalificatie") or {}).get("waarde") if alas else None,
+                    "locs": sorted({loc_index[lr] for ala in alas for lr in ala.get("locatieRefs") or []
+                                    if lr in loc_index} | {loc_index[lr] for lr in r.get("locatieRefs") or []
+                                                           if lr in loc_index})[:6],
+                })
+
+        def _kg_node(col, y, label, cls, st, tip, key, anchor="start"):
+            x = KG_COLX[col]
+            return {"x": x, "y": y, "tx": x - 8 if col == "art" else x + 8,
+                    "anchor": "end" if col == "art" else "start",
+                    "label": label, "cls": cls, "st": st, "tip": tip, "key": key}
+
+        gerangschikt = sorted(artikelen.items(), key=lambda kv: (-kv[1]["nRegels"], _artikel_nummer(kv[0])))
+        top = [a for a, _ in gerangschikt[:KG_TOP]]
+        nodes, edges = [], []
+        for art, e in gerangschikt[:KG_TOP]:
+            y = 40 + len(nodes) * 34
+            stat_kleur = "kgn-groen" if e["status"] == "formalized" else "kgn-amber"
+            n_art = _kg_node("art", y, f"art. {art}", stat_kleur, 5.0,
+                             _kg_tip(f"artikel {art}", f"status: {e['status']}",
+                                     f"{e['nRegels']} regels · {e['nRT']} regelteksten"), f"art:{art}")
+            nodes.append(n_art)
+            for i, w in enumerate(e["rts"][:3]):
+                y_rt = y + i * 12
+                n_rt = _kg_node("rt", y_rt, w.rsplit("__", 2)[-1], stat_kleur, 5.1,
+                                _kg_tip(f"regeltekst {w}", f"artikel {art}"), f"rt:{w}")
+                nodes.append(n_rt)
+                edges.append({"s": nodes.index(n_art), "t": len(nodes) - 1, "st": 5.1,
+                              "cls": "kge-art", "d": _kg_pad(n_art, n_rt)})
+            for rg in e["regels"][:3]:
+                y_jr = y + 2
+                n_jr = _kg_node("jr", y_jr, f"{rg['id'][:18]}" + ("…" if len(rg["id"]) > 18 else ""),
+                                "kgn-blauw", 5.2,
+                                _kg_tip(f"juridische regel {rg['id']}",
+                                        f"activiteit: {rg['act'] or '—'} ({rg['kw'] or '—'})"), f"jr:{rg['id']}")
+                nodes.append(n_jr)
+                edges.append({"s": len(nodes) - 2, "t": len(nodes) - 1, "st": 5.2,
+                              "cls": "kge-rt", "d": _kg_pad(nodes[-2], n_jr)})
+                if rg["act"]:
+                    n_act = _kg_node("act", y_jr, rg["act"][:22],
+                                     {"vergunning": "kgn-amber", "melding": "kgn-cyaan"}.get(
+                                         _KG_KW.get(rg["kw"] or "", "anders"), "kgn-grijs"), 5.3,
+                                     _kg_tip(f"activiteit {rg['act']}", f"kwalificatie: {rg['kw']}"),
+                                     f"act:{rg['act']}")
+                    nodes.append(n_act)
+                    edges.append({"s": len(nodes) - 2, "t": len(nodes) - 1, "st": 5.3,
+                                  "cls": "kge-jr", "d": _kg_pad(nodes[-2], n_act)})
+                for li in rg["locs"][:2]:
+                    loc = locaties[li]
+                    n_loc = _kg_node("loc", y_jr + 6, (loc["noemer"] or "?")[:20],
+                                     "kgn-grijs", 5.3,
+                                     _kg_tip(f"{loc['type']}: {loc['noemer']}", loc["id"],
+                                             f"gml: {loc['gml'] or 'niet koppelbaar'}"), f"loc:{li}")
+                    nodes.append(n_loc)
+                    edges.append({"s": len(nodes) - 2, "t": len(nodes) - 1, "st": 5.3,
+                                  "cls": "kge-jr", "d": _kg_pad(nodes[-2], n_loc)})
+                    if loc["gml"]:
+                        n_gio = _kg_node("gio", y_jr + 6, loc["gml"][-18:], "kgn-groen", 5.4,
+                                         _kg_tip(f"GIO {loc['gml']}", "officieel uitwisselpakket"), f"gio:{li}")
+                        nodes.append(n_gio)
+                        edges.append({"s": len(nodes) - 2, "t": len(nodes) - 1, "st": 5.4,
+                                      "cls": "kge-loc", "d": _kg_pad(nodes[-2], n_gio)})
+        h = max(n["y"] for n in nodes) + 30 if nodes else 120
+        uit[inst["id"]] = {"top": top,
+                           "keuze": [a for a, _ in gerangschikt[:KG_KEUZE_CAP]],
+                           "locaties": locaties, "artikelen": artikelen,
+                           "overzicht": {"n": nodes, "e": edges, "h": h,
+                                         "cols": [{"x": x, "cap": c} for c, x in KG_COLX.items()],
+                                         "cap": f"top-{KG_TOP} naar aantal regels · join via IMOW-identificatie"}}
+    return uit
+
+
+def _kg_pad(a: dict, b: dict) -> str:
+    mx, my = (a["x"] + b["x"]) / 2, (a["y"] + b["y"]) / 2
+    return f"M {a['x']} {a['y']} C {mx} {a['y']}, {mx} {b['y']}, {b['x']} {b['y']}"
+
+
+def _artikel_nummer(num: str) -> tuple:
+    delen = []
+    for stuk in str(num).split("."):
+        m = re.match(r"(\d+)", stuk)
+        delen.append(int(m.group(1)) if m else stuk)
+    return tuple(delen)
 
 
 def main() -> int:
@@ -2049,6 +2202,10 @@ def main() -> int:
         drift = (inst["ververs"] or {}).get("drift", {}).get("inhoudelijkeDrift", "geen rapport")
         print(f"  dsokb/{inst['id']}: {d['dsoArtikelen']} DSO-artikelen → {d['executable']} uitvoerbaar "
               f"({100 * d['coverage']:.2f}%) · drift: {drift}")
+    for iid, kg in data["dsokb"]["kg"].items():
+        print(f"  dsokb/{iid}: kennisgraaf top={kg['top'][:3]} · {len(kg['artikelen'])} artikelen · "
+              f"{len(kg['overzicht']['n'])} knopen/{len(kg['overzicht']['e'])} edges · "
+              f"{len(kg['locaties'])} locaties")
     ly = data["poc2"]["laya"]
     ev = ly["eval"]
     m = ly["meta"]
