@@ -90,7 +90,9 @@ grondwaterbeschermingszone** (18,02 ha van de toedeling — de spoorzone zit in 
 grondwaterbeschermingsgebied); DICHT-15 is overal het zuinigst (24 bomen ·
 14 monumenten); tempo-varianten delen de toedeling met BOUW-OP-VERHARD (tempo
 verandert oppervlak, geen ligging). De hub (tab 6) toont dit als negende stap
-"het loket" met een eigen telemetry-kaart.
+"het loket" met een eigen telemetry-kaart — en zes van de GIO-lagen zijn daar
+als **klikbare kaart-overlays** opgenomen (tijdelijk deel, ecologisch,
+boringsvrije zone, archeologie, beschermde bomen, gemeentelijke monumenten).
 
 ## Wat de check doet
 

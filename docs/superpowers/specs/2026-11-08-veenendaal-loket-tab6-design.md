@@ -70,3 +70,17 @@ doctrine-regel: **geometrisch feit, geen toets** — "raakt" ≠ "verboden".
 - `build_simulation.py` print `veenendaal/loket`-samenvatting; gerenderde
   `simulation.html` bevat `loketcard6`, "het loket" in de rail (9 stappen);
   `node --check` groen; browser-smoke: tab 6 → jumpToStage(7) → logs + kaart.
+
+## Update 8-11-2026 (slot): kaart-overlays (optie 2)
+
+Zes gecureerde GIO-lagen zijn nu ook **op de kaart** zichtbaar (klikbaar in de
+legenda): regels tijdelijk deel, ecologisch waardevol gebied, boringsvrije
+zone, archeologisch waardevol gebied, beschermde bomen (144 punten) en
+gemeentelijke monumenten (21 vlakken). Bouw: `build_veenendaal()` ontleedt de
+GML's uit het lokale uitwisselpakket (zelfde cache-contract als BAG/BGT),
+klipt op de werkgrens en versimpelt voor display; bij meerdere bestandsnamen
+per thema (bijv. archeologie *petenbos* vs. *aanleg*) wint de kandidaat met de
+grootste overlap met de werkgrens — deterministisch, geen handkeuze. De
+loket-stap zet *tijdelijk deel* + *boringsvrije zone* aan en noemt de rest
+klikbaar; `buildStatic6` zet bij reset alles uit. Browser-geverifieerd:
+toggles aan/uit (met `.on`-legendastatus), stage-aanzet en reset.

@@ -441,6 +441,16 @@
 #map6 .vd-nieuw path{stroke-width:.7}
 #map6 .vd-nieuw-v path{fill:#f59e0b;fill-opacity:.6;stroke:#fbbf24}
 #map6 .vd-nieuw-g path{fill:#ef4444;fill-opacity:.55;stroke:#f87171}
+/* loket-overlays: officiële GIO-lagen (klikbaar in de legenda) */
+#map6 .vd-lok path{stroke-width:1;stroke-dasharray:6 4}
+#map6 .vd-lok-tijdelijk path{fill:rgba(245,158,11,.10);stroke:#f59e0b}
+#map6 .vd-lok-ecologisch path{fill:rgba(45,212,191,.20);stroke:#2dd4bf}
+#map6 .vd-lok-boringsvrije path{fill:rgba(96,165,250,.16);stroke:#60a5fa}
+#map6 .vd-lok-archeologie path{fill:rgba(167,139,250,.22);stroke:#a78bfa}
+#map6 .vd-lok-monumenten path{fill:rgba(251,113,133,.40);stroke:#fb7185;stroke-dasharray:none}
+#map6 .vd-lok-giov_bomen circle{fill:#f97316;fill-opacity:.85}
+#legend6 .li.lok{cursor:pointer;border-radius:6px;padding:2px 6px;margin:-2px -6px}
+#legend6 .li.lok.on{background:rgba(34,211,238,.10);opacity:1}
 #map6 .vd-zone{fill:none;stroke:rgba(34,211,238,.35);stroke-width:1;stroke-dasharray:3 5}
 #map6 .vd-zonelbl{fill:rgba(226,232,240,.6);font-size:10px;font-family:var(--mono,monospace);paint-order:stroke;stroke:#0b1220;stroke-width:2.5px}
 /* view6: kaart bijna pagabreed — rail links, kaart + tabellen rechts, telemetry eronder */
@@ -3062,6 +3072,17 @@ function buildMap6(){
     el("circle",{cx:c[0].toFixed(1),cy:c[1].toFixed(1),r:p[2]===1?2.6:2.1},
       p[2]===1?V6.pand1:(p[2]===2?V6.pand2:V6.pand0)); });
   V6.nieuw=el("g",{class:"vd-nieuw",opacity:0},layers);
+  /* loket-overlays: officiële GIO-lagen bovenop de gebiedscheck (legenda = klikbaar) */
+  V6.loket={};
+  if(VD.loket && VD.loket.map){
+    for(const laag of VD.loket.map){
+      const g=el("g",{class:"vd-lok vd-lok-"+laag.key,opacity:0},layers);
+      if(laag.ringen) laag.ringen.forEach(r=>el("path",{d:vPath(r)},g));
+      if(laag.punten) laag.punten.forEach(pt=>{ const c=VPROJ(pt[0],pt[1]);
+        el("circle",{cx:c[0].toFixed(1),cy:c[1].toFixed(1),r:3},g); });
+      V6.loket[laag.key]=g;
+    }
+  }
   el("rect",{class:"vd-wg",x:a[0].toFixed(1),y:a[1].toFixed(1),
              width:(b[0]-a[0]).toFixed(1),height:(b[1]-a[1]).toFixed(1)},svg);
   if(VD.zones && VD.zones.zones){
@@ -3112,7 +3133,21 @@ function buildLegend6(){
     ["bomen","boom (BGT-punt)","#15803d"],["st","station","#ffffff"],
     ["nwv","nieuwbouw-allocatie op verhard (scenario)","#f59e0b"],
     ["nwg","nieuwbouw-allocatie op groen (scenario)","#ef4444"]];
-  $("legend6").innerHTML=items.map(i=>`<div class="li"><div class="sw" style="background:${i[2]}"></div>${esc(i[1])}</div>`).join("");
+  $("legend6").innerHTML=items.map(i=>`<div class="li"><div class="sw" style="background:${i[2]}"></div>${esc(i[1])}</div>`).join("")
+    + (VD.loket&&VD.loket.map&&VD.loket.map.length
+      ? `<div style="flex-basis:100%;height:0"></div>`
+        + VD.loket.map.map(l=>`<div class="li lok" id="lg-lok-${esc(l.key)}" onclick="vdLoketToggle('${esc(l.key)}')" title="klik = laag aan/uit"><div class="sw" style="background:${esc(l.kleur)}"></div>${esc(l.naam)}</div>`).join("")
+      : "");
+}
+function vdLoketZet(key,aan){
+  const g=V6.loket&&V6.loket[key]; if(!g) return;
+  g.style.opacity=aan?1:0;
+  const li=$("lg-lok-"+key); if(li) li.classList.toggle("on",!!aan);
+}
+function vdLoketToggle(key){
+  const g=V6.loket&&V6.loket[key]; if(!g) return;
+  const zichtbaar=g.style.opacity&&g.style.opacity!=="0"&&g.style.opacity!==0;
+  vdLoketZet(key,!zichtbaar);
 }
 function buildTelemetry6(){
   const LV=[["V0","structuur"],["V1","geometrie"],["V2","bronherleidbaarheid"],["V3","heraggregatie"]];
@@ -3278,6 +3313,7 @@ function buildStatic6(){
   $("wonBig").textContent="0"; $("wonBig").dataset.v="0";
   $("v3note6").textContent=""; $("done6").classList.remove("on"); $("done6").innerHTML="";
   document.querySelectorAll("#rail6 .stage").forEach(s=>s.classList.remove("active","done"));
+  if(V6.loket) for(const key of Object.keys(V6.loket)) vdLoketZet(key,false);
   vCurScenario=null;
 }
 function makeSim6(){
@@ -3366,6 +3402,8 @@ function makeSim6(){
     $("oplabel6").innerHTML=`het loket — <b>${esc(String(L.gios.inGebied))}/${esc(String(L.gios.totaal))}</b> officiële GIO-lagen over de werkgrens · scenario-kruising`;
     log6(`<b class="agrol">loket-agent</b> — haalt de officiële vraagkant op: <b>${esc(String(L.bestanden))} STTR-bestanden</b> in de RTR (Veenendaal, OIN ${esc(L.oin||"—")}) — de DMN-vragen die in het Omgevingsloket draaien. Omgevingsplan: ${esc(L.regeling&&L.regeling.titel?L.regeling.titel:"—")}.`,"ok");
     log6(`<b class="agrol">loket-agent</b> — het uitwisselpakket bevat ${esc(String(L.gios.totaal))} GIO's; <b>${esc(String(L.gios.inGebied))} snijden de werkgrens</b> — top: ${(L.gios.top||[]).slice(0,3).map(g=>`${esc(String(g.naam).slice(0,30))} (${esc(String(g.ha))} ha)`).join(" · ")}. Lagen, géén uitspraken: welke STTR-vraag wáár geldt is bij Veenendaal niet koppelbaar (kansen-notitie).`,"data");
+    vdLoketZet("tijdelijk",true); vdLoketZet("boringsvrije",true);
+    log6(`<b class="agrol">loket-agent</b> — zet twee lagen áán op de kaart: <b>regels tijdelijk deel</b> (de Veenendaalse bruidschat over de hele zone) en de <b>boringsvrije zone</b> — de overige officiële lagen (ecologisch, archeologie, beschermde bomen, monumenten) zijn klikbaar in de legenda.`,"ok");
     const kr=L.kruising||[];
     const van=(id,deel)=>{ const s=kr.find(k=>k.id===id); if(!s) return null;
       return (s.raakt||[]).find(r=>String(r.gio).toLowerCase().includes(deel))||null; };

@@ -1384,6 +1384,71 @@ def build_veenendaal() -> dict:
         loket["grens"] = ("vragen, geen besluit — raakt ≠ verboden; "
                           "STTR-vraag ↔ locatie niet koppelbaar bij Veenendaal")
 
+        # --- loket-kaartlagen: zes gecureerde GIO-overlays, display-versimpeld
+        # (zelfde cache-contract als de BAG/BGT-lagen: lokaal, gitignored) ---
+        LOKET_KAART_LAGEN = [
+            ("tijdelijk", "regels tijdelijk deel (GIO)", "tijdelijk_deel", "#f59e0b"),
+            ("ecologisch", "ecologisch waardevol gebied", "ecologisch_waardevol", "#2dd4bf"),
+            ("boringsvrije", "boringsvrije zone", "boringsvrije_zone", "#60a5fa"),
+            ("archeologie", "archeologisch waardevol gebied", "archeologisch_waardevol_gebied", "#a78bfa"),
+            ("giov_bomen", "beschermde bomen (GIO)", "beschermdebomen", "#f97316"),
+            ("monumenten", "gemeentelijke monumenten (GIO)", "gemeentelijkemonumenten", "#fb7185"),
+        ]
+        pakket_pad = VEENENDAAL_POC / "data" / "cache" / "omgevingsplan-pakket.zip"
+        loket["map"] = []
+        if pakket_pad.is_file():
+            import importlib.util as _ilu
+            import zipfile as _zf
+            _kruis_spec = _ilu.spec_from_file_location(
+                "vd_sttr_kruising", VEENENDAAL_POC / "sttr_kruising.py")
+            _kruis = _ilu.module_from_spec(_kruis_spec)
+            _kruis_spec.loader.exec_module(_kruis)
+            with _zf.ZipFile(pakket_pad) as z:
+                gml_namen = {n.rsplit("/", 1)[-1]: n for n in z.namelist()
+                             if n.endswith(".gml") and "/" in n}
+                for key, label, deel, kleur in LOKET_KAART_LAGEN:
+                    kandidaten = sorted(k for k in gml_namen if deel in k.lower())
+                    if not kandidaten:
+                        continue
+                    # bij meerdere bestandsnamen (bijv. petenbos- vs. aanleg-
+                    # variant van archeologie): de laag met de grootste overlap
+                    # met de werkgrens is de bedoelde displaylaag
+                    beste, beste_opp, beste_polyn = None, 0.0, None
+                    for k in kandidaten:
+                        polyn = _kruis.gml_polygonen(z.read(gml_namen[k]))
+                        if not polyn:
+                            continue
+                        opp = sum(p.intersection(clip).area for p in polyn
+                                  if p.intersects(clip))
+                        if opp > beste_opp:
+                            beste, beste_opp, beste_polyn = k, opp, polyn
+                    if not beste or beste_opp <= 0:
+                        continue
+                    polygonen = beste_polyn
+                    if key == "giov_bomen":
+                        punten = [[round(p.representative_point().x),
+                                   round(p.representative_point().y)]
+                                  for p in polygonen if p.intersects(clip)]
+                        if punten:
+                            loket["map"].append({"key": key, "naam": label,
+                                                 "kleur": kleur, "punten": punten})
+                        continue
+                    rings = []
+                    for poly in polygonen:
+                        try:
+                            g2 = poly.intersection(clip).simplify(1.0, preserve_topology=True)
+                        except Exception:
+                            continue
+                        if g2.is_empty or g2.area < 40:
+                            continue
+                        for p in (list(g2.geoms) if g2.geom_type == "MultiPolygon" else [g2]):
+                            rr = [[round(x, 1), round(y, 1)] for x, y in p.exterior.coords]
+                            if len(rr) >= 4:
+                                rings.append(rr)
+                    if rings:
+                        loket["map"].append({"key": key, "naam": label,
+                                             "kleur": kleur, "ringen": rings})
+
     return {
         "runId": manifest["runId"],
         "gebied": {"naam": gebied["gebied"],

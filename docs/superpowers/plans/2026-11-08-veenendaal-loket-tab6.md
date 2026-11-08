@@ -6,3 +6,4 @@ Design: [2026-11-08-veenendaal-loket-tab6-design.md](../specs/2026-11-08-veenend
 - [x] 2. `build_simulation.py`: `VD.loket` uit de twee canonieke runs + samenvattingsprint.
 - [x] 3. `template.html`: VSTAGES6-stap "het loket", makeSim6-stage met gouden getallen, telemetry-kaart `loketcard6` + `buildLoket6()`.
 - [x] 4. Hub herbouwd; node --check + browser-smoke (tab 6, jumpToStage(7)); tests voor de kruising; README/notitie-updates; commits.
+- [x] 5. Kaart-overlays (optie 2): zes GIO-lagen klikbaar in de legenda; loket-stap zet tijdelijk deel + boringsvrije zone aan; grootste-overlap-kandidaat bij bestandsnaam-ambiguïteit; browser-geverifieerd.
