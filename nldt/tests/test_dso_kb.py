@@ -31,11 +31,11 @@ def test_onbekende_locatie_noemt_geldige_lijst():
 def test_annotaties_groepeer_per_artikel():
     uit = _lees_annotaties(instrument="testgm")
     artikelen = {a["artikel"]: a for a in uit["artikelen"]}
-    assert set(artikelen) == {"2.1", "3.1"}
+    assert set(artikelen) == {"2.1", "3.1", "10.1"}
     assert artikelen["2.1"]["regelteksten"] == 2
     assert artikelen["2.1"]["activiteiten"] == ["Bouwen"]
-    assert uit["totaalArtikelen"] == 2
-    assert uit["counts"]["regelteksten"] == 3
+    assert uit["totaalArtikelen"] == 3
+    assert uit["counts"]["regelteksten"] == 4
 
 
 def test_annotaties_filter_artikel():
@@ -60,6 +60,13 @@ def test_annotaties_begrenzing():
     uit = _lees_annotaties(instrument="testgm", limiet=1)
     assert len(uit["artikelen"]) == 1
     assert uit["vervolg"]["maxLimiet"] == dso_kb.LIMIT_MAX
+
+
+def test_annotaties_nummer_sortering():
+    # "10.1" moet ná "2.1" komen (lexicografisch zou het ervoor staan)
+    uit = _lees_annotaties(instrument="testgm")
+    nummers = [a["artikel"] for a in uit["artikelen"]]
+    assert nummers == sorted(nummers, key=dso_kb._artikel_sleutel)
 
 
 def test_ontbrekend_artefact_verwijst_naar_refresh(tmp_path):

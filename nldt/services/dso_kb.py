@@ -82,6 +82,17 @@ def _kort(vol: str | None) -> str | None:
     return vol[:16] if vol else None
 
 
+def _artikel_sleutel(num: str) -> tuple[int | str, ...]:
+    """Numerieke sorteersleutel voor '10.1.3'-stijl artikelnummers (tpod-patroon)."""
+    delen: list[int | str] = []
+    for stuk in str(num).split("."):
+        try:
+            delen.append(int(stuk))
+        except ValueError:
+            delen.append(stuk)
+    return tuple(delen)
+
+
 def lees_annotaties(
     instrument: str,
     locatie: str | None = None,
@@ -124,13 +135,13 @@ def lees_annotaties(
             if act and act not in rij["activiteiten"] and len(rij["activiteiten"]) < LIMIT_MAX:
                 rij["activiteiten"].append(act)
 
-    alle = sorted(rijen.values(), key=lambda r: r["artikel"])
+    alle = sorted(rijen.values(), key=lambda r: _artikel_sleutel(r["artikel"]))
     if artikel is not None:
         alle = [r for r in alle if r["artikel"] == artikel]
         if not alle:
             raise DsoKbFout(
                 f"artikel {artikel!r} niet in DSO-hit; geldig (eerste {grens}): "
-                f"{[r['artikel'] for r in sorted(rijen.values(), key=lambda r: r['artikel'])][:grens]}"
+                f"{[r['artikel'] for r in sorted(rijen.values(), key=lambda r: _artikel_sleutel(r['artikel']))][:grens]}"
             )
 
     vervolg = None
