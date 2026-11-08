@@ -1814,8 +1814,9 @@ def _beelden_als_data_uris(kotregister: dict) -> int:
 
 
 def _patch_gent_only(tpl: str) -> str:
-    """Template injecties voor de Gent-only-variant: alleen het Gent-tabblad
-    actief en zichtbaar, overige PoC-initialisatie uit (hun data ontbreekt)."""
+    """Template-injecties voor de Gent-only-variant: alleen het Gent-tabblad
+    actief en zichtbaar (tab 1/2/4/6/7 weg), overige PoC-initialisatie uit
+    (hun data ontbreekt in het zelfstandige bestand)."""
     vervangingen = [
         ("<title>LDT Toolbox — pipeline simulation (PoC-1 · PoC-2)</title>",
          "<title>Gent · EUROPAI transactiepiloot — simulatie</title>"),
@@ -1825,27 +1826,48 @@ def _patch_gent_only(tpl: str) -> str:
          '<div class="tab" id="tab2" style="display:none"></div>'),
         ('<div class="tab" id="tab4" onclick="switchTab(4)"><span class="tekst-nl">Breda · vijf-waarden</span><span class="tekst-en">Breda · five-value</span></div>',
          '<div class="tab" id="tab4" style="display:none"></div>'),
+        ('<div class="tab" id="tab6" onclick="switchTab(6)"><span class="tekst-nl">Veenendaal · Spoorzone</span><span class="tekst-en">Veenendaal · Spoorzone</span></div>',
+         '<div class="tab" id="tab6" style="display:none"></div>'),
+        ('<div class="tab" id="tab7" onclick="switchTab(7)">DSO ↔ RegelRecht</div>',
+         '<div class="tab" id="tab7" style="display:none"></div>'),
         ('<div class="tab" id="tab5"', '<div class="tab active" id="tab5"'),
         ('<div class="tabkop on" id="kop1">', '<div class="tabkop" id="kop1">'),
         ('<div class="tabkop" id="kop5">', '<div class="tabkop on" id="kop5">'),
         ('<section class="view active" id="view1">', '<section class="view" id="view1">'),
         ('<section class="view" id="view5">', '<section class="view active" id="view5">'),
-        ("let sim1, sim2, sim4, sim5, active=1;", "let sim1, sim2, sim4, sim5, active=5;"),
+        ("let sim1, sim2, sim4, sim5, sim6, sim7, active=1;",
+         "let sim1, sim2, sim4, sim5, sim6, sim7, active=5;"),
         # top-level data-bindingen (bbox-IIFE e.d. draaien bij het laden):
         # stubs, want de PoC-data ontbreekt in de Gent-only-variant
         ("const P1 = DATA.poc1;", "const P1 = {aoi:{geo:[],areaKm2:0}, tracks:{}};"),
         ("const P2 = DATA.poc2;", "const P2 = {grid:[], qa:[]};"),
         ("const P4 = DATA.poc4;", "const P4 = {};"),
+        # veenendaal-view: DATA.veenendaal ontbreekt in Gent-only — VD neutraal
+        # en de top-level kaartkader-IIFE's (VFRAME/VW6/VH6/VPROJ, die VD
+        # uitpakken) eruit; de view-6-functies worden niet meer aangeroepen
+        ("const VD = DATA.veenendaal;", "const VD = null; /* gent-only: geen veenendaal-tab */"),
+        ("const VFRAME=(()=>{ const [x0,y0,x1,y1]=VD.gebied.bbox;\n"
+         "  return [x0-40, y0-40, x1+40, y1+40]; })();\n"
+         "const VW6=980, VH6=Math.round(VW6*(VFRAME[3]-VFRAME[1])/(VFRAME[2]-VFRAME[0]));\n"
+         "const VPROJ=(()=>{ const [x0,y0,x1,y1]=VFRAME;\n"
+         "  const sx=VW6/(x1-x0), sy=VH6/(y1-y0);\n"
+         "  return (x,y)=>[(x-x0)*sx, VH6-(y-y0)*sy]; })();\n",
+         "/* gent-only: kaartkader-IIFE's uit — VD is null, view-6-code wordt niet aangeroepen */\n"),
         # laya-view bindt top-level op P1/P2 (kind, meta, questions, eval)
         ("const LAYA_DS = { eindhoven: P2.laya, utrecht: P1.laya };",
          "const LAYA_DS = { eindhoven: {kind: 'eindhoven', meta:{}, questions:[], eval:{}, "
          "tok:{stop:[], suf:[]}, fp:{}, nGram:{}, preds:{}, pad:{}}, "
          "utrecht: {kind: 'utrecht', meta:{}, questions:[], eval:{}, "
          "tok:{stop:[], suf:[]}, fp:{}, nGram:{}, preds:{}, pad:{}} };"),
-        ("buildRail1(); buildStatic1(); sim1=makeSim1(); buildSim2();\nbuildRail4(); buildStatic4(); sim4=makeSim4(); sim1.prog();\n", ""),
+        # PoC-init-regels: view 1/2/4 én view 6 (sim6, onbewaakt) uit — het
+        # DKB-blok (view 7) is zelf al bewaakt en DATA.dsokb ontbreekt hier
+        ("buildRail1(); buildStatic1(); sim1=makeSim1(); buildSim2();\n", ""),
+        ("buildRail4(); buildStatic4(); sim4=makeSim4(); sim1.prog();\n", ""),
+        ("buildRail6(); buildStatic6(); buildSweep6(); vWire(); sim6=makeSim6(); sim6.prog();\n", ""),
         # laya- en breda-init draaien top-level tegen de stubs
         ("\nbuildLayaStatic(); renderGate();", "\n/* gent-only: laya-init uit */"),
-        ("else if(t>=1&&t<=5) switchTab(t);", "else if(t>=1&&t<=5) switchTab(5);"),
+        # deeplink: tab 1–7 bestaan hier niet als views — altijd naar Gent (5)
+        ("else if(t>=1&&t<=7) switchTab(t);", "else if(t>=1&&t<=7) switchTab(5);"),
     ]
     for oud, nieuw_stuk in vervangingen:
         assert oud in tpl, f"gent-only patchanker ontbreekt: {oud[:60]}"
@@ -1901,13 +1923,17 @@ def build_dso_kb() -> dict:
 
         counts = ov["dso"]["counts"]
         o = ov["overlap"]
+        # geo-kaartregels: alleen exporteren wat echt uitgevoerd is — een
+        # punt-in-GIO-toets met getoetst 0 (GIO's niet filename-koppelbaar,
+        # cf. Utrecht) is "niet uitgevoerd", geen "0/0"-regel waard.
         geo_regels = {}
         v = (geo or {}).get("validatie") or {}
-        if v:
+        if (v.get("getoetst") or 0) > 0:
             geo_regels = {"getoetst": v.get("getoetst"), "overeenstemming": v.get("overeenstemming")}
         na = (((geo or {}).get("sweep") or {}).get("naamAfstemming") or {})
         if na:
             geo_regels["naamOvereenkomend"] = na.get("naamOvereenkomend")
+            geo_regels["naamSweepGmls"] = na.get("sweepGmls")
 
         instrumenten.append({
             "id": iid,

@@ -294,6 +294,13 @@ try {
   if (ut7.dekking.executable !== 7) throw new Error("utrecht executable verwacht 7");
   if (eh7.geo.getoetst !== 34 || eh7.geo.overeenstemming !== 34) throw new Error("eindhoven geo verwacht 34/34");
   if (ut7.geo.naamOvereenkomend !== 8) throw new Error("utrecht naamafstemming verwacht 8");
+  if (ut7.geo.naamSweepGmls !== 8) throw new Error("utrecht naamSweepGmls verwacht 8, kreeg " + ut7.geo.naamSweepGmls);
+  // geo-kaartregels eerlijk: geen "✓ 0/0" op niet-uitgevoerde toetsen —
+  // Utrecht toont alléén zijn echte 8/8-naamafstemming (punt-in-GIO is daar
+  // niet uitgevoerd: GIO's niet filename-koppelbaar, getoetst=0).
+  const utCard7 = globalThis.document.getElementById("kb7-utrecht").innerHTML;
+  if (utCard7.includes("0/0")) throw new Error("utrecht-kaart toont nog een 0/0-geolijn");
+  if (!utCard7.includes("naamafstemming 8/8")) throw new Error("utrecht-kaart mist echte naamafstemming 8/8");
   if (eh7.ververs && eh7.ververs.drift.inhoudelijkeDrift !== "geen")
     throw new Error("eindhoven drift verwacht 'geen', kreeg " + eh7.ververs.drift.inhoudelijkeDrift);
   if (!globalThis.document.getElementById("kb7-cov-eindhoven").textContent.includes("56,35"))

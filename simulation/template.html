@@ -3342,8 +3342,9 @@ function kb7StatusBalk(sc){
 function kb7InstCard(inst){
   const d=inst.dekking, c=inst.counts, t=inst.toets||{};
   const geo=inst.geo||{};
-  const geolijst=[]; if(geo.getoetst!=null) geolijst.push(`punt-in-GIO ${geo.getoetst}/${geo.getoetst} overeenstemming`);
-  if(geo.naamOvereenkomend!=null) geolijst.push(`naamafstemming ${geo.naamOvereenkomend}/${geo.naamOvereenkomend}`);
+  const geolijst=[];
+  if(geo.getoetst>0) geolijst.push(`punt-in-GIO ${geo.getoetst}/${geo.getoetst} overeenstemming`);
+  if(geo.naamSweepGmls>0&&geo.naamOvereenkomend>0) geolijst.push(`naamafstemming ${geo.naamOvereenkomend}/${geo.naamSweepGmls}`);
   const pct=(100*d.coverage).toFixed(2).replace(".",",");
   return `<h3>${esc(inst.label)} <span style="color:var(--faint,#94a3b8);font-size:11px">${esc(inst.cvdr)} · locatie ${esc(inst.locatieLabel)} (RD ${esc(String(inst.punt[0]))}, ${esc(String(inst.punt[1]))})</span></h3>
     <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:baseline">
@@ -3476,7 +3477,7 @@ if(typeof URLSearchParams!=="undefined"){
   if(w0 && WAARDE_LBL[w0]) curWaarde=w0;
   const t=parseInt(sp.get("tab")||"0",10);
   if(t===3){ switchTab(2); const d=$("layadock"); if(d&&d.scrollIntoView) d.scrollIntoView({block:"start"}); }
-  else if(t>=1&&t<=6) switchTab(t);
+  else if(t>=1&&t<=7) switchTab(t);
   else if(curWaarde!=="spatial") paintWaarde(curWaarde);
 }
 </script>
