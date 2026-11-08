@@ -1,0 +1,1004 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "2.3.3",
+    "title": "Zoeken in activiteiten voor indieningsvereisten, en werkzaamheden",
+    "description": "Zoeken in activiteiten voor indieningsvereisten, en werkzaamheden. Activiteiten voor indieningsvereisten zijn de activiteiten die gevonden kunnen worden in het omgevingsloket bij indienen. D.w.z. - Er zijn regels m.b.t. indieningsvereisten voor de activiteit - Of de activiteit is expliciet toonbaar gemaakt en er zijn regels m.b.t.\n  indieningsvereisten voor één of meerdere onderliggende activiteiten.",
+    "contact": {
+      "name": "Ontwikkelaarsportaal Omgevingswet",
+      "url": "https://developer.omgevingswet.overheid.nl/services/contact/"
+    }
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "OpenApi Specification",
+        "deprecated": true,
+        "description": "Deprecated - gebruik in plaats hiervan /openapi.json.",
+        "tags": [
+          "Meta"
+        ],
+        "responses": {
+          "200": {
+            "description": "OpenApi Specification Json",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": "{\"openapi\": \"3.0.0\", ... }"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "summary": "OpenApi Specification",
+        "tags": [
+          "Meta"
+        ],
+        "responses": {
+          "200": {
+            "description": "OpenApi Specification Json",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": "{\"openapi\": \"3.0.0\", ... }"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "health info",
+        "tags": [
+          "Meta"
+        ],
+        "responses": {
+          "200": {
+            "description": "Health",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "UP"
+                      ]
+                    },
+                    "groups": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Health",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "DOWN",
+                        "OUT_OF_SERVICE"
+                      ]
+                    },
+                    "groups": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/info": {
+      "get": {
+        "summary": "applicatie info",
+        "tags": [
+          "Meta"
+        ],
+        "responses": {
+          "200": {
+            "description": "Info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Info",
+                  "required": [
+                    "app"
+                  ],
+                  "properties": {
+                    "app": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "version": {
+                          "type": "string"
+                        },
+                        "version2": {
+                          "type": "string"
+                        },
+                        "buildtime": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/werkzaamheden/_zoek": {
+      "post": {
+        "summary": "Zoeken in werkzaamheden",
+        "tags": [
+          "Zoeken in werkzaamheden"
+        ],
+        "description": "Haal werkzaamheden op die voldoen aan de zoekcriteria.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/x_api_key"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/pageSizeEnum"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ZoekCriteriaWerkzaamheden"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "De lijst van werkzaamheden.",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WerkzaamheidHALResponseList"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/paths/~1activiteiten~1_zoek/post/responses/400"
+          },
+          "429": {
+            "$ref": "#/paths/~1activiteiten~1_zoek/post/responses/429"
+          },
+          "500": {
+            "$ref": "#/paths/~1activiteiten~1_zoek/post/responses/500"
+          }
+        }
+      }
+    },
+    "/werkzaamheden/_suggereer": {
+      "post": {
+        "summary": "Suggesties voor zoektermen op werkzaamheden op basis van een zoekterm",
+        "tags": [
+          "Zoeken in werkzaamheden"
+        ],
+        "description": "Suggesties voor zoektermen op werkzaamheden op basis van een zoekterm",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/x_api_key"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SuggestiesCriteria"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/suggesties"
+          },
+          "400": {
+            "$ref": "#/paths/~1activiteiten~1_zoek/post/responses/400"
+          },
+          "429": {
+            "$ref": "#/paths/~1activiteiten~1_zoek/post/responses/429"
+          },
+          "500": {
+            "$ref": "#/paths/~1activiteiten~1_zoek/post/responses/500"
+          }
+        }
+      }
+    },
+    "/activiteiten/_zoek": {
+      "post": {
+        "summary": "Zoeken in activiteiten voor indieningsvereisten",
+        "tags": [
+          "Zoeken in activiteiten"
+        ],
+        "description": "Haal activiteiten op die voldoen aan de zoekcriteria. Geeft een resultaat voor iedere gevonden activiteit i.c.m. een verwijzing (functioneleStructuurRef) naar de regels (STTR) die er zijn m.b.t. indieningsvereisten.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/x_api_key"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/pageSizeEnum"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ZoekCriteriaActiviteiten"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "De lijst van activiteiten, en aggregatie gegevens.",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActiviteitHALResponseList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Fouten (missing parameter; niet bestaande parameter; invalide waarde voor parameter)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "required": [
+                        "type",
+                        "title",
+                        "status"
+                      ],
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "description": "Het type fout dat opgetreden is. Bijvoorbeeld VALIDATIE_FOUT of ONVERWACHTE_FOUT."
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "Informatie over de opgetreden fout."
+                        },
+                        "status": {
+                          "type": "integer",
+                          "format": "int64",
+                          "description": "De statuscode van de fout (= 400) overeenkomend met de http-status code van de response."
+                        },
+                        "detail": {
+                          "type": "string",
+                          "description": "Meer detail informatie over de opgetreden fout"
+                        },
+                        "instance": {
+                          "type": "string",
+                          "description": "Het unieke instance id van het request dat resulteerde in de foutmelding."
+                        }
+                      }
+                    },
+                    {
+                      "properties": {
+                        "invalid-params": {
+                          "type": "array",
+                          "items": {
+                            "required": [
+                              "type",
+                              "name",
+                              "reason"
+                            ],
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "description": "Een type van de fout, bijvoorbeeld 'Validatie melding'"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "'Naam van de parameter die een fout bevat, bijvoorbeeld: activiteitFunctioneleStructuurRef'"
+                              },
+                              "reason": {
+                                "type": "string",
+                                "description": "Bijvoorbeeld 'de activiteitFunctioneleStructuurRef mag geen speciale karakters bevatten.'"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Te veel requests (binnen een bepaalde tijd)"
+          },
+          "500": {
+            "description": "Er is een onverwachte technische fout opgetreden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "required": [
+                    "type",
+                    "title",
+                    "status"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "Het type fout dat opgetreden is. Bijvoorbeeld VALIDATIE_FOUT of ONVERWACHTE_FOUT."
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "Informatie over de opgetreden fout."
+                    },
+                    "status": {
+                      "type": "integer",
+                      "format": "int64",
+                      "description": "De statuscode (= 500) van de fout overeenkomend met de http-status code van de response."
+                    },
+                    "detail": {
+                      "type": "string",
+                      "description": "Meer detail informatie over de opgetreden fout"
+                    },
+                    "instance": {
+                      "type": "string",
+                      "description": "Het unieke instance id van het request dat resulteerde in de foutmelding."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activiteiten/_suggereer": {
+      "post": {
+        "summary": "Suggesties voor zoektermen op activiteiten voor indieningsvereisten op basis van een zoekterm",
+        "tags": [
+          "Zoeken in activiteiten"
+        ],
+        "description": "Suggesties voor zoektermen op activiteiten voor indieningsvereisen op basis van een zoekterm",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/x_api_key"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SuggestiesCriteria"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/suggesties"
+          },
+          "400": {
+            "$ref": "#/paths/~1activiteiten~1_zoek/post/responses/400"
+          },
+          "429": {
+            "$ref": "#/paths/~1activiteiten~1_zoek/post/responses/429"
+          },
+          "500": {
+            "$ref": "#/paths/~1activiteiten~1_zoek/post/responses/500"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "x_api_key": {
+        "name": "x-api-key",
+        "in": "header",
+        "description": "De api-key ter authenticatie, verkrijgbaar via het ontwikkelaarsportaal",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "page": {
+        "name": "page",
+        "description": "De pagina die geretourneerd moet worden in een gepagineerde response. Wanneer er geen pagina nummer is opgegeven wordt de eerste pagina geretourneerd",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        },
+        "required": false
+      },
+      "pageSizeEnum": {
+        "name": "pageSize",
+        "description": "Het gewenste aantal items per pagina in een gepagineerde response. Indien deze parameter niet ingevuld is worden er standaard 20 resultaten geretourneerd.",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "default": 20,
+          "enum": [
+            10,
+            20,
+            50,
+            100,
+            200
+          ]
+        },
+        "required": false
+      }
+    },
+    "responses": {
+      "suggesties": {
+        "description": "Lijst van suggesties voor zoektermen",
+        "content": {
+          "application/json": {
+            "schema": {
+              "required": [
+                "suggesties"
+              ],
+              "properties": {
+                "suggesties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "WerkzaamheidHALResponseList": {
+        "required": [
+          "_links",
+          "page"
+        ],
+        "properties": {
+          "_embedded": {
+            "required": [
+              "werkzaamheden"
+            ],
+            "properties": {
+              "werkzaamheden": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "$ref": "#/components/schemas/WerkzaamheidResponse"
+                }
+              }
+            }
+          },
+          "_links": {
+            "$ref": "#/components/schemas/HalPaginationLinks"
+          },
+          "page": {
+            "$ref": "#/components/schemas/Page"
+          }
+        }
+      },
+      "WerkzaamheidResponse": {
+        "required": [
+          "urn",
+          "omschrijving",
+          "functioneleStructuurRef"
+        ],
+        "properties": {
+          "urn": {
+            "$ref": "#/components/schemas/WerkzaamheidUrn"
+          },
+          "omschrijving": {
+            "description": "Omschrijving van de werkzaamheid.",
+            "type": "string"
+          },
+          "functioneleStructuurRef": {
+            "description": "De functioneleStructuurRef van de werkzaamheid.",
+            "type": "string"
+          },
+          "trefwoorden": {
+            "description": "Trefwoorden van de werkzaamheid die voldoen aan de zoekterm.",
+            "type": "array",
+            "minItems": 0,
+            "items": {
+              "$ref": "#/components/schemas/Trefwoord"
+            }
+          }
+        }
+      },
+      "ActiviteitHALResponseList": {
+        "required": [
+          "_links",
+          "aggregaties",
+          "page"
+        ],
+        "properties": {
+          "_embedded": {
+            "required": [
+              "activiteiten"
+            ],
+            "properties": {
+              "activiteiten": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "$ref": "#/components/schemas/ActiviteitResponse"
+                }
+              }
+            }
+          },
+          "_links": {
+            "$ref": "#/components/schemas/HalPaginationLinks"
+          },
+          "aggregaties": {
+            "$ref": "#/components/schemas/Aggregaties"
+          },
+          "page": {
+            "$ref": "#/components/schemas/Page"
+          }
+        }
+      },
+      "ActiviteitResponse": {
+        "required": [
+          "urn",
+          "type",
+          "omschrijving",
+          "functioneleStructuurRef",
+          "bestuursorgaan",
+          "locaties"
+        ],
+        "properties": {
+          "urn": {
+            "$ref": "#/components/schemas/ActiviteitUrn"
+          },
+          "type": {
+            "$ref": "#/components/schemas/ActiviteitTypering"
+          },
+          "omschrijving": {
+            "description": "Omschrijving van de activiteit",
+            "type": "string"
+          },
+          "functioneleStructuurRef": {
+            "description": "De functioneleStructuurRef die verwijst naar de regels (STTR) m.b.t. indieningsvereisten",
+            "type": "string"
+          },
+          "bestuursorgaan": {
+            "description": "Bestuursorgaan dat eigenaar is van de activiteit",
+            "allOf": [
+              {
+                "description": "Organisatie",
+                "required": [
+                  "oin",
+                  "bestuurslaag"
+                ],
+                "properties": {
+                  "oin": {
+                    "description": "OIN van de organisatie",
+                    "type": "string",
+                    "minLength": 20,
+                    "maxLength": 20
+                  },
+                  "bestuurslaag": {
+                    "$ref": "#/components/schemas/Bestuurslaag"
+                  }
+                }
+              }
+            ]
+          },
+          "toestemming": {
+            "$ref": "#/components/schemas/Toestemming"
+          },
+          "locaties": {
+            "description": "Locaties waarop de activiteit actief is",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "WerkzaamheidUrn": {
+        "description": "Urn van de werkzaamheid",
+        "type": "string",
+        "pattern": "^\\w{1,100}$",
+        "example": "BoomKappen"
+      },
+      "ActiviteitUrn": {
+        "description": "Urn van de activiteit (In de urn mogen geen spaties voorkomen). Binnen de keten staat urn bekend als de imow-id.",
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 250
+      },
+      "ActiviteitTypering": {
+        "description": "Typering van de activiteit",
+        "type": "string",
+        "enum": [
+          "Water",
+          "Milieubelastende",
+          "Overige"
+        ]
+      },
+      "Trefwoord": {
+        "description": "Trefwoord van de werkzaamheid.",
+        "type": "string"
+      },
+      "ZoekCriteriaWerkzaamheden": {
+        "description": "De zoekcriteria om werkzaamheden te zoeken.",
+        "properties": {
+          "zoekterm": {
+            "description": "De zoekterm op basis waarvan in de werkzaamheden gezocht wordt. Als het veld \"zoekterm\" niet wordt meegegeven worden alle werkzaamheden teruggegeven.",
+            "type": "string"
+          },
+          "sortering": {
+            "$ref": "#/components/schemas/Sortering"
+          }
+        }
+      },
+      "ZoekCriteriaActiviteiten": {
+        "description": "De zoekcriteria om activiteiten te zoeken. Zoeken gebeurt op basis van een zoekterm, resultaten kunnen verder gefilterd worden op de velden in het zoekresultaat.",
+        "properties": {
+          "datum": {
+            "description": "Filter op activiteiten die op deze datum actief zijn. Het formaat van de datum is dd-MM-yyyy.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Datum"
+              }
+            ]
+          },
+          "locaties": {
+            "description": "Filter op de locatie van de activiteit.",
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 10000,
+            "items": {
+              "type": "string"
+            }
+          },
+          "bestuurslagen": {
+            "description": "Filter op bestuurslaag van het bestuursorgaan van de activiteit.",
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 4,
+            "items": {
+              "$ref": "#/components/schemas/Bestuurslaag"
+            }
+          },
+          "toestemmingen": {
+            "description": "Filter op indieningsvereisten toestemming",
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 7,
+            "items": {
+              "$ref": "#/components/schemas/Toestemming"
+            }
+          },
+          "functioneleStructuurReferenties": {
+            "description": "De zoekterm op basis waarvan in de activiteiten gezocht wordt. Filter op functioneleStructuurReferentie",
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1000,
+            "items": {
+              "type": "string"
+            }
+          },
+          "zoekterm": {
+            "description": "De zoekterm op basis waarvan in de activiteiten gezocht wordt.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 250
+          },
+          "sortering": {
+            "$ref": "#/components/schemas/Sortering"
+          }
+        }
+      },
+      "Sortering": {
+        "description": "De sortering waarin de resultaten worden geretourneerd. Bij \"alfabetisch\" worden de resultaten alfabetisch gesorteerd. \"besteMatch\" zorgt ervoor dat de resultaten die het meest matchen met de zoekterm bovenaan komen (bij deze sortering is het veld \"zoekterm\" daarom verplicht). \"meestGekozen\" wil zeggen dat de in het loket meest gekozen resultaten bovenaan staan. Als het veld \"sortering\" niet wordt meegegeven wordt de \"meestGekozen\" sortering gebruikt.",
+        "type": "string",
+        "enum": [
+          "alfabetisch",
+          "besteMatch",
+          "meestGekozen"
+        ],
+        "default": "meestGekozen"
+      },
+      "SuggestiesCriteria": {
+        "description": "De zoekterm.",
+        "required": [
+          "zoekterm"
+        ],
+        "properties": {
+          "zoekterm": {
+            "description": "De zoekterm op basis waarvan suggesties teruggegeven moeten worden.",
+            "type": "string"
+          }
+        }
+      },
+      "Zoekterm": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 250
+      },
+      "Datum": {
+        "description": "Datum in het formaat dd-MM-yyyy.",
+        "type": "string",
+        "pattern": "^\\d{2}-\\d{2}-\\d{4}$",
+        "example": "01-01-2023"
+      },
+      "Bestuurslaag": {
+        "description": "Bestuurslaag van een Organisatie",
+        "type": "string",
+        "enum": [
+          "rijk",
+          "provincie",
+          "waterschap",
+          "gemeente"
+        ]
+      },
+      "Toestemming": {
+        "type": "string",
+        "description": "Code van de toestemming",
+        "enum": [
+          "Vergunning",
+          "Melding",
+          "Informatie",
+          "InformatieOngewoonVoorval",
+          "AanvraagMaatwerkvoorschrift",
+          "MeldingGelijkwaardigeMaatregel",
+          "AanvraagToestemmingGelijkwaardigeMaatregel"
+        ]
+      },
+      "BestuurslaagAggregatie": {
+        "description": "Per bestuurslaag het aantal keer dat de bestuurslaag voorkomt in de gevonden activiteiten. Let op dat het bestuurslaag filter hierin NIET wordt meegenomen (andere filters wel). Dit is handig wanneer de aggregaties worden gepresenteerd in een user interface, dan kan de gebruiker namelijk het aantal resultaten uitbreiden door ook een andere bestuurslaag te selecteren.",
+        "required": [
+          "bestuurslaag",
+          "aantal"
+        ],
+        "properties": {
+          "bestuurslaag": {
+            "$ref": "#/components/schemas/Bestuurslaag"
+          },
+          "aantal": {
+            "description": "Het aantal resultaten voor de bestuurslaag, waarbij het bestuurslaag filter NIET wordt meegenomen",
+            "type": "number"
+          }
+        }
+      },
+      "ToestemmingAggregatie": {
+        "description": "Per toestemming het aantal keer dat de toestemming voorkomt in de gevonden activiteiten. Let op dat het toestemming filter hierin NIET wordt meegenomen (andere filters wel). Dit is handig wanneer de aggregaties worden gepresenteerd in een user interface, dan kan de gebruiker namelijk het aantal resultaten uitbreiden door ook een andere toestemming te selecteren.",
+        "required": [
+          "toestemming",
+          "aantal"
+        ],
+        "properties": {
+          "toestemming": {
+            "$ref": "#/components/schemas/Toestemming"
+          },
+          "aantal": {
+            "description": "Het aantal resultaten voor de toestemming, waarbij het bestuurslaag filter NIET wordt meegenomen",
+            "type": "number"
+          }
+        }
+      },
+      "BestuursorganenPerBestuurslaagAggregatie": {
+        "description": "De meest voorkomende bestuursorganen in de gevonden activiteiten met het aantal keer dat ze voorkomen. Deze zijn opgedeeld per bestuurslaag.",
+        "required": [
+          "bestuurslaag",
+          "bestuursorganen"
+        ],
+        "properties": {
+          "bestuurslaag": {
+            "$ref": "#/components/schemas/Bestuurslaag"
+          },
+          "bestuursorganen": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BestuursorgaanAggregatie"
+            }
+          }
+        }
+      },
+      "BestuursorgaanAggregatie": {
+        "description": "Het aantal resultaten per bestuursorgaan",
+        "required": [
+          "oin",
+          "aantal"
+        ],
+        "properties": {
+          "oin": {
+            "description": "Identificatie van een bestuursorgaan.",
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 20
+          },
+          "aantal": {
+            "type": "number"
+          }
+        }
+      },
+      "Aggregaties": {
+        "description": "Het aantal resultaten per mogelijke filterwaarde voor toestemming en bestuurslaag. Heeft betrekking op het totaal aantal resultaten en niet over de betreffende pagina.",
+        "required": [
+          "toestemmingen",
+          "bestuurslagen",
+          "bestuursorganenPerBestuurslaag"
+        ],
+        "properties": {
+          "toestemmingen": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ToestemmingAggregatie"
+            }
+          },
+          "bestuurslagen": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BestuurslaagAggregatie"
+            }
+          },
+          "bestuursorganenPerBestuurslaag": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BestuursorganenPerBestuurslaagAggregatie"
+            }
+          }
+        }
+      },
+      "Page": {
+        "description": "Info voor paginering.",
+        "type": "object",
+        "required": [
+          "size",
+          "totalElements",
+          "totalPages",
+          "number"
+        ],
+        "properties": {
+          "size": {
+            "deprecated": true,
+            "description": "het aantal items op de huidige pagina. Let op: in een volgende versie wordt dit de gevraagde paginagrootte.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "totalElements": {
+            "description": "het totaal aantal items in deze collectie",
+            "type": "integer",
+            "minimum": 0
+          },
+          "totalPages": {
+            "description": "het totaal aantal pagina's in deze collectie",
+            "type": "integer",
+            "minimum": 0
+          },
+          "number": {
+            "description": "het huidige paginanummer",
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "HalPaginationLinks": {
+        "description": "Links om te navigeren door de paginering",
+        "required": [
+          "self",
+          "first",
+          "last"
+        ],
+        "properties": {
+          "self": {
+            "description": "uri voor het opvragen van de huidige pagina van deze collectie",
+            "allOf": [
+              {
+                "description": "HAL link",
+                "required": [
+                  "href"
+                ],
+                "properties": {
+                  "href": {
+                    "description": "URI",
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
+          "first": {
+            "description": "uri voor het opvragen van de eerste pagina van deze collectie",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/HalPaginationLinks/properties/self/allOf/0"
+              }
+            ]
+          },
+          "last": {
+            "description": "uri voor het opvragen van de laatste pagina van deze collectie",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/HalPaginationLinks/properties/self/allOf/0"
+              }
+            ]
+          },
+          "prev": {
+            "description": "uri voor het opvragen van de vorige pagina van deze collectie",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/HalPaginationLinks/properties/self/allOf/0"
+              }
+            ]
+          },
+          "next": {
+            "description": "uri voor het opvragen van de volgende pagina van deze collectie",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/HalPaginationLinks/properties/self/allOf/0"
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "x-wso2-cors": {
+    "accessControlAllowOrigins": [
+      "*"
+    ],
+    "corsConfigurationEnabled": true,
+    "accessControlAllowCredentials": false,
+    "accessControlAllowMethods": [
+      "GET"
+    ],
+    "accessControlAllowHeaders": [
+      "authorization",
+      "Access-Control-Allow-Origin",
+      "Content-Type"
+    ]
+  }
+}
+

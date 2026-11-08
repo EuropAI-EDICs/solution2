@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<dmn:definitions xmlns:dmn="http://www.omg.org/spec/DMN/20151101/dmn.xsd"
+                 xmlns:feel="http://www.omg.org/spec/FEEL/20140401"
+                 xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel"
+                 xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel"
+                 xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel"
+                 xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content"
+                 xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001172773000"
+                 namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001172773000"
+                 exporter="Geodan FLO Legal STTR Builder" exporterVersion="" id="_d8b28638-48e7-4685-8c26-1398c5d8ac24"
+                 name="geluidgevoelig gebouw toevoegen - nieuwbouw">
+    <dmn:extensionElements>
+        <inter:regelgroepen>
+                            <inter:regelgroep id="groep1">
+    <inter:naam>geluidgevoelig gebouw toevoegen - nieuwbouw Gemeente Tilburg</inter:naam>
+    <inter:prioriteit>10</inter:prioriteit>
+</inter:regelgroep>
+                    </inter:regelgroepen>
+        <uitv:uitvoeringsregels>
+                            <uitv:uitvoeringsregel id="uitv__52a202ac-73c6-424f-9339-d7827f7a94d1">
+        <uitv:regelgroepRef href="#groep1"/>
+    <inter:prioriteit>10</inter:prioriteit>
+             <uitv:geoVerwijzing>
+    <uitv:locatie identificatie="nl.imow-gm0855.gebiedengroep.45c85746370a4887967148e88681e645"/>
+    <uitv:vraagTekst>Ligt het gebouw binnen een geluidaandachtsgebied?</uitv:vraagTekst>
+</uitv:geoVerwijzing>
+     </uitv:uitvoeringsregel>
+                    </uitv:uitvoeringsregels>
+    </dmn:extensionElements>
+            <dmn:inputData id="input__52a202ac-73c6-424f-9339-d7827f7a94d1" name="_52a202ac-73c6-424f-9339-d7827f7a94d1">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__52a202ac-73c6-424f-9339-d7827f7a94d1"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_3a8aefb7-04e4-41ec-8c3e-4e16e105489d" name="_52a202ac-73c6-424f-9339-d7827f7a94d1" typeRef="feel:string"/>
+</dmn:inputData>
+                <dmn:decision id="_674a20ea-6bf9-47f3-9fb1-1b0f39cd00fe" name="Vergunningplicht pad 1">
+        <dmn:variable id="_18ca1aee-7660-4304-b3d9-01055bc8aabf" name="Vergunningplicht pad 1" typeRef="feel:string"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__52a202ac-73c6-424f-9339-d7827f7a94d1"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" id="_91490244-2c2b-4e33-a059-048b64bf46c4" outputLabel="Vergunningplicht pad 1">
+            <dmn:input id="_2c1c0b5b-72f4-4716-89df-8d26b347a080" label="Ligt het gebouw binnen een geluidaandachtsgebied?">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>_52a202ac-73c6-424f-9339-d7827f7a94d1</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+        <dmn:output id="_2c0491bb-444c-40eb-a046-ba679da7d34b" label="Vergunningplicht pad 1"/>
+            <dmn:rule id="_5fef68f3-5daf-48e8-aa88-92e3665ed8b2">
+            <dmn:inputEntry id="_f9d46273-d69e-4d20-b7f6-d994d3a897ff">
+            <dmn:text><![CDATA["ja","deels"]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_ea5acaa0-2b9a-44fe-abfd-60326ed42687">
+                <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+            <dmn:rule id="_e7335fee-9947-41c4-a6b1-510a6d714842">
+            <dmn:inputEntry id="_661c45c9-e779-498e-8544-22843c5e1e39">
+            <dmn:text><![CDATA["nee"]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_67edf5af-610d-404a-8b01-b0f0ba44dae8">
+                <dmn:text><![CDATA["no hit"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="_d34be71e-5dc5-4c06-977b-5b9ee5e9ea64" name="Vergunningplicht">
+        <dmn:variable id="_f772ee17-8bd0-4fc4-8c25-62400fbb7ac5" name="Vergunningplicht" typeRef="feel:string"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#_674a20ea-6bf9-47f3-9fb1-1b0f39cd00fe"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" id="_c82cfb9b-6428-45b7-bc70-8a19831cea77" outputLabel="Vergunningplicht">
+            <dmn:input id="_abd8b442-dd63-4f46-9e88-1feae43f3fcd" label="Vergunningplicht pad 1">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>Vergunningplicht pad 1</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+        <dmn:output id="_9b711ab9-d7b7-4846-a3c7-bc88a231d7d7" label="Vergunningplicht"/>
+            <dmn:rule id="_07e42fc6-3ede-455e-890d-9d4a865bdee4">
+            <dmn:inputEntry id="_0663ab07-bdbb-4d61-8e53-4aab1cd0d3b6">
+            <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_1ae81985-fd09-4959-99a2-09537c1e242b">
+                <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+            <dmn:rule id="_fe42eee5-abc0-4899-ae87-2a245fa014ed">
+            <dmn:inputEntry id="_8e51b34b-cbe2-44d8-83f8-7b83ef0df870">
+            <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_63df1a49-c5f9-46bc-97fd-a29702624563">
+                <dmn:text><![CDATA["no hit"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="_91d1d5ca-7317-445d-aa5d-8921b7eb24ad" name="geluidgevoelig gebouw toevoegen - nieuwbouw">
+            <dmn:extensionElements>
+            <bedr:functioneleStructuurRef href="#http://toepasbare-regels.omgevingswet.overheid.nl/00000001001172773000/id/concept/Conclusienl.imow-gm0855.activiteit.9a8c98f4969541dd9e416efbb836d226"/>
+        </dmn:extensionElements>
+        <dmn:variable id="_6f6b7578-9073-4022-819c-e235aea45ff9" name="geluidgevoelig gebouw toevoegen - nieuwbouw" typeRef="feel:string"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#_d34be71e-5dc5-4c06-977b-5b9ee5e9ea64"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="RULE ORDER" id="_fa2b5f89-4485-4de5-b252-fd309a2a917e" outputLabel="geluidgevoelig gebouw toevoegen - nieuwbouw">
+            <dmn:input id="_5cbca086-9643-4312-959a-bd58dadd5df4" label="Vergunningplicht">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>Vergunningplicht</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+        <dmn:output id="_08022a19-8fc5-4c9f-9180-4199006b0d0d" label="geluidgevoelig gebouw toevoegen - nieuwbouw"/>
+            <dmn:rule id="_5279e62b-5679-4b97-a8d9-672e9a732df9">
+            <dmn:inputEntry id="_278836cd-b072-47ce-948c-62f7639ad960">
+            <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_40d1942d-ddf3-4741-a1e9-905431e19417">
+                <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+            <dmn:rule id="_701676b8-949c-4aaa-886a-088b8049189a">
+            <dmn:inputEntry id="_59a9299e-c3d8-4307-90f7-3da6dae36dc4">
+            <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:inputEntry>
+        <dmn:outputEntry id="_39483c7e-f5b9-4094-9e95-ac73dcd881cd">
+                <dmn:text><![CDATA["Toestemmingsvrij"]]></dmn:text>
+    </dmn:outputEntry>
+</dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+    </dmn:definitions>

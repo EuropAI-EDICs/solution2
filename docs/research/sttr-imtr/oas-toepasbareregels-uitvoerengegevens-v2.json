@@ -1,0 +1,931 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "2.1.0",
+    "title": "Uitvoeren gegevens",
+    "description": "Een REST-API voor het raadplegen van gegevens uit het Uitvoeren component. Deze API geeft alle Aansluitpuntsoorten terug.",
+    "contact": {
+      "name": "Ontwikkelaarsportaal Omgevingswet",
+      "url": "https://developer.omgevingswet.overheid.nl/services/contact/"
+    }
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "OpenApi Specification",
+        "deprecated": true,
+        "description": "Deprecated - gebruik in plaats hiervan /openapi.json.",
+        "tags": [
+          "Meta"
+        ],
+        "responses": {
+          "200": {
+            "description": "OpenApi Specification Json",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": "{\"openapi\": \"3.0.0\", ... }"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "summary": "OpenApi Specification",
+        "tags": [
+          "Meta"
+        ],
+        "responses": {
+          "200": {
+            "description": "OpenApi Specification Json",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": "{\"openapi\": \"3.0.0\", ... }"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "health info",
+        "tags": [
+          "Meta"
+        ],
+        "responses": {
+          "200": {
+            "description": "Health",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "UP"
+                      ]
+                    },
+                    "groups": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Health",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "DOWN",
+                        "OUT_OF_SERVICE"
+                      ]
+                    },
+                    "groups": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/app-health": {
+      "$ref": "#/paths/~1health"
+    },
+    "/info": {
+      "get": {
+        "summary": "applicatie info",
+        "tags": [
+          "Meta"
+        ],
+        "responses": {
+          "200": {
+            "description": "Info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Info",
+                  "required": [
+                    "app"
+                  ],
+                  "properties": {
+                    "app": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "version": {
+                          "type": "string"
+                        },
+                        "version2": {
+                          "type": "string"
+                        },
+                        "buildtime": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/app-info": {
+      "$ref": "#/paths/~1info"
+    },
+    "/toepasbareRegels": {
+      "get": {
+        "summary": "Alle toepasbare regels",
+        "description": "Retourneert de gegevens van alle toepasbare regels die voldoen aan de meegegeven filter criteria",
+        "tags": [
+          "Raadplegen Toepasbare regels"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/x_api_key"
+          },
+          {
+            "$ref": "#/components/parameters/datum"
+          },
+          {
+            "$ref": "#/components/parameters/datumVanaf"
+          },
+          {
+            "$ref": "#/components/parameters/oin"
+          },
+          {
+            "$ref": "#/components/parameters/aansluitpuntBestuurslaag"
+          },
+          {
+            "$ref": "#/components/parameters/functioneleStructuurRef"
+          },
+          {
+            "$ref": "#/components/parameters/expand"
+          },
+          {
+            "$ref": "#/components/parameters/pageSize"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/sttrBestandInhoudFilter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lijst van Toepasbare Regels",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ToepasbareRegelsHALResponseList"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/toepasbareRegels/{toepasbareRegelsIdentifier}": {
+      "get": {
+        "summary": "Ophalen van specifieke toepasbare regels",
+        "description": "Retourneert de gegevens van de toepasbare regels behorende bij de meegegeven id",
+        "tags": [
+          "Raadplegen Toepasbare regels"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/x_api_key"
+          },
+          {
+            "$ref": "#/components/parameters/toepasbareRegelsIdentifier"
+          },
+          {
+            "$ref": "#/components/parameters/expand"
+          },
+          {
+            "$ref": "#/components/parameters/datum"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "De Toepasbare Regels",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ToepasbareRegelsHalResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/toepasbareRegels/{toepasbareRegelsIdentifier}/sttrBestand": {
+      "get": {
+        "summary": "Ophalen van het STTR bestand",
+        "description": "Retourneert het STTR bestand horende bij deze specifieke toepasbare regels",
+        "tags": [
+          "Raadplegen Toepasbare regels"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/x_api_key"
+          },
+          {
+            "$ref": "#/components/parameters/toepasbareRegelsIdentifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Het STTR Bestand",
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "x_api_key": {
+        "name": "x-api-key",
+        "in": "header",
+        "description": "De api-key ter authenticatie, verkrijgbaar via het ontwikkelaarsportaal",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "datum": {
+        "name": "datum",
+        "description": "Het request wordt uitgevoerd voor de versie van de resource die geldig is op deze datum. Indien geen datum meegegeven wordt het request uitgevoerd tegen de op dit moment geldende versie. Het formaat van de datum is dd-MM-yyyy. Indien de resource geneste objecten bevat die geversioneerd zijn, zal op deze objecten dezelfde datum-filtering toegepast worden.",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d{2}-\\d{2}-\\d{4}$",
+          "example": "01-01-2023"
+        }
+      },
+      "datumVanaf": {
+        "name": "datumVanaf",
+        "description": "Het request wordt uitgevoerd voor de versies van de resource die geldig zijn op of na deze datum. Het formaat van de datum is dd-MM-yyyy. Indien deze parameter gebruikt wordt in combinatie met de datum parameter, dan zal de datum parameter genegeerd worden",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d{2}-\\d{2}-\\d{4}$",
+          "example": "01-01-2023"
+        }
+      },
+      "oin": {
+        "name": "oin",
+        "in": "query",
+        "description": "de oin van het bestuursorgaan dat eigenaar is van deze toepasbare regels\n",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "aansluitpuntBestuurslaag": {
+        "name": "aansluitpuntBestuurslaag",
+        "in": "query",
+        "description": "bij een aansluitpunt de aangegeven bestuurslaag van de bestuursorganen die aansluitingen kunnen aanleveren\n",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "rijk",
+            "provincie",
+            "waterschap",
+            "gemeente"
+          ]
+        }
+      },
+      "functioneleStructuurRef": {
+        "name": "functioneleStructuurRef",
+        "in": "query",
+        "description": "de functioneleStructuurRef van de toepasbare regels\n",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "toepasbareRegelsIdentifier": {
+        "name": "toepasbareRegelsIdentifier",
+        "in": "path",
+        "description": "De identifier van de toepasbare regels\n",
+        "schema": {
+          "type": "string"
+        },
+        "required": true
+      },
+      "sttrBestandInhoudFilter": {
+        "name": "sttrBestandInhoudFilter",
+        "in": "query",
+        "description": "Filter op sttr-bestanden met een specifieke inhoud. Momenteel alleen mogelijk om te filteren op 'herbruikbareBeslissing', dit zijn sttr-bestanden die een dmn-decision bevatten waarvan de typeRef de waarde \"herbruikbaar\" heeft.\n",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "herbruikbareBeslissing"
+          ]
+        }
+      },
+      "expand": {
+        "name": "expand",
+        "in": "query",
+        "description": "Bepaalt of de aansluitpunten en aansluitingen meegeladen moeten worden in de response.\n",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "pageSize": {
+        "name": "pageSize",
+        "description": "Het aantal items per pagina in een gepagineerde response. Maximaal 500. Als een pageSize groter dan 500 wordt meegegeven, wordt een grootte van 500 gehanteerd.",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "required": false
+      },
+      "page": {
+        "name": "page",
+        "description": "De pagina die geretourneerd moet worden in een gepagineerde response. Wanneer er geen pagina nummer is opgegeven wordt de eerste pagina geretourneerd",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        },
+        "required": false
+      }
+    },
+    "responses": {
+      "400": {
+        "description": "Fouten (missing parameter; niet bestaande parameter; invalide waarde voor parameter)",
+        "content": {
+          "application/json": {
+            "schema": {
+              "allOf": [
+                {
+                  "required": [
+                    "type",
+                    "title",
+                    "status"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "Het type fout dat opgetreden is. Bijvoorbeeld VALIDATIE_FOUT of ONVERWACHTE_FOUT."
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "Informatie over de opgetreden fout."
+                    },
+                    "status": {
+                      "type": "integer",
+                      "format": "int64",
+                      "description": "De statuscode van de fout (= 400) overeenkomend met de http-status code van de response."
+                    },
+                    "detail": {
+                      "type": "string",
+                      "description": "Meer detail informatie over de opgetreden fout"
+                    },
+                    "instance": {
+                      "type": "string",
+                      "description": "Het unieke instance id van het request dat resulteerde in de foutmelding."
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "invalid-params": {
+                      "type": "array",
+                      "items": {
+                        "required": [
+                          "type",
+                          "name",
+                          "reason"
+                        ],
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "description": "Een type van de fout, bijvoorbeeld 'Validatie melding'"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "'Naam van de parameter die een fout bevat, bijvoorbeeld: activiteitFunctioneleStructuurRef'"
+                          },
+                          "reason": {
+                            "type": "string",
+                            "description": "Bijvoorbeeld 'de activiteitFunctioneleStructuurRef mag geen speciale karakters bevatten.'"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "De gevraagde resource is niet gevonden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "allOf": [
+                {
+                  "required": [
+                    "type",
+                    "title",
+                    "status"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "Het type resource dat niet gevonden is."
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "Informatie over de opgetreden fout."
+                    },
+                    "status": {
+                      "type": "integer",
+                      "format": "int64",
+                      "description": "De statuscode van de fout (= 404) overeenkomend met de http-status code van de response."
+                    },
+                    "detail": {
+                      "type": "string",
+                      "description": "Meer detail informatie over de opgetreden fout"
+                    },
+                    "instance": {
+                      "type": "string",
+                      "description": "Het unieke instance id van het request dat resulteerde in de foutmelding."
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "Bevat informatie over het type object dat niet gevonden is. Bijvoorbeeld ACTIVITY_NOT_FOUND of SUBACTIVITY_NOT_FOUND"
+                    },
+                    "detail": {
+                      "type": "string",
+                      "description": "De identifier van het object dat niet gevonden is. Bijvoorbeeld de URN van een activiteit."
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Er is een onverwachte technische fout opgetreden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "required": [
+                "type",
+                "title",
+                "status"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "Het type fout dat opgetreden is. Bijvoorbeeld VALIDATIE_FOUT of ONVERWACHTE_FOUT."
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Informatie over de opgetreden fout."
+                },
+                "status": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "De statuscode (= 500) van de fout overeenkomend met de http-status code van de response."
+                },
+                "detail": {
+                  "type": "string",
+                  "description": "Meer detail informatie over de opgetreden fout"
+                },
+                "instance": {
+                  "type": "string",
+                  "description": "Het unieke instance id van het request dat resulteerde in de foutmelding."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "ToepasbareRegelsHALResponseList": {
+        "properties": {
+          "_embedded": {
+            "properties": {
+              "toepasbareRegels": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ToepasbareRegelsHalResponse"
+                }
+              }
+            }
+          },
+          "_links": {
+            "$ref": "#/components/schemas/HalPaginationLinks"
+          },
+          "page": {
+            "$ref": "#/components/schemas/Page"
+          }
+        }
+      },
+      "ToepasbareRegelsHalResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ToepasbareRegels"
+          },
+          {
+            "required": [
+              "_links"
+            ]
+          },
+          {
+            "properties": {
+              "_links": {
+                "description": "Links naar gerelateerde toepasbare regels en het bijbehorende STTR bestand van deze toepasbare regels.",
+                "required": [
+                  "self"
+                ],
+                "properties": {
+                  "self": {
+                    "$ref": "#/components/schemas/HalLink"
+                  },
+                  "sttrBestand": {
+                    "$ref": "#/components/schemas/HalLink"
+                  },
+                  "aansluitpunt": {
+                    "description": "Alleen gevuld als het een aansluiting betreft. Link naar het aansluitpunt waarop de aansluiting aansluit.",
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/HalLink"
+                      }
+                    ]
+                  },
+                  "aansluitingen": {
+                    "description": "Alleen gevuld als het een aansluitpunt betreft. Als de datumVanaf filter wordt gebruikt: Links naar de aansluitingen die vanaf datumVanaf, en vanaf de begindatum tot en met de einddatum van het aansluitpunt, minstens 1 dag actief zijn. Anders: Links naar de aansluitingen die op de datum actief zijn.",
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/HalLink"
+                    }
+                  }
+                }
+              },
+              "_embedded": {
+                "properties": {
+                  "aansluitingen": {
+                    "description": "Alleen gevuld als het een aansluitpunt betreft. Als de datumVanaf filter wordt gebruikt: Aansluitingen die vanaf datumVanaf, en vanaf de begindatum tot en met de einddatum van het aansluitpunt, minstens 1 dag actief zijn. Anders: Aansluitingen die op de datum actief zijn.",
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ToepasbareRegels"
+                    }
+                  },
+                  "aansluitpunt": {
+                    "description": "Alleen gevuld als het een aansluiting betreft. Het aansluitpunt waarop de aansluiting aansluit.",
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/ToepasbareRegels"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ToepasbareRegels": {
+        "required": [
+          "identifier",
+          "functioneleStructuurRef",
+          "begindatum",
+          "laatsteWijzigingDatum",
+          "oin"
+        ],
+        "properties": {
+          "identifier": {
+            "type": "integer"
+          },
+          "begindatum": {
+            "description": "De datum vanaf wanneer deze toepasbare regels actief zijn. Het formaat van de datum is dd-MM-yyyy",
+            "type": "string"
+          },
+          "einddatum": {
+            "description": "De datum tot wanneer deze toepasbare regels actief zijn. Het formaat van de datum is dd-MM-yyyy",
+            "type": "string"
+          },
+          "laatsteWijzigingDatum": {
+            "description": "De datum waarop deze toepasbare regels voor het laatst gewijzigd zijn. Het formaat van de datum is dd-MM-yyyy",
+            "type": "string"
+          },
+          "oin": {
+            "description": "oin van bet bestuursorgaan dat eigenaar is van deze toepasbare regels",
+            "type": "string"
+          },
+          "functioneleStructuurRef": {
+            "description": "de functionele structuur referentie waaronder deze toepasbare regels bekend zijn in de registratie toepasbare regels",
+            "type": "string"
+          },
+          "aansluiting": {
+            "required": [
+              "aansluitpuntSoort"
+            ],
+            "description": "aansluiting informatie van deze toepasbare regels",
+            "properties": {
+              "locaties": {
+                "description": "De identifiers van de locaties waar deze aansluiting actief is",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "aansluitpuntSoort": {
+                "description": "De functionele versie van de aansluiting.",
+                "type": "string",
+                "enum": [
+                  "V1",
+                  "V2"
+                ]
+              },
+              "v1": {
+                "description": "Waarden van een aansluitpunt van het typen AansluitpuntSoort V1",
+                "required": [
+                  "standaardAansluiting"
+                ],
+                "properties": {
+                  "standaardAansluiting": {
+                    "description": "Is standaard aansluiting?",
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          },
+          "aansluitpunt": {
+            "description": "aansluitpunt informatie van deze toepasbare regels",
+            "required": [
+              "bestuurslaag",
+              "aansluitpuntSoort"
+            ],
+            "properties": {
+              "bestuurslaag": {
+                "type": "string",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Bestuurslaag"
+                  },
+                  {
+                    "description": "De aangegeven bestuurslaag van de bestuursorganen die aansluitingen kunnen aanleveren"
+                  }
+                ]
+              },
+              "aansluitpuntSoort": {
+                "description": "De functionele versie van het aansluitpunt.",
+                "type": "string",
+                "enum": [
+                  "V1",
+                  "V2"
+                ]
+              },
+              "v1": {
+                "description": "Waarden van een aansluitpunt van het typen AansluitpuntSoort V1",
+                "required": [
+                  "naam",
+                  "modelName",
+                  "decisionName"
+                ],
+                "properties": {
+                  "naam": {
+                    "description": "De naam van het aansluitpunt van deze toepasbare regels",
+                    "type": "string"
+                  },
+                  "modelName": {
+                    "description": "De model (definition) name die moet worden gebruikt in het STTR bestand van de aansluiting.",
+                    "type": "string"
+                  },
+                  "decisionName": {
+                    "description": "De decision name van de topdecision die moet wordt gebruikt in het STTR bestand van de aansluiting.",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "uitvoerbareRegel": {
+            "description": "De data van de uitvoerbare regel.",
+            "required": [
+              "sttrVersie"
+            ],
+            "properties": {
+              "sttrVersie": {
+                "description": "De versie van de STTR-standaard van het bestand",
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "HalPaginationLinks": {
+        "description": "Links om te navigeren door de paginering",
+        "required": [
+          "self",
+          "first",
+          "last"
+        ],
+        "properties": {
+          "self": {
+            "description": "uri voor het opvragen van de huidige pagina van deze collectie",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/HalLink"
+              }
+            ]
+          },
+          "first": {
+            "description": "uri voor het opvragen van de eerste pagina van deze collectie",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/HalLink"
+              }
+            ]
+          },
+          "last": {
+            "description": "uri voor het opvragen van de laatste pagina van deze collectie",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/HalLink"
+              }
+            ]
+          },
+          "prev": {
+            "description": "uri voor het opvragen van de vorige pagina van deze collectie",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/HalLink"
+              }
+            ]
+          },
+          "next": {
+            "description": "uri voor het opvragen van de volgende pagina van deze collectie",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/HalLink"
+              }
+            ]
+          }
+        }
+      },
+      "Page": {
+        "description": "Info voor paginering.",
+        "type": "object",
+        "required": [
+          "size",
+          "totalElements",
+          "totalPages",
+          "number"
+        ],
+        "properties": {
+          "size": {
+            "deprecated": true,
+            "description": "het aantal items op de huidige pagina. Let op: in een volgende versie wordt dit de gevraagde paginagrootte.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "totalElements": {
+            "description": "het totaal aantal items in deze collectie",
+            "type": "integer",
+            "minimum": 0
+          },
+          "totalPages": {
+            "description": "het totaal aantal pagina's in deze collectie",
+            "type": "integer",
+            "minimum": 0
+          },
+          "number": {
+            "description": "het huidige paginanummer",
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "HalLink": {
+        "description": "HAL link",
+        "required": [
+          "href"
+        ],
+        "properties": {
+          "href": {
+            "description": "URI",
+            "type": "string"
+          }
+        }
+      },
+      "Bestuurslaag": {
+        "description": "Bestuurslaag van een Organisatie",
+        "type": "string",
+        "enum": [
+          "rijk",
+          "provincie",
+          "waterschap",
+          "gemeente"
+        ]
+      }
+    }
+  },
+  "x-wso2-cors": {
+    "accessControlAllowOrigins": [
+      "*"
+    ],
+    "corsConfigurationEnabled": true,
+    "accessControlAllowCredentials": false,
+    "accessControlAllowMethods": [
+      "GET",
+      "PUT",
+      "POST",
+      "DELETE",
+      "PATCH",
+      "OPTIONS"
+    ],
+    "accessControlAllowHeaders": [
+      "authorization",
+      "Access-Control-Allow-Origin",
+      "Content-Type",
+      "SOAPAction"
+    ]
+  }
+}
+

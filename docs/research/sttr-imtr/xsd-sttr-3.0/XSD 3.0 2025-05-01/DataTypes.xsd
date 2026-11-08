@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+In deze XSD zijn de zelfgedefinieerde datatypes gedefinieerd.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+			elementFormDefault="qualified"
+			targetNamespace="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/DataTypes"
+			xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/DataTypes"
+			version="1.0.0">
+
+	<xs:simpleType name="boolean">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="true"/>
+			<xs:enumeration value="false"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="number">
+		<xs:restriction base="xs:string">
+			<!-- gebruik komma voor gebroken getallen, duizendtallen mogen niet gescheiden worden  -->
+			<xs:pattern value="[0-9]+(,[0-9]+)?"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="date">
+		<xs:restriction base="xs:string">
+			<!-- formaat: dd-mm-yyyy -->
+			<xs:pattern value="(0?[1-9]|[12][0-9]|3[01])-(0?[1-9]|1[012])-[0-9]{4}"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="nietLegeString">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="beperkteNietLegeString">
+		<xs:restriction base="nietLegeString">
+			<xs:maxLength value="2048"/>
+		</xs:restriction>  	
+	</xs:simpleType>
+
+</xs:schema>

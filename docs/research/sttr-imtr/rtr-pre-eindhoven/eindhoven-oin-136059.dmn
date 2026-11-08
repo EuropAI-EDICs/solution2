@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<dmn:definitions xmlns:dmn="http://www.omg.org/spec/DMN/20151101/dmn.xsd"
+                 xmlns:feel="http://www.omg.org/spec/FEEL/20140401"
+                 xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel"
+                 xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel"
+                 xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel"
+                 xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content"
+                 xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001172773000"
+                 namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001172773000"
+                 exporter="Geodan FLO Legal STTR Builder" exporterVersion="" id="_37f75c7c-b19e-4fee-ac47-40117257c6d7"
+                 name="Bouwwerk slopen">
+    <dmn:extensionElements>
+        <inter:regelgroepen>
+                            <inter:regelgroep id="groep1">
+    <inter:naam>Bouwwerk slopen Gemeente Tilburg</inter:naam>
+    <inter:prioriteit>10</inter:prioriteit>
+</inter:regelgroep>
+                    </inter:regelgroepen>
+        <uitv:uitvoeringsregels>
+                            <uitv:uitvoeringsregel id="uitv__71f4bf29-7ed2-43e8-b1af-7b5c3f79c21a">
+        <uitv:regelgroepRef href="#groep1"/>
+        <inter:prioriteit>10</inter:prioriteit>
+     <uitv:vraag>
+    <uitv:gegevensType>boolean</uitv:gegevensType>
+    <uitv:vraagTekst>Is er in het omgevingsplan een dubbelbestemming Waarde - Cultuurhistorie opgenomen op uw perceel?</uitv:vraagTekst>
+        </uitv:vraag>
+
+
+                          <content:uitvoeringsregelToelichting>
+            <content:toelichting><![CDATA[Weet u het antwoord op deze vraag niet? Kijk dan eerst bij regels op de kaart.
+
+Alleen binnen de dubbelbestemming waarde-cultuurhistorie zijn regels opgenomen over het slopen van bouwwerken. Indien het te slopen bouwwerk niet binnen deze dubbelbestemming ligt kunt u de vraag met nee beantwoorden.
+
+Neem bij twijfel contact op met de gemeente.]]></content:toelichting>
+    
+    
+    <content:belangrijk>true</content:belangrijk>
+</content:uitvoeringsregelToelichting>
+ </uitv:uitvoeringsregel>
+
+                            <uitv:uitvoeringsregel id="uitv__cf15c4c7-8ee9-47d7-a2f3-8a2401cf3246">
+        <uitv:regelgroepRef href="#groep1"/>
+        <inter:prioriteit>20</inter:prioriteit>
+     <uitv:vraag>
+    <uitv:gegevensType>boolean</uitv:gegevensType>
+    <uitv:vraagTekst>Op uw perceel is de dubbelbestemming Waarde - Cultuurhistorie van toepassing. Is er in de regels van deze dubbelbestemming een vergunningplicht voor de gewenste sloopwerkzaamheden opgenomen?</uitv:vraagTekst>
+        </uitv:vraag>
+
+
+                          <content:uitvoeringsregelToelichting>
+            <content:toelichting><![CDATA[Weet u het antwoord op deze vraag niet? Kijk dan eerst bij regels op de kaart.
+
+Alleen binnen de dubbelbestemming waarde-cultuurhistorie zijn regels opgenomen over het slopen van bouwwerken. U kunt in de regels van deze dubbelbestemming nagaan of er vergunning nodig is voor de gewenste sloopwerkzaamheden. Deze vindt u in het artikel met betrekking tot "werken en werkzaamheden". Sommige sloopwerkzaamheden zijn uitgezonderd van de vergunningplicht. Als dit het geval is, staat dit in de regel met betrekking tot slopen.
+
+Neem bij twijfel contact op met de gemeente.]]></content:toelichting>
+    
+    
+    <content:belangrijk>true</content:belangrijk>
+</content:uitvoeringsregelToelichting>
+ </uitv:uitvoeringsregel>
+
+                    </uitv:uitvoeringsregels>
+        
+    </dmn:extensionElements>
+    
+            <dmn:inputData id="input__71f4bf29-7ed2-43e8-b1af-7b5c3f79c21a" name="_71f4bf29-7ed2-43e8-b1af-7b5c3f79c21a">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__71f4bf29-7ed2-43e8-b1af-7b5c3f79c21a"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_ee197789-5762-4974-abb5-a105da00e63f" name="_71f4bf29-7ed2-43e8-b1af-7b5c3f79c21a" typeRef="feel:boolean"/>
+</dmn:inputData>
+            <dmn:inputData id="input__cf15c4c7-8ee9-47d7-a2f3-8a2401cf3246" name="_cf15c4c7-8ee9-47d7-a2f3-8a2401cf3246">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__cf15c4c7-8ee9-47d7-a2f3-8a2401cf3246"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_75d8d4f1-7bd4-4c63-8d22-fb0e5b104fb7" name="_cf15c4c7-8ee9-47d7-a2f3-8a2401cf3246" typeRef="feel:boolean"/>
+</dmn:inputData>
+                <dmn:decision id="_08f9c65c-a545-43ae-8635-7ac4be2f4cf6" name="Vergunningplicht pad 1">
+        <dmn:variable id="_560c967c-c457-4c57-8dac-853136f10a74" name="Vergunningplicht pad 1" typeRef="feel:string"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__71f4bf29-7ed2-43e8-b1af-7b5c3f79c21a"/>
+                    </dmn:informationRequirement>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__cf15c4c7-8ee9-47d7-a2f3-8a2401cf3246"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" id="_60d0ce59-a70d-4764-9b63-57f1ecce2ab2" outputLabel="Vergunningplicht pad 1">
+            <dmn:input id="_ed305a69-3127-437f-870d-ee0c793b6532" label="Is er in het omgevingsplan een dubbelbestemming Waarde - Cultuurhistorie opgenomen op uw perceel?">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>_71f4bf29-7ed2-43e8-b1af-7b5c3f79c21a</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+            <dmn:input id="_4c893311-1da4-4232-994c-b7aeea4b1fd3" label="Op uw perceel is de dubbelbestemming Waarde - Cultuurhistorie van toepassing. Is er in de regels van deze dubbelbestemming een vergunningplicht voor de gewenste sloopwerkzaamheden opgenomen?">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>_cf15c4c7-8ee9-47d7-a2f3-8a2401cf3246</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_027cae41-da0f-4d28-93b7-47a988f8f417" label="Vergunningplicht pad 1"/>
+                    
+            <dmn:rule id="_dafaea7d-2515-4117-9ff3-190baa84bfe0">
+            <dmn:inputEntry id="_260acd6e-24c6-4de5-bc96-c08beb559105">
+            <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_96396469-e96f-45c5-9e8e-f200572286f4">
+            <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_cf4bd25e-11f3-4d36-9b90-9a4ac209af78">
+                        <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+            <dmn:rule id="_140b280f-496c-4360-bb78-f6efa9d52463">
+            <dmn:inputEntry id="_c3b22939-6e4e-43bc-b6bc-b43ee467542f">
+            <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_c4fcc555-cbe2-4f90-8aab-347e3e49360e">
+            <dmn:text><![CDATA[-]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_8650f57b-499d-42b9-b472-de05a6bd5385">
+                        <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+            <dmn:rule id="_a1eab4dd-264f-4bab-9bcb-a169ed9d621b">
+            <dmn:inputEntry id="_e1f704fb-92c7-46dc-bc36-9355959321ec">
+            <dmn:text><![CDATA[-]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_2107e517-e840-43c8-a268-59176fe7dc93">
+            <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_e479d260-9de4-4191-ab9b-eb11cc36ccaa">
+                        <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="_ada96a40-02e8-45f3-a9c3-6a869fa9eba0" name="Vergunningplicht">
+        <dmn:variable id="_6a746523-8c60-435d-9763-db5bf71a2820" name="Vergunningplicht" typeRef="feel:string"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#_08f9c65c-a545-43ae-8635-7ac4be2f4cf6"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" id="_e075c9fd-209a-4022-94d5-c65e58643488" outputLabel="Vergunningplicht">
+            <dmn:input id="_20bdda60-fe79-4981-85ff-89f11e84a262" label="Vergunningplicht pad 1">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>Vergunningplicht pad 1</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_eba0be15-28a1-4703-9b0f-59585b8da667" label="Vergunningplicht"/>
+                    
+            <dmn:rule id="_40fa92f0-efce-46bb-a044-01503d929aae">
+            <dmn:inputEntry id="_50c25d2e-1596-4f2e-a414-45c851ddb18d">
+            <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_f2cb64c4-dd96-4f76-b7da-80c16db99142">
+                        <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+            <dmn:rule id="_4a73df69-1f63-44e4-b070-b49cc99942a1">
+            <dmn:inputEntry id="_b953fef0-7ef0-4fe3-897f-3182c8a6ff4b">
+            <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_8241e329-7c21-4257-b9f8-e06072f62030">
+                        <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="_3d05198d-d520-4b12-b8a2-11bc7b8924a5" name="Bouwwerk slopen">
+            <dmn:extensionElements>
+            <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001172773000/id/concept/Conclusienl.imow-gm0855.activiteit.BouwwerkSlopen"/>
+        </dmn:extensionElements>
+        <dmn:variable id="_7db5f9e7-831c-468c-8e6d-92a1c26d7b1a" name="Bouwwerk slopen" typeRef="feel:string"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#_ada96a40-02e8-45f3-a9c3-6a869fa9eba0"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="RULE ORDER" id="_d7f64682-9c49-4e60-b3e1-0666fb75ad27" outputLabel="Bouwwerk slopen">
+            <dmn:input id="_fde604fb-a09e-44b0-b4a1-6d3812917590" label="Vergunningplicht">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>Vergunningplicht</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_006efe65-28f4-4519-a4e5-b26401a605dc" label="Bouwwerk slopen"/>
+                    
+            <dmn:rule id="_8682e263-e4fa-4bc8-bdd0-fceaee282a84">
+            <dmn:inputEntry id="_9d11416d-6b8c-4f43-859c-fce7b876d195">
+            <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_34534929-ddd9-4d1a-9100-cbc47e8ed509">
+                        <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+            <dmn:rule id="_2054bdc4-881f-4b29-9aa8-f77b32e4e2b8">
+            <dmn:inputEntry id="_c3d65eb1-0c93-48c5-8506-2817c399653a">
+            <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_1ee1e395-43bb-403d-9e15-ebf17cf94519">
+                        <dmn:text><![CDATA["Toestemmingsvrij"]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+    </dmn:definitions>

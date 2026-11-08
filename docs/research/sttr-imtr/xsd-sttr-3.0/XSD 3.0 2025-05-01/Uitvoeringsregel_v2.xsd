@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v2.0/Uitvoeringsregel"
+           xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v2.0/Content"
+           xmlns:int="http://toepasbare-regels.omgevingswet.overheid.nl/v2.0/Interactieregel"
+           xmlns:dataTypes="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/DataTypes"
+           xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/v2.0/Uitvoeringsregel"
+           targetNamespace="http://toepasbare-regels.omgevingswet.overheid.nl/v2.0/Uitvoeringsregel"
+           elementFormDefault="qualified"
+           version="2.0.0">
+	<xs:import namespace="http://toepasbare-regels.omgevingswet.overheid.nl/v2.0/Content" schemaLocation="Content_v2.xsd"/>
+	<xs:import namespace="http://toepasbare-regels.omgevingswet.overheid.nl/v2.0/Interactieregel" schemaLocation="Interactieregel_v2.xsd"/>
+	<xs:import namespace="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/DataTypes" schemaLocation="DataTypes.xsd"/>
+	<xs:element name="uitvoeringsregels">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="uitvoeringsregel" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="uitvoeringsregel">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="uitv:herbruikbaarId" minOccurs="0"/>
+				<xs:element ref="uitv:regelgroepRef" minOccurs="0"/>
+				<xs:element ref="uitv:bereik" minOccurs="0"/>
+				<xs:element ref="int:classificatie" minOccurs="0"/>
+				<xs:element ref="uitv:vraagReferentie" minOccurs="0"/>
+				<xs:element name="publiceerbaar" type="dataTypes:boolean" default="true" minOccurs="0"/>
+				<xs:element name="potentieelVertrouwelijk" type="dataTypes:boolean" default="false" minOccurs="0"/>
+				<xs:element ref="int:prioriteit" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="uitv:registerbevraging"/>
+					<xs:element ref="uitv:registerbevragingAPIProfiel"/>
+					<xs:element ref="uitv:vraag"/>
+					<xs:element ref="uitv:vasteWaarde"/>
+					<xs:element ref="uitv:vasteWaardeVoorbehoud"/>
+					<xs:element ref="uitv:bijlage"/>
+					<xs:element ref="uitv:implicietAntwoord"/>
+					<xs:element ref="uitv:geoVerwijzing"/>
+					<xs:element ref="uitv:uitkomstHerbruikbareBeslissing"/>
+				</xs:choice>
+				<xs:element ref="content:uitvoeringsregelToelichting" minOccurs="0"/>
+				<xs:element ref="int:consistentieregel" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="id" type="xs:ID" use="required"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="vasteWaarde">
+		<xs:complexType>
+			<xs:sequence>
+				<!-- Het veld waardeVraag dient enkel als documentatie voor de regelmaker. Het wordt verder niet gebruikt door het DSO. -->
+				<xs:element name="waardeVraag" type="dataTypes:nietLegeString" minOccurs="0"/>
+				<xs:choice>
+					<xs:element name="booleanWaarde" type="dataTypes:boolean"/>
+					<xs:element name="numberWaarde" type="dataTypes:number"/>
+					<xs:element name="stringWaarde" type="dataTypes:nietLegeString"/>
+					<xs:element name="dateWaarde" type="dataTypes:date"/>
+				</xs:choice>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="vasteWaardeVoorbehoud">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="uitv:vasteWaarde"/>
+				<xs:element name="tekstVoorbehoud" type="dataTypes:beperkteNietLegeString"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="bijlage">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="bijlageType">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<!--
+								De waardes van dit veld komen uiteindelijk uit in de STAM berichten, daar mag
+								dit veld maximaal 80 lang zijn.
+							-->
+							<xs:maxLength value="80"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="documenttypeGeneriek" type="uitv:documenttypeGeneriek" default="Overig" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="implicietAntwoord">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="uitv:werkzaamheid"/>
+				<xs:element name="waarde" type="dataTypes:boolean"/>
+				<xs:element ref="uitv:context" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="geoVerwijzing">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="uitv:locatie"/>
+				<xs:element ref="uitv:vraagTekst"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="uitkomstHerbruikbareBeslissing">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="uitv:activiteit"/>
+        <xs:element name="naam" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="registerbevraging">
+		<xs:sequence>
+			<xs:element name="verborgenStuurvraag" type="dataTypes:boolean" default="false" minOccurs="0"/>
+			<xs:element name="registerGegeven" type="xs:string"/>
+			<xs:element name="registerKoppelveld" type="xs:string" minOccurs="0"/>
+			<xs:element ref="uitv:vraag"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="registerbevragingAPIProfiel">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="verborgenStuurvraag" type="dataTypes:boolean" default="false" minOccurs="0"/>
+				<xs:element ref="uitv:afnamepunt"/>
+				<xs:element ref="uitv:vraag"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="vraag">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="uitv:gegevensType"/>
+				<xs:element ref="uitv:vraagTekst"/>
+				<xs:element ref="uitv:opties" minOccurs="0"/>
+				<xs:element ref="int:inputType" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="regelgroepRef">
+		<xs:complexType>
+			<xs:attribute name="href" type="xs:anyURI" use="required"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="opties">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="uitv:optieType"/>
+				<xs:element name="optieGeenVanBovenstaande" type="dataTypes:boolean" minOccurs="0"/>
+				<xs:element ref="uitv:optie" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="optieType">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="enkelAntwoord"/>
+				<xs:enumeration value="meerdereAntwoorden"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="optie">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="uitv:sequenceId"/>
+				<xs:element ref="uitv:optieText"/>
+				<xs:element ref="content:uitvoeringsregelToelichting" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="sequenceId" type="xs:int"/>
+	<xs:element name="optieText" type="dataTypes:nietLegeString"/>
+
+	<xs:element name="bereik" default="werkzaamheid">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="werkzaamheid"/>
+				<xs:enumeration value="locatie"/>
+				<xs:enumeration value="gebruiker"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+
+	<xs:element name="vraagReferentie">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:minLength value="1"/>
+				<!--
+					De waardes van dit veld komen uiteindelijk uit in de STAM berichten, daar mag
+					dit veld maximaal 512 lang zijn.
+				-->
+				<xs:maxLength value="512"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="registerbevraging" type="registerbevraging"/>
+	<xs:element name="gegevensType" type="gegevensType"/>
+	<xs:element name="vraagTekst">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:minLength value="1"/>
+				<!--
+					De waardes van dit veld komen uiteindelijk uit in de STAM berichten, daar mag
+					dit veld maximaal 512 lang zijn.
+				-->
+				<xs:maxLength value="512"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+
+	<!-- Hier aansluiten bij "standaard" gegevenstype's zoals XSD of XFORMS -->
+	<xs:simpleType name="gegevensType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="boolean"/>
+			<xs:enumeration value="number"/>
+			<xs:enumeration value="string"/>
+			<xs:enumeration value="date"/>
+			<xs:enumeration value="list"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="documenttypeGeneriek">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Advies"/>
+			<xs:enumeration value="Afbeelding"/>
+			<xs:enumeration value="Afspraak"/>
+			<xs:enumeration value="Akte"/>
+			<xs:enumeration value="Begroting"/>
+			<xs:enumeration value="Berekening"/>
+			<xs:enumeration value="Bestek"/>
+			<xs:enumeration value="Brief"/>
+			<xs:enumeration value="Foto"/>
+			<xs:enumeration value="Grafiek"/>
+			<xs:enumeration value="Identificatiebewijs"/>
+			<xs:enumeration value="Kaart"/>
+			<xs:enumeration value="Ontwerp"/>
+			<xs:enumeration value="Overeenkomst"/>
+			<xs:enumeration value="Plan"/>
+			<xs:enumeration value="PlanVanAanpak"/>
+			<xs:enumeration value="Rapport"/>
+			<xs:enumeration value="TechnischeTekening"/>
+			<xs:enumeration value="Tekening"/>
+			<xs:enumeration value="Uittreksel"/>
+			<xs:enumeration value="Verklaring"/>
+			<xs:enumeration value="Overig"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:element name="uitvoeringsregelRef">
+		<xs:complexType>
+			<xs:attribute name="href" type="xs:anyURI" use="required"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="werkzaamheid">
+		<xs:complexType>
+			<xs:attribute name="urn" type="dataTypes:nietLegeString" use="required"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="activiteit">
+		<xs:complexType>
+			<xs:attribute name="urn" type="dataTypes:nietLegeString" use="required"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="context" default="werkzaamheidOverstijgend">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="werkzaamheidOverstijgend"/>
+				<xs:enumeration value="werkzaamheidSpecifiek"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+
+	<xs:element name="herbruikbaarId" type="dataTypes:nietLegeString"/>
+
+	<xs:element name="locatie">
+		<xs:complexType>
+			<xs:attribute name="identificatie" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="afnamepunt">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="endpointAfnamepunt" type="dataTypes:nietLegeString"/>
+				<xs:element name="registerNaam" type="dataTypes:nietLegeString"/>
+				<xs:element ref="uitv:query"/>
+				<xs:element ref="uitv:criteria"/>
+				<xs:element ref="uitv:projectie"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="query">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="zoekingang" type="dataTypes:nietLegeString"/>
+				<xs:element ref="uitv:registerKoppelveld" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="criteria">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="kenmerk" type="dataTypes:nietLegeString"/>
+				<xs:element name="kwaliteit" type="dataTypes:nietLegeString"/>
+				<xs:element name="resultaattype" type="uitv:resultaattype"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="projectie">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="naam" type="dataTypes:nietLegeString"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:simpleType name="resultaattype">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="enkelvoudig"/>
+			<xs:enumeration value="meervoudig"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:element name="registerKoppelveld">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="kenmerk" type="dataTypes:nietLegeString"/>
+				<!-- Het veld waardetype dient enkel als documentatie voor de regelmaker. Het wordt verder niet gebruikt door het DSO. -->
+				<xs:element name="waardetype" type="xs:string" minOccurs="0"/>
+				<xs:choice>
+					<xs:element name="registerKetenVariabele" type="uitv:registerKetenVariabele"/>
+					<xs:element name="registerVasteWaarde" type="dataTypes:nietLegeString"/>
+					<xs:element name="registerUitvoeringsregelRef" type="uitv:registerUitvoeringsregelRef"/>
+				</xs:choice>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:simpleType name="registerKetenVariabele">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="geometrie"/>
+			<xs:enumeration value="activiteitUrn"/>
+			<xs:enumeration value="werkzaamheidUrn"/>
+			<xs:enumeration value="datum"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="registerUitvoeringsregelRef">
+		<xs:attribute name="href" type="xs:anyURI" use="required"/>
+	</xs:complexType>
+</xs:schema>

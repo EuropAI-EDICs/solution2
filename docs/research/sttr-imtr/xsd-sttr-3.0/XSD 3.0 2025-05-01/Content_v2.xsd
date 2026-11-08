@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified"
+	targetNamespace="http://toepasbare-regels.omgevingswet.overheid.nl/v2.0/Content"
+	xmlns:dataTypes="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/DataTypes"
+	xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/v2.0/Content"
+	version="2.0.0">
+
+	<xs:import namespace="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/DataTypes" schemaLocation="DataTypes.xsd"/>
+
+	<xs:element name="conclusieToelichting">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="toelichting" type="dataTypes:beperkteNietLegeString"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="uitvoeringsregelToelichting">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="toelichting" type="dataTypes:beperkteNietLegeString" minOccurs="0"/>
+				<xs:element name="langeToelichting" type="dataTypes:nietLegeString" minOccurs="0"/>
+				<xs:element name="belangrijk" type="dataTypes:boolean" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="maatregel">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="nummer" type="dataTypes:beperkteNietLegeString"/>
+				<xs:element name="maatregeltekst" type="dataTypes:beperkteNietLegeString"/>
+				<xs:element name="toelichting" minOccurs="0" type="dataTypes:nietLegeString"/>
+				<xs:element name="frequentie" type="dataTypes:beperkteNietLegeString"/>
+				<xs:element name="volgorde" type="xs:int"/>
+				<xs:element name="kenmerk" minOccurs="0" maxOccurs="unbounded" type="dataTypes:beperkteNietLegeString"/>
+				<xs:element name="thema" minOccurs="0" maxOccurs="unbounded" type="dataTypes:beperkteNietLegeString"/>
+			</xs:sequence>
+			<xs:attribute name="id" type="xs:ID" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="maatregelen">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="maatregel" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

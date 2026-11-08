@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<dmn:definitions xmlns:dmn="http://www.omg.org/spec/DMN/20151101/dmn.xsd"
+                 xmlns:feel="http://www.omg.org/spec/FEEL/20140401"
+                 xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel"
+                 xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel"
+                 xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel"
+                 xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content"
+                 xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001172773000"
+                 namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001172773000"
+                 exporter="Geodan FLO Legal STTR Builder" exporterVersion="" id="_508fdf8a-5caa-4688-ae56-27de8614a099"
+                 name="Indieningsvereisten Vergunning Constructie voor overbruggen van terreinhoogteverschil bouwen in stand houden of gebruiken">
+    <dmn:extensionElements>
+        <inter:regelgroepen>
+                            <inter:regelgroep id="_19ba1735-c363-477f-b80e-135f0b1c289b">
+    <inter:naam>Afmetingen grondkering</inter:naam>
+    <inter:prioriteit>10</inter:prioriteit>
+</inter:regelgroep>
+                    </inter:regelgroepen>
+        <uitv:uitvoeringsregels>
+                            <uitv:uitvoeringsregel id="uitv__ab443fac-d052-436a-9171-29bce99d3d94">
+        <uitv:regelgroepRef href="#_19ba1735-c363-477f-b80e-135f0b1c289b"/>
+            <inter:prioriteit>10</inter:prioriteit>
+     <uitv:vraag>
+    <uitv:gegevensType>number</uitv:gegevensType>
+    <uitv:vraagTekst>Hoe hoog is de grondkering in meters?</uitv:vraagTekst>
+        </uitv:vraag>
+
+
+                         </uitv:uitvoeringsregel>
+
+                            <uitv:uitvoeringsregel id="uitv__80f0b3e0-b1fc-4ea1-a4a7-67d62f6a4eb0">
+        <uitv:regelgroepRef href="#_19ba1735-c363-477f-b80e-135f0b1c289b"/>
+            <inter:prioriteit>20</inter:prioriteit>
+     <uitv:vraag>
+    <uitv:gegevensType>number</uitv:gegevensType>
+    <uitv:vraagTekst>Hoe ver steekt de grondkering boven het hoogstgelegen terrein uit in meters?</uitv:vraagTekst>
+        </uitv:vraag>
+
+
+                         </uitv:uitvoeringsregel>
+
+                    </uitv:uitvoeringsregels>
+        
+    </dmn:extensionElements>
+    
+            <dmn:inputData id="input__ab443fac-d052-436a-9171-29bce99d3d94" name="_ab443fac-d052-436a-9171-29bce99d3d94">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__ab443fac-d052-436a-9171-29bce99d3d94"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_7b9b20f9-e153-4220-a45f-97d1ce5c4794" name="_ab443fac-d052-436a-9171-29bce99d3d94" typeRef="feel:number"/>
+</dmn:inputData>
+            <dmn:inputData id="input__80f0b3e0-b1fc-4ea1-a4a7-67d62f6a4eb0" name="_80f0b3e0-b1fc-4ea1-a4a7-67d62f6a4eb0">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__80f0b3e0-b1fc-4ea1-a4a7-67d62f6a4eb0"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_27132f5c-b7f5-41cc-8220-eb5f338cdaf4" name="_80f0b3e0-b1fc-4ea1-a4a7-67d62f6a4eb0" typeRef="feel:number"/>
+</dmn:inputData>
+                <dmn:decision id="_949407c2-2966-4a00-9592-73110bb43e3d" name="Indieningsvereisten Vergunning Constructie voor overbruggen van terreinhoogteverschil bouwen in stand houden of gebruiken">
+            <dmn:extensionElements>
+            <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001172773000/id/concept/IndieningsvereistenVergunningnl.imow-gm0855.activiteit.ConstrTerreinhoogte"/>
+        </dmn:extensionElements>
+        <dmn:variable id="_63f34a86-dcb9-4b4f-8b04-f3b34d335d79" name="Indieningsvereisten Vergunning Constructie voor overbruggen van terreinhoogteverschil bouwen in stand houden of gebruiken" typeRef="feel:boolean"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__ab443fac-d052-436a-9171-29bce99d3d94"/>
+                    </dmn:informationRequirement>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__80f0b3e0-b1fc-4ea1-a4a7-67d62f6a4eb0"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" id="_7fb26c3b-b95e-4b93-8767-1d3a840dbca9" outputLabel="Indieningsvereisten Vergunning Constructie voor overbruggen van terreinhoogteverschil bouwen in stand houden of gebruiken">
+            <dmn:input id="_4e8246e6-c954-40fd-a153-360921c5e935" label="Hoe hoog is de grondkering in meters?">
+            <dmn:inputExpression typeRef="feel:number">
+                <dmn:text>_ab443fac-d052-436a-9171-29bce99d3d94</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+            <dmn:input id="_13de99f2-5d53-4758-b8f6-54efab8751ee" label="Hoe ver steekt de grondkering boven het hoogstgelegen terrein uit in meters?">
+            <dmn:inputExpression typeRef="feel:number">
+                <dmn:text>_80f0b3e0-b1fc-4ea1-a4a7-67d62f6a4eb0</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_2d831c11-e6b5-4fcc-ac22-fc0d36a6cff4" label="Indieningsvereisten Vergunning Constructie voor overbruggen van terreinhoogteverschil bouwen in stand houden of gebruiken"/>
+                    
+            <dmn:rule id="_13204ada-53c5-43b2-afb7-2196557ad2bc">
+            <dmn:inputEntry id="_b35183bd-3424-46c9-b7bf-bc4ee8dfb2ed">
+            <dmn:text><![CDATA[not(null)]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_6ce1c33f-e746-4312-b9c1-faf39063a35c">
+            <dmn:text><![CDATA[not(null)]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_933f6c26-8425-4501-9e2f-85afb8afa51f">
+                        <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+    </dmn:definitions>

@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<semantic:definitions xmlns:semantic="http://www.omg.org/spec/DMN/20180521/MODEL/"
+                      xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/"
+                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v2.0/Interactieregel"
+                      xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v2.0/Bedrijfsregel"
+                      xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v2.0/Content"
+                      xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v2.0/Uitvoeringsregel"
+                      xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                      xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001807288111000"
+                      name="Indieningsvereisten Vergunning Boomsoort Kappen"
+                      namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001807288111000">
+    <semantic:extensionElements>
+		<bedr:sttr versie="3"/>
+        <inter:regelgroepen>
+            <inter:regelgroep id="groep1">
+                <inter:naam>Soortenbescherming</inter:naam>
+                <inter:prioriteit>1</inter:prioriteit>
+            </inter:regelgroep>
+        </inter:regelgroepen>
+        <uitv:uitvoeringsregels>
+            <uitv:uitvoeringsregel id="UitvId0001">
+                <uitv:regelgroepRef href="#groep1"/>
+                <inter:prioriteit>10</inter:prioriteit>
+                <uitv:vraag>
+                    <uitv:gegevensType>string</uitv:gegevensType>
+                    <uitv:vraagTekst>Welke beschermde soort valt binnen de invloedsfeer van uw activiteiten?</uitv:vraagTekst>
+                </uitv:vraag>
+                <content:uitvoeringsregelToelichting>
+                    <content:toelichting>Denk aan vogels, vleermuizen of overige soorten waarvan het leefgebied door uw activiteiten mogelijk aangetast wordt.</content:toelichting>
+                </content:uitvoeringsregelToelichting>
+            </uitv:uitvoeringsregel>
+            <uitv:uitvoeringsregel id="UitvId0002">
+                <uitv:regelgroepRef href="#groep1"/>
+                <inter:prioriteit>20</inter:prioriteit>
+                <uitv:vraag>
+                    <uitv:gegevensType>string</uitv:gegevensType>
+                    <uitv:vraagTekst>Beschrijf hier wat de werkzaamheden zijn en in welke periode en op welke wijze ze worden uitgevoerd.</uitv:vraagTekst>
+                </uitv:vraag>
+            </uitv:uitvoeringsregel>
+            <uitv:uitvoeringsregel id="UitvId0003">
+                <uitv:regelgroepRef href="#groep1"/>
+                <inter:prioriteit>30</inter:prioriteit>
+                <uitv:vraag>
+                    <uitv:gegevensType>boolean</uitv:gegevensType>
+                    <uitv:vraagTekst>Voeg hier een foto toe van de boom/bomen die u wilt gaan kappen.</uitv:vraagTekst>
+                </uitv:vraag>
+            </uitv:uitvoeringsregel>
+            <uitv:uitvoeringsregel id="UitvId0004">
+                <uitv:regelgroepRef href="#groep1"/>
+                <inter:prioriteit>1</inter:prioriteit>
+                <uitv:vraag>
+                    <uitv:gegevensType>list</uitv:gegevensType>
+                    <uitv:vraagTekst>Wat voor soort boom of soorten bomen wilt u gaan kappen?</uitv:vraagTekst>
+                    <uitv:opties>
+                        <uitv:optieType>meerdereAntwoorden</uitv:optieType>
+                        <uitv:optieGeenVanBovenstaande>true</uitv:optieGeenVanBovenstaande>
+                        <uitv:optie>
+                            <uitv:sequenceId>1</uitv:sequenceId>
+                            <uitv:optieText>Beuk</uitv:optieText>
+                        </uitv:optie>
+                        <uitv:optie>
+                            <uitv:sequenceId>2</uitv:sequenceId>
+                            <uitv:optieText>Eik</uitv:optieText>
+                        </uitv:optie>
+                        <uitv:optie>
+                            <uitv:sequenceId>3</uitv:sequenceId>
+                            <uitv:optieText>Es</uitv:optieText>
+                        </uitv:optie>
+                        <uitv:optie>
+                            <uitv:sequenceId>4</uitv:sequenceId>
+                            <uitv:optieText>Spar</uitv:optieText>
+                        </uitv:optie>
+                    </uitv:opties>
+                </uitv:vraag>
+                <content:uitvoeringsregelToelichting>
+                    <content:toelichting>Er kunnen meerdere soorten worden gekozen.</content:toelichting>
+                </content:uitvoeringsregelToelichting>
+            </uitv:uitvoeringsregel>
+        </uitv:uitvoeringsregels>
+    </semantic:extensionElements>
+    <semantic:decision id="_0ecb025a-237e-4a6f-acd8-f1daba9ae0ed"
+                       name="Indieningsvereisten Vergunning Soortenbescherming Bij Boom Kappen">
+        <semantic:extensionElements>
+            <bedr:functioneleStructuurRef href="#http://toepasbare-regels.omgevingswet.overheid.nl/00000001807288111000/id/concept/IndieningsvereistenVergunningnl.imow-mnre1034.activiteit.BoomsoortKappen"/>
+        </semantic:extensionElements>
+        <semantic:variable name="Indieningsvereisten Vergunning Soortenbescherming Bij Boom Kappen"
+                           id="_e74774a2-28c0-43ff-9cd8-ea3e8ec074e4"
+                           typeRef="boolean"/>
+        <semantic:informationRequirement id="f7138854-0f67-4a67-a51d-609c5b4213d6">
+            <semantic:requiredInput href="#_129b9295-b1c0-476f-a867-8b5012d286e9"/>
+        </semantic:informationRequirement>
+        <semantic:informationRequirement id="fa849188-54ed-4cdd-b986-1e86f3896273">
+            <semantic:requiredInput href="#_8cd5aa1c-d4ac-49da-a22a-411db480b8fc"/>
+        </semantic:informationRequirement>
+        <semantic:informationRequirement id="acea6b15-2689-40a0-91de-20d5c66308f6">
+            <semantic:requiredInput href="#_3a5da3cb-ce09-416a-bfbd-b39b83c2de82"/>
+        </semantic:informationRequirement>
+        <semantic:informationRequirement id="_676f410f-1ade-47aa-b716-cff291a8841a">
+            <semantic:requiredInput href="#_3a5da3cb-ce09-416a-bfbd-b39b83c2de83"/>
+        </semantic:informationRequirement>
+        <semantic:decisionTable id="_9d03c100-cdd0-411c-abd3-8a204b1e0b9e"
+                                hitPolicy="ANY"
+                                outputLabel="Indieningsvereisten Vergunning Soortenbescherming Bij Boom Kappen"
+                                typeRef="boolean">
+            <semantic:input id="_a59779ea-ac8a-424b-a41d-8620d4f66c1a"
+                            label="Beschermde dieren">
+                <semantic:inputExpression typeRef="string">
+                    <semantic:text>Beschermde dieren</semantic:text>
+                </semantic:inputExpression>
+            </semantic:input>
+            <semantic:input id="_e5286a54-2e96-4bc5-9462-c91a952ababa"
+                            label="Werkzaamheden">
+                <semantic:inputExpression typeRef="string">
+                    <semantic:text>Werkzaamheden</semantic:text>
+                </semantic:inputExpression>
+            </semantic:input>
+            <semantic:input id="_503c8b72-553d-435d-87f9-9207fb4508ff"
+                            label="Foto">
+                <semantic:inputExpression typeRef="boolean">
+                    <semantic:text>Foto</semantic:text>
+                </semantic:inputExpression>
+            </semantic:input>
+            <semantic:input id="_503c8b72-553d-435d-87f9-9207fb4508ee"
+                            label="Boomsoorten">
+                <semantic:inputExpression typeRef="string">
+                    <semantic:text>Boomsoorten</semantic:text>
+                </semantic:inputExpression>
+            </semantic:input>
+            <semantic:output id="_fc2dd770-91e1-49b9-a237-1c610f74c4f0"/>
+            <semantic:annotation/>
+            <semantic:rule id="_a3eff8d2-9160-450e-9a96-430a8e4110fc">
+                <semantic:inputEntry id="_7ddeaa58-8f5b-4c3e-86c7-c70796892c7f">
+                    <semantic:text>not(null)</semantic:text>
+                </semantic:inputEntry>
+                <semantic:inputEntry id="_ab9f0cbe-d672-44e5-ab65-e0e1891e26ae">
+                    <semantic:text>not(null)</semantic:text>
+                </semantic:inputEntry>
+                <semantic:inputEntry id="_fb1bf13f-9a4d-4ca9-accc-a51bee3455e8">
+                    <semantic:text>true</semantic:text>
+                </semantic:inputEntry>
+                <semantic:inputEntry id="_fb1bf13f-9a4d-4ca9-accc-a51bee3455e9">
+                    <semantic:text>not(null)</semantic:text>
+                </semantic:inputEntry>
+                <semantic:outputEntry id="_9f04a2b4-9513-47df-bad6-b9407e442241">
+                    <semantic:text>true</semantic:text>
+                </semantic:outputEntry>
+                <semantic:annotationEntry>
+                    <semantic:text/>
+                </semantic:annotationEntry>
+            </semantic:rule>
+        </semantic:decisionTable>
+    </semantic:decision>
+    <semantic:inputData id="_129b9295-b1c0-476f-a867-8b5012d286e9"
+                        name="Beschermde dieren">
+        <semantic:extensionElements>
+            <uitv:uitvoeringsregelRef href="#UitvId0001"/>
+        </semantic:extensionElements>
+        <semantic:variable name="Beschermde dieren"
+                           id="_1a1c6678-eeab-41d1-8ae0-db4957f6d765"
+                           typeRef="string"/>
+    </semantic:inputData>
+    <semantic:inputData id="_8cd5aa1c-d4ac-49da-a22a-411db480b8fc"
+                        name="Werkzaamheden">
+        <semantic:extensionElements>
+            <uitv:uitvoeringsregelRef href="#UitvId0002"/>
+        </semantic:extensionElements>
+        <semantic:variable name="Werkzaamheden"
+                           id="_557523fe-7453-4066-be79-cb9fe18a62de"
+                           typeRef="string"/>
+    </semantic:inputData>
+    <semantic:inputData id="_3a5da3cb-ce09-416a-bfbd-b39b83c2de82"
+                        name="Foto">
+        <semantic:extensionElements>
+            <uitv:uitvoeringsregelRef href="#UitvId0003"/>
+        </semantic:extensionElements>
+        <semantic:variable name="Foto"
+                           id="_74d6734c-944e-4b63-983b-acf462752fcc"
+                           typeRef="boolean"/>
+    </semantic:inputData>
+    <semantic:inputData id="_3a5da3cb-ce09-416a-bfbd-b39b83c2de83"
+                        name="Boomsoorten">
+        <semantic:extensionElements>
+            <uitv:uitvoeringsregelRef href="#UitvId0004"/>
+        </semantic:extensionElements>
+        <semantic:variable name="Boomsoorten"
+                           id="_74d6734c-944e-4b63-983b-acf462752fcd"
+                           typeRef="string"/>
+    </semantic:inputData>
+</semantic:definitions>

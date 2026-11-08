@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<dmn:definitions xmlns:dmn="http://www.omg.org/spec/DMN/20151101/dmn.xsd"
+                 xmlns:feel="http://www.omg.org/spec/FEEL/20140401"
+                 xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Interactieregel"
+                 xmlns:bedr="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Bedrijfsregel"
+                 xmlns:uitv="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Uitvoeringsregel"
+                 xmlns:content="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/Content"
+                 xmlns="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001172773000"
+                 namespace="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001172773000"
+                 exporter="Geodan FLO Legal STTR Builder" exporterVersion="" id="_b3c2f1ff-d5a3-47c8-af95-1d085675e23f"
+                 name="Bouwwerk slopen in een gemeentelijk beschermd of rijksbeschermd stads of dorpsgezicht">
+    <dmn:extensionElements>
+        <inter:regelgroepen>
+                            <inter:regelgroep id="groep1">
+    <inter:naam>Bouwwerk slopen in een gemeentelijk beschermd of rijksbeschermd stads of dorpsgezicht Gemeente Tilburg</inter:naam>
+    <inter:prioriteit>10</inter:prioriteit>
+</inter:regelgroep>
+                    </inter:regelgroepen>
+        <uitv:uitvoeringsregels>
+                            <uitv:uitvoeringsregel id="uitv__eeff0bff-3bee-4a8e-a641-3c52cf406c6c">
+        <uitv:regelgroepRef href="#groep1"/>
+            <inter:prioriteit>10</inter:prioriteit>
+     <uitv:vraag>
+    <uitv:gegevensType>boolean</uitv:gegevensType>
+    <uitv:vraagTekst>Ligt het bouwwerk, of een onderdeel daarvan, dat u wilt slopen in een beschermd stads- of dorpsgezicht?</uitv:vraagTekst>
+        </uitv:vraag>
+
+
+                          <content:uitvoeringsregelToelichting>
+            <content:toelichting><![CDATA[U kunt nagaan of het te slopen bouwwerk is gelegen in een beschermd stads- of dorpsgezicht via de volgende [link](https://geo.tilburg.nl/portal/apps/webappviewer/index.html?id=47b7f0ee33e5448c8584d8e4762e2cdc).]]></content:toelichting>
+    
+    
+    <content:belangrijk>true</content:belangrijk>
+</content:uitvoeringsregelToelichting>
+ </uitv:uitvoeringsregel>
+
+                            <uitv:uitvoeringsregel id="uitv__3da6ac77-c437-4e42-b6f6-e055e79e5a72">
+        <uitv:regelgroepRef href="#groep1"/>
+            <inter:prioriteit>20</inter:prioriteit>
+     <uitv:vraag>
+    <uitv:gegevensType>boolean</uitv:gegevensType>
+    <uitv:vraagTekst>Ontstaan er door de sloopwerkzaamheden open gaten in de bebouwing of de beschermde historische structuur?</uitv:vraagTekst>
+        </uitv:vraag>
+
+
+                          <content:uitvoeringsregelToelichting>
+            <content:toelichting><![CDATA[Open gaten ontstaan indien er sprake is van volledige sloop van panden of delen daarvan. Hiermee wordt niet het slopen of verwijderen van bijvoorbeeld een kozijn of dakkapel bedoeld.]]></content:toelichting>
+    
+    
+    <content:belangrijk>true</content:belangrijk>
+</content:uitvoeringsregelToelichting>
+ </uitv:uitvoeringsregel>
+
+                    </uitv:uitvoeringsregels>
+        
+    </dmn:extensionElements>
+    
+            <dmn:inputData id="input__eeff0bff-3bee-4a8e-a641-3c52cf406c6c" name="_eeff0bff-3bee-4a8e-a641-3c52cf406c6c">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__eeff0bff-3bee-4a8e-a641-3c52cf406c6c"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_6b64544f-5ddb-4808-b871-b0066730a4a8" name="_eeff0bff-3bee-4a8e-a641-3c52cf406c6c" typeRef="feel:boolean"/>
+</dmn:inputData>
+            <dmn:inputData id="input__3da6ac77-c437-4e42-b6f6-e055e79e5a72" name="_3da6ac77-c437-4e42-b6f6-e055e79e5a72">
+    <dmn:extensionElements>
+        <uitv:uitvoeringsregelRef href="#uitv__3da6ac77-c437-4e42-b6f6-e055e79e5a72"/>
+    </dmn:extensionElements>
+    <dmn:variable id="_b6cfea54-3002-4af0-a02b-71d210572da2" name="_3da6ac77-c437-4e42-b6f6-e055e79e5a72" typeRef="feel:boolean"/>
+</dmn:inputData>
+                <dmn:decision id="_c862e4aa-bd68-4320-9c2f-d913757c96c6" name="Vergunningplicht pad 1">
+        <dmn:variable id="_c001e13b-fc66-4acd-bc74-57275c87b34f" name="Vergunningplicht pad 1" typeRef="feel:string"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__eeff0bff-3bee-4a8e-a641-3c52cf406c6c"/>
+                    </dmn:informationRequirement>
+            <dmn:informationRequirement>
+                            <dmn:requiredInput href="#input__3da6ac77-c437-4e42-b6f6-e055e79e5a72"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" id="_39093c49-2d5f-489f-9d30-87486aa3ac63" outputLabel="Vergunningplicht pad 1">
+            <dmn:input id="_54bd3e21-f8ae-44f2-8aa7-e3852ef92ee9" label="Ligt het bouwwerk, of een onderdeel daarvan, dat u wilt slopen in een beschermd stads- of dorpsgezicht?">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>_eeff0bff-3bee-4a8e-a641-3c52cf406c6c</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+            <dmn:input id="_5e45405e-4cbb-49dc-923c-9d78d8f8ccd3" label="Ontstaan er door de sloopwerkzaamheden open gaten in de bebouwing of de beschermde historische structuur?">
+            <dmn:inputExpression typeRef="feel:boolean">
+                <dmn:text>_3da6ac77-c437-4e42-b6f6-e055e79e5a72</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_78b6cd6f-6787-4908-a8c6-62e85ce76570" label="Vergunningplicht pad 1"/>
+                    
+            <dmn:rule id="_f04b5fe1-1a9f-425a-aaf8-6da260290f90">
+            <dmn:inputEntry id="_525d213d-613f-4e7d-86ea-403fbc4e6bd8">
+            <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_238b0621-3d60-4c39-85c8-a4643bdbf4db">
+            <dmn:text><![CDATA[true]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_e1306d7a-9011-4631-9410-7c3e22a32718">
+                        <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+            <dmn:rule id="_1f240932-5a3d-405f-bd67-2d6ed841cae3">
+            <dmn:inputEntry id="_d5d2e9fa-72a4-496a-ac62-640adba2d49d">
+            <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_57c10565-c198-4dcb-9dd0-98e3e192a999">
+            <dmn:text><![CDATA[-]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_a9596887-96cb-4a0d-bb47-fb7786ed37c8">
+                        <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+            <dmn:rule id="_6130c670-7c07-41c2-b911-7466e0419d1d">
+            <dmn:inputEntry id="_f67ad355-3589-4853-ba08-c4a97006a446">
+            <dmn:text><![CDATA[-]]></dmn:text>
+        </dmn:inputEntry>
+            <dmn:inputEntry id="_5720a590-7518-41ee-90de-a78bd76a2a4d">
+            <dmn:text><![CDATA[false]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_43fe19b4-7cd4-4482-8797-af2da4694380">
+                        <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="_d9673470-bd8f-4015-b96e-8fb645bad1d9" name="Vergunningplicht">
+        <dmn:variable id="_83ab9da0-27a3-470b-a2a6-7cf5bce7375e" name="Vergunningplicht" typeRef="feel:string"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#_c862e4aa-bd68-4320-9c2f-d913757c96c6"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="FIRST" id="_576c3994-6688-4402-82e3-acf80c4e618a" outputLabel="Vergunningplicht">
+            <dmn:input id="_0d79f771-254d-44f0-819f-5b73e22dbd39" label="Vergunningplicht pad 1">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>Vergunningplicht pad 1</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_c95919ad-e5cd-4335-831f-7e67969f0048" label="Vergunningplicht"/>
+                    
+            <dmn:rule id="_b934b77c-9465-4059-80ae-ec4a4e6f580b">
+            <dmn:inputEntry id="_3d8aea1e-a21f-4232-9444-86415f30189b">
+            <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_511033a1-c5d2-49ce-afea-bd373e3a44fa">
+                        <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+            <dmn:rule id="_4d264a65-dd8d-40ad-b049-dd098d8d742f">
+            <dmn:inputEntry id="_2b774962-085f-4a49-992d-fc25d7fe163c">
+            <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_f05b527f-b98a-4267-88f9-2fd514165c70">
+                        <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+            <dmn:decision id="_aa005b02-4575-40f0-b97a-c4ad83660512" name="Bouwwerk slopen in een gemeentelijk beschermd of rijksbeschermd stads of dorpsgezicht">
+            <dmn:extensionElements>
+            <bedr:functioneleStructuurRef href="http://toepasbare-regels.omgevingswet.overheid.nl/00000001001172773000/id/concept/Conclusienl.imow-gm0855.activiteit.SlopenBeschStadsgezicht"/>
+        </dmn:extensionElements>
+        <dmn:variable id="_5ac4783c-8cbd-41b5-8422-bcfd1cdbedb7" name="Bouwwerk slopen in een gemeentelijk beschermd of rijksbeschermd stads of dorpsgezicht" typeRef="feel:string"/>
+            <dmn:informationRequirement>
+                            <dmn:requiredDecision href="#_d9673470-bd8f-4015-b96e-8fb645bad1d9"/>
+                    </dmn:informationRequirement>
+        <dmn:decisionTable hitPolicy="RULE ORDER" id="_6bd76638-3295-463f-9e30-d9c2cc8551b2" outputLabel="Bouwwerk slopen in een gemeentelijk beschermd of rijksbeschermd stads of dorpsgezicht">
+            <dmn:input id="_801e93a7-5dc0-43aa-bb14-cc1696a941cc" label="Vergunningplicht">
+            <dmn:inputExpression typeRef="feel:string">
+                <dmn:text>Vergunningplicht</dmn:text>
+            </dmn:inputExpression>
+        </dmn:input>
+    
+            <dmn:output id="_114cf2da-e78a-4a7f-80f0-1da125699ada" label="Bouwwerk slopen in een gemeentelijk beschermd of rijksbeschermd stads of dorpsgezicht"/>
+                    
+            <dmn:rule id="_08bee76c-87d3-48f0-a926-94c79c7ad40b">
+            <dmn:inputEntry id="_5bace573-83cb-426b-a94e-8eea85fbfe6b">
+            <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_69ab7c25-39cd-43b1-9c23-3ad02602ebb8">
+                        <dmn:text><![CDATA["Vergunningplicht"]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+            <dmn:rule id="_35aa7fe8-9d64-4980-96c1-64296e8be68e">
+            <dmn:inputEntry id="_ef54e6b6-0ffb-45b6-badb-93bfec2ad03c">
+            <dmn:text><![CDATA["no hit"]]></dmn:text>
+        </dmn:inputEntry>
+                <dmn:outputEntry id="_55cc6f77-325c-48c7-8594-85de1df4cba1">
+                        <dmn:text><![CDATA["Toestemmingsvrij"]]></dmn:text>
+        </dmn:outputEntry>
+        </dmn:rule>
+    </dmn:decisionTable>
+</dmn:decision>
+    </dmn:definitions>

@@ -1,0 +1,1023 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "2.1.4",
+    "title": "Samengestelde RTR Services",
+    "description": "Specifieke, samengestelde services met betrekking tot de Registratie Toepasbare Regels.",
+    "contact": {
+      "name": "Ontwikkelaarsportaal Omgevingswet",
+      "url": "https://developer.omgevingswet.overheid.nl/services/contact/"
+    }
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "OpenApi Specification",
+        "deprecated": true,
+        "description": "Deprecated - gebruik in plaats hiervan /openapi.json.",
+        "tags": [
+          "Meta"
+        ],
+        "responses": {
+          "200": {
+            "description": "OpenApi Specification Json",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": "{\"openapi\": \"3.0.0\", ... }"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "summary": "OpenApi Specification",
+        "tags": [
+          "Meta"
+        ],
+        "responses": {
+          "200": {
+            "description": "OpenApi Specification Json",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": "{\"openapi\": \"3.0.0\", ... }"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "health info",
+        "tags": [
+          "Meta"
+        ],
+        "responses": {
+          "200": {
+            "description": "Health",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "UP"
+                      ]
+                    },
+                    "groups": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Health",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "DOWN",
+                        "OUT_OF_SERVICE"
+                      ]
+                    },
+                    "groups": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/info": {
+      "get": {
+        "summary": "applicatie info",
+        "tags": [
+          "Meta"
+        ],
+        "responses": {
+          "200": {
+            "description": "Info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Info",
+                  "required": [
+                    "app"
+                  ],
+                  "properties": {
+                    "app": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "version": {
+                          "type": "string"
+                        },
+                        "version2": {
+                          "type": "string"
+                        },
+                        "buildtime": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/werkzaamheden/_bepaalRegelbeheerobjectTyperingen": {
+      "post": {
+        "summary": "Een REST API voor het ophalen van de aanwezigheid van geldige regelbeheerobjecten van werkzaamheden.",
+        "tags": [
+          "Bepalen Regelbeheerobject Typeringen"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/x_api_key"
+          },
+          {
+            "$ref": "#/components/parameters/crs"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lijst van werkzaamheden met per werkzaamheid informatie over de regelbeheerobjecten die hieraan gerelateerd zijn.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BepalenRegelbeheerobjectenResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BepalenRegelbeheerobjectenRequest"
+              }
+            }
+          },
+          "description": "Lijst van werkzaamheden",
+          "required": true
+        }
+      }
+    },
+    "/werkzaamheden/_geef-logisch-gerelateerden": {
+      "post": {
+        "summary": "Ophalen logisch gerelateerde werkzaamheden corresponderend met de meegegeven werkzaamheden",
+        "tags": [
+          "Bepalen Werkzaamheden"
+        ],
+        "description": "Geeft de logisch gerelateerde werkzaamheden terug",
+        "requestBody": {
+          "description": "Request body met de benodigde gegevens voor het bepalen van logisch gerelateerde werkzaamheden",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogischGerelateerdeWerkzaamhedenRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/x_api_key"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logisch gerelateerde werkzaamheden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WerkzaamhedenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/werkzaamheden/_geef-juridisch-gerelateerden": {
+      "post": {
+        "summary": "Ophalen juridisch gerelateerde werkzaamheden corresponderend met de meegegeven werkzaamheden",
+        "tags": [
+          "Bepalen Werkzaamheden"
+        ],
+        "description": "Geeft de juridisch gerelateerde werkzaamheden terug relevant op de opgegeven locatie",
+        "requestBody": {
+          "description": "Request body met de benodigde gegevens voor het bepalen van logisch gerelateerde werkzaamheden",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JuridischGerelateerdeWerkzaamhedenRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/crs"
+          },
+          {
+            "$ref": "#/components/parameters/x_api_key"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Juridisch gerelateerde werkzaamheden per opgegeven werkzaamheid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WerkzaamhedenMetJuridischGerelateerdeWerkzaamhedenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/werkzaamheden/_bepaalWerkzaamheidCompleet": {
+      "post": {
+        "summary": "Bepaal voor de gegeven werkzaamheid en locatie, of voor iedere daar geldende bestuurslaag, alle activiteiten gekoppeld zijn.",
+        "tags": [
+          "Bepalen Werkzaamheid Compleet"
+        ],
+        "description": "Deze service helpt te bepalen of alle activiteiten gekoppeld zijn voor de gegeven werkzaamheid en locatie (of voor iedere daar geldende bestuurslaag). Op het moment dat alle activiteiten inderdaad gekoppeld zijn door het bestuursorgaan, én de uitkomst van de check voor alle betreffende activiteiten is \"plichtenvrij\", dan kan met zekerheid gesteld worden vanuit het DSO, dat de initiatiefnemer geen melding of aanvraag hoeft te doen bij het betreffende bestuursorgaan.",
+        "requestBody": {
+          "description": "Request body met de benodigde functioneleStructuurRef en geografische locatie van de werkzaamheid",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BepalenWerkzaamheidCompleetRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/crs"
+          },
+          {
+            "$ref": "#/components/parameters/x_api_key"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Boolean die aangeeft dat alle activiteiten gekoppeld zijn aan de werkzaamheid (op iedere bestuurslaag).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BepalenWerkzaamheidCompleetResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/activiteiten/algemeen": {
+      "get": {
+        "summary": "Ophalen activiteit die informatie over de algemene set ophaalt",
+        "tags": [
+          "Bepalen Algemene Set"
+        ],
+        "description": "Geeft de algemene set terug, bijvoorbeeld projectgegevens als het gaat om indieningsvereisten.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/x_api_key"
+          },
+          {
+            "$ref": "#/components/parameters/datumQueryParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Activiteit respons met algemene set",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlgemeneSetActiviteit"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "x_api_key": {
+        "name": "x-api-key",
+        "in": "header",
+        "description": "De api-key ter authenticatie, verkrijgbaar via het ontwikkelaarsportaal",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "crs": {
+        "name": "Content-Crs",
+        "in": "header",
+        "description": "Het coordinatenstelsel (Coordinate Reference Systems) waarop geometrie parameters in het request zijn gebaseerd",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "EPSG:28992"
+          ],
+          "default": "EPSG:28992"
+        }
+      },
+      "datumQueryParameter": {
+        "name": "datum",
+        "description": "Het request wordt uitgevoerd voor de versie van de resource die geldig is op deze datum. Indien geen datum meegegeven wordt het request uitgevoerd tegen de op dit moment geldende versie. Het formaat van de datum is dd-MM-yyyy. Indien de resource geneste objecten bevat die geversioneerd zijn, zal op deze objecten dezelfde datum-filtering toegepast worden.",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d{2}-\\d{2}-\\d{4}$",
+          "example": "01-01-2023"
+        }
+      },
+      "ActiviteitUrn": {
+        "in": "path",
+        "name": "urn",
+        "description": "De urn van de activiteit",
+        "required": true,
+        "schema": {
+          "description": "Urn van de activiteit (In de urn mogen geen spaties voorkomen). Binnen de keten staat urn bekend als de imow-id.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 250
+        }
+      }
+    },
+    "responses": {
+      "400": {
+        "description": "Fouten (missing parameter; niet bestaande parameter; invalide waarde voor parameter)",
+        "content": {
+          "application/json": {
+            "schema": {
+              "allOf": [
+                {
+                  "required": [
+                    "type",
+                    "title",
+                    "status"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "Het type fout dat opgetreden is. Bijvoorbeeld VALIDATIE_FOUT of ONVERWACHTE_FOUT."
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "Informatie over de opgetreden fout."
+                    },
+                    "status": {
+                      "type": "integer",
+                      "format": "int64",
+                      "description": "De statuscode van de fout (= 400) overeenkomend met de http-status code van de response."
+                    },
+                    "detail": {
+                      "type": "string",
+                      "description": "Meer detail informatie over de opgetreden fout"
+                    },
+                    "instance": {
+                      "type": "string",
+                      "description": "Het unieke instance id van het request dat resulteerde in de foutmelding."
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "invalid-params": {
+                      "type": "array",
+                      "items": {
+                        "required": [
+                          "type",
+                          "name",
+                          "reason"
+                        ],
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "description": "Een type van de fout, bijvoorbeeld 'Validatie melding'"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "'Naam van de parameter die een fout bevat, bijvoorbeeld: activiteitFunctioneleStructuurRef'"
+                          },
+                          "reason": {
+                            "type": "string",
+                            "description": "Bijvoorbeeld 'de activiteitFunctioneleStructuurRef mag geen speciale karakters bevatten.'"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "De gevraagde resource is niet gevonden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "allOf": [
+                {
+                  "required": [
+                    "type",
+                    "title",
+                    "status"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "Het type resource dat niet gevonden is."
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "Informatie over de opgetreden fout."
+                    },
+                    "status": {
+                      "type": "integer",
+                      "format": "int64",
+                      "description": "De statuscode van de fout (= 404) overeenkomend met de http-status code van de response."
+                    },
+                    "detail": {
+                      "type": "string",
+                      "description": "Meer detail informatie over de opgetreden fout"
+                    },
+                    "instance": {
+                      "type": "string",
+                      "description": "Het unieke instance id van het request dat resulteerde in de foutmelding."
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "Bevat informatie over het type object dat niet gevonden is. Bijvoorbeeld ACTIVITY_NOT_FOUND of SUBACTIVITY_NOT_FOUND"
+                    },
+                    "detail": {
+                      "type": "string",
+                      "description": "De identifier van het object dat niet gevonden is. Bijvoorbeeld de URN van een activiteit."
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Er is een onverwachte technische fout opgetreden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "required": [
+                "type",
+                "title",
+                "status"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "Het type fout dat opgetreden is. Bijvoorbeeld VALIDATIE_FOUT of ONVERWACHTE_FOUT."
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Informatie over de opgetreden fout."
+                },
+                "status": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "De statuscode (= 500) van de fout overeenkomend met de http-status code van de response."
+                },
+                "detail": {
+                  "type": "string",
+                  "description": "Meer detail informatie over de opgetreden fout"
+                },
+                "instance": {
+                  "type": "string",
+                  "description": "Het unieke instance id van het request dat resulteerde in de foutmelding."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "BepalenRegelbeheerobjectenRequest": {
+        "required": [
+          "functioneleStructuurRefs",
+          "_geo"
+        ],
+        "properties": {
+          "functioneleStructuurRefs": {
+            "description": "FunctioneleStructuurRefs van de werkzaamheden.",
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "description": "FunctioneleStructuurRef van de werkzaamheid.",
+              "type": "string"
+            }
+          },
+          "_geo": {
+            "$ref": "#/components/schemas/GeoQuery"
+          },
+          "datum": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Datum"
+              },
+              {
+                "description": "Het verzoek wordt uitgevoerd met de versie van de activiteiten die geldig zijn op deze datum. Indien geen datum meegegeven wordt het verzoek uitgevoerd tegen de op dit moment geldende activiteiten. Het formaat van de datum is dd-MM-yyyy"
+              }
+            ]
+          }
+        }
+      },
+      "BepalenRegelbeheerobjectenResponse": {
+        "properties": {
+          "functioneleStructuurRef": {
+            "description": "De functioneleStructuurRef van de werkzaamheid zoals die is meegegeven in de request.",
+            "type": "string"
+          },
+          "regelbeheerobjecten": {
+            "description": "Lijst van typeringen van Regelbegeerobjecten die direct gerelateerd zijn aan de activiteiten die onder de werkzaamheid vallen.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RegelbeheerobjectType"
+            }
+          },
+          "indirecte_regelbeheerobjecten": {
+            "description": "Lijst van typeringen van Regelbegeerobjecten die via een juridische relatie 'naar' gerelateerd zijn aan de activiteiten die onder de werkzaamheid vallen.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RegelbeheerobjectType"
+            }
+          }
+        }
+      },
+      "BepalenWerkzaamheidCompleetRequest": {
+        "required": [
+          "functioneleStructuurRef",
+          "_geo"
+        ],
+        "properties": {
+          "functioneleStructuurRef": {
+            "type": "string",
+            "description": "De unieke functionele structuur referentie van een werkzaamheid"
+          },
+          "_geo": {
+            "$ref": "#/components/schemas/GeoQuery"
+          }
+        }
+      },
+      "BepalenWerkzaamheidCompleetResponse": {
+        "required": [
+          "compleet"
+        ],
+        "properties": {
+          "compleet": {
+            "description": "Status Compleet van de werkzaamheid op basis van de locatie.",
+            "type": "boolean"
+          },
+          "incompleteBestuursorganen": {
+            "description": "Lijst van bestuursorganen waarvan bij de gegeven werkzaamheid en locatie de lijst met gekoppelde activiteiten niet compleet is.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Organisatie"
+            }
+          }
+        }
+      },
+      "LogischGerelateerdeWerkzaamhedenRequest": {
+        "required": [
+          "functioneleStructuurRefs"
+        ],
+        "properties": {
+          "functioneleStructuurRefs": {
+            "description": "Lijst van geselecteerde werkzaamheid functioneleStructuurRefs",
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "JuridischGerelateerdeWerkzaamhedenRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LogischGerelateerdeWerkzaamhedenRequest"
+          },
+          {
+            "required": [
+              "_geo"
+            ]
+          },
+          {
+            "properties": {
+              "_geo": {
+                "$ref": "#/components/schemas/GeoQuery"
+              },
+              "datum": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Datum"
+                  },
+                  {
+                    "description": "Het verzoek wordt uitgevoerd met de versie van de activiteiten die geldig zijn op deze datum. Indien geen datum meegegeven wordt het verzoek uitgevoerd tegen de op dit moment geldende activiteiten. Het formaat van de datum is dd-MM-yyyy"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "Werkzaamheid": {
+        "required": [
+          "urn",
+          "naam",
+          "functioneleStructuurRef"
+        ],
+        "properties": {
+          "urn": {
+            "type": "string",
+            "description": "De unieke identifier van deze werkzaamheid"
+          },
+          "naam": {
+            "type": "string",
+            "description": "De naam van de werkzaamheid"
+          },
+          "functioneleStructuurRef": {
+            "type": "string",
+            "description": "De unieke functionele structuur referentie van deze werkzaamheid"
+          }
+        }
+      },
+      "WerkzaamhedenResponse": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Werkzaamheid"
+        }
+      },
+      "WerkzaamhedenMetJuridischGerelateerdeWerkzaamhedenResponse": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/WerkzaamheidMetJuridischGerelateerdeWerkzaamheden"
+        }
+      },
+      "WerkzaamheidMetJuridischGerelateerdeWerkzaamheden": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Werkzaamheid"
+          },
+          {
+            "properties": {
+              "juridischeWerkzaamhedenVan": {
+                "type": "array",
+                "description": "Alle juridisch gerelateerde werkzaamheden waarnaar de werkzaamheid wijst",
+                "items": {
+                  "$ref": "#/components/schemas/Werkzaamheid"
+                }
+              },
+              "juridischeWerkzaamhedenNaar": {
+                "type": "array",
+                "description": "Alle juridisch gerelateerde werkzaamheden van waaruit naar deze werkzaamheid verwezen wordt",
+                "items": {
+                  "$ref": "#/components/schemas/Werkzaamheid"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "RegelbeheerobjectType": {
+        "description": "Type regelbeheerobject",
+        "type": "string",
+        "enum": [
+          "Conclusie",
+          "Indieningsvereisten",
+          "Maatregelen"
+        ]
+      },
+      "AlgemeneSetActiviteit": {
+        "description": "Een Activiteit",
+        "required": [
+          "naam",
+          "functioneleStructuurRef",
+          "urn",
+          "bestuursorgaan"
+        ],
+        "properties": {
+          "naam": {
+            "type": "string",
+            "description": "De omschrijvende naam van de algemene set"
+          },
+          "functioneleStructuurRef": {
+            "type": "string",
+            "description": "De verwijzing naar een regelbeheerobject van de algemene set"
+          },
+          "urn": {
+            "type": "string",
+            "description": "Urn van de algemene set (In de urn mogen geen spaties voorkomen). Binnen de keten staat urn bekend als de imow-id."
+          },
+          "bestuursorgaan": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Organisatie"
+              },
+              {
+                "properties": {
+                  "organisatieType": {
+                    "type": "string",
+                    "description": "organisatieType (niet-numerieke deel van de BG code)"
+                  },
+                  "organisatieCode": {
+                    "type": "string",
+                    "description": "organisatieCode (CBS code, het numerieke deel van de BG code)"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "GeoQuery": {
+        "description": "Filter op geografisch punt of vlak. Zie de [DSO API/URI strategie](https://iplo.nl/digitaal-stelsel/aansluiten/standaarden/api-en-uri-strategie).",
+        "required": [
+          "intersects"
+        ],
+        "properties": {
+          "intersects": {
+            "description": "Punt of vlak waarmee het resultaat raakvlak moet hebben. Analoog aan ElasticSearch GeoShape Query (https://www.elastic.co/guide/en/elasticsearch/reference/5.0/query-dsl-geo-shape-query.html)",
+            "oneOf": [
+              {
+                "title": "Point",
+                "description": "GeoJSON Point gespecificeerd volgens https://tools.ietf.org/html/rfc7946#section-3.1.2",
+                "type": "object",
+                "required": [
+                  "type",
+                  "coordinates"
+                ],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "Point"
+                    ]
+                  },
+                  "coordinates": {
+                    "description": "De coördinaten van het punt waarbij het 1e item de x-coordinaat is en het 2e item de y-coordinaat, gespecificeerd volgens https://tools.ietf.org/html/rfc7946#section-3.1.1",
+                    "type": "array",
+                    "minItems": 2,
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              {
+                "title": "Polygon",
+                "description": "GeoJSON Polygon gespecificeerd volgens https://tools.ietf.org/html/rfc7946#section-3.1.6",
+                "type": "object",
+                "required": [
+                  "type",
+                  "coordinates"
+                ],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "Polygon"
+                    ]
+                  },
+                  "coordinates": {
+                    "description": "De coördinaten van een Polygon volgens https://tools.ietf.org/html/rfc7946#section-3.1.6",
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "minItems": 4,
+                      "items": {
+                        "$ref": "#/components/schemas/GeoQuery/properties/intersects/oneOf/0/properties/coordinates"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "title": "MultiPolygon",
+                "description": "GeoJSON MultiPolygon gespecificeerd volgens https://tools.ietf.org/html/rfc7946#section-3.1.7",
+                "type": "object",
+                "required": [
+                  "type",
+                  "coordinates"
+                ],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "MultiPolygon"
+                    ]
+                  },
+                  "coordinates": {
+                    "description": "De coördinaten van een MultiPolygon volgens https://tools.ietf.org/html/rfc7946#section-3.1.7",
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/GeoQuery/properties/intersects/oneOf/1/properties/coordinates"
+                    }
+                  }
+                }
+              },
+              {
+                "description": "GeoJSon geometry collection volgens https://tools.ietf.org/html/rfc7946#section-3.1.8",
+                "type": "object",
+                "required": [
+                  "geometries",
+                  "type"
+                ],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "GeometryCollection"
+                    ]
+                  },
+                  "geometries": {
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/components/schemas/GeoQuery/properties/intersects/oneOf/0"
+                        },
+                        {
+                          "$ref": "#/components/schemas/GeoQuery/properties/intersects/oneOf/1"
+                        },
+                        {
+                          "$ref": "#/components/schemas/GeoQuery/properties/intersects/oneOf/2"
+                        }
+                      ],
+                      "minItems": 0
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "example": {
+          "intersects": {
+            "type": "Point",
+            "coordinates": [
+              155000,
+              463000
+            ]
+          }
+        }
+      },
+      "Datum": {
+        "description": "Datum in het formaat dd-MM-yyyy.",
+        "type": "string",
+        "pattern": "^\\d{2}-\\d{2}-\\d{4}$",
+        "example": "01-01-2023"
+      },
+      "Organisatie": {
+        "description": "Organisatie",
+        "required": [
+          "oin",
+          "bestuurslaag"
+        ],
+        "properties": {
+          "oin": {
+            "description": "OIN van de organisatie",
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 20
+          },
+          "bestuurslaag": {
+            "description": "Bestuurslaag van een Organisatie",
+            "type": "string",
+            "enum": [
+              "rijk",
+              "provincie",
+              "waterschap",
+              "gemeente"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "x-wso2-cors": {
+    "accessControlAllowOrigins": [
+      "*"
+    ],
+    "corsConfigurationEnabled": true,
+    "accessControlAllowCredentials": false,
+    "accessControlAllowMethods": [
+      "GET",
+      "PUT",
+      "POST",
+      "DELETE",
+      "PATCH",
+      "OPTIONS"
+    ],
+    "accessControlAllowHeaders": [
+      "authorization",
+      "Access-Control-Allow-Origin",
+      "Content-Type",
+      "SOAPAction"
+    ]
+  }
+}
+

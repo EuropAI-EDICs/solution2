@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:inter="http://toepasbare-regels.omgevingswet.overheid.nl/v2.0/Interactieregel"
+	xmlns:dataTypes="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/DataTypes"
+	elementFormDefault="qualified"
+	targetNamespace="http://toepasbare-regels.omgevingswet.overheid.nl/v2.0/Interactieregel"
+	version="2.0.0">
+
+	<xs:import namespace="http://toepasbare-regels.omgevingswet.overheid.nl/v1.0/DataTypes"
+		schemaLocation="DataTypes.xsd"/>
+
+	<xs:element name="regelgroepen">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="inter:regelgroep" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="regelgroep">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="inter:naam"/>
+				<xs:element ref="inter:prioriteit" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="id" type="xs:ID" use="required"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="naam">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:minLength value="1"/>
+				<!--
+					De waardes van dit veld komen uiteindelijk uit in de STAM berichten, daar mag
+					dit veld maximaal 80 lang zijn.
+				-->
+				<xs:maxLength value="80"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+
+	<xs:element name="prioriteit" type="xs:int"/>
+
+	<xs:element name="inputType" default="textarea">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="text"/>
+				<xs:enumeration value="textarea"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+
+	<xs:element name="consistentieregel">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="reguliereExpressie" type="dataTypes:nietLegeString"/>
+				<xs:element name="invulinstructie" type="dataTypes:nietLegeString" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="classificatie" default="activiteit">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="project"/>
+				<xs:enumeration value="aanvrager"/>
+				<xs:enumeration value="verzoek"/>
+				<xs:enumeration value="activiteit"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+
+</xs:schema>
