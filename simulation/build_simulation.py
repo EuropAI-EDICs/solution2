@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import html
 import json
 import math
 import re
@@ -32,6 +33,7 @@ import importlib.util
 
 from vertaal_gent import VT_STATUS, vt
 
+import yaml
 from shapely.geometry import shape, box
 from shapely.ops import unary_union
 
@@ -42,6 +44,69 @@ DSO_INSTRUMENTEN = [
     ("eindhoven", "eindhoven-woensel-proxy", "Omgevingsplan gemeente Eindhoven", "CVDR696400"),
     ("utrecht", "utrecht-domplein", "Omgevingsverordening provincie Utrecht", "CVDR704250"),
 ]
+
+FULL_EXPORT = ROOT / "nldt" / "simulation" / "regelrecht" / "full_export" / "out"
+TEKST_CAP, LID_CAP, RR_INPUT_CAP, RR_ACTION_CAP, RR_DESC_CAP = 500, 350, 2, 4, 90
+
+_AL_RE = re.compile(r"<Al>(.*?)</Al>", re.S)
+_TAG_RE = re.compile(r"<[^>]+>")
+_NUM_RE = re.compile(r"<Nummer>(.*?)</Nummer>")
+_RR_OPSYM = {"AND": "EN", "EQUALS": "=", "LESS_THAN_OR_EQUAL": "≤", "IF": "ALS"}
+
+
+def _cap(tekst: str, n: int) -> str:
+    tekst = (tekst or "").strip()
+    return tekst if len(tekst) <= n else tekst[:n].rstrip() + "…"
+
+
+def _xml_tekst(xml: str | None) -> str:
+    if not xml:
+        return ""
+    delen = []
+    for al in _AL_RE.findall(xml):
+        stuk = html.unescape(_TAG_RE.sub("", al)).strip()
+        if stuk:
+            delen.append(stuk)
+    return " ".join(delen)
+
+
+def _rr_operand(v) -> str:
+    if isinstance(v, str) and v.startswith("$"):
+        return v[1:]
+    if isinstance(v, dict) and ("operation" in v or "conditions" in v):
+        return _rr_expr(v)
+    return json.dumps(v, ensure_ascii=False)
+
+
+def _rr_expr(knoop) -> str:
+    op = _RR_OPSYM.get(str(knoop.get("operation", "?")), str(knoop.get("operation", "?")))
+    if "conditions" in knoop:
+        return f"{op}(" + " ∧ ".join(_rr_expr(c) for c in knoop["conditions"]) + ")"
+    return f"{_rr_operand(knoop.get('subject', '?'))} {op} {_rr_operand(knoop.get('value', '?'))}"
+
+
+def _rr_html(mr: dict | None, status: str) -> str:
+    ex = (mr or {}).get("execution")
+    if not ex:
+        return f"<i>niet geformaliseerd — status: {_esc(status)}</i>"
+    regels = []
+    prod = (ex.get("produces") or {}).get("legal_character")
+    if prod:
+        regels.append(f"karakter: {_esc(str(prod))}")
+    for inp in (ex.get("input") or [])[:RR_INPUT_CAP]:
+        regels.append(f"input: <b>{_esc(str(inp.get('name', '?')))}</b> — {_esc(_cap(str(inp.get('description') or ''), RR_DESC_CAP))}")
+    if len(ex.get("input") or []) > RR_INPUT_CAP:
+        regels.append(f"… +{len(ex['input']) - RR_INPUT_CAP} inputs")
+    for uit in (ex.get("output") or [])[:2]:
+        regels.append(f"output: <b>{_esc(str(uit.get('name', '?')))}</b>")
+    for act in (ex.get("actions") or [])[:RR_ACTION_CAP]:
+        waarde = act.get("value")
+        expr = _rr_expr(waarde) if isinstance(waarde, dict) else _rr_operand(waarde)
+        regels.append(f"<b>{_esc(str(act.get('output', '?')))}</b> ← {_esc(expr)}")
+    if len(ex.get("actions") or []) > RR_ACTION_CAP:
+        regels.append(f"… +{len(ex['actions']) - RR_ACTION_CAP} actions")
+    return "<b>Omgezet naar RegelRecht (v0.8.11)</b><br>" + "<br>".join(regels)
+
 
 # Labels delen met viewer/context_map — zonder poc/ op sys.path te zetten
 # (dat zou poc-bp2op/pipeline.knowledgebank maskeren).
@@ -1936,7 +2001,8 @@ def build_dso_kb() -> dict:
             geo_regels["naamOvereenkomend"] = na.get("naamOvereenkomend")
             geo_regels["naamSweepGmls"] = na.get("sweepGmls")
 
-        kg_instrumenten.append({"id": iid, "locatie": lid, "_overlapArticles": o.get("articles") or []})
+        kg_instrumenten.append({"id": iid, "locatie": lid, "cvdr": cvdr,
+                                "_overlapArticles": o.get("articles") or []})
         instrumenten.append({
             "id": iid,
             "label": label,
@@ -1986,6 +2052,35 @@ def build_kg7(instrumenten: list) -> dict:
         stem = f"{inst['id']}__{inst['locatie']}"
         ann = json.loads((DSO_OUT / f"{stem}.annotaties.json").read_text(encoding="utf-8"))
         pak = json.loads((DSO_OUT / f"{stem}.pakket-index.json").read_text(encoding="utf-8"))
+        yaml_pad = FULL_EXPORT / f"{inst['id']}-{inst['cvdr'].lower()}.yaml"
+        if not yaml_pad.is_file():
+            sys.exit(f"missing instrument yaml {yaml_pad}")
+        yart = {a["number"]: a for a in
+                (yaml.safe_load(yaml_pad.read_text(encoding="utf-8")) or {}).get("articles") or []}
+
+        struct = json.loads((DSO_OUT / f"{stem}.documentstructuur.json").read_text(encoding="utf-8"))
+        bladcomponenten: list = []
+
+        def _blad(c):
+            kids = (c.get("_embedded") or {}).get("documentComponenten") or []
+            if not kids:
+                bladcomponenten.append(c)
+            for k in kids:
+                _blad(k)
+
+        for c in struct.get("_embedded", {}).get("documentComponenten", []):
+            _blad(c)
+        lids: dict = {}
+        for b in bladcomponenten:
+            wid = b.get("identificatie")
+            if not wid:
+                continue
+            tekst = _xml_tekst(b.get("inhoud"))
+            if not tekst:
+                continue
+            num = _NUM_RE.search(b.get("kop") or "")
+            lids[wid] = {"lid": html.unescape(num.group(1)).strip() if num else "",
+                         "tekst": _cap(tekst, LID_CAP)}
         status = {a["number"]: a["rrStatus"] for a in inst["_overlapArticles"]}
 
         gml_van = {g.get("locatieIdentificatie"): g.get("bestand", "").rsplit("/", 1)[-1]
@@ -2020,9 +2115,13 @@ def build_kg7(instrumenten: list) -> dict:
                     continue
                 rts = art2rts[art]
                 if art not in artikelen:
+                    ymatch = yart.get(art) or {}
                     artikelen[art] = {"status": status.get(art, "missing_in_report"),
                                       "nRegels": 0, "nRT": len(rts), "rts": rts[:KG_RT_CAP],
-                                      "regels": [], "meer": 0}
+                                      "regels": [], "meer": 0,
+                                      "tekst": _cap(str(ymatch.get("text") or ""), TEKST_CAP),
+                                      "rr": _rr_html(ymatch.get("machine_readable"),
+                                                     status.get(art, "missing_in_report"))}
                 e = artikelen[art]
                 e["nRegels"] += 1
                 if len(e["regels"]) >= KG_REGEL_CAP:
@@ -2050,14 +2149,21 @@ def build_kg7(instrumenten: list) -> dict:
         for row, (art, e) in enumerate(gerangschikt[:KG_TOP]):
             y = 40 + row * 64
             stat_kleur = "kgn-groen" if e["status"] == "formalized" else "kgn-amber"
-            n_art = _kg_node("art", y, f"art. {art}", stat_kleur, 5.0,
-                             _kg_tip(f"artikel {art}", f"status: {e['status']}",
-                                     f"{e['nRegels']} regels · {e['nRT']} regelteksten"), f"art:{art}")
+            e_tekst = e.get("tekst") or ""
+            e_rr = e.get("rr") or ""
+            tip_art = (_kg_tip(f"artikel {art}", f"status: {e['status']}",
+                               f"{e['nRegels']} regels · {e['nRT']} regelteksten")
+                       + (f"<br><br>{_esc(e_tekst)}" if e_tekst else "")
+                       + (f"<br><br>{e_rr}" if e_rr else ""))
+            n_art = _kg_node("art", y, f"art. {art}", stat_kleur, 5.0, tip_art, f"art:{art}")
             nodes.append(n_art)
             i_art = len(nodes) - 1
             for i, w in enumerate(e["rts"][:3]):
+                ld = lids.get(w)
+                tip_rt = (f"lid {ld['lid']} — {_esc(ld['tekst'])}" if ld and ld.get("tekst")
+                          else _kg_tip(f"regeltekst {w}", f"artikel {art}"))
                 n_rt = _kg_node("rt", y - 6 + i * 12, w.rsplit("__", 2)[-1], stat_kleur, 5.1,
-                                _kg_tip(f"regeltekst {w}", f"artikel {art}"), f"rt:{w}")
+                                tip_rt, f"rt:{w}")
                 nodes.append(n_rt)
                 edges.append({"s": i_art, "t": len(nodes) - 1, "st": 5.1,
                               "cls": "kge-art", "d": _kg_pad(n_art, n_rt)})
@@ -2097,10 +2203,12 @@ def build_kg7(instrumenten: list) -> dict:
                         nodes.append(n_gio)
                         edges.append({"s": i_loc, "t": len(nodes) - 1, "st": 5.4,
                                       "cls": "kge-loc", "d": _kg_pad(n_loc, n_gio)})
+        gebruikte_wids = {w for e in artikelen.values() for w in e["rts"]}
         h = max(n["y"] for n in nodes) + 30 if nodes else 120
         uit[inst["id"]] = {"top": top,
                            "keuze": [a for a, _ in gerangschikt[:KG_KEUZE_CAP]],
                            "locaties": locaties, "artikelen": artikelen,
+                           "lids": {w: lids[w] for w in sorted(gebruikte_wids) if w in lids},
                            "overzicht": {"n": nodes, "e": edges, "h": h,
                                          "cols": [{"x": x, "cap": KG_CAPS[c]} for c, x in KG_COLX.items()],
                                          "cap": f"top-{KG_TOP} naar aantal regels · join via IMOW-identificatie"}}
