@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ldttoolbox.local/laya-hints/v1",
+  "title": "Laya formalisatie-hints (System-1, adviserend)",
+  "type": "object",
+  "required": ["contract", "instrument", "gegenereerdOp", "model", "artikelen"],
+  "additionalProperties": false,
+  "properties": {
+    "contract": {"const": "laya-hints/v1"},
+    "instrument": {"enum": ["eindhoven", "utrecht"]},
+    "gegenereerdOp": {"type": "string", "minLength": 1},
+    "model": {
+      "type": "object",
+      "required": ["checkpoint", "checkpointSha256", "datasetSha256", "gate"],
+      "additionalProperties": true,
+      "properties": {
+        "checkpoint": {"type": "string"},
+        "checkpointSha256": {"type": "string", "minLength": 64, "maxLength": 64},
+        "datasetSha256": {"type": "string", "minLength": 64, "maxLength": 64},
+        "gate": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "artikelen": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["number", "voorspeldeStatus", "confidence", "door"],
+        "additionalProperties": false,
+        "properties": {
+          "number": {"type": "string"},
+          "voorspeldeStatus": {"enum": ["formalized", "ambiguous", "rejected", "unmatched"]},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "door": {"type": "boolean"},
+          "heeftEvidence": {"type": ["number", "null"]}
+        }
+      }
+    }
+  }
+}
