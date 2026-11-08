@@ -68,6 +68,11 @@ def _resolve_paar(
             f"onbekend instrument {instrument!r}; geldig: {sorted(instrumenten)}"
         )
     meta = instrumenten[instrument]
+    if not meta.get("default_location_id"):
+        raise DsoKbFout(
+            f"instrument {instrument!r} is RTR-only (geen Presenteren-koppeling); "
+            "gebruik lijst_toepasbare_regels()/lees_sttr()"
+        )
     lid = locatie or meta.get("default_location_id")
     if lid not in locaties:
         raise DsoKbFout(f"onbekende locatie {lid!r}; geldig: {sorted(locaties)}")

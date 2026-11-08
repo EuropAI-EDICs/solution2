@@ -78,6 +78,11 @@ def build_for_instrument(
     gegenereerd_op: str | None = None,
 ) -> list[pathlib.Path]:
     meta = INSTRUMENTS[instrument_id]
+    if not meta.get("akn_uri"):
+        raise SystemExit(
+            f"instrument {instrument_id} is RTR-only (geen Presenteren-koppeling) — "
+            "gebruik dso_overlap.rtr / regelrecht.sttr"
+        )
     locatie = resolve_location(instrument_id, None)
     stem = f"{instrument_id}__{locatie['id']}"
     gegenereerd_op = gegenereerd_op or datetime.now(

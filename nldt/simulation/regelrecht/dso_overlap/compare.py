@@ -10,8 +10,8 @@ Gebruik:
   nldt/.venv/bin/python -m nldt.simulation.regelrecht.dso_overlap.compare \\
     --instruments eindhoven,utrecht
 
-  # Offline herhaal (cached raw responses):
-  … compare --instruments eindhoven --offline --cache-dir nldt/simulation/regelrecht/dso_overlap/out
+  # Offline herhaal (cached raw responses; default --out-dir = dso_overlap/out):
+  … compare --instruments eindhoven --offline
 
 Keys nooit committen. Rapporten landen onder dso_overlap/out/.
 """
@@ -107,6 +107,11 @@ def compare_instrument(
     if instrument_id not in INSTRUMENTS:
         raise SystemExit(f"onbekend instrument: {instrument_id}")
     meta = INSTRUMENTS[instrument_id]
+    if not meta.get("akn_uri"):
+        raise SystemExit(
+            f"instrument {instrument_id} is RTR-only (geen Presenteren-koppeling) — "
+            "gebruik dso_overlap.rtr / regelrecht.sttr"
+        )
     location = resolve_location(instrument_id, location_id)
     paths = _cache_paths(out_dir, instrument_id, location["id"])
     report_path = pathlib.Path(meta["formalization_report"])

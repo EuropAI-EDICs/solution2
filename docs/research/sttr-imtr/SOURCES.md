@@ -46,6 +46,13 @@ Presenteren-metingen in [POC_TPOD_IMOW_KANSEN.md](../../POC_TPOD_IMOW_KANSEN.md)
   één OIN) — **115 geldige STTR-bestanden** (45× DMN 1.1 + 70× DMN 1.2;
   Sogelink 67, Geodan 45, Berkeley Modeler 3); via `dso_overlap/rtr.py` gecacht,
   STTR-index: 3.320 decisions, 1.875 projecteerbaar, 1.297 scenario-uitgevoerd.
+- **Gemeente Veenendaal: gm0345 = OIN `00000001001104470000`** — hetzelfde OIN
+  als de namespace van het officiële voorbeeldbestand `ConclusieBouwenDakkapel.dmn`.
+  **185 geldige STTR-bestanden** (112× DMN 1.1 + 73× DMN 1.2; RuleArts 112,
+  Berkeley Modeler 62, Knowledge Values 10), begindata 29-06-2022 t/m 24-12-2025;
+  STTR-index: 2.373 decisions, 1.621 projecteerbaar, 1.555 scenario-uitgevoerd.
+  Als enige set met échte `uitv:geoVerwijzing`en (20, `nl.imow-gm0345…` GIO's);
+  RTR-only gekoppeld in `instruments.py` (geen Presenteren-instrument).
 
 ## Reproduceren
 

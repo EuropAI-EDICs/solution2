@@ -473,5 +473,42 @@ class TestExport(unittest.TestCase):
                             oin="geen-oin", naam="fout")
 
 
+class TestRtrOnlyInstrument(unittest.TestCase):
+    """Veenendaal: RTR-only koppeling (gm0345) — de Presenteren-CLIs wijzen door."""
+
+    def test_registry_veenendaal(self):
+        from nldt.simulation.regelrecht.dso_overlap.instruments import INSTRUMENTS
+
+        v = INSTRUMENTS["veenendaal"]
+        self.assertEqual(v["oin"], "00000001001104470000")
+        self.assertEqual(v["bevoegd_gezag"], "gm0345")
+        self.assertFalse(v.get("akn_uri"))  # geen Presenteren-koppeling
+
+    def test_compare_en_tpod_wijzen_naar_rtr_route(self):
+        from nldt.simulation.regelrecht.dso_overlap import compare
+        from nldt.simulation.regelrecht.tpod import __main__ as tpod_main
+
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(SystemExit) as ctx:
+                compare.compare_instrument(
+                    "veenendaal", location_id=None,
+                    out_dir=pathlib.Path(tmp), offline=True, skip_rp=True,
+                )
+            self.assertIn("RTR-only", str(ctx.exception))
+            with self.assertRaises(SystemExit) as ctx:
+                tpod_main.build_for_instrument(
+                    "veenendaal",
+                    cache_dir=pathlib.Path(tmp), out_dir=pathlib.Path(tmp),
+                )
+            self.assertIn("RTR-only", str(ctx.exception))
+
+    def test_dso_kb_annotaties_wijzen_naar_rtr_route(self):
+        from nldt.services import dso_kb
+
+        with self.assertRaises(dso_kb.DsoKbFout) as ctx:
+            dso_kb.lees_annotaties("veenendaal")
+        self.assertIn("RTR-only", str(ctx.exception))
+
+
 if __name__ == "__main__":
     unittest.main()

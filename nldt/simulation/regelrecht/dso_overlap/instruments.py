@@ -50,6 +50,16 @@ INSTRUMENTS: dict[str, dict[str, Any]] = {
         "instrument_yaml": FULL_EXPORT_OUT / "utrecht-cvdr704250.yaml",
         "default_location_id": "utrecht-domplein",
     },
+    # RTR-only koppeling: Veenendaal is geen RegelRecht-instrument (geen
+    # Presenteren-annotaties, geen formalisering), maar wél bevoegd gezag in de
+    # RTR — en daarmee de officiële STTR-laag naast de tab-6-Spoorzone-piloot.
+    # Bijzonderheid: de OIN is ook de namespace van het officiële IPLO-voorbeeld
+    # ConclusieBouwenDakkapel.dmn (nl.imow-gm0345, "gemeentegrens van Veenendaal").
+    "veenendaal": {
+        "label": "Toepasbare regels gemeente Veenendaal",
+        "bevoegd_gezag": "gm0345",
+        "oin": "00000001001104470000",
+    },
 }
 
 
