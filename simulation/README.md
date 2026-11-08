@@ -206,6 +206,40 @@ event-soorten en volgnummers, geen persoonswaarden. Zie ook
 
 Openen: `open simulation/simulation.html?tab=5` (of klik de tab "Gent · transactie").
 
+## Tab 6 — Veenendaal · Spoorzone gebiedscheck (canvas-PoC)
+
+Eerste instantie van het [gebiedsontwikkeling-canvas](../docs/TEMPLATE_GEBIEDSONTWIKKELING_POC.md):
+een deterministische nulmeting van de [Spoorzone Veenendaal](../docs/USE_CASE_VEENENDAAL_SPOORZONE.md)
+tegen BAG + BGT (PDOK), met de doelvergelijking tegen het Toekomstbeeld (juni 2025).
+`build_veenendaal()` in `build_simulation.py` leest de canonieke run
+(`poc-veenendaal/runs/<ts>-gebiedscheck/` — `indicators.json` + `manifest.json`) en
+de broncache: kaartgeometrie wordt build-time geclipt naar de werkgrens en
+display-versimpeld; elk getal in de panels is engine-output. De timeline loopt
+werkgrens → BAG → BGT → versie-deduplice (de BGT-historie-les) → clip+indicatoren →
+doelvergelijking → critic V0–V3 → report.
+
+```bash
+open simulation/simulation.html?tab=6
+```
+
+Sinds de scenario-sweep staat er onder de doelvergelijking een **scenario-dropdown**
+(`poc-veenendaal/scenarios.py`, canonieke sweep `scenario-runs/<ts>-sweep/`):
+zes programmavarianten (tempo 150/250/350 · nieuwbouw op verhard/groen ·
+15-lagen-verdichting) met per variant jaar-van-4.500, uitloop vs 2040,
+groen/verhard-eindstand met groendoel-uitspraak en Δ's t.o.v. de nulmeting —
+alles engine-doorgerekend, aannames expliciet in het manifest.
+
+**Kaart-overlay per scenario:** de **engine** (`poc-veenendaal/scenarios.py`)
+bepaalt de toedeling — hele actuele vlakken, afstand tot het station oplopend,
+bij gelijke afstand grootste eerst; de build versimpelt die engine-beslissing
+alleen voor het beeld (amber = verhard → bouw · rood = groen verdwijnt).
+
+**Deelgebieden:** de kaart toont 7 provisionele zone-vakken (benadering op de
+werkgrens-bbox, gelezen tegen de deelgebiedenkaart p.10-11 — officiële grenzen
+zijn niet gepubliceerd); de tabel "deelgebieden — wat verandert waar?" per
+scenario splitst de toedeling per zone op oppervlakte (Σ zones = toedeling),
+met groen/verhard-eindstand per zone.
+
 **Mailpakket:** `../nldt/.venv/bin/python build_simulation.py --gent-only` bouwt
 `simulation/gent-simulatie.html` — één zelfstandig bestand (~9 MB) met alléén
 de Gent-piloot: geen andere PoC-tabs of -data, de vier levensgebeurtenissen

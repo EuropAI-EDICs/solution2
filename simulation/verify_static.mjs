@@ -227,7 +227,58 @@ try {
   ds.gentPackage("gent"); drain();
   if (kaartTags() !== 6) throw new Error("terug op ondernemerspakket na event: kaart5 weer basis + start (gekregen: " + kaartTags() + ")");
 
-  console.log(`OK — script evaluated; poc1 tracks driven through every step (${n1} steps on active track), sim2 ${n2} steps, laya fp+chat driven, poc4 sim4 ${s4.steps.length} steps, gent sim5 ${s5e.steps.length} steps (sanne/dirk/ellen/wim/nadia/ilse/hanne/maria) + kaartpanel gecontroleerd incl. burger-, kot- en eventpakket-switch, timers drained`);
+  // ---- Veenendaal · Spoorzone gebiedscheck (tab 6) ------------------------
+  const s6 = ds.sim6;
+  if (!s6 || s6.steps.length !== 8) throw new Error("sim6 verwacht 8 stappen (kreeg: " + (s6 ? s6.steps.length : "none") + ")");
+  if (ds.vdPanden() < 3000) throw new Error("veenendaal-kaart mist panden (" + ds.vdPanden() + ")");
+  s6.reset(); drain(); s6.jumpToStage(s6.steps.length - 1); drain();
+  const done6 = globalThis.document.getElementById("done6");
+  if (!done6._inner || done6._inner.indexOf("V3 PASS") < 0) throw new Error("done6-banner mist 'V3 PASS'");
+  if (done6._inner.indexOf("gebiedscheck") < 0) throw new Error("done6-banner mist 'gebiedscheck'");
+  const doel6 = globalThis.document.getElementById("doel6");
+  if (!doel6._inner || doel6._inner.indexOf("4.500") < 0) throw new Error("doel-tabel mist woningbouwdoel");
+  const v3n = globalThis.document.getElementById("v3note6");
+  if (!v3n._text || v3n._text.indexOf("2e") < 0) throw new Error("v3note6 leeg");
+
+  // deelgebieden: payload + per-scenario zone-tabel
+  const zdata = ds.vdZonesData();
+  if (!zdata || !zdata.zones || zdata.zones.length !== 7) throw new Error("zone-payload mist of != 7 zones");
+  const zones6 = globalThis.document.getElementById("zones6");
+  if (!zones6._inner || zones6._inner.indexOf("Stationsgebied") < 0) throw new Error("zone-tabel leeg");
+
+  // agent-uitlegboxen op elke PoC-tab (logkop1/2/4/5/6)
+  for (const id of ["logkop1", "logkop2", "logkop4", "logkop5", "logkop6"]) {
+    const k = globalThis.document.getElementById(id);
+    if (!k || !k._inner || k._inner.indexOf("LLM") < 0)
+      throw new Error(id + " mist de agent-rol-uitleg");
+  }
+
+  // scenario-sweep: dropdown + onafhankelijke weergave per variant
+  const sweep = ds.vdSweep();
+  if (!sweep || !sweep.scenarios || sweep.scenarios.length < 6) throw new Error("sweep-payload mist of te klein");
+  ds.vdScenario("BOUW-OP-GROEN"); drain();
+  const sweepBody = globalThis.document.getElementById("sweep6body");
+  if (!sweepBody._inner || sweepBody._inner.indexOf("14.83") < 0) throw new Error("BOUW-OP-GROEN toont groen eind 14.83 niet");
+  if (sweepBody._inner.indexOf("breekt") < 0) throw new Error("groendoel-breek-marker ontbreekt");
+  const doel6s = globalThis.document.getElementById("doel6");
+  if (!doel6s._inner || doel6s._inner.indexOf("eindstand in dit scenario") < 0)
+    throw new Error("doel-tabel schakelt niet mee naar scenario-modus");
+  if (doel6s._inner.indexOf("14.83") < 0) throw new Error("doel-tabel toont scenario-groen eind niet");
+  ds.vdScenario("TEMPO-150"); drain();
+  if (sweepBody._inner.indexOf("2050") < 0) throw new Error("TEMPO-150 toont doelpercentagejaar 2050 niet");
+  if (ds.vdNieuwN() < 10) throw new Error("kaart-overlay nieuwbouw-allocatie te klein of afwezig (" + ds.vdNieuwN() + " vlakken)");
+  ds.vdScenario("CONTROL"); drain();
+  if (ds.vdNieuwN() !== 0) throw new Error("CONTROL moet de kaart-overlay legen");
+  if (doel6s._inner.indexOf("nulmeting") < 0) throw new Error("doel-tabel gaat niet terug naar nulmeting");
+  ds.vdScenario("BOUW-OP-GROEN"); drain();
+  if (zones6._inner.indexOf("Goeie Spoor") < 0) throw new Error("zone-tabel mist 't Goeie Spoor");
+  const bgz = (ds.vdSweep().scenarios.find(x => x.id === "BOUW-OP-GROEN").kaart || {}).per_zone || {};
+  const somZones = Object.values(bgz).reduce((a, z) => a + z.genomen_ha, 0);
+  if (!(somZones > 17 && somZones < 19)) throw new Error("zone-som buiten bereik: " + somZones);
+  if (zones6._inner.indexOf(somZones.toFixed(2)) < 0)
+    throw new Error("zone-tabel toont de totaal-toedeling niet");
+
+  console.log(`OK — script evaluated; poc1 tracks driven through every step (${n1} steps on active track), sim2 ${n2} steps, laya fp+chat driven, poc4 sim4 ${s4.steps.length} steps, gent sim5 ${s5e.steps.length} steps (sanne/dirk/ellen/wim/nadia/ilse/hanne/maria) + kaartpanel gecontroleerd incl. burger-, kot- en eventpakket-switch, veenendaal sim6 ${s6.steps.length} stappen (${ds.vdPanden()} panden op de kaart), timers drained`);
 } catch (e) {
   console.error("FAIL:", e && e.stack ? e.stack.split("\n").slice(0, 6).join("\n") : e);
   process.exit(1);

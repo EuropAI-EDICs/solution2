@@ -32,7 +32,7 @@ import importlib.util
 
 from vertaal_gent import VT_STATUS, vt
 
-from shapely.geometry import shape
+from shapely.geometry import shape, box
 from shapely.ops import unary_union
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -1146,6 +1146,162 @@ def build_laya_breda() -> dict:
     }
 
 
+# ---------------------------------------------------------------------------
+# Tab 6 — Veenendaal · Spoorzone gebiedscheck (eerste gebiedsontwikkeling-PoC
+# op het canvas-sjabloon). Display-geometrie wordt build-time geclipt naar de
+# werkgrens en versimpeld (alleen beeld); elk getal in de panels is de eigen
+# output van de canonieke run (indicators.json / manifest.json).
+
+VEENENDAAL_POC = ROOT / "poc-veenendaal"
+
+
+def _vd_actueel(features: list) -> list:
+    """BGT v1 levert ook historische versies: alleen eind_registratie is leeg."""
+    return [f for f in features
+            if f.get("properties", {}).get("eind_registratie") in (None, "")]
+
+
+def _vd_rings(fc: dict, clip, tol: float = 2.0, min_m2: float = 150.0) -> list:
+    """Actuele vlakken → intersectie met de werkgrens → display-versimpeld."""
+    rings = []
+    for f in fc.get("features", []):
+        g = f.get("geometry")
+        if not g or g.get("type") not in ("Polygon", "MultiPolygon"):
+            continue
+        try:
+            geom = shape(g).intersection(clip).simplify(tol, preserve_topology=True)
+        except Exception:
+            continue
+        if geom.is_empty or geom.area < min_m2:
+            continue
+        polys = list(geom.geoms) if geom.geom_type == "MultiPolygon" else [geom]
+        for poly in polys:
+            rr = [[round(x, 1), round(y, 1)] for x, y in poly.exterior.coords]
+            if len(rr) >= 4:
+                rings.append(rr)
+    return rings
+
+
+def _ring_area_m2(ring: list) -> float:
+    s = 0.0
+    for i in range(len(ring) - 1):
+        s += ring[i][0] * ring[i + 1][1] - ring[i + 1][0] * ring[i][1]
+    return abs(s / 2.0)
+
+
+def build_veenendaal() -> dict:
+    run_dirs = sorted((VEENENDAAL_POC / "runs").glob("*-gebiedscheck"))
+    if not run_dirs:
+        sys.exit(f"missing poc-veenendaal gebiedscheck run under {VEENENDAAL_POC / 'runs'}")
+    run = run_dirs[-1]  # nieuwste run = canoniek
+    gebied = json.loads((VEENENDAAL_POC / "data" / "gebied.json").read_text(encoding="utf-8"))
+    ind = json.loads((run / "indicators.json").read_text(encoding="utf-8"))
+    manifest = json.loads((run / "manifest.json").read_text(encoding="utf-8"))
+    bbox_rd = gebied["werkgrens"]["bbox_rd"]
+    clip = box(*bbox_rd)
+
+    cache = VEENENDAAL_POC / "data" / "cache"
+
+    def cache_fc(name: str) -> dict:
+        return json.loads((cache / f"{name}.geojson").read_text(encoding="utf-8"))
+
+    groen = _vd_rings(cache_fc("begroeidterreindeel"), clip)
+    verhard = _vd_rings(cache_fc("onbegroeidterreindeel"), clip)
+    water = _vd_rings(cache_fc("waterdeel"), clip)
+
+    dedupe = []
+    for naam in ["begroeidterreindeel", "onbegroeidterreindeel", "waterdeel",
+                 "vegetatieobject_vlak", "spoor", "vegetatieobject_punt"]:
+        feats = cache_fc(naam).get("features", [])
+        dedupe.append({"layer": naam, "raw": len(feats), "actueel": len(_vd_actueel(feats))})
+
+    spoor = []
+    for f in _vd_actueel(cache_fc("spoor").get("features", [])):
+        g = f.get("geometry")
+        if not g or g.get("type") != "LineString":
+            continue
+        try:
+            line = shape(g).simplify(1.0, preserve_topology=True)
+        except Exception:
+            continue
+        spoor.append([[round(x), round(y)] for x, y in line.coords])
+
+    panden = []
+    for f in cache_fc("pand").get("features", []):
+        g = f.get("geometry")
+        if not g:
+            continue
+        p = f.get("properties", {})
+        if p.get("status") in ("Pand gesloopt", "Niet gerealiseerd pand"):
+            cat = 2
+        elif isinstance(p.get("bouwjaar"), int) and p["bouwjaar"] >= 2020:
+            cat = 1
+        else:
+            cat = 0
+        c = shape(g).representative_point()
+        panden.append([round(c.x), round(c.y), cat])
+
+    bomen = []
+    for f in _vd_actueel(cache_fc("vegetatieobject_punt").get("features", [])):
+        g = f.get("geometry")
+        if g and g.get("type") == "Point":
+            bomen.append([round(g["coordinates"][0]), round(g["coordinates"][1])])
+
+    bronnen = [{"collection": b["collection"], "n": b["featureCount"],
+                "sha": b["sha256"][:10], "at": b.get("fetchedAt", ""),
+                "host": b["url"].split("/collections")[0].replace("https://", "")}
+               for b in manifest["bronnen"]]
+
+    sweep = None
+    zones_payload = None
+    sweep_dirs = sorted((VEENENDAAL_POC / "scenario-runs").glob("*-sweep"))
+    if sweep_dirs:
+        sdir = sweep_dirs[-1]  # nieuwste sweep = actueel
+        scs = json.loads((sdir / "scenarios.json").read_text(encoding="utf-8"))
+        sman = json.loads((sdir / "manifest.json").read_text(encoding="utf-8"))
+        dg = json.loads((sdir / "deelgebieden.json").read_text(encoding="utf-8"))
+        zones_payload = {"status": dg["status"], "zones": dg["zones"]}
+        per_zone = dg.get("per_scenario", {})
+        # display-ringen volgen de ENGINE-beslissing (genomen_ids + regel uit
+        # scenarios.py); de build versimpelt alleen voor het beeld
+        lagen_ids = {}
+        for naam in ("begroeidterreindeel", "onbegroeidterreindeel"):
+            feats = cache_fc(naam).get("features", [])
+            lagen_ids[naam] = {f["properties"].get("lokaal_id"): f for f in feats}
+        for s in scs:
+            a = s.get("allocatie")
+            if not a:
+                continue
+            bron = "begroeidterreindeel" if a["laag"] == "groen" else "onbegroeidterreindeel"
+            genomen = {"type": "FeatureCollection",
+                       "features": [lagen_ids[bron][i] for i in a["genomen_ids"]
+                                    if i in lagen_ids[bron]]}
+            s["kaart"] = {"laag": a["laag"], "benodigd_ha": s["uit"]["benodigd_grondvlak_ha"],
+                          "toegedeeld_ha": a["toegedeeld_ha"], "n": a["n"],
+                          "regel": a["regel"], "per_zone": a["per_zone"],
+                          "ringen": _vd_rings(genomen, clip)}
+        sweep = {"runId": sman["runId"], "v3": sman["v3"],
+                 "toelichting": sman["aannames"]["toelichting"], "scenarios": scs}
+
+    return {
+        "runId": manifest["runId"],
+        "gebied": {"naam": gebied["gebied"],
+                   "bronNaam": gebied["bron"]["naam"], "bronUrl": gebied["bron"]["url"],
+                   "oppHa": gebied["werkgrens"]["opp_ha"], "bbox": bbox_rd,
+                   "afleiding": gebied["werkgrens"]["afleiding"],
+                   "anchor": gebied["ankers"][0]["rd"] + [gebied["ankers"][0]["naam"]],
+                   "deelgebieden": gebied["deelgebieden"]},
+        "doelen": gebied["doelen_uit_toekomstbeeld"],
+        "ind": ind,
+        "bronnen": bronnen,
+        "dedupe": dedupe,
+        "sweep": sweep,
+        "zones": zones_payload,
+        "map": {"groen": groen, "verhard": verhard, "water": water,
+                "spoor": spoor, "panden": panden, "bomen": bomen},
+    }
+
+
 def _publiek_auth(auth: dict) -> dict:
     """Sim-embed is een publiek artefact: mandaatdetails blijven achter
     (SEC-05-geest, net als bij de events) — alléén het aantal gaat mee."""
@@ -1797,11 +1953,14 @@ def main() -> int:
         sys.exit(f"missing PoC-2 run dir {POC2_RUN}")
     if not POC4_RUN.is_dir():
         sys.exit(f"missing PoC-4 run dir {POC4_RUN}")
+    if not (VEENENDAAL_POC / "data" / "cache").is_dir():
+        sys.exit(f"missing poc-veenendaal cache under {VEENENDAAL_POC / 'data' / 'cache'}")
 
     data = {"poc1": build_poc1(), "poc2": build_poc2(), "poc4": build_breda(), "gent": build_gent(),
             "gentBurger": build_gent("gent-verhuizen-burger"),
             "gentKot": build_gent("gent-kot-verhuurder"),
             "gentEvent": build_gent("gent-evenement-organisator"),
+            "veenendaal": build_veenendaal(),
             "dsokb": build_dso_kb()}
     kotregister = _kotregister_blok(ROOT / "poc-gent")
     if kotregister:
@@ -1853,6 +2012,12 @@ def main() -> int:
     print(f"  gent: {g['packageId']} v{g['version']} — {len(g['personas'])} persona's "
           f"(events-ketting {ok}/{len(g['personas'])} geverifieerd), "
           "statussen: " + ", ".join(f"{p['id']}={p['status']}" for p in g["personas"]))
+    vd = data["veenendaal"]
+    print(f"  veenendaal: run {vd['runId']} — {vd['ind']['panden_bestand']} panden, "
+          f"{vd['ind']['woningen_verblijfsobjecten_proxy']} woningen-proxy, "
+          f"{vd['ind']['begroeid_terrein_ha']} ha groen · kaart: "
+          + " · ".join(f"{k}={len(vd['map'][k])}"
+                       for k in ["groen", "verhard", "water", "spoor", "panden", "bomen"]))
     for inst in data["dsokb"]["instrumenten"]:
         d = inst["dekking"]
         drift = (inst["ververs"] or {}).get("drift", {}).get("inhoudelijkeDrift", "geen rapport")

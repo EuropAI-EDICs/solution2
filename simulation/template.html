@@ -383,7 +383,60 @@
   .gchain{font-size:11.5px;margin-top:6px;color:#f87171}
   .gchain.ok{color:#34d399}
   .gontv{font-size:12.5px;margin:4px 0}
-  .gontv code{font-family:var(--mono);color:var(--cyan);font-size:11px}
+  .gontv code{font-family:var(--mono);color:var(--cyan);font-size:11px}/* ---- view6 · Veenendaal Spoorzone gebiedscheck ---- */
+#map6 .vd-wg{fill:rgba(148,163,184,.06);stroke:#93c5fd;stroke-width:2;stroke-dasharray:7 5}
+#map6 .vd-water path{fill:#38bdf8;fill-opacity:.55}
+#map6 .vd-groen path{fill:#22c55e;fill-opacity:.5}
+#map6 .vd-verhard path{fill:#94a3b8;fill-opacity:.32}
+#map6 .vd-spoor path{stroke:#f472b6;stroke-width:2.4;fill:none;stroke-dasharray:9 5;stroke-linecap:round}
+#map6 .vd-pand0 circle{fill:#e2e8f0;fill-opacity:.7}
+#map6 .vd-pand1 circle{fill:#f59e0b;fill-opacity:.95}
+#map6 .vd-pand2 circle{fill:#ef4444;fill-opacity:.85}
+#map6 .vd-bomen circle{fill:#15803d;fill-opacity:.95}
+#map6 .vd-station circle{fill:#fff;stroke:#0ea5e9;stroke-width:2.5}
+#map6 .vd-station text{fill:#e2e8f0;font-size:11px}
+#map6 g{transition:opacity .7s}
+#map6 .vd-cap{fill:var(--faint,#8b98ab);font-size:10px;font-family:var(--mono,monospace)}
+#view6 .doel th{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);text-align:left;padding:2px 8px}
+#view6 .doel td{font-size:11.5px;padding:5px 8px;border-top:1px solid var(--line,#2a3342);vertical-align:top}
+#view6 .doel tr{opacity:0;transition:opacity .5s}
+#view6 .doel tr.on{opacity:1}
+#view6 .dedup-row{display:flex;gap:8px;align-items:center;font-size:10.5px;margin:4px 0}
+#view6 .dedup-row .nm{width:132px;font-family:var(--mono,monospace);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#view6 .dedup-row .track{flex:1;height:8px;background:var(--bg2,#141a24);border-radius:4px;overflow:hidden}
+#view6 .dedup-row .fill{height:100%;background:var(--cy,#22d3ee);transition:width .9s}
+#view6 .dedup-row .n{font-family:var(--mono,monospace);color:var(--dim)}
+#view6 .src6-row{font-size:10px;font-family:var(--mono,monospace);margin:3px 0;color:var(--dim)}
+#view6 .src6-row b{color:var(--ink,#e8ecf3)}
+#view6 .deel-chip{border:1px solid var(--line,#2a3342);border-radius:999px;padding:3px 10px;font-size:11px;color:var(--dim)}
+#view6 .oplabel{top:46px}
+#view6 .areabadge{top:46px}
+/* legenda onder de kaart i.p.v. eroverheen — kaartvlak vrij voor de grens */
+#view6 .legend{position:static;display:flex;flex-direction:row;flex-wrap:wrap;gap:4px 14px;padding:9px 2px 0}
+#view6 .legend .li{opacity:.72}
+#view6 .legend .li.on{opacity:1}
+#view6 select{background:var(--bg2,#141a24);color:var(--ink,#e8ecf3);border:1px solid var(--line,#2a3342);
+  border-radius:6px;padding:6px 10px;font-family:var(--mono,monospace);font-size:12px;margin-bottom:10px;max-width:100%}
+#view6 .sweep-note{font-size:10.5px;color:var(--faint);margin-top:8px;font-family:var(--mono,monospace)}
+.logkop{font-size:10.5px;color:var(--dim);font-family:var(--mono,monospace);
+  border:1px dashed var(--line,#2a3342);border-radius:6px;padding:7px 9px;margin-bottom:8px;line-height:1.55}
+.ln .agrol{color:var(--cy,#22d3ee);font-weight:600}
+#map6{width:100%;display:block;background:radial-gradient(1200px 500px at 30% -10%,#12203a,#0b1220);cursor:grab;touch-action:none}
+#map6.dragging{cursor:grabbing}
+.mapctl{position:absolute;top:12px;right:12px;display:flex;gap:6px;z-index:3}
+.mapctl button{width:30px;height:30px;border:1px solid var(--line,#2a3342);background:rgba(11,18,32,.88);color:var(--ink,#e8ecf3);border-radius:6px;cursor:pointer;font-size:15px;line-height:1}
+.mapctl button:hover{border-color:var(--cy,#22d3ee)}
+#map6 .vd-cap{stroke:#0b1220;stroke-width:3px;paint-order:stroke}
+#map6 .vd-nieuw path{stroke-width:.7}
+#map6 .vd-nieuw-v path{fill:#f59e0b;fill-opacity:.6;stroke:#fbbf24}
+#map6 .vd-nieuw-g path{fill:#ef4444;fill-opacity:.55;stroke:#f87171}
+#map6 .vd-zone{fill:none;stroke:rgba(34,211,238,.35);stroke-width:1;stroke-dasharray:3 5}
+#map6 .vd-zonelbl{fill:rgba(226,232,240,.6);font-size:10px;font-family:var(--mono,monospace);paint-order:stroke;stroke:#0b1220;stroke-width:2.5px}
+/* view6: kaart bijna pagabreed — rail links, kaart + tabellen rechts, telemetry eronder */
+#view6.active{grid-template-columns:250px minmax(0,1fr)}
+#view6 .telemetry{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));align-items:start;gap:14px}
+@media(max-width:820px){#view6.active{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -396,6 +449,7 @@
     <div class="tab" id="tab2" onclick="switchTab(2)">PoC-2 · BP→OP, Eindhoven</div>
     <div class="tab" id="tab4" onclick="switchTab(4)"><span class="tekst-nl">Breda · vijf-waarden</span><span class="tekst-en">Breda · five-value</span></div>
     <div class="tab" id="tab5" onclick="switchTab(5)"><span class="tekst-nl">Gent · transactie</span><span class="tekst-en">Gent · transaction</span></div>
+    <div class="tab" id="tab6" onclick="switchTab(6)"><span class="tekst-nl">Veenendaal · Spoorzone</span><span class="tekst-en">Veenendaal · Spoorzone</span></div>
   </div>
   <div class="controls">
     <button class="ctl primary" id="btnPlay" onclick="ctrl('play')">▶ play</button>
@@ -475,6 +529,26 @@
         prefill → validation → H3 → documents → H4 → submission receipt), generated at build time by the poc-gent
         engine against the real Gent zone layers; the events chain is verified.
         Click any stage to jump; <kbd>space</kbd> = play/pause, <kbd>→</kbd> = step.</div>
+    </div>
+  </div>
+  <div class="tabkop" id="kop6">
+    <div class="tekst-nl">
+      <div class="tabkop-titel">Veenendaal · Spoorzone — gebiedscheck van het Toekomstbeeld</div>
+      <div class="tabkop-tekst">Eerste instantie van het <b>gebiedsontwikkeling-canvas</b>: een deterministische nulmeting
+        van de Spoorzone (±160 ha, ±4.500 woningen tot 2040) tegen landelijke registraties — BAG + BGT via PDOK,
+        versie-gededupliceerd en geclipt naar de werkgrens. Elk getal komt uit de canonieke run
+        (<code>report.md · indicators.json · manifest.json</code>); kaartgeometrie is uitsluitend display-versimpeld.
+        Kaart: <b>scroll = zoomen · slepen = pannen · dubbelklik = herstel</b>.
+        <kbd>spatie</kbd> = play/pause, <kbd>→</kbd> = stap.</div>
+    </div>
+    <div class="tekst-en">
+      <div class="tabkop-titel">Veenendaal · Spoorzone — area-development baseline check</div>
+      <div class="tabkop-tekst">First instance of the <b>area-development canvas</b>: a deterministic baseline scan of the
+        Spoorzone (±160 ha, ±4,500 homes by 2040) against national registries — BAG + BGT via PDOK, version-deduplicated
+        and clipped to the working boundary. Every number comes from the canonical run
+        (<code>report.md · indicators.json · manifest.json</code>); map geometry is display-simplified only.
+        Map: <b>scroll = zoom · drag = pan · double-click = reset</b>.
+        <kbd>space</kbd> = play/pause, <kbd>→</kbd> = step.</div>
     </div>
   </div>
 </div>
@@ -571,7 +645,7 @@
       <div class="artifacts" id="arts1"></div>
     </div></div>
 
-    <div class="card"><h3>run log</h3><div class="log" id="log1"></div></div>
+    <div class="card"><h3>run log</h3><div class="logkop" id="logkop1"></div><div class="log" id="log1"></div></div>
   </aside>
 
 <!-- ================================================================ Laya System-1 -->
@@ -745,7 +819,7 @@
       <div class="artifacts" id="arts2"></div>
     </div></div>
 
-    <div class="card"><h3>run log</h3><div class="log" id="log2"></div></div>
+    <div class="card"><h3>run log</h3><div class="logkop" id="logkop2"></div><div class="log" id="log2"></div></div>
   </aside>
 </section>
 
@@ -780,7 +854,78 @@
     <h3><span class="tekst-nl">authentieke bronnen</span><span class="tekst-en">authentication &amp; sources</span></h3>
     <div id="auth5" class="gauth"></div>
     <h3><span class="tekst-nl">events-ketting</span><span class="tekst-en">events chain</span></h3>
+    <div class="logkop" id="logkop5"></div>
     <div id="ev5" class="gev"></div>
+  </aside>
+</section>
+
+<!-- ================================================================ Veenendaal · Spoorzone (tab 6) -->
+<section class="view" id="view6">
+  <aside class="rail card" id="rail6"></aside>
+
+  <div class="stagepane">
+    <div class="card mapwrap">
+      <h3 style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span id="maptitle6">gebiedscheck — wat staat er nu in de Spoorzone?</span>
+      </h3>
+      <svg id="map6" viewBox="0 0 980 620" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="mapctl">
+        <button type="button" onclick="vZoomBtn(1.35)" title="inzoomen (scroll)">+</button>
+        <button type="button" onclick="vZoomBtn(1/1.35)" title="uitzoomen">−</button>
+        <button type="button" onclick="vHome()" title="herstel volledig kaartbeeld (dubbelklik)">⟲</button>
+      </div>
+      <div class="oplabel" id="oplabel6">intake…</div>
+      <div class="areabadge"><div class="a" id="wonBig">0</div><div class="u">woningen in de werkgrens (vbo-proxy)</div></div>
+      <div class="legend" id="legend6"></div>
+    </div>
+    <div class="card">
+      <h3>doelvergelijking — Toekomstbeeld ↔ <span id="doelkop6" style="color:var(--cy,#22d3ee)">nulmeting</span></h3>
+      <div class="cardbody" style="max-height:250px;overflow:auto;padding:4px 8px">
+        <table class="doel" id="doel6" style="width:100%;border-collapse:collapse"></table>
+      </div>
+    </div>
+    <div class="card" id="sweepcard6" style="display:none">
+      <h3 style="display:flex;gap:10px;flex-wrap:wrap;align-items:baseline">scenario-sweep — wat als het programma verschuift?
+        <span id="sweepmeta6" style="color:var(--faint);font-family:var(--mono,monospace);font-size:10.5px"></span></h3>
+      <div class="cardbody">
+        <select id="sweep6sel" onchange="vdScenario(this.value)" aria-label="scenario"></select>
+        <div id="sweep6body"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="display:flex;gap:10px;flex-wrap:wrap;align-items:baseline">deelgebieden — wat verandert waar?
+        <span id="zoneskop6" style="color:var(--cy,#22d3ee)">nulmeting</span></h3>
+      <div class="cardbody">
+        <div id="deel6" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
+        <div style="font-size:10.5px;color:var(--faint);font-family:var(--mono,monospace);margin-bottom:6px" id="zonesnote6"></div>
+        <div style="max-height:260px;overflow:auto"><table class="doel" id="zones6" style="width:100%;border-collapse:collapse"></table></div>
+      </div>
+    </div>
+    <div class="done" id="done6"></div>
+  </div>
+
+  <aside class="telemetry">
+    <div class="card"><h3>counters</h3><div class="cardbody">
+      <div class="counters">
+        <div class="counter" id="c6-opp"><div class="cv">0</div><div class="cl">werkgrens (ha, provisioneel)</div></div>
+        <div class="counter" id="c6-pand"><div class="cv">0</div><div class="cl">panden bestand (BAG)</div></div>
+        <div class="counter" id="c6-won"><div class="cv">0</div><div class="cl">woningen (vbo-proxy)</div></div>
+        <div class="counter" id="c6-groen"><div class="cv">0</div><div class="cl">begroeid terrein (ha)</div></div>
+        <div class="counter" id="c6-verhard"><div class="cv">0</div><div class="cl">verhard terrein (ha)</div></div>
+        <div class="counter" id="c6-water"><div class="cv">0</div><div class="cl">water (ha)</div></div>
+        <div class="counter" id="c6-bron"><div class="cv">0</div><div class="cl">PDOK-bronnen (manifest)</div></div>
+      </div>
+    </div></div>
+    <div class="card"><h3>versie-deduplice — BGT levert ook historie</h3><div class="cardbody" id="dedup6"></div></div>
+    <div class="card"><h3>Critic / Validator (V0–V3)</h3><div class="cardbody">
+      <div class="levels" id="levels6"></div>
+      <div style="font-size:10.5px;color:var(--faint);margin-top:9px;font-family:var(--mono)" id="v3note6"></div>
+    </div></div>
+    <div class="card"><h3>bronnen — manifest.json</h3><div class="cardbody" id="src6"></div></div>
+    <div class="card"><h3>run log</h3>
+      <div class="logkop" id="logkop6"></div>
+      <div class="log" id="log6"></div>
+    </div>
   </aside>
 </section>
 
@@ -844,7 +989,7 @@
     <div class="card"><h3>bronnen</h3><div class="cardbody" id="src4"></div></div>
     <div class="card"><h3>validatie</h3><div class="cardbody"><div class="levels" id="levels4"></div></div></div>
     <div class="card"><h3>data lake</h3><div class="cardbody kgnote" id="lake4"></div></div>
-    <div class="card"><h3>run log</h3><div class="log" id="log4"></div></div>
+    <div class="card"><h3>run log</h3><div class="logkop" id="logkop4"></div><div class="log" id="log4"></div></div>
     <div class="done" id="done4"></div>
   </aside>
 </section>
@@ -864,6 +1009,9 @@
   jurist 90%). De predicties zijn offline geëxporteerd en geëmbed — de pagina draait zelf geen model.
   Tab 4: <a href="../poc-breda/README.md">PoC-4 Breda five-value scan</a> — 56 buurten × vijf congreswaarden, offline embed
   van <code>20260913T192628Z-breda-scan</code> + golden Q&A (<code>simulation/breda_qa.json</code>).
+  Tab 6: <a href="../poc-veenendaal/README.md">Veenendaal Spoorzone gebiedscheck</a> — eerste instantie van het
+  <a href="../docs/TEMPLATE_GEBIEDSONTWIKKELING_POC.md">gebiedsontwikkeling-canvas</a>: nulmeting tegen BAG/BGT (PDOK),
+  doelvergelijking met het Toekomstbeeld juni 2025, manifest met sha256 per bron.
 </footer>
 
 <script>
@@ -882,6 +1030,12 @@ function animNum(elm, to, dur, fmt){ const from = parseFloat(elm.dataset.v||"0")
   requestAnimationFrame(fr); }
 const km = (v)=> v>=100 ? v.toFixed(0) : v.toFixed(1);
 const esc = (s)=> String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+/* agent-rol-label: markeert een bekende rol aan het begin van een logregel */
+function agWrap(msg, tokens){ if(typeof msg!=="string") return msg;
+  const mc=msg.match(/^(MC-[0-9]+(?:\/MC-[0-9]+)?)([ :])/);
+  if(mc) return '<b class="agrol">'+mc[1]+"</b>"+msg.slice(mc[1].length);
+  for(const t of tokens){ if(msg.startsWith(t)) return '<b class="agrol">'+t+"</b>"+msg.slice(t.length); }
+  return msg; }
 function tipShow(html,ev){ const t=$("kgtip"); t.innerHTML=html; t.style.display="block"; tipMove(ev); }
 function tipMove(ev){ const t=$("kgtip"); const vw=(typeof innerWidth!=="undefined")?innerWidth:1200;
   t.style.left=Math.min(ev.clientX+16,vw-455)+"px"; t.style.top=Math.max(8,ev.clientY-14)+"px"; }
@@ -910,8 +1064,8 @@ class Sim {
     $("stepBar").style.width = (100*i/n)+"%"; }
 }
 
-let sim1, sim2, sim4, sim5, active=1;
-const sim = ()=> active===1?sim1:active===4?sim4:active===5?sim5:sim2;
+let sim1, sim2, sim4, sim5, sim6, active=1;
+const sim = ()=> active===1?sim1:active===4?sim4:active===5?sim5:active===6?sim6:sim2;
 function ctrl(a){ const s=sim(); if(!s) return; if(a==="play"){ s.timer? s.pause() : s.play(); } else if(a==="step") s.step(); else s.reset(); }
 function mountLaya(n){
   const dock=$("layadock"); if(!dock) return;
@@ -929,7 +1083,7 @@ function wisselTaal(){
 
 function switchTab(n){ if(n===active) return; const cur=sim(); if(cur) cur.pause(); active=n;
   if(n===1||n===2) mountLaya(n);
-  for(const k of [1,2,4,5]){ const t=$("tab"+k); if(t) t.classList.toggle("active",k===n);
+  for(const k of [1,2,4,5,6]){ const t=$("tab"+k); if(t) t.classList.toggle("active",k===n);
     const v=$("view"+k); if(v) v.classList.toggle("active",k===n);
     const kop=$("kop"+k); if(kop) kop.classList.toggle("on",k===n); }
   if(n===4) buildStatic4();
@@ -1112,6 +1266,14 @@ function buildBagPanel(){
 }
 function buildTelemetry1(){
   const T=T1(); buildBagPanel();
+  $("logkop1").innerHTML =
+    "<b>9 agent-rollen, 0 LLM's in de rekenketen.</b> Elke stap hieronder laat zien welke agent wat doet: " +
+    "<b>intake</b> (request, schema V0) · <b>Norm Analyst</b> ×13 tracks (cite-or-abstain: geen geverifieerd citaat, geen regel) · " +
+    "<b>Norm Formalizer</b> (curated templates; ambigu → V4, nooit gokken) · <b>Geo Analyst</b> (registry + cache, geen live fetch) · " +
+    "<b>Zone Engine</b> (deterministische zone-algebra: ∪ ∩ −) · <b>Cartographer</b> (GeoJSON/GML) · " +
+    "<b>Critic</b> (V0–V3 incl. onafhankelijke herexecutie, IoU) · <b>Explainer</b> (beslistabel + PROV) · <b>Report</b>. " +
+    "Optionele seams S1/S2/S7/S8 laten een model alléén voordragen — nooit beslissen. " +
+    "Laya System-1 onderaan is een deterministische forward pass (getraind model, geen generatie).";
   $("ledger1").innerHTML = T.abstentions.map(a=>`<div class="item"><b>abstained:</b> ${esc(a.topic)}
      <span class="rsn">${esc(a.reason)}</span></div>`).join("");
   $("quote1").innerHTML = `“${esc(T.quote.quote)}”<i>art. ${esc(String(T.quote.number||T.quote.article))} — Omgevingsverordening provincie Utrecht, CVDR704250 ·
@@ -1133,6 +1295,7 @@ function buildTelemetry1(){
   $("arts1").innerHTML = arts.map(a=>`<div class="chip" id="a1-${a.replace(/[.\-]/g,"_")}">${a}</div>`).join("");
 }
 function log1(msg, cls){ const d=document.createElement("div"); d.className="ln "+(cls||"");
+  msg=agWrap(msg,["Norm Analyst","Norm Formalizer","formalizer","geo analyst","critic","explainer","intake","report.html"]);
   d.innerHTML=`<span class="t">[${String(sim1&&sim1.i>=0?sim1.i:0).padStart(2,"0")}]</span> <span class="m">${msg}</span>`;
   $("log1").appendChild(d); requestAnimationFrame(()=>d.classList.add("in")); $("log1").scrollTop=1e9; }
 function on(cls){ const e=$(cls); if(e) e.classList.add("on"); }
@@ -1402,6 +1565,7 @@ function buildLevels2(){
     .map(a=>`<div class="chip" id="a2-${a.replace(/[.\-]/g,"_")}">${a}</div>`).join("");
 }
 function log2(msg,cls){ const d=document.createElement("div"); d.className="ln "+(cls||"");
+  msg=agWrap(msg,["intake","critic","kennisbank-graaf","geen LLM"]);
   d.innerHTML=`<span class="t">[${String(sim2&&sim2.i>=0?sim2.i:0).padStart(2,"0")}]</span> <span class="m">${msg}</span>`;
   $("log2").appendChild(d); requestAnimationFrame(()=>d.classList.add("in")); $("log2").scrollTop=1e9; }
 function chip2(id){ const e=$("a2-"+id.replace(/[.\-]/g,"_")); if(e) e.classList.add("on"); }
@@ -1414,6 +1578,14 @@ function cnt2(id,v,hit){ const c=$(id); c.classList.add("on"); if(hit)c.classLis
 let sweepTimer=null, sampleTimer=null;
 function buildSim2(){
   buildRail2(); buildGrid(); buildKB(); buildKG(); buildSamples(); buildCov(); buildLevels2();
+  $("logkop2").innerHTML =
+    "<b>6 agent-rollen (MC-stappen), 0 LLM's, 0 netwerk.</b> " +
+    "<b>intake</b> (beleid-pin + pilotcriteria, MC-1/2) · <b>split-agent</b> (MC-4: 1.074 artikelen → 762 doel- + 311 bronregels, verbatim tekst) · " +
+    "<b>kennisbank-agent</b> (MC-5: vervangt/voortzet-relaties uit B02/B03, duplicaten eruit) · " +
+    "<b>matcher</b> (TF-IDF-cosinus + kennisbank-boost; banden ≥0.90 sterk · 0.70–0.90 mogelijk) · " +
+    "<b>critic</b> (V3: Jaccard naast TF-IDF als tweede maat; V4 jurist bewust pending) · " +
+    "<b>rapporteur</b> (MC-3/7: omzettabel + PROV, elk getal herleidbaar). " +
+    "Laya BP→OP onderaan is een deterministische System-1 met jurist-gate: onder de gate wordt onthouden → mens (V4).";
   const steps=[]; const S=(stage,t,dur,run)=>steps.push({stage,t,dur,run});
 
   S(0,"intake",1800,(a)=>{ panel("p-parse",true);
@@ -2023,6 +2195,7 @@ function buildRail4(){
 function stage4(i){ for(let k=0;k<STAGES4.length;k++){ const s=$("st4-"+k); if(!s) continue;
   s.classList.toggle("active",k===i); s.classList.toggle("done",k<i); } }
 function log4(msg, cls){ const d=document.createElement("div"); d.className="ln "+(cls||"");
+  msg=agWrap(msg,["intake","fetch","indicators","validate","report","chat"]);
   d.innerHTML=`<span class="t">[${String(sim4&&sim4.i>=0?sim4.i:0).padStart(2,"0")}]</span> <span class="m">${msg}</span>`;
   $("log4").appendChild(d); requestAnimationFrame(()=>d.classList.add("in")); $("log4").scrollTop=1e9; }
 
@@ -2332,6 +2505,15 @@ function bredaLock(){
 
 function buildStatic4(){
   buildWaardeTabs(); buildMap4(); renderAuto(); buildSources4(); buildLevels4();
+  const lk4=$("logkop4");
+  if(lk4) lk4.innerHTML =
+    "<b>5 stappen + twee modellen, 0 LLM's in de kern.</b> " +
+    "<b>bronagent</b> (CBS/PDOK-buurten, build-time gecached, geen runtime-fetch) · " +
+    "<b>vijf-waarden-rekenaar</b> (4 ruimtelijke scores × 56 buurten, deterministisch) · " +
+    "<b>critic</b> (verdict + golden Q&A met cite-or-abstain) · " +
+    "<b>rapporteur</b> (choropleth + top-lijsten) · <b>chat</b> (gegrounde vragen, geen verzonnen cijfers). " +
+    "<b>Laya System-1</b> is een getraind beslismodel met deterministische forward pass en confidence-gate 0.55 — onder de gate: onthouding. " +
+    "<b>System-2</b> is optioneel live (Ollama) en altijd gegated: krijgt een S1-hint-JSON als feitenbasis, mag zelf niets verzinnen (op file:// uit, zie README).";
   renderRollup(curWaarde==="autonomous"?"spatial":curWaarde);
   if($("lake4")&&P4.lake){
     $("lake4").innerHTML =
@@ -2420,6 +2602,13 @@ const EN={status:{"gereed":"complete","gereed-met-waarschuwing":"complete with w
 const dienstTitel=(id)=> TT(esc((G.serviceTitels||{})[id]||id), esc((G.serviceTitelsEn||{})[id]||id));
 
 function renderGentMeta(){
+  const lk5=$("logkop5");
+  if(lk5) lk5.innerHTML =
+    "<b>5 fase-agents, 0 LLM's, replay geverifieerd.</b> " +
+    "<b>intake-agent</b> (persona + invoer-slots uit het echte pakket) · <b>GIS-agent</b> (echte Gentse zone-lagen: LEZ, tarief-/bewonerszone, kotzone, afvalkalender) · " +
+    "<b>regelagent</b> (H1 feiten + H2 authenticatie/mandaten) · <b>documentagent</b> (H3 aanvraag + attesten) · <b>ontvangst</b> (H4 bewijs). " +
+    "De hele keten is tijdens de build door de echte poc-gent-engine doorgerekend (deterministische fase 1+2+3-replay); " +
+    "de events-ketting hieronder is geverifieerd en bevat geen persoonswaarden.";
   $("gentmeta").innerHTML =
     `<div class="gpers"><select class="gpkg" onchange="gentPackage(this.value)" title="${TT("levensgebeurtenis","life event")}">`
     + GP.map(([k,nl,en])=>`<option value="${k}"${k===GPKG?" selected":""}>${TT(nl,en)}</option>`).join("")
@@ -2721,13 +2910,394 @@ function gentRandomKot(intern){
 }
 
 buildRail1(); buildStatic1(); sim1=makeSim1(); buildSim2();
+/* ================================================================ Veenendaal · Spoorzone gebiedscheck (view 6) */
+const VD = DATA.veenendaal;
+const VSTAGES6 = [
+  ["intake / werkgrens","poc-veenendaal/data/gebied.json"],
+  ["BAG pand","api.pdok.nl/kadaster/bag/ogc/v2"],
+  ["BGT","6 collections · api.pdok.nl/lv/bgt/ogc/v1"],
+  ["versie-deduplice","eind_registratie is leeg"],
+  ["clip + indicatoren","schoenlac + Sutherland–Hodgman"],
+  ["doelvergelijking","Toekomstbeeld ↔ meting"],
+  ["critic V0–V3","manifest + 2e aggregatie"],
+  ["report","report.md · indicators.json · manifest.json"],
+];
+/* kaartkader = werkgrens + smalle marge (voor label/onderschrift); de lagen zelf
+   worden op de WERKGRENS geclipt — het spoor stopt exact op de grens */
+const VFRAME=(()=>{ const [x0,y0,x1,y1]=VD.gebied.bbox;
+  return [x0-40, y0-40, x1+40, y1+40]; })();
+const VW6=980, VH6=Math.round(VW6*(VFRAME[3]-VFRAME[1])/(VFRAME[2]-VFRAME[0]));
+const VPROJ=(()=>{ const [x0,y0,x1,y1]=VFRAME;
+  const sx=VW6/(x1-x0), sy=VH6/(y1-y0);
+  return (x,y)=>[(x-x0)*sx, VH6-(y-y0)*sy]; })();
+function vPath(ring){ let d="";
+  for(let i=0;i<ring.length;i++){ const pt=VPROJ(ring[i][0],ring[i][1]);
+    d+=(i? "L":"M")+pt[0].toFixed(1)+" "+pt[1].toFixed(1); } return d+"Z"; }
+function vLine(pts){ let d="";
+  for(let i=0;i<pts.length;i++){ const pt=VPROJ(pts[i][0],pts[i][1]);
+    d+=(i? "L":"M")+pt[0].toFixed(1)+" "+pt[1].toFixed(1); } return d; }
+const vfmt=(x)=>String(Math.round(x)).replace(/\B(?=(\d{3})+(?!\d))/g,".");
+function log6(msg,cls){ const d=document.createElement("div"); d.className="ln "+(cls||"");
+  d.innerHTML=`<span class="t">[${String(sim6&&sim6.i>=0?sim6.i:0).padStart(2,"0")}]</span> <span class="m">${msg}</span>`;
+  $("log6").appendChild(d); requestAnimationFrame(()=>d.classList.add("in")); $("log6").scrollTop=1e9; }
+let V6={};
+/* --- pan/zoom (viewBox-manipulatie; geen netwerk, geen library) --- */
+let VVIEW={x:0,y:0,w:980,h:400}, VDRAG=null;
+function vApplyView(){ $("map6").setAttribute("viewBox",VVIEW.x+" "+VVIEW.y+" "+VVIEW.w+" "+VVIEW.h); }
+function vHome(){ VVIEW={x:0,y:0,w:VW6,h:VH6}; vApplyView(); }
+function vPt(ev){ const r=$("map6").getBoundingClientRect();
+  return [VVIEW.x+(ev.clientX-r.left)/r.width*VVIEW.w,
+          VVIEW.y+(ev.clientY-r.top)/r.height*VVIEW.h]; }
+function vClamp(){ const minW=VW6/14, maxW=VW6*1.5;
+  VVIEW.w=Math.min(maxW,Math.max(minW,VVIEW.w)); VVIEW.h=VVIEW.w*VH6/VW6;
+  VVIEW.x=Math.max(-VW6*0.35,Math.min(VW6*1.35-VVIEW.w,VVIEW.x));
+  VVIEW.y=Math.max(-VH6*0.35,Math.min(VH6*1.35-VVIEW.h,VVIEW.y)); }
+function vZoomAt(px,py,f){ const nw=VVIEW.w/f;
+  VVIEW.x=px-(px-VVIEW.x)*(nw/VVIEW.w); VVIEW.y=py-(py-VVIEW.y)*(nw/VVIEW.w);
+  VVIEW.w=nw; VVIEW.h=nw*VH6/VW6; vClamp(); vApplyView(); }
+function vZoomBtn(f){ vZoomAt(VVIEW.x+VVIEW.w/2, VVIEW.y+VVIEW.h/2, f); }
+function vWire(){ const svg=$("map6");
+  svg.addEventListener("wheel",(ev)=>{ ev.preventDefault();
+    const p=vPt(ev); vZoomAt(p[0],p[1],ev.deltaY<0?1.22:1/1.22); },{passive:false});
+  svg.addEventListener("pointerdown",(ev)=>{ VDRAG={x:ev.clientX,y:ev.clientY};
+    svg.classList.add("dragging"); if(svg.setPointerCapture) svg.setPointerCapture(ev.pointerId); });
+  svg.addEventListener("pointermove",(ev)=>{ if(!VDRAG) return;
+    const r=svg.getBoundingClientRect();
+    VVIEW.x-=(ev.clientX-VDRAG.x)/r.width*VVIEW.w;
+    VVIEW.y-=(ev.clientY-VDRAG.y)/r.height*VVIEW.h;
+    VDRAG={x:ev.clientX,y:ev.clientY}; vClamp(); vApplyView(); });
+  const up=()=>{ VDRAG=null; svg.classList.remove("dragging"); };
+  svg.addEventListener("pointerup",up); svg.addEventListener("pointercancel",up);
+  svg.addEventListener("dblclick",vHome); }
+function buildRail6(){ $("rail6").innerHTML = VSTAGES6.map((s,i)=>
+  `<div class="stage" id="st6-${i}" onclick="sim6.jumpToStage(${i})">
+     <div class="num">${i+1}</div><div><div class="sname">${s[0]}</div><div class="sartifact">${s[1]}</div></div>
+   </div>`).join(""); }
+function stageCls6(i){ for(let k=0;k<VSTAGES6.length;k++){ const s=$("st6-"+k); if(!s) continue;
+  s.classList.toggle("active",k===i); s.classList.toggle("done",k<i); } }
+function buildMap6(){
+  const svg=$("map6"); svg.innerHTML=""; V6={};
+  svg.setAttribute("viewBox","0 0 "+VW6+" "+VH6); vHome();
+  const [x0,y0,x1,y1]=VD.gebied.bbox; const a=VPROJ(x0,y1), b=VPROJ(x1,y0);
+  const defs=el("defs",{},svg);
+  const cp=el("clipPath",{id:"vdclip"},defs);
+  el("rect",{x:a[0].toFixed(1),y:a[1].toFixed(1),
+             width:(b[0]-a[0]).toFixed(1),height:(b[1]-a[1]).toFixed(1)},cp);
+  const layers=el("g",{"clip-path":"url(#vdclip)"},svg);
+  V6.groen=el("g",{class:"vd-groen",opacity:0},layers);
+  VD.map.groen.forEach(r=>el("path",{d:vPath(r)},V6.groen));
+  V6.verhard=el("g",{class:"vd-verhard",opacity:0},layers);
+  VD.map.verhard.forEach(r=>el("path",{d:vPath(r)},V6.verhard));
+  V6.water=el("g",{class:"vd-water",opacity:0},layers);
+  VD.map.water.forEach(r=>el("path",{d:vPath(r)},V6.water));
+  V6.spoor=el("g",{class:"vd-spoor",opacity:0},layers);
+  VD.map.spoor.forEach(l=>el("path",{d:vLine(l)},V6.spoor));
+  V6.bomen=el("g",{class:"vd-bomen",opacity:0},layers);
+  VD.map.bomen.forEach(pt=>{ const c=VPROJ(pt[0],pt[1]); el("circle",{cx:c[0].toFixed(1),cy:c[1].toFixed(1),r:3.4},V6.bomen); });
+  V6.pand0=el("g",{class:"vd-pand0",opacity:0},layers);
+  V6.pand1=el("g",{class:"vd-pand1",opacity:0},layers);
+  V6.pand2=el("g",{class:"vd-pand2",opacity:0},layers);
+  VD.map.panden.forEach(p=>{ const c=VPROJ(p[0],p[1]);
+    el("circle",{cx:c[0].toFixed(1),cy:c[1].toFixed(1),r:p[2]===1?2.6:2.1},
+      p[2]===1?V6.pand1:(p[2]===2?V6.pand2:V6.pand0)); });
+  V6.nieuw=el("g",{class:"vd-nieuw",opacity:0},layers);
+  el("rect",{class:"vd-wg",x:a[0].toFixed(1),y:a[1].toFixed(1),
+             width:(b[0]-a[0]).toFixed(1),height:(b[1]-a[1]).toFixed(1)},svg);
+  if(VD.zones && VD.zones.zones){
+    V6.zones=el("g",{class:"vd-zones"},svg);
+    const kort={"Engelenburg West (Ritmeesterkwartier)":"Engelenburg West",
+                "Bedrijventerrein Overgangszone":"Overgangszone",
+                "'t Franse Gat Noord":"'t Franse Gat N."};
+    VD.zones.zones.forEach(z=>{
+      const za=VPROJ(z.bbox[0],z.bbox[3]), zb=VPROJ(z.bbox[2],z.bbox[1]);
+      el("rect",{class:"vd-zone",x:za[0].toFixed(1),y:za[1].toFixed(1),
+                 width:(zb[0]-za[0]).toFixed(1),height:(zb[1]-za[1]).toFixed(1)},V6.zones);
+      const t=el("text",{class:"vd-zonelbl","text-anchor":"middle",
+                         x:(za[0]+(zb[0]-za[0])/2).toFixed(1),
+                         y:(za[1]+(zb[1]-za[1])/2+3).toFixed(1)},V6.zones);
+      t.textContent=kort[z.naam]||z.naam;
+    });
+  }
+  V6.station=el("g",{class:"vd-station",opacity:0},svg);
+  const st=VPROJ(VD.gebied.anchor[0],VD.gebied.anchor[1]);
+  el("circle",{cx:st[0],cy:st[1],r:6},V6.station);
+  const t=el("text",{x:st[0]+10,y:st[1]+4},V6.station); t.textContent="station Veenendaal-Centrum";
+  const cap=el("text",{class:"vd-cap",x:12,y:VH6-10},svg);
+  cap.textContent="alle lagen (incl. spoor) geclipt op de werkgrens — provisionele bbox "+VD.gebied.oppHa+" ha · kaart display-versimpeld · getallen = engine-output";
+  vPaintNieuw();
+}
+let vCurScenario=null;
+function vPaintNieuw(){
+  if(!V6.nieuw) return;
+  V6.nieuw.innerHTML="";
+  const s=vCurScenario;
+  if(!s || !s.kaart || !(s.kaart.ringen||[]).length){
+    V6.nieuw.style.opacity=0;
+    const lv=$("lg-nwv"), lg=$("lg-nwg");
+    if(lv) lv.classList.remove("on"); if(lg) lg.classList.remove("on");
+    return;
+  }
+  V6.nieuw.setAttribute("class","vd-nieuw "+(s.kaart.laag==="groen"?"vd-nieuw-g":"vd-nieuw-v"));
+  s.kaart.ringen.forEach(r=>el("path",{d:vPath(r)},V6.nieuw));
+  V6.nieuw.style.opacity=.9;
+  const knop=$("lg-"+(s.kaart.laag==="groen"?"nwg":"nwv"));
+  if(knop) knop.classList.add("on");
+}
+function buildLegend6(){
+  const items=[["wg","werkgrens (provisioneel)","#93c5fd"],["water","water · Grift/singels","#38bdf8"],
+    ["groen","begroeid terrein","#22c55e"],["verhard","onbegroeid / verhard","#94a3b8"],
+    ["spoor","spoorlijn","#f472b6"],["pand0","pand bouwjaar <2020","#e2e8f0"],
+    ["pand1","pand ≥2020 (programmaloop)","#f59e0b"],["pand2","gesloopt / niet gerealiseerd","#ef4444"],
+    ["bomen","boom (BGT-punt)","#15803d"],["st","station","#ffffff"],
+    ["nwv","nieuwbouw-allocatie op verhard (scenario)","#f59e0b"],
+    ["nwg","nieuwbouw-allocatie op groen (scenario)","#ef4444"]];
+  $("legend6").innerHTML=items.map(i=>`<div class="li"><div class="sw" style="background:${i[2]}"></div>${esc(i[1])}</div>`).join("");
+}
+function buildTelemetry6(){
+  const LV=[["V0","structuur"],["V1","geometrie"],["V2","bronherleidbaarheid"],["V3","heraggregatie"]];
+  $("levels6").innerHTML=LV.map(l=>`<div class="lvl" id="lv6-${l[0]}"><b>${l[0]}</b>${l[1]}<small id="lvd6-${l[0]}"></small></div>`).join("");
+  $("dedup6").innerHTML=VD.dedupe.map(d=>
+    `<div class="dedup-row"><span class="nm">${esc(d.layer)}</span>
+      <div class="track"><div class="fill" style="width:0%"></div></div>
+      <span class="n">${d.raw}→${d.actueel}</span></div>`).join("");
+  $("src6").innerHTML=VD.bronnen.map(b=>
+    `<div class="src6-row"><b>${esc(b.collection)}</b> · ${vfmt(b.n)} obj · ${esc(b.at)}<br>sha ${esc(b.sha)} · ${esc(b.host)}</div>`).join("");
+  $("deel6").innerHTML=VD.gebied.deelgebieden.map(d=>`<span class="deel-chip">${esc(d)}</span>`).join("");
+  $("logkop6").innerHTML =
+    "<b>8 agent-rollen, 0 LLM's.</b> Elke regel hieronder zegt welke agent wat doet en welk spoor hij nalaat: " +
+    "<b>intake-agent</b> (werkgrens + doelen lezen) · <b>bronagent BAG/BGT</b> (ophalen, cache-first, sha256 in manifest) · " +
+    "<b>deduplice-agent</b> (BGT-historie filteren) · <b>gebiedsrekenaar</b> (clippen + oppervlaktes + indicatoren) · " +
+    "<b>doelvergelijker</b> (nulmeting vs Toekomstbeeld) · <b>critic</b> (poorten V0–V3) · <b>rapporteur</b> (run-artefacten). " +
+    "Doctrine: AI stelt voor · rekenlaag beslist · mens beslist — er zit geen model in deze rekenketen.";
+  vdDoelTabel(null);
+}
+/* doel-tabel: nulmeting (s=null, rijen verschijnen met timeline-stap 5) of de
+   eindstand van het gekozen scenario (rijen direct aan, met Δ's) */
+function vdDoelTabel(s){
+  const I=VD.ind, D=VD.doelen, opp=VD.gebied.oppHa;
+  const verwacht=D.woningen_per_jaar_gemiddeld*(2026-D.programma_start);
+  let rows, kop;
+  if(!s){
+    kop="nulmeting";
+    rows=[
+      ["Wonen","±"+vfmt(D.woningen_nieuw_feiten_tabel)+" nieuw (p.14; inleiding p.3 noemt ~"+vfmt(D.woningen_tot_2040_inleiding)+")",
+       vfmt(I.woningen_verblijfsobjecten_proxy)+" bestaand (vbo-proxy) → groei ≈ "+(D.woningen_nieuw_feiten_tabel/Math.max(1,I.woningen_verblijfsobjecten_proxy)).toFixed(1)+"×"],
+      ["Bouwtempo",D.woningen_per_jaar_gemiddeld+" woningen/jaar sinds "+D.programma_start,
+       "verwacht tot 2026 ≈ "+vfmt(verwacht)+" woningen · proxy gerealiseerd: "+vfmt(I.panden_bouwjaar_vanaf_2020)+" nieuwe pánden (pand ≠ woning, indicatief)"],
+      ["Groen","> "+D.groen_ha_minimum+" ha",
+       "huidig begroeid terrein "+I.begroeid_terrein_ha+" ha (+ vegetatievlak "+I.vegetatie_vlak_ha+" ha) — de verdeling per deelgebied wordt de echte toets"],
+      ["Werken","±"+vfmt(D.arbeidsplaatsen_nieuw)+" nieuwe arbeidsplaatsen",
+       "niet rechtstreeks meetbaar in BAG/BGT — open seam (banenregistratie)"],
+      ["Dichtheid","basishoogte "+D.woongebouwen_basishoogte_lagen+" lagen, accenten tot "+D.woongebouwen_accenten_lagen,
+       vfmt(I.woningen_verblijfsobjecten_proxy/(opp/100))+"/km² nu → ~"+vfmt((I.woningen_verblijfsobjecten_proxy+D.woningen_nieuw_feiten_tabel)/(opp/100))+" na realisatie"],
+      ["Programma",vfmt(D.projecten_totaal)+" projecten ("+D.woningbouwprojecten+" woningbouw)",
+       "7 deelgebieden · ±"+D.programma_duur_jaar+" jaar (start "+D.programma_start+", "+D.woningen_per_jaar_gemiddeld+"/jaar)"],
+    ];
+    $("doelkop6").textContent=kop;
+    $("doel6").innerHTML="<thead><tr class=\"on\"><th>onderwerp</th><th>doel (Toekomstbeeld)</th><th>stand / kader (nulmeting)</th></tr></thead><tbody>"
+      +rows.map((r,i)=>`<tr id="d6-r${i}"><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join("")+"</tbody>";
+    return;
+  }
+  const u=s.uit;
+  const dg=round2(u.groen_eind_ha-I.begroeid_terrein_ha);
+  kop=esc(s.naam);
+  rows=[
+    ["Wonen","±"+vfmt(D.woningen_nieuw_feiten_tabel)+" nieuw (p.14)",
+     "<b>"+vfmt(u.woningen_totaal)+" woningen eindstand</b> ("+vfmt(I.woningen_verblijfsobjecten_proxy)+" + "+vfmt(u.woningen_nieuw)+")"],
+    ["Bouwtempo",u.woningen_per_jaar+"/jr",
+     "jaar van "+vfmt(u.woningen_nieuw)+": <b>"+u.jaar_van_nieuwbouwdoel+"</b> ("+(u.uitloop_jaren_vs_doeleind>0?"+":"")+u.uitloop_jaren_vs_doeleind+" jr t.o.v. 2040)"],
+    ["Groen","> "+D.groen_ha_minimum+" ha",
+     "<b>"+u.groen_eind_ha+" ha eindstand</b> ("+(dg===0?"onveranderd t.o.v. nulmeting":(dg<0?"":"+")+dg+" t.o.v. nulmeting")+") · doel "+(u.groendoel_behaald?'<span style="color:var(--green,#22c55e)">✓ behaald</span>':'<span style="color:var(--red,#ef4444)">✗ breekt</span>')],
+    ["Werken","±"+vfmt(D.arbeidsplaatsen_nieuw)+" arbeidsplaatsen",
+     "niet gemodelleerd in de sweep — open seam (banenregistratie)"],
+    ["Dichtheid","stedelijk; accenten tot "+D.woongebouwen_accenten_lagen,
+     vfmt(u.dichtheid_eind_per_km2)+"/km² eindstand (nulmeting "+vfmt(I.woningen_verblijfsobjecten_proxy/(opp/100))+"/km²)"],
+    ["Programma","±"+D.programma_duur_jaar+" jaar",
+     "scenario-basis "+esc(s.basis)+" · nieuw grondvlak "+u.benodigd_grondvlak_ha+" ha ("+u.grondvlak_per_woning_m2+" m²/woning · "+(s.kaart?s.kaart.n+" vlakken op de kaart":"—")+")"],
+  ];
+  $("doelkop6").innerHTML=kop;
+  $("doel6").innerHTML="<thead><tr class=\"on\"><th>onderwerp</th><th>doel (Toekomstbeeld)</th><th>eindstand in dit scenario</th></tr></thead><tbody>"
+    +rows.map((r,i)=>`<tr id="d6-r${i}" class="on"><td><b>${esc(r[0])}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("")+"</tbody>";
+}
+function round2(x){ return Math.round(x*100)/100; }
+/* deelgebieden-tabel: nulmeting per zone + toedeling van het gekozen scenario */
+function vdZones(s){
+  const Z=VD.zones; if(!Z||!Z.zones||!$("zones6")) return;
+  $("zonesnote6").textContent=Z.status;
+  $("zoneskop6").textContent=s?s.naam:"nulmeting";
+  const pz=(s&&s.kaart&&s.kaart.per_zone)||null;
+  const laag=(s&&s.kaart&&s.kaart.laag)||null;
+  let rows="", tg=0, tv=0, tt=0;
+  Z.zones.forEach(z=>{
+    const p=(pz&&(pz[z.naam]||{n:0,genomen_ha:0}))||{n:0,genomen_ha:0};
+    const gE=(laag==="groen")?round2(z.groen_ha-p.genomen_ha):z.groen_ha;
+    const vE=(laag==="verhard")?round2(z.verhard_ha-p.genomen_ha):z.verhard_ha;
+    tg+=z.groen_ha; tv+=z.verhard_ha; if(pz) tt+=p.genomen_ha;
+    rows+=`<tr class="on"><td><b>${esc(z.naam)}</b></td><td>${z.groen_ha}</td><td>${z.verhard_ha}</td>`
+      +`<td>${pz?("−"+p.genomen_ha+" · "+p.n+" vlk"):"—"}</td><td>${gE}</td><td>${vE}</td></tr>`;
+  });
+  if(pz) Object.keys(pz).forEach(nm=>{
+    if(Z.zones.some(z=>z.naam===nm)) return;
+    const p=pz[nm]; tt+=p.genomen_ha;
+    rows+=`<tr class="on"><td><i>${esc(nm)}</i></td><td>—</td><td>—</td><td>−${p.genomen_ha} · ${p.n} vlk</td><td>—</td><td>—</td></tr>`;
+  });
+  rows+=`<tr class="on" style="border-top:1px solid var(--line,#2a3342)"><td><b>totaal</b></td><td><b>${round2(tg)}</b></td><td><b>${round2(tv)}</b></td><td><b>${pz?("−"+round2(tt)):"—"}</b></td><td></td><td></td></tr>`;
+  $("zones6").innerHTML="<thead><tr class=\"on\"><th>deelgebied</th><th>groen (ha)</th><th>verhard (ha)</th><th>nieuwbouw"+(s?" dit scenario":"")+"</th><th>groen eind</th><th>verhard eind</th></tr></thead><tbody>"+rows+"</tbody>";
+}
+function buildSweep6(){
+  const card=$("sweepcard6"); if(!card) return;
+  if(!VD.sweep || !VD.sweep.scenarios || !VD.sweep.scenarios.length){ card.style.display="none"; return; }
+  card.style.display="";
+  $("sweepmeta6").textContent="run "+VD.sweep.runId+" · V3 "+VD.sweep.v3.verdict+" · rekenlaag beslist";
+  $("sweep6sel").innerHTML=VD.sweep.scenarios.map(s=>
+    `<option value="${esc(s.id)}">${esc(s.naam)} (${esc(s.basis)})</option>`).join("");
+  vdScenario(VD.sweep.scenarios[1] ? VD.sweep.scenarios[1].id : VD.sweep.scenarios[0].id);
+}
+function vdScenario(id){
+  if(!VD.sweep) return;
+  const s=VD.sweep.scenarios.find(x=>x.id===id); if(!s) return;
+  vCurScenario=(s.basis==="baseline")?null:s;
+  vPaintNieuw();
+  vdDoelTabel(vCurScenario);
+  vdZones(vCurScenario);
+  const u=s.uit;
+  const d=(k)=>{ const dv=(s.deltas&&s.deltas[k])||0;
+    return dv===0?"±0":(dv>0?"+":"")+dv; };
+  const doel=u.groendoel_behaald
+    ? '<span style="color:var(--green,#22c55e)">✓ behaald</span>'
+    : '<span style="color:var(--red,#ef4444)">✗ breekt</span>';
+  $("sweep6body").innerHTML=
+   `<table class="doel"><thead><tr class="on"><th>uitkomst</th><th>scenario</th><th>Δ t.o.v. control</th></tr></thead><tbody>`+
+   `<tr class="on"><td><b>jaar van ${vfmt(u.woningen_nieuw)}</b> (tempo ${u.woningen_per_jaar}/jr)</td><td>${u.jaar_van_nieuwbouwdoel}</td><td>${d("jaar_van_nieuwbouwdoel")}</td></tr>`+
+   `<tr class="on"><td>uitloop vs 2040</td><td>${u.uitloop_jaren_vs_doeleind>0?"+":""}${u.uitloop_jaren_vs_doeleind} jr</td><td>${d("uitloop_jaren_vs_doeleind")}</td></tr>`+
+   `<tr class="on"><td>nieuw grondvlak nodig</td><td>${u.benodigd_grondvlak_ha} ha · ${u.grondvlak_per_woning_m2} m²/woning</td><td>—</td></tr>`+
+   `<tr class="on"><td>genomen uit groen / verhard</td><td>−${u.genomen_uit_groen_ha} / −${u.genomen_uit_verhard_ha} ha</td><td>—</td></tr>`+
+   `<tr class="on"><td><b>groen eind</b> (doel &gt;30 ha)</td><td>${u.groen_eind_ha} ha · ${doel} (marge ${u.groendoel_marge_ha})</td><td>${d("groen_eind_ha")}</td></tr>`+
+   `<tr class="on"><td>verhard eind</td><td>${u.verhard_eind_ha} ha</td><td>${d("verhard_eind_ha")}</td></tr>`+
+   `<tr class="on"><td>woningen totaal · dichtheid</td><td>${vfmt(u.woningen_totaal)} · ${vfmt(u.dichtheid_eind_per_km2)}/km²</td><td>—</td></tr>`+
+   (u.capaciteit_telekort?'<tr class="on"><td colspan="3"><span style="color:var(--red,#ef4444)">capaciteit tekort: grondvlak past niet in de werkgrens</span></td></tr>':"")+
+   `</tbody></table>
+    <div class="sweep-note">${esc(s.basis)} — ${esc(s.rationale)} · mutaties ${esc(JSON.stringify(s.mutaties||{}))}<br>${esc(VD.sweep.toelichting)}`+
+    (s.kaart?`<br><b>op de kaart</b>: ${s.kaart.n} vlakken ${s.kaart.laag==="groen"?"rood (groen verdwijnt)":"amber (verhard → bouw)"} = ${s.kaart.toegedeeld_ha} ha toegedeeld (benodigd ${s.kaart.benodigd_ha} ha) · ${esc(s.kaart.regel)}`:"")+
+    `</div>`;
+}
+function buildStatic6(){
+  buildMap6(); buildLegend6(); buildTelemetry6(); vdZones(null);
+  document.querySelectorAll("#levels6 .lvl").forEach(l=>l.classList.remove("pass","pending"));
+  document.querySelectorAll("#doel6 tr").forEach(r=>r.classList.remove("on"));
+  document.querySelectorAll("#dedup6 .fill").forEach(f=>f.style.width="0%");
+  ["c6-opp","c6-pand","c6-won","c6-groen","c6-verhard","c6-water","c6-bron"].forEach(id=>{
+    $(id).classList.remove("on","hit");
+    const e=$(id).querySelector(".cv"); e.textContent="0"; e.dataset.v="0"; });
+  $("log6").innerHTML=""; $("oplabel6").textContent="intake…";
+  $("wonBig").textContent="0"; $("wonBig").dataset.v="0";
+  $("v3note6").textContent=""; $("done6").classList.remove("on"); $("done6").innerHTML="";
+  document.querySelectorAll("#rail6 .stage").forEach(s=>s.classList.remove("active","done"));
+  vCurScenario=null;
+}
+function makeSim6(){
+  const I=VD.ind, D=VD.doelen;
+  const steps=[]; const S=(stage,t,dur,run)=>steps.push({stage,t,dur,run});
+
+  S(0,"intake / werkgrens",1500,()=>{
+    V6.station.style.opacity=1;
+    $("c6-opp").classList.add("on","hit");
+    animNum($("c6-opp").querySelector(".cv"),VD.gebied.oppHa,1200,x=>x.toFixed(0));
+    $("oplabel6").innerHTML="intake — <b>gebied.json</b>: provisionele werkgrens (bbox RD "+esc(String(VD.gebied.bbox))+"), anker "+esc(VD.gebied.anchor[2])+", doelen uit het Toekomstbeeld";
+    log6(`<b class="agrol">intake-agent</b> — leest <code>data/gebied.json</code>: de provisionele werkgrens (${VD.gebied.oppHa} ha), het anker (station via PDOK Locatieserver) en de doelen uit het Toekomstbeeld. Nog geen databron aangeraakt; spoor: gebied.json.`,"ok");
+    log6(`<b class="agrol">intake-agent</b> — noteert de kanttekening: de officiële gebiedsgrens is niet gepubliceerd, dus alle cijfers gelden voor deze benadering (p.7/p.14: ~160 ha; het gebied is zandloper-vormig). Bron: <a href="${esc(VD.gebied.bronUrl)}" target="_blank">${esc(VD.gebied.bronNaam)}</a>`,"warn");
+  });
+
+  S(1,"BAG pand",1900,()=>{
+    V6.pand0.style.opacity=.9;
+    $("c6-pand").classList.add("on","hit");
+    animNum($("c6-pand").querySelector(".cv"),I.panden_bestand,1300,x=>vfmt(x));
+    $("oplabel6").innerHTML="BAG <b>pand</b> — "+vfmt(3213)+" opgehaald (cache-first, sha256 vast): "+vfmt(I.panden_bestand)+" bestand · "+vfmt(I.panden_verwijderd_status)+" gesloopt/niet gerealiseerd";
+    log6(`<b class="agrol">bronagent BAG</b> — haalt de panden op via <code>api.pdok.nl/kadaster/bag</code> (OGC API Features, paging over ${vfmt(3213)} objecten). Werkwijze: cache-first — zit de bron in de cache, dan geen netwerkverkeer; elke response krijgt een sha256 + bevraagtijdstip in <code>manifest.json</code> zodat de run achteraf exact herleidbaar is.`,"ok");
+    log6(`<b class="agrol">bronagent BAG</b> — filtert op status: ${vfmt(I.panden_bestand)} panden bestaan (in gebruik/verbouwing), ${vfmt(I.panden_verwijderd_status)} zijn gesloopt of nooit gerealiseerd — dat laatste is juist het <i>transformatiesignaal</i> van dit gebied. Spoor: cache/pand.geojson + manifest.`,"data");
+    log6(`<b class="agrol">bronagent BAG</b> — leest de bouwjaren uit voor de ouderdomsanalyse: <1965: ${vfmt(I.bouwjaar_buckets["<1965"])} · 1965-'84: ${vfmt(I.bouwjaar_buckets["1965-1984"])} · 1985-'99: ${vfmt(I.bouwjaar_buckets["1985-1999"])} · 2000-'19: ${vfmt(I.bouwjaar_buckets["2000-2019"])} · ≥2020: ${vfmt(I.bouwjaar_buckets["≥2020"])}`,"data");
+  });
+
+  S(2,"BGT",2100,()=>{
+    V6.water.style.opacity=1; V6.verhard.style.opacity=1; V6.groen.style.opacity=1;
+    V6.spoor.style.opacity=1; V6.bomen.style.opacity=.95;
+    $("c6-groen").classList.add("on","hit"); $("c6-verhard").classList.add("on","hit");
+    $("c6-water").classList.add("on","hit"); $("c6-bron").classList.add("on","hit");
+    animNum($("c6-groen").querySelector(".cv"),I.begroeid_terrein_ha,1200,x=>x.toFixed(1));
+    animNum($("c6-verhard").querySelector(".cv"),I.onbegroeid_terrein_ha,1200,x=>x.toFixed(1));
+    animNum($("c6-water").querySelector(".cv"),I.waterdeel_ha,1200,x=>x.toFixed(1));
+    animNum($("c6-bron").querySelector(".cv"),VD.bronnen.length,500,x=>Math.round(x));
+    $("oplabel6").innerHTML="BGT — 6 collections (begroeid · onbegroeid · water · spoor · vegetatie punt+vlak), elke bron in <b>manifest.json</b> met sha256 + bevraagtijdstip";
+    log6(`<b class="agrol">bronagent BGT</b> — haalt 6 collections op bij <code>api.pdok.nl/lv/bgt</code> (begroeid &amp; onbegroeid terreindeel, waterdeel, spoor, vegetatie als punt én vlak) onder hetzelfde contract als de BAG: cache-first, sha256, bevraagtijdstip. Spoor: 6 cachebestanden + manifestregels.`,"ok");
+    log6(`<b class="agrol">bronagent BGT</b> — ruwe vangst: groen ${I.begroeid_terrein_ha} ha · verhard ${I.onbegroeid_terrein_ha} ha · water ${I.waterdeel_ha} ha · spoorlijn ${I.spoorlijn_km} km · ${I.vegetatieobject_punt} bomen · vegetatievlak ${I.vegetatie_vlak_ha} ha (nog vóór historie-filter en clip).`,"data");
+  });
+
+  S(3,"versie-deduplice",1900,()=>{
+    document.querySelectorAll("#dedup6 .fill").forEach((f,i)=>{
+      const d=VD.dedupe[i]; f.style.width=(100*d.actueel/Math.max(1,d.raw)).toFixed(0)+"%"; });
+    $("oplabel6").innerHTML="BGT v1 levert <b>historische objectversies</b> mee — zonder deduplice wordt groen/verhard ~3× overschat";
+    log6(`<b class="agrol">deduplice-agent</b> — ontdekt in de vangst dat de BGT-API óók historische versies meelevert (een object bestaat daar meerdere keren in). Zonder ingrijpen zou het groen- en verhard-oppervlak ~3× overschat worden; hij houdt per object alléén de versie over waarvan <code>eind_registratie</code> leeg is. Is er geen actuele versie, dan bestaat het object niet meer en valt het weg. Spoor: de raw→actueel-balken hiernaast.`,"warn");
+    const d0=VD.dedupe[0];
+    log6(`<b class="agrol">deduplice-agent</b> — ${esc(d0.layer)}: ${d0.raw} opgehaald → ${d0.actueel} actueel (${Math.round(100*d0.actueel/d0.raw)}%) — alleen die laatste tellen mee in de indicatoren.`,"data");
+  });
+
+  S(4,"clip + indicatoren",2200,()=>{
+    V6.pand1.style.opacity=.95; V6.pand2.style.opacity=.85;
+    $("c6-won").classList.add("on","hit");
+    animNum($("c6-won").querySelector(".cv"),I.woningen_verblijfsobjecten_proxy,1400,x=>vfmt(x));
+    animNum($("wonBig"),I.woningen_verblijfsobjecten_proxy,1400,x=>vfmt(x));
+    $("oplabel6").innerHTML="clip naar de werkgrens (Sutherland–Hodgman) + schoenlac-oppervlaktes → <b>"+vfmt(I.woningen_verblijfsobjecten_proxy)+" woningen</b> (vbo-proxy) · grondvlak "+vfmt(I.pand_vloeroppervlak_m2)+" m² · "+vfmt(I.panden_bouwjaar_vanaf_2020)+" panden ≥2020";
+    log6(`<b class="agrol">gebiedsrekenaar</b> — de API's leveren objecten die de werkgrens <i>snijden</i> met hun volledige geometrie. Deze agent knipt elke vlak-geometrie naar de werkgrens (Sutherland–Hodgman, exact voor een rechthoek) en meet oppervlaktes met de schoenlac-formule in RD-meters. Zo telt alleen mee wat écht in het gebied ligt.`,"ok");
+    log6(`<b class="agrol">gebiedsrekenaar</b> — sommeert de indicatoren: ${vfmt(I.woningen_verblijfsobjecten_proxy)} woningen-proxy (som verblijfsobjecten op ${vfmt(I.panden_met_woonfunctie)} woonpanden) · grondvlak ${vfmt(I.pand_vloeroppervlak_m2)} m². Spoor: indicators.json.`,"data");
+    log6(`<b class="agrol">gebiedsrekenaar</b> — kleurt de kaart: ${vfmt(I.panden_bouwjaar_vanaf_2020)} panden met bouwjaar ≥2020 (amber, programmaloop sinds 2020 — pand ≠ woning, vervangingsbouw zit erin) en de gesloopte/niet-gerealiseerde panden (rood).`,"data");
+  });
+
+  S(5,"doelvergelijking",2100,()=>{
+    document.querySelectorAll("#doel6 tbody tr").forEach((r,i)=>setTimeout(()=>r.classList.add("on"),i*160));
+    $("oplabel6").innerHTML="doelvergelijking — <b>Toekomstbeeld juni 2025 ↔ gemeten nulmeting</b> (tabel onder de kaart)";
+    log6(`<b class="agrol">doelvergelijker</b> — zet de nulmeting naast de doelen uit het Toekomstbeeld (±4.500 woningen, >30 ha groen, 250/jaar, stedelijke dichtheid); kies je een scenario in de sweep, dan toont dezelfde tabel de engine-doorgerekende eindstand van dát scenario — nooit een eigenschatting van een model.`,"ok");
+    log6(`<b class="agrol">doelvergelijker</b> — wonen: +${vfmt(D.woningen_nieuw_feiten_tabel)} doel bij ${vfmt(I.woningen_verblijfsobjecten_proxy)} bestaand → ≈${(D.woningen_nieuw_feiten_tabel/Math.max(1,I.woningen_verblijfsobjecten_proxy)).toFixed(1)}× groei.`,"data");
+    log6(`<b class="agrol">doelvergelijker</b> — groen: doel >${D.groen_ha_minimum} ha · gemeten ${I.begroeid_terrein_ha} ha begroeid — op de ruime werkgrens al gehaald; de per-deelgebied-verdeling (tabel hiernaast) wordt de echte toets. Werken: ±${vfmt(D.arbeidsplaatsen_nieuw)} arbeidsplaatsen is een open seam — geen banenregistratie aangesloten, dus daar onthoudt de agent zich.`,"warn");
+  });
+
+  S(6,"critic V0–V3",2200,()=>{
+    ["V0","V1","V2","V3"].forEach((k,i)=>setTimeout(()=>{
+      $("lv6-"+k).classList.add("pass");
+      $("lvd6-"+k).textContent=k==="V3"?"PASS":"";
+    },i*360));
+    $("v3note6").textContent=`V3: 2e, onafhankelijke aggregatie over de cache — panden ${I.panden_bestand} · groen ${I.begroeid_terrein_ha} ha · vlaktotalen ≤ werkgrens`;
+    log6(`<b class="agrol">critic</b> — de poortenwachter; hij vertrouwt de andere agents niet en hercontroleert alles onafhankelijk. V0: elke response is een geldige FeatureCollection. V1: de geclipte vlaktotalen blijven binnen de werkgrens (+2%).`,"ok");
+    log6(`<b class="agrol">critic</b> — V2: elk getal in de rapportage verwijst naar collection + URL + sha256 in manifest.json (bronherleidbaarheid). V3: een tweede, apart geschreven aggregatiepas herberekent de kerncijfers over de cache — afwijkend resultaat = run afgekeurd (nu: PASS).`,"ok");
+    log6(`<b class="agrol">critic</b> — V4 (menselijke eindcontrole) is hier bewust geen poort: deze check bevat geen juridische claims; bij omgevingswet-toetsen (IMRO/DSO-track) wordt V4 wél HITL-punt.`,"data");
+  });
+
+  S(7,"report",2200,()=>{
+    $("done6").classList.add("on");
+    $("done6").innerHTML=`<b>run ${esc(VD.runId)} — V3 PASS (exit 0).</b> Gebiedscheck Spoorzone Veenendaal:
+      ${vfmt(I.panden_bestand)} panden (${vfmt(I.panden_verwijderd_status)} niet-bestand) · ${vfmt(I.woningen_verblijfsobjecten_proxy)} woningen (vbo-proxy) ·
+      groen ${I.begroeid_terrein_ha} ha · verhard ${I.onbegroeid_terrein_ha} ha · water ${I.waterdeel_ha} ha · spoorlijn ${I.spoorlijn_km} km —
+      7 PDOK-bronnen in manifest.json (sha256 + bevraagtijdstip). Volgende cyclus volgens canvas: deelgebied-uitsnede,
+      omgevingswet-toets (IMRO/DSO), Plane B/D-varianten, officiële gebiedsgrens.`;
+    log6(`<b class="agrol">rapporteur</b> — schrijft de run-map: <code>report.md</code> (mensleesbaar), <code>indicators.json</code> (machine), <code>manifest.json</code> (herkomst) en laat de broncache staan zodat de run offline herrekenbaar blijft; <code>python3 run.py --refresh</code> = nieuwe nulmeting met verse bevraagtijdstippen.`,"ok");
+    log6(`<b class="agrol">rapporteur</b> — verwijst door: canvas <a href="../docs/USE_CASE_VEENENDAAL_SPOORZONE.md">USE_CASE_VEENENDAAL_SPOORZONE.md</a> · engine <code>poc-veenendaal/run.py</code> (gebiedscheck) en <code>scenarios.py</code> (sweep — bepaalt ook de kaart-toedeling per deelgebied).`,"data");
+  });
+
+  return new Sim(steps, { reset: buildStatic6,
+    stage:(st, idx)=>{ stageCls6(idx); } });
+}
+
 buildRail4(); buildStatic4(); sim4=makeSim4(); sim1.prog();
+buildRail6(); buildStatic6(); buildSweep6(); vWire(); sim6=makeSim6(); sim6.prog();
 renderGentMeta(); renderGentStatic(); sim5=makeSim5(); sim5.prog();
 
 globalThis.__ds={ get sims(){return [sim1,sim2,sim4,sim5];}, switchTrack, switchTab, gentPersona, gentPackage, gentRandomKot, gentKotSelectie: ()=>kotSelectie,
   get layaOn(){return (id)=>layaOn[id||curLaya];}, fpRun, chatSend, nnBron, switchLayaDs,
   get bredaOn(){return ()=>bredaUnlocked;}, setWaarde, bredaChatSend, bredaMatch, bredaFpRun, bredaNn,
-  get sim4(){return sim4;}, get bredaS2(){return ()=>bredaS2Live;} };
+  get sim4(){return sim4;}, get bredaS2(){return ()=>bredaS2Live;},
+  get sim6(){return sim6;}, get vdPanden(){return ()=>VD.map.panden.length;},
+  get vdScenario(){return (id)=>vdScenario(id);}, get vdSweep(){return ()=>VD.sweep;},
+  get vdNieuwN(){return ()=>(V6.nieuw?V6.nieuw.children.length:0);},
+  get vdZonesData(){return ()=>VD.zones;} };
 if(typeof URLSearchParams!=="undefined"){
   const sp=new URLSearchParams((typeof location!=="undefined"?location.search:""));
   const wantS2 = sp.get("s2")==="1" || sp.get("s2")==="live" || sp.get("s2")==="auto" || sp.has("s2");
@@ -2750,7 +3320,7 @@ if(typeof URLSearchParams!=="undefined"){
   if(w0 && WAARDE_LBL[w0]) curWaarde=w0;
   const t=parseInt(sp.get("tab")||"0",10);
   if(t===3){ switchTab(2); const d=$("layadock"); if(d&&d.scrollIntoView) d.scrollIntoView({block:"start"}); }
-  else if(t>=1&&t<=5) switchTab(t);
+  else if(t>=1&&t<=6) switchTab(t);
   else if(curWaarde!=="spatial") paintWaarde(curWaarde);
 }
 </script>
