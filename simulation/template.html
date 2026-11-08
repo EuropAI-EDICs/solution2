@@ -3379,7 +3379,7 @@ function kb7DriftCard(inst){
   const geen=d.inhoudelijkeDrift==="geen";
   return `<h3>verversen &amp; drift — ${esc(inst.id)}</h3>
     <div style="display:flex;gap:18px;align-items:baseline;flex-wrap:wrap">
-      <div><div class="kb7-big" style="color:${geen?"#22c55e":"#f59e0b"}" id="kb7-done">${geen?"geen":"wel"}</div>
+      <div><div class="kb7-big" style="color:${geen?"#22c55e":(d.inhoudelijkeDrift==="wel"?"#f59e0b":"#94a3b8")}" id="kb7-done">${esc(d.inhoudelijkeDrift||"onbekend")}</div>
         <div style="font-size:10.5px;color:var(--faint)">inhoudelijke drift</div></div>
       <div style="font-size:12.5px;line-height:1.55">
         verversd ${esc(v.gegenereerdOp||"?")}<br>
@@ -3424,7 +3424,7 @@ function makeSim7(){
     $("oplabel7").innerHTML=`RegelRecht-punttoets — feit / afwezigheid / scenario / onthouding per execution-input`;
     const t=EH.toets||{};
     log7(`<b>RegelRecht</b> — punttoets Eindhoven: ${t.scenario??0} scenario-uitkomsten · ${t.onthouding??0} onthouding · ${t.engineFout??0} enginefouten (nooit gissen).`,"ok");
-    log7(`<b>RegelRecht</b> — Utrecht: ${ (UT.toets||{}).getoetst??0 } getoetst, 0 onthouding.`,"data");
+    log7(`<b>RegelRecht</b> — Utrecht: ${ (UT.toets||{}).getoetst??0 } getoetst · ${ (UT.toets||{}).onthouding??0 } onthouding.`,"data");
     log7(`<b>kruisvalidatie</b> — de DSO-puntselectie tegen de échte GIO-geometrie uit het uitwisselpakket: Eindhoven ${EH.geo.getoetst}/${EH.geo.getoetst} locaties in overeenstemming · Utrecht geometrie-sweep + naamafstemming ${UT.geo.naamOvereenkomend}/${UT.geo.naamOvereenkomend}.`,"ok");
   });
 
