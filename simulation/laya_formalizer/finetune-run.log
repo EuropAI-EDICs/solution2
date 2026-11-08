@@ -1,0 +1,105 @@
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]Fetching 5 files: 100%|██████████| 5/5 [00:00<00:00, 2723.22it/s]
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (251887 > 8192). Running this sequence through the model will result in indexing errors
+W1108 20:17:54.725000 40971 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (251887 > 8192). Running this sequence through the model will result in indexing errors
+items: train 2400 (skipped {}) · eval 602 (skipped {})
+eval items 602 from /Users/marc/Projecten/ldttoolbox/simulation/laya_formalizer/data/eval.jsonl (skipped {}, 0 overlapping training/calibration items)
+train items 2160, calibration items 240, eval items 602 (/Users/marc/Projecten/ldttoolbox/simulation/laya_formalizer/data/eval.jsonl), skipped {}, device mps
+optimizer budget: 2160 train item(s), effective batch up to 64 (micro_batch 8 x grad_accum 8), 136 optimizer updates over 4 epoch(s)
+epoch 1/4 step 100 loss 0.4528
+epoch 1/4 step 200 loss 0.1942
+epoch 1/4 mean loss 0.4735
+epoch 2/4 step 100 loss 0.0397
+epoch 2/4 step 200 loss -0.1937
+epoch 2/4 mean loss 0.3420
+epoch 3/4 step 100 loss -0.0171
+epoch 3/4 step 200 loss -0.0000
+epoch 3/4 mean loss 0.5310
+epoch 4/4 step 100 loss 1.5505
+epoch 4/4 step 200 loss -0.0887
+epoch 4/4 mean loss 0.4489
+/Users/marc/Projecten/ldttoolbox/simulation/laya_formalizer/finetune.py:84: RuntimeWarning: laya.train: choice calibration: the fitted temperature 5 is on the [0.5, 5] clamp
+  summary = finetune(
+/Users/marc/Projecten/ldttoolbox/simulation/laya_formalizer/finetune.py:84: RuntimeWarning: laya.train: noul calibration: the fitted temperature 5 is on the [0.5, 5] clamp
+  summary = finetune(
+
+=== Evaluation (before vs after fine-tuning on 602 held-out items from /Users/marc/Projecten/ldttoolbox/simulation/laya_formalizer/data/eval.jsonl) ===
+Metric                 Before         After          Delta         
+-----------------------------------------------------------------
+Accuracy               0.2558         0.9236         +0.6678       
+Loss                   2.6217         0.2955         -2.3262       
+ECE                    0.4802         0.0535         -0.4267       
+Brier (multi-class)    1.1484         0.1388         -1.0096       
+Brier (top-1)          0.4990         0.0684         -0.4306       
+Mean Confidence        0.7360         0.9688         +0.2328       
+-----------------------------------------------------------------
+
+/Users/marc/Projecten/ldttoolbox/deep-agents/laya_train/.venv/lib/python3.12/site-packages/laya/train.py:1248: UserWarning: Conflicting schema detected for question 'voorspelde_status' across rows; keeping first seen definition.
+  warnings.warn("Conflicting schema detected for question %r across rows; "
+checkpoint: /Users/marc/Projecten/ldttoolbox/simulation/laya_formalizer/checkpoints/formalizer-laya
+{
+  "train_items": 2160,
+  "calibration_items": 240,
+  "eval_items": 602,
+  "skipped": {},
+  "epoch_loss": [
+    0.4734923863783479,
+    0.3419810961325075,
+    0.5309851370277034,
+    0.4489122079430941
+  ],
+  "temperature": [
+    5.0,
+    1.0,
+    5.0
+  ],
+  "temperature_by_options": {},
+  "n_by_bucket": {
+    "noul:2": 130,
+    "choice:3-5": 110
+  },
+  "calibration": {
+    "choice": {
+      "items": 110,
+      "temperature": 5.0,
+      "issues": [
+        "the fitted temperature 5 is on the [0.5, 5] clamp"
+      ],
+      "accuracy": 0.8727272727272727,
+      "mean_confidence": 0.957365443454986
+    },
+    "score": {
+      "items": 0,
+      "temperature": 1.0,
+      "issues": []
+    },
+    "noul": {
+      "items": 130,
+      "temperature": 5.0,
+      "issues": [
+        "the fitted temperature 5 is on the [0.5, 5] clamp"
+      ],
+      "accuracy": 0.9692307692307692,
+      "mean_confidence": 0.9856659227828712
+    }
+  },
+  "abstention_thresholds": {
+    "noul:2": 0.5234,
+    "choice:3-5": 0.9591
+  },
+  "train_report": {
+    "eval_source": "/Users/marc/Projecten/ldttoolbox/simulation/laya_formalizer/data/eval.jsonl",
+    "eval_mode": "held_out",
+    "is_held_out": true,
+    "eval_items": 602,
+    "note": "Metrics reflect independent held-out evaluation.",
+    "before": {
+      "items": 602,
+      "loss": 2.6217,
+      "accuracy": 0.2558,
+      "mean_confidence": 0.736,
+      "ece": 0.4802,
+      "brier": 1.1484,
+      "brier_top1": 0.499,
+      "by_type": {
+        "choice":
