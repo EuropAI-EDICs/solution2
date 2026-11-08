@@ -207,7 +207,8 @@ def _kopieer_fixtures(tmp_path: Path) -> Path:
     return tmp_path
 
 
-def test_ververs_rapporteert_drift_via_runner(tmp_path):
+def test_ververs_rapporteert_drift_via_runner(tmp_path, monkeypatch):
+    monkeypatch.delenv("NLDT_OFFLINE", raising=False)  # hermetisch t.o.v. ambient env
     out = _kopieer_fixtures(tmp_path)
     # gesimuleerde oude cache: ververs leest de annotaties vóór de runner draait,
     # dus drift/oud.json moet er al liggen (nieuwe_gewijzigd volgt pas uit de runner).
@@ -236,7 +237,8 @@ def test_ververs_rapporteert_drift_via_runner(tmp_path):
     assert aanroepen and "--instruments" in aanroepen[0] and "testgm" in aanroepen[0]
 
 
-def test_ververs_bouwt_tpod_herbouw_in(tmp_path):
+def test_ververs_bouwt_tpod_herbouw_in(tmp_path, monkeypatch):
+    monkeypatch.delenv("NLDT_OFFLINE", raising=False)  # hermetisch t.o.v. ambient env
     out = _kopieer_fixtures(tmp_path)
     aanroepen: list[list[str]] = []
 

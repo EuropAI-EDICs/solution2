@@ -92,7 +92,7 @@ Human (ambtenaar / resident)          nLDT testbed
         QR / redirect          │    claims incl. subject_type)            │
                                │  → RFC 7662 introspection endpoint       │
 Agent (beleidskompas-svc,       │                                            │
- orchestrator, engine)         │ services (:8081-8085, :8090-8093)         │
+ orchestrator, engine)         │ services (:8081-8085, :8090-8094)         │
 ┌──────────────────────────┐   │  NLDT_AUTH_MODE=wallet → introspect at    │
 │ Virtual wallet (sidecar  │   │  :8087 (same shape as keycloak mode)      │
 │  services/agent_wallet)  │──▶│  verified claims → jobs.actor → PROV,     │
