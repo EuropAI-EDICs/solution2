@@ -141,6 +141,14 @@ def test_gios_filter():
     assert [g["locatieIdentificatie"] for g in één["gios"]] == ["nl.imow-gm9999.gebied.dorp"]
 
 
+def test_gios_onbekende_identificatie_noemt_geldige_lijst():
+    with pytest.raises(dso_kb.DsoKbFout, match="geldig"):
+        dso_kb.lijst_gios(
+            "testgm", identificatie="nl.imow-gm9999.gebied.nergens",
+            out_dir=FIX, instrumenten=INSTR, locaties=LOCS,
+        )
+
+
 def test_punt_in_gio_zonder_pakket_geeft_fout(tmp_path):
     with pytest.raises(dso_kb.DsoKbFout, match="pakket"):
         dso_kb.punt_in_gio("testgm", 1.0, 2.0, out_dir=tmp_path, instrumenten=INSTR, locaties=LOCS)

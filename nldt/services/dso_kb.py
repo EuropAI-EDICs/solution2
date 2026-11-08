@@ -370,7 +370,10 @@ def lijst_gios(
     if identificatie is not None:
         gios = [g for g in gios if g.get("locatieIdentificatie") == identificatie]
         if not gios:
-            raise DsoKbFout(f"onbekende GIO-identificatie {identificatie!r}")
+            geldig = sorted(g.get("locatieIdentificatie", "") for g in (data.get("gio") or []))
+            raise DsoKbFout(
+                f"onbekende GIO-identificatie {identificatie!r}; geldig (eerste 100): {geldig[:100]}"
+            )
     return {
         "instrument": instrument,
         "locatie": lid,
@@ -412,9 +415,11 @@ def punt_in_gio(
             {"locatieIdentificatie": ident, "bevatPunt": tpod_geo.bevat_punt(item["vorm"], (x, y))}
         )
     if identificatie is not None and not resultaten:
+        geldig = sorted((index.get("locaties") or {}).keys())
         raise DsoKbFout(
             f"identificatie {identificatie!r} niet koppelbaar in het pakket "
-            "(allen_imow_namen — vrije namen zijn overgeslagen)"
+            "(allen_imow_namen — vrije namen zijn overgeslagen); "
+            f"geldig (eerste 100): {geldig[:100]}"
         )
     return {
         "instrument": instrument,
