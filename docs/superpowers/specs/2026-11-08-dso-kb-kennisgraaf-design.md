@@ -86,3 +86,11 @@ Top-5 Eindhoven: 1.8 (12, **formalized**) · 3.37 (10, **unmatched**) · 10.186 
 2. template: paneel + dropdowns + layout-render + S(4)-stap + VSTAGES7-uitbreiding
 3. verify: 5 stappen + graaf-asserts + slotlog; README
 4. eindcontrole: volledige cyclus + gent-only + pytest-regressie
+
+---
+
+## Errata / versmallingen na uitvoering (2026-11-08)
+
+1. **§5 top-5-lijstjes zijn níét tie-broken weergegeven**: de deterministische nummerieke tie-break maakt Eindhoven nr. 5 tot **10.195** (niet 10.254; beide 6 regels) en Utrecht nr. 3 tot **3.66** (niet 3.79; beide 5 regels). De build/print/verify volgen de tie-break.
+2. **§2.5 "stippellijn-eindknoop bij niet-koppelbaar gml" is versmald**: de GIO-knoop blijft weg wanneer geen gml koppelbaar is; de locatie-tooltip vermeldt "gml: niet koppelbaar" (README beschrijft het gedrag zoals geïmplementeerd).
+3. **§3.1/§4 overzichts-sampling**: het top-overzicht toont per artikel max 3 regelteksten en 3 regels (subgraph-caps blijven 6/12 mét restknoop); de tooltip vermeldt de totale aantallen.
