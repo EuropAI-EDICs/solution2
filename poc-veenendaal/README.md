@@ -73,11 +73,24 @@ besluit**. Twee sporen, bewijs-gebonden (kader: [POC_STTR_IMTR_KANSEN](../docs/P
 ```bash
 nldt/.venv/bin/python sttr.py               # live: Presenteren + downloaden-API (DSO_API_KEY)
 nldt/.venv/bin/python sttr.py --skip-live   # offline: alleen STTR-cache + programma-sporen
+nldt/.venv/bin/python sttr_kruising.py      # scenario-toedeling ∩ GIO-lagen (offline, cache)
 ```
 
-Uitvoer in `sttr-runs/<ts>-loketvragen/` (`report.md` · `loketvragen.json` ·
-`manifest.json`); caches in `data/cache/` (gitignored). Canonieke run:
-`20261108T192445Z-loketvragen`. Tests: `nldt/tests/test_poc_veenendaal_sttr.py`.
+Uitvoer in `sttr-runs/<ts>-loketvragen/` en `sttr-runs/<ts>-kruising/`
+(`report.md` · `loketvragen.json`/`kruising.json` · `manifest.json`); caches in
+`data/cache/` (gitignored). Canonieke runs: `20261108T192445Z-loketvragen` en
+`20261108T193749Z-kruising`. Tests: `nldt/tests/test_poc_veenendaal_sttr.py`.
+
+**Scenario-kruising** (`sttr_kruising.py`): de sweep wijst per variant hele
+BGT-vlakken toe; de kruising snijdt die genomen vlakken met de officiële
+GIO-lagen — een **geometrisch feit, geen toets** (raakt ≠ verboden). Kernuitkomsten
+canonieke run: bouw-op-groen raakt **101 beschermde bomen** (bouw-op-verhard: 32);
+de 18,03-ha-verhard-varianten liggen vrijwel volledig in de **boringsvrije zone +
+grondwaterbeschermingszone** (18,02 ha van de toedeling — de spoorzone zit in het
+grondwaterbeschermingsgebied); DICHT-15 is overal het zuinigst (24 bomen ·
+14 monumenten); tempo-varianten delen de toedeling met BOUW-OP-VERHARD (tempo
+verandert oppervlak, geen ligging). De hub (tab 6) toont dit als negende stap
+"het loket" met een eigen telemetry-kaart.
 
 ## Wat de check doet
 

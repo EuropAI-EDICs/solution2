@@ -1350,6 +1350,40 @@ def build_veenendaal() -> dict:
         sweep = {"runId": sman["runId"], "v3": sman["v3"],
                  "toelichting": sman["aannames"]["toelichting"], "scenarios": scs}
 
+    # --- het loket (STTR/RTR) + scenario-kruising: nieuwste runs, optioneel ---
+    loket = None
+    sttr_runs = VEENENDAAL_POC / "sttr-runs"
+    loket_dirs = sorted(sttr_runs.glob("*-loketvragen"))
+    kruis_dirs = sorted(sttr_runs.glob("*-kruising"))
+    if loket_dirs:
+        ld = json.loads((loket_dirs[-1] / "loketvragen.json").read_text(encoding="utf-8"))
+        gios = (ld.get("locatieGebonden") or {}).get("gios") or []
+        snijdend = sorted((g for g in gios if g.get("snijdtWerkgrens")),
+                          key=lambda g: -(g.get("overlapHa") or 0))
+        loket = {
+            "runId": ld["runId"],
+            "regeling": {"titel": (ld.get("regeling") or {}).get("officieleTitel"),
+                         "akn": (ld.get("regeling") or {}).get("identificatie")},
+            "oin": ld.get("oin"), "bestanden": ld.get("totaalBestanden"),
+            "gios": {"totaal": len(gios), "inGebied": len(snijdend),
+                     "top": [{"naam": g["bestand"][:-4], "ha": g.get("overlapHa")}
+                             for g in snijdend[:6]]},
+            "programma": [{"activiteit": p["activiteit"], "soort": p["soort"],
+                           "bewijs": p["bewijs"]}
+                          for p in ld.get("programmaGebonden") or []],
+        }
+        if kruis_dirs:
+            kd = json.loads((kruis_dirs[-1] / "kruising.json").read_text(encoding="utf-8"))
+            loket["kruisingRunId"] = kd["runId"]
+            loket["kruising"] = [
+                {"id": p["id"], "naam": p["naam"], "laag": p["laag"],
+                 "ha": p["toegedeeld_ha"], "nLagen": p["n_lagen"],
+                 "raakt": [{"gio": r["gio"], "m2": r["overlapM2"], "n": r["objecten"]}
+                           for r in p["raakt"]]}
+                for p in kd.get("perScenario") or []]
+        loket["grens"] = ("vragen, geen besluit — raakt ≠ verboden; "
+                          "STTR-vraag ↔ locatie niet koppelbaar bij Veenendaal")
+
     return {
         "runId": manifest["runId"],
         "gebied": {"naam": gebied["gebied"],
@@ -1364,6 +1398,7 @@ def build_veenendaal() -> dict:
         "dedupe": dedupe,
         "sweep": sweep,
         "zones": zones_payload,
+        "loket": loket,
         "map": {"groen": groen, "verhard": verhard, "water": water,
                 "spoor": spoor, "panden": panden, "bomen": bomen},
     }
@@ -2363,6 +2398,11 @@ def main() -> int:
           f"{vd['ind']['begroeid_terrein_ha']} ha groen · kaart: "
           + " · ".join(f"{k}={len(vd['map'][k])}"
                        for k in ["groen", "verhard", "water", "spoor", "panden", "bomen"]))
+    lk = vd.get("loket")
+    if lk:
+        print(f"  veenendaal/loket: {lk['gios']['inGebied']}/{lk['gios']['totaal']} "
+              f"GIO's in gebied · kruising over {len(lk.get('kruising') or [])} scenario's "
+              f"(run {lk['runId']})")
     for inst in data["dsokb"]["instrumenten"]:
         d = inst["dekking"]
         drift = (inst["ververs"] or {}).get("drift", {}).get("inhoudelijkeDrift", "geen rapport")

@@ -951,6 +951,7 @@
       <div style="font-size:10.5px;color:var(--faint);margin-top:9px;font-family:var(--mono)" id="v3note6"></div>
     </div></div>
     <div class="card"><h3>bronnen — manifest.json</h3><div class="cardbody" id="src6"></div></div>
+    <div class="card" id="loketcard6" style="display:none"><h3>het loket — officiële toepasbare regels (RTR · STTR)</h3><div class="cardbody" id="loket6"></div></div>
     <div class="card"><h3>run log</h3>
       <div class="logkop" id="logkop6"></div>
       <div class="log" id="log6"></div>
@@ -2979,6 +2980,7 @@ const VSTAGES6 = [
   ["clip + indicatoren","schoenlac + Sutherland–Hodgman"],
   ["doelvergelijking","Toekomstbeeld ↔ meting"],
   ["critic V0–V3","manifest + 2e aggregatie"],
+  ["het loket","RTR · STTR · GIO-sweep + kruising"],
   ["report","report.md · indicators.json · manifest.json"],
 ];
 /* kaartkader = werkgrens + smalle marge (voor label/onderschrift); de lagen zelf
@@ -3240,8 +3242,32 @@ function vdScenario(id){
     (s.kaart?`<br><b>op de kaart</b>: ${s.kaart.n} vlakken ${s.kaart.laag==="groen"?"rood (groen verdwijnt)":"amber (verhard → bouw)"} = ${s.kaart.toegedeeld_ha} ha toegedeeld (benodigd ${s.kaart.benodigd_ha} ha) · ${esc(s.kaart.regel)}`:"")+
     `</div>`;
 }
+function buildLoket6(){
+  const L=VD.loket; if(!L) return;
+  const kaart=$("loketcard6"), c=$("loket6"); if(!kaart||!c) return;
+  kaart.style.display="";
+  const gioRegels=(L.gios.top||[]).map(g=>
+    `<div class="src6-row"><b>${esc(String(g.naam).slice(0,44))}</b> · ${esc(String(g.ha))} ha</div>`).join("");
+  const progRegels=(L.programma||[]).slice(0,7).map(p=>
+    `<div class="src6-row"><b>${esc(p.activiteit)}</b> — ${esc(p.bewijs)}</div>`).join("");
+  const kruisRegels=(L.kruising||[]).map(s=>{
+    const top=(s.raakt||[]).slice(0,3).map(t=>
+      `${esc(String(t.gio).slice(0,28))} ${vfmt(t.m2)} m²${t.n>1?" · "+esc(String(t.n))+" obj":""}`).join(" · ");
+    return `<div class="src6-row"><b>${esc(s.id)}</b> (${esc(s.laag)}, ${esc(String(s.ha))} ha) — `
+         + `<b>${esc(String(s.nLagen))}</b> lagen${top?": "+top:""}</div>`;
+  }).join("");
+  c.innerHTML=`
+    <div style="font-size:11.5px;line-height:1.55;margin-bottom:6px">
+      ${esc(String(L.bestanden))} STTR-bestanden · OIN <code>${esc(L.oin||"—")}</code><br>
+      ${esc(L.regeling&&L.regeling.titel?L.regeling.titel:"—")}<br>
+      <b>${esc(String(L.gios.inGebied))}/${esc(String(L.gios.totaal))}</b> officiële GIO-lagen over de werkgrens</div>
+    ${gioRegels}
+    ${progRegels?`<div style="font-size:10px;color:var(--faint);margin-top:6px">programma-koppelingen:</div>${progRegels}`:""}
+    ${kruisRegels?`<div style="font-size:10px;color:var(--faint);margin-top:6px">scenario-kruising (${esc(L.kruisingRunId||"")}):</div>${kruisRegels}`:""}
+    <div style="font-size:10px;color:var(--faint);margin-top:6px">${esc(L.grens||"")}</div>`;
+}
 function buildStatic6(){
-  buildMap6(); buildLegend6(); buildTelemetry6(); vdZones(null);
+  buildMap6(); buildLegend6(); buildTelemetry6(); vdZones(null); buildLoket6();
   document.querySelectorAll("#levels6 .lvl").forEach(l=>l.classList.remove("pass","pending"));
   document.querySelectorAll("#doel6 tr").forEach(r=>r.classList.remove("on"));
   document.querySelectorAll("#dedup6 .fill").forEach(f=>f.style.width="0%");
@@ -3330,7 +3356,28 @@ function makeSim6(){
     log6(`<b class="agrol">critic</b> — V4 (menselijke eindcontrole) is hier bewust geen poort: deze check bevat geen juridische claims; bij omgevingswet-toetsen (IMRO/DSO-track) wordt V4 wél HITL-punt.`,"data");
   });
 
-  S(7,"report",2200,()=>{
+  S(7,"het loket",2200,()=>{
+    const L=VD.loket;
+    if(!L){
+      $("oplabel6").innerHTML="het loket — geen loket-run in de cache (draai poc-veenendaal/sttr.py)";
+      log6(`<b class="agrol">loket-agent</b> — geen loketvragen-run onder <code>poc-veenendaal/sttr-runs</code>; de officiële vraagkant ontbreekt in deze build.`,"warn");
+      return;
+    }
+    $("oplabel6").innerHTML=`het loket — <b>${esc(String(L.gios.inGebied))}/${esc(String(L.gios.totaal))}</b> officiële GIO-lagen over de werkgrens · scenario-kruising`;
+    log6(`<b class="agrol">loket-agent</b> — haalt de officiële vraagkant op: <b>${esc(String(L.bestanden))} STTR-bestanden</b> in de RTR (Veenendaal, OIN ${esc(L.oin||"—")}) — de DMN-vragen die in het Omgevingsloket draaien. Omgevingsplan: ${esc(L.regeling&&L.regeling.titel?L.regeling.titel:"—")}.`,"ok");
+    log6(`<b class="agrol">loket-agent</b> — het uitwisselpakket bevat ${esc(String(L.gios.totaal))} GIO's; <b>${esc(String(L.gios.inGebied))} snijden de werkgrens</b> — top: ${(L.gios.top||[]).slice(0,3).map(g=>`${esc(String(g.naam).slice(0,30))} (${esc(String(g.ha))} ha)`).join(" · ")}. Lagen, géén uitspraken: welke STTR-vraag wáár geldt is bij Veenendaal niet koppelbaar (kansen-notitie).`,"data");
+    const kr=L.kruising||[];
+    const van=(id,deel)=>{ const s=kr.find(k=>k.id===id); if(!s) return null;
+      return (s.raakt||[]).find(r=>String(r.gio).toLowerCase().includes(deel))||null; };
+    const bomeng=van("BOUW-OP-GROEN","beschermdebomen"), bomenv=van("BOUW-OP-VERHARD","beschermdebomen");
+    const boring=van("BOUW-OP-VERHARD","boringsvrije");
+    if(kr.length){
+      log6(`<b class="agrol">loket-agent</b> — kruising met de sweep: bouw-op-groen raakt ${bomeng?`<b>${esc(String(bomeng.n))} beschermde bomen</b>`:"—"} (bouw-op-verhard: ${bomenv?esc(String(bomenv.n)):"—"})${boring?` · de 18-ha-varianten raakt ${esc((boring.m2/10000).toFixed(2).replace(".",","))} ha boringsvrije zone`:""} — compact bouwen (DICHT-15) is overal het zuinigst.`,"ok");
+    }
+    log6(`<b class="agrol">loket-agent</b> — doctrine: <b>raakt ≠ verboden</b> — deze stap stelt de officiële vragen, hij beslist niet; de conclusie-enum volgt pas bij een concreet voorstel.`,"warn");
+  });
+
+  S(8,"report",2200,()=>{
     $("done6").classList.add("on");
     $("done6").innerHTML=`<b>run ${esc(VD.runId)} — V3 PASS (exit 0).</b> Gebiedscheck Spoorzone Veenendaal:
       ${vfmt(I.panden_bestand)} panden (${vfmt(I.panden_verwijderd_status)} niet-bestand) · ${vfmt(I.woningen_verblijfsobjecten_proxy)} woningen (vbo-proxy) ·
