@@ -282,7 +282,7 @@ try {
   // ---- DSO-KB tab 7: coverage + toets + drift ----------------------------
   ds.switchTab(7);
   const s7 = ds.sim7;
-  if (!s7 || s7.steps.length !== 4) throw new Error("sim7 verwacht 4 stappen (kreeg: " + (s7 ? s7.steps.length : "none") + ")");
+  if (!s7 || s7.steps.length !== 5) throw new Error("sim7 verwacht 5 stappen (kreeg: " + (s7 ? s7.steps.length : "none") + ")");
   s7.jumpToStage(3); drain();
   const kb = ds.dsokbData();
   if (!kb || kb.instrumenten.length !== 2) throw new Error("dsokbData verwacht 2 instrumenten");
@@ -305,6 +305,20 @@ try {
     throw new Error("eindhoven drift verwacht 'geen', kreeg " + eh7.ververs.drift.inhoudelijkeDrift);
   if (!globalThis.document.getElementById("kb7-cov-eindhoven").textContent.includes("56,35"))
     throw new Error("kb7-cov-eindhoven mist gouden 56,35%");
+
+  const kg = ds.kg7Data();
+  if (!kg || !kg.eindhoven || !kg.utrecht) throw new Error("kg7Data verwacht beide instrumenten");
+  const kgE = kg.eindhoven, kgU = kg.utrecht;
+  if (kgE.top[0] !== "1.8" || kgE.artikelen["1.8"].nRegels !== 12) throw new Error("eindhoven kg top verwacht 1.8 met 12 regels");
+  if (kgE.artikelen["1.8"].status !== "formalized") throw new Error("eindhoven 1.8 verwacht formalized");
+  if (kgE.artikelen["3.37"].status !== "unmatched") throw new Error("eindhoven 3.37 verwacht unmatched");
+  if (kgU.top[0] !== "10.4" || kgU.artikelen["10.4"].nRegels !== 9) throw new Error("utrecht kg top verwacht 10.4 met 9 regels");
+  if (Object.keys(kgE.artikelen).length !== 811 || Object.keys(kgU.artikelen).length !== 107)
+    throw new Error("kg artikel-aantallen verwacht 811/107");
+  if (!(kgE.overzicht.n.length > 0) || !(kgE.overzicht.e.length > 0)) throw new Error("kg overzicht zonder knopen/edges");
+  ds.kg7Kies("eindhoven", "3.37");
+  const kgN = parseInt(globalThis.document.getElementById("kg7-n").textContent, 10);
+  if (!(kgN > 0)) throw new Error("kg7-n leeg na artikelkeuze 3.37");
 
   console.log(`OK — script evaluated; poc1 tracks driven through every step (${n1} steps on active track), sim2 ${n2} steps, laya fp+chat driven, poc4 sim4 ${s4.steps.length} steps, gent sim5 ${s5e.steps.length} steps (sanne/dirk/ellen/wim/nadia/ilse/hanne/maria) + kaartpanel gecontroleerd incl. burger-, kot- en eventpakket-switch, veenendaal sim6 ${s6.steps.length} stappen (${ds.vdPanden()} panden op de kaart), timers drained, sim7 ${s7.steps.length} stappen (dekking ${eh7.dekking.coverage})`);
 } catch (e) {

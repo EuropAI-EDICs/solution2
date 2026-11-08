@@ -272,14 +272,36 @@ naamafstemming-sweep) en `*.ververs.json` (drift) — en injecteert ze als
 deze plek?) · **RegelRecht toetst** (alléén het geformaliseerde deel
 executeert — de rest onthoudt) · **AI verkent**. Geen LLM in de beslislijn.
 
-De timeline loopt vier stappen: **DSO annoteert** → **koppeling** →
-**RegelRecht toetst** → **verversen & drift**. Gouden getallen (live uit de
+De timeline loopt vijf stappen: **DSO annoteert** → **koppeling** →
+**RegelRecht toetst** → **verversen & drift** → **kennisgraaf**. Gouden getallen (live uit de
 cache): Eindhoven 811 DSO-artikelen → 457 uitvoerbaar = **56,35%** dekking;
 Utrecht 107 → 7 = **6,54%**; kruisvalidatie Eindhoven **34/34**
 punt-in-GIO-locaties in overeenstemming, Utrecht **8/8**
 naamafstemming (zijn GIO's zijn niet filename-koppelbaar — daarom de
 naamsweep als bevestiging); drift na verversing: **geen**, via de canonieke
 vergelijking (byte-verschil door echo-datums en lijstvolgorde telt niet).
+
+**Kennisgraaf (stap 5):** `build_kg7()` levert per instrument het officiële
+IMOW-weefsel in **zes kolommen**: artikel → regeltekst (wId) → juridische
+regel → activiteit → locatie → GIO. De join loopt via de
+**IMOW-identificatie** — elke regel wijst met zijn `regeltekstRef` naar de
+regeltekst, waaruit het artikelnummer komt — niet door op de wId van de
+regel zelf te matchen. Knoopkleuren: **groen** = formalized, **amber** =
+onthouding/unmatched (artikel- én regeltekst-knopen erven de status);
+juridische regels zijn blauw; activiteiten kleuren op kwalificatie —
+**amber** = vergunningplicht, **cyaan** = meldingplicht, grijs = de rest;
+locaties grijs. Het overzicht toont de **top-12 artikelen** naar aantal
+regels; de instrument- en **artikel-dropdown** (cap 500) bieden daarnaast
+elk artikel als volledig subgraph, met **caps: 6 regelteksten / 12
+regels** — wat boven de cap zit verdwijnt niet maar wordt de getelde
+restknoop ("…+N regels"). Een **GIO-knoop** (groen) verschijnt alléén
+wanneer de locatie via `locatieIdentificatie` aan een gml-bestand uit het
+uitwisselpakket is gekoppeld; anders zegt de locatie-tooltip eerlijk
+"gml: niet koppelbaar" en blijft de GIO-knoop weg. Gouden voorbeelden
+(live uit de cache, vastgelegd in `verify_static.mjs`): Eindhoven
+**art. 1.8** formalized (12 regels, bovenaan) · **art. 3.37** unmatched;
+Utrecht **art. 10.4** — unmatched, maar met 9 regels het best verbonden
+artikel van de verordening.
 
 Openen: `open simulation/simulation.html?tab=7`.
 
