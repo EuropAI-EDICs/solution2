@@ -42,6 +42,10 @@ Presenteren-metingen in [POC_TPOD_IMOW_KANSEN.md](../../POC_TPOD_IMOW_KANSEN.md)
   bestanden; `rtr-pre-tilburg/` bevat de oorspronkelijke 20-steekproef
   (_DMN 1.1, Geodan FLO-exporter_). NB: een eerste scan hield deze 20 ten onrechte
   voor Eindhoven — vandaar de correctie-notitie in de kansen-notitie.
+- **Provincie Utrecht: pv26 = OIN `00000001001797864000`** (uit de full scan,
+  één OIN) — **115 geldige STTR-bestanden** (45× DMN 1.1 + 70× DMN 1.2;
+  Sogelink 67, Geodan 45, Berkeley Modeler 3); via `dso_overlap/rtr.py` gecacht,
+  STTR-index: 3.320 decisions, 1.875 projecteerbaar, 1.297 scenario-uitgevoerd.
 
 ## Reproduceren
 

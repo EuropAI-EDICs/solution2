@@ -12,13 +12,23 @@ from nldt.simulation.regelrecht.sttr.executie import (
     projecteer_decision,
     scenario_run,
 )
+from nldt.simulation.regelrecht.sttr.export import (
+    ExportFout,
+    export_document,
+    roundtrip_verschil,
+    valideer_tegen_xsd,
+)
 
 CONTRACT = "sttr-index/v1"
 
 __all__ = [
     "CONTRACT",
     "SttrParseFout",
+    "ExportFout",
     "parse_sttr",
     "projecteer_decision",
     "scenario_run",
+    "export_document",
+    "roundtrip_verschil",
+    "valideer_tegen_xsd",
 ]

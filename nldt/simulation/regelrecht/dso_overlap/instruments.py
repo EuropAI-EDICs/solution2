@@ -43,6 +43,9 @@ INSTRUMENTS: dict[str, dict[str, Any]] = {
         "akn_path": "/akn/nl/act/pv26/2022/omgevingsverordening",
         "cvdr": "CVDR704250",
         "bevoegd_gezag": "pv26",
+        # RTR (toepasbare regels): PRE-full-scan 8-11-2026, pv26 → één OIN
+        # (docs/POC_STTR_IMTR_KANSEN.md, kans 3).
+        "oin": "00000001001797864000",
         "formalization_report": FULL_EXPORT_OUT / "utrecht-formalization-report.json",
         "instrument_yaml": FULL_EXPORT_OUT / "utrecht-cvdr704250.yaml",
         "default_location_id": "utrecht-domplein",

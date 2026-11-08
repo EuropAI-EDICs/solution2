@@ -264,8 +264,90 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="ontleed de officiële IPLO-voorbeeldbestanden i.p.v. de RTR-cache",
     )
+    p.add_argument(
+        "--export-demo",
+        action="store_true",
+        help="RegelRecht → STTR: exporteer demonstrator-artikelen (docs-voorbeeld "
+        "art. 10.2 + limiet-executie art. 1.8) als STTR 3.0/DMN 1.2-bestand, "
+        "XSD-gevalideerd + roundtrip-gecheckt → sttr-export-demo.dmn (geen aanlevering)",
+    )
     args = p.parse_args(argv)
     out_dir = args.out_dir or args.cache_dir
+
+    if args.export_demo:
+        import itertools
+
+        import yaml
+
+        from nldt.simulation.regelrecht.sttr.export import (
+            export_document,
+            roundtrip_verschil,
+            valideer_tegen_xsd,
+        )
+
+        voorbeeld = (
+            pathlib.Path(__file__).resolve().parents[4]
+            / "docs" / "examples" / "regelrecht"
+            / "omgevingsplan-eindhoven-art22.1-en-10.2.yaml"
+        )
+        doc_yaml = yaml.safe_load(voorbeeld.read_text(encoding="utf-8"))
+        art10_2 = next(a for a in doc_yaml["articles"] if a["number"] == "10.2")
+        exec_10_2 = art10_2["machine_readable"]["execution"]
+
+        # Demonstrator-limiet naar de volle-export-vorm van art. 1.8
+        # ("template maximaal 1.0 m"); de echte export-YAML staat in de
+        # (gitignored) full_export-cache — dit is de vaste, gecommitte vorm.
+        exec_1_8 = {
+            "produces": {"legal_character": "TOETS"},
+            "parameters": [],
+            "input": [
+                {"name": "limiet_m", "type": "number",
+                 "description": "Gemeten limiet_m van het voorstel t.o.v. limiet 1.0.",
+                 "source": {"description": "voorstelfeit"}},
+                {"name": "in_werkingsgebied", "type": "boolean",
+                 "description": "Geo-feit: locatie binnen werkingsgebied van de regel.",
+                 "source": {"description": "werkingsgebiedRef / zone-engine (MC-11)"}},
+            ],
+            "output": [{"name": "toegestaan_art_1_8", "type": "boolean",
+                        "description": "Of artikel 1.8 de activiteit toelaat."}],
+            "actions": [{"output": "toegestaan_art_1_8",
+                         "value": {"operation": "AND", "conditions": [
+                             {"operation": "LESS_THAN_OR_EQUAL", "subject": "$limiet_m", "value": 1.0},
+                             {"operation": "EQUALS", "subject": "$in_werkingsgebied", "value": True}]}}],
+        }
+        artikelen = [
+            {"naam": "art. 10.2", "anker": "CVDR696400/4 art. 10.2", "execution": exec_10_2},
+            {"naam": "art. 1.8", "anker": "CVDR696400/4 art. 1.8", "execution": exec_1_8},
+        ]
+        xml = export_document(
+            artikelen,
+            oin=INSTRUMENTS["eindhoven"]["oin"],
+            naam="RegelRecht naar STTR — export-demonstrator (geen aanlevering)",
+        )
+        fouten = valideer_tegen_xsd(xml)
+        if fouten:
+            raise SystemExit("export faalt DMN_v12.xsd: " + "; ".join(fouten[:3]))
+        pad = out_dir / "sttr-export-demo.dmn"
+        pad.write_text(xml, encoding="utf-8")
+
+        combi_10_2 = [
+            dict(zip(["strijd_met_tijdelijk_deel", "voorschriften_verbonden_voor_iwt"], c))
+            for c in itertools.product((True, False), repeat=2)
+        ]
+        combi_1_8 = [
+            {"limiet_m": m, "in_werkingsgebied": w}
+            for m in (0.5, 1.0, 1.5)
+            for w in (True, False)
+        ]
+        v1 = roundtrip_verschil(exec_10_2, xml, combi_10_2)
+        v2 = roundtrip_verschil(exec_1_8, xml, combi_1_8)
+        if v1 or v2:
+            raise SystemExit(f"roundtrip-verschil: {v1 + v2}")
+        print(
+            f"export-demo: {len(artikelen)} artikelen → {pad.name} "
+            f"(XSD geldig; roundtrip exact over {len(combi_10_2) + len(combi_1_8)} combinaties)"
+        )
+        return 0
 
     if args.van_voorbeelden:
         index = bouw_uit_voorbeelden()

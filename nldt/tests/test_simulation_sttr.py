@@ -7,6 +7,7 @@ aanleveringen (DMN 1.1/v1.0 en DMN 1.2/v2.0), het officiële IPLO-voorbeeld
 docs/research/sttr-imtr/. Geen netwerk, geen afhankelijkheid van de
 gitignored cache onder dso_overlap/out/.
 """
+import itertools
 import json
 import os
 import pathlib
@@ -14,6 +15,8 @@ import sys
 import tempfile
 import unittest
 from unittest import mock
+
+import yaml
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
@@ -23,9 +26,13 @@ from jsonschema import Draft202012Validator  # noqa: E402
 from nldt.simulation.regelrecht import reference_engine  # noqa: E402
 from nldt.simulation.regelrecht.sttr import (  # noqa: E402
     CONTRACT,
+    ExportFout,
+    export_document,
     parse_sttr,
     projecteer_decision,
+    roundtrip_verschil,
     scenario_run,
+    valideer_tegen_xsd,
 )
 from nldt.simulation.regelrecht.sttr import dmn as sttr_dmn  # noqa: E402
 from nldt.simulation.regelrecht.sttr import __main__ as sttr_cli  # noqa: E402
@@ -310,8 +317,18 @@ class TestDsoKbSttr(unittest.TestCase):
             with self.assertRaises(dso_kb.DsoKbFout) as ctx:
                 dso_kb.lijst_toepasbare_regels("bestaatniet", out_dir=out)
             self.assertIn("onbekend instrument", str(ctx.exception))
+            # instrument zónder OIN (injecteerbaar — utrecht zelf is inmiddels gekoppeld)
+            instrument_zonder_oin = {"geenoin": {"label": "Zonder OIN", "default_location_id": "l"}}
+            locatie_l = {"l": {"id": "l", "label": "Locatie", "instrument": "geenoin"}}
             with self.assertRaises(dso_kb.DsoKbFout) as ctx:
-                dso_kb.lijst_toepasbare_regels("utrecht", out_dir=out)
+                dso_kb.lijst_toepasbare_regels(
+                    "geenoin", out_dir=out,
+                    instrumenten=instrument_zonder_oin, locaties=locatie_l)
+            self.assertIn("geen OIN", str(ctx.exception))
+            with self.assertRaises(dso_kb.DsoKbFout) as ctx:
+                dso_kb.lees_sttr(
+                    "geenoin", out_dir=out,
+                    instrumenten=instrument_zonder_oin, locaties=locatie_l)
             self.assertIn("geen OIN", str(ctx.exception))
             with self.assertRaises(dso_kb.DsoKbFout) as ctx:
                 dso_kb.lees_sttr("eindhoven", 999, out_dir=out)
@@ -331,6 +348,129 @@ class TestVoorbeeldenIndex(unittest.TestCase):
         )
         fouten = list(Draft202012Validator(schema).iter_errors(index))
         self.assertEqual(fouten, [])
+
+
+class TestExport(unittest.TestCase):
+    """RegelRecht → STTR (kans 2, autorauteitsroute): XSD + roundtrip-eigenschap."""
+
+    OIN = "00000001001902763000"
+
+    @staticmethod
+    def _exec_limiet():
+        # exact de vorm van art. 1.8 in de volle Eindhoven-export (template maximaal 1.0 m)
+        return {
+            "produces": {"legal_character": "TOETS"},
+            "parameters": [],
+            "input": [
+                {"name": "limiet_m", "type": "number",
+                 "description": "Gemeten limiet_m van het voorstel t.o.v. limiet 1.0.",
+                 "source": {"description": "voorstelfeit"}},
+                {"name": "in_werkingsgebied", "type": "boolean",
+                 "description": "Geo-feit: locatie binnen werkingsgebied van de regel.",
+                 "source": {"description": "werkingsgebiedRef / zone-engine (MC-11)"}},
+            ],
+            "output": [{"name": "toegestaan_art_1_8", "type": "boolean",
+                        "description": "Of artikel 1.8 de activiteit toelaat."}],
+            "actions": [{"output": "toegestaan_art_1_8",
+                         "value": {"operation": "AND", "conditions": [
+                             {"operation": "LESS_THAN_OR_EQUAL", "subject": "$limiet_m", "value": 1.0},
+                             {"operation": "EQUALS", "subject": "$in_werkingsgebied", "value": True}]}}],
+        }
+
+    @staticmethod
+    def _exec_102():
+        # het gecommitte voorbeeld (docs/examples/regelrecht/…10.2.yaml): IF met twee cases
+        pad = (ROOT / "docs" / "examples" / "regelrecht"
+               / "omgevingsplan-eindhoven-art22.1-en-10.2.yaml")
+        art = next(a for a in yaml.safe_load(pad.read_text("utf-8"))["articles"]
+                   if a["number"] == "10.2")
+        return art["machine_readable"]["execution"]
+
+    @staticmethod
+    def _exec_verbod():
+        return {
+            "produces": {"legal_character": "TOETS"},
+            "parameters": [],
+            "input": [
+                {"name": "activiteit_valt_onder_verbod", "type": "boolean",
+                 "description": "Of de voorgenomen activiteit onder het verbod valt.",
+                 "source": {"description": "voorstelfeit"}},
+                {"name": "in_werkingsgebied", "type": "boolean",
+                 "description": "Geo-feit: locatie binnen werkingsgebied.",
+                 "source": {"description": "MC-11"}},
+            ],
+            "output": [{"name": "toegestaan_art_5_21", "type": "boolean",
+                        "description": ""}],
+            "actions": [{"output": "toegestaan_art_5_21",
+                         "value": {"operation": "AND", "conditions": [
+                             {"operation": "EQUALS", "subject": "$activiteit_valt_onder_verbod", "value": False},
+                             {"operation": "EQUALS", "subject": "$in_werkingsgebied", "value": True}]}}],
+        }
+
+    def _document(self, *executies_ankers):
+        artikelen = [{"naam": naam, "anker": anker, "execution": ex}
+                     for ex, naam, anker in executies_ankers]
+        return export_document(artikelen, oin=self.OIN,
+                               naam="RegelRecht naar STTR — test")
+
+    def test_xsd_geldig_officieel_en_eigen_export(self):
+        # de vastgepinde DMN_v12.xsd keurt het officiële IPLO-voorbeeld…
+        self.assertEqual(
+            valideer_tegen_xsd(DAKKAPEL.read_text(encoding="utf-8")), []
+        )
+        # …én onze eigen export (limiet + IF + verbod in één document)
+        xml = self._document(
+            (self._exec_limiet(), "art. 1.8", "CVDR696400/4 art. 1.8"),
+            (self._exec_102(), "art. 10.2", "CVDR696400/4 art. 10.2"),
+            (self._exec_verbod(), "art. 5.21", "CVDR696400/4 art. 5.21"),
+        )
+        self.assertEqual(valideer_tegen_xsd(xml), [])
+
+    def test_exportvorm_is_sttr_30_dmn_12(self):
+        xml = self._document((self._exec_limiet(), "art. 1.8", "CVDR696400/4 art. 1.8"))
+        parsed = parse_sttr(xml)
+        self.assertEqual(parsed["dmnVersie"], "1.2")
+        self.assertEqual(parsed["sttrNamespace"], "v2.0")
+        self.assertEqual(parsed["sttrVersie"], "3")
+        self.assertEqual(parsed["oin"], self.OIN)
+        self.assertEqual(parsed["kennisbronnen"], ["CVDR696400/4 art. 1.8"])
+        vragen = [u for u in parsed["uitvoeringsregels"] if "vraag" in u]
+        self.assertEqual(len(vragen), 2)
+        self.assertIn("werkingsgebied", vragen[1]["vraag"]["vraagTekst"])
+
+    def test_roundtrip_limiet_verbod_en_if(self):
+        xml = self._document(
+            (self._exec_limiet(), "art. 1.8", "CVDR696400/4 art. 1.8"),
+            (self._exec_102(), "art. 10.2", "CVDR696400/4 art. 10.2"),
+            (self._exec_verbod(), "art. 5.21", "CVDR696400/4 art. 5.21"),
+        )
+        combi_limiet = [{"limiet_m": m, "in_werkingsgebied": w}
+                        for m in (0.5, 1.0, 1.5) for w in (True, False)]
+        combi_10_2 = [
+            dict(zip(["strijd_met_tijdelijk_deel", "voorschriften_verbonden_voor_iwt"], c))
+            for c in itertools.product((True, False), repeat=2)
+        ]
+        combi_verbod = [{"activiteit_valt_onder_verbod": a, "in_werkingsgebied": w}
+                        for a in (True, False) for w in (True, False)]
+        self.assertEqual(roundtrip_verschil(self._exec_limiet(), xml, combi_limiet), [])
+        self.assertEqual(roundtrip_verschil(self._exec_102(), xml, combi_10_2), [])
+        self.assertEqual(roundtrip_verschil(self._exec_verbod(), xml, combi_verbod), [])
+
+    def test_niet_exporteerbaar_is_expliciete_fout(self):
+        or_exec = {"input": [{"name": "x", "type": "boolean", "description": "", "source": {}}],
+                   "output": [{"name": "y", "type": "boolean", "description": ""}],
+                   "actions": [{"output": "y", "value": {"operation": "OR", "conditions": []}}]}
+        with self.assertRaises(ExportFout):
+            self._document((or_exec, "or", None))
+        spook_exec = {"input": [{"name": "x", "type": "boolean", "description": "", "source": {}}],
+                      "output": [{"name": "y", "type": "boolean", "description": ""}],
+                      "actions": [{"output": "y", "value": {
+                          "operation": "EQUALS", "subject": "$bestaatniet", "value": True}}]}
+        with self.assertRaises(ExportFout):
+            self._document((spook_exec, "spook", None))
+        with self.assertRaises(ExportFout):
+            export_document([{"naam": "x", "anker": None, "execution": self._exec_limiet()}],
+                            oin="geen-oin", naam="fout")
 
 
 if __name__ == "__main__":
