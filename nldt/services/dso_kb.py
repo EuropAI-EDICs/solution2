@@ -170,3 +170,46 @@ def lees_annotaties(
             rt for rt in (data.get("regelteksten") or []) if rt.get("wId") in wids
         ][:LIMIT_MAX]
     return uit
+
+
+def _vlak_componenten(
+    componenten: list[Any] | None, diepte: int, uit: list[dict[str, Any]]
+) -> None:
+    for c in componenten or []:
+        uit.append(
+            {"diepte": diepte, "soort": c.get("soort"), "wId": c.get("wId"), "titel": c.get("titel")}
+        )
+        _vlak_componenten((c.get("_embedded") or {}).get("documentComponenten"), diepte + 1, uit)
+
+
+def lees_documentstructuur(
+    instrument: str,
+    locatie: str | None = None,
+    wId_prefix: str | None = None,
+    limiet: int | None = None,
+    out_dir: Path | None = None,
+    instrumenten: dict[str, dict[str, Any]] | None = None,
+    locaties: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Documentstructuur als vlakke, gebonden componentreeks."""
+    out = out_dir or DEFAULT_OUT
+    _meta, lid, stem = _resolve_paar(instrument, locatie, instrumenten, locaties)
+    data = _lees_json(out / f"{stem}.documentstructuur.json")
+    vlak: list[dict[str, Any]] = []
+    _vlak_componenten((data.get("_embedded") or {}).get("documentComponenten"), 0, vlak)
+    totaal = len(vlak)
+    if wId_prefix:
+        vlak = [c for c in vlak if str(c.get("wId") or "").startswith(wId_prefix)]
+    grens = _limiet(limiet)
+    vervolg = None
+    if len(vlak) > grens:
+        vlak = vlak[:grens]
+        vervolg = {"aanwijzing": "verfijn met wIdPrefix= of verhoog limiet", "maxLimiet": LIMIT_MAX}
+    return {
+        "instrument": instrument,
+        "locatie": lid,
+        "totaalComponenten": totaal,
+        "totaalNaFilter": len(vlak),
+        "componenten": vlak,
+        "vervolg": vervolg,
+    }

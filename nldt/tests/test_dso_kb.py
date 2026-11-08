@@ -74,3 +74,28 @@ def test_ontbrekend_artefact_verwijst_naar_refresh(tmp_path):
         dso_kb.lees_annotaties(
             "testgm", out_dir=tmp_path, instrumenten=INSTR, locaties=LOCS
         )
+
+
+def test_documentstructuur_vlak_en_begrensd():
+    uit = dso_kb.lees_documentstructuur(
+        "testgm", out_dir=FIX, instrumenten=INSTR, locaties=LOCS
+    )
+    assert uit["totaalComponenten"] == 3
+    assert uit["componenten"][0]["diepte"] == 0
+    assert uit["componenten"][1]["diepte"] == 1
+
+
+def test_documentstructuur_prefix_filter():
+    uit = dso_kb.lees_documentstructuur(
+        "testgm", wId_prefix="gm9999_a1__chp_1__art_2", out_dir=FIX,
+        instrumenten=INSTR, locaties=LOCS,
+    )
+    assert [c["wId"] for c in uit["componenten"]] == ["gm9999_a1__chp_1__art_2.1"]
+
+
+def test_documentstructuur_limiet():
+    uit = dso_kb.lees_documentstructuur(
+        "testgm", limiet=2, out_dir=FIX, instrumenten=INSTR, locaties=LOCS
+    )
+    assert len(uit["componenten"]) == 2
+    assert uit["vervolg"]["maxLimiet"] == dso_kb.LIMIT_MAX
