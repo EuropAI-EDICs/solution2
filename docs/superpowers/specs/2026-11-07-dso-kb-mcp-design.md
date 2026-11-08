@@ -108,3 +108,14 @@ Uitvoer: `"inhoudelijkeDrift": "geen"` óf een lijst gewijzigde wIds/identificat
 ## 10. Toekomst (buiten scope, tweede golf)
 
 RegelRecht-engine-executie als eigen proces (toets op vrije feiten achter de bestaande gates); Gent-/Veenendaal-/bp2op-onderdelen achter dezelfde façade; GIO-symdiff-validatie van de agrest-mirror als proces; publicatie van de tools als Agent Skills op de server (SEP-2640-patroon van poc-mcp).
+
+---
+
+## Errata / versmallingen na uitvoering (2026-11-08)
+
+Tijdens de uitvoering (plan `docs/superpowers/plans/2026-11-07-dso-kb-mcp.md`) zijn vier afwijkingen van deze spec bewust gerealiseerd:
+
+1. **§3 refresh draait via subprocess**, niet in-process: betere isolatie en `.env`-afhandeling door de bestaande CLI's; functiecontract ongewijzigd.
+2. **§5 drift rapporteert vier categorieën** (regelteksten, regels, locaties, gebiedsaanwijzingen); documentstructuur en GIO-sha's zijn bewust níét meegenomen — de annotatie-respons is de drift-drager.
+3. **§7 refresh-foutcontract is pragmatisch**: een mislukte compare kan de cache deels hebben vernieuwd (de CLI's schrijven per artefact); de fout verschijnt als stderr-staart in het fout-resultaat. "Cache ongewijzigd bij fout" geldt alléén voor de fetch-zelf-mislukt-fase vóór schrijven.
+4. **§4 uitvoerdetails zijn smaller** per tool (geen regeltekst-samenvatting/locatieRefs per artikel in annotations-detail; geen fetchedAt in overview) — de cache-meta's blijven via sha's beschikbaar.
