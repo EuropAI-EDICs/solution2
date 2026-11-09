@@ -1,0 +1,104 @@
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]Fetching 5 files: 100%|██████████| 5/5 [00:00<00:00, 3166.47it/s]
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (251887 > 8192). Running this sequence through the model will result in indexing errors
+W1109 13:44:13.604000 63280 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (251887 > 8192). Running this sequence through the model will result in indexing errors
+items: train 2448 (skipped {}) · eval 554 (skipped {})
+eval items 554 from simulation/laya_formalizer/data-bijscholing-150/eval.jsonl (skipped {}, 0 overlapping training/calibration items)
+train items 2204, calibration items 244, eval items 554 (simulation/laya_formalizer/data-bijscholing-150/eval.jsonl), skipped {}, device mps
+optimizer budget: 2204 train item(s), effective batch up to 64 (micro_batch 8 x grad_accum 8), 140 optimizer updates over 4 epoch(s)
+epoch 1/4 step 100 loss -0.1187
+epoch 1/4 step 200 loss 1.4032
+epoch 1/4 mean loss 0.4627
+epoch 2/4 step 100 loss 0.1228
+epoch 2/4 step 200 loss -0.2594
+epoch 2/4 mean loss 0.2255
+epoch 3/4 step 100 loss 1.2215
+epoch 3/4 step 200 loss 2.2599
+epoch 3/4 mean loss 0.4657
+epoch 4/4 step 100 loss 0.0000
+epoch 4/4 step 200 loss -0.0000
+epoch 4/4 mean loss 0.3461
+/Users/marc/Projecten/ldttoolbox/simulation/laya_formalizer/finetune.py:84: RuntimeWarning: laya.train: choice calibration: the fitted temperature 5 is on the [0.5, 5] clamp
+  summary = finetune(
+
+=== Evaluation (before vs after fine-tuning on 554 held-out items from simulation/laya_formalizer/data-bijscholing-150/eval.jsonl) ===
+Metric                 Before         After          Delta         
+-----------------------------------------------------------------
+Accuracy               0.5253         0.9061         +0.3808       
+Loss                   1.3260         0.3123         -1.0137       
+ECE                    0.2155         0.0423         -0.1732       
+Brier (multi-class)    0.6524         0.1559         -0.4965       
+Brier (top-1)          0.2399         0.0765         -0.1634       
+Mean Confidence        0.7382         0.9475         +0.2093       
+-----------------------------------------------------------------
+
+/Users/marc/Projecten/ldttoolbox/deep-agents/laya_train/.venv/lib/python3.12/site-packages/laya/train.py:1248: UserWarning: Conflicting schema detected for question 'voorspelde_status' across rows; keeping first seen definition.
+  warnings.warn("Conflicting schema detected for question %r across rows; "
+checkpoint: simulation/laya_formalizer/checkpoints/formalizer-laya-bijscholing-150
+{
+  "train_items": 2204,
+  "calibration_items": 244,
+  "eval_items": 554,
+  "skipped": {},
+  "epoch_loss": [
+    0.4627113947914778,
+    0.22553426570906912,
+    0.465727924982565,
+    0.3460895586948658
+  ],
+  "temperature": [
+    5.0,
+    1.0,
+    4.394553184509277
+  ],
+  "temperature_by_options": {},
+  "n_by_bucket": {
+    "noul:2": 110,
+    "choice:3-5": 134
+  },
+  "calibration": {
+    "choice": {
+      "items": 134,
+      "temperature": 5.0,
+      "issues": [
+        "the fitted temperature 5 is on the [0.5, 5] clamp"
+      ],
+      "accuracy": 0.9104477611940298,
+      "mean_confidence": 0.9462136690196544
+    },
+    "score": {
+      "items": 0,
+      "temperature": 1.0,
+      "issues": []
+    },
+    "noul": {
+      "items": 110,
+      "temperature": 4.394553184509277,
+      "issues": [],
+      "accuracy": 0.990909090909091,
+      "mean_confidence": 0.9955713457975145
+    }
+  },
+  "abstention_thresholds": {
+    "noul:2": 0.8807,
+    "choice:3-5": 0.4788
+  },
+  "train_report": {
+    "eval_source": "simulation/laya_formalizer/data-bijscholing-150/eval.jsonl",
+    "eval_mode": "held_out",
+    "is_held_out": true,
+    "eval_items": 554,
+    "note": "Metrics reflect independent held-out evaluation.",
+    "before": {
+      "items": 554,
+      "loss": 1.326,
+      "accuracy": 0.5253,
+      "mean_confidence": 0.7382,
+      "ece": 0.2155,
+      "brier": 0.6524,
+      "brier_top1": 0.2399,
+      "by_type": {
+        "choice": {
+          "items": 277,
+          "loss": 2.0061,
+  

@@ -1,0 +1,186 @@
+{
+  "train_items": 2024,
+  "calibration_items": 224,
+  "eval_items": 754,
+  "skipped": {},
+  "epoch_loss": [
+    0.4837109071787874,
+    0.3774088596880966,
+    0.5074068966700744,
+    0.4504361027311496
+  ],
+  "temperature": [
+    5.0,
+    1.0,
+    4.504941940307617
+  ],
+  "temperature_by_options": {},
+  "n_by_bucket": {
+    "noul:2": 112,
+    "choice:3-5": 112
+  },
+  "calibration": {
+    "choice": {
+      "items": 112,
+      "temperature": 5.0,
+      "issues": [
+        "the fitted temperature 5 is on the [0.5, 5] clamp"
+      ],
+      "accuracy": 0.875,
+      "mean_confidence": 0.9515443328501737
+    },
+    "score": {
+      "items": 0,
+      "temperature": 1.0,
+      "issues": []
+    },
+    "noul": {
+      "items": 112,
+      "temperature": 4.504941940307617,
+      "issues": [],
+      "accuracy": 0.9732142857142857,
+      "mean_confidence": 0.9745908653663368
+    }
+  },
+  "abstention_thresholds": {
+    "noul:2": 0.527,
+    "choice:3-5": 0.9464
+  },
+  "train_report": {
+    "eval_source": "data-bijscholing-50/eval.jsonl",
+    "eval_mode": "held_out",
+    "is_held_out": true,
+    "eval_items": 754,
+    "note": "Metrics reflect independent held-out evaluation.",
+    "before": {
+      "items": 754,
+      "loss": 1.3178,
+      "accuracy": 0.5146,
+      "mean_confidence": 0.7354,
+      "ece": 0.2208,
+      "brier": 0.6513,
+      "brier_top1": 0.2345,
+      "by_type": {
+        "choice": {
+          "items": 377,
+          "loss": 1.9996,
+          "accuracy": 0.183,
+          "mean_confidence": 0.5155,
+          "ece": 0.3325,
+          "brier": 1.0171,
+          "brier_top1": 0.3262
+        },
+        "noul": {
+          "items": 377,
+          "loss": 0.6361,
+          "accuracy": 0.8462,
+          "mean_confidence": 0.9553,
+          "ece": 0.1285,
+          "brier": 0.2854,
+          "brier_top1": 0.1427
+        }
+      }
+    },
+    "after": {
+      "items": 754,
+      "loss": 0.723,
+      "accuracy": 0.7095,
+      "mean_confidence": 0.7907,
+      "ece": 0.0988,
+      "brier": 0.4149,
+      "brier_top1": 0.204,
+      "by_type": {
+        "choice": {
+          "items": 377,
+          "loss": 0.8155,
+          "accuracy": 0.7825,
+          "mean_confidence": 0.9153,
+          "ece": 0.1477,
+          "brier": 0.3845,
+          "brier_top1": 0.1854
+        },
+        "noul": {
+          "items": 377,
+          "loss": 0.6305,
+          "accuracy": 0.6366,
+          "mean_confidence": 0.6661,
+          "ece": 0.0629,
+          "brier": 0.4454,
+          "brier_top1": 0.2227
+        }
+      }
+    },
+    "comparison": {
+      "delta_accuracy": 0.1949,
+      "delta_loss": -0.5948,
+      "delta_ece": -0.122,
+      "delta_brier": -0.2364,
+      "delta_brier_top1": -0.0305,
+      "delta_mean_confidence": 0.0553
+    },
+    "calibration": {
+      "choice": {
+        "items": 112,
+        "temperature": 5.0,
+        "issues": [
+          "the fitted temperature 5 is on the [0.5, 5] clamp"
+        ],
+        "accuracy": 0.875,
+        "mean_confidence": 0.9515443328501737
+      },
+      "score": {
+        "items": 0,
+        "temperature": 1.0,
+        "issues": []
+      },
+      "noul": {
+        "items": 112,
+        "temperature": 4.504941940307617,
+        "issues": [],
+        "accuracy": 0.9732142857142857,
+        "mean_confidence": 0.9745908653663368
+      }
+    },
+    "abstention_thresholds": {
+      "noul:2": 0.527,
+      "choice:3-5": 0.9464
+    },
+    "training": {
+      "epochs": 4,
+      "micro_batch": 8,
+      "grad_accum": 8,
+      "encoder_lr": 2.5e-05,
+      "head_lr": 0.0001,
+      "min_lr": 1e-06,
+      "weight_decay": 0.01,
+      "grad_clip": 1.0,
+      "loss": "rlcd",
+      "rl_samples": 4,
+      "sigma_start": 0.4,
+      "sigma_end": 0.1,
+      "w_sph": 0.75,
+      "w_rps": 1.0,
+      "shuffle_options": [],
+      "option_layout": null,
+      "freeze_encoder": false,
+      "calib_max": 400,
+      "calib_frac": 0.1,
+      "calib_seed": 20261108,
+      "seed": 20261108,
+      "max_len": null,
+      "head_max_len": null,
+      "amp": null,
+      "gradient_checkpointing": null,
+      "log_every": 100,
+      "label_smoothing": 0.0,
+      "text_column": "text",
+      "label_column": "label",
+      "question_id": "label",
+      "instructions": null,
+      "eval_data": "data-bijscholing-50/eval.jsonl",
+      "target_error": 0.1,
+      "min_abstain_n": 10
+    }
+  },
+  "output_dir": "checkpoints/formalizer-laya-bijscholing-50"
+}
