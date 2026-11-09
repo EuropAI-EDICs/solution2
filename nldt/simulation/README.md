@@ -106,6 +106,49 @@ tegen de GIO-GML's uit het OW-uitwisselpakket (sweep + naam-afstemming).
 Kansenkaart, gemeten cijfers en de punt-toets-resultaten:
 [`docs/POC_TPOD_IMOW_KANSEN.md`](../../docs/POC_TPOD_IMOW_KANSEN.md).
 
+### RTR/STTR — "STTR toepast" als derde status
+
+```bash
+# 1. RTR-cache verversen (PRE; DSO_API_KEY in .env, 162 Eindhovense DMN's):
+nldt/.venv/bin/python -m nldt.simulation.regelrecht.dso_overlap.rtr --instruments eindhoven --bestanden
+# 2. STTR-import-index (offline, uit de cache; contract sttr-index/v1):
+nldt/.venv/bin/python -m nldt.simulation.regelrecht.sttr --instruments eindhoven
+# 3. corpus-staging voor beide PoC's (offline; fase 1 migratietraject):
+nldt/.venv/bin/python -m nldt.simulation.regelrecht.corpus_export
+```
+
+De STTR-import ontleedt de DMN's (1.1 én 1.2) tot engine-projecties:
+Eindhoven 162 bestanden · 3.465 decisions · 2.322 projecteerbaar · 2.044
+scenario-uitgevoerd; niet-projecteerbare decisions dragen een expliciete reden
+(top: `not(null)`-wachters en COLLECT multi-hit). De hub (Tab 7) toont per
+instrument de derde status "STTR toepast", met absent-status waar geen OIN
+gekoppeld is. Notitie: [`docs/POC_STTR_IMTR_KANSEN.md`](../../docs/POC_STTR_IMTR_KANSEN.md);
+migratietraject: [`docs/MAPPING_DSO_NAAR_REGELRECHT.md`](../../docs/MAPPING_DSO_NAAR_REGELRECHT.md).
+
+### Laya-formalisatie-poortwachter (Inzet A)
+
+```bash
+# 1. dataset (offline, deterministisch; holdout + kruisinstrument):
+nldt/.venv/bin/python simulation/laya_formalizer/build_dataset.py
+nldt/.venv/bin/python simulation/laya_formalizer/build_dataset.py --mode cross \
+  --out-dir simulation/laya_formalizer/data-cross
+# 2. fine-tune (trainings-venv, ~15–25 min per run op M3 Max):
+deep-agents/laya_train/.venv/bin/python simulation/laya_formalizer/finetune.py
+deep-agents/laya_train/.venv/bin/python simulation/laya_formalizer/finetune.py \
+  --data-dir data-cross --output-dir checkpoints/formalizer-laya-cross
+# 3. hints-artefacten + eval (laya-hints/v1 naast het formalization-report):
+deep-agents/laya_train/.venv/bin/python simulation/laya_formalizer/predict_export.py
+deep-agents/laya_train/.venv/bin/python simulation/laya_formalizer/predict_export.py --cross-eval
+# 4. werklijst template-gaps / LLM-kandidaten (nldt/.venv, artefact-only):
+nldt/.venv/bin/python -m nldt.simulation.regelrecht.full_export.laya_werklijst
+```
+
+System-1-triage per artikel (`voorspelde_status`, `heeft_evidence`, gate 0,55):
+hints zijn adviserend, raken het formalization-report-contract niet en failen
+zacht. Checkpoints blijven lokaal (sha256 in de artefacten). Plan:
+[`docs/PLAN_LAYA_INZET.md`](../../docs/PLAN_LAYA_INZET.md); implementatieplan:
+[`docs/superpowers/plans/2026-11-08-laya-formalisatie-poortwachter.md`](../../docs/superpowers/plans/2026-11-08-laya-formalisatie-poortwachter.md).
+
 ## Architecture tour
 
 [`poc-mcp-skills.html`](poc-mcp-skills.html) — layers, Play tours (lifecycle, router, all four PoCs), Recipes catalogue.  
