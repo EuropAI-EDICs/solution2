@@ -60,6 +60,21 @@ artikelen (en vice versa). Pas bij een gate-pas-rate én accuracy boven de
 zero-shot-baseline op ongesehen instrumenten is de claim "werkt ook voor een nieuwe
 gemeente" geldig. Implementatie: [plan](superpowers/plans/2026-11-08-laya-formalisatie-poortwachter.md).
 
+**Gemeten (8-11-2026) — en het recept voor een nieuw instrument (ronde 3).**
+
+| training | accuracy op Utrecht | formalized-recall / precisie | oordeel |
+|---|---|---|---|
+| binnen-instrument (holdout, ~⅕ labels per instrument) | **86,4%** (301 ongezien) | — | productiekwaliteit |
+| cross: alléén Eindhoven, 0 Utrecht-labels | 44,8% (< majority 84,6%) | 202 voorspeld vs. 60 goud | claim vervallen: prior-import |
+| bijscholing +50 Utrecht-artikelen | 78,2% (< majority 84,1%) | 11% / 17% | leert het prior, niet de discriminatie |
+| bijscholing +150 Utrecht-artikelen (~⅓) | **89,2%** (> majority 84,8%) | 49% / **70%** | **bruikbaar** — haalt binnen-instrument kwaliteit |
+
+Recept voor een nieuw instrument: exporteer de artikelen, label ~⅓ (of ±150) via de
+eigen templates/jurist, bijschool het productiecheckpoint
+(`build_dataset.py --mode bijscholing --sample N` → `finetune.py --data-dir …`), en
+genereer hints + werklijst. Minder dan ~50 labels: niet doen — dan is de deterministische
+template-route eerlijker. Bronnen: `simulation/laya_formalizer/eval-{cross,bijscholing-50,bijscholing-150}.json`.
+
 ### Inzet B — Kennisbank-router (bestaat deels; aanscherpen)
 
 **Wat.** De bestaande `deep-agents/laya_router` routeert verzoeken al (primary_poc,

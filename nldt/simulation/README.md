@@ -139,6 +139,14 @@ deep-agents/laya_train/.venv/bin/python simulation/laya_formalizer/finetune.py \
 # 3. hints-artefacten + eval (laya-hints/v1 naast het formalization-report):
 deep-agents/laya_train/.venv/bin/python simulation/laya_formalizer/predict_export.py
 deep-agents/laya_train/.venv/bin/python simulation/laya_formalizer/predict_export.py --cross-eval
+# 3b. ronde 3 — bijscholing voor een nieuw instrument (leercurve: ±⅓ van de
+#     artikelen labels → 89% acc / 70% formalized-precisie; <50 labels niet doen):
+nldt/.venv/bin/python simulation/laya_formalizer/build_dataset.py --mode bijscholing \
+  --sample 150 --out-dir simulation/laya_formalizer/data-bijscholing-150
+deep-agents/laya_train/.venv/bin/python simulation/laya_formalizer/finetune.py \
+  --data-dir simulation/laya_formalizer/data-bijscholing-150 \
+  --output-dir simulation/laya_formalizer/checkpoints/formalizer-laya-bijscholing-150
+deep-agents/laya_train/.venv/bin/python simulation/laya_formalizer/predict_export.py --bijscholing 150
 # 4. werklijst template-gaps / LLM-kandidaten (nldt/.venv, artefact-only):
 nldt/.venv/bin/python -m nldt.simulation.regelrecht.full_export.laya_werklijst
 ```
