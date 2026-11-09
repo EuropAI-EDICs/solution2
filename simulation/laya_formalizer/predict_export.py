@@ -4,6 +4,7 @@
 Usage (deep-agents/laya_train/.venv):
   python predict_export.py             # productie-checkpoint → hints-artefacten + holdout-eval
   python predict_export.py --cross-eval  # claim-meting: cross-checkpoint vs héél Utrecht
+  python predict_export.py --bijscholing N  # ronde 3: N utrechtse train-artikelen erbij, eval op de rest
 """
 from __future__ import annotations
 
@@ -45,13 +46,16 @@ def _dir_sha(pad: Path) -> str:
 def _eval_agent(agent, eval_rows: list[dict]) -> dict:
     hit = {"voorspelde_status": [0, 0], "heeft_evidence": [0, 0]}
     abst, confs = 0, []
+    verwarring: dict[str, dict[str, int]] = {}
     for r in eval_rows:
         res = agent.predict(r["state"], r["questions"])
         a = res["answers"]
-        keuze = a["voorspelde_status"].get("choice")
+        keuze = a["voorspelde_status"].get("choice") or "(geen)"
         conf = confidence(a["voorspelde_status"]) or 0.0
         p = r["gold"]["voorspelde_status"]["probabilities"]
         gold = max(p, key=p.get)
+        verwarring.setdefault(gold, {}).setdefault(keuze, 0)
+        verwarring[gold][keuze] += 1
         hit["voorspelde_status"][0] += int(keuze == gold)
         hit["voorspelde_status"][1] += 1
         ev = float(a["heeft_evidence"].get("noul", 0.0))
@@ -64,6 +68,7 @@ def _eval_agent(agent, eval_rows: list[dict]) -> dict:
     return {
         "voorspelde_status": {"hit": hit["voorspelde_status"][0], "n": hit["voorspelde_status"][1]},
         "heeft_evidence": {"hit": hit["heeft_evidence"][0], "n": hit["heeft_evidence"][1]},
+        "verwarring": verwarring,
         "abstentions": abst,
         "gatePasRate": round(1 - abst / n, 4),
         "meanConf": round(sum(confs) / n, 4),
@@ -106,10 +111,27 @@ def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--cross-eval", action="store_true",
                    help="claim-meting: cross-checkpoint (getraind op Eindhoven) vs héél Utrecht")
+    p.add_argument("--bijscholing", type=int, metavar="N", default=None,
+                   help="ronde 3: checkpoint getraind met N utrechtse artikelen erbij, "
+                        "eval op de rest van Utrecht")
     args = p.parse_args()
 
-    data_dir = HERE / ("data-cross" if args.cross_eval else "data")
-    ckpt = CKPT_CROSS if args.cross_eval else CKPT
+    if args.bijscholing is not None:
+        n = args.bijscholing
+        data_dir = HERE / f"data-bijscholing-{n}"
+        ckpt = HERE / "checkpoints" / f"formalizer-laya-bijscholing-{n}"
+        eval_naam = f"eval-bijscholing-{n}.json"
+        modus = f"bijscholing: eindhoven + {n} utrecht → eval {427 - n} resterende utrecht"
+    elif args.cross_eval:
+        data_dir = HERE / "data-cross"
+        ckpt = CKPT_CROSS
+        eval_naam = "eval-cross.json"
+        modus = "cross: train eindhoven → eval heel utrecht"
+    else:
+        data_dir = HERE / "data"
+        ckpt = CKPT
+        eval_naam = "eval-holdout.json"
+        modus = "holdout: per instrument elk 5e artikel"
     data_sha = hashlib.sha256(
         (data_dir / "train.jsonl").read_bytes() + (data_dir / "eval.jsonl").read_bytes()
     ).hexdigest()
@@ -119,11 +141,10 @@ def main() -> int:
     evaluatie = _eval_agent(agent, eval_rows)
     uit = {
         "model": {"checkpoint": str(ckpt), "dataset": str(data_dir), "gate": GATE},
-        "modus": ("cross: train eindhoven → eval heel utrecht" if args.cross_eval
-                  else "holdout: per instrument elk 5e artikel"),
+        "modus": modus,
         "eval": evaluatie,
     }
-    if not args.cross_eval:
+    if not args.cross_eval and args.bijscholing is None:
         uit["hints"] = {}
         for instrument in ("eindhoven", "utrecht"):
             hints = _hints_voor(agent, instrument, data_sha, ckpt)
@@ -131,7 +152,7 @@ def main() -> int:
             pad.write_text(json.dumps(hints, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
             uit["hints"][instrument] = len(hints["artikelen"])
             print(f"{instrument}: {len(hints['artikelen'])} hints → {pad}")
-    (HERE / ("eval-cross.json" if args.cross_eval else "eval-holdout.json")).write_text(
+    (HERE / eval_naam).write_text(
         json.dumps(uit, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(evaluatie, ensure_ascii=False))
     return 0

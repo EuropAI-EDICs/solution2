@@ -13,9 +13,14 @@ Splits:
   --mode holdout  per instrument elk 5e artikel held-out (geen artikel-leak)
   --mode cross    train = eindhoven, eval = héél utrecht — de
                   generalisatieclaim "werkt ook voor een nieuwe provincie/gemeente"
+  --mode bijscholing --sample N   ronde 3: train = eindhoven + N utrechtse
+                  artikelen (deterministische sha-steekproef), eval = de rest van
+                  utrecht — de leercurve "hoeveel labels heeft een nieuw
+                  instrument nodig?" als antwoord op de cross-bevinding
+                  (44,8% < majority-baseline; zie eval-cross.json)
 
-Usage:  nldt/.venv/bin/python build_dataset.py [--mode holdout|cross] [--out-dir data]
-Deterministisch (pure sorting, geen seed, geen netwerk).
+Usage:  nldt/.venv/bin/python build_dataset.py [--mode holdout|cross|bijscholing] [--sample N] [--out-dir data]
+Deterministisch (pure sorting/sha-volgorde, geen seed, geen netwerk).
 """
 from __future__ import annotations
 
@@ -90,7 +95,9 @@ def build_rows(instrument: str) -> list[dict]:
 
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--mode", choices=("holdout", "cross"), default="holdout")
+    p.add_argument("--mode", choices=("holdout", "cross", "bijscholing"), default="holdout")
+    p.add_argument("--sample", type=int, default=100,
+                   help="bijscholing: aantal utrechtse artikelen in de trainset")
     p.add_argument("--out-dir", type=Path, default=HERE / "data")
     args = p.parse_args()
 
@@ -98,6 +105,20 @@ def main() -> int:
     if args.mode == "cross":
         train = alle["eindhoven"]
         evals = alle["utrecht"]
+    elif args.mode == "bijscholing":
+        # Deterministische steekproef: sha-volgorde over instrument|artikel —
+        # reproduceerbaar zonder seed, ongevoelig voor hoofdstuk-volgorde.
+        def _sha_artikel(r: dict) -> str:
+            return hashlib.sha256(
+                f"utrecht|{r['state']['artikel']}".encode("utf-8")
+            ).hexdigest()
+
+        geordend = sorted(alle["utrecht"], key=_sha_artikel)
+        steekproef = {r["state"]["artikel"] for r in geordend[: args.sample]}
+        train = alle["eindhoven"] + [
+            r for r in alle["utrecht"] if r["state"]["artikel"] in steekproef
+        ]
+        evals = [r for r in alle["utrecht"] if r["state"]["artikel"] not in steekproef]
     else:
         train, evals = [], []
         for instr, rows in alle.items():

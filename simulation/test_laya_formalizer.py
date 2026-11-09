@@ -55,6 +55,44 @@ class DatasetTest(unittest.TestCase):
                 ev = r["gold"]["heeft_evidence"]["probabilities"]
                 self.assertAlmostEqual(sum(ev.values()), 1.0, places=5)
 
+    def _build_bijscholing(self, tmp: pathlib.Path, sample: int) -> dict:
+        uit = subprocess.run(
+            [str(NLDT_PY), str(BUILDER), "--mode", "bijscholing", "--sample", str(sample),
+             "--out-dir", str(tmp)],
+            capture_output=True, text=True, check=True,
+        )
+        print(uit.stdout)
+        return {
+            naam: [json.loads(l) for l in (tmp / f"{naam}.jsonl").read_text("utf-8").splitlines() if l]
+            for naam in ("train", "eval")
+        }
+
+    def test_bijscholing_steekproef(self):
+        for sample in (50, 150):
+            with tempfile.TemporaryDirectory() as d:
+                d = self._build_bijscholing(pathlib.Path(d), sample)
+                utrein = [r for r in d["train"] if r["state"]["instrument"] == "utrecht"]
+                self.assertEqual(len(utrein), sample)
+                self.assertEqual(len(d["train"]), 1074 + sample)
+                # eval = de rest van utrecht, geen overlap met de steekproef
+                self.assertEqual(len(d["eval"]), 427 - sample)
+                self.assertEqual(
+                    {r["state"]["instrument"] for r in d["eval"]}, {"utrecht"}
+                )
+                getraind = {r["state"]["artikel"] for r in utrein}
+                self.assertFalse(
+                    getraind & {r["state"]["artikel"] for r in d["eval"]}
+                )
+
+    def test_bijscholing_deterministisch(self):
+        with tempfile.TemporaryDirectory() as d1, tempfile.TemporaryDirectory() as d2:
+            a = self._build_bijscholing(pathlib.Path(d1), 50)
+            b = self._build_bijscholing(pathlib.Path(d2), 50)
+            self.assertEqual(
+                sorted(r["state"]["artikel"] for r in a["train"] if r["state"]["instrument"] == "utrecht"),
+                sorted(r["state"]["artikel"] for r in b["train"] if r["state"]["instrument"] == "utrecht"),
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
