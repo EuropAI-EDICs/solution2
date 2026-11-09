@@ -1,0 +1,111 @@
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]Fetching 5 files: 100%|██████████| 5/5 [00:00<00:00, 1019.77it/s]
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (251887 > 8192). Running this sequence through the model will result in indexing errors
+W1109 16:56:57.598000 9705 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (251887 > 8192). Running this sequence through the model will result in indexing errors
+items: train 3322 (skipped {}) · eval 650 (skipped {})
+eval items 650 from data-derde-160/eval.jsonl (skipped {}, 0 overlapping training/calibration items)
+train items 2990, calibration items 332, eval items 650 (data-derde-160/eval.jsonl), skipped {}, device mps
+optimizer budget: 2990 train item(s), effective batch up to 64 (micro_batch 8 x grad_accum 8), 188 optimizer updates over 4 epoch(s)
+epoch 1/4 step 100 loss 1.0588
+epoch 1/4 step 200 loss 0.5025
+epoch 1/4 step 300 loss 0.0753
+epoch 1/4 mean loss 0.4740
+epoch 2/4 step 100 loss 0.4539
+epoch 2/4 step 200 loss 0.0515
+epoch 2/4 step 300 loss 0.0705
+epoch 2/4 mean loss 0.5118
+epoch 3/4 step 100 loss -0.0047
+epoch 3/4 step 200 loss 0.9440
+epoch 3/4 step 300 loss 0.0017
+epoch 3/4 mean loss 0.6194
+epoch 4/4 step 100 loss 0.1154
+epoch 4/4 step 200 loss 0.0009
+epoch 4/4 step 300 loss 1.9982
+epoch 4/4 mean loss 0.5215
+/Users/marc/Projecten/ldttoolbox/simulation/laya_formalizer/finetune.py:84: RuntimeWarning: laya.train: choice calibration: the fitted temperature 5 is on the [0.5, 5] clamp
+  summary = finetune(
+/Users/marc/Projecten/ldttoolbox/simulation/laya_formalizer/finetune.py:84: RuntimeWarning: laya.train: noul calibration: the fitted temperature 5 is on the [0.5, 5] clamp
+  summary = finetune(
+
+=== Evaluation (before vs after fine-tuning on 650 held-out items from data-derde-160/eval.jsonl) ===
+Metric                 Before         After          Delta         
+-----------------------------------------------------------------
+Accuracy               0.7323         0.9185         +0.1862       
+Loss                   0.6515         0.2932         -0.3583       
+ECE                    0.0637         0.0379         -0.0258       
+Brier (multi-class)    0.3580         0.1455         -0.2125       
+Brier (top-1)          0.1536         0.0718         -0.0818       
+Mean Confidence        0.7627         0.9536         +0.1909       
+-----------------------------------------------------------------
+
+/Users/marc/Projecten/ldttoolbox/deep-agents/laya_train/.venv/lib/python3.12/site-packages/laya/train.py:1248: UserWarning: Conflicting schema detected for question 'voorspelde_status' across rows; keeping first seen definition.
+  warnings.warn("Conflicting schema detected for question %r across rows; "
+checkpoint: checkpoints/formalizer-laya-derde-160
+{
+  "train_items": 2990,
+  "calibration_items": 332,
+  "eval_items": 650,
+  "skipped": {},
+  "epoch_loss": [
+    0.4739901959238684,
+    0.5117519796413278,
+    0.6194265417163313,
+    0.521509282644048
+  ],
+  "temperature": [
+    5.0,
+    1.0,
+    5.0
+  ],
+  "temperature_by_options": {},
+  "n_by_bucket": {
+    "choice:3-5": 171,
+    "noul:2": 161
+  },
+  "calibration": {
+    "choice": {
+      "items": 171,
+      "temperature": 5.0,
+      "issues": [
+        "the fitted temperature 5 is on the [0.5, 5] clamp"
+      ],
+      "accuracy": 0.8771929824561403,
+      "mean_confidence": 0.9181336040453034
+    },
+    "score": {
+      "items": 0,
+      "temperature": 1.0,
+      "issues": []
+    },
+    "noul": {
+      "items": 161,
+      "temperature": 5.0,
+      "issues": [
+        "the fitted temperature 5 is on the [0.5, 5] clamp"
+      ],
+      "accuracy": 0.9503105590062112,
+      "mean_confidence": 0.9813860739209797
+    }
+  },
+  "abstention_thresholds": {
+    "choice:3-5": 0.7495,
+    "noul:2": 0.9109
+  },
+  "train_report": {
+    "eval_source": "data-derde-160/eval.jsonl",
+    "eval_mode": "held_out",
+    "is_held_out": true,
+    "eval_items": 650,
+    "note": "Metrics reflect independent held-out evaluation.",
+    "before": {
+      "items": 650,
+      "loss": 0.6515,
+      "accuracy": 0.7323,
+      "mean_confidence": 0.7627,
+      "ece": 0.0637,
+      "brier": 0.358,
+      "brier_top1": 0.1536,
+      "by_type": {
+        "choice": {
+          "items": 325,
+          "loss": 0.92
