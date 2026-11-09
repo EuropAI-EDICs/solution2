@@ -1,0 +1,39 @@
+{
+  "model": {
+    "checkpoint": "/Users/marc/Projecten/ldttoolbox/simulation/laya_formalizer/checkpoints/formalizer-laya-cross",
+    "dataset": "/Users/marc/Projecten/ldttoolbox/simulation/laya_formalizer/data-cross",
+    "gate": 0.55
+  },
+  "modus": "cross: train eindhoven → eval heel utrecht",
+  "eval": {
+    "voorspelde_status": {
+      "hit": 191,
+      "n": 427
+    },
+    "heeft_evidence": {
+      "hit": 66,
+      "n": 427
+    },
+    "abstentions": 35,
+    "gatePasRate": 0.918,
+    "meanConf": 0.8627
+  },
+  "beoordeling": {
+    "majorityBaselineUtrecht": {
+      "keuze": "unmatched",
+      "accuracy": 0.8454
+    },
+    "voorspeldVerdeling": {
+      "unmatched": 217,
+      "formalized": 202,
+      "rejected": 8
+    },
+    "goudVerdeling": {
+      "unmatched": 361,
+      "formalized": 60,
+      "ambiguous": 5,
+      "rejected": 1
+    },
+    "conclusie": "Kruisinstrument-claim NIET geldig: 44,8% < majority-baseline 84,6%; het Eindhoven-checkpoint importeert het formalized-prior (202 vs. 60 goud) op de verordeningsverdeling van Utrecht. Inzet A blijft binnen-instrument een prioriteringshulp (holdout 86,4%) — voor nieuwe instrumenten moet het model op (een steekproef van) dat instrument worden bijgeschoold, of de werkwijze valt terug op de deterministische templates."
+  }
+}

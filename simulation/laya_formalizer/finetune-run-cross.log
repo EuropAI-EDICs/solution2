@@ -1,0 +1,100 @@
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]Fetching 5 files:  60%|██████    | 3/5 [00:00<00:00, 10.81it/s]Fetching 5 files: 100%|██████████| 5/5 [00:00<00:00, 15.63it/s]
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (251887 > 8192). Running this sequence through the model will result in indexing errors
+W1109 11:12:11.251000 31744 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (251887 > 8192). Running this sequence through the model will result in indexing errors
+items: train 2148 (skipped {}) · eval 854 (skipped {})
+eval items 854 from data-cross/eval.jsonl (skipped {}, 0 overlapping training/calibration items)
+train items 1934, calibration items 214, eval items 854 (data-cross/eval.jsonl), skipped {}, device mps
+optimizer budget: 1934 train item(s), effective batch up to 64 (micro_batch 8 x grad_accum 8), 124 optimizer updates over 4 epoch(s)
+epoch 1/4 step 100 loss 0.2842
+epoch 1/4 step 200 loss -0.1308
+epoch 1/4 mean loss 0.4170
+epoch 2/4 step 100 loss -0.2416
+epoch 2/4 step 200 loss 0.3707
+epoch 2/4 mean loss 0.4653
+epoch 3/4 step 100 loss -0.0000
+epoch 3/4 step 200 loss -0.0000
+epoch 3/4 mean loss 0.4487
+epoch 4/4 step 100 loss -0.0000
+epoch 4/4 step 200 loss -0.0000
+epoch 4/4 mean loss 0.3199
+/Users/marc/Projecten/ldttoolbox/simulation/laya_formalizer/finetune.py:84: RuntimeWarning: laya.train: choice calibration: the fitted temperature 5 is on the [0.5, 5] clamp
+  summary = finetune(
+/Users/marc/Projecten/ldttoolbox/simulation/laya_formalizer/finetune.py:84: RuntimeWarning: laya.train: noul calibration: the fit came back unchanged at 1.0 (accuracy 1.00, mean confidence 1.000 on the calibration items), which usually means they gave it nothing to correct; this type's confidences are uncalibrated
+  summary = finetune(
+
+=== Evaluation (before vs after fine-tuning on 854 held-out items from data-cross/eval.jsonl) ===
+Metric                 Before         After          Delta         
+-----------------------------------------------------------------
+Accuracy               0.5117         0.3021         -0.2096       
+Loss                   1.3268         12.5026        +11.1758      
+ECE                    0.2229         0.6369         +0.4140       
+Brier (multi-class)    0.6541         1.3285         +0.6744       
+Brier (top-1)          0.2351         0.6561         +0.4210       
+Mean Confidence        0.7346         0.9314         +0.1968       
+-----------------------------------------------------------------
+
+checkpoint: checkpoints/formalizer-laya-cross
+{
+  "train_items": 1934,
+  "calibration_items": 214,
+  "eval_items": 854,
+  "skipped": {},
+  "epoch_loss": [
+    0.41703738214463487,
+    0.4652656619167648,
+    0.44870025151643,
+    0.3199339284588512
+  ],
+  "temperature": [
+    5.0,
+    1.0,
+    1.0
+  ],
+  "temperature_by_options": {},
+  "n_by_bucket": {
+    "noul:2": 105,
+    "choice:3-5": 109
+  },
+  "calibration": {
+    "choice": {
+      "items": 109,
+      "temperature": 5.0,
+      "issues": [
+        "the fitted temperature 5 is on the [0.5, 5] clamp"
+      ],
+      "accuracy": 0.8715596330275229,
+      "mean_confidence": 0.9643122850448191
+    },
+    "score": {
+      "items": 0,
+      "temperature": 1.0,
+      "issues": []
+    },
+    "noul": {
+      "items": 105,
+      "temperature": 1.0,
+      "issues": [
+        "the fit came back unchanged at 1.0 (accuracy 1.00, mean confidence 1.000 on the calibration items), which usually means they gave it nothing to correct; this type's confidences are uncalibrated"
+      ],
+      "accuracy": 1.0,
+      "mean_confidence": 0.9999999999902595
+    }
+  },
+  "abstention_thresholds": {
+    "noul:2": 1.0,
+    "choice:3-5": 0.9288
+  },
+  "train_report": {
+    "eval_source": "data-cross/eval.jsonl",
+    "eval_mode": "held_out",
+    "is_held_out": true,
+    "eval_items": 854,
+    "note": "Metrics reflect independent held-out evaluation.",
+    "before": {
+      "items": 854,
+      "loss": 1.3268,
+      "accuracy": 0.5117,
+      "mean_confidence": 0.7346,
+      "ece": 0.2229,
+      "brier"
