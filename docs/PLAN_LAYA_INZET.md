@@ -68,6 +68,16 @@ gemeente" geldig. Implementatie: [plan](superpowers/plans/2026-11-08-laya-formal
 | cross: alléén Eindhoven, 0 Utrecht-labels | 44,8% (< majority 84,6%) | 202 voorspeld vs. 60 goud | claim vervallen: prior-import |
 | bijscholing +50 Utrecht-artikelen | 78,2% (< majority 84,1%) | 11% / 17% | leert het prior, niet de discriminatie |
 | bijscholing +150 Utrecht-artikelen (~⅓) | **89,2%** (> majority 84,8%) | 49% / **70%** | **bruikbaar** — haalt binnen-instrument kwaliteit |
+| **derde instrument: Veenendaal** (9-11-2026) | 0 labels: 32,9% · +160 (~⅓): **92,3%** (> majority 91,4%) | 58% / 56% | **recept bevestigd** op echt nieuw instrument |
+
+De derde-instrument-toets ([eval-derde-160.json](../simulation/laya_formalizer/eval-derde-160.json)):
+het Veenendaalse omgevingsplan (CVDR696281/2, 485 artikelen, template-labels
+43 formalized / 4 ambiguous / 438 unmatched) als eerste écht nieuw instrument.
+Zonder bijscholing is het Eindhoven-checkpoint er onbruikbaar (32,9%, 232×
+formalized voorspeld bij 26 goud — prior-import); met 160 labels discrimineert
+het echt (unmatched-specificiteit 96%). Kanttekening: precisie 56% (1-op-2 op de
+werklijst) i.p.v. 70% bij Utrecht — kleinere positieve klasse én template-only
+labels. Vervolgstap: `laya-hints/v1`-enum + werklijst-UI voor veenendaal.
 
 Recept voor een nieuw instrument: exporteer de artikelen, label ~⅓ (of ±150) via de
 eigen templates/jurist, bijschool het productiecheckpoint
