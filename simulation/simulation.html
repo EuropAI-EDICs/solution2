@@ -449,8 +449,13 @@
 #map6 .vd-lok-archeologie path{fill:rgba(167,139,250,.22);stroke:#a78bfa}
 #map6 .vd-lok-monumenten path{fill:rgba(251,113,133,.40);stroke:#fb7185;stroke-dasharray:none}
 #map6 .vd-lok-giov_bomen circle{fill:#f97316;fill-opacity:.85}
-#legend6 .li.lok{cursor:pointer;border-radius:6px;padding:2px 6px;margin:-2px -6px}
-#legend6 .li.lok.on{background:rgba(34,211,238,.10);opacity:1}
+#legend6 .li.lok{cursor:pointer;border-radius:6px;padding:2px 8px;margin:-2px -4px;
+  border:1px solid rgba(34,211,238,.35);transition:background .15s,border-color .15s}
+#legend6 .li.lok:hover{background:rgba(34,211,238,.14);border-color:#22d3ee}
+#legend6 .li.lok.on{background:rgba(34,211,238,.10);opacity:1;border-color:#22d3ee}
+#legend6 .li.lok::before{content:"▸ ";color:#22d3ee}
+#legend6 .loket-kop{flex-basis:100%;font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  color:#22d3ee;margin:2px 0 0;font-family:var(--mono,monospace)}
 #map6 .vd-zone{fill:none;stroke:rgba(34,211,238,.35);stroke-width:1;stroke-dasharray:3 5}
 #map6 .vd-zonelbl{fill:rgba(226,232,240,.6);font-size:10px;font-family:var(--mono,monospace);paint-order:stroke;stroke:#0b1220;stroke-width:2.5px}
 /* view6: kaart bijna pagabreed — rail links, kaart + tabellen rechts, telemetry eronder */
@@ -3136,6 +3141,7 @@ function buildLegend6(){
   $("legend6").innerHTML=items.map(i=>`<div class="li"><div class="sw" style="background:${i[2]}"></div>${esc(i[1])}</div>`).join("")
     + (VD.loket&&VD.loket.map&&VD.loket.map.length
       ? `<div style="flex-basis:100%;height:0"></div>`
+        + `<div class="loket-kop">officiële GIO-lagen (omgevingsplan) — klik = aan/uit</div>`
         + VD.loket.map.map(l=>`<div class="li lok" id="lg-lok-${esc(l.key)}" onclick="vdLoketToggle('${esc(l.key)}')" title="klik = laag aan/uit"><div class="sw" style="background:${esc(l.kleur)}"></div>${esc(l.naam)}</div>`).join("")
       : "");
 }
