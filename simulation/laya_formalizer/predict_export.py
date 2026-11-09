@@ -43,7 +43,7 @@ def _dir_sha(pad: Path) -> str:
     return h.hexdigest()
 
 
-def _eval_agent(agent, eval_rows: list[dict]) -> dict:
+def _eval_agent(agent, eval_rows: list[dict], *, artikelen_uit: list | None = None) -> dict:
     hit = {"voorspelde_status": [0, 0], "heeft_evidence": [0, 0]}
     abst, confs = 0, []
     verwarring: dict[str, dict[str, int]] = {}
@@ -56,6 +56,14 @@ def _eval_agent(agent, eval_rows: list[dict]) -> dict:
         gold = max(p, key=p.get)
         verwarring.setdefault(gold, {}).setdefault(keuze, 0)
         verwarring[gold][keuze] += 1
+        if artikelen_uit is not None:
+            artikelen_uit.append({
+                "number": r["state"]["artikel"],
+                "voorspeldeStatus": keuze,
+                "goud": gold,
+                "confidence": round(conf, 4),
+                "door": conf >= GATE,
+            })
         hit["voorspelde_status"][0] += int(keuze == gold)
         hit["voorspelde_status"][1] += 1
         ev = float(a["heeft_evidence"].get("noul", 0.0))
@@ -114,9 +122,19 @@ def main() -> int:
     p.add_argument("--bijscholing", type=int, metavar="N", default=None,
                    help="ronde 3: checkpoint getraind met N utrechtse artikelen erbij, "
                         "eval op de rest van Utrecht")
+    p.add_argument("--derde", type=int, metavar="N", default=None,
+                   help="derde-instrument-toets: productiebasis + N veenendaalse "
+                        "artikelen (template-labels), eval op de rest van Veenendaal")
     args = p.parse_args()
 
-    if args.bijscholing is not None:
+    if args.derde is not None:
+        n = args.derde
+        data_dir = HERE / f"data-derde-{n}"
+        ckpt = HERE / "checkpoints" / f"formalizer-laya-derde-{n}"
+        eval_naam = f"eval-derde-{n}.json"
+        modus = (f"derde: eindhoven + utrecht + {n} veenendaal (template-labels) "
+                 f"→ eval resterende veenendaal")
+    elif args.bijscholing is not None:
         n = args.bijscholing
         data_dir = HERE / f"data-bijscholing-{n}"
         ckpt = HERE / "checkpoints" / f"formalizer-laya-bijscholing-{n}"
@@ -138,13 +156,17 @@ def main() -> int:
     agent = laya.Agent(str(ckpt), device="cpu")
 
     eval_rows = [json.loads(l) for l in (data_dir / "eval.jsonl").read_text("utf-8").splitlines() if l]
-    evaluatie = _eval_agent(agent, eval_rows)
+    artikelen_uit: list = [] if args.derde is not None else None
+    evaluatie = _eval_agent(agent, eval_rows, artikelen_uit=artikelen_uit)
     uit = {
         "model": {"checkpoint": str(ckpt), "dataset": str(data_dir), "gate": GATE},
         "modus": modus,
         "eval": evaluatie,
     }
-    if not args.cross_eval and args.bijscholing is None:
+    if artikelen_uit is not None:
+        # werklijst-substantie voor het derde instrument (géén laya-hints/v1-contractwijziging)
+        uit["artikelen"] = artikelen_uit
+    if not args.cross_eval and args.bijscholing is None and args.derde is None:
         uit["hints"] = {}
         for instrument in ("eindhoven", "utrecht"):
             hints = _hints_voor(agent, instrument, data_sha, ckpt)
