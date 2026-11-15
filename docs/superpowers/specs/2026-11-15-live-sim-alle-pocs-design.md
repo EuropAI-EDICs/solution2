@@ -116,3 +116,9 @@ Uitbreiding van de testfamilie (`nldt/tests/test_live_sim_*.py`):
 ## Uitbreidingspad (na v1)
 
 `asyncio.to_thread`-patroon generaliseren naar de live (non-offline) pads; Rijnland/NSPD/minigim-chains; scenario-sweep/crosstrack als extra utrecht-stappen; SSE keep-alive voor lange stappen.
+
+## As-built afwijkingen (15 nov. 2026, na implementatie)
+
+- `run_artifact`-plafond is 10 MB (geen 5 MB): de canonical utrecht zones.geojson is 7,4 MB; de loopback-client zet `max_sse_event_size` op 64 MB en de tool-payload serialiseert compact (zonder indent).
+- eindhoven, gent en veenendaal hebben géén kaartlagen: hun pipeline-artefacten zijn JSON-tabellen (omzettabel.json, run.json, indicators.json), die inline in de trace verschijnen; alleen utrecht en breda leveren kaartlagen.
+- `POST /api/session` gebruikt query-parameter `?chain=` i.p.v. een JSON-body.

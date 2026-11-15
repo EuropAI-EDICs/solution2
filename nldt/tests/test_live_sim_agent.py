@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -85,6 +86,35 @@ def test_agent_resolver_fout_leidt_tot_error_event():
     err = [d for ev, d in events if ev == "error"][-1]
     assert "runDir" in err["melding"]
     assert len(fake.calls) == 1  # tweede stap wordt nooit aangeroepen
+
+
+def test_agent_artifact_laag_zonder_content_geeft_error_event():
+    import asyncio
+
+    class LeegArtifactFake(FakeMcpClient):
+        async def call_tool(self, server, tool, args):
+            if tool == "run_artifact":
+                return json.dumps(
+                    {"tool": "run_artifact", "processId": "run-artifact",
+                     "status": "successful",
+                     "outputs": {"artifact": {"name": "x.geojson", "kind": "geojson",
+                                              "bytes": 1, "path": "/x", "content_zonder_key": True}}}
+                )
+            return await super().call_tool(server, tool, args)
+
+    events = []
+    stappen = [
+        {"label": "artifact", "server": "poc", "tool": "run_artifact",
+         "args": {"run_dir": "/x", "artifact": "x.geojson"},
+         "samenvatting": lambda raw: "x",
+         "laag": {"source_id": "l1", "laagtype": "zone", "inline": True,
+                  "inline_uit": "artifact_content"}},
+    ]
+    agent_ = agent.ScriptedAgent(LeegArtifactFake(), stappen=stappen)
+    result = asyncio.run(agent_.run(lambda ev, data: events.append((ev, data))))
+    namen = [ev for ev, _ in events]
+    assert "error" in namen and namen[-1] == "error"
+    assert result["status"] == "error"
 
 
 def test_session_store_stream_sluit_en_bezet():

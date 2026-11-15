@@ -59,7 +59,7 @@ POC_TOOLS: dict[str, dict[str, Any]] = {
     },
     "run_artifact": {
         "process_id": "run-artifact",
-        "description": "Lees één outputbestand uit een pipeline-run-dir (inline, max 5 MB)",
+        "description": "Lees één outputbestand uit een pipeline-run-dir (inline, max 10 MB)",
     },
     "gent_life_event_run": {
         "process_id": "gent-life-event-run",

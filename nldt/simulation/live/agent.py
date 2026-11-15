@@ -57,6 +57,20 @@ class ScriptedAgent:
                 vorige_raw = raw
                 duur_ms = int((time.perf_counter() - t0) * 1000)
                 samenvatting = stap["samenvatting"](raw)
+                # laag-extractie binnen dezelfde bewaakte try: een succesvol-
+                # ogende payload zonder verwachte vorm mag de run niet zonder
+                # error-event laten afsluiten (de stream zou anders gewoon
+                # dichtvallen — zelfde faalfamilie als de resolver-fix)
+                laag_event = None
+                laag = stap.get("laag")
+                if laag:
+                    event: dict[str, Any] = {"laagtype": laag["laagtype"], "source_id": laag["source_id"]}
+                    if laag.get("inline"):
+                        obj = _json_object(raw)
+                        if laag.get("inline_uit") == "artifact_content":
+                            obj = obj["outputs"]["artifact"]["content"]
+                        event["geojson"] = obj
+                    laag_event = event
             except Exception as exc:  # stap faalt → run stopt (spec: foutafhandeling)
                 duur_ms = int((time.perf_counter() - t0) * 1000)
                 emit(
@@ -70,15 +84,8 @@ class ScriptedAgent:
                 {"index": i, "ok": True, "duration_ms": duur_ms, "summary": samenvatting},
             )
             per_stap.append({"index": i, "ok": True})
-            laag = stap.get("laag")
-            if laag:
-                event: dict[str, Any] = {"laagtype": laag["laagtype"], "source_id": laag["source_id"]}
-                if laag.get("inline"):
-                    obj = _json_object(raw)
-                    if laag.get("inline_uit") == "artifact_content":
-                        obj = obj["outputs"]["artifact"]["content"]
-                    event["geojson"] = obj
-                emit("layer_ready", event)
+            if laag_event is not None:
+                emit("layer_ready", laag_event)
         emit("run_done", {"per_stap": per_stap, "totaal": len(per_stap)})
         return {"status": "ok", "per_stap": per_stap}
 

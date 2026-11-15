@@ -304,7 +304,7 @@ POC_PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
         "description": (
             "Lees één outputbestand uit een pipeline-run-dir en geef de inhoud "
             "inline terug (geojson/json/text). Beveiligd: het resolved pad moet "
-            "binnen run_dir blijven en het bestand mag max 5 MB zijn."
+            "binnen run_dir blijven en het bestand mag max 10 MB zijn."
         ),
         "version": "1.0.0",
         "keywords": ["poc", "artifact", "live-sim"],
