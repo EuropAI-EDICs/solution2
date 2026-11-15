@@ -99,6 +99,18 @@ async def run_artifact(run_dir: str, artifact: str) -> str:
     return await _run_poc_tool("run_artifact", {"run_dir": run_dir, "artifact": artifact})
 
 
+@mcp.tool(name="gent_life_event_run", description=POC_TOOLS["gent_life_event_run"]["description"])
+async def gent_life_event_run(
+    mode: str = "replay",
+    package: str = "gent-mobiliteit-ondernemer",
+    persona: str = "sanne",
+) -> str:
+    return await _run_poc_tool(
+        "gent_life_event_run",
+        {"mode": mode, "package": package, "persona": persona},
+    )
+
+
 @mcp.tool(name="propose_scenarios", description=POC_TOOLS["propose_scenarios"]["description"])
 async def propose_scenarios(
     baselineRunDir: str,

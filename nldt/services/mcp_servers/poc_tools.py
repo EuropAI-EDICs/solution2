@@ -61,4 +61,8 @@ POC_TOOLS: dict[str, dict[str, Any]] = {
         "process_id": "run-artifact",
         "description": "Lees één outputbestand uit een pipeline-run-dir (inline, max 5 MB)",
     },
+    "gent_life_event_run": {
+        "process_id": "gent-life-event-run",
+        "description": "Gent levensgebeurtenis-replay (fase 1+2+3): nieuwste run of echte CLI",
+    },
 }

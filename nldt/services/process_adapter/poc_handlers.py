@@ -20,6 +20,7 @@ POC_BREDA = WORKSPACE / "poc-breda"
 POC_RIJNLAND = WORKSPACE / "poc-rijnland"
 POC_BP2OP = WORKSPACE / "poc-bp2op"
 POC_MINIGIM = WORKSPACE / "poc-minigim"
+POC_GENT = WORKSPACE / "poc-gent"
 
 HCS_FIXTURES = NLDT_ROOT / "simulation" / "hcs" / "fixtures"
 
@@ -313,6 +314,23 @@ POC_PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
         "outputs": {
             "artifact": {"title": "Artifact met content", "schema": {"type": "object"}},
         },
+    },
+    "gent-life-event-run": {
+        "id": "gent-life-event-run",
+        "title": "Gent life-event run (EUROPAI-piloot)",
+        "description": (
+            "Deterministische levensgebeurtenis-replay (fase 1+2+3) uit "
+            "poc-gent: replay leest de nieuwste run-dir, execute draait de "
+            "echte CLI (--package, --persona) en resolvets de nieuwe run-dir."
+        ),
+        "version": "1.0.0",
+        "keywords": ["poc-gent", "life-event", "live-sim"],
+        "inputs": {
+            "mode": {"title": "replay|execute", "schema": {"type": "string", "default": "replay"}},
+            "package": {"title": "Pakket", "schema": {"type": "string", "default": "gent-mobiliteit-ondernemer"}, "required": False},
+            "persona": {"title": "Persona", "schema": {"type": "string", "default": "sanne"}, "required": False},
+        },
+        "outputs": {"summary": {"title": "Run summary", "schema": {"type": "object"}}},
     },
     "opportunity-map-run": {
         "id": "opportunity-map-run",
@@ -659,6 +677,7 @@ def _latest_dir(parent: Path, pattern: str) -> Path:
             or (p / "peil-conflict-report.json").is_file()
             or (p / "gebiedsafweging-report.json").is_file()
             or (p / "omzettabel.json").is_file()
+            or (p / "run.json").is_file()
         )
     )
     if not dirs:
@@ -1309,7 +1328,45 @@ def execute_run_artifact(inputs: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def execute_gent_life_event_run(inputs: dict[str, Any]) -> dict[str, Any]:
+    """Gent levensgebeurtenis: replay (nieuwste run-dir) of execute (echte CLI)."""
+    mode = inputs.get("mode") or "replay"
+    if mode not in ("replay", "execute"):
+        raise ValueError("mode must be replay|execute")
+    if mode == "replay":
+        run_dir = _resolve_dir(inputs.get("runDir"), default=_latest_dir(POC_GENT / "runs", "*"))
+        run_pad = run_dir / "run.json"
+        if not run_pad.is_file():
+            raise FileNotFoundError(f"geen run.json in {run_dir}")
+        run = _load_json(run_pad)
+        return {
+            "summary": {
+                "mode": "replay",
+                "runDir": str(run_dir),
+                "runId": run.get("runId") or run_dir.name,
+                "outcome": (run.get("routing") or {}).get("outcome") or run.get("uitkomst"),
+            }
+        }
+    package = inputs.get("package") or "gent-mobiliteit-ondernemer"
+    persona = inputs.get("persona") or "sanne"
+    cmd = [sys.executable, str(POC_GENT / "run.py"), "--package", package, "--persona", persona]
+    proc = subprocess.run(cmd, cwd=str(WORKSPACE), capture_output=True, text=True)
+    if proc.returncode != 0:
+        raise ValueError(f"gent CLI faalde (rc={proc.returncode}): {proc.stderr[-400:]}")
+    run_dir = _latest_dir(POC_GENT / "runs", "*")
+    run = _load_json(run_dir / "run.json")
+    return {
+        "summary": {
+            "mode": "execute",
+            "runDir": str(run_dir),
+            "runId": run.get("runId") or run_dir.name,
+            "outcome": (run.get("routing") or {}).get("outcome") or run.get("uitkomst"),
+        }
+    }
+
+
 EXECUTORS = {
+    "gent-life-event-run": execute_gent_life_event_run,
     "fetch-geo-layer": execute_fetch_geo_layer,
     "run-artifact": execute_run_artifact,
     "breda-scan-query": execute_breda_scan_query,
