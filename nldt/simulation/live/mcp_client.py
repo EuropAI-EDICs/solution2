@@ -11,6 +11,14 @@ from typing import Any
 from mcp import ClientSession
 from mcp.client.streamable_http import streamable_http_client
 
+# De SDK-cap op één SSE-event is 1 MB (DEFAULT_MAX_SSE_EVENT_SIZE) — te klein
+# voor de inline-lagen: de utrecht-chain haalt zones.geojson (7,4 MB) op en
+# het JSON-RPC-antwoord spiegelt de payload (text + structuredContent), zodat
+# het event ~15 MB is (gemeten). Loopback tegen de eigen mounts = vertrouwd;
+# 64 MB dekt het slechtste geval binnen de run_artifact-cap (10 MB artifact
+# ≈ 20 MB event) met ruime marge.
+_MAX_SSE_EVENT_SIZE = 64 * 1024 * 1024
+
 
 class McpToolError(RuntimeError):
     pass
@@ -22,7 +30,7 @@ class McpLoopbackClient:
 
     async def call_tool(self, server: str, tool: str, args: dict[str, Any]) -> str:
         url = f"{self.base_url}/mcp/{server}/mcp"
-        async with streamable_http_client(url) as (read, write):
+        async with streamable_http_client(url, max_sse_event_size=_MAX_SSE_EVENT_SIZE) as (read, write):
             async with ClientSession(read, write) as session:
                 await session.initialize()
                 result = await session.call_tool(tool, args)

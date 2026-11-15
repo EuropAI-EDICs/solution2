@@ -66,7 +66,11 @@ async def _run_poc_tool(tool_name: str, arguments: dict[str, Any]) -> str:
         "outputs": result.get("outputs"),
         "prov": result.get("prov"),
     }
-    return json.dumps(payload, indent=2, default=str)
+    # Compact: pretty-print (indent=2) vergroot grote outputs (zones.geojson
+    # 7,4 MB) ~5x tot 35 MB — en het JSON-RPC-antwoord (text + structured-
+    # content mirror) wordt dan ~73 MB, boven de SSE-event-limieten. Consumers
+    # doen json.loads; compact houdt de events protocol-vriendelijk.
+    return json.dumps(payload, default=str)
 
 
 @mcp.tool(name="run_opportunity_map", description=POC_TOOLS["run_opportunity_map"]["description"])

@@ -1306,7 +1306,10 @@ def execute_fetch_geo_layer(inputs: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-_RUN_ARTIFACT_MAX_BYTES = 5_242_880
+# 10 MB: ruim boven het grootste echte canonical artifact (zones.geojson uit
+# de wind-runs is 7.4 MB en wordt inline naar de UI gestreamd), maar nog
+# steeds een plafond tegen absurd grote bestanden.
+_RUN_ARTIFACT_MAX_BYTES = 10_485_760
 
 
 def execute_run_artifact(inputs: dict[str, Any]) -> dict[str, Any]:
@@ -1321,7 +1324,7 @@ def execute_run_artifact(inputs: dict[str, Any]) -> dict[str, Any]:
         raise ValueError(f"artifact niet gevonden: {pad}")
     grootte = pad.stat().st_size
     if grootte > _RUN_ARTIFACT_MAX_BYTES:
-        raise ValueError(f"artifact groter dan 5 MB plafond: {grootte} bytes")
+        raise ValueError(f"artifact groter dan {_RUN_ARTIFACT_MAX_BYTES // 1_048_576} MB plafond: {grootte} bytes")
     tekst = pad.read_text(encoding="utf-8")
     content: Any
     if pad.suffix == ".geojson":

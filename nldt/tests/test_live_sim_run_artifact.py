@@ -10,7 +10,10 @@ NLDT_ROOT = Path(__file__).resolve().parents[1]
 if str(NLDT_ROOT) not in sys.path:
     sys.path.insert(0, str(NLDT_ROOT))
 
-from services.process_adapter.poc_handlers import execute_poc_process  # noqa: E402
+from services.process_adapter.poc_handlers import (  # noqa: E402
+    _RUN_ARTIFACT_MAX_BYTES,
+    execute_poc_process,
+)
 
 
 def _tmp_run(tmp_path: Path) -> Path:
@@ -64,11 +67,11 @@ def test_run_artifact_weigert_onbekend_bestand_en_te_groot(tmp_path):
     else:
         raise AssertionError("ontbrekend bestand moet ValueError geven")
     groot = run / "groot.json"
-    groot.write_bytes(b"x" * (5_242_880 + 1))
+    groot.write_bytes(b"x" * (_RUN_ARTIFACT_MAX_BYTES + 1))
     try:
         execute_poc_process("run-artifact", {"run_dir": str(run), "artifact": "groot.json"})
     except ValueError as exc:
-        assert "5 MB" in str(exc)
+        assert f"{_RUN_ARTIFACT_MAX_BYTES // 1_048_576} MB" in str(exc)
     else:
         raise AssertionError("bestand boven het plafond moet geweigerd worden")
 
