@@ -32,6 +32,13 @@ from services.mcp_servers.dso_server import mcp as dso_mcp  # noqa: E402
 from services.mcp_servers.http_transport import build_mcp_http_app  # noqa: E402
 from services.mcp_servers.poc_server import mcp as poc_mcp  # noqa: E402
 
+import json
+
+from fastapi.responses import StreamingResponse  # noqa: E402
+
+from agent import ScriptedAgent, SessionStore  # noqa: E402
+from mcp_client import McpLoopbackClient  # noqa: E402
+
 POC_CACHE = NLDT_ROOT.parent / "poc" / "data" / "cache"
 MOUNTS = [
     ("/mcp/data", data_mcp),
@@ -61,6 +68,34 @@ def create_app(tool_client_factory=None):
     app = FastAPI(title="nldt-live-fetch-sim", version="1.0.0", lifespan=_lifespan)
     for prefix, srv in MOUNTS:
         app.mount(prefix, build_mcp_http_app(srv))
+
+    store = SessionStore()
+
+    def _default_tool_client_factory():
+        base = os.environ.get("NLDT_LIVE_SIM_BASE") or (
+            f"http://127.0.0.1:{os.environ.get('NLDT_LIVE_SIM_PORT', '8095')}"
+        )
+        return ScriptedAgent(McpLoopbackClient(base))
+
+    @app.post("/api/session")
+    async def start_session():
+        factory = tool_client_factory or _default_tool_client_factory
+        try:
+            sid = store.start(factory)
+        except RuntimeError as exc:
+            raise HTTPException(status_code=409, detail=str(exc))
+        return {"sessionId": sid}
+
+    @app.get("/api/session/{sid}/events")
+    async def events(sid: str):
+        async def gen():
+            try:
+                async for ev, data in store.stream(sid):
+                    yield f"event: {ev}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
+            except KeyError:
+                yield 'event: error\ndata: {"melding": "onbekende sessie"}\n\n'
+
+        return StreamingResponse(gen(), media_type="text/event-stream")
 
     @app.get("/api/layers/{source_id}")
     def layer(source_id: str):
