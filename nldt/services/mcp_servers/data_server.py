@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 from typing import Any
@@ -18,7 +19,8 @@ async def list_entities(
     geoproperty: str | None = None,
 ) -> str:
     """List NGSI-LD entities from Data Platform / broker."""
-    entities = data_platform.list_entities(
+    entities = await asyncio.to_thread(
+        data_platform.list_entities,
         entity_type=entity_type,
         scope=scope,
         geoproperty=geoproperty,
@@ -34,7 +36,7 @@ async def entities_to_geojson(
     """Fetch entities and convert to GeoJSON FeatureCollection."""
     from services.hybrid_bridge import fetch_ngsi_as_features
 
-    fc = fetch_ngsi_as_features(entity_type, scope=scope)
+    fc = await asyncio.to_thread(fetch_ngsi_as_features, entity_type, scope=scope)
     return json.dumps(fc, indent=2)
 
 

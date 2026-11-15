@@ -6,6 +6,7 @@ Also serves Agent Skills (SEP-2640) as skill:// resources — see
 
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 from typing import Any
@@ -54,7 +55,7 @@ async def _run_poc_tool(tool_name: str, arguments: dict[str, Any]) -> str:
     process_id = spec["process_id"]
     inputs = {k: v for k, v in arguments.items() if v is not None}
     if os.environ.get("NLDT_OFFLINE") == "1":
-        result = _execute_local(process_id, inputs)
+        result = await asyncio.to_thread(_execute_local, process_id, inputs)
     else:
         result = await _execute_remote(process_id, inputs)
     payload = {

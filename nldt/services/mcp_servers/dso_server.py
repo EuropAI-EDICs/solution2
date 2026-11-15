@@ -7,6 +7,7 @@ poc-server-patroon {tool, processId, jobId, status, outputs, prov}.
 
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 from typing import Any
@@ -44,7 +45,7 @@ async def _run_dso_tool(tool_name: str, arguments: dict[str, Any]) -> str:
         raise ValueError(f"Unknown tool: {tool_name}")
     inputs = {k: v for k, v in arguments.items() if v is not None}
     if os.environ.get("NLDT_OFFLINE") == "1":
-        result = _execute_local(spec["process_id"], inputs)
+        result = await asyncio.to_thread(_execute_local, spec["process_id"], inputs)
     else:
         result = await _execute_remote(spec["process_id"], inputs)
     payload = {
