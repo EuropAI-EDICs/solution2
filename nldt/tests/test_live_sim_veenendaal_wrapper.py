@@ -52,6 +52,15 @@ def test_veenendaal_execute_roept_main_en_resolvets_nieuwe_run(tmp_path, monkeyp
     assert s["indicatorCount"] == 74
 
 
+def test_veenendaal_indicatorcount_top_level_list(tmp_path, monkeypatch):
+    run = tmp_path / "runs" / "20261215T000000Z-gebiedscheck"
+    run.mkdir(parents=True)
+    (run / "indicators.json").write_text(json.dumps([{"id": "a"}, {"id": "b"}]), encoding="utf-8")
+    monkeypatch.setattr(poc_handlers, "POC_VEENENDAAL", tmp_path)
+    out = execute_poc_process("veenendaal-gebiedscheck-run", {"mode": "replay"})
+    assert out["summary"]["indicatorCount"] == 2
+
+
 def test_veenendaal_onbekende_mode_geweigerd():
     try:
         execute_poc_process("veenendaal-gebiedscheck-run", {"mode": "anders"})

@@ -1397,8 +1397,10 @@ def _sum_gebiedscheck_summary(run_dir: Path, mode: str) -> dict[str, Any]:
     aantal = 0
     if indicators_pad.is_file():
         data = _load_json(indicators_pad)
-        lijst = data.get("indicators") or data if isinstance(data, list) else data.get("indicators") or []
-        aantal = len(lijst)
+        if isinstance(data, list):
+            aantal = len(data)
+        else:
+            aantal = len(data.get("indicators") or [])
     return {
         "mode": mode,
         "runDir": str(run_dir),
