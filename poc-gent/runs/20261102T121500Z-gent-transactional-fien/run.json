@@ -1,0 +1,423 @@
+{
+  "schemaVersion": "1.2",
+  "runId": "20261102T121500Z-gent-transactional-fien",
+  "generatedAt": "2026-11-02T12:15:00+00:00",
+  "recipeId": "gent-evenement-organisator",
+  "processId": "gent-transactional-run",
+  "mode": "replay",
+  "scenario": "fien",
+  "steps": [
+    {
+      "stepId": "intake",
+      "title": "Je vertelt wat je gaat doen",
+      "actor": "agent",
+      "genAiTestPoint": "G1",
+      "dataUsed": [
+        "Ik wil volgend najaar een eendaags straatfeest aan de Veldstraat organiseren voor onze wijk."
+      ],
+      "consent": "n.v.t.",
+      "handover": null,
+      "kpiEvents": [],
+      "prov": {
+        "sources": [
+          "persona-fixture (replay stand-in voor seam S1)"
+        ]
+      }
+    },
+    {
+      "stepId": "context-vragen",
+      "title": "We vragen alleen wat nog niet bekend is",
+      "actor": "agent",
+      "genAiTestPoint": "G1",
+      "dataUsed": [],
+      "consent": "n.v.t.",
+      "handover": null,
+      "kpiEvents": [],
+      "prov": {
+        "sources": [
+          "intake-gate: once-only — authentieke slots worden niet gevraagd"
+        ]
+      }
+    },
+    {
+      "stepId": "gis-zonecheck",
+      "title": "We checken de zone van je adres",
+      "actor": "agent",
+      "genAiTestPoint": "—",
+      "dataUsed": [
+        "zoneLez=in"
+      ],
+      "consent": "n.v.t.",
+      "handover": null,
+      "kpiEvents": [],
+      "prov": {
+        "sources": [
+          "gis:gent-lez (stad-gent-open-data 2026-06-30)"
+        ]
+      }
+    },
+    {
+      "stepId": "data-lookup",
+      "title": "We halen de afvalkalender van je straat op",
+      "actor": "agent",
+      "genAiTestPoint": "—",
+      "dataUsed": [
+        "inFeestenzone=niet-in"
+      ],
+      "consent": "n.v.t.",
+      "handover": null,
+      "kpiEvents": [],
+      "prov": {
+        "sources": [
+          "dataset:ivago-ophaalkalender (open data Stad Gent/IVAGO)"
+        ]
+      }
+    },
+    {
+      "stepId": "h1-contextbevestiging",
+      "title": "Je checkt de verzamelde feiten",
+      "actor": "mens",
+      "genAiTestPoint": "—",
+      "dataUsed": [
+        "applicantType=burger",
+        "address=Veldstraat 1, Gent",
+        "datum=2027-09-11",
+        "typeEvenement=klein",
+        "openbaarDomein=ja",
+        "zoneLez=in",
+        "inFeestenzone=niet-in",
+        "aanlooptijd=ruim-op-tijd"
+      ],
+      "consent": "gegeven",
+      "handover": null,
+      "kpiEvents": [],
+      "prov": {
+        "sources": [
+          "H1-bevestiging door gebruiker"
+        ]
+      }
+    },
+    {
+      "stepId": "routing",
+      "title": "We zeggen welke vergunningen je nodig hebt — en waarom",
+      "actor": "agent",
+      "genAiTestPoint": "G2",
+      "dataUsed": [
+        "Uw evenement ligt ruim genoeg vooruit: u kunt de bezetting van publieke ruimte online aanvragen.",
+        "Uw locatie ligt in de lage-emissiezone: informeer bezoekers en leveranciers over de dagenpas."
+      ],
+      "consent": "n.v.t.",
+      "handover": null,
+      "kpiEvents": [
+        {
+          "kpi": "routingnauwkeurigheid",
+          "effect": "paden"
+        }
+      ],
+      "prov": {
+        "sources": [
+          "Gent evenementenreglement — aanvraag publieke ruimte (stad.gent; termijnen illustratief)",
+          "Gent LEZ-reglement — dagenpassen (stad.gent/lez)"
+        ]
+      }
+    },
+    {
+      "stepId": "h2-gegevensgebruik",
+      "title": "Je geeft toestemming om je gegevens op te halen",
+      "actor": "mens",
+      "genAiTestPoint": "—",
+      "dataUsed": [],
+      "consent": "gegeven",
+      "handover": null,
+      "kpiEvents": [],
+      "prov": {
+        "sources": [
+          "H2-toestemming door gebruiker"
+        ]
+      }
+    },
+    {
+      "stepId": "eudi-authenticatie",
+      "title": "Je bevestigt wie je bent (EUDI-wallet)",
+      "actor": "partij",
+      "genAiTestPoint": "—",
+      "dataUsed": [
+        "claim: loa",
+        "claim: mandaten",
+        "claim: sub",
+        "loa=substantial"
+      ],
+      "consent": "n.v.t.",
+      "handover": null,
+      "kpiEvents": [],
+      "prov": {
+        "sources": [
+          "EUDI-wallet (mock, ARF-shaped — nldt/16)"
+        ]
+      }
+    },
+    {
+      "stepId": "h3-conceptbeoordeling",
+      "title": "Je beoordeelt het concept van je aanvraag",
+      "actor": "mens",
+      "genAiTestPoint": "—",
+      "dataUsed": [
+        "Evenement op publieke ruimte aanvragen — gereed"
+      ],
+      "consent": "gegeven",
+      "handover": null,
+      "kpiEvents": [],
+      "prov": {
+        "sources": [
+          "H3-beoordeling door gebruiker"
+        ]
+      }
+    },
+    {
+      "stepId": "h4-inzending",
+      "title": "Je bevestigt de inzending van je aanvraag",
+      "actor": "mens",
+      "genAiTestPoint": "—",
+      "dataUsed": [
+        "Evenement op publieke ruimte aanvragen — concept + bewijzen"
+      ],
+      "consent": "gegeven",
+      "handover": null,
+      "kpiEvents": [],
+      "prov": {
+        "sources": [
+          "H4-bevestiging door gebruiker"
+        ]
+      }
+    },
+    {
+      "stepId": "ontvangstbewijs",
+      "title": "Je krijgt per aanvraag een ontvangstbewijs",
+      "actor": "partij",
+      "genAiTestPoint": "—",
+      "dataUsed": [
+        "evenement-aanvragen: GENT-933A3EF4A4FD"
+      ],
+      "consent": "n.v.t.",
+      "handover": null,
+      "kpiEvents": [],
+      "prov": {
+        "sources": [
+          "district09-evenementen (mock v1, INT-03)"
+        ]
+      }
+    }
+  ],
+  "stopConditions": [],
+  "kpiSnapshot": [],
+  "transaction": {
+    "context": {
+      "tekst": "U bent burger en organiseert een evenement op 2027-09-11 aan: Veldstraat 1, Gent. Type: klein.",
+      "regels": [
+        {
+          "feit": "applicantType",
+          "waarde": "burger",
+          "label": "gebruiker",
+          "bron": "gesprek"
+        },
+        {
+          "feit": "address",
+          "waarde": "Veldstraat 1, Gent",
+          "label": "gebruiker",
+          "bron": "gesprek"
+        },
+        {
+          "feit": "datum",
+          "waarde": "2027-09-11",
+          "label": "gebruiker",
+          "bron": "gesprek"
+        },
+        {
+          "feit": "typeEvenement",
+          "waarde": "klein",
+          "label": "gebruiker",
+          "bron": "gesprek"
+        },
+        {
+          "feit": "openbaarDomein",
+          "waarde": "ja",
+          "label": "gebruiker",
+          "bron": "gesprek"
+        },
+        {
+          "feit": "zoneLez",
+          "waarde": "in",
+          "label": "afgeleid",
+          "bron": "gis:gent-lez (stad-gent-open-data 2026-06-30)"
+        },
+        {
+          "feit": "inFeestenzone",
+          "waarde": "niet-in",
+          "label": "afgeleid",
+          "bron": "dataset:gentse-feesten (gentse-feesten-evenementen-2026 (gewijzigd 2026-09-07) — curated demo-selectie)"
+        },
+        {
+          "feit": "aanlooptijd",
+          "waarde": "ruim-op-tijd",
+          "label": "afgeleid",
+          "bron": "timing:aanlooptijd (referentie 2026-11-02)"
+        }
+      ]
+    },
+    "routing": {
+      "outcome": "paden",
+      "paths": {
+        "transactions": [
+          "evenement-aanvragen"
+        ],
+        "info": [
+          "info-aanlooptijden",
+          "info-gentse-feesten",
+          "info-lez-bezoekers"
+        ]
+      },
+      "trace": [
+        {
+          "ruleId": "RE1",
+          "fired": true,
+          "reden": "alle voorwaarden voldaan"
+        },
+        {
+          "ruleId": "RE2",
+          "fired": false,
+          "reden": "aanlooptijd: 'ruim-op-tijd' ≠ 'kort-op-tijd'"
+        },
+        {
+          "ruleId": "RE3",
+          "fired": false,
+          "reden": "aanlooptijd: 'ruim-op-tijd' ≠ 'te-laat'"
+        },
+        {
+          "ruleId": "RE4",
+          "fired": false,
+          "reden": "aanlooptijd: 'ruim-op-tijd' ≠ 'verleden'"
+        },
+        {
+          "ruleId": "RE5",
+          "fired": true,
+          "reden": "alle voorwaarden voldaan"
+        }
+      ],
+      "uitleg": [
+        {
+          "regelId": "RE1",
+          "tekst": "Uw evenement ligt ruim genoeg vooruit: u kunt de bezetting van publieke ruimte online aanvragen.",
+          "bron": "Gent evenementenreglement — aanvraag publieke ruimte (stad.gent; termijnen illustratief)"
+        },
+        {
+          "regelId": "RE5",
+          "tekst": "Uw locatie ligt in de lage-emissiezone: informeer bezoekers en leveranciers over de dagenpas.",
+          "bron": "Gent LEZ-reglement — dagenpassen (stad.gent/lez)"
+        }
+      ]
+    },
+    "h1": {
+      "verdict": "gegeven",
+      "correcties": {}
+    },
+    "status": "gereed",
+    "auth": {
+      "authenticatie": "uitgevoerd",
+      "toestemming": "gegeven",
+      "mandaten": [],
+      "methode": "eudi-wallet",
+      "loa": "substantial",
+      "onthuldeClaims": [
+        "loa",
+        "mandaten",
+        "sub"
+      ]
+    },
+    "prefill": {
+      "transacties": [
+        {
+          "service": "evenement-aanvragen",
+          "velden": [
+            {
+              "veld": "evenement-locatie",
+              "waarde": "Veldstraat 1, Gent",
+              "label": "gebruiker",
+              "bron": "gesprek"
+            },
+            {
+              "veld": "evenement-datum",
+              "waarde": "2027-09-11",
+              "label": "gebruiker",
+              "bron": "gesprek"
+            },
+            {
+              "veld": "aanlooptijd",
+              "waarde": "ruim-op-tijd",
+              "label": "afgeleid",
+              "bron": "timing:aanlooptijd (referentie 2026-11-02)"
+            },
+            {
+              "veld": "type-evenement",
+              "waarde": "klein",
+              "label": "gebruiker",
+              "bron": "gesprek"
+            },
+            {
+              "veld": "openbaar-domein",
+              "waarde": "ja",
+              "label": "gebruiker",
+              "bron": "gesprek"
+            },
+            {
+              "veld": "feestenzone",
+              "waarde": "niet-in",
+              "label": "afgeleid",
+              "bron": "dataset:gentse-feesten (gentse-feesten-evenementen-2026 (gewijzigd 2026-09-07) — curated demo-selectie)"
+            }
+          ],
+          "ontbrekend": []
+        }
+      ]
+    },
+    "validatie": {
+      "transacties": [
+        {
+          "service": "evenement-aanvragen",
+          "status": "gereed",
+          "bevindingen": []
+        }
+      ]
+    },
+    "h3": {
+      "verdict": "gegeven",
+      "correcties": {}
+    },
+    "submission": {
+      "h4": {
+        "verdict": "gegeven",
+        "bevestigdOp": "replay (persona-fixture)"
+      },
+      "documenten": {
+        "status": "n.v.t.",
+        "bevindingen": []
+      },
+      "ontvangst": {
+        "transacties": [
+          {
+            "service": "evenement-aanvragen",
+            "referentie": "GENT-933A3EF4A4FD",
+            "status": "geaccepteerd"
+          }
+        ]
+      },
+      "vervolgsamenvatting": {
+        "gereed": [
+          "Evenement op publieke ruimte aanvragen ingediend — referentie GENT-933A3EF4A4FD"
+        ],
+        "open": [
+          "Volg de status van je aanvragen via Gentinfo."
+        ]
+      }
+    }
+  }
+}

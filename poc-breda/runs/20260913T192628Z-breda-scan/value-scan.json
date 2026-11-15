@@ -1,0 +1,3436 @@
+{
+ "scan": {
+  "scanId": "breda-vijf-waardenscan",
+  "generatedAt": "2026-09-13T19:26:35Z",
+  "gemeente": "Breda",
+  "gemeenteCode": "GM0758",
+  "congress": "AI in the City 2026 — Creating Real Value (23–25 September 2026, Breda)"
+ },
+ "sources": [
+  {
+   "id": "cbs-buurten-2024",
+   "title": "CBS Wijken en Buurten 2024 — buurten met statistiek",
+   "url": "https://service.pdok.nl/cbs/wijkenbuurten/2024/wfs/v1_0",
+   "role": "statistics-and-geometry",
+   "authoritative": "CBS / PDOK",
+   "licenseNote": "CC-BY 4.0 (CBS) — bronvermelding CBS/ PDOK",
+   "lastChecked": "2026-09-13",
+   "fetchedAt": "2026-09-13T15:14:25Z",
+   "featureCount": 56
+  },
+  {
+   "id": "breda-gemeentegrens",
+   "title": "Gemeentegrens gemeente Breda",
+   "url": "https://services-eu1.arcgis.com/SgHNk1qzR4I13Wum/arcgis/rest/services/AER_Gemeentegrens/FeatureServer",
+   "role": "aoi",
+   "authoritative": "Gemeente Breda",
+   "licenseNote": "Openbaar (data.breda.nl ArcGIS Hub, org gemeente-breda) — bronvermelding Gemeente Breda",
+   "lastChecked": null,
+   "fetchedAt": "2026-09-13T10:31:25Z",
+   "featureCount": 1
+  },
+  {
+   "id": "breda-wijkdeals",
+   "title": "Wijkdeals (afspraken gemeente en bewonersinitiatieven)",
+   "url": "https://services-eu1.arcgis.com/SgHNk1qzR4I13Wum/arcgis/rest/services/Wijkdeals/FeatureServer",
+   "role": "indicator-democratic",
+   "authoritative": "Gemeente Breda",
+   "licenseNote": "Openbaar (data.breda.nl ArcGIS Hub, org gemeente-breda) — bronvermelding Gemeente Breda",
+   "lastChecked": null,
+   "fetchedAt": "2026-09-13T10:31:27Z",
+   "featureCount": 2009
+  },
+  {
+   "id": "breda-hoofdgroenstructuur",
+   "title": "Hoofdgroenstructuur stedelijk gebied — te behouden groen",
+   "url": "https://geo.breda.nl/server1/rest/services/Hoofdgroenstructuur/MapServer",
+   "role": "indicator-spatial",
+   "authoritative": "Gemeente Breda",
+   "licenseNote": "Openbaar (geo.breda.nl) — bronvermelding Gemeente Breda",
+   "lastChecked": null,
+   "fetchedAt": "2026-09-13T10:31:38Z",
+   "featureCount": 26041
+  },
+  {
+   "id": "breda-verharding",
+   "title": "Klimaatportaal hitte — percentage verharding per wijk",
+   "url": "https://geo.breda.nl/server1/rest/services/klimaatportaal/hitte/MapServer",
+   "role": "indicator-social",
+   "authoritative": "Gemeente Breda",
+   "licenseNote": "Openbaar (geo.breda.nl klimaatportaal) — bronvermelding Gemeente Breda",
+   "lastChecked": null,
+   "fetchedAt": "2026-09-13T10:31:42Z",
+   "featureCount": 80
+  },
+  {
+   "id": "breda-kansenkaart",
+   "title": "Klimaatportaal kansenkaart — klimaatkansen bij ruimtelijke ontwikkeling",
+   "url": "https://geo.breda.nl/server1/rest/services/klimaatportaal/kansenkaart/MapServer",
+   "role": "indicator-spatial",
+   "authoritative": "Gemeente Breda",
+   "licenseNote": "Openbaar (geo.breda.nl klimaatportaal) — bronvermelding Gemeente Breda",
+   "lastChecked": null,
+   "fetchedAt": "2026-09-13T10:31:42Z",
+   "featureCount": 65
+  },
+  {
+   "id": "breda-bomen",
+   "title": "Bomen (gemeente Breda)",
+   "url": "https://services-eu1.arcgis.com/SgHNk1qzR4I13Wum/arcgis/rest/services/Bomen/FeatureServer",
+   "role": "indicator-spatial",
+   "authoritative": "Gemeente Breda",
+   "licenseNote": "Openbaar (data.breda.nl ArcGIS Hub, org gemeente-breda) — bronvermelding Gemeente Breda",
+   "lastChecked": null,
+   "fetchedAt": "2026-09-13T15:31:12Z",
+   "featureCount": 117012
+  }
+ ],
+ "values": {
+  "democratic": {
+   "label": "Democratic value",
+   "description": "Where is government already close to residents — services within reach and resident agreements (neighbourhood deals, wijkdeals) present?",
+   "quote": "AI makes government more accessible, faster and more human. Residents get answers sooner, are involved earlier in shaping their neighbourhoods.",
+   "programmeItems": [
+    "Value theme Democratic value — indestad.ai/en/#programme",
+    "Workshop: Residents in the driving seat (Mike de Kreek & Tessa Steenkamp, HvA)",
+    "Demo: Autonomous and democratic (a.o. Gert-Jan Zandbergen, city of Breda)"
+   ],
+   "formula": "score = mean( percentile⁻¹(mean distance to 6 services: GP, supermarket, primary school, childcare, library, train station), percentile(neighbourhood-deal count in the neighbourhood) )"
+  },
+  "spatial": {
+   "label": "Spatial value",
+   "description": "Where does the city's green-blue backbone lie — and where is room for climate adaptation in spatial development?",
+   "quote": "A city is more than a dataset. AI strengthens the quality of the city on its own terms — it amplifies the genius loci rather than replacing it.",
+   "programmeItems": [
+    "Value theme Spatial value — indestad.ai/en/#programme",
+    "Workshop: Green Spaces and Water as the backbone of the city (municipality of Breda)",
+    "Pitches: Spatial"
+   ],
+   "formula": "score = mean( percentile(green-backbone coverage), percentile⁻¹(distance to public green), percentile(trees per 100 residents) ) + climate-opportunity map notes"
+  },
+  "economic": {
+   "label": "Economic value",
+   "description": "Where are the returns on efficiency and energy transition — unused roof potential for solar and business density per km²?",
+   "quote": "AI makes execution more efficient: lower costs, less waste and more output with the same capacity.",
+   "programmeItems": [
+    "Value theme Economic value — indestad.ai/en/#programme",
+    "AI Walk: Energy savings and impact on infrastructure (TNO)",
+    "Pitches: Economic",
+    "Workshop: From Research to Economic Value — Zürich (Sabine Müller)"
+   ],
+   "formula": "score = mean( percentile(unused roof potential = (1−solar%)×single-family share), percentile(companies per km²) )"
+  },
+  "social": {
+   "label": "Social value",
+   "description": "Where can climate adaptation yield the most social value: high paved share (heat) combined with a large share of residents aged 65+?",
+   "quote": "AI always serves human wellbeing and contributes to a sustainable and prosperous future.",
+   "programmeItems": [
+    "Value theme Social value — indestad.ai/en/#programme",
+    "Workshop: Green Spaces and Water as the backbone of the city (municipality of Breda)",
+    "Pitches: Social"
+   ],
+   "formula": "score = mean( percentile(paved share, climate portal), percentile(65+ share) ) — higher = more adaptation payoff"
+  },
+  "autonomous": {
+   "label": "Autonomous value",
+   "description": "Not a map layer but this scan's own manifest: digital sovereignty is demonstrable, not claimable.",
+   "quote": "People retain control over AI systems — not the other way around. …strengthening Europe's digital sovereignty.",
+   "programmeItems": [
+    "Value theme Autonomous value — indestad.ai/en/#programme",
+    "Workshop: Sovereignty (City Deal on AI)",
+    "AI Walk: Data sovereignty and -continuity (KPN)",
+    "Lecture: From European AI strategy to opportunities for your city (LDT CitiVERSE EDIC)",
+    "Lecture: Is your city ready for AI? (OECD & Platform AI & Overheid)"
+   ],
+   "formula": null,
+   "manifest": [
+    {
+     "criterion": "All sources are public and European/Dutch",
+     "met": true,
+     "evidence": "CBS & PDOK (NL), municipality of Breda (data.breda.nl / geo.breda.nl) — see the source table"
+    },
+    {
+     "criterion": "No API keys or paid access",
+     "met": true,
+     "evidence": "all endpoints accessed anonymously (recon 2026-09-13); no .env, no tokens"
+    },
+    {
+     "criterion": "No dependence on a single cloud vendor",
+     "met": true,
+     "evidence": "deterministic stdlib+shapely pipeline, runs locally; the cache enables offline re-runs"
+    },
+    {
+     "criterion": "Every number traces to a source with a retrieval date",
+     "met": true,
+     "evidence": "layers.json + prov.json: per layer serviceUrl, lastChecked, fetchedAt, sha256"
+    },
+    {
+     "criterion": "Missing data is never imputed",
+     "met": true,
+     "evidence": "CBS sentinels (< -90000) → None + per-neighbourhood missing-input registration in validation.json"
+    },
+    {
+     "criterion": "No LLM in the decision line at runtime",
+     "met": true,
+     "evidence": "fully deterministic; the LLM seam (local models) is optional and documented, switched off"
+    },
+    {
+     "criterion": "Re-runnable & verifiable by third parties",
+     "met": true,
+     "evidence": "python3 poc-breda/run.py replays the scan from cache; exit 0 only on validator verdict pass; offline unit tests"
+    }
+   ]
+  }
+ },
+ "buurten": [
+  {
+   "buurtcode": "BU07580001",
+   "buurtnaam": "Valkenberg",
+   "wijkcode": "WK075800",
+   "water": "NEE",
+   "aantalInwoners": 2705,
+   "scores": {
+    "democratic": {
+     "score": 86.3,
+     "inputs": {
+      "access": 0.75,
+      "deals": 40
+     }
+    },
+    "spatial": {
+     "score": 55.7,
+     "inputs": {
+      "groendekking_share": 0.1887306757988943,
+      "groen_afstand_km": null,
+      "bomen": 1038,
+      "bomen_per_100_inw": 38.37
+     }
+    },
+    "economic": {
+     "score": 47.6,
+     "inputs": {
+      "zonnestroom_pct": 4.0,
+      "eengezins_pct": 9,
+      "onbenut_dakpotentieel": 0.0864,
+      "bedrijven_per_km2": 1256.4
+     }
+    },
+    "social": {
+     "score": 24.0,
+     "inputs": {
+      "verharding_pct": 52.2849335996,
+      "ouderen_pct": 14
+     }
+    }
+   },
+   "kansenkaart": [
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel.",
+    "Fysieke projecten: Vergroening Fellenoord/Rechtbankkwartier. Pleinenaanpak. Aanleg Seeligpark. Invoeren betaald Parkeren.",
+    "Visie bomensingel, kansen voor groen langs de singel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580002",
+   "buurtnaam": "Chassé",
+   "wijkcode": "WK075800",
+   "water": "NEE",
+   "aantalInwoners": 3500,
+   "scores": {
+    "democratic": {
+     "score": 77.3,
+     "inputs": {
+      "access": 1.05,
+      "deals": 34
+     }
+    },
+    "spatial": {
+     "score": 37.5,
+     "inputs": {
+      "groendekking_share": 0.15832134576723725,
+      "groen_afstand_km": null,
+      "bomen": 747,
+      "bomen_per_100_inw": 21.34
+     }
+    },
+    "economic": {
+     "score": 51.5,
+     "inputs": {
+      "zonnestroom_pct": 4.0,
+      "eengezins_pct": 14,
+      "onbenut_dakpotentieel": 0.1344,
+      "bedrijven_per_km2": 1762.5
+     }
+    },
+    "social": {
+     "score": 78.7,
+     "inputs": {
+      "verharding_pct": 67.9812646625,
+      "ouderen_pct": 22
+     }
+    }
+   },
+   "kansenkaart": [
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel.",
+    "Fysieke projecten: Vergroening Fellenoord/Rechtbankkwartier. Pleinenaanpak. Aanleg Seeligpark. Invoeren betaald Parkeren.",
+    "Doortrekken van de Mark.",
+    "Visie bomensingel, kansen voor groen langs de singel.",
+    "Herontwikkeling voormalig UWV gebouw.",
+    "Herontwikkeling van het voormalig kadaster.",
+    "Herontwikkeling voormalige rechtbank en aangrenzende gebouwen."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580003",
+   "buurtnaam": "Fellenoord",
+   "wijkcode": "WK075800",
+   "water": "NEE",
+   "aantalInwoners": 1605,
+   "scores": {
+    "democratic": {
+     "score": 60.9,
+     "inputs": {
+      "access": 1.0,
+      "deals": 8
+     }
+    },
+    "spatial": {
+     "score": 22.6,
+     "inputs": {
+      "groendekking_share": 0.04921626003771889,
+      "groen_afstand_km": null,
+      "bomen": 558,
+      "bomen_per_100_inw": 34.77
+     }
+    },
+    "economic": {
+     "score": 56.1,
+     "inputs": {
+      "zonnestroom_pct": 3.0,
+      "eengezins_pct": 41,
+      "onbenut_dakpotentieel": 0.3977,
+      "bedrijven_per_km2": 814.8
+     }
+    },
+    "social": {
+     "score": 45.4,
+     "inputs": {
+      "verharding_pct": 63.7746922738,
+      "ouderen_pct": 12
+     }
+    }
+   },
+   "kansenkaart": [
+    "Tuinzicht, Alwel sociale huurwoningen: kansen stakeholder. Woningbouwcorporatie betrekken in vergroening tuinen. Princenhage (scholen betrekken), grote initiatieven openbaar groen. Actieve inwoners. Minervum ondernemers laten vergroenen.",
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel.",
+    "Fysieke projecten: Vergroening Fellenoord/Rechtbankkwartier. Pleinenaanpak. Aanleg Seeligpark. Invoeren betaald Parkeren.",
+    "Doortrekken van de Mark.",
+    "Visie bomensingel, kansen voor groen langs de singel.",
+    "Vestiging van De Rooipannen op het kazerneterrein.",
+    "Herontwikkeling voormalig UWV gebouw.",
+    "Herontwikkeling voormalige rechtbank en aangrenzende gebouwen.",
+    "Ontwikkelingen rondom het voormalige belastingkantoor â€œDe Teruggaveâ€.",
+    "Ontwikkeling van een derde stadspark op het terrein van de Seeligkazerne.",
+    "Herinrichting Haagdijk, plan van de ondernemers zelf."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580004",
+   "buurtnaam": "Schorsmolen",
+   "wijkcode": "WK075800",
+   "water": "NEE",
+   "aantalInwoners": 3590,
+   "scores": {
+    "democratic": {
+     "score": 66.8,
+     "inputs": {
+      "access": 0.967,
+      "deals": 13
+     }
+    },
+    "spatial": {
+     "score": 12.8,
+     "inputs": {
+      "groendekking_share": 0.055693688388250596,
+      "groen_afstand_km": null,
+      "bomen": 581,
+      "bomen_per_100_inw": 16.18
+     }
+    },
+    "economic": {
+     "score": 48.2,
+     "inputs": {
+      "zonnestroom_pct": 1.0,
+      "eengezins_pct": 2,
+      "onbenut_dakpotentieel": 0.0198,
+      "bedrijven_per_km2": 2115.4
+     }
+    },
+    "social": {
+     "score": 55.1,
+     "inputs": {
+      "verharding_pct": 63.7296501223,
+      "ouderen_pct": 16
+     }
+    }
+   },
+   "kansenkaart": [
+    "Tuinzicht, Alwel sociale huurwoningen: kansen stakeholder. Woningbouwcorporatie betrekken in vergroening tuinen. Princenhage (scholen betrekken), grote initiatieven openbaar groen. Actieve inwoners. Minervum ondernemers laten vergroenen.",
+    "Fysieke projecten: Vergroening Fellenoord/Rechtbankkwartier. Pleinenaanpak. Aanleg Seeligpark. Invoeren betaald Parkeren.",
+    "Visie bomensingel, kansen voor groen langs de singel.",
+    "Doorontwikkeling klooster.",
+    "Fietsstraat Nijverheidssingel.",
+    "Herinrichting Haagdijk, plan van de ondernemers zelf."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580005",
+   "buurtnaam": "Station",
+   "wijkcode": "WK075800",
+   "water": "NEE",
+   "aantalInwoners": 2310,
+   "scores": {
+    "democratic": {
+     "score": 78.2,
+     "inputs": {
+      "access": 0.833,
+      "deals": 27
+     }
+    },
+    "spatial": {
+     "score": 14.7,
+     "inputs": {
+      "groendekking_share": 0.056005889226860846,
+      "groen_afstand_km": null,
+      "bomen": 442,
+      "bomen_per_100_inw": 19.13
+     }
+    },
+    "economic": {
+     "score": 52.3,
+     "inputs": {
+      "zonnestroom_pct": 8.0,
+      "eengezins_pct": 13,
+      "onbenut_dakpotentieel": 0.1196,
+      "bedrijven_per_km2": 2388.9
+     }
+    },
+    "social": {
+     "score": 38.9,
+     "inputs": {
+      "verharding_pct": 63.236068829,
+      "ouderen_pct": 7
+     }
+    }
+   },
+   "kansenkaart": [
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel.",
+    "Fysieke projecten: Vergroening Fellenoord/Rechtbankkwartier. Pleinenaanpak. Aanleg Seeligpark. Invoeren betaald Parkeren.",
+    "Visie bomensingel, kansen voor groen langs de singel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580006",
+   "buurtnaam": "City",
+   "wijkcode": "WK075800",
+   "water": "NEE",
+   "aantalInwoners": 2730,
+   "scores": {
+    "democratic": {
+     "score": 59.1,
+     "inputs": {
+      "access": 0.917,
+      "deals": 5
+     }
+    },
+    "spatial": {
+     "score": 10.1,
+     "inputs": {
+      "groendekking_share": 0.019448452879759392,
+      "groen_afstand_km": null,
+      "bomen": 542,
+      "bomen_per_100_inw": 19.85
+     }
+    },
+    "economic": {
+     "score": 51.0,
+     "inputs": {
+      "zonnestroom_pct": 2.0,
+      "eengezins_pct": 7,
+      "onbenut_dakpotentieel": 0.0686,
+      "bedrijven_per_km2": 2451.2
+     }
+    },
+    "social": {
+     "score": 45.4,
+     "inputs": {
+      "verharding_pct": 68.1079131131,
+      "ouderen_pct": 10
+     }
+    }
+   },
+   "kansenkaart": [
+    "Fysieke projecten: Vergroening Fellenoord/Rechtbankkwartier. Pleinenaanpak. Aanleg Seeligpark. Invoeren betaald Parkeren.",
+    "Doortrekken van de Mark.",
+    "Visie bomensingel, kansen voor groen langs de singel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580100",
+   "buurtnaam": "Belcrum",
+   "wijkcode": "WK075801",
+   "water": "NEE",
+   "aantalInwoners": 4245,
+   "scores": {
+    "democratic": {
+     "score": 96.3,
+     "inputs": {
+      "access": 0.8,
+      "deals": 126
+     }
+    },
+    "spatial": {
+     "score": 19.5,
+     "inputs": {
+      "groendekking_share": 0.05724552641614901,
+      "groen_afstand_km": null,
+      "bomen": 930,
+      "bomen_per_100_inw": 21.91
+     }
+    },
+    "economic": {
+     "score": 64.8,
+     "inputs": {
+      "zonnestroom_pct": 24.0,
+      "eengezins_pct": 54,
+      "onbenut_dakpotentieel": 0.4104,
+      "bedrijven_per_km2": 1103.8
+     }
+    },
+    "social": {
+     "score": 52.8,
+     "inputs": {
+      "verharding_pct": 77.8693553997,
+      "ouderen_pct": 12
+     }
+    }
+   },
+   "kansenkaart": [
+    "Fysieke projecten: Vergroening Fellenoord/Rechtbankkwartier. Pleinenaanpak. Aanleg Seeligpark. Invoeren betaald Parkeren.",
+    "Parkhoeve jeugd/educatie. Vlimmerenstraat: omtuinen naar waterspeel aanleidingen. Vergroenen parkeerplaatsen bij flats. Basisschool Noorderlicht: Schoolplein vergroenen. Wisselaar en Laurentius tuinen vergroenen.",
+    "Visie bomensingel, kansen voor groen langs de singel.",
+    "Revatilisering bedrijventerrein, kansen voor klimaatadaptatie."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580101",
+   "buurtnaam": "Doornbos-Linie",
+   "wijkcode": "WK075801",
+   "water": "NEE",
+   "aantalInwoners": 4715,
+   "scores": {
+    "democratic": {
+     "score": 76.3,
+     "inputs": {
+      "access": 0.867,
+      "deals": 24
+     }
+    },
+    "spatial": {
+     "score": 59.1,
+     "inputs": {
+      "groendekking_share": 0.1522239513691482,
+      "groen_afstand_km": null,
+      "bomen": 2393,
+      "bomen_per_100_inw": 50.75
+     }
+    },
+    "economic": {
+     "score": 38.4,
+     "inputs": {
+      "zonnestroom_pct": 22.0,
+      "eengezins_pct": 48,
+      "onbenut_dakpotentieel": 0.3744,
+      "bedrijven_per_km2": 523.6
+     }
+    },
+    "social": {
+     "score": 42.6,
+     "inputs": {
+      "verharding_pct": 59.1571663205,
+      "ouderen_pct": 13
+     }
+    }
+   },
+   "kansenkaart": [
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel.",
+    "Fysieke projecten: Vergroening Fellenoord/Rechtbankkwartier. Pleinenaanpak. Aanleg Seeligpark. Invoeren betaald Parkeren.",
+    "Parkhoeve jeugd/educatie. Vlimmerenstraat: omtuinen naar waterspeel aanleidingen. Vergroenen parkeerplaatsen bij flats. Basisschool Noorderlicht: Schoolplein vergroenen. Wisselaar en Laurentius tuinen vergroenen."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580102",
+   "buurtnaam": "Biesdonk",
+   "wijkcode": "WK075801",
+   "water": "NEE",
+   "aantalInwoners": 4940,
+   "scores": {
+    "democratic": {
+     "score": 51.4,
+     "inputs": {
+      "access": 1.117,
+      "deals": 4
+     }
+    },
+    "spatial": {
+     "score": 54.6,
+     "inputs": {
+      "groendekking_share": 0.18933035718991406,
+      "groen_afstand_km": null,
+      "bomen": 1806,
+      "bomen_per_100_inw": 36.56
+     }
+    },
+    "economic": {
+     "score": 55.0,
+     "inputs": {
+      "zonnestroom_pct": 11.0,
+      "eengezins_pct": 50,
+      "onbenut_dakpotentieel": 0.445,
+      "bedrijven_per_km2": 538.0
+     }
+    },
+    "social": {
+     "score": 58.8,
+     "inputs": {
+      "verharding_pct": 59.6062651446,
+      "ouderen_pct": 19
+     }
+    }
+   },
+   "kansenkaart": [
+    "Parkhoeve jeugd/educatie. Vlimmerenstraat: omtuinen naar waterspeel aanleidingen. Vergroenen parkeerplaatsen bij flats. Basisschool Noorderlicht: Schoolplein vergroenen. Wisselaar en Laurentius tuinen vergroenen.",
+    "Wijk waar kansen voor vergroening zijn door nieuwe ontwikkelingen"
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580103",
+   "buurtnaam": "Geeren-zuid",
+   "wijkcode": "WK075801",
+   "water": "NEE",
+   "aantalInwoners": 3750,
+   "scores": {
+    "democratic": {
+     "score": 46.4,
+     "inputs": {
+      "access": 1.183,
+      "deals": 4
+     }
+    },
+    "spatial": {
+     "score": 64.0,
+     "inputs": {
+      "groendekking_share": 0.2379749649968711,
+      "groen_afstand_km": null,
+      "bomen": 1565,
+      "bomen_per_100_inw": 41.73
+     }
+    },
+    "economic": {
+     "score": 34.6,
+     "inputs": {
+      "zonnestroom_pct": 33.0,
+      "eengezins_pct": 42,
+      "onbenut_dakpotentieel": 0.2814,
+      "bedrijven_per_km2": 561.6
+     }
+    },
+    "social": {
+     "score": 34.8,
+     "inputs": {
+      "verharding_pct": 53.7620979423,
+      "ouderen_pct": 18
+     }
+    }
+   },
+   "kansenkaart": [
+    "Parkhoeve jeugd/educatie. Vlimmerenstraat: omtuinen naar waterspeel aanleidingen. Vergroenen parkeerplaatsen bij flats. Basisschool Noorderlicht: Schoolplein vergroenen. Wisselaar en Laurentius tuinen vergroenen.",
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel.",
+    "Nieuwbouwproject, kansen voor klimaatadaptatie.",
+    "Wijk waar kansen voor vergroening zijn door nieuwe ontwikkelingen"
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580104",
+   "buurtnaam": "Wisselaar",
+   "wijkcode": "WK075801",
+   "water": "NEE",
+   "aantalInwoners": 4205,
+   "scores": {
+    "democratic": {
+     "score": 45.0,
+     "inputs": {
+      "access": 1.417,
+      "deals": 10
+     }
+    },
+    "spatial": {
+     "score": 78.6,
+     "inputs": {
+      "groendekking_share": 0.2801891723459655,
+      "groen_afstand_km": null,
+      "bomen": 2287,
+      "bomen_per_100_inw": 54.39
+     }
+    },
+    "economic": {
+     "score": 39.6,
+     "inputs": {
+      "zonnestroom_pct": 41.0,
+      "eengezins_pct": 67,
+      "onbenut_dakpotentieel": 0.3953,
+      "bedrijven_per_km2": 500.0
+     }
+    },
+    "social": {
+     "score": 37.5,
+     "inputs": {
+      "verharding_pct": 52.5660567193,
+      "ouderen_pct": 19
+     }
+    }
+   },
+   "kansenkaart": [
+    "Parkhoeve jeugd/educatie. Vlimmerenstraat: omtuinen naar waterspeel aanleidingen. Vergroenen parkeerplaatsen bij flats. Basisschool Noorderlicht: Schoolplein vergroenen. Wisselaar en Laurentius tuinen vergroenen.",
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580105",
+   "buurtnaam": "Krogten",
+   "wijkcode": "WK075801",
+   "water": "NEE",
+   "aantalInwoners": 175,
+   "scores": {
+    "democratic": {
+     "score": 23.1,
+     "inputs": {
+      "access": 1.717,
+      "deals": 0
+     }
+    },
+    "spatial": {
+     "score": 58.1,
+     "inputs": {
+      "groendekking_share": 0.03594588581293572,
+      "groen_afstand_km": null,
+      "bomen": 2744,
+      "bomen_per_100_inw": 1568.0
+     }
+    },
+    "economic": {
+     "score": 18.2,
+     "inputs": {
+      "zonnestroom_pct": null,
+      "eengezins_pct": 87,
+      "onbenut_dakpotentieel": null,
+      "bedrijven_per_km2": 150.8
+     }
+    },
+    "social": {
+     "score": 73.2,
+     "inputs": {
+      "verharding_pct": 64.4087501354,
+      "ouderen_pct": 21
+     }
+    }
+   },
+   "kansenkaart": [
+    "Muizenberg is vergroend, nu de rest van de wijk nog. Kansen stadsbos/recreatie. Olympia school (Kesteren) wil schoolpleinen vergroenen. Project 'Jongeren op gewicht'. Natuurlijke waterbuffer in het noorden van de wijk. Tennisvereniging Heksenwiel.",
+    "Parkhoeve jeugd/educatie. Vlimmerenstraat: omtuinen naar waterspeel aanleidingen. Vergroenen parkeerplaatsen bij flats. Basisschool Noorderlicht: Schoolplein vergroenen. Wisselaar en Laurentius tuinen vergroenen.",
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel.",
+    "Revatilisering bedrijventerrein, kansen voor klimaatadaptatie.",
+    "Ontwikkeling van natte natuur."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [
+     "zonnestroom/dakpotentieel"
+    ],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580106",
+   "buurtnaam": "Geeren-noord",
+   "wijkcode": "WK075801",
+   "water": "NEE",
+   "aantalInwoners": 2685,
+   "scores": {
+    "democratic": {
+     "score": 50.0,
+     "inputs": {
+      "access": 1.417,
+      "deals": 15
+     }
+    },
+    "spatial": {
+     "score": 76.5,
+     "inputs": {
+      "groendekking_share": 0.36426202170769784,
+      "groen_afstand_km": null,
+      "bomen": 1379,
+      "bomen_per_100_inw": 51.36
+     }
+    },
+    "economic": {
+     "score": 31.9,
+     "inputs": {
+      "zonnestroom_pct": 15.0,
+      "eengezins_pct": 43,
+      "onbenut_dakpotentieel": 0.3655,
+      "bedrijven_per_km2": 388.9
+     }
+    },
+    "social": {
+     "score": 33.8,
+     "inputs": {
+      "verharding_pct": 48.8732052656,
+      "ouderen_pct": 19
+     }
+    }
+   },
+   "kansenkaart": [
+    "Parkhoeve jeugd/educatie. Vlimmerenstraat: omtuinen naar waterspeel aanleidingen. Vergroenen parkeerplaatsen bij flats. Basisschool Noorderlicht: Schoolplein vergroenen. Wisselaar en Laurentius tuinen vergroenen."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580107",
+   "buurtnaam": "Waterdonken",
+   "wijkcode": "WK075801",
+   "water": "NEE",
+   "aantalInwoners": 1405,
+   "scores": {
+    "democratic": {
+     "score": 37.3,
+     "inputs": {
+      "access": 1.767,
+      "deals": 10
+     }
+    },
+    "spatial": {
+     "score": 58.9,
+     "inputs": {
+      "groendekking_share": 0.32847813837465745,
+      "groen_afstand_km": null,
+      "bomen": 461,
+      "bomen_per_100_inw": 32.81
+     }
+    },
+    "economic": {
+     "score": 59.1,
+     "inputs": {
+      "zonnestroom_pct": 33.0,
+      "eengezins_pct": 61,
+      "onbenut_dakpotentieel": 0.4087,
+      "bedrijven_per_km2": 833.3
+     }
+    },
+    "social": {
+     "score": 24.1,
+     "inputs": {
+      "verharding_pct": 56.6582052503,
+      "ouderen_pct": 8
+     }
+    }
+   },
+   "kansenkaart": [
+    "Parkhoeve jeugd/educatie. Vlimmerenstraat: omtuinen naar waterspeel aanleidingen. Vergroenen parkeerplaatsen bij flats. Basisschool Noorderlicht: Schoolplein vergroenen. Wisselaar en Laurentius tuinen vergroenen.",
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580200",
+   "buurtnaam": "Brabantpark",
+   "wijkcode": "WK075802",
+   "water": "NEE",
+   "aantalInwoners": 10810,
+   "scores": {
+    "democratic": {
+     "score": 80.5,
+     "inputs": {
+      "access": 1.183,
+      "deals": 99
+     }
+    },
+    "spatial": {
+     "score": 56.0,
+     "inputs": {
+      "groendekking_share": 0.16790647596964647,
+      "groen_afstand_km": null,
+      "bomen": 4902,
+      "bomen_per_100_inw": 45.35
+     }
+    },
+    "economic": {
+     "score": 43.5,
+     "inputs": {
+      "zonnestroom_pct": 23.0,
+      "eengezins_pct": 46,
+      "onbenut_dakpotentieel": 0.3542,
+      "bedrijven_per_km2": 602.2
+     }
+    },
+    "social": {
+     "score": 45.0,
+     "inputs": {
+      "verharding_pct": 57.7484636679,
+      "ouderen_pct": 16
+     }
+    }
+   },
+   "kansenkaart": [
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel.",
+    "Fysieke projecten: Vergroening Fellenoord/Rechtbankkwartier. Pleinenaanpak. Aanleg Seeligpark. Invoeren betaald Parkeren.",
+    "Visie bomensingel, kansen voor groen langs de singel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580201",
+   "buurtnaam": "Sportpark",
+   "wijkcode": "WK075802",
+   "water": "NEE",
+   "aantalInwoners": 3410,
+   "scores": {
+    "democratic": {
+     "score": 65.0,
+     "inputs": {
+      "access": 1.067,
+      "deals": 15
+     }
+    },
+    "spatial": {
+     "score": 50.0,
+     "inputs": {
+      "groendekking_share": 0.10212321743945234,
+      "groen_afstand_km": null,
+      "bomen": 1674,
+      "bomen_per_100_inw": 49.09
+     }
+    },
+    "economic": {
+     "score": 59.7,
+     "inputs": {
+      "zonnestroom_pct": 20.0,
+      "eengezins_pct": 54,
+      "onbenut_dakpotentieel": 0.432,
+      "bedrijven_per_km2": 618.6
+     }
+    },
+    "social": {
+     "score": 62.0,
+     "inputs": {
+      "verharding_pct": 55.5848517772,
+      "ouderen_pct": 24
+     }
+    }
+   },
+   "kansenkaart": [
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel.",
+    "Fysieke projecten: Vergroening Fellenoord/Rechtbankkwartier. Pleinenaanpak. Aanleg Seeligpark. Invoeren betaald Parkeren.",
+    "Visie bomensingel, kansen voor groen langs de singel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580202",
+   "buurtnaam": "Zandberg",
+   "wijkcode": "WK075802",
+   "water": "NEE",
+   "aantalInwoners": 5050,
+   "scores": {
+    "democratic": {
+     "score": 79.5,
+     "inputs": {
+      "access": 1.15,
+      "deals": 76
+     }
+    },
+    "spatial": {
+     "score": 23.3,
+     "inputs": {
+      "groendekking_share": 0.05921797409931924,
+      "groen_afstand_km": null,
+      "bomen": 1280,
+      "bomen_per_100_inw": 25.35
+     }
+    },
+    "economic": {
+     "score": 84.7,
+     "inputs": {
+      "zonnestroom_pct": 27.0,
+      "eengezins_pct": 68,
+      "onbenut_dakpotentieel": 0.4964,
+      "bedrijven_per_km2": 1668.9
+     }
+    },
+    "social": {
+     "score": 44.9,
+     "inputs": {
+      "verharding_pct": 58.7176133952,
+      "ouderen_pct": 15
+     }
+    }
+   },
+   "kansenkaart": [
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel.",
+    "Fysieke projecten: Vergroening Fellenoord/Rechtbankkwartier. Pleinenaanpak. Aanleg Seeligpark. Invoeren betaald Parkeren.",
+    "Visie bomensingel, kansen voor groen langs de singel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580203",
+   "buurtnaam": "Heusdenhout",
+   "wijkcode": "WK075802",
+   "water": "NEE",
+   "aantalInwoners": 5165,
+   "scores": {
+    "democratic": {
+     "score": 68.2,
+     "inputs": {
+      "access": 1.467,
+      "deals": 77
+     }
+    },
+    "spatial": {
+     "score": 76.9,
+     "inputs": {
+      "groendekking_share": 0.21001383474173166,
+      "groen_afstand_km": null,
+      "bomen": 2991,
+      "bomen_per_100_inw": 57.91
+     }
+    },
+    "economic": {
+     "score": 47.0,
+     "inputs": {
+      "zonnestroom_pct": 26.0,
+      "eengezins_pct": 62,
+      "onbenut_dakpotentieel": 0.4588,
+      "bedrijven_per_km2": 341.1
+     }
+    },
+    "social": {
+     "score": 51.9,
+     "inputs": {
+      "verharding_pct": 48.3760614967,
+      "ouderen_pct": 24
+     }
+    }
+   },
+   "kansenkaart": [
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel.",
+    "Minervum ondernemers laten vergroenen."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580204",
+   "buurtnaam": "Moleneind-oost",
+   "wijkcode": "WK075802",
+   "water": "NEE",
+   "aantalInwoners": 55,
+   "scores": {
+    "democratic": {
+     "score": 22.2,
+     "inputs": {
+      "access": 1.75,
+      "deals": 0
+     }
+    },
+    "spatial": {
+     "score": 58.2,
+     "inputs": {
+      "groendekking_share": 0.11694323235049939,
+      "groen_afstand_km": null,
+      "bomen": 263,
+      "bomen_per_100_inw": null
+     }
+    },
+    "economic": {
+     "score": 45.5,
+     "inputs": {
+      "zonnestroom_pct": null,
+      "eengezins_pct": 89,
+      "onbenut_dakpotentieel": null,
+      "bedrijven_per_km2": 465.9
+     }
+    },
+    "social": {
+     "score": 92.6,
+     "inputs": {
+      "verharding_pct": 70.801369863,
+      "ouderen_pct": 25
+     }
+    }
+   },
+   "kansenkaart": [
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen",
+     "bomen"
+    ],
+    "economic": [
+     "zonnestroom/dakpotentieel"
+    ],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580205",
+   "buurtnaam": "Hoogeind",
+   "wijkcode": "WK075802",
+   "water": "NEE",
+   "aantalInwoners": 50,
+   "scores": {
+    "democratic": {
+     "score": 10.4,
+     "inputs": {
+      "access": 2.467,
+      "deals": 0
+     }
+    },
+    "spatial": {
+     "score": 40.0,
+     "inputs": {
+      "groendekking_share": 0.08461373839877193,
+      "groen_afstand_km": null,
+      "bomen": 1074,
+      "bomen_per_100_inw": null
+     }
+    },
+    "economic": {
+     "score": 20.0,
+     "inputs": {
+      "zonnestroom_pct": null,
+      "eengezins_pct": null,
+      "onbenut_dakpotentieel": null,
+      "bedrijven_per_km2": 178.1
+     }
+    },
+    "social": {
+     "score": 66.7,
+     "inputs": {
+      "verharding_pct": 58.891721043,
+      "ouderen_pct": null
+     }
+    }
+   },
+   "kansenkaart": [
+    "Minervum ondernemers laten vergroenen.",
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen",
+     "bomen"
+    ],
+    "economic": [
+     "zonnestroom/dakpotentieel"
+    ],
+    "social": [
+     "ouderen-aandeel"
+    ]
+   }
+  },
+  {
+   "buurtcode": "BU07580300",
+   "buurtnaam": "Blauwe Kei",
+   "wijkcode": "WK075803",
+   "water": "NEE",
+   "aantalInwoners": 3870,
+   "scores": {
+    "democratic": {
+     "score": 67.7,
+     "inputs": {
+      "access": 1.233,
+      "deals": 35
+     }
+    },
+    "spatial": {
+     "score": 40.8,
+     "inputs": {
+      "groendekking_share": 0.12233253776669062,
+      "groen_afstand_km": null,
+      "bomen": 1297,
+      "bomen_per_100_inw": 33.51
+     }
+    },
+    "economic": {
+     "score": 85.0,
+     "inputs": {
+      "zonnestroom_pct": 32.0,
+      "eengezins_pct": 81,
+      "onbenut_dakpotentieel": 0.5508,
+      "bedrijven_per_km2": 771.4
+     }
+    },
+    "social": {
+     "score": 54.2,
+     "inputs": {
+      "verharding_pct": 57.9537366548,
+      "ouderen_pct": 19
+     }
+    }
+   },
+   "kansenkaart": [
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580301",
+   "buurtnaam": "Ypelaar",
+   "wijkcode": "WK075803",
+   "water": "NEE",
+   "aantalInwoners": 5975,
+   "scores": {
+    "democratic": {
+     "score": 69.1,
+     "inputs": {
+      "access": 1.317,
+      "deals": 51
+     }
+    },
+    "spatial": {
+     "score": 58.8,
+     "inputs": {
+      "groendekking_share": 0.17417341287958432,
+      "groen_afstand_km": null,
+      "bomen": 2725,
+      "bomen_per_100_inw": 45.61
+     }
+    },
+    "economic": {
+     "score": 58.5,
+     "inputs": {
+      "zonnestroom_pct": 19.0,
+      "eengezins_pct": 54,
+      "onbenut_dakpotentieel": 0.4374,
+      "bedrijven_per_km2": 568.4
+     }
+    },
+    "social": {
+     "score": 76.4,
+     "inputs": {
+      "verharding_pct": 57.3687976026,
+      "ouderen_pct": 32
+     }
+    }
+   },
+   "kansenkaart": [
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel.",
+    "Minervum ondernemers laten vergroenen.",
+    "Watergang de Bavelse Lei, kansen voor waterberging en natuur."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580302",
+   "buurtnaam": "Overakker",
+   "wijkcode": "WK075803",
+   "water": "NEE",
+   "aantalInwoners": 3285,
+   "scores": {
+    "democratic": {
+     "score": 59.1,
+     "inputs": {
+      "access": 1.35,
+      "deals": 28
+     }
+    },
+    "spatial": {
+     "score": 46.1,
+     "inputs": {
+      "groendekking_share": 0.05017032503223611,
+      "groen_afstand_km": null,
+      "bomen": 2111,
+      "bomen_per_100_inw": 64.26
+     }
+    },
+    "economic": {
+     "score": 38.8,
+     "inputs": {
+      "zonnestroom_pct": 19.0,
+      "eengezins_pct": 52,
+      "onbenut_dakpotentieel": 0.4212,
+      "bedrijven_per_km2": 317.2
+     }
+    },
+    "social": {
+     "score": 60.7,
+     "inputs": {
+      "verharding_pct": 51.4677419355,
+      "ouderen_pct": 32
+     }
+    }
+   },
+   "kansenkaart": [
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel.",
+    "Minervum ondernemers laten vergroenen.",
+    "Watergang de Bavelse Lei, kansen voor waterberging en natuur."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580303",
+   "buurtnaam": "Ginneken",
+   "wijkcode": "WK075803",
+   "water": "NEE",
+   "aantalInwoners": 5435,
+   "scores": {
+    "democratic": {
+     "score": 75.4,
+     "inputs": {
+      "access": 1.217,
+      "deals": 71
+     }
+    },
+    "spatial": {
+     "score": 31.1,
+     "inputs": {
+      "groendekking_share": 0.06054600860503296,
+      "groen_afstand_km": null,
+      "bomen": 2013,
+      "bomen_per_100_inw": 37.04
+     }
+    },
+    "economic": {
+     "score": 80.2,
+     "inputs": {
+      "zonnestroom_pct": 29.0,
+      "eengezins_pct": 71,
+      "onbenut_dakpotentieel": 0.5041,
+      "bedrijven_per_km2": 877.9
+     }
+    },
+    "social": {
+     "score": 58.3,
+     "inputs": {
+      "verharding_pct": 56.5369796204,
+      "ouderen_pct": 22
+     }
+    }
+   },
+   "kansenkaart": [
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580309",
+   "buurtnaam": "Mastbos",
+   "wijkcode": "WK075803",
+   "water": "NEE",
+   "aantalInwoners": 835,
+   "scores": {
+    "democratic": {
+     "score": 21.8,
+     "inputs": {
+      "access": 4.0,
+      "deals": 12
+     }
+    },
+    "spatial": {
+     "score": 44.9,
+     "inputs": {
+      "groendekking_share": 0.00024295764740215025,
+      "groen_afstand_km": null,
+      "bomen": 4049,
+      "bomen_per_100_inw": 484.91
+     }
+    },
+    "economic": {
+     "score": 12.3,
+     "inputs": {
+      "zonnestroom_pct": 49.0,
+      "eengezins_pct": 63,
+      "onbenut_dakpotentieel": 0.3213,
+      "bedrijven_per_km2": 15.0
+     }
+    },
+    "social": {
+     "score": 29.6,
+     "inputs": {
+      "verharding_pct": 0,
+      "ouderen_pct": 20
+     }
+    }
+   },
+   "kansenkaart": [
+    "Groene daken op bedrijven langs de A16.",
+    "Buitengebied: daken benuuten voor zonne-energie. Afschaffen kerstboomverbranding? Klimaatrobuuste Beekdalen. Wateroverlast vs. natuur vs. verdroging.",
+    "Buitengebied: daken benuuten voor zonne-energie. Afschaffen kerstboomverbranding?",
+    "Tuinzicht, Alwel sociale huurwoningen: kansen stakeholder. Woningbouwcorporatie betrekken in vergroening tuinen. Princenhage (scholen betrekken), grote initiatieven openbaar groen. Actieve inwoners. Minervum ondernemers laten vergroenen.",
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580400",
+   "buurtnaam": "Boeimeer",
+   "wijkcode": "WK075804",
+   "water": "NEE",
+   "aantalInwoners": 5785,
+   "scores": {
+    "democratic": {
+     "score": 80.5,
+     "inputs": {
+      "access": 1.233,
+      "deals": 129
+     }
+    },
+    "spatial": {
+     "score": 74.7,
+     "inputs": {
+      "groendekking_share": 0.2651374248331154,
+      "groen_afstand_km": null,
+      "bomen": 3018,
+      "bomen_per_100_inw": 52.17
+     }
+    },
+    "economic": {
+     "score": 62.4,
+     "inputs": {
+      "zonnestroom_pct": 20.0,
+      "eengezins_pct": 54,
+      "onbenut_dakpotentieel": 0.432,
+      "bedrijven_per_km2": 709.4
+     }
+    },
+    "social": {
+     "score": 44.5,
+     "inputs": {
+      "verharding_pct": 46.2304801754,
+      "ouderen_pct": 22
+     }
+    }
+   },
+   "kansenkaart": [
+    "Tuinzicht, Alwel sociale huurwoningen: kansen stakeholder. Woningbouwcorporatie betrekken in vergroening tuinen. Princenhage (scholen betrekken), grote initiatieven openbaar groen. Actieve inwoners. Minervum ondernemers laten vergroenen.",
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel.",
+    "Fysieke projecten: Vergroening Fellenoord/Rechtbankkwartier. Pleinenaanpak. Aanleg Seeligpark. Invoeren betaald Parkeren.",
+    "Visie bomensingel, kansen voor groen langs de singel.",
+    "Doortrekken van de Mark."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580401",
+   "buurtnaam": "Ruitersbos",
+   "wijkcode": "WK075804",
+   "water": "NEE",
+   "aantalInwoners": 2560,
+   "scores": {
+    "democratic": {
+     "score": 39.5,
+     "inputs": {
+      "access": 1.8,
+      "deals": 13
+     }
+    },
+    "spatial": {
+     "score": 62.8,
+     "inputs": {
+      "groendekking_share": 0.09784815328743404,
+      "groen_afstand_km": null,
+      "bomen": 2830,
+      "bomen_per_100_inw": 110.55
+     }
+    },
+    "economic": {
+     "score": 27.0,
+     "inputs": {
+      "zonnestroom_pct": 29.0,
+      "eengezins_pct": 48,
+      "onbenut_dakpotentieel": 0.3408,
+      "bedrijven_per_km2": 334.3
+     }
+    },
+    "social": {
+     "score": 52.8,
+     "inputs": {
+      "verharding_pct": 35.4232386679,
+      "ouderen_pct": 36
+     }
+    }
+   },
+   "kansenkaart": [
+    "Groene daken op bedrijven langs de A16.",
+    "Tuinzicht, Alwel sociale huurwoningen: kansen stakeholder. Woningbouwcorporatie betrekken in vergroening tuinen. Princenhage (scholen betrekken), grote initiatieven openbaar groen. Actieve inwoners. Minervum ondernemers laten vergroenen.",
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580500",
+   "buurtnaam": "Haagpoort",
+   "wijkcode": "WK075805",
+   "water": "NEE",
+   "aantalInwoners": 2170,
+   "scores": {
+    "democratic": {
+     "score": 47.8,
+     "inputs": {
+      "access": 1.133,
+      "deals": 2
+     }
+    },
+    "spatial": {
+     "score": 33.2,
+     "inputs": {
+      "groendekking_share": 0.10796464003891232,
+      "groen_afstand_km": null,
+      "bomen": 515,
+      "bomen_per_100_inw": 23.73
+     }
+    },
+    "economic": {
+     "score": 90.6,
+     "inputs": {
+      "zonnestroom_pct": 21.0,
+      "eengezins_pct": 71,
+      "onbenut_dakpotentieel": 0.5609,
+      "bedrijven_per_km2": 958.3
+     }
+    },
+    "social": {
+     "score": 54.6,
+     "inputs": {
+      "verharding_pct": 70.7885891345,
+      "ouderen_pct": 13
+     }
+    }
+   },
+   "kansenkaart": [
+    "Tuinzicht, Alwel sociale huurwoningen: kansen stakeholder. Woningbouwcorporatie betrekken in vergroening tuinen. Princenhage (scholen betrekken), grote initiatieven openbaar groen. Actieve inwoners. Minervum ondernemers laten vergroenen.",
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel.",
+    "Fysieke projecten: Vergroening Fellenoord/Rechtbankkwartier. Pleinenaanpak. Aanleg Seeligpark. Invoeren betaald Parkeren.",
+    "Visie bomensingel, kansen voor groen langs de singel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580501",
+   "buurtnaam": "Heuvel",
+   "wijkcode": "WK075805",
+   "water": "NEE",
+   "aantalInwoners": 7900,
+   "scores": {
+    "democratic": {
+     "score": 61.9,
+     "inputs": {
+      "access": 1.517,
+      "deals": 43
+     }
+    },
+    "spatial": {
+     "score": 46.0,
+     "inputs": {
+      "groendekking_share": 0.16972018735415148,
+      "groen_afstand_km": null,
+      "bomen": 2176,
+      "bomen_per_100_inw": 27.54
+     }
+    },
+    "economic": {
+     "score": 50.3,
+     "inputs": {
+      "zonnestroom_pct": 29.0,
+      "eengezins_pct": 45,
+      "onbenut_dakpotentieel": 0.3195,
+      "bedrijven_per_km2": 904.0
+     }
+    },
+    "social": {
+     "score": 49.5,
+     "inputs": {
+      "verharding_pct": 62.4870542002,
+      "ouderen_pct": 15
+     }
+    }
+   },
+   "kansenkaart": [
+    "Groene daken op bedrijven langs de A16.",
+    "Tuinzicht, Alwel sociale huurwoningen: kansen stakeholder. Woningbouwcorporatie betrekken in vergroening tuinen. Princenhage (scholen betrekken), grote initiatieven openbaar groen. Actieve inwoners. Minervum ondernemers laten vergroenen.",
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580502",
+   "buurtnaam": "Tuinzigt",
+   "wijkcode": "WK075805",
+   "water": "NEE",
+   "aantalInwoners": 7850,
+   "scores": {
+    "democratic": {
+     "score": 64.5,
+     "inputs": {
+      "access": 1.15,
+      "deals": 23
+     }
+    },
+    "spatial": {
+     "score": 23.1,
+     "inputs": {
+      "groendekking_share": 0.06245101317171612,
+      "groen_afstand_km": null,
+      "bomen": 1807,
+      "bomen_per_100_inw": 23.02
+     }
+    },
+    "economic": {
+     "score": 66.0,
+     "inputs": {
+      "zonnestroom_pct": 17.0,
+      "eengezins_pct": 50,
+      "onbenut_dakpotentieel": 0.415,
+      "bedrijven_per_km2": 1004.3
+     }
+    },
+    "social": {
+     "score": 48.1,
+     "inputs": {
+      "verharding_pct": 69.2036686179,
+      "ouderen_pct": 11
+     }
+    }
+   },
+   "kansenkaart": [
+    "Tuinzicht, Alwel sociale huurwoningen: kansen stakeholder. Woningbouwcorporatie betrekken in vergroening tuinen. Princenhage (scholen betrekken), grote initiatieven openbaar groen. Actieve inwoners. Minervum ondernemers laten vergroenen.",
+    "Fysieke projecten: Vergroening Fellenoord/Rechtbankkwartier. Pleinenaanpak. Aanleg Seeligpark. Invoeren betaald Parkeren.",
+    "Muizenberg is vergroend, nu de rest van de wijk nog. Kansen stadsbos/recreatie. Olympia school (Kesteren) wil schoolpleinen vergroenen. Project 'Jongeren op gewicht'. Natuurlijke waterbuffer in het noorden van de wijk. Tennisvereniging Heksenwiel.",
+    "Visie bomensingel, kansen voor groen langs de singel.",
+    "Fietsstraat Nijverheidssingel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580503",
+   "buurtnaam": "Princenhage",
+   "wijkcode": "WK075805",
+   "water": "NEE",
+   "aantalInwoners": 8975,
+   "scores": {
+    "democratic": {
+     "score": 67.2,
+     "inputs": {
+      "access": 1.85,
+      "deals": 329
+     }
+    },
+    "spatial": {
+     "score": 51.8,
+     "inputs": {
+      "groendekking_share": 0.11309871448283652,
+      "groen_afstand_km": null,
+      "bomen": 4393,
+      "bomen_per_100_inw": 48.95
+     }
+    },
+    "economic": {
+     "score": 56.9,
+     "inputs": {
+      "zonnestroom_pct": 29.0,
+      "eengezins_pct": 69,
+      "onbenut_dakpotentieel": 0.4899,
+      "bedrijven_per_km2": 450.8
+     }
+    },
+    "social": {
+     "score": 67.6,
+     "inputs": {
+      "verharding_pct": 58.5963027994,
+      "ouderen_pct": 22
+     }
+    }
+   },
+   "kansenkaart": [
+    "Groene daken op bedrijven langs de A16.",
+    "Tuinzicht, Alwel sociale huurwoningen: kansen stakeholder. Woningbouwcorporatie betrekken in vergroening tuinen. Princenhage (scholen betrekken), grote initiatieven openbaar groen. Actieve inwoners. Minervum ondernemers laten vergroenen.",
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580504",
+   "buurtnaam": "Westerpark",
+   "wijkcode": "WK075805",
+   "water": "NEE",
+   "aantalInwoners": 3455,
+   "scores": {
+    "democratic": {
+     "score": 55.0,
+     "inputs": {
+      "access": 1.683,
+      "deals": 31
+     }
+    },
+    "spatial": {
+     "score": 61.7,
+     "inputs": {
+      "groendekking_share": 0.18472026150110907,
+      "groen_afstand_km": null,
+      "bomen": 1605,
+      "bomen_per_100_inw": 46.45
+     }
+    },
+    "economic": {
+     "score": 69.6,
+     "inputs": {
+      "zonnestroom_pct": 31.0,
+      "eengezins_pct": 74,
+      "onbenut_dakpotentieel": 0.5106,
+      "bedrijven_per_km2": 562.5
+     }
+    },
+    "social": {
+     "score": 35.2,
+     "inputs": {
+      "verharding_pct": 55.0076672671,
+      "ouderen_pct": 17
+     }
+    }
+   },
+   "kansenkaart": [
+    "Tuinzicht, Alwel sociale huurwoningen: kansen stakeholder. Woningbouwcorporatie betrekken in vergroening tuinen. Princenhage (scholen betrekken), grote initiatieven openbaar groen. Actieve inwoners. Minervum ondernemers laten vergroenen."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580505",
+   "buurtnaam": "Heilaar",
+   "wijkcode": "WK075805",
+   "water": "NEE",
+   "aantalInwoners": 630,
+   "scores": {
+    "democratic": {
+     "score": 35.9,
+     "inputs": {
+      "access": 2.217,
+      "deals": 18
+     }
+    },
+    "spatial": {
+     "score": 58.3,
+     "inputs": {
+      "groendekking_share": 0.07310542052350887,
+      "groen_afstand_km": null,
+      "bomen": 957,
+      "bomen_per_100_inw": 151.9
+     }
+    },
+    "economic": {
+     "score": 19.2,
+     "inputs": {
+      "zonnestroom_pct": 68.0,
+      "eengezins_pct": 98,
+      "onbenut_dakpotentieel": 0.3136,
+      "bedrijven_per_km2": 224.7
+     }
+    },
+    "social": {
+     "score": 46.3,
+     "inputs": {
+      "verharding_pct": 63.2275489216,
+      "ouderen_pct": 13
+     }
+    }
+   },
+   "kansenkaart": [
+    "Tuinzicht, Alwel sociale huurwoningen: kansen stakeholder. Woningbouwcorporatie betrekken in vergroening tuinen. Princenhage (scholen betrekken), grote initiatieven openbaar groen. Actieve inwoners. Minervum ondernemers laten vergroenen.",
+    "Rijk verenigingsleven, grote sociale cohesie. Markt (centrum) al veel vergroend: enthousiaste bewoners."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580506",
+   "buurtnaam": "Hazeldonk",
+   "wijkcode": "WK075805",
+   "water": "NEE",
+   "aantalInwoners": 55,
+   "scores": {
+    "democratic": {
+     "score": 2.2,
+     "inputs": {
+      "access": 6.017,
+      "deals": 0
+     }
+    },
+    "spatial": {
+     "score": 20.0,
+     "inputs": {
+      "groendekking_share": 0.03714776831194764,
+      "groen_afstand_km": null,
+      "bomen": 1026,
+      "bomen_per_100_inw": null
+     }
+    },
+    "economic": {
+     "score": 14.5,
+     "inputs": {
+      "zonnestroom_pct": null,
+      "eengezins_pct": 90,
+      "onbenut_dakpotentieel": null,
+      "bedrijven_per_km2": 29.1
+     }
+    },
+    "social": {
+     "score": 57.4,
+     "inputs": {
+      "verharding_pct": null,
+      "ouderen_pct": 20
+     }
+    }
+   },
+   "kansenkaart": [
+    "Groene daken op bedrijven langs de A16.",
+    "Buitengebied: daken benuuten voor zonne-energie. Afschaffen kerstboomverbranding? Klimaatrobuuste Beekdalen. Wateroverlast vs. natuur vs. verdroging.",
+    " ",
+    "Tuinzicht, Alwel sociale huurwoningen: kansen stakeholder. Woningbouwcorporatie betrekken in vergroening tuinen. Princenhage (scholen betrekken), grote initiatieven openbaar groen. Actieve inwoners. Minervum ondernemers laten vergroenen.",
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen",
+     "bomen"
+    ],
+    "economic": [
+     "zonnestroom/dakpotentieel"
+    ],
+    "social": [
+     "verharding"
+    ]
+   }
+  },
+  {
+   "buurtcode": "BU07580507",
+   "buurtnaam": "Steenakker",
+   "wijkcode": "WK075805",
+   "water": "NEE",
+   "aantalInwoners": 485,
+   "scores": {
+    "democratic": {
+     "score": 33.6,
+     "inputs": {
+      "access": 1.933,
+      "deals": 10
+     }
+    },
+    "spatial": {
+     "score": 73.0,
+     "inputs": {
+      "groendekking_share": 0.14202822543089563,
+      "groen_afstand_km": null,
+      "bomen": 752,
+      "bomen_per_100_inw": 155.05
+     }
+    },
+    "economic": {
+     "score": 18.1,
+     "inputs": {
+      "zonnestroom_pct": 18.0,
+      "eengezins_pct": 31,
+      "onbenut_dakpotentieel": 0.2542,
+      "bedrijven_per_km2": 305.6
+     }
+    },
+    "social": {
+     "score": 52.8,
+     "inputs": {
+      "verharding_pct": 68.3041275997,
+      "ouderen_pct": 13
+     }
+    }
+   },
+   "kansenkaart": [
+    "Tuinzicht, Alwel sociale huurwoningen: kansen stakeholder. Woningbouwcorporatie betrekken in vergroening tuinen. Princenhage (scholen betrekken), grote initiatieven openbaar groen. Actieve inwoners. Minervum ondernemers laten vergroenen.",
+    "Rijk verenigingsleven, grote sociale cohesie. Markt (centrum) al veel vergroend: enthousiaste bewoners.",
+    "Muizenberg is vergroend, nu de rest van de wijk nog. Kansen stadsbos/recreatie. Olympia school (Kesteren) wil schoolpleinen vergroenen. Project 'Jongeren op gewicht'. Natuurlijke waterbuffer in het noorden van de wijk. Tennisvereniging Heksenwiel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580508",
+   "buurtnaam": "Effen-Rith",
+   "wijkcode": "WK075805",
+   "water": "NEE",
+   "aantalInwoners": 875,
+   "scores": {
+    "democratic": {
+     "score": 15.9,
+     "inputs": {
+      "access": 4.05,
+      "deals": 7
+     }
+    },
+    "spatial": {
+     "score": 45.1,
+     "inputs": {
+      "groendekking_share": 0.0,
+      "groen_afstand_km": null,
+      "bomen": 4559,
+      "bomen_per_100_inw": 521.03
+     }
+    },
+    "economic": {
+     "score": 36.9,
+     "inputs": {
+      "zonnestroom_pct": 46.0,
+      "eengezins_pct": 85,
+      "onbenut_dakpotentieel": 0.459,
+      "bedrijven_per_km2": 21.8
+     }
+    },
+    "social": {
+     "score": 48.1,
+     "inputs": {
+      "verharding_pct": 42.6666666667,
+      "ouderen_pct": 24
+     }
+    }
+   },
+   "kansenkaart": [
+    "Groene daken op bedrijven langs de A16.",
+    " ",
+    "Tuinzicht, Alwel sociale huurwoningen: kansen stakeholder. Woningbouwcorporatie betrekken in vergroening tuinen. Princenhage (scholen betrekken), grote initiatieven openbaar groen. Actieve inwoners. Minervum ondernemers laten vergroenen.",
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel.",
+    "Motiveren om maatregelen te treffen."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580509",
+   "buurtnaam": "Liesbos",
+   "wijkcode": "WK075805",
+   "water": "NEE",
+   "aantalInwoners": 780,
+   "scores": {
+    "democratic": {
+     "score": 17.3,
+     "inputs": {
+      "access": 3.4,
+      "deals": 6
+     }
+    },
+    "spatial": {
+     "score": 44.0,
+     "inputs": {
+      "groendekking_share": 0.0003962826549651032,
+      "groen_afstand_km": null,
+      "bomen": 2450,
+      "bomen_per_100_inw": 314.1
+     }
+    },
+    "economic": {
+     "score": 32.6,
+     "inputs": {
+      "zonnestroom_pct": 50.0,
+      "eengezins_pct": 86,
+      "onbenut_dakpotentieel": 0.43,
+      "bedrijven_per_km2": 32.4
+     }
+    },
+    "social": {
+     "score": 47.7,
+     "inputs": {
+      "verharding_pct": 0,
+      "ouderen_pct": 28
+     }
+    }
+   },
+   "kansenkaart": [
+    "Groene daken op bedrijven langs de A16.",
+    "Tuinzicht, Alwel sociale huurwoningen: kansen stakeholder. Woningbouwcorporatie betrekken in vergroening tuinen. Princenhage (scholen betrekken), grote initiatieven openbaar groen. Actieve inwoners. Minervum ondernemers laten vergroenen.",
+    "Rijk verenigingsleven, grote sociale cohesie. Markt (centrum) al veel vergroend: enthousiaste bewoners.",
+    "Motiveren om maatregelen te treffen."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580600",
+   "buurtnaam": "Gageldonk",
+   "wijkcode": "WK075806",
+   "water": "NEE",
+   "aantalInwoners": 4615,
+   "scores": {
+    "democratic": {
+     "score": 57.2,
+     "inputs": {
+      "access": 1.433,
+      "deals": 29
+     }
+    },
+    "spatial": {
+     "score": 64.1,
+     "inputs": {
+      "groendekking_share": 0.21208665016244366,
+      "groen_afstand_km": null,
+      "bomen": 2033,
+      "bomen_per_100_inw": 44.05
+     }
+    },
+    "economic": {
+     "score": 76.3,
+     "inputs": {
+      "zonnestroom_pct": 32.0,
+      "eengezins_pct": 76,
+      "onbenut_dakpotentieel": 0.5168,
+      "bedrijven_per_km2": 612.5
+     }
+    },
+    "social": {
+     "score": 40.2,
+     "inputs": {
+      "verharding_pct": 54.6349740947,
+      "ouderen_pct": 19
+     }
+    }
+   },
+   "kansenkaart": [
+    "Muizenberg is vergroend, nu de rest van de wijk nog. Kansen stadsbos/recreatie. Olympia school (Kesteren) wil schoolpleinen vergroenen. Project 'Jongeren op gewicht'. Natuurlijke waterbuffer in het noorden van de wijk. Tennisvereniging Heksenwiel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580601",
+   "buurtnaam": "Kievitsloop",
+   "wijkcode": "WK075806",
+   "water": "NEE",
+   "aantalInwoners": 4135,
+   "scores": {
+    "democratic": {
+     "score": 63.6,
+     "inputs": {
+      "access": 1.6,
+      "deals": 52
+     }
+    },
+    "spatial": {
+     "score": 74.1,
+     "inputs": {
+      "groendekking_share": 0.19876487987228905,
+      "groen_afstand_km": null,
+      "bomen": 2287,
+      "bomen_per_100_inw": 55.31
+     }
+    },
+    "economic": {
+     "score": 79.0,
+     "inputs": {
+      "zonnestroom_pct": 33.0,
+      "eengezins_pct": 85,
+      "onbenut_dakpotentieel": 0.5695,
+      "bedrijven_per_km2": 564.0
+     }
+    },
+    "social": {
+     "score": 33.8,
+     "inputs": {
+      "verharding_pct": 55.2473211887,
+      "ouderen_pct": 16
+     }
+    }
+   },
+   "kansenkaart": [
+    "Muizenberg is vergroend, nu de rest van de wijk nog. Kansen stadsbos/recreatie. Olympia school (Kesteren) wil schoolpleinen vergroenen. Project 'Jongeren op gewicht'. Natuurlijke waterbuffer in het noorden van de wijk. Tennisvereniging Heksenwiel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580602",
+   "buurtnaam": "Kesteren",
+   "wijkcode": "WK075806",
+   "water": "NEE",
+   "aantalInwoners": 3745,
+   "scores": {
+    "democratic": {
+     "score": 64.5,
+     "inputs": {
+      "access": 1.133,
+      "deals": 18
+     }
+    },
+    "spatial": {
+     "score": 78.9,
+     "inputs": {
+      "groendekking_share": 0.2041151235374366,
+      "groen_afstand_km": null,
+      "bomen": 2419,
+      "bomen_per_100_inw": 64.59
+     }
+    },
+    "economic": {
+     "score": 84.5,
+     "inputs": {
+      "zonnestroom_pct": 23.0,
+      "eengezins_pct": 80,
+      "onbenut_dakpotentieel": 0.616,
+      "bedrijven_per_km2": 668.8
+     }
+    },
+    "social": {
+     "score": 32.4,
+     "inputs": {
+      "verharding_pct": 56.6775606898,
+      "ouderen_pct": 13
+     }
+    }
+   },
+   "kansenkaart": [
+    "Rijk verenigingsleven, grote sociale cohesie. Markt (centrum) al veel vergroend: enthousiaste bewoners.",
+    "Muizenberg is vergroend, nu de rest van de wijk nog. Kansen stadsbos/recreatie. Olympia school (Kesteren) wil schoolpleinen vergroenen. Project 'Jongeren op gewicht'. Natuurlijke waterbuffer in het noorden van de wijk. Tennisvereniging Heksenwiel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580603",
+   "buurtnaam": "Muizenberg",
+   "wijkcode": "WK075806",
+   "water": "NEE",
+   "aantalInwoners": 2795,
+   "scores": {
+    "democratic": {
+     "score": 80.9,
+     "inputs": {
+      "access": 1.017,
+      "deals": 41
+     }
+    },
+    "spatial": {
+     "score": 60.6,
+     "inputs": {
+      "groendekking_share": 0.10839169361260638,
+      "groen_afstand_km": null,
+      "bomen": 1727,
+      "bomen_per_100_inw": 61.79
+     }
+    },
+    "economic": {
+     "score": 71.2,
+     "inputs": {
+      "zonnestroom_pct": 35.0,
+      "eengezins_pct": 84,
+      "onbenut_dakpotentieel": 0.546,
+      "bedrijven_per_km2": 528.4
+     }
+    },
+    "social": {
+     "score": 55.5,
+     "inputs": {
+      "verharding_pct": 57.3682105354,
+      "ouderen_pct": 20
+     }
+    }
+   },
+   "kansenkaart": [
+    "Rijk verenigingsleven, grote sociale cohesie. Markt (centrum) al veel vergroend: enthousiaste bewoners.",
+    "Muizenberg is vergroend, nu de rest van de wijk nog. Kansen stadsbos/recreatie. Olympia school (Kesteren) wil schoolpleinen vergroenen. Project 'Jongeren op gewicht'. Natuurlijke waterbuffer in het noorden van de wijk. Tennisvereniging Heksenwiel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580604",
+   "buurtnaam": "Heksenwiel",
+   "wijkcode": "WK075806",
+   "water": "NEE",
+   "aantalInwoners": 4305,
+   "scores": {
+    "democratic": {
+     "score": 63.2,
+     "inputs": {
+      "access": 1.3,
+      "deals": 31
+     }
+    },
+    "spatial": {
+     "score": 53.4,
+     "inputs": {
+      "groendekking_share": 0.13090435508559872,
+      "groen_afstand_km": null,
+      "bomen": 1998,
+      "bomen_per_100_inw": 46.41
+     }
+    },
+    "economic": {
+     "score": 60.2,
+     "inputs": {
+      "zonnestroom_pct": 33.0,
+      "eengezins_pct": 72,
+      "onbenut_dakpotentieel": 0.4824,
+      "bedrijven_per_km2": 538.9
+     }
+    },
+    "social": {
+     "score": 56.5,
+     "inputs": {
+      "verharding_pct": 56.1809663516,
+      "ouderen_pct": 22
+     }
+    }
+   },
+   "kansenkaart": [
+    "Muizenberg is vergroend, nu de rest van de wijk nog. Kansen stadsbos/recreatie. Olympia school (Kesteren) wil schoolpleinen vergroenen. Project 'Jongeren op gewicht'. Natuurlijke waterbuffer in het noorden van de wijk. Tennisvereniging Heksenwiel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580605",
+   "buurtnaam": "Overkroeten",
+   "wijkcode": "WK075806",
+   "water": "NEE",
+   "aantalInwoners": 3095,
+   "scores": {
+    "democratic": {
+     "score": 45.9,
+     "inputs": {
+      "access": 1.25,
+      "deals": 7
+     }
+    },
+    "spatial": {
+     "score": 33.6,
+     "inputs": {
+      "groendekking_share": 0.08958624672494424,
+      "groen_afstand_km": null,
+      "bomen": 1103,
+      "bomen_per_100_inw": 35.64
+     }
+    },
+    "economic": {
+     "score": 78.0,
+     "inputs": {
+      "zonnestroom_pct": 40.0,
+      "eengezins_pct": 86,
+      "onbenut_dakpotentieel": 0.516,
+      "bedrijven_per_km2": 677.8
+     }
+    },
+    "social": {
+     "score": 44.0,
+     "inputs": {
+      "verharding_pct": 57.6698601607,
+      "ouderen_pct": 16
+     }
+    }
+   },
+   "kansenkaart": [
+    "Muizenberg is vergroend, nu de rest van de wijk nog. Kansen stadsbos/recreatie. Olympia school (Kesteren) wil schoolpleinen vergroenen. Project 'Jongeren op gewicht'. Natuurlijke waterbuffer in het noorden van de wijk. Tennisvereniging Heksenwiel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580606",
+   "buurtnaam": "Kroeten",
+   "wijkcode": "WK075806",
+   "water": "NEE",
+   "aantalInwoners": 2230,
+   "scores": {
+    "democratic": {
+     "score": 47.7,
+     "inputs": {
+      "access": 1.1,
+      "deals": 1
+     }
+    },
+    "spatial": {
+     "score": 45.7,
+     "inputs": {
+      "groendekking_share": 0.19583736159351406,
+      "groen_afstand_km": null,
+      "bomen": 485,
+      "bomen_per_100_inw": 21.75
+     }
+    },
+    "economic": {
+     "score": 74.5,
+     "inputs": {
+      "zonnestroom_pct": 34.0,
+      "eengezins_pct": 75,
+      "onbenut_dakpotentieel": 0.495,
+      "bedrijven_per_km2": 750.0
+     }
+    },
+    "social": {
+     "score": 29.6,
+     "inputs": {
+      "verharding_pct": 56.7602170317,
+      "ouderen_pct": 12
+     }
+    }
+   },
+   "kansenkaart": [
+    "Effluent van RWZI kan gebruikt worden als water bij verdroging.",
+    "Muizenberg is vergroend, nu de rest van de wijk nog. Kansen stadsbos/recreatie. Olympia school (Kesteren) wil schoolpleinen vergroenen. Project 'Jongeren op gewicht'. Natuurlijke waterbuffer in het noorden van de wijk. Tennisvereniging Heksenwiel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580607",
+   "buurtnaam": "Emer",
+   "wijkcode": "WK075806",
+   "water": "NEE",
+   "aantalInwoners": 65,
+   "scores": {
+    "democratic": {
+     "score": 14.1,
+     "inputs": {
+      "access": 2.067,
+      "deals": 0
+     }
+    },
+    "spatial": {
+     "score": 61.8,
+     "inputs": {
+      "groendekking_share": 0.1238349898079868,
+      "groen_afstand_km": null,
+      "bomen": 2393,
+      "bomen_per_100_inw": null
+     }
+    },
+    "economic": {
+     "score": 21.8,
+     "inputs": {
+      "zonnestroom_pct": null,
+      "eengezins_pct": 73,
+      "onbenut_dakpotentieel": null,
+      "bedrijven_per_km2": 192.3
+     }
+    },
+    "social": {
+     "score": 38.4,
+     "inputs": {
+      "verharding_pct": 52.7234888505,
+      "ouderen_pct": 19
+     }
+    }
+   },
+   "kansenkaart": [
+    "Tuinzicht, Alwel sociale huurwoningen: kansen stakeholder. Woningbouwcorporatie betrekken in vergroening tuinen. Princenhage (scholen betrekken), grote initiatieven openbaar groen. Actieve inwoners. Minervum ondernemers laten vergroenen.",
+    "Fysieke projecten: Vergroening Fellenoord/Rechtbankkwartier. Pleinenaanpak. Aanleg Seeligpark. Invoeren betaald Parkeren.",
+    "Rijk verenigingsleven, grote sociale cohesie. Markt (centrum) al veel vergroend: enthousiaste bewoners.",
+    "Muizenberg is vergroend, nu de rest van de wijk nog. Kansen stadsbos/recreatie. Olympia school (Kesteren) wil schoolpleinen vergroenen. Project 'Jongeren op gewicht'. Natuurlijke waterbuffer in het noorden van de wijk. Tennisvereniging Heksenwiel.",
+    "Parkhoeve jeugd/educatie. Vlimmerenstraat: omtuinen naar waterspeel aanleidingen. Vergroenen parkeerplaatsen bij flats. Basisschool Noorderlicht: Schoolplein vergroenen. Wisselaar en Laurentius tuinen vergroenen.",
+    "Nieuwe ontwikkelingen 'Havenkwartier', mogelijkheden voor klimaatadaptatie",
+    "Visie bomensingel, kansen voor groen langs de singel.",
+    "Revatilisering bedrijventerrein, kansen voor klimaatadaptatie."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen",
+     "bomen"
+    ],
+    "economic": [
+     "zonnestroom/dakpotentieel"
+    ],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580609",
+   "buurtnaam": "Hagebeemd",
+   "wijkcode": "WK075806",
+   "water": "NEE",
+   "aantalInwoners": 210,
+   "scores": {
+    "democratic": {
+     "score": 15.9,
+     "inputs": {
+      "access": 2.267,
+      "deals": 1
+     }
+    },
+    "spatial": {
+     "score": 57.2,
+     "inputs": {
+      "groendekking_share": 0.01594004692756355,
+      "groen_afstand_km": null,
+      "bomen": 4157,
+      "bomen_per_100_inw": 1979.52
+     }
+    },
+    "economic": {
+     "score": 1.8,
+     "inputs": {
+      "zonnestroom_pct": null,
+      "eengezins_pct": 90,
+      "onbenut_dakpotentieel": null,
+      "bedrijven_per_km2": 6.9
+     }
+    },
+    "social": {
+     "score": 35.2,
+     "inputs": {
+      "verharding_pct": 38.697845705,
+      "ouderen_pct": 21
+     }
+    }
+   },
+   "kansenkaart": [
+    "Effluent van RWZI kan gebruikt worden als water bij verdroging.",
+    "Rijk verenigingsleven, grote sociale cohesie. Markt (centrum) al veel vergroend: enthousiaste bewoners.",
+    "Muizenberg is vergroend, nu de rest van de wijk nog. Kansen stadsbos/recreatie. Olympia school (Kesteren) wil schoolpleinen vergroenen. Project 'Jongeren op gewicht'. Natuurlijke waterbuffer in het noorden van de wijk. Tennisvereniging Heksenwiel.",
+    "Parkhoeve jeugd/educatie. Vlimmerenstraat: omtuinen naar waterspeel aanleidingen. Vergroenen parkeerplaatsen bij flats. Basisschool Noorderlicht: Schoolplein vergroenen. Wisselaar en Laurentius tuinen vergroenen.",
+    "Revatilisering bedrijventerrein, kansen voor klimaatadaptatie."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [
+     "zonnestroom/dakpotentieel"
+    ],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580700",
+   "buurtnaam": "Bavel",
+   "wijkcode": "WK075807",
+   "water": "NEE",
+   "aantalInwoners": 5545,
+   "scores": {
+    "democratic": {
+     "score": 52.8,
+     "inputs": {
+      "access": 2.017,
+      "deals": 46
+     }
+    },
+    "spatial": {
+     "score": 59.9,
+     "inputs": {
+      "groendekking_share": 0.09615514586812224,
+      "groen_afstand_km": null,
+      "bomen": 3823,
+      "bomen_per_100_inw": 68.94
+     }
+    },
+    "economic": {
+     "score": 65.6,
+     "inputs": {
+      "zonnestroom_pct": 40.0,
+      "eengezins_pct": 89,
+      "onbenut_dakpotentieel": 0.534,
+      "bedrijven_per_km2": 431.4
+     }
+    },
+    "social": {
+     "score": 63.9,
+     "inputs": {
+      "verharding_pct": 56.2161835573,
+      "ouderen_pct": 24
+     }
+    }
+   },
+   "kansenkaart": [
+    "Minervum ondernemers laten vergroenen."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580701",
+   "buurtnaam": "Nieuw Wolfslaar",
+   "wijkcode": "WK075807",
+   "water": "NEE",
+   "aantalInwoners": 2330,
+   "scores": {
+    "democratic": {
+     "score": 35.5,
+     "inputs": {
+      "access": 2.15,
+      "deals": 16
+     }
+    },
+    "spatial": {
+     "score": 52.1,
+     "inputs": {
+      "groendekking_share": 0.16131639098258918,
+      "groen_afstand_km": null,
+      "bomen": 926,
+      "bomen_per_100_inw": 39.74
+     }
+    },
+    "economic": {
+     "score": 31.8,
+     "inputs": {
+      "zonnestroom_pct": 53.0,
+      "eengezins_pct": 85,
+      "onbenut_dakpotentieel": 0.3995,
+      "bedrijven_per_km2": 305.8
+     }
+    },
+    "social": {
+     "score": 30.1,
+     "inputs": {
+      "verharding_pct": 43.2384708188,
+      "ouderen_pct": 19
+     }
+    }
+   },
+   "kansenkaart": [
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel.",
+    "Minervum ondernemers laten vergroenen.",
+    "Watergang de Bavelse Lei, kansen voor waterberging en natuur."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580709",
+   "buurtnaam": "Buitengebied Bavel",
+   "wijkcode": "WK075807",
+   "water": "NEE",
+   "aantalInwoners": 555,
+   "scores": {
+    "democratic": {
+     "score": 12.2,
+     "inputs": {
+      "access": 2.833,
+      "deals": 1
+     }
+    },
+    "spatial": {
+     "score": 48.6,
+     "inputs": {
+      "groendekking_share": 0.0029037797155803654,
+      "groen_afstand_km": null,
+      "bomen": 2869,
+      "bomen_per_100_inw": 516.94
+     }
+    },
+    "economic": {
+     "score": 25.9,
+     "inputs": {
+      "zonnestroom_pct": 55.0,
+      "eengezins_pct": 92,
+      "onbenut_dakpotentieel": 0.414,
+      "bedrijven_per_km2": 17.8
+     }
+    },
+    "social": {
+     "score": 69.0,
+     "inputs": {
+      "verharding_pct": 80.0170110703,
+      "ouderen_pct": 18
+     }
+    }
+   },
+   "kansenkaart": [
+    "Buitengebied: daken benuuten voor zonne-energie. Afschaffen kerstboomverbranding? Wouwenvallei vs. droogte bestrijding vs. wateroverlast Breda.",
+    "Minervum ondernemers laten vergroenen.",
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel.",
+    "Watergang de Bavelse Lei, kansen voor waterberging en natuur.",
+    "Natuurontwikkeling ter behoeve van de boomkikker."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580800",
+   "buurtnaam": "Ulvenhout",
+   "wijkcode": "WK075808",
+   "water": "NEE",
+   "aantalInwoners": 4640,
+   "scores": {
+    "democratic": {
+     "score": 58.2,
+     "inputs": {
+      "access": 2.017,
+      "deals": 98
+     }
+    },
+    "spatial": {
+     "score": 55.5,
+     "inputs": {
+      "groendekking_share": 0.06485396297892906,
+      "groen_afstand_km": null,
+      "bomen": 3660,
+      "bomen_per_100_inw": 78.88
+     }
+    },
+    "economic": {
+     "score": 61.5,
+     "inputs": {
+      "zonnestroom_pct": 39.0,
+      "eengezins_pct": 84,
+      "onbenut_dakpotentieel": 0.5124,
+      "bedrijven_per_km2": 425.3
+     }
+    },
+    "social": {
+     "score": 57.9,
+     "inputs": {
+      "verharding_pct": 50.4127659574,
+      "ouderen_pct": 28
+     }
+    }
+   },
+   "kansenkaart": [
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580809",
+   "buurtnaam": "Buitengebied Ulvenhout",
+   "wijkcode": "WK075808",
+   "water": "NEE",
+   "aantalInwoners": 315,
+   "scores": {
+    "democratic": {
+     "score": 13.1,
+     "inputs": {
+      "access": 2.817,
+      "deals": 1
+     }
+    },
+    "spatial": {
+     "score": 51.6,
+     "inputs": {
+      "groendekking_share": 0.0030743952055334667,
+      "groen_afstand_km": null,
+      "bomen": 1775,
+      "bomen_per_100_inw": 563.49
+     }
+    },
+    "economic": {
+     "score": 40.4,
+     "inputs": {
+      "zonnestroom_pct": 41.0,
+      "eengezins_pct": 82,
+      "onbenut_dakpotentieel": 0.4838,
+      "bedrijven_per_km2": 24.7
+     }
+    },
+    "social": {
+     "score": 44.4,
+     "inputs": {
+      "verharding_pct": 40,
+      "ouderen_pct": 23
+     }
+    }
+   },
+   "kansenkaart": [
+    "Buitengebied: daken benuuten voor zonne-energie. Afschaffen kerstboomverbranding?",
+    "Buitengebied: daken benuuten voor zonne-energie. Afschaffen kerstboomverbranding? Wouwenvallei vs. droogte bestrijding vs. wateroverlast Breda.",
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel.",
+    "Minervum ondernemers laten vergroenen."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580900",
+   "buurtnaam": "Prinsenbeek",
+   "wijkcode": "WK075809",
+   "water": "NEE",
+   "aantalInwoners": 11435,
+   "scores": {
+    "democratic": {
+     "score": 62.8,
+     "inputs": {
+      "access": 2.017,
+      "deals": 153
+     }
+    },
+    "spatial": {
+     "score": 50.2,
+     "inputs": {
+      "groendekking_share": 0.09066624656420506,
+      "groen_afstand_km": null,
+      "bomen": 6110,
+      "bomen_per_100_inw": 53.43
+     }
+    },
+    "economic": {
+     "score": 54.3,
+     "inputs": {
+      "zonnestroom_pct": 44.0,
+      "eengezins_pct": 88,
+      "onbenut_dakpotentieel": 0.4928,
+      "bedrijven_per_km2": 376.0
+     }
+    },
+    "social": {
+     "score": 78.7,
+     "inputs": {
+      "verharding_pct": 60.9886657894,
+      "ouderen_pct": 24
+     }
+    }
+   },
+   "kansenkaart": [
+    "Tuinzicht, Alwel sociale huurwoningen: kansen stakeholder. Woningbouwcorporatie betrekken in vergroening tuinen. Princenhage (scholen betrekken), grote initiatieven openbaar groen. Actieve inwoners. Minervum ondernemers laten vergroenen.",
+    "Rijk verenigingsleven, grote sociale cohesie. Markt (centrum) al veel vergroend: enthousiaste bewoners.",
+    "Muizenberg is vergroend, nu de rest van de wijk nog. Kansen stadsbos/recreatie. Olympia school (Kesteren) wil schoolpleinen vergroenen. Project 'Jongeren op gewicht'. Natuurlijke waterbuffer in het noorden van de wijk. Tennisvereniging Heksenwiel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07580909",
+   "buurtnaam": "Buitengebied Prinsenbeek",
+   "wijkcode": "WK075809",
+   "water": "NEE",
+   "aantalInwoners": 900,
+   "scores": {
+    "democratic": {
+     "score": 32.3,
+     "inputs": {
+      "access": 3.267,
+      "deals": 23
+     }
+    },
+    "spatial": {
+     "score": 43.0,
+     "inputs": {
+      "groendekking_share": 9.501203472722716e-05,
+      "groen_afstand_km": null,
+      "bomen": 4029,
+      "bomen_per_100_inw": 447.67
+     }
+    },
+    "economic": {
+     "score": 16.7,
+     "inputs": {
+      "zonnestroom_pct": 60.0,
+      "eengezins_pct": 97,
+      "onbenut_dakpotentieel": 0.388,
+      "bedrijven_per_km2": 14.3
+     }
+    },
+    "social": {
+     "score": 31.0,
+     "inputs": {
+      "verharding_pct": 44.25,
+      "ouderen_pct": 19
+     }
+    }
+   },
+   "kansenkaart": [
+    "Effluent van RWZI kan gebruikt worden als water bij verdroging.",
+    "Tuinzicht, Alwel sociale huurwoningen: kansen stakeholder. Woningbouwcorporatie betrekken in vergroening tuinen. Princenhage (scholen betrekken), grote initiatieven openbaar groen. Actieve inwoners. Minervum ondernemers laten vergroenen.",
+    "Rijk verenigingsleven, grote sociale cohesie. Markt (centrum) al veel vergroend: enthousiaste bewoners.",
+    "Muizenberg is vergroend, nu de rest van de wijk nog. Kansen stadsbos/recreatie. Olympia school (Kesteren) wil schoolpleinen vergroenen. Project 'Jongeren op gewicht'. Natuurlijke waterbuffer in het noorden van de wijk. Tennisvereniging Heksenwiel.",
+    "Motiveren om maatregelen te treffen."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07581000",
+   "buurtnaam": "Teteringen",
+   "wijkcode": "WK075810",
+   "water": "NEE",
+   "aantalInwoners": 8870,
+   "scores": {
+    "democratic": {
+     "score": 62.7,
+     "inputs": {
+      "access": 1.917,
+      "deals": 105
+     }
+    },
+    "spatial": {
+     "score": 52.1,
+     "inputs": {
+      "groendekking_share": 0.09334369309779578,
+      "groen_afstand_km": null,
+      "bomen": 4754,
+      "bomen_per_100_inw": 53.6
+     }
+    },
+    "economic": {
+     "score": 46.0,
+     "inputs": {
+      "zonnestroom_pct": 46.0,
+      "eengezins_pct": 85,
+      "onbenut_dakpotentieel": 0.459,
+      "bedrijven_per_km2": 306.6
+     }
+    },
+    "social": {
+     "score": 62.0,
+     "inputs": {
+      "verharding_pct": 56.8103738657,
+      "ouderen_pct": 22
+     }
+    }
+   },
+   "kansenkaart": [
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel.",
+    "Parkhoeve jeugd/educatie. Vlimmerenstraat: omtuinen naar waterspeel aanleidingen. Vergroenen parkeerplaatsen bij flats. Basisschool Noorderlicht: Schoolplein vergroenen. Wisselaar en Laurentius tuinen vergroenen.",
+    "Nieuwbouwproject, kansen voor klimaatadaptatie."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07581008",
+   "buurtnaam": "Vuchtpolder",
+   "wijkcode": "WK075810",
+   "water": "NEE",
+   "aantalInwoners": 115,
+   "scores": {
+    "democratic": {
+     "score": 5.0,
+     "inputs": {
+      "access": 3.6,
+      "deals": 0
+     }
+    },
+    "spatial": {
+     "score": 51.7,
+     "inputs": {
+      "groendekking_share": 0.001483711303305854,
+      "groen_afstand_km": null,
+      "bomen": 1306,
+      "bomen_per_100_inw": 1135.65
+     }
+    },
+    "economic": {
+     "score": 0.0,
+     "inputs": {
+      "zonnestroom_pct": null,
+      "eengezins_pct": 93,
+      "onbenut_dakpotentieel": null,
+      "bedrijven_per_km2": 5.2
+     }
+    },
+    "social": {
+     "score": 80.5,
+     "inputs": {
+      "verharding_pct": 78.3333333333,
+      "ouderen_pct": 21
+     }
+    }
+   },
+   "kansenkaart": [
+    "Parkhoeve jeugd/educatie. Vlimmerenstraat: omtuinen naar waterspeel aanleidingen. Vergroenen parkeerplaatsen bij flats. Basisschool Noorderlicht: Schoolplein vergroenen. Wisselaar en Laurentius tuinen vergroenen.",
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel.",
+    "Nieuwbouwproject, kansen voor klimaatadaptatie.",
+    "Ontwikkeling van natte natuur."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [
+     "zonnestroom/dakpotentieel"
+    ],
+    "social": []
+   }
+  },
+  {
+   "buurtcode": "BU07581009",
+   "buurtnaam": "Buitengebied Teteringen",
+   "wijkcode": "WK075810",
+   "water": "NEE",
+   "aantalInwoners": 160,
+   "scores": {
+    "democratic": {
+     "score": 17.2,
+     "inputs": {
+      "access": 2.517,
+      "deals": 3
+     }
+    },
+    "spatial": {
+     "score": 53.4,
+     "inputs": {
+      "groendekking_share": 0.009055447337542544,
+      "groen_afstand_km": null,
+      "bomen": 1118,
+      "bomen_per_100_inw": 698.75
+     }
+    },
+    "economic": {
+     "score": 7.3,
+     "inputs": {
+      "zonnestroom_pct": null,
+      "eengezins_pct": 100,
+      "onbenut_dakpotentieel": null,
+      "bedrijven_per_km2": 16.9
+     }
+    },
+    "social": {
+     "score": 37.1,
+     "inputs": {
+      "verharding_pct": 0,
+      "ouderen_pct": 22
+     }
+    }
+   },
+   "kansenkaart": [
+    "HEEL BREDA: Project 'schoolverlaters'. Sociale huurwoningen: kansen stakeholder. Bouwopgave, projectontwikkelaars klimaatadaptatie laten borgen in plannen. Sport-/buurtvereniging behoeften weten. Bestaande initiatieven verleiden voor klimaatdoel."
+   ],
+   "missing": {
+    "democratic": [],
+    "spatial": [
+     "afstand-openbaar-groen"
+    ],
+    "economic": [
+     "zonnestroom/dakpotentieel"
+    ],
+    "social": []
+   }
+  }
+ ],
+ "rollup": {
+  "democratic": {
+   "top": [
+    [
+     "Belcrum",
+     96.3
+    ],
+    [
+     "Valkenberg",
+     86.3
+    ],
+    [
+     "Muizenberg",
+     80.9
+    ],
+    [
+     "Boeimeer",
+     80.5
+    ],
+    [
+     "Brabantpark",
+     80.5
+    ]
+   ],
+   "bottom": [
+    [
+     "Hazeldonk",
+     2.2
+    ],
+    [
+     "Vuchtpolder",
+     5.0
+    ],
+    [
+     "Hoogeind",
+     10.4
+    ],
+    [
+     "Buitengebied Bavel",
+     12.2
+    ],
+    [
+     "Buitengebied Ulvenhout",
+     13.1
+    ]
+   ],
+   "n": 56
+  },
+  "spatial": {
+   "top": [
+    [
+     "Kesteren",
+     78.9
+    ],
+    [
+     "Wisselaar",
+     78.6
+    ],
+    [
+     "Heusdenhout",
+     76.9
+    ],
+    [
+     "Geeren-noord",
+     76.5
+    ],
+    [
+     "Boeimeer",
+     74.7
+    ]
+   ],
+   "bottom": [
+    [
+     "City",
+     10.1
+    ],
+    [
+     "Schorsmolen",
+     12.8
+    ],
+    [
+     "Station",
+     14.7
+    ],
+    [
+     "Belcrum",
+     19.5
+    ],
+    [
+     "Hazeldonk",
+     20.0
+    ]
+   ],
+   "n": 56
+  },
+  "economic": {
+   "top": [
+    [
+     "Haagpoort",
+     90.6
+    ],
+    [
+     "Blauwe Kei",
+     85.0
+    ],
+    [
+     "Zandberg",
+     84.7
+    ],
+    [
+     "Kesteren",
+     84.5
+    ],
+    [
+     "Ginneken",
+     80.2
+    ]
+   ],
+   "bottom": [
+    [
+     "Vuchtpolder",
+     0.0
+    ],
+    [
+     "Hagebeemd",
+     1.8
+    ],
+    [
+     "Buitengebied Teteringen",
+     7.3
+    ],
+    [
+     "Mastbos",
+     12.3
+    ],
+    [
+     "Hazeldonk",
+     14.5
+    ]
+   ],
+   "n": 56
+  },
+  "social": {
+   "top": [
+    [
+     "Moleneind-oost",
+     92.6
+    ],
+    [
+     "Vuchtpolder",
+     80.5
+    ],
+    [
+     "Chassé",
+     78.7
+    ],
+    [
+     "Prinsenbeek",
+     78.7
+    ],
+    [
+     "Ypelaar",
+     76.4
+    ]
+   ],
+   "bottom": [
+    [
+     "Valkenberg",
+     24.0
+    ],
+    [
+     "Waterdonken",
+     24.1
+    ],
+    [
+     "Mastbos",
+     29.6
+    ],
+    [
+     "Kroeten",
+     29.6
+    ],
+    [
+     "Nieuw Wolfslaar",
+     30.1
+    ]
+   ],
+   "n": 56
+  }
+ }
+}
