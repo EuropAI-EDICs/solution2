@@ -57,4 +57,8 @@ POC_TOOLS: dict[str, dict[str, Any]] = {
         "process_id": "fetch-geo-layer",
         "description": "Haal één PoC-geolaag op (ArcGIS/agrest, cache-first); compacte samenvatting",
     },
+    "run_artifact": {
+        "process_id": "run-artifact",
+        "description": "Lees één outputbestand uit een pipeline-run-dir (inline, max 5 MB)",
+    },
 }

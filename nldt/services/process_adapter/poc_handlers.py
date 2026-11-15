@@ -296,6 +296,24 @@ POC_PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
             "summary": {"title": "Laag-samenvatting", "schema": {"type": "object"}},
         },
     },
+    "run-artifact": {
+        "id": "run-artifact",
+        "title": "Read run artifact",
+        "description": (
+            "Lees één outputbestand uit een pipeline-run-dir en geef de inhoud "
+            "inline terug (geojson/json/text). Beveiligd: het resolved pad moet "
+            "binnen run_dir blijven en het bestand mag max 5 MB zijn."
+        ),
+        "version": "1.0.0",
+        "keywords": ["poc", "artifact", "live-sim"],
+        "inputs": {
+            "run_dir": {"title": "Run dir", "schema": {"type": "string"}, "required": True},
+            "artifact": {"title": "Bestandsnaam binnen run_dir", "schema": {"type": "string"}, "required": True},
+        },
+        "outputs": {
+            "artifact": {"title": "Artifact met content", "schema": {"type": "object"}},
+        },
+    },
     "opportunity-map-run": {
         "id": "opportunity-map-run",
         "title": "Opportunity-map run (Plane A)",
@@ -1253,8 +1271,47 @@ def execute_fetch_geo_layer(inputs: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+_RUN_ARTIFACT_MAX_BYTES = 5_242_880
+
+
+def execute_run_artifact(inputs: dict[str, Any]) -> dict[str, Any]:
+    """Eén outputbestand uit een run-dir lezen, inline (pad- en grootte-proof)."""
+    run_dir = Path(inputs["run_dir"]).resolve()
+    if not run_dir.is_dir():
+        raise ValueError(f"run_dir is geen bestaande map: {run_dir}")
+    pad = (run_dir / inputs["artifact"]).resolve()
+    if run_dir not in pad.parents:
+        raise ValueError(f"artifact moet binnen run_dir blijven: {inputs['artifact']!r}")
+    if not pad.is_file():
+        raise ValueError(f"artifact niet gevonden: {pad}")
+    grootte = pad.stat().st_size
+    if grootte > _RUN_ARTIFACT_MAX_BYTES:
+        raise ValueError(f"artifact groter dan 5 MB plafond: {grootte} bytes")
+    tekst = pad.read_text(encoding="utf-8")
+    content: Any
+    if pad.suffix == ".geojson":
+        kind = "geojson"
+        content = json.loads(tekst)
+    elif pad.suffix == ".json":
+        kind = "json"
+        content = json.loads(tekst)
+    else:
+        kind = "text"
+        content = tekst
+    return {
+        "artifact": {
+            "name": pad.name,
+            "path": str(pad),
+            "kind": kind,
+            "bytes": grootte,
+            "content": content,
+        }
+    }
+
+
 EXECUTORS = {
     "fetch-geo-layer": execute_fetch_geo_layer,
+    "run-artifact": execute_run_artifact,
     "breda-scan-query": execute_breda_scan_query,
     "scenario-author-propose": execute_scenario_author_propose,
     "world-scene-build": execute_world_scene_build,

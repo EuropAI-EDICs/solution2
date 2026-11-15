@@ -94,6 +94,11 @@ async def fetch_geo_layer(
     )
 
 
+@mcp.tool(name="run_artifact", description=POC_TOOLS["run_artifact"]["description"])
+async def run_artifact(run_dir: str, artifact: str) -> str:
+    return await _run_poc_tool("run_artifact", {"run_dir": run_dir, "artifact": artifact})
+
+
 @mcp.tool(name="propose_scenarios", description=POC_TOOLS["propose_scenarios"]["description"])
 async def propose_scenarios(
     baselineRunDir: str,
