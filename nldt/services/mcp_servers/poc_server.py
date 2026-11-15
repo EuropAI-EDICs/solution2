@@ -80,6 +80,19 @@ async def run_opportunity_map(
     )
 
 
+@mcp.tool(name="fetch_geo_layer", description=POC_TOOLS["fetch_geo_layer"]["description"])
+async def fetch_geo_layer(
+    source_id: str,
+    bbox: str | None = None,
+    refresh: bool = False,
+    cache_dir: str | None = None,
+) -> str:
+    return await _run_poc_tool(
+        "fetch_geo_layer",
+        {"source_id": source_id, "bbox": bbox, "refresh": refresh, "cache_dir": cache_dir},
+    )
+
+
 @mcp.tool(name="propose_scenarios", description=POC_TOOLS["propose_scenarios"]["description"])
 async def propose_scenarios(
     baselineRunDir: str,

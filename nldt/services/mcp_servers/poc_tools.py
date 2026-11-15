@@ -53,4 +53,8 @@ POC_TOOLS: dict[str, dict[str, Any]] = {
         "process_id": "minigim-gebiedscheck-run",
         "description": "MiniGIM gebiedscheck: 74-item Lijst + ILS draft (PoC-5, keyless open data)",
     },
+    "fetch_geo_layer": {
+        "process_id": "fetch-geo-layer",
+        "description": "Haal één PoC-geolaag op (ArcGIS/agrest, cache-first); compacte samenvatting",
+    },
 }
