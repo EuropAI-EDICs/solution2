@@ -383,6 +383,9 @@ class FakeMcpClient:
 
 Daarna de test zelf — `nldt/tests/test_live_sim_agent.py`:
 
+```python
+"""Gescripte agent: vaste stappen → deterministische event-volgorde (FakeMcpClient)."""
+
 from __future__ import annotations
 
 import sys
