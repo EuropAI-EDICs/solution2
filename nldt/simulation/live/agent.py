@@ -31,7 +31,17 @@ class ScriptedAgent:
         per_stap: list[dict[str, Any]] = []
         vorige_raw: str | None = None
         for i, stap in enumerate(self.stappen):
-            args = stap["args_uit_vorige"](vorige_raw) if "args_uit_vorige" in stap else stap["args"]
+            t0 = time.perf_counter()
+            try:
+                args = stap["args_uit_vorige"](vorige_raw) if "args_uit_vorige" in stap else stap["args"]
+            except Exception as exc:  # resolver-fout → zelfde afhandeling als mislukte stap
+                duur_ms = int((time.perf_counter() - t0) * 1000)
+                emit(
+                    "tool_result",
+                    {"index": i, "ok": False, "duration_ms": duur_ms, "summary": str(exc)[:300]},
+                )
+                emit("error", {"stap": i, "label": stap["label"], "melding": str(exc)[:300]})
+                return {"status": "error", "stap": i, "per_stap": per_stap}
             emit(
                 "step_started",
                 {
@@ -42,7 +52,6 @@ class ScriptedAgent:
                     "args": args,
                 },
             )
-            t0 = time.perf_counter()
             try:
                 raw = await self.client.call_tool(stap["server"], stap["tool"], args)
                 vorige_raw = raw

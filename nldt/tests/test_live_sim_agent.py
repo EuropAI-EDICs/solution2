@@ -62,6 +62,31 @@ def test_agent_stopt_met_error_event():
     assert len(fake.calls) == 3
 
 
+def test_agent_resolver_fout_leidt_tot_error_event():
+    import asyncio
+
+    import chains as _chains
+
+    events = []
+    fake = FakeMcpClient()
+    stappen = [
+        {"label": "pipeline", "server": "poc", "tool": "run_opportunity_map",
+         "args": {"mode": "execute"}, "samenvatting": lambda raw: "zonder runDir"},
+        {"label": "artifact", "server": "poc", "tool": "run_artifact",
+         "args_uit_vorige": lambda raw: (_ for _ in ()).throw(ValueError("vorige stap gaf geen runDir")),
+         "samenvatting": lambda raw: "nooit bereikt"},
+    ]
+    agent_ = agent.ScriptedAgent(fake, stappen=stappen)
+    result = asyncio.run(agent_.run(lambda ev, data: events.append((ev, data))))
+    namen = [ev for ev, _ in events]
+    assert "error" in namen
+    assert namen[-1] == "error"
+    assert result["status"] == "error"
+    err = [d for ev, d in events if ev == "error"][-1]
+    assert "runDir" in err["melding"]
+    assert len(fake.calls) == 1  # tweede stap wordt nooit aangeroepen
+
+
 def test_session_store_stream_sluit_en_bezet():
     import asyncio
 
