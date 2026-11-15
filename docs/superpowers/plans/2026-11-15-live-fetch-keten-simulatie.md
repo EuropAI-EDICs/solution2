@@ -834,6 +834,7 @@ def test_layers_endpoint_404_bij_onbekende_bron(live_server):
     with httpx.Client(timeout=10.0) as http:
         resp = http.get(f"{live_server}/api/layers/bestaat-niet")
     assert resp.status_code == 404
+```
 
 - [ ] **Step 2: Run test to verify it fails**
 
