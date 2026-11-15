@@ -9331,6 +9331,21 @@
     "evidence": "poc/data/probe-sources-2026-10-18.json",
     "note": "Gepind in plan-2 task 6 (2026-10-14): Landelijke Capaciteitskaart elektriciteitsnet 'afname' (ArcGIS item e111e42029af46da8a3a96787c28c444, bronhouder Netbeheer Nederland, item gewijzigd 2026-06-24, Esri NL Terms of Use). Query: Utrecht-bbox RD 130000,440000,160000,470000 (spatialRel intersects), GeoJSON in WGS84/CRS84. Voedingsgebied-polygonen met code afname: 0=transportcapaciteit beschikbaar zonder wachtrij, 1=beperkt beschikbaar zonder wachtrij, 2=in onderzoek met wachtrij, 3=tekort aan transportcapaciteit met wachtrij (codes uit de renderer van de laag); 59 features (31x code 3). De placeholder-polygoon van de publicatie (voedingsgebied_naam='0', RNB=null, 831k vertices, 'kleur wordt later toegevoegd') is uit de cache gelaten. Downloadcache onder poc/data/cache/national/netcongestie/; basis voor SC-ET-NETCONGESTIE."
    }
+  },
+  {
+   "id": "ngsi-ld-dpl-airquality",
+   "title": "EU LDT Data Platform broker — AirQualityObserved (NGSI-LD)",
+   "serviceUrl": "ngsi-ld://AirQualityObserved",
+   "entityType": "AirQualityObserved",
+   "protocol": "ngsi-ld",
+   "geometryType": "Point",
+   "crs": {
+    "wkid": 4326
+   },
+   "limit": 100,
+   "role": "context",
+   "lastChecked": "2026-11-14",
+   "note": "NGSI-LD-geobron voor de PoC-pijplijn: geodata.fetch_layer dispatcht op serviceUrl ngsi-ld:// naar de nldt data-platform adapter (services.adapters.data_platform). SmartDataModels-entiteitstype AirQualityObserved als contextlaag lucht/kwaliteit. Mock-first: zonder NLDT_NGSI_LD_URL/NLDT_DATA_PLATFORM_URL levert de adapter deterministische mock-entities (provenance-vlag dataPlatformMock=true); live via NLDT_NGSI_LD_URL (+NLDT_NGSI_TENANT, header NGSILD-Tenant) of de UCS-proxy NLDT_DATA_PLATFORM_URL. GeoProperty-locaties worden RFC 7946-features in WGS84 en cliëntzijds gereprojecteerd naar RD New voor de computation-twin; bbox-filter gebeurt cliëntzijds (ongeclipt intersect). Handmatig toegevoegd (niet recon-geprobeerd); mock-pad bewezen in poc/tests/test_geodata_ngsi.py."
   }
  ]
 }

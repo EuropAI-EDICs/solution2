@@ -18,6 +18,12 @@ Server dialects, per the live recon findings:
 * ``agrest.geodata-utrecht.nl``: ``f=json`` ONLY (``f=geojson`` -> HTTP 400),
   ``returnGeometry=true``, pages of 1000, esri ``rings`` converted
   client-side with orientation-adaptive shell/hole classification.
+* ``ngsi-ld://<EntityType>`` entries (EU LDT Data Platform broker): entities
+  via the nldt ``services.adapters.data_platform`` client (mock by default;
+  ``NLDT_NGSI_LD_URL``/``NLDT_DATA_PLATFORM_URL`` + mock off for live),
+  GeoProperty locations + Property members flattened to RFC 7946 features,
+  reprojected client-side to RD New for the computation twin. ``bbox`` is
+  applied client-side (un-clipped intersect, same semantics as ArcGIS).
 
 Politeness / robustness:
 
@@ -57,6 +63,7 @@ try:  # pyproj is available per toolchain check; kept optional for parsing-only 
     from shapely.ops import transform as _shp_transform
 
     _RD_TO_WGS84 = Transformer.from_crs("EPSG:28992", "EPSG:4326", always_xy=True)
+    _WGS84_TO_RD = Transformer.from_crs("EPSG:4326", "EPSG:28992", always_xy=True)
 
     def _to_wgs84(geom):
         if geom is None or geom.is_empty:
@@ -65,8 +72,16 @@ try:  # pyproj is available per toolchain check; kept optional for parsing-only 
             lambda x, y, z=None: _RD_TO_WGS84.transform(x, y), geom
         )
 
+    def _to_rd28992(geom):
+        if geom is None or geom.is_empty:
+            return geom
+        return _shp_transform(
+            lambda x, y, z=None: _WGS84_TO_RD.transform(x, y), geom
+        )
+
 except Exception:  # pragma: no cover - only hit on a broken toolchain
     _to_wgs84 = None
+    _to_rd28992 = None
 
 __all__ = [
     "GeoDataError",
@@ -77,6 +92,7 @@ __all__ = [
     "esri_rings_to_geometry",
     "esri_feature_to_geojson",
     "feature_collection_to_wgs84",
+    "ngsi_entities_to_features",
     "main",
 ]
 
@@ -426,6 +442,229 @@ def _fingerprint(bbox, simplify_m):
 
 
 # --------------------------------------------------------------------------- #
+# NGSI-LD dialect (EU LDT Data Platform broker via the nldt adapter)
+# --------------------------------------------------------------------------- #
+
+_GEOJSON_TYPES = (
+    "Point",
+    "MultiPoint",
+    "LineString",
+    "MultiLineString",
+    "Polygon",
+    "MultiPolygon",
+    "GeometryCollection",
+)
+
+
+def _load_data_platform():
+    """Lazy import van de nldt data-platform adapter (mock-first).
+
+    Alleen geladen wanneer een ``ngsi-ld://``-bron wordt gefetcht, zodat de
+    ArcGIS-dialecten geen nldt/httpx-afhankelijkheid krijgen.
+    """
+    nldt_root = _MODULE_DIR.parents[2] / "nldt"
+    root = str(nldt_root)
+    if root not in sys.path:
+        sys.path.insert(0, root)
+    from services.adapters import data_platform
+
+    return data_platform
+
+
+def _ngsi_geometry(entity):
+    """NGSI-LD entity -> shapely geometry (GeoProperty of kale GeoJSON).
+
+    ``location`` heeft voorrang (ETSI-conventie); daarna elke andere
+    GeoProperty / inline GeoJSON-geometrie. ``None`` zonder bruikbare locatie.
+    """
+    from shapely.geometry import shape
+
+    candidates = []
+    loc = entity.get("location")
+    if isinstance(loc, dict):
+        candidates.append(loc.get("value") if loc.get("type") == "GeoProperty" else loc)
+    for key, val in entity.items():
+        if key in ("id", "type", "@context", "location"):
+            continue
+        if isinstance(val, dict) and val.get("type") == "GeoProperty":
+            candidates.append(val.get("value"))
+        elif isinstance(val, dict) and val.get("type") in _GEOJSON_TYPES:
+            candidates.append(val)
+    for cand in candidates:
+        if not isinstance(cand, dict):
+            continue
+        try:
+            geom = shape(cand)
+        except Exception:
+            continue
+        if not geom.is_empty:
+            return geom
+    return None
+
+
+def _flatten_ngsi_properties(entity):
+    """NGSI-LD Property-members -> vlakke GeoJSON-properties (alleen waarden).
+
+    GeoProperty-locaties blijven buiten de attributen (ze worden geometrie);
+    complexe waarden worden als JSON-string bewaard.
+    """
+    props = {"entityId": entity.get("id"), "entityType": entity.get("type")}
+    for key, val in entity.items():
+        if key in ("id", "type", "@context", "location"):
+            continue
+        if isinstance(val, dict) and val.get("type") == "GeoProperty":
+            continue
+        if isinstance(val, dict) and "value" in val:
+            inner = val["value"]
+        else:
+            inner = val
+        if inner is None or isinstance(inner, (str, int, float, bool)):
+            props[key] = inner
+        else:
+            props[key] = json.dumps(inner, ensure_ascii=False)
+    return props
+
+
+def ngsi_entities_to_features(entities):
+    """NGSI-LD entities -> GeoJSON-features in WGS84 (RFC 7946).
+
+    Entities zonder bruikbare locatie worden overgeslagen (geobron-semantiek).
+    """
+    feats = []
+    for ent in entities or []:
+        if not isinstance(ent, dict):
+            continue
+        geom = _ngsi_geometry(ent)
+        if geom is None or geom.is_empty:
+            continue
+        feats.append(
+            {
+                "type": "Feature",
+                "id": ent.get("id"),
+                "properties": _flatten_ngsi_properties(ent),
+                "geometry": mapping(geom),
+            }
+        )
+    return feats
+
+
+def _fc_wgs84_to_rd28992(fc):
+    """Reprojecteer een RFC 7946 (WGS84) FeatureCollection naar RD New."""
+    if _to_rd28992 is None:
+        raise GeoDataError("pyproj/shapely unavailable: cannot reproject to EPSG:28992")
+    from shapely.geometry import shape
+
+    out_feats = []
+    for f in fc.get("features", []):
+        g = f.get("geometry")
+        if g is None:
+            continue
+        f2 = dict(f)
+        f2["geometry"] = mapping(_to_rd28992(shape(g)))
+        out_feats.append(f2)
+    out = {
+        "type": "FeatureCollection",
+        "name": fc.get("name"),
+        "crs": {"type": "name", "properties": {"name": "EPSG:28992"}},
+        "features": out_feats,
+        "properties": dict(fc.get("properties") or {}),
+    }
+    out["properties"]["crs"] = "EPSG:28992 (gereprojecteerd vanaf NGSI-LD WGS84)"
+    return out
+
+
+def _ngsi_bbox_filter(feats, bbox):
+    """Houd features die de bbox (EPSG:28992) snijden — ongeclipt, net als ArcGIS.
+
+    De engine clipt toch tegen de AOI; dit filter voorkomt alleen dat de
+    cache vol niet-AOI-entities loopt.
+    """
+    if not bbox:
+        return feats
+    if _to_wgs84 is None:
+        raise GeoDataError("pyproj/shapely unavailable: cannot filter on bbox")
+    from shapely.geometry import box, shape
+
+    vals = [float(p) for p in str(bbox).split(",")]
+    if len(vals) != 4:
+        raise GeoDataError(f"bbox must be 'xmin,ymin,xmax,ymax', got {bbox!r}")
+    env_wgs = _to_wgs84(box(*vals))
+    out = []
+    for f in feats:
+        g = f.get("geometry")
+        if g is None:
+            continue
+        try:
+            if shape(g).intersects(env_wgs):
+                out.append(f)
+        except Exception:
+            continue
+    return out
+
+
+def _fetch_ngsi_layer(src, source_id, path_rd, path_wgs, bbox, simplify_m, fp):
+    """Fetch één NGSI-LD-bron via de nldt data-platform adapter.
+
+    Levert dezelfde cache-twins en provenance-vorm als de ArcGIS-dialecten,
+    met ``protocol: ngsi-ld`` en een ``dataPlatformMock``-vlag zodat
+    downstream ziet of de data uit de broker of uit de mock komt.
+    """
+    dp = _load_data_platform()
+    service_url = str(src.get("serviceUrl") or "")
+    entity_type = service_url.split("ngsi-ld://", 1)[1].split("?")[0]
+    if not entity_type:
+        raise GeoDataError(f"source {source_id!r}: ngsi-ld:// URL without entity type")
+    try:
+        entities = dp.list_entities(
+            entity_type=entity_type,
+            limit=int(src.get("limit") or 100),
+        )
+    except Exception as exc:
+        raise GeoDataError(f"{source_id}: NGSI-LD broker failure: {exc}") from exc
+    feats = _ngsi_bbox_filter(ngsi_entities_to_features(entities), bbox)
+    if len(feats) > MAX_FEATURES_HARD_CAP:
+        raise GeoDataError(
+            f"{source_id}: exceeded hard cap of {MAX_FEATURES_HARD_CAP} features; aborting"
+        )
+    props = dict(src.get("properties") or {})
+    fc_wgs = {
+        "type": "FeatureCollection",
+        "name": source_id,
+        "features": feats,
+        "properties": {
+            "sourceId": source_id,
+            "title": src.get("title"),
+            "serviceUrl": service_url,
+            "layerId": src.get("layerId"),
+            "role": src.get("role"),
+            "authoritative": src.get("authoritative"),
+            "licenseNote": src.get("licenseNote"),
+            "lastChecked": src.get("lastChecked"),
+            "where": None,
+            "protocol": "ngsi-ld",
+            "entityType": entity_type,
+            "dataPlatformMock": bool(getattr(dp, "MOCK", False)),
+            "fetchedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "userAgent": USER_AGENT,
+            "pages": 1,
+            "featureCount": len(feats),
+            "bbox": _bbox_str(bbox),
+            "simplifyM": float(simplify_m) if simplify_m else None,
+            "queryFingerprint": fp,
+            **({"registryMeta": props} if props else {}),
+        },
+    }
+    fc_rd = _fc_wgs84_to_rd28992(fc_wgs)
+    tmp = path_rd.with_suffix(".geojson.tmp")
+    tmp.write_text(json.dumps(fc_rd, ensure_ascii=False), encoding="utf-8")
+    os.replace(tmp, path_rd)
+    path_wgs.write_text(
+        json.dumps(feature_collection_to_wgs84(fc_rd), ensure_ascii=False), encoding="utf-8"
+    )
+    return fc_rd
+
+
+# --------------------------------------------------------------------------- #
 # Public fetch API
 # --------------------------------------------------------------------------- #
 
@@ -457,6 +696,10 @@ def fetch_layer(
     REST ``geometry``/``geometryType=esriGeometryEnvelope``/``inSR`` params).
     Recon caveat: returns full un-clipped geometries of intersecting
     features; the engine clips against the AOI anyway.
+
+    Bronnen met ``serviceUrl: ngsi-ld://<EntityType>`` gaan via de nldt
+    data-platform adapter (mock-first) en dezelfde cache-twins; zie
+    :func:`ngsi_entities_to_features`.
     """
     cache_dir = Path(cache_dir) if cache_dir is not None else DEFAULT_CACHE_DIR
     cache_dir.mkdir(parents=True, exist_ok=True)
@@ -481,6 +724,9 @@ def fetch_layer(
             pass  # corrupt cache: refetch
 
     src = source_by_id(source_id, sources=sources)
+
+    if str(src.get("serviceUrl") or "").startswith("ngsi-ld://"):
+        return _fetch_ngsi_layer(src, source_id, path_rd, path_wgs, bbox, simplify_m, fp)
 
     if session is None:
         session = requests.Session()
