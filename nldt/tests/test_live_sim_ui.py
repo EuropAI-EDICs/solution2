@@ -33,5 +33,6 @@ def test_index_bevat_kaart_trace_en_eventsource():
     resp = asyncio.run(_haal_index())
     assert resp.status_code == 200
     html = resp.text
-    for naald in ('id="kaart"', 'id="trace"', 'id="start"', 'id="ngsi-badge"', "EventSource", "/api/session"):
+    for naald in ('id="kaart"', 'id="trace"', 'id="start"', 'id="ngsi-badge"',
+                  'id="chain-switcher"', "EventSource", "/api/session", "/api/chains"):
         assert naald in html, f"index.html mist {naald}"
