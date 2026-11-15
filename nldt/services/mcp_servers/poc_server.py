@@ -111,6 +111,11 @@ async def gent_life_event_run(
     )
 
 
+@mcp.tool(name="veenendaal_gebiedscheck_run", description=POC_TOOLS["veenendaal_gebiedscheck_run"]["description"])
+async def veenendaal_gebiedscheck_run(mode: str = "replay") -> str:
+    return await _run_poc_tool("veenendaal_gebiedscheck_run", {"mode": mode})
+
+
 @mcp.tool(name="propose_scenarios", description=POC_TOOLS["propose_scenarios"]["description"])
 async def propose_scenarios(
     baselineRunDir: str,

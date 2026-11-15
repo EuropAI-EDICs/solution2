@@ -65,4 +65,8 @@ POC_TOOLS: dict[str, dict[str, Any]] = {
         "process_id": "gent-life-event-run",
         "description": "Gent levensgebeurtenis-replay (fase 1+2+3): nieuwste run of echte CLI",
     },
+    "veenendaal_gebiedscheck_run": {
+        "process_id": "veenendaal-gebiedscheck-run",
+        "description": "Veenendaal Spoorzone gebiedscheck: nieuwste run of echte run.main()",
+    },
 }

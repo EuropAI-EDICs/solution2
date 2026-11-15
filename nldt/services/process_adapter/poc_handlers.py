@@ -21,6 +21,7 @@ POC_RIJNLAND = WORKSPACE / "poc-rijnland"
 POC_BP2OP = WORKSPACE / "poc-bp2op"
 POC_MINIGIM = WORKSPACE / "poc-minigim"
 POC_GENT = WORKSPACE / "poc-gent"
+POC_VEENENDAAL = WORKSPACE / "poc-veenendaal"
 
 HCS_FIXTURES = NLDT_ROOT / "simulation" / "hcs" / "fixtures"
 
@@ -329,6 +330,20 @@ POC_PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
             "mode": {"title": "replay|execute", "schema": {"type": "string", "default": "replay"}},
             "package": {"title": "Pakket", "schema": {"type": "string", "default": "gent-mobiliteit-ondernemer"}, "required": False},
             "persona": {"title": "Persona", "schema": {"type": "string", "default": "sanne"}, "required": False},
+        },
+        "outputs": {"summary": {"title": "Run summary", "schema": {"type": "object"}}},
+    },
+    "veenendaal-gebiedscheck-run": {
+        "id": "veenendaal-gebiedscheck-run",
+        "title": "Veenendaal gebiedscheck (Spoorzone)",
+        "description": (
+            "74-item gebiedscheck (Lijst + ILS draft): replay leest de "
+            "nieuwste gebiedscheck-run-dir, execute roept run.main(refresh=False) aan."
+        ),
+        "version": "1.0.0",
+        "keywords": ["poc-veenendaal", "gebiedscheck", "live-sim"],
+        "inputs": {
+            "mode": {"title": "replay|execute", "schema": {"type": "string", "default": "replay"}},
         },
         "outputs": {"summary": {"title": "Run summary", "schema": {"type": "object"}}},
     },
@@ -677,6 +692,7 @@ def _latest_dir(parent: Path, pattern: str) -> Path:
             or (p / "peil-conflict-report.json").is_file()
             or (p / "gebiedsafweging-report.json").is_file()
             or (p / "omzettabel.json").is_file()
+            or (p / "indicators.json").is_file()
             or (p / "run.json").is_file()
         )
     )
@@ -1365,7 +1381,49 @@ def execute_gent_life_event_run(inputs: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _veenendaal_main(refresh: bool = False) -> int:
+    """Roep poc-veenendaal run.main aan (aparte helper zodat tests stubben)."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("veenendaal_run", POC_VEENENDAAL / "run.py")
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module.main(refresh=refresh)
+
+
+def _sum_gebiedscheck_summary(run_dir: Path, mode: str) -> dict[str, Any]:
+    indicators_pad = run_dir / "indicators.json"
+    aantal = 0
+    if indicators_pad.is_file():
+        data = _load_json(indicators_pad)
+        lijst = data.get("indicators") or data if isinstance(data, list) else data.get("indicators") or []
+        aantal = len(lijst)
+    return {
+        "mode": mode,
+        "runDir": str(run_dir),
+        "runId": run_dir.name,
+        "indicatorCount": aantal,
+    }
+
+
+def execute_veenendaal_gebiedscheck_run(inputs: dict[str, Any]) -> dict[str, Any]:
+    """Veenendaal gebiedscheck: replay (nieuwste run-dir) of execute (run.main)."""
+    mode = inputs.get("mode") or "replay"
+    if mode not in ("replay", "execute"):
+        raise ValueError("mode must be replay|execute")
+    if mode == "execute":
+        rc = _veenendaal_main(refresh=False)
+        if rc != 0:
+            raise ValueError(f"veenendaal main faalde (rc={rc})")
+        run_dir = _latest_dir(POC_VEENENDAAL / "runs", "*-gebiedscheck")
+        return {"summary": _sum_gebiedscheck_summary(run_dir, "execute")}
+    run_dir = _resolve_dir(inputs.get("runDir"), default=_latest_dir(POC_VEENENDAAL / "runs", "*-gebiedscheck"))
+    return {"summary": _sum_gebiedscheck_summary(run_dir, "replay")}
+
+
 EXECUTORS = {
+    "veenendaal-gebiedscheck-run": execute_veenendaal_gebiedscheck_run,
     "gent-life-event-run": execute_gent_life_event_run,
     "fetch-geo-layer": execute_fetch_geo_layer,
     "run-artifact": execute_run_artifact,
