@@ -259,6 +259,39 @@ POC_PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
             "summary": {"title": "Sweep summary", "schema": {"type": "object"}},
         },
     },
+    "fetch-geo-layer": {
+        "id": "fetch-geo-layer",
+        "title": "Fetch geo layer (PoC geodata)",
+        "description": (
+            "Haal één laag uit het PoC-bronnenregister via geodata.fetch_layer "
+            "(ArcGIS/agrest-dialecten, cache-first) en geef een compacte "
+            "samenvatting; de geometrie blijft in de cache-twins "
+            "(<sourceId>.28992.geojson + .4326.geojson)."
+        ),
+        "version": "1.0.0",
+        "keywords": ["poc-utrecht", "geodata", "fetch", "live-sim"],
+        "inputs": {
+            "source_id": {"title": "Source id", "schema": {"type": "string"}},
+            "bbox": {
+                "title": "BBOX xmin,ymin,xmax,ymax (EPSG:28992)",
+                "schema": {"type": "string"},
+                "required": False,
+            },
+            "refresh": {
+                "title": "Cache negeren",
+                "schema": {"type": "boolean", "default": False},
+                "required": False,
+            },
+            "cache_dir": {
+                "title": "Cache map (tests)",
+                "schema": {"type": "string"},
+                "required": False,
+            },
+        },
+        "outputs": {
+            "summary": {"title": "Laag-samenvatting", "schema": {"type": "object"}},
+        },
+    },
     "opportunity-map-run": {
         "id": "opportunity-map-run",
         "title": "Opportunity-map run (Plane A)",
@@ -1184,7 +1217,40 @@ def execute_rijnland_peil_whatif(inputs: dict[str, Any]) -> dict[str, Any]:
     )
 
 
+def execute_fetch_geo_layer(inputs: dict[str, Any]) -> dict[str, Any]:
+    """Eén PoC-geolaag ophalen via geodata.fetch_layer (cache-first, compact)."""
+    source_id = inputs["source_id"]
+    if str(source_id).startswith("ngsi-ld://"):
+        raise ValueError("ngsi-ld:// URI-bronnen horen bij het fetch-features-proces")
+    if str(POC_ROOT) not in sys.path:
+        sys.path.insert(0, str(POC_ROOT))
+    from pipeline import geodata
+
+    cache_dir = inputs.get("cache_dir")
+    fc = geodata.fetch_layer(
+        source_id,
+        bbox=inputs.get("bbox"),
+        refresh=bool(inputs.get("refresh")),
+        cache_dir=Path(cache_dir) if cache_dir else None,
+    )
+    p = fc.get("properties") or {}
+    return {
+        "summary": {
+            "sourceId": p.get("sourceId"),
+            "title": p.get("title"),
+            "protocol": p.get("protocol"),
+            "entityType": p.get("entityType"),
+            "dataPlatformMock": p.get("dataPlatformMock"),
+            "featureCount": p.get("featureCount"),
+            "pages": p.get("pages"),
+            "fetchedAt": p.get("fetchedAt"),
+            "serviceUrl": p.get("serviceUrl"),
+        }
+    }
+
+
 EXECUTORS = {
+    "fetch-geo-layer": execute_fetch_geo_layer,
     "breda-scan-query": execute_breda_scan_query,
     "scenario-author-propose": execute_scenario_author_propose,
     "world-scene-build": execute_world_scene_build,
