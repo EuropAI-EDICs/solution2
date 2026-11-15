@@ -64,10 +64,30 @@ def test_sessie_start_en_eventstroom():
 
     events = asyncio.run(_main())
     namen = [ev for ev, _ in events]
-    assert namen.count("step_started") == 6
-    assert namen.count("tool_result") == 6
-    assert namen.count("layer_ready") == 3
+    assert namen.count("step_started") == 8
+    assert namen.count("tool_result") == 8
+    assert namen.count("layer_ready") == 4
     assert "run_done" in namen
+
+
+def test_chain_parameter_en_onbekende_chain_400():
+    app = server.create_app(tool_client_factory=lambda: ScriptedAgent(FakeMcpClient()))
+
+    async def _main():
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), timeout=20.0
+        ) as http:
+            resp = await http.post("http://test/api/session", params={"chain": "dsorr"})
+            assert resp.status_code == 200
+            assert resp.json()["chain"] == "dsorr"
+            await _lees_sse(http, f"http://test/api/session/{resp.json()['sessionId']}/events")
+
+            slecht = await http.post("http://test/api/session", params={"chain": "nietbestaand"})
+            assert slecht.status_code == 400
+            return resp.json()
+
+    gestart = asyncio.run(_main())
+    assert gestart["chain"] == "dsorr"
 
 
 def test_tweede_sessie_409_en_onbekende_sessie_error_event():
@@ -86,8 +106,9 @@ def test_tweede_sessie_409_en_onbekende_sessie_error_event():
             # sessie aflopen: stream leeglezen tot sluiting, dan is een nieuwe sessie weer ok
             sid = eerste.json()["sessionId"]
             await _lees_sse(http, f"http://test/api/session/{sid}/events")
-            derde = await http.post("http://test/api/session")
+            derde = await http.post("http://test/api/session", params={"chain": "gent"})
             assert derde.status_code == 200
+            assert derde.json()["chain"] == "gent"
 
             # onbekende sessie → error-event op de stream (200, SSE-error, geen 404)
             events = _parse_sse(await _lees_sse(http, "http://test/api/session/niets/events"))

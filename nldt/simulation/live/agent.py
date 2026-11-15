@@ -1,4 +1,5 @@
-"""Gescripte agent: doorloopt STAPPEN, elke stap één echte MCP-toolcall.
+"""Gescripte agent: doorloopt de stappen van de gekozen chain (chains.CHAINS),
+elke stap één echte MCP-toolcall.
 
 emit(event, data) is de sink (SessionStore-queue in de server; list in tests).
 Deterministisch: geen condities, geen LLM — "no invented numbers".
@@ -12,7 +13,7 @@ import time
 import uuid
 from typing import Any, Callable
 
-from fetch_script import STAPPEN
+from chains import CHAINS
 
 Emit = Callable[[str, dict], None]
 
@@ -24,11 +25,13 @@ def _json_object(raw: str) -> Any:
 class ScriptedAgent:
     def __init__(self, client, stappen: list[dict[str, Any]] | None = None):
         self.client = client
-        self.stappen = stappen if stappen is not None else STAPPEN
+        self.stappen = stappen if stappen is not None else CHAINS["utrecht"]["stappen"]
 
     async def run(self, emit: Emit) -> dict[str, Any]:
         per_stap: list[dict[str, Any]] = []
+        vorige_raw: str | None = None
         for i, stap in enumerate(self.stappen):
+            args = stap["args_uit_vorige"](vorige_raw) if "args_uit_vorige" in stap else stap["args"]
             emit(
                 "step_started",
                 {
@@ -36,12 +39,13 @@ class ScriptedAgent:
                     "label": stap["label"],
                     "server": stap["server"],
                     "tool": stap["tool"],
-                    "args": stap["args"],
+                    "args": args,
                 },
             )
             t0 = time.perf_counter()
             try:
-                raw = await self.client.call_tool(stap["server"], stap["tool"], stap["args"])
+                raw = await self.client.call_tool(stap["server"], stap["tool"], args)
+                vorige_raw = raw
                 duur_ms = int((time.perf_counter() - t0) * 1000)
                 samenvatting = stap["samenvatting"](raw)
             except Exception as exc:  # stap faalt → run stopt (spec: foutafhandeling)
@@ -61,7 +65,10 @@ class ScriptedAgent:
             if laag:
                 event: dict[str, Any] = {"laagtype": laag["laagtype"], "source_id": laag["source_id"]}
                 if laag.get("inline"):
-                    event["geojson"] = _json_object(raw)
+                    obj = _json_object(raw)
+                    if laag.get("inline_uit") == "artifact_content":
+                        obj = obj["outputs"]["artifact"]["content"]
+                    event["geojson"] = obj
                 emit("layer_ready", event)
         emit("run_done", {"per_stap": per_stap, "totaal": len(per_stap)})
         return {"status": "ok", "per_stap": per_stap}

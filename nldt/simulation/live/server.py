@@ -39,6 +39,8 @@ from fastapi.responses import StreamingResponse  # noqa: E402
 from agent import ScriptedAgent, SessionStore  # noqa: E402
 from mcp_client import McpLoopbackClient  # noqa: E402
 
+import chains  # noqa: E402
+
 POC_CACHE = NLDT_ROOT.parent / "poc" / "data" / "cache"
 MOUNTS = [
     ("/mcp/data", data_mcp),
@@ -75,16 +77,33 @@ def create_app(tool_client_factory=None):
         base = os.environ.get("NLDT_LIVE_SIM_BASE") or (
             f"http://127.0.0.1:{os.environ.get('NLDT_LIVE_SIM_PORT', '8095')}"
         )
-        return ScriptedAgent(McpLoopbackClient(base))
+        return McpLoopbackClient(base)
+
+    @app.get("/api/chains")
+    def list_chains():
+        return [
+            {"id": c["id"], "label": c["label"], "stepCount": len(c["stappen"])}
+            for c in chains.CHAINS.values()
+        ]
 
     @app.post("/api/session")
-    async def start_session():
+    async def start_session(chain: str = "utrecht"):
+        if chain not in chains.CHAINS:
+            raise HTTPException(status_code=400, detail=f"onbekende chain: {chain}")
         factory = tool_client_factory or _default_tool_client_factory
+
+        def agent_factory():
+            gekozen = factory()
+            # compat: een geïnjecteerde factory mag een ScriptedAgent (oud
+            # test-contract) of een client (productie-contract) teruggeven
+            client = gekozen.client if isinstance(gekozen, ScriptedAgent) else gekozen
+            return ScriptedAgent(client, stappen=chains.CHAINS[chain]["stappen"])
+
         try:
-            sid = store.start(factory)
+            sid = store.start(agent_factory)
         except RuntimeError as exc:
             raise HTTPException(status_code=409, detail=str(exc))
-        return {"sessionId": sid}
+        return {"sessionId": sid, "chain": chain}
 
     @app.get("/api/session/{sid}/events")
     async def events(sid: str):

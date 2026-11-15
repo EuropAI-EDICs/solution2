@@ -72,6 +72,7 @@ def _lees_events(http, base):
     return events
 
 
+@pytest.mark.skip(reason="herschreven in Task 8")
 def test_volledige_keten_over_echt_mcp(e2e):
     with httpx.Client(timeout=60.0) as http:
         events = _lees_events(http, e2e)

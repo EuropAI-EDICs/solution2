@@ -17,6 +17,55 @@ class FakeMcpClient:
         self.calls.append((server, tool, args))
         if self.fail_on and (server, tool) == self.fail_on:
             raise RuntimeError("broker onbereikbaar")
+        if tool == "run_artifact":
+            return json.dumps(
+                {
+                    "tool": "run_artifact",
+                    "processId": "run-artifact",
+                    "status": "successful",
+                    "outputs": {
+                        "artifact": {
+                            "name": args.get("artifact"),
+                            "path": f"{args.get('run_dir')}/{args.get('artifact')}",
+                            "kind": "geojson" if str(args.get("artifact", "")).endswith(".geojson") else "json",
+                            "bytes": 42,
+                            "content": {
+                                "type": "FeatureCollection",
+                                "features": [
+                                    {
+                                        "type": "Feature",
+                                        "id": "fakelayer-1",
+                                        "properties": {},
+                                        "geometry": {"type": "Point", "coordinates": [5.12, 52.09]},
+                                    }
+                                ],
+                            },
+                        }
+                    },
+                }
+            )
+        if tool in {
+            "run_opportunity_map",
+            "run_bp2op_transform",
+            "run_value_scan",
+            "gent_life_event_run",
+            "veenendaal_gebiedscheck_run",
+        }:
+            return json.dumps(
+                {
+                    "tool": tool,
+                    "processId": tool,
+                    "status": "successful",
+                    "outputs": {
+                        "summary": {
+                            "mode": args.get("mode", "execute"),
+                            "runDir": f"/tmp/fake-run/{tool}",
+                            "runId": "fake-run",
+                            "verdict": "ok",
+                        }
+                    },
+                }
+            )
         if tool == "fetch_geo_layer":
             return json.dumps(
                 {
