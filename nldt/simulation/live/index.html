@@ -67,9 +67,12 @@ const elFout  = document.getElementById("fout");
 
 elStart.addEventListener("click", start);
 
+let esActief = null;        // huidige EventSource, zodat een nieuwe run de oude sluit
+
 async function start() {
   elStart.disabled = true;
   elFout.style.display = "none";
+  if (esActief) { esActief.close(); esActief = null; }
   elTrace.innerHTML = "";
   lagen.length = 0;
   Object.assign(bbox, {minLon:1e9, minLat:1e9, maxLon:-1e9, maxLat:-1e9});
@@ -77,12 +80,23 @@ async function start() {
     const resp = await fetch("/api/session", {method: "POST"});
     if (!resp.ok) throw new Error((await resp.json()).detail || resp.status);
     const {sessionId} = await resp.json();
-    const es = new EventSource(`/api/session/${sessionId}/events`);
-    for (const naam of ["step_started", "tool_result", "layer_ready", "run_done", "error"]) {
-      es.addEventListener(naam, (ev) => verwerk(naam, JSON.parse(ev.data)));
+    esActief = new EventSource(`/api/session/${sessionId}/events`);
+    for (const naam of ["step_started", "tool_result", "layer_ready", "run_done"]) {
+      esActief.addEventListener(naam, (ev) => verwerk(naam, JSON.parse(ev.data)));
     }
-    es.addEventListener("run_done", () => { es.close(); elStart.disabled = false; });
-    es.addEventListener("error", () => { /* verbinding sluit na afloop */ });
+    esActief.addEventListener("run_done", () => { esActief.close(); esActief = null; elStart.disabled = false; });
+    esActief.addEventListener("error", (ev) => {
+      if (ev.data) {                    // applicatiefout: server stuurde een error-event
+        verwerk("error", JSON.parse(ev.data));
+        esActief.close(); esActief = null;
+        elStart.disabled = false;
+      } else {                          // transportfout: verbinding verbroken
+        esActief.close(); esActief = null;
+        elFout.textContent = "Verbinding verbroken";
+        elFout.style.display = "block";
+        elStart.disabled = false;
+      }
+    });
   } catch (exc) {
     elFout.textContent = "Start mislukt: " + exc.message;
     elFout.style.display = "block";
@@ -100,11 +114,31 @@ function verwerk(naam, data) {
 function voegStapToe(d) {
   const div = document.createElement("div");
   div.className = "stap";
-  div.innerHTML = `
-    <div class="kop"><span>${d.index + 1}. ${d.label}</span><span class="status wait">•</span></div>
-    <div class="tool">${d.server} · ${d.tool}()</div>
-    <details><summary>args</summary><pre>${JSON.stringify(d.args, null, 1)}</pre></details>
-    <div class="sam"></div>`;
+
+  const kop = document.createElement("div");
+  kop.className = "kop";
+  const titel = document.createElement("span");
+  titel.textContent = (d.index + 1) + ". " + d.label;
+  const status = document.createElement("span");
+  status.className = "status wait";
+  status.textContent = "•";
+  kop.append(titel, status);
+
+  const tool = document.createElement("div");
+  tool.className = "tool";
+  tool.textContent = d.server + " · " + d.tool + "()";
+
+  const details = document.createElement("details");
+  const summary = document.createElement("summary");
+  summary.textContent = "args";
+  const pre = document.createElement("pre");
+  pre.textContent = JSON.stringify(d.args, null, 1);
+  details.append(summary, pre);
+
+  const sam = document.createElement("div");
+  sam.className = "sam";
+
+  div.append(kop, tool, details, sam);
   elTrace.appendChild(div);
   rijen[d.index] = div;
   div.scrollIntoView({block: "nearest"});
