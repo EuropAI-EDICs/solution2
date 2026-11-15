@@ -72,10 +72,22 @@ def run_sync(agent_: ScriptedAgent, emit: Emit) -> dict[str, Any]:
 
 
 class SessionStore:
-    """Eén actieve sessie; events via asyncio.Queue tot sluiting."""
+    """Eén actieve sessie; events via asyncio.Queue tot sluiting.
+
+    Het sessie-slot komt vrij zodra de agent klaar is — ook als niemand de
+    events ophaalt (een POST /api/session zonder verbindende EventSource
+    blokkeert de demo dus niet met 409's). De queue verhuist dan van
+    `_queues` (actief) naar `_done` (afgerond, ongelezen): een late streamer
+    leest de gebufferde events alsnog en ruimt die done-entry pas op als hij
+    het sluit-sentinel (`_close`) zelf heeft gezien. De task-referentie
+    (`_tasks`) gaat pas weg als de task klaar is, zodat asyncio die niet
+    voortijdig opschoont.
+    """
 
     def __init__(self) -> None:
-        self._queues: dict[str, asyncio.Queue] = {}
+        self._queues: dict[str, asyncio.Queue] = {}  # actieve sessies
+        self._done: dict[str, asyncio.Queue] = {}  # afgerond, nog niet gestreamd
+        self._tasks: dict[str, asyncio.Task] = {}  # refs: voorkomt GC van de task
 
     def start(self, agent_factory) -> str:
         if self._queues:
@@ -83,25 +95,38 @@ class SessionStore:
         sid = uuid.uuid4().hex[:12]
         q: asyncio.Queue = asyncio.Queue()
         self._queues[sid] = q
-        asyncio.get_running_loop().create_task(self._run(sid, q, agent_factory))
+        self._tasks[sid] = asyncio.get_running_loop().create_task(
+            self._run(sid, q, agent_factory)
+        )
         return sid
 
     async def _run(self, sid: str, q: asyncio.Queue, agent_factory) -> None:
-        agent_ = agent_factory()
         try:
+            agent_ = agent_factory()
             await agent_.run(lambda ev, data: q.put_nowait((ev, data)))
         finally:
             q.put_nowait(("_close", None))
+            # slot vrijgeven ook als niemand streamt: eerst uit actief, dan done
+            self._queues.pop(sid, None)
+            self._done[sid] = q
+            self._tasks.pop(sid, None)
 
     async def stream(self, sid: str):
         q = self._queues.get(sid)
         if q is None:
+            q = self._done.get(sid)
+        if q is None:
             raise KeyError(sid)
+        afgesloten = False
         try:
             while True:
                 ev, data = await q.get()
                 if ev == "_close":
+                    afgesloten = True
                     return
                 yield ev, data
         finally:
-            self._queues.pop(sid, None)
+            # alleen de done-entry opruimen; een actieve sessie nooit — een
+            # vroeg afgebroken stream mag de lopende agent niet weggooien
+            if afgesloten:
+                self._done.pop(sid, None)

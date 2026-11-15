@@ -93,7 +93,10 @@ def create_app(tool_client_factory=None):
                 async for ev, data in store.stream(sid):
                     yield f"event: {ev}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
             except KeyError:
-                yield 'event: error\ndata: {"melding": "onbekende sessie"}\n\n'
+                yield "event: error\ndata: " + json.dumps(
+                    {"stap": None, "label": "sessie", "melding": "onbekende sessie"},
+                    ensure_ascii=False,
+                ) + "\n\n"
 
         return StreamingResponse(gen(), media_type="text/event-stream")
 

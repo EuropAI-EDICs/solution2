@@ -271,7 +271,11 @@ POC_PROCESS_DEFINITIONS: dict[str, dict[str, Any]] = {
         "version": "1.0.0",
         "keywords": ["poc-utrecht", "geodata", "fetch", "live-sim"],
         "inputs": {
-            "source_id": {"title": "Source id", "schema": {"type": "string"}},
+            "source_id": {
+                "title": "Source id",
+                "schema": {"type": "string"},
+                "required": True,
+            },
             "bbox": {
                 "title": "BBOX xmin,ymin,xmax,ymax (EPSG:28992)",
                 "schema": {"type": "string"},

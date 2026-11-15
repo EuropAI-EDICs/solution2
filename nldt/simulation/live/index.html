@@ -173,7 +173,8 @@ function zetNgsiBadge(geo) {
 }
 
 function toonFout(d) {
-  elFout.textContent = `Stap ${d.stap + 1} (${d.label}) mislukt: ${d.melding}`;
+  const plek = (d.stap === null || d.stap === undefined) ? "" : `Stap ${d.stap + 1}${d.label ? " (" + d.label + ")" : ""} mislukt: `;
+  elFout.textContent = plek + d.melding;
   elFout.style.display = "block";
   elStart.disabled = false;
 }

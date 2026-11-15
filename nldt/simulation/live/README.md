@@ -23,12 +23,19 @@ gemounte servers `/mcp/{data,dso,catalog,poc}`):
 
 De kaart vult per stap; de trace toont args, duur en samenvatting. De badge
 rechtsboven toont de NGSI-LD-herkomst: **MOCK** (adapter-mock, default) of
-**LIVE** (zet `NLDT_NGSI_LD_URL` of `NLDT_DATA_PLATFORM_URL` + mock uit).
+**LIVE** (zet `NLDT_NGSI_LD_URL` of `NLDT_DATA_PLATFORM_URL` en zet
+`NLDT_DATA_PLATFORM_MOCK=false`).
 
 De server zet `NLDT_OFFLINE=1` voor zichzelf: poc-/dso-tools executeren
 in-process via de job-store. ArcGIS/agrest-lagen komen cache-first uit
-`poc/data/cache/` — offline deterministisch; `NLDT_LIVE_SIM_BASE` overschrijft
-de loopback-basis-URL (gebruikt door de E2E-test op een vrije poort).
+`../poc/data/cache/` (repo-root `poc/data/cache/`) — offline deterministisch;
+`NLDT_LIVE_SIM_BASE` overschrijft de loopback-basis-URL (gebruikt door de
+E2E-test op een vrije poort).
+
+> Bekende beperking v1: LIVE-/refresh-stappen blokkeren momenteel de event
+> loop van de server (sync adapter-aanroepen) — bij live broker/refresh
+> stokt de SSE kort; het offline/cache/mock-pad is instant en heeft dit
+> niet.
 
 ## Tests
 
