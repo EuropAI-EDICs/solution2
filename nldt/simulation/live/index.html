@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live fetch-keten · nLDT</title>
+<style>
+  :root{--bg:#0b1220;--panel:#111a2c;--panel2:#0d1626;--line:#1e293b;--line2:#24324a;
+        --txt:#e2e8f0;--faint:#94a3b8;--acc:#38bdf8;--ok:#22c55e;--err:#f87171;--zone:#93c5fd;--punt:#f59e0b}
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--txt)}
+  header{display:flex;align-items:center;gap:14px;padding:12px 18px;border-bottom:1px solid var(--line)}
+  header h1{font-size:16px;margin:0;font-weight:600}
+  header .sub{color:var(--faint);font-size:12px}
+  #start{background:var(--acc);color:#04121f;border:0;border-radius:8px;padding:8px 16px;font-weight:600;cursor:pointer}
+  #start:disabled{opacity:.45;cursor:wait}
+  #ngsi-badge{margin-left:auto;font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--line2);color:var(--faint)}
+  #ngsi-badge.mock{color:#fbbf24;border-color:#fbbf24}
+  #ngsi-badge.live{color:var(--ok);border-color:var(--ok)}
+  main{display:grid;grid-template-columns:390px 1fr;gap:0;min-height:calc(100vh - 57px)}
+  @media (max-width:1000px){main{grid-template-columns:1fr}}
+  #trace{border-right:1px solid var(--line);padding:10px 12px;overflow-y:auto;max-height:calc(100vh - 57px)}
+  .stap{border:1px solid var(--line2);border-radius:10px;padding:8px 10px;margin:8px 0;background:var(--panel)}
+  .stap .kop{display:flex;justify-content:space-between;gap:8px;font-size:12.5px}
+  .stap .tool{color:var(--acc);font-family:ui-monospace,monospace;font-size:11.5px}
+  .stap .status{font-size:11.5px}
+  .stap .status.ok{color:var(--ok)} .stap .status.err{color:var(--err)} .stap .status.wait{color:var(--faint)}
+  .stap details{margin-top:4px} .stap pre{font-size:11px;color:var(--faint);white-space:pre-wrap;margin:4px 0 0}
+  .stap .sam{color:var(--faint);font-size:12px;margin-top:2px}
+  #kaartwrap{padding:10px 14px}
+  #kaart{width:100%;height:auto;aspect-ratio:16/10;background:var(--panel2);border:1px solid var(--line2);border-radius:12px;display:block}
+  #legenda{display:flex;gap:16px;color:var(--faint);font-size:12px;margin-top:8px}
+  .chip{display:inline-flex;align-items:center;gap:6px}
+  .chip i{width:10px;height:10px;border-radius:2px;display:inline-block}
+  #fout{display:none;color:var(--err);padding:8px 12px;border-bottom:1px solid var(--err)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Live fetch-keten</h1>
+  <span class="sub">elke stap = één echte MCP-toolcall · catalogus → DSO-kb → geolagen → NGSI-LD</span>
+  <button id="start">▶ Start fetch-keten</button>
+  <span id="ngsi-badge">NGSI-LD: —</span>
+</header>
+<div id="fout"></div>
+<main>
+  <aside id="trace"><div class="sub" style="color:var(--faint);padding:6px 2px">De trace verschijnt hier zodra de keten start.</div></aside>
+  <section id="kaartwrap">
+    <svg id="kaart" viewBox="0 0 960 600" preserveAspectRatio="xMidYMid meet"></svg>
+    <div id="legenda">
+      <span class="chip"><i style="background:var(--zone)"></i> inclusion-/kaartlaag wind</span>
+      <span class="chip"><i style="background:var(--punt);border-radius:50%"></i> NGSI-LD AirQualityObserved</span>
+    </div>
+  </section>
+</main>
+<script>
+"use strict";
+const lagen = [];           // {laagtype, geojson}
+const bbox = {minLon:1e9,minLat:1e9,maxLon:-1e9,maxLat:-1e9};
+const rijen = {};           // index -> DOM-node
+
+const elStart = document.getElementById("start");
+const elTrace = document.getElementById("trace");
+const elKaart = document.getElementById("kaart");
+const elBadge = document.getElementById("ngsi-badge");
+const elFout  = document.getElementById("fout");
+
+elStart.addEventListener("click", start);
+
+async function start() {
+  elStart.disabled = true;
+  elFout.style.display = "none";
+  elTrace.innerHTML = "";
+  lagen.length = 0;
+  Object.assign(bbox, {minLon:1e9, minLat:1e9, maxLon:-1e9, maxLat:-1e9});
+  try {
+    const resp = await fetch("/api/session", {method: "POST"});
+    if (!resp.ok) throw new Error((await resp.json()).detail || resp.status);
+    const {sessionId} = await resp.json();
+    const es = new EventSource(`/api/session/${sessionId}/events`);
+    for (const naam of ["step_started", "tool_result", "layer_ready", "run_done", "error"]) {
+      es.addEventListener(naam, (ev) => verwerk(naam, JSON.parse(ev.data)));
+    }
+    es.addEventListener("run_done", () => { es.close(); elStart.disabled = false; });
+    es.addEventListener("error", () => { /* verbinding sluit na afloop */ });
+  } catch (exc) {
+    elFout.textContent = "Start mislukt: " + exc.message;
+    elFout.style.display = "block";
+    elStart.disabled = false;
+  }
+}
+
+function verwerk(naam, data) {
+  if (naam === "step_started") voegStapToe(data);
+  else if (naam === "tool_result") zetResultaat(data);
+  else if (naam === "layer_ready") voegLaagToe(data);
+  else if (naam === "error") toonFout(data);
+}
+
+function voegStapToe(d) {
+  const div = document.createElement("div");
+  div.className = "stap";
+  div.innerHTML = `
+    <div class="kop"><span>${d.index + 1}. ${d.label}</span><span class="status wait">•</span></div>
+    <div class="tool">${d.server} · ${d.tool}()</div>
+    <details><summary>args</summary><pre>${JSON.stringify(d.args, null, 1)}</pre></details>
+    <div class="sam"></div>`;
+  elTrace.appendChild(div);
+  rijen[d.index] = div;
+  div.scrollIntoView({block: "nearest"});
+}
+
+function zetResultaat(d) {
+  const div = rijen[d.index];
+  if (!div) return;
+  const st = div.querySelector(".status");
+  st.textContent = (d.ok ? "✓ " : "✗ ") + d.duration_ms + " ms";
+  st.className = "status " + (d.ok ? "ok" : "err");
+  div.querySelector(".sam").textContent = d.summary || "";
+}
+
+async function voegLaagToe(d) {
+  let geo = d.geojson || null;
+  if (!geo && d.source_id) {
+    const resp = await fetch(`/api/layers/${encodeURIComponent(d.source_id)}`);
+    if (resp.ok) geo = await resp.json();
+  }
+  if (!geo) return;
+  lagen.push({laagtype: d.laagtype, geojson: geo});
+  if (d.laagtype === "punten") zetNgsiBadge(geo);
+  breidBboxUit(geo);
+  teken();
+}
+
+function zetNgsiBadge(geo) {
+  const mock = (geo.features || []).some(f => (f.properties || {}).mock === true);
+  elBadge.textContent = mock ? "NGSI-LD: MOCK" : "NGSI-LD: LIVE";
+  elBadge.className = mock ? "mock" : "live";
+}
+
+function toonFout(d) {
+  elFout.textContent = `Stap ${d.stap + 1} (${d.label}) mislukt: ${d.melding}`;
+  elFout.style.display = "block";
+  elStart.disabled = false;
+}
+
+function walkCoords(geom, cb) {
+  if (!geom) return;
+  const t = geom.type;
+  if (t === "Point") cb(geom.coordinates);
+  else if (t === "MultiPoint" || t === "LineString") geom.coordinates.forEach(cb);
+  else if (t === "Polygon" || t === "MultiLineString") geom.coordinates.forEach(r => r.forEach(cb));
+  else if (t === "MultiPolygon") geom.coordinates.forEach(p => p.forEach(r => r.forEach(cb)));
+}
+
+function breidBboxUit(geo) {
+  for (const f of geo.features || []) walkCoords(f.geometry, c => {
+    bbox.minLon = Math.min(bbox.minLon, c[0]); bbox.maxLon = Math.max(bbox.maxLon, c[0]);
+    bbox.minLat = Math.min(bbox.minLat, c[1]); bbox.maxLat = Math.max(bbox.maxLat, c[1]);
+  });
+}
+
+const W = 960, H = 600, PAD = 30;
+function px(lon, lat) {
+  const x = (lon - bbox.minLon) / (bbox.maxLon - bbox.minLon || 1);
+  const y = (lat - bbox.minLat) / (bbox.maxLat - bbox.minLat || 1);
+  return [PAD + x * (W - 2 * PAD), H - PAD - y * (H - 2 * PAD)];
+}
+
+function teken() {
+  elKaart.innerHTML = "";
+  for (const {laagtype, geojson} of lagen) {
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    if (laagtype === "punten") {
+      for (const f of geojson.features || []) {
+        if (!f.geometry || f.geometry.type !== "Point") continue;
+        const [x, y] = px(f.geometry.coordinates[0], f.geometry.coordinates[1]);
+        const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", 5);
+        c.setAttribute("fill", "var(--punt)"); c.setAttribute("stroke", "#0b1220");
+        const titel = document.createElementNS("http://www.w3.org/2000/svg", "title");
+        titel.textContent = (f.properties || {}).entityId || f.id || "";
+        c.appendChild(titel);
+        g.appendChild(c);
+      }
+    } else {
+      for (const f of geojson.features || []) {
+        if (!f.geometry) continue;
+        const ringGroepen = f.geometry.type === "Polygon" ? [f.geometry.coordinates]
+          : f.geometry.type === "MultiPolygon" ? f.geometry.coordinates : [];
+        for (const ringen of ringGroepen) {
+          let d = "";
+          for (const ring of ringen) {
+            ring.forEach((c, i) => {
+              const [x, y] = px(c[0], c[1]);
+              d += (i === 0 ? "M" : "L") + x.toFixed(1) + " " + y.toFixed(1) + " ";
+            });
+            d += "Z ";
+          }
+          if (!d) continue;
+          const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          p.setAttribute("d", d);
+          p.setAttribute("fill", "var(--zone)"); p.setAttribute("fill-opacity", "0.25");
+          p.setAttribute("stroke", "var(--zone)"); p.setAttribute("stroke-width", "0.8");
+          g.appendChild(p);
+        }
+      }
+    }
+    elKaart.appendChild(g);
+  }
+}
+</script>
+</body>
+</html>
