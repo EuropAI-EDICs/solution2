@@ -75,7 +75,11 @@ def entities_to_geojson(entities: list[dict[str, Any]]) -> dict[str, Any]:
             {
                 "type": "Feature",
                 "id": ent.get("id"),
-                "properties": {"type": ent.get("type"), "source": "ngsi-ld"},
+                "properties": {
+                    "type": ent.get("type"),
+                    "source": "ngsi-ld",
+                    **({"mock": True} if ent.get("mock") else {}),
+                },
                 "geometry": geom,
             }
         )

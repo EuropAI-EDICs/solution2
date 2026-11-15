@@ -32,6 +32,16 @@ def test_entities_to_geojson():
     assert len(fc["features"]) == 1
 
 
+def test_entities_to_geojson_behoudt_mock_vlag():
+    ents = [
+        {"id": "urn:ngsi-ld:X:mock-1", "type": "X", "mock": True,
+         "location": {"type": "GeoProperty",
+                      "value": {"type": "Point", "coordinates": [5.0, 52.0]}}},
+    ]
+    fc = data_platform.entities_to_geojson(ents)
+    assert fc["features"][0]["properties"]["mock"] is True
+
+
 def test_fetch_ngsi_as_features():
     fc = fetch_ngsi_as_features("AirQualityObserved")
     assert fc["type"] == "FeatureCollection"
