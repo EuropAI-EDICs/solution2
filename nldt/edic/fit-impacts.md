@@ -50,3 +50,12 @@ Not in this class: spatial Solution 2 recipes (CitiVERSE), GovChat-NL code
 
 IMPACTS gets shared building blocks and evidence for GovTech / AI-ready
 services. EuropAI gets a permanent institutional home for the framework.
+
+## National policy alignment (NL)
+
+Trust (V0–V4) and HITL make NOVEX dialoogproducten and Nota-scenario’s
+weerbaar (cite-or-abstain; mens beslist). Plan:
+[`docs/PLAN_NOVEX_NOTA_RUIMTE.md`](../../docs/PLAN_NOVEX_NOTA_RUIMTE.md).
+Asset labels: `policyAlignment` in
+[`recipes/edic-asset-map.json`](../recipes/edic-asset-map.json).
+Gaps: [`docs/GAP_REGISTER_NOVEX_NOTA_RUIMTE.md`](../../docs/GAP_REGISTER_NOVEX_NOTA_RUIMTE.md).

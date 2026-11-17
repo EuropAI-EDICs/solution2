@@ -1,9 +1,8 @@
 # EU Building Database — local setup (Postgres.app, PostgreSQL 18)
 
-Setup performed on 2026-08-29 following
-`ldt_toolbox_d03_06_eu_ldt_installation_manual_eu_building_database.v3.pdf`,
-adapted from Ubuntu to macOS using Postgres.app (PostgreSQL 18.6 with bundled
-PostGIS) on localhost:5432.
+Setup performed on 2026-08-29 following the EU Building Database
+installation manual, adapted from Ubuntu to macOS using Postgres.app
+(PostgreSQL 18.6 with bundled PostGIS) on localhost:5432.
 
 ## What was done
 
@@ -65,7 +64,7 @@ consumer (read-only) can run spatial queries.
 
 The original conversion ran manually; it is now reproduced as
 [`sql/tools/convert_gfz_spatialite_to_postgis.py`](sql/tools/convert_gfz_spatialite_to_postgis.py)
-(reconstructed 2026-10-14, stdlib + psycopg3 from `nldt/.venv`; parses the GAIA
+(reconstructed 2026-10-14, stdlib + psycopg3; parses the GAIA
 geometry blobs in pure Python). A full rebuild into a scratch database was
 verified against the live database: all row counts, binary geometry identity
 (`ST_AsEWKB` md5), an entity_assets content hash over ~200k rows,
@@ -83,7 +82,7 @@ $PGBIN/createdb -h localhost exposure
 $PGBIN/psql -h localhost -U marc -d exposure -f sql/00000_prepare_database.sql
 $PGBIN/psql -h localhost -U contributor -d exposure -f sql/00001_create_initial_structure_exposure.sql
 $PGBIN/psql -h localhost -U contributor -d exposure -f sql/00002_create_initial_structure_source.sql
-nldt/.venv/bin/python sql/tools/convert_gfz_spatialite_to_postgis.py \
+./venv/bin/python sql/tools/convert_gfz_spatialite_to_postgis.py \
   --dsn "host=localhost port=5432 dbname=exposure user=contributor"
 # post-import grants (manual §2.5.2; 00000's defaults only cover its own objects):
 $PGBIN/psql -h localhost -U contributor -d exposure -c \

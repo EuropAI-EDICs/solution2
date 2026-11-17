@@ -45,3 +45,12 @@ plain-language explanation) is packaged as language assets later.
 Digital Commons gets a maintained digital common it did not have to start.
 EuropAI gets a 2030 owner for code that IMPACTS and CitiVERSE will keep
 calling.
+
+## National policy alignment (NL)
+
+Open reference implementation for Nota/NOVEX evidence patterns — not a
+replacement for national portals. See
+[`docs/PLAN_NOVEX_NOTA_RUIMTE.md`](../../docs/PLAN_NOVEX_NOTA_RUIMTE.md)
+and `policyAlignment` on `service:nldt-source` /
+`application:govchat-beleidskompas` in
+[`recipes/edic-asset-map.json`](../recipes/edic-asset-map.json).

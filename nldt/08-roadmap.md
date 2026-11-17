@@ -162,7 +162,7 @@ PYTHONPATH=. .venv/bin/python -m agents.orchestrator.run \
 
 1. **Phase 5** — governed agent layer: [12-governed-agent-layer.md](12-governed-agent-layer.md)
 2. **Phase 6** — data lake + Data Space: [13-data-lake-and-space.md](13-data-lake-and-space.md)
-3. Deploy adapters on ldtsolutions K8s cluster with production env vars (see [10-toolbox-integration.md](10-toolbox-integration.md) and [edic/citiverse-live-path.md](edic/citiverse-live-path.md))
+3. Deploy adapters on K8s cluster with production env vars (see [10-toolbox-integration.md](10-toolbox-integration.md) and [edic/citiverse-live-path.md](edic/citiverse-live-path.md))
 4. Connect real UCS / Data Platform / P&V endpoints (`python -m scripts.edic_live_readiness`)
 5. OTLP exporter (Langfuse/Jaeger) instead of console-only spans
 6. Geonovum plugfest conformance tests

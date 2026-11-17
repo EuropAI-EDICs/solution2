@@ -74,7 +74,7 @@ nldt/
 - [EU LDT Toolbox Solutions Catalogue](https://interoperable-europe.ec.europa.eu/collection/ldttoolbox/solutions-catalogue)
 - [EuropAI WP4 EDIC handover](21-europai-edic-handover.md)
 
-Related in this repo: [`../MULTI_AGENT_PLAN.md`](../MULTI_AGENT_PLAN.md), [`../docs/GENAI_SEAMS.md`](../docs/GENAI_SEAMS.md), [`../ldtsolutions/`](../ldtsolutions/).
+Related in this repo: [`../MULTI_AGENT_PLAN.md`](../MULTI_AGENT_PLAN.md), [`../docs/GENAI_SEAMS.md`](../docs/GENAI_SEAMS.md).
 
 ## Quick start
 

@@ -199,8 +199,31 @@ def _ow_locatie_identificaties(pakket_zip: Path) -> set[str]:
     return uit
 
 
+def laad_grens(gebied: dict):
+    """Werkgrens als shapely-geometrie: GeoJSON-polygon (assengrenzen uit het
+    Toekomstbeeld) indien aanwezig, anders de omkastende bbox. Returns
+    (geometrie, info-dict voor manifest/rapport)."""
+    from shapely.geometry import box as shapely_box, shape
+
+    wg = gebied["werkgrens"]
+    if wg.get("geojson_rd"):
+        g = shape(wg["geojson_rd"])
+        return g, {"modus": "polygon", "oppHa": wg.get("opp_ha"),
+                   "vorm": "assengrenzen Toekomstbeeld (Grift · spoor · Rondwegen)"}
+    return shapely_box(*wg["bbox_rd"]), {"modus": "bbox", "bboxRd": wg["bbox_rd"]}
+
+
+def _grens_of_bbox(grens):
+    """Aanroep-compat: lijst (bbox) → shapely box; geometrie blijft zichzelf."""
+    from shapely.geometry import box as shapely_box
+
+    if isinstance(grens, (list, tuple)):
+        return shapely_box(*grens)
+    return grens
+
+
 def koppel_geo_aan_werkgrens(
-    verwijzingen: list[dict], pakket_zip: Path, bbox_rd: list[float]
+    verwijzingen: list[dict], pakket_zip: Path, grens
 ) -> tuple[list[dict], dict]:
     """Koppel elke geoVerwijzing-locatie aan de werkgrens — met eerlijke status.
 
@@ -211,15 +234,15 @@ def koppel_geo_aan_werkgrens(
       maar de geometrie zit niet in dít uitwisselpakket (aparte GIO-aanlevering).
     - ``afwezig-in-pakket``: identificatie ontbreekt geheel (bijv. een
       leveranciers-identificatiefamilie uit de STTR-maker).
-    """
-    from shapely.geometry import box as shapely_box
 
+    ``grens``: shapely-geometrie (polygon-werkgrens) of bbox-lijst [minx,miny,maxx,maxy].
+    """
     from nldt.simulation.regelrecht.tpod import geo as tpod_geo
 
     index = tpod_geo.geo_index_uit_pakket(pakket_zip)
     locaties = index.get("locaties") or {}
     ow_ids = _ow_locatie_identificaties(pakket_zip)
-    werkgrens = shapely_box(*bbox_rd)
+    werkgrens = _grens_of_bbox(grens)
     uit: list[dict] = []
     for v in verwijzingen:
         ident = v.get("locatieIdentificatie")
@@ -248,23 +271,21 @@ def koppel_geo_aan_werkgrens(
     return uit, samenvatting
 
 
-def sweep_gios_tegen_werkgrens(
-    pakket_zip: Path, bbox_rd: list[float]
-) -> list[dict]:
+def sweep_gios_tegen_werkgrens(pakket_zip: Path, grens) -> list[dict]:
     """Alle GIO's in het pakket (ook vrij benoemde) tegen de werkgrens snijden.
 
     Dit is de gebiedsfeit-kant: welke officiële beleidslagen (GIO's, elk met
     STOP-FRBRWork) bedekken (een deel van) de werkgrens — onafhankelijk van de
     STTR-vraag-koppeling, die apart en eerlijk wordt gerapporteerd.
+
+    ``grens``: shapely-geometrie (polygon-werkgrens) of bbox-lijst [minx,miny,maxx,maxy].
     """
     import re
     import zipfile
 
-    from shapely.geometry import box as shapely_box
-
     from nldt.simulation.regelrecht.tpod import geo as tpod_geo
 
-    werkgrens = shapely_box(*bbox_rd)
+    werkgrens = _grens_of_bbox(grens)
     uit: list[dict] = []
     with zipfile.ZipFile(pakket_zip) as z:
         gml_namen = sorted(n for n in z.namelist() if n.endswith(".gml") and "/" in n)
@@ -393,6 +414,9 @@ def schrijf_rapport(run_dir: Path, data: dict) -> None:
         f"{data['begindatumMin']} → {data['begindatumMax']}).",
         f"**Omgevingsplan:** {data['regeling'].get('officieleTitel', '—')} "
         f"(`{data['regeling'].get('identificatie', '—')}`).",
+        f"**Werkgrens:** {data.get('werkgrens', {}).get('modus', 'bbox')} — "
+        f"{data.get('werkgrens', {}).get('vorm', 'omkastende bbox')} · "
+        f"≈{data.get('werkgrens', {}).get('oppHa', '?')} ha (gebied.json).",
         "",
         "## 1 · Locatie-gebonden vragen (geoVerwijzing ∩ werkgrens)",
         "",
@@ -428,7 +452,7 @@ def schrijf_rapport(run_dir: Path, data: dict) -> None:
             regels.append("")
         else:
             regels += [
-                "Geen van de koppelbare locaties snijdt de (bbox-)werkgrens. De overige "
+                "Geen van de koppelbare locaties snijdt de werkgrens. De overige "
                 "locatie-gebonden vrágen gelden wel in het loket — hun gebied is via dit "
                 "pakket alleen niet meetbaar (zie de statusverdeling hierboven).",
                 "",
@@ -497,8 +521,9 @@ def schrijf_rapport(run_dir: Path, data: dict) -> None:
         "",
         "- Dit zijn de officiële **vragen** (STTR) — geen besluit: de conclusie-enum "
         "(Vergunningplicht/Toestemmingsvrij/…) volgt pas met een concreet voorstel.",
-        "- Locatie-binding is gemeten tegen de **provisionele bbox-werkgrens** (run.py, "
-        "gebied.json); met de officiële gebiedsgrens kunnen overlappingen verschuiven.",
+        "- Locatie-binding is gemeten tegen de **provisionele polygon-werkgrens** "
+        "(assengrenzen uit het Toekomstbeeld, p.7; gebied.json); met de officiële "
+        "gebiedsgrens kunnen overlappingen verschuiven.",
         "- Programma-koppelingen zijn **gelabelde heuristieken met bewijs**. Monumentstatus "
         "op Rijksniveau blijft een open kennissgat (RCE-register is de bron, niet BAG/BGT); "
         "de GIO-sweep levert wél de gemeentelijke monumentenlaag over het gebied (zie §1).",
@@ -520,7 +545,7 @@ def main(argv: list[str] | None = None) -> int:
 
     gebied = json.loads((DATA / "gebied.json").read_text(encoding="utf-8"))
     ind, ind_pad = laatste_indicatoren()
-    bbox_rd = gebied["werkgrens"]["bbox_rd"]
+    grens, grens_info = laad_grens(gebied)
     anker_rd = gebied["ankers"][0]["rd"]
 
     sttr = lees_sttr_cache()
@@ -555,9 +580,9 @@ def main(argv: list[str] | None = None) -> int:
                         "sha256": pak_meta.get("sha256"), "bytes": pak_meta.get("bytes")})
         print(f"  pakket: {(pak_meta.get('bytes') or 0) / 1e6:.1f} MB")
         print("→ geoVerwijzingen koppelen aan de werkgrens…")
-        gekoppeld, samenvatting = koppel_geo_aan_werkgrens(verwijzingen, pakket, bbox_rd)
+        gekoppeld, samenvatting = koppel_geo_aan_werkgrens(verwijzingen, pakket, grens)
         print("→ alle GIO's in het pakket tegen de werkgrens sweepen…")
-        gios = sweep_gios_tegen_werkgrens(pakket, bbox_rd)
+        gios = sweep_gios_tegen_werkgrens(pakket, grens)
         locatieGebonden = {"status": "gemeten", "verwijzingen": gekoppeld,
                            "samenvatting": samenvatting, "gios": gios}
         in_gebied = [v for v in gekoppeld
@@ -588,6 +613,7 @@ def main(argv: list[str] | None = None) -> int:
         "runId": run_id,
         "gegenereerdOp": utcnow(),
         "gebied": gebied.get("gebied"),
+        "werkgrens": grens_info,
         "oin": rtr.get("oin"),
         "totaalBestanden": index["totals"]["bestanden"],
         "dmnVersies": dmn_versies,

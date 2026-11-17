@@ -4,14 +4,14 @@ replay); herkomst per uitkomst (DATA-01)."""
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 
 
 def _parse_datum(raw: str) -> date | None:
     raw = raw.strip()
     for patroon in ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y"):
         try:
-            return date.fromisoformat(date.strptime(raw, patroon).isoformat())
+            return datetime.strptime(raw, patroon).date()
         except ValueError:
             continue
     return None

@@ -1265,7 +1265,14 @@ def build_veenendaal() -> dict:
     ind = json.loads((run / "indicators.json").read_text(encoding="utf-8"))
     manifest = json.loads((run / "manifest.json").read_text(encoding="utf-8"))
     bbox_rd = gebied["werkgrens"]["bbox_rd"]
-    clip = box(*bbox_rd)
+    # werkgrens: GeoJSON-polygon (assengrenzen uit het Toekomstbeeld) als clip;
+    # bbox-benadering alleen als gebied.json nog geen polygon biedt
+    grens_geo = gebied["werkgrens"].get("geojson_rd")
+    clip = shape(grens_geo) if grens_geo else box(*bbox_rd)
+    grens_ring = None
+    if grens_geo:
+        _gr = shape(grens_geo).simplify(1.0, preserve_topology=True).exterior.coords
+        grens_ring = [[round(x, 1), round(y, 1)] for x, y in _gr]
 
     cache = VEENENDAAL_POC / "data" / "cache"
 
@@ -1306,12 +1313,16 @@ def build_veenendaal() -> dict:
         else:
             cat = 0
         c = shape(g).representative_point()
+        if not clip.contains(c):
+            continue  # zwaartepunt-regel uit de engine: buiten de werkgrens = buiten beeld
         panden.append([round(c.x), round(c.y), cat])
 
     bomen = []
     for f in _vd_actueel(cache_fc("vegetatieobject_punt").get("features", [])):
         g = f.get("geometry")
         if g and g.get("type") == "Point":
+            if not clip.contains(shape(g)):
+                continue
             bomen.append([round(g["coordinates"][0]), round(g["coordinates"][1])])
 
     bronnen = [{"collection": b["collection"], "n": b["featureCount"],
@@ -1321,12 +1332,22 @@ def build_veenendaal() -> dict:
 
     sweep = None
     zones_payload = None
+    zones_rapport = None
     sweep_dirs = sorted((VEENENDAAL_POC / "scenario-runs").glob("*-sweep"))
     if sweep_dirs:
         sdir = sweep_dirs[-1]  # nieuwste sweep = actueel
         scs = json.loads((sdir / "scenarios.json").read_text(encoding="utf-8"))
         sman = json.loads((sdir / "manifest.json").read_text(encoding="utf-8"))
         dg = json.loads((sdir / "deelgebieden.json").read_text(encoding="utf-8"))
+        # zone-polygonen uit gebied.json bijmixen (deelgebieden.json heeft alleen
+        # de getallen); template tekent polygon indien aanwezig, anders bbox
+        zone_poly = {z["naam"]: z.get("polygon") for z in gebied["deelgebied_zones"]["zones"]}
+        zone_bbox = {z["naam"]: z.get("bbox") for z in gebied["deelgebied_zones"]["zones"]}
+        for z in dg["zones"]:
+            if z["naam"] in zone_poly:
+                z["polygon"] = zone_poly[z["naam"]]
+            if z["naam"] in zone_bbox:
+                z["bbox"] = zone_bbox[z["naam"]]
         zones_payload = {"status": dg["status"], "zones": dg["zones"]}
         per_zone = dg.get("per_scenario", {})
         # display-ringen volgen de ENGINE-beslissing (genomen_ids + regel uit
@@ -1349,6 +1370,28 @@ def build_veenendaal() -> dict:
                           "ringen": _vd_rings(genomen, clip)}
         sweep = {"runId": sman["runId"], "v3": sman["v3"],
                  "toelichting": sman["aannames"]["toelichting"], "scenarios": scs}
+
+    # deelgebied-uitsnede (zones.py): nieuwste zones-run, alleen display-compact
+    zones_dirs = sorted((VEENENDAAL_POC / "sttr-runs").glob("*-zones"))
+    if zones_dirs:
+        zdata = json.loads((zones_dirs[-1] / "zones.json").read_text(encoding="utf-8"))
+        zones_rapport = {
+            "runId": zdata["runId"],
+            "vChecksOk": all(c["ok"] for c in zdata.get("vChecks") or []),
+            "zones": [{
+                "naam": z["naam"], "oppHa": z["opp_ha"],
+                "nulmeting": {k: z["nulmeting"][k] for k in
+                              ("panden_bestand", "woningen_verblijfsobjecten_proxy",
+                               "panden_bouwjaar_vanaf_2020", "begroeid_terrein_ha",
+                               "onbegroeid_terrein_ha", "waterdeel_ha", "vegetatieobject_punt")},
+                "nGioLagen": z["n_gio_lagen"],
+                "gwDekking": next((g["dekkingPct"] for g in z["gio_lagen"]
+                                   if "grondwater" in g["gio"]), None),
+                "top": [{"gio": g["gio"], "dekkingPct": g["dekkingPct"],
+                         "overlapHa": g["overlapHa"], "objecten": g["objecten"]}
+                        for g in z["gio_lagen"][:3]],
+            } for z in zdata["zones"]],
+        }
 
     # --- het loket (STTR/RTR) + scenario-kruising: nieuwste runs, optioneel ---
     loket = None
@@ -1454,6 +1497,8 @@ def build_veenendaal() -> dict:
         "gebied": {"naam": gebied["gebied"],
                    "bronNaam": gebied["bron"]["naam"], "bronUrl": gebied["bron"]["url"],
                    "oppHa": gebied["werkgrens"]["opp_ha"], "bbox": bbox_rd,
+                   "grensRing": grens_ring,
+                   "grensVorm": "polygon" if grens_geo else "bbox",
                    "afleiding": gebied["werkgrens"]["afleiding"],
                    "anchor": gebied["ankers"][0]["rd"] + [gebied["ankers"][0]["naam"]],
                    "deelgebieden": gebied["deelgebieden"]},
@@ -1463,6 +1508,7 @@ def build_veenendaal() -> dict:
         "dedupe": dedupe,
         "sweep": sweep,
         "zones": zones_payload,
+        "zonesRapport": zones_rapport,
         "loket": loket,
         "map": {"groen": groen, "verhard": verhard, "water": water,
                 "spoor": spoor, "panden": panden, "bomen": bomen},

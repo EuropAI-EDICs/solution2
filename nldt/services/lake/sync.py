@@ -122,6 +122,8 @@ def default_sync_plan(pocs: Iterable[str] | None = None) -> list[dict[str, Any]]
         return [
             # bronze: OW-uitwisselpakket (pons, GIO's) as-received
             ("bronze", "dso-uitwisselpakket", dso_out, [f"{poc}__*.pakket.zip"]),
+            # bronze: RTR/STTR-bestanden (DMN-downloads) as-received
+            ("bronze", "rtr-sttr-bestanden", dso_out, [f"{poc}.rtr.*.dmn"]),
             # silver: Presenteren-caches, tpod-indexen, toetsen, overlap-rapporten
             (
                 "silver",
@@ -147,6 +149,22 @@ def default_sync_plan(pocs: Iterable[str] | None = None) -> list[dict[str, Any]]
                 REGELRECHT_DIR / "full_export" / "out",
                 [f"{poc}-*.yaml", f"{poc}-*.json"],
             ),
+            # silver: RTR-metadata + STTR-import-index (rtr/v1, sttr-index/v1)
+            (
+                "silver",
+                "rtr-sttr",
+                dso_out,
+                [f"{poc}.rtr.json", f"{poc}.sttr.json"],
+            ),
+            # gold: Laya formalisatie-poortwachter (Inzet A) — eval + summaries;
+            # weights blijven buiten git én buiten de lake
+            (
+                "gold",
+                "laya-formalizer",
+                NLDT_ROOT.parent / "simulation" / "laya_formalizer",
+                ["eval-holdout.json", "eval-cross.json",
+                 "finetune-summary.json", "finetune-summary-cross.json"],
+            ),
             # gold: smoke-runs
             ("gold", "regelrecht-runs", REGELRECHT_DIR / "runs", [f"{poc}-*.json"]),
         ]
@@ -161,6 +179,20 @@ def default_sync_plan(pocs: Iterable[str] | None = None) -> list[dict[str, Any]]
         "breda": [
             ("silver", "geo", POC_ROOTS["breda"] / "data" / "cache"),
             ("silver", "sources", POC_ROOTS["breda"] / "data"),
+            # Laya System-1 — prefer lake_publish.py for bronze metas + datasetId
+            # keys; sync still mirrors under system1/{datasetId}/ for idempotency.
+            (
+                "silver",
+                "laya/system1/20261025-breda-laya-s1",
+                NLDT_ROOT.parent / "simulation" / "laya_breda" / "data",
+                ["*.jsonl", "manifest.json"],
+            ),
+            (
+                "gold",
+                "laya/system1/20261025-breda-laya-s1",
+                NLDT_ROOT.parent / "simulation" / "laya_breda",
+                ["predictions.json", "finetune-summary.json"],
+            ),
             ("gold", "runs", POC_ROOTS["breda"] / "runs"),
         ],
         "eindhoven": [

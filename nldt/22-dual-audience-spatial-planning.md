@@ -10,7 +10,7 @@ by the general public** without forking the truth. The approach decision
 | Status | Approach decided 2026-09-28 (§10) · nothing audience-facing implemented yet — DA-0 is the first phase · seam **S11** registered (designed) |
 | Question answered | *"AI-ondersteunde ruimtelijke ordening die zowel door city planners als door het algemene publiek gebruikt kan worden — welke aanpak?"* |
 | Motivation | The [3D Cityplanner (StrateGis) blog](https://3dcityplanner.com/blog/) articulates the dual-audience ambition from the **design** side (parametric variants, instant KPIs). nLDT answers the same ambition from the **regulation** side: "where can what, under which rules, and why" — with receipts |
-| Related | [01](01-vision-and-scope.md) · [05](05-agentic-ai-layer.md) · [07](07-trust-and-governance.md) (V0–V4) · [11](11-poc-patterns-scenarios-qa.md) · [12](12-governed-agent-layer.md) · [14](14-beleidskompas-integration.md) (the front-door pattern this reuses) · [16](16-eid-wallet-identity.md) (identity) · [`../MULTI_AGENT_PLAN.md`](../MULTI_AGENT_PLAN.md) B5 (contestability) · [`../ldtsolutions/REMOTE_CLUSTER.md`](../ldtsolutions/REMOTE_CLUSTER.md) (Participate deployed) |
+| Related | [01](01-vision-and-scope.md) · [05](05-agentic-ai-layer.md) · [07](07-trust-and-governance.md) (V0–V4) · [11](11-poc-patterns-scenarios-qa.md) · [12](12-governed-agent-layer.md) · [14](14-beleidskompas-integration.md) (the front-door pattern this reuses) · [16](16-eid-wallet-identity.md) (identity) · [`../MULTI_AGENT_PLAN.md`](../MULTI_AGENT_PLAN.md) B5 (contestability) |
 | EuropAI EDIC home | **LDT CitiVERSE** — citizen engagement on the twin ([edic/route-citiverse-first.md](edic/route-citiverse-first.md)) |
 
 ---
@@ -274,5 +274,4 @@ ledger with reasons.
 - Identity: [16-eid-wallet-identity.md](16-eid-wallet-identity.md) ·
   Trust: [07-trust-and-governance.md](07-trust-and-governance.md) ·
   Contestability origin: [`../MULTI_AGENT_PLAN.md`](../MULTI_AGENT_PLAN.md) B5 ·
-  Participate deployment: [`../ldtsolutions/REMOTE_CLUSTER.md`](../ldtsolutions/REMOTE_CLUSTER.md) ·
   Seams: [`../docs/GENAI_SEAMS.md`](../docs/GENAI_SEAMS.md)

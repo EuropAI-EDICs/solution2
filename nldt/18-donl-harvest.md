@@ -101,7 +101,7 @@ PYTHONPATH=. python -m services.source_monitor.cli run --mode replay
 
 ## Cluster (LDT Toolbox)
 
-1. Deploy Data Platform RustFS bucket `nldt-poc-lake` ([`../ldtsolutions/NLDT_MCP_DEPLOY.md`](../ldtsolutions/NLDT_MCP_DEPLOY.md))
+1. Deploy Data Platform RustFS bucket `nldt-poc-lake`
 2. `export NLDT_LAKE_BACKEND=s3 NLDT_LAKE_ENDPOINT=…`
 3. Run harvest from orchestrator or CronJob
 4. Publish offers via `NLDT_DATASPACE_CONNECTOR=edc-manifest` or live EDC/DSR

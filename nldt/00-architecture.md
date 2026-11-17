@@ -57,8 +57,7 @@ docs; this file wires them together.
  │ LDT CitiVERSE EDIC RA       │────────▶│         + agentic layer          │
  │ nLDT Testbed 2026 (phase 2) │         │ poc*/   domain engines (SoT)     │
  │ EU LDT Toolbox catalogue    │         │ docs/   Utrecht solutions arch   │
- └─────────────────────────────┘         │ ldtsolutions/  K8s deploy        │
-                                         └──────────────────────────────────┘
+ └─────────────────────────────┘         └──────────────────────────────────┘
 ```
 
 | External | Link |
@@ -108,7 +107,7 @@ Diagram: [`diagrams/container-view.mmd`](diagrams/container-view.mmd).
 | nLDT interfaces | Records / Processes / Recipe schema | [`schemas/`](schemas/) |
 | Implementation | EU Toolbox + PoC engines | [06](06-hybrid-implementation.md), [10](10-toolbox-integration.md) |
 | Data plane | Medallion lake + lakehouse | [13](13-data-lake-and-space.md) |
-| Infrastructure | Local FS / RustFS / K8s | [docker-compose.lake.yml](docker-compose.lake.yml), [`../ldtsolutions/`](../ldtsolutions/) |
+| Infrastructure | Local FS / RustFS / K8s | [docker-compose.lake.yml](docker-compose.lake.yml) |
 
 ### 3.3 Agentic planes (PoC)
 
@@ -300,7 +299,7 @@ restricted Data Space offers require explicit approval
 | Identity (Keycloak) | env / OIDC · wallet convergence W2/W6 ([16](16-eid-wallet-identity.md)) | [10](10-toolbox-integration.md) |
 | Marketplace | [`marketplace_publish.py`](services/marketplace_publish.py) | [09](09-federation-and-observability.md) |
 | Post-run hooks | [`hybrid_bridge.py`](services/hybrid_bridge.py) | [06](06-hybrid-implementation.md) |
-| Cluster deploy | — | [`../ldtsolutions/`](../ldtsolutions/), skill `ldt-toolbox-deploy` |
+| Cluster deploy | — | skill `ldt-toolbox-deploy` |
 
 ---
 
@@ -390,8 +389,7 @@ ldttoolbox/
 │   └── tests/
 ├── poc/  poc-breda/  poc-rijnland/  poc-bp2op/
 ├── docs/SOLUTIONS_ARCHITECTURE.md · GENAI_SEAMS.md
-├── MULTI_AGENT_PLAN.md
-└── ldtsolutions/                  ← K8s / toolbox deploy
+└── MULTI_AGENT_PLAN.md
 ```
 
 ---

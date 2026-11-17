@@ -21,7 +21,7 @@ Play & Visualise non-mock, Keycloak URL that is not localhost.
 `NLDT_NLAIF_ROUTE` / `NLDT_LLM_BASE_URL` — only S7/S8 LLM seams, never zone
 engines.
 
-## 2. Environment (ldtsolutions / int)
+## 2. Environment
 
 ```bash
 export UCS_BASE_URL=https://ucs-int.ldttoolbox.app

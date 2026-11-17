@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Document | `docs/SOLUTIONS_ARCHITECTURE.md` · v1.4 · **2026-09-29** |
+| Document | `docs/SOLUTIONS_ARCHITECTURE.md` · v1.5 · **2026-11-06** |
 | Specializes | `MULTI_AGENT_PLAN.md` v1.2 (§3–§8). That plan is the general spec; this document specializes it for the Utrecht pilot **and fixes the concrete module/data/contract layout** any such pilot follows. It does not repeat the plan — section numbers below link back to it. GenAI seam catalogue (which model roles exist and their gates): `docs/GENAI_SEAMS.md`. Platform layer that now wraps this pilot (and sibling PoCs): `nldt/00-architecture.md`. |
 | Pilot instance | Thirteen tracks on one instrument (Omgevingsverordening provincie Utrecht, CVDR704250): **wind** (turbines ≥3 MW and ≤20 m hub paths), **zon** (zonnevelden / solar fields), **bos** (nieuwe natuur / forest planting), **water** (riparian development, arts. 2.14–2.16), **bodem** (soil activity, arts. 3.7–3.10), **mobiliteit** (roadside development, arts. 4.7–4.71), **landschap** (landscape intervention, arts. 7.3–7.12), **landbouw** (agricultural expansion, arts. 8.1–8.7), **biomassa** (biomass installations, arts. 5.6–5.7), **energietoets** (energy test / netbelasting, arts. 5.10–5.11), **wonen** (housing development, arts. 9.3–9.29), **werken** (business development, arts. 9.9–9.20), **recreatie** (recreation development, arts. 9.22–9.23), province Utrecht (NL) |
 | Grounding inputs | Legal recon: `docs/research/legal-facts.md` + `poc/corpus/*.json` (23 sources, 84 cite-verified evidence records: wind 24 · zon 5 · bos 5 · water 3 · bodem 5 · mobiliteit 5 · landschap 6 · landbouw 6 · biomassa 2 · energietoets 3 · wonen 12 · werken 6 · recreatie 2) · Geo recon: `docs/research/geo-catalog.md` + `poc/data/sources.json` (114 schema-validated service entries) |
@@ -24,6 +24,8 @@
 **Relation to the EU LDT Toolbox — wrap, don't rebuild.** As plan §3.4 states, domain models stay deterministic services that agents call; the multi-agent layer adds legal interpretation, orchestration and validation (catalogue: https://interoperable-europe.ec.europa.eu/collection/ldttoolbox/solutions-catalogue). This pilot applies the same principle one level down: the **province's existing authoritative services are wrapped, never re-derived** — the vigerende Omgevingsverordening geometry is consumed from the province's own IMOW-referenced FeatureServer, the consolidated legal text from the CVDR, and the planMER constraint layers from the province's ArcGIS Hub. The PoC adds only what those sources lack: formalized rules, zone algebra, validation and provenance.
 
 **Relation to nLDT (v1.4).** Since September 2026 the Utrecht pipeline is one **engine** behind the nLDT front door: OGC API Records / Processes / Recipes, LangGraph orchestrator, MCP tools, Critic/HITL/PROV, and a medallion data lake with European Data Space offers (`nldt/`). Sibling engines (Breda five-value scan, Rijnland peilen, Eindhoven bp2op) share the same gates. This document remains the **Utrecht solutions architecture**; the platform hub is [`nldt/00-architecture.md`](../nldt/00-architecture.md). Doctrine is unchanged: *AI proposes · pipeline disposes · human decides* ([`docs/GENAI_SEAMS.md`](GENAI_SEAMS.md)).
+
+**Relation to the RI-Geo moderniseringslandschap (v1.5).** The umbrella picture for the wider programme is the landscape plate [`docs/Modernisering RI-Geo Info landschap.png`](Modernisering%20RI-Geo%20Info%20landschap.png) — *Moderniseren ruimtelijke-geo informatie landschap*. It draws the societal **opgaven** on top, a **PDCA** policy cycle, a **marktplaats voor recepten**, four service blocks (automatisch inwinnen · gevalideerde rekenmodellen & AI · data en diensten toepassen · interactie & beslisondersteuning), a **governance- & beheerlaag**, a **beveiligingslaag**, a **data-uitwisselingslaag** of dataspaces and standards, and a **data plane** of basisregistraties with DSO/DGO omgevingsdata — carried by an ecosystem of overheid, markt, kennisinstellingen and gebruikers. §3.5 maps every element of that plate onto the components of this architecture: the plate is the umbrella view, the Utrecht engine behind the nLDT front door is one concrete realization of each layer.
 
 ---
 
@@ -212,6 +214,64 @@ engines dispose** (`docs/GENAI_SEAMS.md` S1–S9, SM, L6, DONL; S7/S8
 implemented and verified against a live qwen3.8 — findings and gate lessons
 in its technical annex). Nothing a model emits reaches a zone computation,
 an artifact or the prose without a deterministic gate deciding first.
+
+### 3.5 RI-Geo landschapsview — the moderniseringsplaat as umbrella over this architecture (v1.5)
+
+The programme-level umbrella picture is the landscape plate
+[`docs/Modernisering RI-Geo Info landschap.png`](Modernisering%20RI-Geo%20Info%20landschap.png)
+(*Moderniseren ruimtelijke-geo informatie landschap* — datagedreven, sneller en
+beter beslissen). This view restates its elements in the house style of §3 and
+binds each one to where it recurs below: the plate is the umbrella, the Utrecht
+engine behind the nLDT front door is one concrete realization of every layer.
+
+```
+  maatschappelijke opgaven ── energietransitie · klimaatadaptatie & waterveiligheid ·
+                             woningbouw & verstedelijking · natuur & biodiversiteit ·
+                             mobiliteit & infrastructuur · landbouw · EU-fondsen
+  ────────────────────────────────────────────────────────────────────────────────────
+  NLDT-referentie-          Beleid & PDCA (Plan-Do-Check-Act)          moderniserings-
+  architectuur &            Marktplaats voor recepten — vinden ·        governance-
+  standaarden               combineren · uitrollen · valideren ·        activiteiten
+  (OGC · ISO ·              ontwikkelen · delen                         (actieplannen ·
+   INSPIRE · DCAT-          Dienstenlaag ── 1 automatisch inwinnen      adoptie · standaar-
+   AP · API-standaarden;    (sensoren · EO · luchtfoto's)               denbeheer · AI-
+   open, modulair,          2 gevalideerde rekenmodellen & AI           verordening)
+   interoperabel)           3 data en diensten toepassen
+                            (data-loket · API's · dataspaces)
+                            4 interactie & beslisondersteuning
+                            (3D/twins · dashboards · co-creatie)
+                            Governance- & beheerlaag ("operating system")
+                            Beveiligingslaag (IAM · privacy · encryptie · compliance)
+                            Data-uitwisselingslaag (dataspaces · open standaarden)
+                            Data plane ── basisregistraties (BAG·BGT·BRO·BRT·WOZ) ·
+                             DSO (plan·regels·processen) · DGO (besluiten) ·
+                             regels & toezicht · thematische · Europese · private data
+  ────────────────────────────────────────────────────────────────────────────────────
+  ecosysteem ── Rijk · provincies · gemeenten · waterschappen · markt · kennis · gebruikers
+```
+
+| Element on the plate | Where it recurs in this architecture | Reference |
+|---|---|---|
+| **Maatschappelijke opgaven** (energietransitie · klimaatadaptatie & waterveiligheid · woningbouw & verstedelijking · natuur & biodiversiteit · mobiliteit & infrastructuur · landbouw) | the thirteen tracks are opgave-shaped: wind · zon · biomassa · energietoets (energie- en grondstoffentransitie), water (klimaatadaptatie & waterveiligheid), wonen (woningbouw), bos · landschap (natuur & landschapskwaliteit), mobiliteit, landbouw; the cross-track overlay quantifies where opgaven collide (zon × bos 94.7 %) | §2, §3.4 |
+| **Beleid & PDCA-cyclus** (toetsing en monitoring in de besluitvorming) | policy-cycle stages design → programming → permission → monitoring; the scenario plane sweeps the *Plan* variants deterministically, V3 independent re-execution + source monitor are the *Check*, re-run on instrument refresh (amendment PS 18-11-2026) is the *Act* | §2, §3.4, §7 · [`nldt/17`](../nldt/17-source-monitor.md) |
+| **Marktplaats voor recepten** (vinden & catalogiseren · combineren & uitrollen · ontwikkelen & publiceren · valideren & keurmerk · delen & samenwerken) | nLDT AppStore → Cookbook → Cook: catalog_adapter = OGC API Records (vinden & catalogiseren), recipes `utrecht-opportunity-map` / `-scenario-sweep` / `-world-scene` / `-crosstrack` (combinen & ontwikkelen), process_adapter = OGC API Processes (uitrollen & toepassen), recipe schema + Critic V0/V2 = het keurmerk; the EU LDT Toolbox Marketplace adapter publishes solutions outward | [`nldt/00` §4](../nldt/00-architecture.md) · [`nldt/04`](../nldt/04-recipes-and-processes.md) |
+| Dienstenblok **Automatisch inwinnen** (sensordata · drones/luchtfoto's · satelliet-EO · mobiele netwerken · publieke & overheidsbronnen) | consumed, not rebuilt: authoritative registries read-only (province ArcGIS, PDOK/DONL, agrest IMOW mirror) with sha256-pinned fetch manifests; continuity via the source monitor; live sensor/IoT ingest stays an open seam | §5.1–5.2 · [`nldt/17`](../nldt/17-source-monitor.md) · [`nldt/18`](../nldt/18-donl-harvest.md) |
+| Dienstenblok **Gevalideerde rekenmodellen & AI** (fysische systemenmodellen · AI-modellen & generieke AI · validatie & monitoring · statistiek & trendanalyse) | the deterministic engines are de *gevalideerde rekenmodellen* (zone algebra, Rijnland peilconflict, Breda vijf-waarden scan) behind V0–V3 gates incl. independent re-execution; AI appears only as propose-only seams S1/S2/S7/S8 — models never dispose | §3.3, §7 · [`GENAI_SEAMS`](GENAI_SEAMS.md) |
+| Dienstenblok **Data en diensten toepassen** (data-reuse · data-loket met API's · AI-services · bestanden & uitwisseling · dataspaces) | OGC Records/Processes front doors + MCP tools as het *data-loket*; medallion lake (bronze/silver/gold) + DuckDB/Iceberg/dbt for reuse; DONL harvest for national discovery; `lake://` resolution unifies local and shared data | §5.4 · [`nldt/13`](../nldt/13-data-lake-and-space.md) · [`nldt/18`](../nldt/18-donl-harvest.md) |
+| Dienstenblok **Interactie & beslisondersteuning** (3D & digitale twins · GeoDashboard-omgevingen · AI & co-creatie · delen & overleggen) | scenario-copilot what-if demo (Leaflet, engine metrics only), simulation-hub replay of all PoCs, single-file HTML reports per run; 3d-viewer (CesiumJS + 3D BAG) as the seed; generative world-model explore (Marble) strictly hypothetical + HITL, never a zone source | §3.4 · [`POC_WORLD_MODEL_UTRECHT`](POC_WORLD_MODEL_UTRECHT.md) |
+| **Governance- & beheerlaag** ("operating system": rollen & autorisaties · API-management & servicedelivery · data- & modelgovernance · monitoren & rapportage · compliance & audit) | governed agent layer: auth modes + trust policy (rollen & autorisaties), MCP/OGC endpoints (API-management), Critic/HITL/PROV + run manifests (compliance, audit & rapportage), source monitor (monitoren); modelgovernance = the seam-ledger discipline; strategie, financieel beheer & leveranciersmanagement stay programme-level | [`nldt/12`](../nldt/12-governed-agent-layer.md) · [`nldt/07`](../nldt/07-trust-and-governance.md) · [`nldt/17`](../nldt/17-source-monitor.md) |
+| **Beveiligingslaag** (toegangs- & identiteitsbeheer · privacy & dataminimalisatie · encryptie & sleutelbeheer · risicobeheer & monitoring · security compliance) | `NLDT_AUTH_MODE=off\|static\|keycloak\|wallet`, eID-wallet identity track (EUDI + EBW), `accessClass` + `lake-deny.json`, restricted assets require HITL; encryptie & sleutelbeheer delegated to the platform/K8s deploy layer | [`nldt/16`](../nldt/16-eid-wallet-identity.md) · §5.4 · [`nldt/13`](../nldt/13-data-lake-and-space.md) |
+| **Data-uitwisselingslaag** (open standaarden/OGC APIs · dataspaces & brokering · contracten & handhaving · transacties & logging · semantiek & metadata) | OGC API Records/Processes as the standard exchange interfaces; Data Space participant via ODRL offers + pluggable EDC connector (`mock` \| `edc-manifest` \| `http`); PROV bundles + fetch manifests as the logging; DCAT-AP-NL records + JOIN-id zone keys as de semantiek | [`nldt/13`](../nldt/13-data-lake-and-space.md) · §5.4, §6 |
+| **Data plane — data- en informatielagen** (basisregistraties BAG·BGT·BRO·BRT·WOZ · DSO plan/regels/processen · DGO besluiten · regels, beleid & toezicht · thematische · Europese · private data) | §5 is exactly this plane for the pilot: IMOW-geregistreerde regelgeving via the agrest mirror + CVDR pins (the official DSO download API stays key-gated — open seam), province ArcGIS registries, DONL national metadata, bronze/silver/gold layering in the lake | §5.1–5.4 |
+| **NLDT-referentie-architectuur & standaarden** (OGC · ISO · INSPIRE · DCAT-AP · API-standaarden — open, modulair en interoperabel) | the standards this architecture is built on: OGC API's, JSON Schema contracts at every hop, DCAT-AP-NL harvest, EPSG:28992/4326 twins; Geonovum NLDT RA + the EU LDT Toolbox catalogue as the external anchors ("wrap, don't rebuild") | [`nldt/02`](../nldt/02-reference-architecture.md) · [`nldt/00` §2](../nldt/00-architecture.md) |
+| **Moderniseringsgovernance-activiteiten** (actieplannen woningbouw / Nota Ruimte / klimaat & deltaprogramma · adoptie datagedreven werken · beleid-, proces- & datastandaarden · data- & AI-landschappen · AI-verordening) | programme-level; translated here into the phased roadmap, the open-source & transparency constraint (paper B5), and the seams doctrine as the AI-act-shaped guardrail (model never decides, every rejection ledgered); beleidskompas front door serves the adoptie leg | §8–§9 · [`GENAI_SEAMS`](GENAI_SEAMS.md) · [`nldt/14`](../nldt/14-beleidskompas-integration.md) |
+| **Ecosysteem** (overheid: Rijk · provincies · gemeenten · waterschappen — en markt, kennisinstellingen, gebruikers & samenleving) | the stakeholder table of §2; EU LDT Toolbox catalogue + EuropAI EDIC handover as the markt/EU legs; FAIR cross-org Data Space sharing (paper-goal A4); V4 citizen contestability + wallet track as the samenleving leg | §2, §5.4 · [`nldt/21`](../nldt/21-europai-edic-handover.md) · [`nldt/16`](../nldt/16-eid-wallet-identity.md) |
+
+**What the plate draws that this architecture deliberately does not rebuild**
+(wrap, don't rebuild): the live sensor/satellite *inwinnen* factory, financial
+& supplier governance, encryption/key management (platform/K8s layer), the
+live EDC management API (out of band, `nldt/13`), and national hosting of DONL
+itself (curated metadata-first harvest instead, `nldt/18`).
 
 ---
 
@@ -423,7 +483,8 @@ Extends plan §8 with the PoC column.
 | A4 FAIR cross-org sharing | data space + identities | **Done (nLDT Phase 6)** — medallion lake + Data Space participant (`nldt/13`); ODRL offers + pluggable EDC connector (`mock`/`edc-manifest`/`http`); live EDC management API out of band; DONL as national discovery (`nldt/18`) |
 | B5 citizen contestability | eParticipation for V4 | V4 review bundle designed as the contestation artifact; wallet-anchored executor/approver claims when wallet mode is on (`nldt/16`) |
 | Data continuity (ops) | monitoring swarm | Source monitor MVP (`nldt/17`) — ArcGIS + DONL probes, human-merge patches |
+| RI-Geo landschapsplaat ([`Modernisering RI-Geo Info landschap.png`](Modernisering%20RI-Geo%20Info%20landschap.png)) | layered umbrella view (opgaven · PDCA · marktplaats · diensten · governance · beveiliging · uitwisseling · data plane · ecosysteem) | **§3.5 mapping table** — marktplaats = AppStore/Cookbook/Cook, dataspaces = `nldt/13`, PDCA = §2 stages + `nldt/17`, opgaven = the 13 tracks |
 
 ---
 
-*Maintained alongside `MULTI_AGENT_PLAN.md`, `docs/GENAI_SEAMS.md`, `docs/POC_WORLD_MODEL_UTRECHT.md` and `nldt/00-architecture.md`. Facts current as of **2026-09-29** (v1.4: scenario-copilot / world-scene layer on Plane B). The instrument pin (CVDR704250 geldend 13-10-2025) must be re-verified before 18-11-2026.*
+*Maintained alongside `MULTI_AGENT_PLAN.md`, `docs/GENAI_SEAMS.md`, `docs/POC_WORLD_MODEL_UTRECHT.md` and `nldt/00-architecture.md`. Facts current as of **2026-11-06** (v1.5: RI-Geo landschapsview §3.5 — the moderniseringsplaat mapped onto this architecture; v1.4: scenario-copilot / world-scene layer on Plane B). The instrument pin (CVDR704250 geldend 13-10-2025) must be re-verified before 18-11-2026.*

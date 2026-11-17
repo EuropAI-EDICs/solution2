@@ -56,8 +56,6 @@ Static JSON in `recipes/` + HTTP GET. No toolbox dependency.
 
 [`services/adapters/keycloak_auth.py`](services/adapters/keycloak_auth.py) — OAuth2 client_credentials with token cache.
 
-Integration with [`ldtsolutions/repos/tool_5_identity_management`](../ldtsolutions/repos/tool_5_identity_management/):
-
 - Realm `LDT` (or per municipality)
 - Service account `nldt-agent` with scopes for catalog, processes, data platform, P&V
 
@@ -77,7 +75,7 @@ Integration with [`ldtsolutions/repos/tool_5_identity_management`](../ldtsolutio
 
 See [10-toolbox-integration.md](10-toolbox-integration.md).
 
-## Deployment topology (ldtsolutions)
+## Deployment topology
 
 | Service | Dev port | K8s hostname (example) |
 |---------|----------|--------------------------|
@@ -85,9 +83,6 @@ See [10-toolbox-integration.md](10-toolbox-integration.md).
 | Process adapter | 8082 | processes.nldt.local |
 | Catalog adapter | 8083 | catalog.nldt.local |
 | Context3D | 8084 | context3d.nldt.local |
-| A2A agent | 8085 | a2a.nldt.local |
-
-See [`../ldtsolutions/MINIKUBE_ENV_PLAN.md`](../ldtsolutions/MINIKUBE_ENV_PLAN.md) for toolbox K8s context.
 
 ## Migration path
 

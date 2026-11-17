@@ -21,11 +21,6 @@ verbatim quote + URL per claim, schema-validated artifacts, PROV provenance).
 - [`poc-rijnland/`](poc-rijnland/README.md) — **PoC-3**: peilgebied (vigerend) ×
   peilafwijking (praktijk) for Hoogheemraadschap van Rijnland, H3 conflict
   heatmap via the PoC-1/nldt bridge (MVP; KRW clustering is phase 2).
-- [`poc-minigim/`](poc-minigim/README.md) — **PoC-5**: MiniGIM-methodiek
-  (minigim.nl) for gebiedsontwikkelaars — 74-item Omgevingsanalyse Lijst v0.91
-  auto-filled from keyless open data + draft ILS v0.8 gebiedsindeling
-  (IfcExportAs/EPset_minigim); pilot Breda-Teteringen, IFC/GREX is phase 2
-  (see [`docs/MINIGIM.md`](docs/MINIGIM.md)).
 - [`poc-rijnland-gwt/`](poc-rijnland-gwt/README.md) — **PoC-6**: Rijnland
   groundwater-table digital twin from the Morales (2023, ITC Twente) thesis
   framework — 252 open depth loggers + open-meteo rain → per-logger decision
@@ -40,8 +35,7 @@ verbatim quote + URL per claim, schema-validated artifacts, PROV provenance).
   asset for all PoCs**: the *Urban Indicators Dataset* (Drinking Water ·
   Urban Heat · Housing Provision — Cardenas-Leon et al., ITC Twente, v1.2,
   CC BY-NC-SA) vendored with a stdlib loader (joins, search, PK/FK
-  integrity tests, provenance constants). First consumer: PoC-5
-  `poc-minigim/tools/indicator_refs.py` (literature lens, additive).
+  integrity tests, provenance constants).
 - [`SETUP.md`](SETUP.md) — environment setup; [`sql/`](sql) — database scratchpad.
 
 PoC-1 and PoC-2 run offline, corpus-first: `python3 poc/run.py` (tracks:

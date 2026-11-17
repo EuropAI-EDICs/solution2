@@ -945,6 +945,15 @@
         <div style="max-height:260px;overflow:auto"><table class="doel" id="zones6" style="width:100%;border-collapse:collapse"></table></div>
       </div>
     </div>
+    <div class="card" id="zonesrapcard6" style="display:none">
+      <h3 style="display:flex;gap:10px;flex-wrap:wrap;align-items:baseline">deelgebied-uitsnede — wat lágt &amp; wat géldt er
+        <span style="color:var(--cy,#22d3ee)">nulmeting + GIO-lagen per zone</span></h3>
+      <div class="cardbody">
+        <div style="font-size:10.5px;color:var(--faint);font-family:var(--mono,monospace);margin-bottom:6px" id="zonesrapnote6"></div>
+        <div style="max-height:230px;overflow:auto"><table class="doel" id="zonesrap6" style="width:100%;border-collapse:collapse"></table></div>
+        <div style="max-height:220px;overflow:auto;margin-top:8px"><table class="doel" id="zonesrapdet6" style="width:100%;border-collapse:collapse"></table></div>
+      </div>
+    </div>
     <div class="done" id="done6"></div>
   </div>
 
@@ -2992,7 +3001,7 @@ const VSTAGES6 = [
   ["BAG pand","api.pdok.nl/kadaster/bag/ogc/v2"],
   ["BGT","6 collections · api.pdok.nl/lv/bgt/ogc/v1"],
   ["versie-deduplice","eind_registratie is leeg"],
-  ["clip + indicatoren","schoenlac + Sutherland–Hodgman"],
+  ["clip + indicatoren","schoenlac + earcut/SH-polygon-clip"],
   ["doelvergelijking","Toekomstbeeld ↔ meting"],
   ["critic V0–V3","manifest + 2e aggregatie"],
   ["het loket","RTR · STTR · GIO-sweep + kruising"],
@@ -3088,20 +3097,36 @@ function buildMap6(){
       V6.loket[laag.key]=g;
     }
   }
-  el("rect",{class:"vd-wg",x:a[0].toFixed(1),y:a[1].toFixed(1),
-             width:(b[0]-a[0]).toFixed(1),height:(b[1]-a[1]).toFixed(1)},svg);
+  if(VD.gebied.grensRing){
+    el("path",{class:"vd-wg",d:vPath(VD.gebied.grensRing)},svg);
+  }else{
+    el("rect",{class:"vd-wg",x:a[0].toFixed(1),y:a[1].toFixed(1),
+               width:(b[0]-a[0]).toFixed(1),height:(b[1]-a[1]).toFixed(1)},svg);
+  }
+  V6.zonePaths=[];
   if(VD.zones && VD.zones.zones){
     V6.zones=el("g",{class:"vd-zones"},svg);
     const kort={"Engelenburg West (Ritmeesterkwartier)":"Engelenburg West",
                 "Bedrijventerrein Overgangszone":"Overgangszone",
                 "'t Franse Gat Noord":"'t Franse Gat N."};
     VD.zones.zones.forEach(z=>{
-      const za=VPROJ(z.bbox[0],z.bbox[3]), zb=VPROJ(z.bbox[2],z.bbox[1]);
-      el("rect",{class:"vd-zone",x:za[0].toFixed(1),y:za[1].toFixed(1),
-                 width:(zb[0]-za[0]).toFixed(1),height:(zb[1]-za[1]).toFixed(1)},V6.zones);
+      let mx,my;
+      if(z.polygon){
+        const zp=el("path",{class:"vd-zone",d:vPath(z.polygon.coordinates[0])},V6.zones);
+        V6.zonePaths.push(zp);
+        const pts=z.polygon.coordinates[0];
+        mx=pts.reduce((s,p)=>s+p[0],0)/pts.length;
+        my=pts.reduce((s,p)=>s+p[1],0)/pts.length;
+      }else{
+        const za=VPROJ(z.bbox[0],z.bbox[3]), zb=VPROJ(z.bbox[2],z.bbox[1]);
+        const zr=el("rect",{class:"vd-zone",x:za[0].toFixed(1),y:za[1].toFixed(1),
+                   width:(zb[0]-za[0]).toFixed(1),height:(zb[1]-za[1]).toFixed(1)},V6.zones);
+        V6.zonePaths.push(zr);
+        mx=(z.bbox[0]+z.bbox[2])/2; my=(z.bbox[1]+z.bbox[3])/2;
+      }
+      const c=VPROJ(mx,my);
       const t=el("text",{class:"vd-zonelbl","text-anchor":"middle",
-                         x:(za[0]+(zb[0]-za[0])/2).toFixed(1),
-                         y:(za[1]+(zb[1]-za[1])/2+3).toFixed(1)},V6.zones);
+                         x:c[0].toFixed(1),y:(c[1]+3).toFixed(1)},V6.zones);
       t.textContent=kort[z.naam]||z.naam;
     });
   }
@@ -3110,7 +3135,7 @@ function buildMap6(){
   el("circle",{cx:st[0],cy:st[1],r:6},V6.station);
   const t=el("text",{x:st[0]+10,y:st[1]+4},V6.station); t.textContent="station Veenendaal-Centrum";
   const cap=el("text",{class:"vd-cap",x:12,y:VH6-10},svg);
-  cap.textContent="alle lagen (incl. spoor) geclipt op de werkgrens — provisionele bbox "+VD.gebied.oppHa+" ha · kaart display-versimpeld · getallen = engine-output";
+  cap.textContent="alle lagen (incl. spoor) geclipt op de werkgrens — provisionele polygon (assengrenzen Toekomstbeeld: Grift · spoor · Rondwegen) "+VD.gebied.oppHa+" ha · kaart display-versimpeld · getallen = engine-output";
   vPaintNieuw();
 }
 let vCurScenario=null;
@@ -3129,6 +3154,42 @@ function vPaintNieuw(){
   V6.nieuw.style.opacity=.9;
   const knop=$("lg-"+(s.kaart.laag==="groen"?"nwg":"nwv"));
   if(knop) knop.classList.add("on");
+}
+function buildZonesRapport(){
+  const R=VD.zonesRapport; if(!R) return;
+  const card=$("zonesrapcard6"); if(card) card.style.display="";
+  const note=$("zonesrapnote6");
+  if(note) note.textContent="zones-run "+R.runId+" · V-checks "+(R.vChecksOk?"PASS":"FAIL")+
+    " · GIO-dekking = overlap als % van de zone · klik een rij = zone op de kaart";
+  const kort=z=>({"Engelenburg West (Ritmeesterkwartier)":"Engelenburg West",
+    "Bedrijventerrein Overgangszone":"Overgangszone","'t Franse Gat Noord":"'t Franse Gat N."}[z.naam]||z.naam);
+  const tb=$("zonesrap6");
+  tb.innerHTML="<tr><th></th><th>opp ha</th><th>panden</th><th>won.</th><th>≥2020</th><th>groen</th><th>verhard</th><th>water</th><th>bomen</th><th>GIO</th><th>grondw.</th></tr>";
+  R.zones.forEach((z,i)=>{
+    const tr=document.createElement("tr"); tr.style.cursor="pointer";
+    const gw=z.gwDekking==null?"—":(z.gwDekking+"%");
+    tr.innerHTML="<td style='text-align:left'>"+esc(kort(z))+"</td><td>"+z.oppHa.toFixed(1)+"</td><td>"+
+      z.nulmeting.panden_bestand+"</td><td>"+z.nulmeting.woningen_verblijfsobjecten_proxy+"</td><td>"+
+      z.nulmeting.panden_bouwjaar_vanaf_2020+"</td><td>"+z.nulmeting.begroeid_terrein_ha.toFixed?z.nulmeting.begroeid_terrein_ha.toFixed(2):z.nulmeting.begroeid_terrein_ha+"</td><td>"+
+      (z.nulmeting.onbegroeid_terrein_ha.toFixed?z.nulmeting.onbegroeid_terrein_ha.toFixed(2):z.nulmeting.onbegroeid_terrein_ha)+"</td><td>"+
+      (z.nulmeting.waterdeel_ha.toFixed?z.nulmeting.waterdeel_ha.toFixed(2):z.nulmeting.waterdeel_ha)+"</td><td>"+
+      z.nulmeting.vegetatieobject_punt+"</td><td>"+z.nGioLagen+"</td><td>"+gw+"</td>";
+    tr.onclick=()=>{
+      (V6.zonePaths||[]).forEach(p2=>p2.style.strokeWidth="");
+      const p=(V6.zonePaths||[])[i];
+      if(p){p.style.strokeWidth="4";}
+    };
+    tb.appendChild(tr);
+  });
+  const det=$("zonesrapdet6");
+  det.innerHTML="<tr><th style='text-align:left'>deelgebied</th><th style='text-align:left'>top GIO-lagen (dekking)</th></tr>";
+  R.zones.forEach(z=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML="<td style='text-align:left'>"+esc(kort(z))+"</td><td style='text-align:left'>"+
+      (z.top&&z.top.length? z.top.map(g=>esc(g.gio)+" <span style='color:var(--faint)'>("+g.dekkingPct+"%)</span>").join(" · ")
+       :"<span style='color:var(--faint)'>(geen)</span>")+"</td>";
+    det.appendChild(tr);
+  });
 }
 function buildLegend6(){
   const items=[["wg","werkgrens (provisioneel)","#93c5fd"],["water","water · Grift/singels","#38bdf8"],
@@ -3308,7 +3369,7 @@ function buildLoket6(){
     <div style="font-size:10px;color:var(--faint);margin-top:6px">${esc(L.grens||"")}</div>`;
 }
 function buildStatic6(){
-  buildMap6(); buildLegend6(); buildTelemetry6(); vdZones(null); buildLoket6();
+  buildMap6(); buildLegend6(); buildTelemetry6(); vdZones(null); buildLoket6(); buildZonesRapport();
   document.querySelectorAll("#levels6 .lvl").forEach(l=>l.classList.remove("pass","pending"));
   document.querySelectorAll("#doel6 tr").forEach(r=>r.classList.remove("on"));
   document.querySelectorAll("#dedup6 .fill").forEach(f=>f.style.width="0%");
@@ -3330,9 +3391,9 @@ function makeSim6(){
     V6.station.style.opacity=1;
     $("c6-opp").classList.add("on","hit");
     animNum($("c6-opp").querySelector(".cv"),VD.gebied.oppHa,1200,x=>x.toFixed(0));
-    $("oplabel6").innerHTML="intake — <b>gebied.json</b>: provisionele werkgrens (bbox RD "+esc(String(VD.gebied.bbox))+"), anker "+esc(VD.gebied.anchor[2])+", doelen uit het Toekomstbeeld";
-    log6(`<b class="agrol">intake-agent</b> — leest <code>data/gebied.json</code>: de provisionele werkgrens (${VD.gebied.oppHa} ha), het anker (station via PDOK Locatieserver) en de doelen uit het Toekomstbeeld. Nog geen databron aangeraakt; spoor: gebied.json.`,"ok");
-    log6(`<b class="agrol">intake-agent</b> — noteert de kanttekening: de officiële gebiedsgrens is niet gepubliceerd, dus alle cijfers gelden voor deze benadering (p.7/p.14: ~160 ha; het gebied is zandloper-vormig). Bron: <a href="${esc(VD.gebied.bronUrl)}" target="_blank">${esc(VD.gebied.bronNaam)}</a>`,"warn");
+    $("oplabel6").innerHTML="intake — <b>gebied.json</b>: provisionele werkgrens-polygon (assengrenzen p.7: Grift · spoor · Rondweg-West/Oost)"+(VD.gebied.grensVorm==="polygon"?"":esc(" · bbox RD "+VD.gebied.bbox))+", anker "+esc(VD.gebied.anchor[2])+", doelen uit het Toekomstbeeld";
+    log6(`<b class="agrol">intake-agent</b> — leest <code>data/gebied.json</code>: de provisionele werkgrens-polygon (${VD.gebied.oppHa} ha; assengrenzen uit het Toekomstbeeld p.7 — Grift · spoor · Rondweg-West/Oost, met 't Franse Gat Noord ten zuiden van het spoor), het anker (station via PDOK Locatieserver) en de doelen uit het Toekomstbeeld. Nog geen databron aangeraakt; spoor: gebied.json.`,"ok");
+    log6(`<b class="agrol">intake-agent</b> — noteert de kanttekening: de officiële gebiedsgrens is niet gepubliceerd, dus alle cijfers gelden voor deze benadering (~161,6 ha polygon op de assengrenzen; de zandloper-vorm — knijp bij het station, verbreed naar west en oost — is nu zélf de werkgrens). Bron: <a href="${esc(VD.gebied.bronUrl)}" target="_blank">${esc(VD.gebied.bronNaam)}</a>`,"warn");
   });
 
   S(1,"BAG pand",1900,()=>{
@@ -3373,8 +3434,8 @@ function makeSim6(){
     $("c6-won").classList.add("on","hit");
     animNum($("c6-won").querySelector(".cv"),I.woningen_verblijfsobjecten_proxy,1400,x=>vfmt(x));
     animNum($("wonBig"),I.woningen_verblijfsobjecten_proxy,1400,x=>vfmt(x));
-    $("oplabel6").innerHTML="clip naar de werkgrens (Sutherland–Hodgman) + schoenlac-oppervlaktes → <b>"+vfmt(I.woningen_verblijfsobjecten_proxy)+" woningen</b> (vbo-proxy) · grondvlak "+vfmt(I.pand_vloeroppervlak_m2)+" m² · "+vfmt(I.panden_bouwjaar_vanaf_2020)+" panden ≥2020";
-    log6(`<b class="agrol">gebiedsrekenaar</b> — de API's leveren objecten die de werkgrens <i>snijden</i> met hun volledige geometrie. Deze agent knipt elke vlak-geometrie naar de werkgrens (Sutherland–Hodgman, exact voor een rechthoek) en meet oppervlaktes met de schoenlac-formule in RD-meters. Zo telt alleen mee wat écht in het gebied ligt.`,"ok");
+    $("oplabel6").innerHTML="clip naar de werkgrens (earcut + Sutherland–Hodgman per driehoek) + schoenlac-oppervlaktes → <b>"+vfmt(I.woningen_verblijfsobjecten_proxy)+" woningen</b> (vbo-proxy) · grondvlak "+vfmt(I.pand_vloeroppervlak_m2)+" m² · "+vfmt(I.panden_bouwjaar_vanaf_2020)+" panden ≥2020";
+    log6(`<b class="agrol">gebiedsrekenaar</b> — de API's leveren objecten die de werkgrens <i>snijden</i> met hun volledige geometrie. Deze agent knipt elke vlak-geometrie naar de werkgrens (earcut-triangulatie + Sutherland–Hodgman per driehoek — exact voor de concave zandloper-polygon) en meet oppervlaktes met de schoenlac-formule in RD-meters. Zo telt alleen mee wat écht in het gebied ligt.`,"ok");
     log6(`<b class="agrol">gebiedsrekenaar</b> — sommeert de indicatoren: ${vfmt(I.woningen_verblijfsobjecten_proxy)} woningen-proxy (som verblijfsobjecten op ${vfmt(I.panden_met_woonfunctie)} woonpanden) · grondvlak ${vfmt(I.pand_vloeroppervlak_m2)} m². Spoor: indicators.json.`,"data");
     log6(`<b class="agrol">gebiedsrekenaar</b> — kleurt de kaart: ${vfmt(I.panden_bouwjaar_vanaf_2020)} panden met bouwjaar ≥2020 (amber, programmaloop sinds 2020 — pand ≠ woning, vervangingsbouw zit erin) en de gesloopte/niet-gerealiseerde panden (rood).`,"data");
   });

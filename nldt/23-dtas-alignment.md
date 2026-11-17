@@ -14,7 +14,7 @@ their own contextual data."*
 | Status | Plan (2026-09-28) · alignment analysis done, five moves decided (§9); DT-0…DT-4 not started · builds on [21](21-europai-edic-handover.md) (EDIC handover) and [14](14-beleidskompas-integration.md) BK-4 (Marketplace) |
 | Source | [The Dutch Vision on a European Digital Twin App Store](https://www.zichtopnl.nl/documenten/handlerdownloadfiles.ashx?idnv=3167953) (zichtopnl.nl, 2026) |
 | Programme contact | Lianne Sleebos (NLDT programme manager, VRO) · Nico Spijkers (DT Physical Environment, VRO) — per the document |
-| Related | [01](01-vision-and-scope.md) · [04](04-recipes-and-processes.md) (AppStore) · [07](07-trust-and-governance.md) (V0–V4) · [13](13-data-lake-and-space.md) (Data Space) · [17](17-source-monitor.md) · [21](21-europai-edic-handover.md) · [22](22-dual-audience-spatial-planning.md) · [recipes/edic-asset-map.json](recipes/edic-asset-map.json) · [`../ldtsolutions/REMOTE_CLUSTER.md`](../ldtsolutions/REMOTE_CLUSTER.md) |
+| Related | [01](01-vision-and-scope.md) · [04](04-recipes-and-processes.md) (AppStore) · [07](07-trust-and-governance.md) (V0–V4) · [13](13-data-lake-and-space.md) (Data Space) · [17](17-source-monitor.md) · [21](21-europai-edic-handover.md) · [22](22-dual-audience-spatial-planning.md) · [recipes/edic-asset-map.json](recipes/edic-asset-map.json) |
 | EuropAI EDIC home | **LDT CitiVERSE** — the vision explicitly proposes the EDIC as DTAS orchestrator |
 
 ---
@@ -60,7 +60,7 @@ scalable European market with clear admission criteria) and **citizens**
 
 | DTAS building block | nLDT artifact (exists today) |
 |---|---|
-| Open infrastructure on European standards | OGC API Records/Processes + recipes + MCP as the external interface; EU LDT Toolbox as implementation (*wrap, don't rebuild*); all 11 Toolbox tools deployed on k3s ([`../ldtsolutions/REMOTE_CLUSTER.md`](../ldtsolutions/REMOTE_CLUSTER.md)) |
+| Open infrastructure on European standards | OGC API Records/Processes + recipes + MCP as the external interface; EU LDT Toolbox as implementation (*wrap, don't rebuild*); all 11 Toolbox tools deployed on k3s |
 | Catalogue of validated modules | The AppStore ([04](04-recipes-and-processes.md)): `catalog_adapter` (OGC API Records), recipe schemas, `application` record type (BK-2), [`services/marketplace_publish.py`](services/marketplace_publish.py) |
 | Validation criteria 1–5 | V0–V4 with ValidationReport + PROV ([07](07-trust-and-governance.md)); cite-or-abstain, NormCards, decision tables; golden-set regression; **bit-identical replay** + run annex — reproducibility/traceability exceeds what the vision asks |
 | Federated ecosystem / no wrong door | A2A :8085; EDC Data Space connector ([13](13-data-lake-and-space.md)); external front doors mounted via MCP ([14](14-beleidskompas-integration.md), [22](22-dual-audience-spatial-planning.md)) |

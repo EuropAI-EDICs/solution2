@@ -1,0 +1,1186 @@
+          1.1 Problem, users, and objec ve
+
+                Item                                                                                  De nition
+
+                              [Process, pain points, why GenAI is needed, consequences of no change.]
+                              For various life events and activities (e.g. as moving house, carrying out renovations, organizing events,
+                              or undertaking repair work as a small business) citizens and entrepreneurs must navigate a wide range of
+           Problem &          information sources, documents, application procedures and permit types, which depend on their speci c
+           current            circumstances. At present, they are often unable to complete this process independently and therefore
+           process            contact either the general GentInfo service or individual municipal departments.
+
+                              In the case of small businesses, some even choose not to undertake work in Ghent’s city centre or may
+                              pass the cost of any nes on to the citizen due to the administrative complexity.
+                                  •             Primary users: citizens (of Ghent), entrepreneurs
+           Users /                •             Affected parties: different departments within the local administration
+           stakeholder            •             Validators: different municipal services receiving the output generated
+           s                      •             Data owners: Civilians and city of Ghent
+
+                              [Time, effort, quality, error/rework, satisfaction, volume/cost + evidence source.]
+
+           Baseline           As implementation is not scheduled until 2028, and both the underlying processes and the selection of
+                              speci c processes may evolve in the meantime, developing a detailed baseline at this early stage would
+                              provide limited added value for the initial version of this document.
+
+                              [SMART objectives: capability + users + expected improvement + safeguards.]
+                              A transactional agent, which is available at the different life-event entry points, that:
+                              - Through conversation identi es the citizen’s or entrepreneur’s speci c circumstances.
+                              - Applies decision logic to identify the administrative requirements relevant to those circumstances.
+                              - Provides guidance on the required next steps, including personalised support following secure user
+                                   authentication.
+                              - Pre-populates forms and permit applications in line with the once-only principle, using data from
+                                   authoritative sources together with information provided during the interaction.
+                              - Submits the validated information and applications to the relevant backof ce systems used by the
+           Pilot                   different municipal services following con rmation by the citizen or entrepreneur.
+           objective
+                              - Or bypasses form completion altogether and, following validation, sends the required data directly to
+                                   the various backend systems
+                              - Generates a clear summary of the actions completed and any outstanding actions still to be taken.
+                              Safeguards:
+                              - Secure user authentication (minimal: ACM/IDM of Digital Flanders)
+                              - Use of authentic data where possible (e.g. Magda services of Digital Flanders)
+                              - Validation step by the civilian/entrepeneur (human-in-the-loop)
+                              - Applies transparent, authorised and traceable AI controls to ensure reliable source-based guidance,
+                                   appropriate access, explicit user con rmation and safe escalation where needed.
+
+                              [Processes, data, systems, languages, jurisdictions, interfaces.]
+                              - Processes: life-events: e.g. moving house, carrying out renovations, organizing events, or
+                                  undertaking repair work as a small business, …
+                              - Data: Identi cation civilian/entrepreneur, location house/event, identi cation vehicle, …
+                              - Systems:
+                              - Languages:
+           Project
+                              - Jurisdictions:
+           scope
+                              - Interfaces:
+                                 o Front-end
+                                 o ACM/IDM (Digital Flanders)
+                                 o Magda services (Digital Flanders)
+                                 o Website city of Ghent
+                                 o Back-of ce systems
+
+           Out of
+           scope /            [Explicit exclusions, e.g. autonomous nal decisions, unapproved data, unsupported advice.]
+           prohibited
+           uses
+
+
+          1.2 EUROPAI alignment
+          How much does the pilot aligns with WP3 tasks and overall project’s goal/objectives, addressing the elements below:
+                                                                      EUROPAI - D3.1 Pilot Plans Template | Page 1
+
+
+
+
+                                                                                                                          fi
+                                                                                                         fi
+                                                                                                 fi
+                                                                                            fi
+                                                                 fi
+                                                            fi
+                                                       fi
+                                           fi
+                                      ti
+                         fi
+                fi
+           fi
+     fi
+fi
+                Point                                               Pilot contribution
+
+     Baseline           [Time, effort, quality, error/rework, satisfaction, volume/cost + evidence source.]
+
+                        Procure; operationally validate; deploy/integrate; build capacity; document reusable
+     WP3
+                        blueprints/toolkits.
+
+     Implementation
+                        [Components/orchestrator/declarations/marketplace elements reused or produced.]
+     Framework
+
+     Public value       [Ef ciency, burden reduction, service/legal quality, transparency, accessibility, trust.]
+
+     Replication        [What can be reused by another public administration and under what conditions.]
+
+
+
+
+                                        EUROPAI - D3.1 Pilot Plans Template | Page 2
+
+
+
+
+fi
+                2. Detailed speci ca ons and requirements
+                    Please provide the pilot’s operational work ow, requirements and overall architecture by lling in the tables below.
+                    The level of detail must be suf cient for a supplier-neutral procurement speci cation and later acceptance testing.
+
+
+                2.1 Opera onal work ow and human control
+                “A transactional assistant that takes a life event or a description of a situation as its starting point and guides citizens to
+                the relevant services, permits and transactions, such as mobility-related permits and associated transactions.”
+                    Trigge                                          Actor                           Input / activity                                 AI role                    Human control /
+                       r                                                                                                                                                           output
+
+                            1                        Civilian /                         Visits a relevant life-  Introduces its purpose and scope and                        HC: choose whether to
+                                                     Entreprene                         event or service page on invites the user to describe their speci c                  use the digital
+                                                     ur                                 the City of Ghent        situation                                                   assistant or not
+                                                                                        website and opens the
+                                                                                        digital assistant
+
+                            2                        Civilian /                         Describes their speci c             Understands the context and asks clarifying /
+                                                     Entreprene                         situation                           questions when necessary
+                                                     ur
+
+                            3                        Civilian /                         Answers follow-up                   Identi es relevant context information such
+                                                     Entreprene                         questions                           as
+                                                     ur                                                                      •     applicant type (citizen, business,
+                                                                                                                                   organization, event organizer, etc.),
+                                                                                                                             •     location/address,
+                                                                                                                             •     timing,
+                                                                                                                             •     vehicle(s) and
+                                                                                                                             •     purpose of the request                    Output: context
+                                                                                                                             •     …                                         summary
+                                                                                                                            Uses internal GIS services to determine
+                                                                                                                            whether an address provided by the citizen
+                                                                                                                            falls within one or more relevant
+                                                                                                                            geographical zones, such as a low-
+                                                                                                                            emission zone (LEZ) or a car-free area.
+                                                                                                                            Formulates a context summary.
+
+
+                            4                        Civilian /                         Validates the identi ed             Identi es the relevant municipal service(s),     HC: validates the
+                                                     Entreprene                         context details                     permit(s) and transaction(s) that apply to       collected context
+                                                     ur                                                                     the situation based on (complex) decision
+                                                                                                                            logic.
+                                                                                                                            Suggests help with the application ow.
+
+                            5                        Civilian /                         Indicates wanting help              Guides the applicant to the appropriate          HC: allows the AI
+                                                     Entreprene                         for the identi ed                   transaction ow.                                  assistant to use
+                                                     ur                                 application ow                      Requests authentication when required and        identi cation details
+                                                                                        (chooses one of the                 is transparent regarding further use of the      during the process
+                                                                                        relevant municipal                  data collected during authentication
+                                                                                        services).
+                            6                        Civilian /                         Authenticates when                  Generates pre lled output from sources:          Output: AI generated
+                                                     Entreprene                         necessary                            • Reusing derived contextual information        pre lled information
+                                                     ur                                                                        from current conversation
+                                                                                                                             • Retrieving data through e.g. social
+                                                                                                                               security number and/or vehicle
+                                                                                                                               numberplate:
+                                                                                                                            - available pro le data,
+                                                                                                                            - backend system data
+                                                                                                                            - authentic data through Digital Flanders
+                                                                                                                               Magda (MCP) services
+
+
+                            7                        Civilian /                         Validates the pre lled              Veri es eligibility conditions, business rules   HC: validates the AI-
+                                                     Entreprene                         information and                     and missing information and asks for             generated information
+                                                     ur                                 completes the                       supporting documents when necessary
+                                                                                        application ow
+
+
+
+
+                                                                                                                   EUROPAI - D3.1 Pilot Plans Template | Page 3
+
+
+
+
+                                                                                          fl
+                                                                    fi
+                                                               fi
+                                                          fi
+                                                     fi
+                                                fi
+                                           fi
+                                      fi
+                            fl   fl
+                            fl
+                       ti
+               fi
+          fi
+          fi
+     fi                                                                                               fi                          fi         fi
+                                                                              ti
+                                                                         fl
+fi                                                                                 fi          fl
+                     Trigge           Actor                  Input / activity                                     AI role                                   Human control /
+                        r                                                                                                                                      output
+
+                            8     Civilian /             Uploads supporting              Veri es if all supporting documents needed                     Output: nal draft
+                                  Entreprene             documents when                  have been provided.                                            application
+                                  ur                     necessary                       Summarizes the dossier, highlights
+                                                                                         warnings and provides contextual
+                                                                                         suggestions
+
+                            9     Civilian /             Submits the application         Guides the submission process.                                 HC: validates the
+                                  Entreprene             after validation of the         Explains the next steps and, following user                    application Output:
+                                  ur                      nal draft                      con rmation, shares a summary of the                           application is formally
+                                                                                         con rmed context and actions already                           submitted and
+                                                                                         completed.                                                     registered
+                                                                                         Let the civilian decide to continue or stop.
+
+                           10     Civilian /             Throughout process:             Offers a handover to contact center when
+                                  Entreprene             Uses escalation path to         requested by the user, when the situation is
+                                  ur                     general city (telephone)        outside scope, when information con icts or
+                                                         contact center.                 when checks remain inconclusive.
+
+                    2.2 Requirements catalogue
+                    Requirement categories:
+                                                                                                                                                             Veri cation /
+                           ID     Category                              Detailed requirement / speci cation                                  Prio
+                                                                                                                                                             acceptance
+
+                     FR-01        Functional [Core of the pilot: capabilities and work ow behaviour]                                         M/O [Test/demo + threshold]
+
+                     NFR-0        Non-       [Latency, availability, robustness, multilingual quality, portability,
+                                                                                                                                             M/O [Benchmark/SLA]
+                     1            Functional replicability, scalability]
+
+                     DATA-        Data /
+                                              [Provenance, retention, processing]                                                            M/O [Evidence/test]
+                     01           knowledg
+                                  e
+                     INT-01       Integration [APIs, IAM, existing systems, interoperability, logging/                                       M/O [Architecture/test]
+                                              monitoring]
+                     SEC-0        Security / [Access control, encryption, incident response, data protection,
+                                                                                                                                             M/O [Assessment/test]
+                     1            privacy     security controls]
+
+                                  AI        [Human oversight, transparency, explainability, quality/bias
+                     AI-01        governanc controls]                                                                                        M/O [Assessment/test]
+                                  e
+                    M = mandatory, O = Optional. Add rows as needed. Every mandatory requirement must map to supplier evidence, procurement format and a measurable acceptance criterion.
+
+
+                                                                                                                                                             Veri cation /
+                           ID    Category                               Detailed requirement / speci cation                                  Prio
+                                                                                                                                                             acceptance
+                     FR-01      Functional         The assistant shall be available from the relevant life-event and
+                                                   service entry points on the City of Ghent digital channels and
+                                                   shall clearly explain its purpose, scope, AI nature and limitations
+                                                   before the interaction starts.
+                     FR-02      Functional         The assistant shall allow the user to continue without using the
+                                                   assistant and shall not block access to the underlying
+                                                   information, form or human service channel.
+                     FR-03      Functional         The assistant shall accept a free-text description of a life event
+                                                   or situation and identify the user intent without requiring
+                                                   knowledge of municipal service names or permit terminology.
+                     FR-04      Functional         The assistant shall ask adaptive follow-up questions to collect
+                                                   only the context needed for the selected transaction, including
+                                                   applicant type, location, timing, vehicle or object, intended
+                                                   activity and representation capacity where relevant.
+                     FR-05      Functional         The assistant shall present a structured context summary and
+                                                   require the user to con rm or correct material facts before
+                                                   selecting a service, permit or transaction path.
+
+                                                                                EUROPAI - D3.1 Pilot Plans Template | Page 4
+
+
+
+
+                                          fi        fi
+               fi
+               fi
+     fi
+     fi   fi
+fi                                                  fi        fl   fl
+                      fi
+                                                                                                                                                   Veri cation /
+                ID           Category                                            Detailed requirement / speci cation                        Prio
+                                                                                                                                                   acceptance
+               FR-06        Functional             The assistant shall apply approved, versioned decision logic to
+                                                   identify relevant municipal services, permits and related
+                                                   transactions. It shall distinguish information, preparation of a
+                                                   transaction and actual submission.
+               FR-07        Functional             The assistant shall explain why a service or permit is proposed,
+                                                   which user-provided facts and approved rules were applied, and
+                                                   shall display uncertainty or missing information.
+               FR-08        Functional             The user shall be able to select one of the proposed paths,
+                                                   return to an earlier step, change answers and recalculate the
+                                                   proposed path without losing con rmed data that remain valid.
+               FR-09        Functional             The assistant shall request authentication only when necessary
+                                                   for personalization or transaction execution and shall explain
+                                                   why authentication is required and which data will be used.
+               FR-10        Functional             After successful authentication, the assistant shall retrieve only
+                                                   authorised pro le, mandate, permit and case data required for
+                                                   the selected transaction and shall display the source and
+                                                   retrieval time and purpose.
+               FR-11        Functional             The assistant shall pre ll transaction data from authoritative
+                                                   sources and previous con rmed answers in accordance with the
+                                                   once-only principle, while visibly distinguishing retrieved, user-
+                                                   entered and AI-inferred values.
+               FR-12        Functional             The assistant shall support upload of required supporting
+                                                   documents, validate permitted le type and size, scan for
+                                                   malware, and identify missing, unreadable or inconsistent
+                                                   evidence. OCR may be used only as an assistive extraction
+                                                   step.
+               FR-13        Functional             The assistant shall evaluate con gured eligibility conditions and
+                                                   business rules but shall not make an autonomous nal legal or
+                                                   administrative decision. It shall explain failed or uncertain
+                                                   checks and provide a correction or human-review path.
+               FR-14        Functional             Before submission, the assistant shall generate a complete draft
+                                                   application summary including data, declarations, attachments,
+                                                   warnings, destination back-of ce and expected next steps.
+               FR-15        Functional             The system shall require an explicit, unambiguous user
+                                                   con rmation immediately before each legally or administratively
+                                                   consequential submission or modi cation. Silence, inactivity or a
+                                                   generic chat response shall not count as consent.
+               FR-16        Functional             The system shall submit validated data to the appropriate back-
+                                                   of ce system, return a veri able receipt or reference number,
+                                                   and clearly indicate whether the transaction was accepted,
+                                                   queued, rejected or technically failed.
+               FR-17        Functional             The assistant shall preserve transaction state and support safe
+                                                   resume after interruption, authentication redirect or recoverable
+                                                   upstream failure, subject to the approved retention period.
+               FR-18        Functional             The assistant shall provide a post-transaction summary of
+                                                   completed actions, outstanding actions, deadlines, required
+                                                   appointments and available follow-up channels.
+               FR-19        Functional             For existing permits or cases, the assistant shall, after
+                                                   authentication and authorisation, support status consultation and
+                                                   con gured follow-up actions such as renewal, modi cation or
+                                                   replacement, without exposing unrelated case data.
+
+
+
+
+                                                                                             EUROPAI - D3.1 Pilot Plans Template | Page 5
+
+
+
+
+                                                                                             fi
+                                                                                        fi
+                                                                            fi
+                                                                       fi
+                                                                  fi
+                                                             fi
+                                                        fi
+                                                   fi
+                                              fi
+                                         fi
+                                   fi
+                       fi
+          fi
+     fi
+     fi
+fi
+                                                                                                                        Veri cation /
+                ID      Category                        Detailed requirement / speci cation                      Prio
+                                                                                                                        acceptance
+               FR-20   Functional        The assistant shall provide a human handover when requested,
+                                         when con dence or evidence is insuf cient, when sources
+                                         con ict, when access is denied, or when the transaction cannot
+                                         be completed safely. The handover shall transfer an approved
+                                         summary only after user con rmation.
+               FR-21   Functional        The assistant shall support Dutch as the primary pilot language
+                                         and shall be designed for additional approved languages and
+                                         plain-language variants without changing transaction logic.
+               FR-22   Functional        Authorised administrators shall be able to con gure, version,
+                                         review, approve, activate and roll back service content,
+                                         questions, decision rules, work ows, tool permissions and
+                                         human approval gates without changing core code where
+                                         reasonably possible.
+               FR-23   Functional        The assistant shall use internal GIS services to determine
+                                         whether an address provided by the citizen falls within one or
+                                         more relevant geographical zones, such as a low-emission zone
+                                         (LEZ) or a car-free area, and use the returned zone information
+                                         when identifying applicable services, permits and transaction
+                                         paths.
+
+
+
+               NFR-    Non-              For interactions not waiting on an external long-running service,
+               01      functional        the target response time shall be p95 <= 5 seconds and p99 <=
+                                         10 seconds. For longer operations the interface shall show
+                                         progress and allow safe cancellation.
+               NFR-    Non-              The production service shall target at least xxx% monthly
+               02      functional        availability, excluding agreed planned maintenance, with
+                                         monitoring and incident reporting. Final SLA shall follow the
+                                         business impact analysis.
+               NFR-    Non-              The solution shall scale horizontally for con gured peaks and
+               03      functional        shall protect downstream systems through rate limits, queues,
+                                         timeouts, circuit breakers and back-pressure.
+               NFR-    Non-              The service shall handle malformed input, duplicate requests,
+               04      functional        stale sessions, unavailable dependencies and partial failure
+                                         safely and shall use idempotency controls for consequential
+                                         transactions.
+               NFR-    Non-              The user interface shall conform to WCAG 2.2 level AA and
+               05      functional        applicable public-sector accessibility requirements, including
+                                         keyboard use, screen-reader semantics, focus management,
+                                         contrast, error identi cation and alternatives for non-text content.
+               NFR-    Non-              The service shall use clear, inclusive and plain language
+               06      functional        appropriate to citizens and entrepreneurs and shall avoid
+                                         requiring digital or administrative expertise.
+               NFR-    Non-              The solution shall be observable through privacy-aware metrics,
+               07      functional        distributed tracing, health checks and alerts covering
+                                         conversation, orchestration, integrations and transaction
+                                         outcomes.
+               NFR-    Non-              The solution shall support documented backup, restore,
+               08      functional        business continuity and disaster recovery with RTO and RPO
+                                         de ned by impact analysis.
+               NFR-    Non-              The architecture shall be modular, supplier-neutral and portable.
+               09      functional        Business rules, prompts, work ows, schemas and
+                                         con gurations shall be separable from the chosen model and
+                                         runtime.
+
+
+                                                                  EUROPAI - D3.1 Pilot Plans Template | Page 6
+
+
+
+
+                                                             fi
+                                                        fi
+                                                   fi
+                                              fl
+                                         fi
+                                         fl
+                                    fi
+                            fi
+                 fi
+          fi
+     fi
+     fl
+fi
+                                                                                                                   Veri cation /
+               ID         Category                  Detailed requirement / speci cation                     Prio
+                                                                                                                   acceptance
+          DATA-          Data/         Every factual guidance statement, rule evaluation and pre lled
+          01             knowledge     value shall be traceable to an approved source, authoritative
+                                       data service or user-con rmed input, including source identi er,
+                                       version and retrieval time where applicable.
+          DATA-          Data/         The system shall maintain a governed catalogue of sources and
+          02             knowledge     rules with owner, jurisdiction, effective date, expiry or review
+                                       date, language, licence, status and supersession relationship.
+          DATA-          Data/         Personal data processing shall be limited to the documented
+          03             knowledge     purpose and minimum necessary attributes. Conversation
+                                       history shall not become a new authoritative source and shall
+                                       not be reused across purposes without a lawful basis.
+          DATA-          Data/         Retention, deletion, archiving and legal-hold rules shall be
+          04             knowledge     con gurable by data category and transaction status. Temporary
+                                       AI context, uploaded documents, logs and of cial records shall
+                                       have distinct schedules.
+          DATA-          Data/         Data quality controls shall detect missing, invalid, inconsistent,
+          05             knowledge     stale or con icting values and shall identify the responsible data
+                                       owner rather than silently repairing authoritative data.
+          DATA-          Data/         User corrections shall be captured as transaction input and shall
+          06             knowledge     not overwrite an authoritative source automatically. Where
+                                       appropriate, the user shall be directed to the source owner to
+                                       correct the base record.
+          DATA-          Data/         No supplier, model provider or subprocessor may use municipal
+          07             knowledge     or user prompts, documents, personal data or outputs to train or
+                                       improve general models unless explicitly authorised in writing
+                                       after legal and privacy assessment.
+
+
+
+          INT-0          Integration   The solution shall integrate with the Flemish ACM/IDM services,
+          1                            or an approved equivalent, for authentication, authorisation and
+                                       representation or mandate where required.
+          INT-0          Integration   The solution shall integrate with approved authentic-source
+          2                            services, including relevant MAGDA services, through
+                                       documented and secured interfaces, subject to purpose,
+                                       availability and authorisation.
+          INT-0          Integration   The solution shall integrate with City of Ghent and District09
+          3                            back-of ce systems required for the selected pilot transactions,
+                                       using versioned API contracts and idempotent submission
+                                       where applicable.
+          INT-0          Integration   All APIs shall use documented schemas, authentication, rate
+          4                            limits, error codes, correlation identi ers, versioning and
+                                       deprecation policy. Open standards and reusable adapters shall
+                                       be preferred.
+          INT-0          Integration   The orchestrator shall enforce least-privilege permissions per
+          5                            agent and tool, allow only approved endpoints, validate tool
+                                       inputs and outputs, and record the tool sequence for each
+                                       consequential run.
+          INT-0          Integration   The solution shall support asynchronous callbacks, queues or
+          6                            polling for long-running municipal processes and shall map
+                                       technical states to understandable user statuses.
+          INT-0          Integration   The solution shall offer a controlled handover interface to
+          7                            approved human-service channels, such as Gentinfo or the
+                                       responsible municipal service, while respecting channel capacity
+                                       and data-minimisation rules.
+
+                                                             EUROPAI - D3.1 Pilot Plans Template | Page 7
+
+
+
+
+                                                                           fi
+                                                                      fi
+                                             fi
+                                       fi
+                                  fi
+                    fl
+          fi
+     fi
+fi                                                    fi
+                                                                                                                                          Veri cation /
+                          ID      Category                                  Detailed requirement / speci cation                    Prio
+                                                                                                                                          acceptance
+
+
+
+                         SEC-    Security/              The solution shall enforce role-based and attribute-based
+                         01      privacy                access control, least privilege, separation of duties and periodic
+                                                        access review for users, administrators, service owners and
+                                                        suppliers.
+                         SEC-    Security/              Personal and sensitive data shall be encrypted in transit and at
+                         02      privacy                rest using approved current cryptographic standards; keys and
+                                                        secrets shall be centrally managed, rotated and never
+                                                        embedded in code or prompts.
+                         SEC-    Security/              The solution shall protect against prompt injection, data
+                         03      privacy                ex ltration, malicious les, insecure tool calls, SSRF, broken
+                                                        access control and other relevant web and AI-speci c threats.
+                         SEC-    Security/              Security-relevant and consequential events shall be tamper-
+                         04      privacy                evidently logged, including authentication, access, rule/model/
+                                                        work ow version, tool calls, con rmations, submissions,
+                                                        overrides and administrative changes.
+                         SEC-    Security/              Logging and monitoring shall minimise personal content, mask
+                         05      privacy                secrets and identi ers where possible, restrict access and apply
+                                                        approved retention periods.
+                         SEC-    Security/              The supplier shall maintain secure development, dependency
+                         06      privacy                and vulnerability management, including SBOM where
+                                                        appropriate, patch timelines, penetration testing and vulnerability
+                                                        disclosure.
+                         SEC-    Security/              The solution shall support incident detection, containment,
+                         07      privacy                evidence preservation, noti cation and recovery aligned with
+                                                        City of Ghent/District09 procedures and GDPR obligations.
+                         SEC-    Security/              A DPIA screening and, where required, a full DPIA and security
+                         08      privacy                risk assessment shall be completed before production
+                                                        processing. Controls shall be traceable to implemented
+                                                        evidence.
+
+                         AI-01   AI                     AI-generated content shall be clearly labelled. The system shall
+                                 governance             communicate limitations, uncertainty and the difference between
+                                                        guidance, preparation and an of cial decision or submission
+                                                        result.
+                         AI-02   AI                     The system shall implement human oversight gates at context
+                                 governance             con rmation, use of personal data, draft review, consequential
+                                                        submission and de ned escalation points. Users shall be able to
+                                                        reject, correct or stop the process.
+                         AI-03   AI                     The solution shall use approved model endpoints through a
+                                 governance             governed model gateway where applicable and shall record
+                                                        model/provider, version, region and safety con guration for each
+                                                        run.
+                         AI-04   AI                     Model or prompt changes that can affect routing, advice,
+                                 governance             extraction or transaction data shall trigger versioning, regression
+                                                        testing, approval and rollback capability before production
+                                                        activation.
+                         AI-05   AI                     The assistant shall refuse or escalate when evidence is missing
+                                 governance             or con icting, con dence is insuf cient, the request is outside
+                                                        scope, safeguards are challenged, or an action exceeds the
+                                                        authenticated user rights.
+                         AI-06   AI                     The pilot shall maintain an evaluation framework covering
+                                 governance             routing accuracy, rule correctness, extraction quality,
+                                                        groundedness, citation accuracy, harmful bias, accessibility and
+                                                        transaction success.
+                                                                                    EUROPAI - D3.1 Pilot Plans Template | Page 8
+
+
+
+
+                                                                                    fi
+                                                                               fi
+                                                                       fi
+                                                                  fi
+                                                             fi
+                                                        fi
+                                                   fi
+                                         fi
+                                   fi
+                                    fi
+                    fl
+               fl
+          fi
+     fi
+fi                                            fi
+                                                                                                                    Veri cation /
+           ID      Category                         Detailed requirement / speci cation                      Prio
+                                                                                                                    acceptance
+          AI-07   AI                  The intended purpose, provider/deployer roles, AI Act
+                  governance          applicability, risk classi cation and applicable obligations shall
+                                      be documented and reassessed when scope or functionality
+                                      changes.
+          AI-08   AI                  The system shall monitor outcomes for materially unequal error
+                  governance          rates or exclusion across relevant user groups and interaction
+                                      modes, while avoiding unnecessary sensitive-data collection.
+
+
+
+          REP-    Reuse/              Con guration, prompts, work ows, decision tables, schemas,
+          01      portability         service catalogue, test cases and documentation shall be
+                                      exportable in documented machine-readable formats suitable for
+                                      replication by another public administration.
+          REP-    Reuse/              The solution shall avoid unnecessary vendor lock-in and shall
+          02      portability         document all proprietary components, licences, subprocessors,
+                                      end-of-support dates, replacement options and exit assistance.
+
+
+
+          OPS-    Service             The operating model shall de ne service owner, process owner,
+          01      operations          data owner, rule/content owner, AI/model owner, security/DPO
+                                      contacts, support levels and escalation responsibilities.
+          OPS-    Service             The supplier shall provide release notes, maintenance
+          02      operations          noti cation, service reporting, defect severity de nitions, support
+                                      hours and response/restoration targets aligned with the agreed
+                                      SLA.
+
+
+
+
+                                                              EUROPAI - D3.1 Pilot Plans Template | Page 9
+
+
+
+
+                                                         fi
+                                          fi
+                                     fi
+                                fl
+                          fi
+     fi
+fi   fi
+2.3 Pilot Architecture
+ Please provide a diagram showing the overall architecture of the pilot (e.g. microservices /client-server model, ….)
+ Provide a short description of the architecture as well.
+
+
+
+
+2.4 Data, model and technical dependencies
+ Based on the architecture presented above, mention how each component will be provided.
+ Note that multiple rows per component can be given.
+
+                             Name /                                   Where hosted /               Key dependency or         Portability /
+    Component                                    Provider
+                           technology                                  Jurisdiction                    constraint            alternative
+
+                                                                                              [Dependency on
+ Foundation                                                      [EU processing               external model API,       [GPT, Gemini,
+                         [Claude 4.]           [Anthropic ]
+ model (LLM)                                                     arrangement ]                versioning and provider   Mistral ]
+                                                                                              terms ]
+
+ Hosting                 On-prem or
+                                               []                []                           []                        []
+ infrastructure          OVH
+
+ Orchestrator/
+                                               []                []                           []                        []
+ agents
+
+ RAG/
+ embeddings/                                   []                []                           []                        []
+ storage
+
+ External APIs/
+                                               []                []                           []                        []
+ libraries
+
+ Core software /
+                                               []                []                           []                        []
+ platform
+
+ Authentication /
+                                               []                []                           []                        []
+ IAM
+
+                                                       EUROPAI - D3.1 Pilot Plans Template | Page 10
+                           Name /                                      Where hosted /               Key dependency or             Portability /
+       Component                               Provider
+                         technology                                     Jurisdiction                    constraint                alternative
+
+Other ?                                      []                   []                           []                            []
+
+
+
+2.5 Mandatory assessments before deployment
+Describe pilot’s compliance with the AI act, GDPR, … (if you nd another one, please feel free to add a row)
+Note that this is a living document so this table will be updated as the pilot progresses over time.
+
+                                 Required /                             Status                          Evidence
+        Assessment                                                                                                                 Action
+                                  owner
+
+                                                        Not started /                           [memo / report / repo   [ e.g. con rm provider/
+AI Act / applicable AI                                  In progress /                           link / …]
+                            Y                                                                                           deployer role under
+governance                                              Completed /                                                     the AI Act]
+                                                        Not applicable]
+
+DPIA / GDPR                 Y                           Not started                             DPIA document           []
+
+Security risk                                           Not started
+                            Y                                                                                           []
+assessment
+
+Ethics / fundamental
+                            [Y/N] / [ ]                                                                                 []
+rights
+
+IPR / licensing / data
+                            [Y/N] / [ ]                                                                                 []
+rights
+
+
+
+
+                                                        EUROPAI - D3.1 Pilot Plans Template | Page 11
+
+
+
+
+                                                   fi
+  fi
+3. Pilot maturity and procurement considera ons (wait)
+Purpose of this section: con rm that the proposal is a developed pilot rather than an early idea. Answer the questions and identify gaps or
+dependencies. The responses inform later procurement work but are not a procurement-readiness assessment, legal clearance, selection decision or
+procurement approval.
+
+
+3.1 Evidence that the pilot is su ciently de ned
+                                                                                                            Pilot              Remaining
+Maturity question                                                                                           response /         detail or
+                                                                                                            reference          action
+
+Is the public-service problem supported by evidence and linked to clearly identi ed
+                                                                                                                   []                  []
+users?
+
+Is the pilot scope suf ciently stable, with explicit boundaries and prohibited uses?                               []                  []
+
+Is there a documented baseline against which the pilot result can be measured?                                     []                  []
+
+Is the intended operational work ow described end to end, including human oversight?                               []                  []
+
+Are the functional and non-functional requirements detailed enough to test the pilot?                              []                  []
+
+Are the required data sources, access conditions, quality and ownership understood?                                []                  []
+
+Are the architecture, hosting, integration and critical technical dependencies described?                          []                  []
+
+Have relevant legal, country, call, supply-chain, security, privacy and IPR constraints
+                                                                                                                   []                  []
+been identi ed for later specialist review?
+
+Are the expected people, budget range, timing and organisational capacity credible?                                []                  []
+
+Are external products, services or specialist capabilities identi ed without preselecting a
+                                                                                                                   []                  []
+supplier?
+
+Are success metrics, minimum acceptance criteria, test methods and responsible
+                                                                                                                   []                  []
+owners de ned?
+
+
+
+
+                                                        EUROPAI - D3.1 Pilot Plans Template | Page 12
+
+
+
+
+                                                                                             fi
+                                                                      fi
+                                                   ti
+                                            fi
+                              fl
+                              ffi
+                     fi
+                fi
+         fi
+    fi
+3.2 Requirements maturity overview
+ Requirement area           Status          Reference                     Important open point          Owner          Target date
+
+ Functional work ow                                      []                             []                   []                []
+
+ Quality and
+                                                         []                             []                   []                []
+ performance
+
+ Data and knowledge                                      []                             []                   []                []
+
+ Integration and
+                                                         []                             []                   []                []
+ architecture
+
+ Security and privacy                                    []                             []                   []                []
+
+ AI governance and
+                                                         []                             []                   []                []
+ oversight
+
+ Reuse and portability                                   []                             []                   []                []
+
+
+3.3 External delivery and procurement assump ons
+ Question                                   Pilot-plan information to provide
+
+ What external delivery is likely to be
+                                            [Products, services, development, integration, testing, training or support]
+ needed?
+
+ What is the likely external scope?         [Expected outputs and boundaries; do not name or favour a supplier]
+
+ What procurement route and timing          [Known route, lead time and dependency on D3.2/D3.3; con rm later with
+ are assumed?                               procurement]
+
+ What is known about market
+                                            [Existing solutions, market consultation or evidence that delivery is feasible]
+ availability?
+
+ What budget and internal capacity
+                                            [Indicative envelope, internal roles and dependencies; not a nancial approval]
+ are assumed?
+
+ Which contract topics are likely to
+                                            [Data/IP rights, transparency, change noti cation, portability, continuity and exit]
+ matter later?
+
+
+3.4 Open ac ons before procurement documenta on
+  Open action before D3.2 or D3.3                       Owner                                      Target date / reference
+
+  []                                                    []                                         []
+
+  []                                                    []                                         []
+
+  []                                                    []                                         []
+
+
+
+
+                                                   EUROPAI - D3.1 Pilot Plans Template | Page 13
+
+
+
+
+                                                                    fi
+                                                               fi
+                                                   ti
+                                              ti
+                                       fi
+            fl
+       ti
+          4. Success metrics, valida on and risk controls (wait)
+          4.1 Success metrics
+          Describe the pilot’s success metrics.
+          Note that, EUROPAI project-level ambitions: >=20% ef ciency gain, >=15% reduction in administrative burden and >=10% improvement in citizen
+          satisfaction over baseline. Each pilot should assess the applicability of these ambitions and translate them into relevant pilot-speci c targets. These
+           gures do not automatically apply to every KPI. Each KPI must de ne a baseline, target, minimum acceptance, measurement method, evidence
+          source, timing and owner:
+          Metric:      What exactly will be measured, and in what unit or scale? (some example themes are given in the table below)
+          Baseline:      What is the current value, and what is the reference point for comparison?
+          Target:      What result is expected by the end of the pilot?
+          Minimum acceptance: What is the lowest result that would still be considered acceptable?
+          Method:        How will the KPI be measured or calculated? (some example methods are given in the table below)
+          Evidence:        What data source, document, log, survey, test result or other evidence will substantiate the measurement?
+          Timing:        When, and how often, will the measurement be taken?
+          Owner:        Who is responsible for collecting, validating and reporting the KPI?
+
+                                                             Baseli          Targe    Min.                                  Evidence        Timing
+            KPI                    Metric                                                                   Method                                     Owner
+                                                              ne               t   acceptance
+
+                 e.g. Average processing
+                 time per case (minutes)                                                                 [Before-after
+          KPI-01                                                   []         []            []                                  []            []           []
+                 [Ef ciency / processing                                                                    study]
+                 time]
+
+                                                                                                          [Time/cost
+          KPI-02 [Burden / staff effort]                           []         []            []                                  []            []           []
+                                                                                                            study]
+
+                                                                                                          [Expert test
+          KPI-03 [Domain/legal quality]                            []         []            []                                  []            []           []
+                                                                                                              set]
+
+                     [Citation/source                                                                    [Benchmark/
+          KPI-04                                                   []         []            []                                  []            []           []
+                     correctness]                                                                           audit]
+
+                                                                                                         [Survey/task
+          KPI-05 [User satisfaction/usability]                     []         []            []                                  []            []           []
+                                                                                                             test]
+
+                                                                                                        [Logs/security
+          KPI-06 [Safety/security]                                 []         []            []                                  []            []           []
+                                                                                                            test]
+
+                                                                                                         [Replication/
+          KPI-07 [Reuse/portability]                               []         []            []                                  []            []           []
+                                                                                                           exit test]
+
+          4.2 Test and valida on plan
+          The pilot will undergo a series of tests, please describe which tests are foreseen, some example types of tests are given in the “test design” column
+          and possible acceptance evidence ideas, but please be more precise as shown by a concrete example in blue.
+          Note that multiple tests can be described per “Area”.
+
+              Area                                           Test design                                                     Acceptance evidence
+
+                                                                                                                    [Pass/fail against requirements.]
+                              [Representative scenarios and end-to-end work ow tests.]                              e.g. At least 19/20 scenarios complete
+                              e.g. User submits a question, the system retrieves the                                successfully, required work ow steps are
+          Functional          relevant source documents, generates a response with                                  executed, citations are displayed,
+                              citations, and allows the user to review or reject the output.                        reviewer can approve/reject the
+                              Test with 20 representative end-to-end scenarios.                                     response, no critical functional defects
+                                                                                                                    remain open.
+
+          AI / output         [Gold-standard cases; expert review; citation/source
+                                                                                                                    [Threshold + reviewer sign-off.]
+          quality             validation.]
+
+                                                                                                                    [Data quality report showing de ned
+                              [Completeness, accuracy, provenance and consistency
+          Data quality                                                                                              thresholds met and critical issues
+                              checks]
+                                                                                                                    resolved.]
+
+          Performanc          [Latency, load, availability, failure modes, multilingual
+          e/                                                                                                        [Benchmark/log evidence.]
+                              behaviour checks.]
+          reliability
+
+
+
+                                                                    EUROPAI - D3.1 Pilot Plans Template | Page 14
+
+
+
+
+                                                                                                                                       fi
+                                                                        fi
+                                                              fl
+                                                        fi
+                                             fi
+                                        ti
+                                   fl
+                         ti
+     fi
+fi
+                        Area                                     Test design                                                    Acceptance evidence
+
+               Security /              [Prompt injection/data leakage/access-control tests; DPIA/
+                                                                                                                      [Assessment + remediation closure.]
+               privacy                 security controls.]
+
+                                       [PSSUQ, real-life use / UAT, oversight procedures, training
+               Usability                                                                                              [UAT sign-off + survey.]
+                                       effectiveness and user feedback.]
+
+               Portability /
+                                       [Con guration transfer/model substitution or exit exercise.]                   [Successful documented transfer/exit.]
+               replication
+
+
+           4.3 Key risks
+               Please ll in the risks foreseen for your pilot. Some generic risks are given below, but be more precise when lling in your pilot speci c risks.
+               Please also add your risks in the risk registry: LINK
+
+                Ris                                 Likelihoo                       Owner                              Proposed mitigation             Corrective
+                          Risk description                           Impact                           Effects
+                k ID                                    d                                                                  of the risk                  action
+
+                    1     [Unsupported /            [Low /        [Low /                                              [Monitor failed citation      [update or
+                                                                                                 [Wrong
+                          hallucinated              Medium /      Medium /                                            checks and expert-            change model]
+                                                                                                 citations]
+                          output]                   High]         High]                                               review ndings.]
+
+                    2                               [Low /        [Low /                         []
+                          [Outdated /
+                                                    Medium /      Medium /                                            []
+                          con icting source]
+                                                    High]         High]
+
+                    3                               [Low /        [Low /                         []
+                          [Privacy / security
+                                                    Medium /      Medium /                                            []
+                          incident]
+                                                    High]         High]
+
+                    4                               [Low /        [Low /                         []
+                          [Automation bias /
+                                                    Medium /      Medium /                                            []
+                          misuse]
+                                                    High]         High]
+
+                    5                               [Low /        [Low /                         []
+                          [Supplier / model
+                                                    Medium /      Medium /                                            []
+                          dependency]
+                                                    High]         High]
+
+
+           4.4 Pilot success decision
+               Please ll in the success factors for your pilot in an expected timeline.
+
+                                           Outcome                                                           Rationale / conditions
+
+               Successful - ready for deployment/replication                  []
+
+               Successful with modi cations                                   []
+
+               Further validation required / Not suitable                     []
+
+
+
+
+                                                                      EUROPAI - D3.1 Pilot Plans Template | Page 15
+
+
+
+
+                                                                                                                                            fi
+                                                                                                                       fi
+                                  fi
+               fi
+          fi
+          fi
+     fi
+fl
+          5. Delivery, governance, resources, replica on and evidence (wait)
+
+          5.1 Delivery chain and milestones
+
+                EuropAI Gate /                                                                                                                             Pilot delivery/
+                                                                                                 Required output
+                    phase                                                                                                                                  Owner / status
+
+           D3.1 Pilot Plans -                      Approved pilot scope, baseline, detailed speci cations, requirements, success
+                                                                                                                                                                    []
+           M4                                      metrics and documented maturity information for every pilot.
+
+           D3.2 / D3.3
+                                                   Tender-ready requirements and documentation: rst round M6, second round
+           procurement - M6/                                                                                                                                        []
+                                                   M8, replication/validation M20.
+           M8/M20
+
+           Contracts
+                                                   Suppliers selected, agreements signed and solution architecture con rmed for
+           awarded - M9/                                                                                                                                            []
+                                                   the applicable pilot round.
+           M12/M25
+
+           Prototypes - M12/                       Working prototype tested in a controlled environment; priority re nements and
+                                                                                                                                                                    []
+           M18/M29                                 risk actions recorded.
+
+           Operational rollout                     Pilot live in real processes: rst round M24, second round M30, replication/
+                                                                                                                                                                    []
+           - M24/M30/M36                           validation M36.
+
+           D3.6 evaluation -                       KPI, impact, user-experience, security/privacy/ethical monitoring and UAT
+                                                                                                                                                                    []
+           M36                                     evidence completed.
+
+                                                   Replication toolkit, blueprints, technical documentation and capacity-building
+           D3.7 / D3.8 - M36                                                                                                                                        []
+                                                   outputs completed.
+
+
+          5.2 RACI / governance
+                                                                                                                                                             Users/
+                                 Activity                 Host     WP3 lead                   Procurement               Supplier       Legal/DPO/Sec.
+                                                                                                                                                            validators
+
+                Pilot de nition                           A/R                   C                          C                 I                C                 C
+
+                Requirements /
+                                                           R                    A                          C                 I                C                 C
+                procurement input
+
+                Build/integration                          C                    A                          C                R                 C                 I
+
+                Testing/acceptance                         R                    A                          C                C                 C                 R
+
+                Evaluation/blueprint                       R               A/R                             I                C                 C                 C
+
+
+          5.3 Resources and budget alignment
+                                                                  Effort/                    GA
+                       Item                 Org./supplier                                                                        Eligibility/procurement note
+                                                                   cost                   category
+
+                                                                                                               [Action-speci c work and time evidence. Normal admini-
+                                                                                                               strative activities are ineligible unless performed
+           Personnel                                 []             []                         A
+                                                                                                               speci cally because of the action and otherwise GA-
+                                                                                                               compliant.]
+
+           Development /
+                                                     []             []                      B / C.3            [Con rm classi cation and procurement route]
+           services
+
+           Cloud /
+           software /                                []             []                    C.2 / C.3            [Need, value for money, eligibility]
+           equipment
+
+           Training /
+                                                     []             []                         []              [Scope and evidence]
+           testing / audit
+
+
+          5.4 Replica              on, capacity and evidence
+
+
+                                                                                    EUROPAI - D3.1 Pilot Plans Template | Page 16
+
+
+
+
+                                                                                                               fi
+                                                                                                      fi
+                                                                               fi
+                                                                          ti
+                                                                     fi
+                                              fi
+                            fi
+                       fi
+                  ti
+           fi
+fi   fi
+             Element                                          Required content / reference                                        Status
+
+  Blueprint & technical           Architecture, components, con guration, deployment steps, data
+  docs                            prerequisites, interfaces, known limitations.
+
+  Declarations/compliance         Interoperability, AI/privacy/security/ethical controls, licences and evidence.
+
+  Capacity building               Role-speci c training, human oversight, operating/support model and lessons.
+
+                                  Jurisdiction/language dependencies, infrastructure, skills, effort/cost,
+  Replication conditions
+                                  substitution options.
+
+                                  Requirements/acceptance; legal/DPIA/security approvals; procurement/
+  Evidence register
+                                  evaluation record; tests/KPI dataset; nal evaluation/blueprint.
+
+5.5 Pilot Approval table
+          Approver                Role                    Decision                          Conditions             Signature and date
+
+
+
+
+Source basis: EUROPAI Grant Agreement/Annex 1 (WP3, D3.1-D3.8 and milestones); DIGITAL-2025-AI-08-SUPPLY-AI call restrictions; Digital Europe
+Work Programme 2025-2027, Appendix 4; and procurement law. The GA, call and law prevail.
+
+
+
+
+                                                   EUROPAI - D3.1 Pilot Plans Template | Page 17
+
+
+
+
+                                    fi
+                            fi
+     fi
+

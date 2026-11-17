@@ -1,11 +1,9 @@
 # Demo-portaal — één website, alle demo's
 
 Eén lokale website die alle LDT-toolbox-demo's aanroept: de agent–fase–tool
-matrix van beide pilots, de MiniGIM-gebiedscheck (met rapport en per-run
-fase-matrix), het transport-bewijs uit het modelregister, het golden-bewijs
-van de M2-migratie en de vier test-suites. Offline, deterministisch, geen
-API-sleutels — stdlib `http.server` (zelfde patroon als
-`deep-agents/live_server.py`).
+matrix, het transport-bewijs uit het modelregister, het golden-bewijs
+van de M2-migratie en de test-suites. Offline, deterministisch, geen
+API-sleutels — stdlib `http.server`.
 
 ## Start
 
@@ -23,12 +21,10 @@ geen shapely. Alle demo-URL's zijn GET en dus deelbaar
 
 | sectie | bewijs uit |
 |---|---|
-| 1 · matrix minigim + nspd | M1: de agent–fase–tool matrix uit beide fase-manifesten |
-| 2 · gebiedscheck draaien | M2: echte run op het fundament — report.html, fase-matrix.md per run, V0–V3, verdict pass |
-| 3 · transports verifiëren | M4: modelregister — processes-replay (met verdict-gate) + a2a Agent Card-check + catalog-sha256 |
-| 4 · golden-reproductie | M2: de pre-refactor golden artefacten worden canonisch identiek gereproduceerd |
-| 5 · vier test-suites | fundament (contracten + V-tool) · minigim · nspd (tweede pilot) · deep-agents (slotgates) |
-| 6 · externe demo's | deep-agents-dashboard (:8765, Ollama vereist) en NSPD-Leia-viewer (:8000) — status-pills bovenaan |
+| 1 · matrix | M1: de agent–fase–tool matrix uit fase-manifesten |
+| 2 · transports verifiëren | M4: modelregister — processes-replay (met verdict-gate) + catalog-sha256 |
+| 3 · golden-reproductie | M2: de pre-refactor golden artefacten worden canonisch identiek gereproduceerd |
+| 4 · test-suites | fundament (contracten + V-tool) |
 
 ## Ontwerpnoot
 
@@ -38,6 +34,5 @@ ouderproces + `fork` laten child-processen op macOS segvallen (rc −11,
 gevonden bij het bouwen van dit portaal). Alle overige endpoints waren
 al subprocessen.
 
-De run-artefacten komen uit `poc-minigim/runs/` (git-ignored); het
-artefact-endpoint staat alleen whitelisted-bestandsnamen toe en valideert
+Het artefact-endpoint staat alleen whitelisted-bestandsnamen toe en valideert
 het run-id-formaat.

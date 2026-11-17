@@ -5,7 +5,8 @@
 | **Datum** | 25 oktober 2026 |
 | **Status** | goedgekeurd in brainstorm (§1–§3); klaar voor implementatieplan |
 | **Scope** | Nieuwe tab 4 in `simulation/` (build + template + verify); offline embed van canonieke PoC-4-run |
-| **Niet in scope** | Live `poc-breda/run.py` in de browser; volledige `report.html` (~4 MB); derde Laya-dataset; what-if / `breda_scenario`; MCP/`ask_scan` runtime |
+| **Niet in scope** | Live `poc-breda/run.py` in de browser; volledige `report.html` (~4 MB); what-if / `breda_scenario` |
+| **Addendum** | Breda-Laya System-1 + System-2 handoff: [2026-10-25-breda-laya-system2-design.md](2026-10-25-breda-laya-system2-design.md) |
 
 ## Besluiten
 

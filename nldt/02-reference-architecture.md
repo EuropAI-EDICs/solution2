@@ -32,7 +32,7 @@ Geonovum uses a **triangle model** (Walter Lohman, TNO) with a central **Foundat
 | Application | Shared services | Catalog, Cookbook, Process adapter |
 | nLDT interfaces | Semantic interoperability | Records, Processes, Recipe schema |
 | Implementation | Toolbox-based (ABB/SBB) | EU LDT UCS, DPL, P&V, IM |
-| Infrastructure | Federated, infra-agnostic | K8s (ldtsolutions), local dev |
+| Infrastructure | Federated, infra-agnostic | K8s, local dev |
 
 ## Mapping NLDT ↔ EDIC ↔ EU Toolbox
 

@@ -91,7 +91,7 @@ hooks = post_execution_hooks(execution, run_id="demo")
 # hooks["web3dContext"], hooks["visualization"]
 ```
 
-## Live configuration (ldtsolutions cluster)
+## Live configuration
 
 Example `.env` fragment:
 

@@ -69,7 +69,7 @@ def laatste_run() -> Path:
 
 # --- rekenlaag (1e implementatie) -------------------------------------------
 
-def bereken(ind: dict, doelen: dict, spec: dict) -> dict:
+def bereken(ind: dict, doelen: dict, spec: dict, opp_ha: float) -> dict:
     m = spec.get("mutaties") or {}
     nieuw = doelen["woningen_nieuw_feiten_tabel"]
     tempo = m.get("woningen_per_jaar", doelen["woningen_per_jaar_gemiddeld"])
@@ -82,7 +82,6 @@ def bereken(ind: dict, doelen: dict, spec: dict) -> dict:
     won_nu = ind["woningen_verblijfsobjecten_proxy"]
     groen_m2 = ind["begroeid_terrein_ha"] * 10_000
     verhard_m2 = ind["onbegroeid_terrein_ha"] * 10_000
-    opp_ha = 161.0  # gebied.json werkgrens; sweep leest hem uit gebied voor de zekerheid
 
     jaar = start + math.ceil(nieuw / tempo)
     uitloop = jaar - doeleind
@@ -170,23 +169,25 @@ def _zwaartepunt(geom: dict):
     return (sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts))
 
 
-def _zone_van(zones: list, punt) -> str:
-    x, y = punt
-    for z in zones:
-        b = z["bbox"]
-        if b[0] <= x <= b[2] and b[1] <= y <= b[3]:
-            return z["naam"]
+def _zone_van(zone_grenzen: list, punt) -> str:
+    for naam, zg in zone_grenzen:
+        if zg["mode"] == "polygon":
+            if any(engine.point_in_ring(punt[0], punt[1], ring) for ring in zg["buitenringen"]):
+                return naam
+        else:
+            b = zg["bbox"]
+            if b[0] <= punt[0] <= b[2] and b[1] <= punt[1] <= b[3]:
+                return naam
     return "(zwaartepunt buiten zone-indeling)"
 
 
-def _allocatie(fc: dict, laag: str, nodig_ha: float, zones: list, anker) -> dict:
-    zone_boxes = [(z["naam"], tuple(z["bbox"])) for z in zones]
+def _allocatie(fc: dict, laag: str, nodig_ha: float, zone_grenzen: list, anker) -> dict:
     kandidaten = []
     for i, f in enumerate(engine.bgt_actueel(fc.get("features", []))):
         g = f.get("geometry")
         if not g or g.get("type") not in ("Polygon", "MultiPolygon"):
             continue
-        opp = engine.feature_area_in_bbox(g, WERKGRENS_BBOX)
+        opp = engine.grens_area_in(g, WERKGRENS)
         if opp <= 0:
             continue
         zp = _zwaartepunt(g)
@@ -201,8 +202,8 @@ def _allocatie(fc: dict, laag: str, nodig_ha: float, zones: list, anker) -> dict
             break
         # per-zone uitsplitsing op OPPERVLAKTE (zones tegelen de werkgrens
         # exact, dus Σ zones == toegedeeld); n telt vlakken die de zone raken
-        for naam, b in zone_boxes:
-            deel = engine.feature_area_in_bbox(g, b)
+        for naam, zg in zone_grenzen:
+            deel = engine.grens_area_in(g, zg)
             if deel > 0:
                 reg = per_zone.setdefault(naam, {"n": 0, "genomen_ha": 0.0})
                 reg["n"] += 1
@@ -217,7 +218,7 @@ def _allocatie(fc: dict, laag: str, nodig_ha: float, zones: list, anker) -> dict
             "per_zone": per_zone, "genomen_ids": genomen}
 
 
-def _deelgebied_nulmeting(zones: list) -> list:
+def _deelgebied_nulmeting(zone_grenzen: list) -> list:
     cache = DATA / "cache"
 
     def fc(naam):
@@ -225,43 +226,50 @@ def _deelgebied_nulmeting(zones: list) -> list:
 
     groen, verhard = fc("begroeidterreindeel"), fc("onbegroeidterreindeel")
     uit = []
-    for z in zones:
-        b = tuple(z["bbox"])
-        g = sum(engine.feature_area_in_bbox(f.get("geometry"), b)
+    for naam, zg in zone_grenzen:
+        g = sum(engine.grens_area_in(f.get("geometry"), zg)
                 for f in engine.bgt_actueel(groen.get("features", []))) / 10_000
-        v = sum(engine.feature_area_in_bbox(f.get("geometry"), b)
+        v = sum(engine.grens_area_in(f.get("geometry"), zg)
                 for f in engine.bgt_actueel(verhard.get("features", []))) / 10_000
-        uit.append({"naam": z["naam"], "bbox": z["bbox"],
+        uit.append({"naam": naam, "opp_ha": round(zg["area_m2"] / 10_000, 1),
                     "groen_ha": round(g, 2), "verhard_ha": round(v, 2)})
     return uit
 
 
-WERKGRENS_BBOX = None  # gezet in main()
+WERKGRENS = None  # gezet in main(): engine-laat de werkgrens uit gebied.json
 
 
 def main() -> int:
-    global WERKGRENS_BBOX
+    global WERKGRENS
     run = laatste_run()
     gebied = json.loads((DATA / "gebied.json").read_text(encoding="utf-8"))
     ind = json.loads((run / "indicators.json").read_text(encoding="utf-8"))
     doelen = gebied["doelen_uit_toekomstbeeld"]
-    WERKGRENS_BBOX = tuple(gebied["werkgrens"]["bbox_rd"])
-    zones = gebied["deelgebied_zones"]["zones"]
+    WERKGRENS = engine.laad_werkgrens(gebied["werkgrens"])
+    opp_ha = WERKGRENS["area_m2"] / 10_000
+    zone_grenzen = [(z["naam"], engine.laad_werkgrens(
+        {"geojson_rd": z["polygon"]} if "polygon" in z else {"bbox_rd": z["bbox"]}))
+        for z in gebied["deelgebied_zones"]["zones"]]
+    # tegel-invariant: zones zonder overlapping, som ≈ werkgrens
+    zonesom = sum(zg["area_m2"] for _, zg in zone_grenzen)
+    if abs(zonesom - WERKGRENS["area_m2"]) > 0.01 * WERKGRENS["area_m2"]:
+        sys.exit(f"deelgebied-zones tegelen de werkgrens niet: Σ {zonesom/10_000:.1f} ha "
+                 f"≠ {WERKGRENS['area_m2']/10_000:.1f} ha")
     anker = gebied["ankers"][0]["rd"]
 
     def cache_fc(naam):
         return json.loads((DATA / "cache" / f"{naam}.geojson").read_text(encoding="utf-8"))
 
-    deelgebied = _deelgebied_nulmeting(zones)
+    deelgebied = _deelgebied_nulmeting(zone_grenzen)
     lagen_fc = {"groen": cache_fc("begroeidterreindeel"), "verhard": cache_fc("onbegroeidterreindeel")}
 
     resultaten = []
     for spec in SPECS:
-        uit = bereken(ind, doelen, spec)
+        uit = bereken(ind, doelen, spec, opp_ha)
         r = {**spec, "_uit": uit}
         if spec["basis"] != "baseline" and uit.get("benodigd_grondvlak_ha"):
             laag = "groen" if uit.get("bouwVoorkeur") == "groen" else "verhard"
-            r["_alloc"] = _allocatie(lagen_fc[laag], laag, uit["benodigd_grondvlak_ha"], zones, anker)
+            r["_alloc"] = _allocatie(lagen_fc[laag], laag, uit["benodigd_grondvlak_ha"], zone_grenzen, anker)
         resultaten.append(r)
     control = {k: v for k, v in resultaten[0]["_uit"].items()}
 

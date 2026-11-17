@@ -186,10 +186,14 @@ def kruis_scenario(unie, lagen: dict[str, dict]) -> list[dict]:
 
 
 def main() -> int:
-    from shapely.geometry import box as shapely_box
+    from shapely.geometry import box as shapely_box, shape
 
     gebied = json.loads((DATA / "gebied.json").read_text(encoding="utf-8"))
-    werkgrens = shapely_box(*gebied["werkgrens"]["bbox_rd"])
+    wg = gebied["werkgrens"]
+    if wg.get("geojson_rd"):
+        werkgrens = shape(wg["geojson_rd"])  # zandloper-polygon op assengrenzen
+    else:
+        werkgrens = shapely_box(*wg["bbox_rd"])
 
     sweep_dirs = sorted((ROOT / "scenario-runs").glob("*-sweep"))
     if not sweep_dirs:
@@ -292,7 +296,8 @@ def main() -> int:
         "  concreet voorstel (conclusie-enum).",
         "- GIO-polygonen zijn exterior+interior zoals aangeleverd; overlap ≥ 1 m² telt.",
         "- De toedeling volgt de engine-regel van `scenarios.py` (hele vlakken, afstand tot",
-        "  het station oplopend) tegen de provisionele bbox-werkgrens.",
+        "  het station oplopend) tegen de provisionele polygon-werkgrens (assengrenzen",
+        "  uit het Toekomstbeeld, p.7).",
         "",
         f"*Artefacten: `kruising.json` · `manifest.json` · bronnen: sweep "
         f"`{data['sweepRunId']}` · loket `{data['loketRunId']}`.*",

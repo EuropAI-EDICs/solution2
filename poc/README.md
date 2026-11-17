@@ -20,8 +20,7 @@ regeneratie bewaakt door een byte-identiek-corpus-gate in `tests/test_track_conf
 de geo-registry is v2.0 ([`data/sources.json`](data/sources.json): `fetchPolicy` +
 `provenance` per bron; probe-bewijs 2026-10-18: 47/48 gebruikte bronnen bereikbaar) en
 de sweep kent de `add_zone_rule`-mutatie met V2-gate (twee data-gegronde what-if-sets).
-Fase 4 = deze README + prompt-verwijzingen. `poc-nspd/` (grensoverschrijdend port)
-is een eigen PoC onder hetzelfde contractpatroon.
+Fase 4 = deze README + prompt-verwijzingen.
 
 ## Tracks (waar kan ik wat?)
 

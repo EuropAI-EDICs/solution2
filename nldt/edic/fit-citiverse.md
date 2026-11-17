@@ -56,3 +56,14 @@ Offline overlay still runs locally. Live path:
 
 CitiVERSE gets applied AI services for cities and a city-facing capacity
 module. EuropAI gets a permanent owner for Solution 2.
+
+## National policy alignment (NL)
+
+Beleidsanker is publiek: Ontwerp-Nota Ruimte + NOVEX-aanpak provincies
+(websites). PoC-evidence en dialoogproducten:
+[`docs/PLAN_NOVEX_NOTA_RUIMTE.md`](../../docs/PLAN_NOVEX_NOTA_RUIMTE.md).
+Labels per asset: `policyAlignment` (`nota_thema`, `novex_rol`) in
+[`recipes/edic-asset-map.json`](../recipes/edic-asset-map.json).
+Runbooks:
+[`docs/RUNBOOK_NOTA_EINDHOVEN.md`](../../docs/RUNBOOK_NOTA_EINDHOVEN.md),
+[`docs/RUNBOOK_NOVEX_UTRECHT.md`](../../docs/RUNBOOK_NOVEX_UTRECHT.md).
